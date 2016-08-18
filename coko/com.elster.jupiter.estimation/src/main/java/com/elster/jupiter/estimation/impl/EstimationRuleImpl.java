@@ -26,6 +26,7 @@ import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,14 +74,16 @@ class EstimationRuleImpl implements IEstimationRule {
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
     private final Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider;
+    private final Clock clock;
 
     @Inject
-    EstimationRuleImpl(DataModel dataModel, EstimatorCreator estimatorCreator, Thesaurus thesaurus, MeteringService meteringService, Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider) {
+    EstimationRuleImpl(DataModel dataModel, EstimatorCreator estimatorCreator, Thesaurus thesaurus, MeteringService meteringService, Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider, Clock clock) {
         this.dataModel = dataModel;
         this.estimatorCreator = estimatorCreator;
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
         this.readingTypeInRuleProvider = readingTypeInRuleProvider;
+        this.clock = clock;
     }
 
     EstimationRuleImpl init(EstimationRuleSet ruleSet, String implementation, String name) {
@@ -156,7 +159,7 @@ class EstimationRuleImpl implements IEstimationRule {
     }
 
     public void delete() {
-        this.setObsoleteTime(Instant.now()); // mark obsolete
+        this.setObsoleteTime(Instant.now(clock)); // mark obsolete
         doUpdate();
 //        eventService.postEvent(EventType.ESTIMATIONRULE_DELETED.topic(), this);
     }

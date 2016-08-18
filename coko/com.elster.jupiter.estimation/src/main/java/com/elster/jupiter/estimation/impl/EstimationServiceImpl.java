@@ -60,6 +60,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -104,6 +105,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     private volatile TimeService timeService;
     private volatile UpgradeService upgradeService;
     private volatile AppService appService;
+    private volatile Clock clock;
 
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
 
@@ -111,7 +113,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Inject
-    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, TimeService timeService, UserService userService, UpgradeService upgradeService) {
+    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, TimeService timeService, UserService userService, UpgradeService upgradeService, Clock clock) {
         this();
         setMeteringService(meteringService);
         setOrmService(ormService);
@@ -124,6 +126,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         setTimeService(timeService);
         setUserService(userService);
         setUpgradeService(upgradeService);
+        setClock(clock);
         activate();
     }
 
@@ -145,6 +148,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                     bind(MessageService.class).toInstance(messageService);
                     bind(TimeService.class).toInstance(timeService);
                     bind(UserService.class).toInstance(userService);
+                    bind(Clock.class).toInstance(clock);
                 }
             });
             upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
@@ -192,6 +196,11 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     @Reference
     public void setAppService(AppService appService) {
         this.appService = appService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Override

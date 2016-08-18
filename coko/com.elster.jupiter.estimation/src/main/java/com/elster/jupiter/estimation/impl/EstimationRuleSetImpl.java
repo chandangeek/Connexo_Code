@@ -23,6 +23,7 @@ import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,13 +68,15 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     private final EventService eventService;
     private final DataModel dataModel;
     private final Provider<EstimationRuleImpl> validationRuleProvider;
+    private final Clock clock;
 
     @Inject
-    EstimationRuleSetImpl(DataModel dataModel, EventService eventService, Provider<EstimationRuleImpl> validationRuleProvider) {
+    EstimationRuleSetImpl(DataModel dataModel, EventService eventService, Provider<EstimationRuleImpl> validationRuleProvider, Clock clock) {
         // for persistence
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.validationRuleProvider = validationRuleProvider;
+        this.clock = clock;
     }
 
     EstimationRuleSetImpl init(String name, QualityCodeSystem qualityCodeSystem) {
@@ -191,8 +194,8 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
 
     @Override
     public void delete() {
-        this.setObsoleteTime(Instant.now()); // mark obsolete
-        doGetRules().forEach(rule -> rule.delete());
+        this.setObsoleteTime(Instant.now(clock)); // mark obsolete
+        doGetRules().forEach(IEstimationRule::delete);
         validationRuleSetFactory().update(this);
         eventService.postEvent(EventType.ESTIMATIONRULESET_DELETED.topic(), this);
     }

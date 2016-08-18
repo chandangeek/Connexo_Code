@@ -52,6 +52,7 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -107,6 +108,7 @@ public class EstimationRuleSetIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(Clock.class).toInstance(Clock.systemDefaultZone());
         }
     }
 

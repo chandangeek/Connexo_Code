@@ -47,6 +47,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -176,7 +177,8 @@ public class EstimationServiceImplTest {
         when(userService.findGroup(any(String.class))).thenReturn(Optional.of(group));
         when(userService.createUser(any(String.class), any(String.class))).thenReturn(user);
 
-        this.estimationService = new EstimationServiceImpl(meteringService, ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService, upgradeService);
+        this.estimationService = new EstimationServiceImpl(meteringService, ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService, upgradeService, Clock
+                .systemDefaultZone());
 
         estimationService.addEstimationResolver(resolver);
         estimationService.addEstimatorFactory(factory);
