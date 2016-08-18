@@ -9,11 +9,12 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -24,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -142,7 +145,7 @@ public class DataPurgeResourceTest extends SystemApplicationJerseyTest {
         when(occurrence.getStatus()).thenReturn(TaskStatus.NOT_EXECUTED_YET);
         when(occurrence.getId()).thenReturn(1L);
 
-        PurgeHistoryInfo info = new PurgeHistoryInfo(occurrence);
+        PurgeHistoryInfo info = new PurgeHistoryInfo(occurrence, Clock.systemDefaultZone());
         assertThat(info.startDate).isNull();
         assertThat(info.duration).isNull();
     }
@@ -155,7 +158,7 @@ public class DataPurgeResourceTest extends SystemApplicationJerseyTest {
         when(occurrence.getStatus()).thenReturn(TaskStatus.BUSY);
         when(occurrence.getId()).thenReturn(1L);
 
-        PurgeHistoryInfo info = new PurgeHistoryInfo(occurrence);
+        PurgeHistoryInfo info = new PurgeHistoryInfo(occurrence, Clock.systemDefaultZone());
         assertThat(info.startDate).isEqualTo(JUN_2014.toEpochMilli());
         assertThat(info.duration).isNotNull();
     }
@@ -168,7 +171,7 @@ public class DataPurgeResourceTest extends SystemApplicationJerseyTest {
         when(occurrence.getStatus()).thenReturn(TaskStatus.SUCCESS);
         when(occurrence.getId()).thenReturn(1L);
 
-        PurgeHistoryInfo info = new PurgeHistoryInfo(occurrence);
+        PurgeHistoryInfo info = new PurgeHistoryInfo(occurrence, Clock.systemDefaultZone());
         assertThat(info.startDate).isEqualTo(JUN_2014.toEpochMilli());
         assertThat(info.duration).isEqualTo(5 * 60 * 1000);
     }

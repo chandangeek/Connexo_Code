@@ -16,6 +16,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.logging.LogEntry;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -29,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,18 +47,20 @@ public class DataPurgeResource {
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final Clock clock;
 
     @Inject
     public DataPurgeResource(LifeCycleService lifeCycleService,
                              TaskService taskService,
                              TransactionService transactionService,
                              Thesaurus thesaurus,
-                             ConcurrentModificationExceptionFactory conflictFactory) {
+                             ConcurrentModificationExceptionFactory conflictFactory, Clock clock) {
         this.lifeCycleService = lifeCycleService;
         this.taskService = taskService;
         this.transactionService = transactionService;
         this.thesaurus = thesaurus;
         this.conflictFactory = conflictFactory;
+        this.clock = clock;
     }
 
     @GET
@@ -112,7 +116,7 @@ public class DataPurgeResource {
         if (start > max){
             max = start;
         }
-        return Response.ok(ListInfo.from(sortedHistory.subList(start, max), PurgeHistoryInfo::new).paged(queryParameters)).build();
+        return Response.ok(ListInfo.from(sortedHistory.subList(start, max), occurrence -> new PurgeHistoryInfo(occurrence, clock)).paged(queryParameters)).build();
     }
 
     @GET
@@ -121,7 +125,7 @@ public class DataPurgeResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getPurgeHistoryRecord(@PathParam("id") long id) {
         TaskOccurrence occurrence = getTaskOccurrenceOrThrowException(id);
-        return Response.ok(new PurgeHistoryInfo(occurrence)).build();
+        return Response.ok(new PurgeHistoryInfo(occurrence, clock)).build();
     }
 
     @GET

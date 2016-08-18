@@ -10,13 +10,14 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
-import javax.ws.rs.core.Application;
-
-import org.mockito.Mock;
 import org.osgi.framework.BundleContext;
 
+import javax.ws.rs.core.Application;
+import java.time.Clock;
+
+import org.mockito.Mock;
+
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SystemApplicationJerseyTest extends FelixRestApplicationJerseyTest {
@@ -55,6 +56,7 @@ public class SystemApplicationJerseyTest extends FelixRestApplicationJerseyTest 
         app.setTaskService(taskService);
         app.setJsonService(jsonService);
         app.setSubsystemService(subsystemService);
+        app.setClock(Clock.systemDefaultZone());
         app.activate(bundleContext);
         return app;
     }
