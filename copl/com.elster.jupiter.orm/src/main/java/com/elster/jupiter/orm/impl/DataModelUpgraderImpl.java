@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.streams.Currying.perform;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
-public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLister {
+class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLister {
 
     private static final String EXISTING_TABLES_DATA_MODEL = "ORA";
 
@@ -111,7 +111,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDiffer
         private final Connection connection;
         private final Statement statement;
 
-        public LongContext(DataModelImpl dataModel) {
+        LongContext(DataModelImpl dataModel) {
             try {
                 connection = dataModel.getConnection(false);
                 statement = connection.createStatement();
@@ -174,11 +174,11 @@ public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDiffer
 
     }
 
-    public static DataModelUpgrader forUpgrade(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger) {
+    static DataModelUpgrader forUpgrade(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger) {
         return new DataModelUpgraderImpl(schemaInfoProvider, ormService, logger, new PerformCautiousUpgrade());
     }
 
-    public static DataModelDifferencesLister forDifferences(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, FileSystem fileSystem, Logger logger) {
+    static DataModelDifferencesLister forDifferences(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, FileSystem fileSystem, Logger logger) {
         DataModelUpgraderImpl dataModelUpgrader = new DataModelUpgraderImpl(schemaInfoProvider, ormService, logger, new CollectStrictUpgrade());
         dataModelUpgrader.register(new DifferencesLogListener());
         dataModelUpgrader.register(new SqlDiffFileListener(fileSystem));
@@ -310,15 +310,10 @@ public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDiffer
     }
 
     private List<Difference> upgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Context context) {
-        try {
-            return tryUpgradeTo(fromDataModel, toTable, version, context);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
+        return tryUpgradeTo(fromDataModel, toTable, version, context);
     }
 
-    private List<Difference> tryUpgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Context context) throws
-            SQLException {
+    private List<Difference> tryUpgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Context context) {
         TableImpl<?> fromTable = findFromTable(fromDataModel, toTable, version);
         if (fromTable != null) {
             return upgradeTable(toTable, fromTable, version, context);

@@ -313,7 +313,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public Column addVersionCountColumn(String name, String dbType, String fieldName) {
-        return column(name).type(dbType).notNull().version().conversion(NUMBER2LONG).map(fieldName).add();
+        return column(name).type(dbType).notNull().version().conversion(NUMBER2LONG).map(fieldName).installValue("1").add();
     }
 
     @Override
@@ -323,17 +323,17 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public Column addCreateTimeColumn(String name, String fieldName) {
-        return column(name).number().notNull().conversion(NUMBER2NOW).skipOnUpdate().map(fieldName).add();
+        return column(name).number().notNull().conversion(NUMBER2NOW).skipOnUpdate().map(fieldName).installValue("0").add();
     }
 
     @Override
     public Column addModTimeColumn(String name, String fieldName) {
-        return column(name).number().notNull().conversion(NUMBER2NOW).map(fieldName).add();
+        return column(name).number().notNull().conversion(NUMBER2NOW).map(fieldName).installValue("0").add();
     }
 
     @Override
     public Column addUserNameColumn(String name, String fieldName) {
-        return column(name).varChar(80).notNull().conversion(CHAR2PRINCIPAL).map(fieldName).add();
+        return column(name).varChar(80).notNull().conversion(CHAR2PRINCIPAL).map(fieldName).installValue("'install/upgrade'").add();
     }
 
     @Override
@@ -419,7 +419,7 @@ public class TableImpl<T> implements Table<T> {
 
     public ColumnImpl getColumnForField(String name) {
         return this.getRealColumns()
-                .filter(name::equals)
+                .filter(column -> column.getFieldName().equals(name))
                 .findFirst()
                 .orElse(null);
     }
@@ -1039,6 +1039,14 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public boolean isInVersion(Version version) {
         return versions.contains(version);
+    }
+
+    boolean overlaps(RangeSet<Version> versions) {
+        return !Ranges.intersection(this.versions, versions).isEmpty();
+    }
+
+    private boolean intersects(RangeSet<Version> versions) {
+        return Ranges.intersection(this.versions, versions).isEmpty();
     }
 
     public RangeSet<Version> getVersions() {
