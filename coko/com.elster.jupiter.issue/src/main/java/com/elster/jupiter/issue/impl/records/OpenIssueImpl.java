@@ -8,13 +8,14 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Optional;
 
 public final class OpenIssueImpl extends IssueImpl implements OpenIssue {
 
     @Inject
-    public OpenIssueImpl(DataModel dataModel, IssueService issueService) {
-        super(dataModel, issueService);
+    public OpenIssueImpl(DataModel dataModel, IssueService issueService, Clock clock) {
+        super(dataModel, issueService, clock);
     }
 
     @Override

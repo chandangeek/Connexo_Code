@@ -6,11 +6,14 @@ import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.util.conditions.Condition;
-import org.junit.Test;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +38,7 @@ public class IssueAssigmentServiceImplTest extends BaseTest {
         assertThat(ruleRef).isNotEqualTo(Optional.empty());
 
         List<IssueForAssign> issueList = new ArrayList<>();
-        issueList.add(new IssueForAssignImpl(issue));
+        issueList.add(new IssueForAssignImpl(issue, Instant.now(Clock.systemDefaultZone())));
         getIssueAssignmentService().assignIssue(issueList);
     }
 

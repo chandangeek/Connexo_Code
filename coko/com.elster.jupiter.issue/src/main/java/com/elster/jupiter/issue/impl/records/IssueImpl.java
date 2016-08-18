@@ -23,6 +23,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
@@ -45,15 +46,17 @@ public class IssueImpl extends EntityImpl implements Issue {
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<CreationRule> rule = ValueReference.absent();
 
-    private volatile IssueService issueService;
-    private volatile IssueAssignmentService issueAssignmentService;
+    private final IssueService issueService;
+    private final IssueAssignmentService issueAssignmentService;
+    private final Clock clock;
 
     private static final String DEFAULT_ISSUE_PREFIX = "ISU";
 
     @Inject
-    public IssueImpl(DataModel dataModel, IssueService issueService){
+    public IssueImpl(DataModel dataModel, IssueService issueService, Clock clock){
         super(dataModel);
         this.issueService = issueService;
+        this.clock = clock;
         this.issueAssignmentService = issueService.getIssueAssignmentService();
     }
 
@@ -190,7 +193,7 @@ public class IssueImpl extends EntityImpl implements Issue {
 
     @Override
     public void autoAssign() {
-        IssueForAssign wrapper = new IssueForAssignImpl(this);
+        IssueForAssign wrapper = new IssueForAssignImpl(this, Instant.now(clock));
         issueAssignmentService.assignIssue(Collections.singletonList(wrapper));
     }
 

@@ -29,6 +29,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.nio.charset.Charset;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,11 +70,13 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     private List<CreationRuleAction> persistentActions = new ArrayList<>();
 
     private final IssueService issueService;
+    private final Clock clock;
 
     @Inject
-    public CreationRuleImpl(DataModel dataModel, IssueService issueService) {
+    public CreationRuleImpl(DataModel dataModel, IssueService issueService, Clock clock) {
         super(dataModel);
         this.issueService = issueService;
+        this.clock = clock;
     }
 
     @Override
@@ -258,7 +261,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         if (referencedIssues.size() == 0) {
             super.delete(); // delete from table
         } else {
-            this.setObsoleteTime(Instant.now()); // mark obsolete
+            this.setObsoleteTime(Instant.now(clock)); // mark obsolete
             this.update();
         }
         issueService.getIssueCreationService().reReadRules();

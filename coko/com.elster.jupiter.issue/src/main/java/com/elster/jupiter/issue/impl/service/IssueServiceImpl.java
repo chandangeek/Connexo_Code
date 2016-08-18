@@ -72,6 +72,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -114,6 +115,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile IssueCreationService issueCreationService;
 
     private volatile UpgradeService upgradeService;
+    private volatile Clock clock;
 
     private final Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
     private final Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
@@ -137,7 +139,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                             KieResources resourceFactoryService,
                             TransactionService transactionService,
                             ThreadPrincipalService threadPrincipalService,
-                            UpgradeService upgradeService) {
+                            UpgradeService upgradeService, Clock clock) {
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
@@ -151,6 +153,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         setTransactionService(transactionService);
         setThreadPrincipalService(threadPrincipalService);
         setUpgradeService(upgradeService);
+        setClock(clock);
 
         activate();
     }
@@ -179,6 +182,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 bind(IssueActionService.class).to(IssueActionServiceImpl.class).in(Scopes.SINGLETON);
                 bind(IssueAssignmentService.class).to(IssueAssignmentServiceImpl.class).in(Scopes.SINGLETON);
                 bind(IssueCreationService.class).to(IssueCreationServiceImpl.class).in(Scopes.SINGLETON);
+                bind(Clock.class).toInstance(clock);
             }
         });
         issueCreationService = dataModel.getInstance(IssueCreationService.class);
@@ -250,6 +254,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Override

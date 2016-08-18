@@ -20,7 +20,7 @@ public class IssueForAssignImpl implements IssueForAssign{
 
     private Issue issue;
 
-    public IssueForAssignImpl(Issue issue) {
+    public IssueForAssignImpl(Issue issue, Instant now) {
         if (issue == null) {
             throw new IllegalArgumentException("Issue for wrapping can't be null!");
         }
@@ -32,7 +32,7 @@ public class IssueForAssignImpl implements IssueForAssign{
         if (usagePointRef.isPresent()){
             UsagePoint usagePoint = usagePointRef.get();
             setOutageRegion(usagePoint.getOutageRegion());
-            Optional<Party> customerRef = usagePoint.getCustomer(Instant.now());
+            Optional<Party> customerRef = usagePoint.getCustomer(now);
             if (customerRef.isPresent()){
                 setCustomer(customerRef.get().getName());
             }
