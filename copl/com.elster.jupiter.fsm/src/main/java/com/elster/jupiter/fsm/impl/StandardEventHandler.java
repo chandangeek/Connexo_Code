@@ -19,6 +19,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.Event;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,7 @@ public class StandardEventHandler implements Subscriber {
     private volatile List<CurrentStateExtractor> currentStateExtractors = new CopyOnWriteArrayList<>();
     private volatile Map<EventType, Optional<StandardStateTransitionEventType>> eventTypeCache = new ConcurrentHashMap<>();
     private volatile Map<StandardStateTransitionEventType, List<FiniteStateMachine>> finiteStateMachineCache = new ConcurrentHashMap<>();
+    private volatile Clock clock;
 
     // For OSGi pruposes
     public StandardEventHandler() {
@@ -53,10 +55,11 @@ public class StandardEventHandler implements Subscriber {
 
     // For testing purposes or friendly components
     @Inject
-    public StandardEventHandler(EventService eventService, ServerFiniteStateMachineService stateMachineService) {
+    public StandardEventHandler(EventService eventService, ServerFiniteStateMachineService stateMachineService, Clock clock) {
         this();
         this.setEventService(eventService);
         this.setStateMachineService(stateMachineService);
+        setClock(clock);
     }
 
     @Override
@@ -128,7 +131,7 @@ public class StandardEventHandler implements Subscriber {
                         stateMachine,
                         cs.sourceId,
                         cs.sourceType,
-                        Instant.now(),
+                        Instant.now(clock),
                         propertiesOf(event),
                         cs.name);
     }
@@ -157,6 +160,11 @@ public class StandardEventHandler implements Subscriber {
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addCurrentStateExtractor(CurrentStateExtractor currentStateExtractor) {
         this.currentStateExtractors.add(currentStateExtractor);
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @SuppressWarnings("unused")

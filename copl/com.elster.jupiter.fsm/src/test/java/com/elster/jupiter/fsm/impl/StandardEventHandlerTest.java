@@ -10,6 +10,7 @@ import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import org.osgi.service.event.Event;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -208,7 +209,7 @@ public class StandardEventHandlerTest {
 
 
     private StandardEventHandler testEventHandlerWithoutExtractors() {
-        return new StandardEventHandler(this.eventService, this.stateMachineService);
+        return new StandardEventHandler(this.eventService, this.stateMachineService, Clock.systemDefaultZone());
     }
 
     private StandardEventHandler testEventHandlerWithExtractors(CurrentStateExtractor first, CurrentStateExtractor... others) {
