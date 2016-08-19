@@ -24,7 +24,7 @@ Ext.define('Cal.controller.history.Calendar', {
                             privileges: Cal.privileges.Calendar.admin,
                             callback: function (route) {
                                 this.getApplication().on('timeofusecalendarloaded', function (name) {
-                                    route.setTitle(Uni.I18n.translate('general.previewX', 'CAL', "Preview '{0}'", name));
+                                    route.setTitle(Uni.I18n.translate('general.previewX', 'CAL', "Preview '{0}'", name, false));
                                 }, {single: true});
                                 return this;
                             }
