@@ -32,6 +32,8 @@ public interface MeterActivationSet {
 
     Range<Instant> getRange();
 
+    List<MeterActivation> getMeterActivations();
+
     /**
      * Return the complete List of {@link Channel}s that are available
      * in all of the {@link MeterActivation}s in this set.
