@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,17 +18,17 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:59)
  */
-public class ComPortPoolRequest extends IdBusinessObjectRequest {
+class ComPortPoolRequest extends IdBusinessObjectRequest {
 
     private final EngineConfigurationService engineConfigurationService;
 
     private List<ComPortPool> comPortPools;
 
-    public ComPortPoolRequest(EngineConfigurationService engineConfigurationService, long comPortPoolId) {
+    ComPortPoolRequest(EngineConfigurationService engineConfigurationService, long comPortPoolId) {
         this(engineConfigurationService, Collections.singleton(comPortPoolId));
     }
 
-    public ComPortPoolRequest (EngineConfigurationService engineConfigurationService, Set<Long> comPortPoolIds) {
+    ComPortPoolRequest(EngineConfigurationService engineConfigurationService, Set<Long> comPortPoolIds) {
         super(comPortPoolIds);
         this.engineConfigurationService = engineConfigurationService;
         this.validateComPortPoolIds();

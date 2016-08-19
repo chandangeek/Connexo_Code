@@ -10,7 +10,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-08 (16:46)
  */
-public class AllConnectionTasksRequest implements Request {
+class AllConnectionTasksRequest implements Request {
 
     @Override
     public void applyTo (EventPublisher eventPublisher) {

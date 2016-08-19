@@ -34,7 +34,7 @@ public class RequestParser {
     }
 
     private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)register request (?:for events )?for (.*):\\s*(.*)");
-    public static final String PING_MESSAGE = "ping";
+    static final String PING_MESSAGE = "ping";
     public static final String PONG_MESSAGE = "pong";
 
     private List<RequestType> requestTypes;
@@ -49,7 +49,7 @@ public class RequestParser {
         case PING_MESSAGE:
             return new PingRequest();
         case PONG_MESSAGE:
-            return null; // No action to take
+            return new PongRequest();
         default:
             Matcher matcher = COMMAND_PATTERN.matcher(message);
             if (matcher.matches()) {

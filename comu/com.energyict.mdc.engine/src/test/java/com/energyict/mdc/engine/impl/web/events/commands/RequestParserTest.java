@@ -705,9 +705,10 @@ public class RequestParserTest {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
-        parser.parse(RequestParser.PING_MESSAGE);
+        Request request = parser.parse(RequestParser.PING_MESSAGE);
 
-        //Should not throw a RequestParseException
+        //Asserts
+        assertThat(request).isNotNull();
     }
 
     @Test
@@ -715,9 +716,10 @@ public class RequestParserTest {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
-        parser.parse(RequestParser.PONG_MESSAGE);
+        Request request = parser.parse(RequestParser.PONG_MESSAGE);
 
-        //Should not throw a RequestParseException
+        //Asserts
+        assertThat(request).isNotNull();
     }
 
     private void mockDevices() {

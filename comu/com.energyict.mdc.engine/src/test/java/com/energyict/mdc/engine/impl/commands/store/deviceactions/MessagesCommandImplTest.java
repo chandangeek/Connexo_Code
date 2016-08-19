@@ -115,7 +115,7 @@ public class MessagesCommandImplTest {
         when(offlineDevice.getAllSentDeviceMessages()).thenReturn(Collections.emptyList());
         when(deviceProtocol.updateSentMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
         when(deviceProtocol.executePendingMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
-        when(this.issueService.newProblem(any(), any(), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
+        when(this.issueService.newProblem(any(), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
         MessagesCommandImpl messagesCommand = new MessagesCommandImpl(messageTask, offlineDevice, commandRoot, comTaskExecution, this.issueService, this.thesaurus);
 
         // Business method

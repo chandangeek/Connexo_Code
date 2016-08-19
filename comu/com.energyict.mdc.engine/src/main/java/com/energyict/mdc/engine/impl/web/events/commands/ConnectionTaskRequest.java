@@ -20,16 +20,16 @@ import static java.util.Collections.singleton;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:59)
  */
-public class ConnectionTaskRequest extends IdBusinessObjectRequest {
+class ConnectionTaskRequest extends IdBusinessObjectRequest {
 
     private final ConnectionTaskService connectionTaskService;
     private List<ConnectionTask> connectionTasks;
 
-    public ConnectionTaskRequest(ConnectionTaskService connectionTaskService, long connectionTaskId) {
+    ConnectionTaskRequest(ConnectionTaskService connectionTaskService, long connectionTaskId) {
         this(connectionTaskService, singleton(connectionTaskId));
     }
 
-    public ConnectionTaskRequest(ConnectionTaskService connectionTaskService, Set<Long> connectionTaskIds) {
+    ConnectionTaskRequest(ConnectionTaskService connectionTaskService, Set<Long> connectionTaskIds) {
         super(connectionTaskIds);
         this.connectionTaskService = connectionTaskService;
         this.validateConnectionTaskIds();
