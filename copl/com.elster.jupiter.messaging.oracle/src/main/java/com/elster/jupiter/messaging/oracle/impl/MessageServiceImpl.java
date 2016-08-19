@@ -9,9 +9,11 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.upgrade.UpgradeService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -80,7 +82,7 @@ public class MessageServiceImpl implements MessageService {
                 bind(MessageService.class).toInstance(MessageServiceImpl.this);
             }
         });
-        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(Version.version(10, 2), UpgraderV10_2.class));
     }
 
     @Deactivate
