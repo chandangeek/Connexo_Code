@@ -98,8 +98,13 @@
                             <licenseMerge>Apache 2.0|Apache License 2.0</licenseMerge>
                             <licenseMerge>Apache 2.0|Apache License, version 2.0</licenseMerge>
                             <licenseMerge>Apache 2.0|Apache Software License - Version 2.0</licenseMerge>
+                            <licenseMerge>Apache 2.0|Apache Software License 2.0</licenseMerge>
                             <licenseMerge>Apache 2.0|Apache 2</licenseMerge>
                             <licenseMerge>Apache 2.0|Apache License, Version 2.0</licenseMerge>
+                            <licenseMerge>Apache 2.0|Apache License Version 2.0</licenseMerge>
+                            <licenseMerge>Apache 2.0|Apache License</licenseMerge>
+                            <licenseMerge>Apache 2.0|Apache Software Licenses</licenseMerge>
+                            <licenseMerge>Apache 2.0|Apache Public License 2.0</licenseMerge>
                             <licenseMerge>CDDL 1.0|Common Development and Distribution license (CDDL) Version 1.0
                             </licenseMerge>
                             <licenseMerge>CDDL 1.0|Common Development and Distribution License (CDDL) v1.0
@@ -110,9 +115,13 @@
                             <licenseMerge>GNU LGPL 2.1|GNU Lesser General Public License, version 2.1</licenseMerge>
                             <licenseMerge>GNU LGPL 2.1|lgpl_v2_1</licenseMerge>
                             <licenseMerge>GNU LGPL 2.1|GNU Lesser General Public License, Version 2.1</licenseMerge>
+                            <licenseMerge>GNU LGPL 2.1|GNU Lesser General Public License 2.1</licenseMerge>
+                            <licenseMerge>GNU LGPL 2.1|LGPL 2.1</licenseMerge>
+                            <licenseMerge>GNU LGPL 2.1|lgpl</licenseMerge>
                             <licenseMerge>GNU LGPL 3|GNU LESSER GENERAL PUBLIC LICENSE, Version 3</licenseMerge>
                             <licenseMerge>GNU LGPL 3|GNU Lesser General Public Licence</licenseMerge>
                             <licenseMerge>GNU LGPL 3|GNU Lesser General Public License</licenseMerge>
+                            <licenseMerge>GNU LGPL 3|GNU Lesser Public License</licenseMerge>
                             <licenseMerge>GNU LGPL 3|GNU LESSER GENERAL PUBLIC LICENSE</licenseMerge>
                             <licenseMerge>GNU LGPL 3|COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
                             </licenseMerge>
@@ -123,9 +132,20 @@
                             <licenseMerge>CDDL 1.1|Dual license consisting of the CDDL v1.1 and GPL v2</licenseMerge>
                             <licenseMerge>CDDL 1.1|CDDL1_1+GPLv2</licenseMerge>
                             <licenseMerge>CDDL 1.0|CDDL + GPLv2 with classpath exception</licenseMerge>
-                            <licenseMerge>New BSD License|The BSD License|BSD|New BSD license</licenseMerge>
+                            <licenseMerge>CDDL 1.0|CDDL or GPLv2 with exceptions</licenseMerge>
+                            <licenseMerge>CDDL 1.0|Common Development and Distribution License</licenseMerge>
+                            <licenseMerge>BSD licence|New BSD license</licenseMerge>
+                            <licenseMerge>BSD licence|The BSD License</licenseMerge>
+                            <licenseMerge>BSD licence|BSD-style license</licenseMerge>
+                            <licenseMerge>BSD licence|The New BSD License</licenseMerge>
+                            <licenseMerge>BSD licence|BSD style</licenseMerge>
+                            <licenseMerge>BSD licence|New BSD License</licenseMerge>
+                            <licenseMerge>BSD licence|BSD</licenseMerge>
                             <licenseMerge>Eclipse Public License 1.0|Eclipse Public License - Version 1.0</licenseMerge>
+                            <licenseMerge>Eclipse Public License 1.0|Eclipse Public License, Version 1.0</licenseMerge>
+                            <licenseMerge>Eclipse Public License 1.0|Eclipse Public License v1.0</licenseMerge>
                             <licenseMerge>Common Public License|CPL</licenseMerge>
+                            <licenseMerge>WTFPL|DO WHAT THE F#*@ YOU WANT TO PUBLIC LICENSE</licenseMerge>
                         </licenseMerges>
                         <useMissingFile>true</useMissingFile>
                         <excludedGroups>com\.elster.*|com\.energyict.*|com\.yellowfin.*</excludedGroups>
