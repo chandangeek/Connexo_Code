@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             router = me.router;
 
         me.setLoading();
-        record.refresh(router.arguments.mRID, router.arguments.channelId, function (detailRecord) {
+        record.getDetailedInformation(router.arguments.mRID, router.arguments.channelId, function (detailRecord) {
             Ext.suspendLayouts();
             me.down('#general-panel').setTitle(title);
             me.down('#values-panel').setTitle(title);

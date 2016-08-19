@@ -18,7 +18,7 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
         }
     ],
 
-    refresh: function(device, channel, callback) {
+    getDetailedInformation: function (device, channel, callback) {
         var me = this,
             record = this,
             channelsIds = _.keys(me.get('channelData')),
