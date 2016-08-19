@@ -93,7 +93,7 @@ public class SmartMeterProtocolLogBookAdapterTest {
         when(this.issueService.newProblem(any(), any(), anyVararg())).thenAnswer(invocationOnMock -> {
             Problem problem = mock(Problem.class);
             when(problem.getSource()).thenReturn(invocationOnMock.getArguments()[0]);
-            when(problem.getDescription()).thenReturn((String) invocationOnMock.getArguments()[1]);
+            when(problem.getDescription()).thenReturn(String.valueOf(invocationOnMock.getArguments()[1]));
             return problem;
         });
     }

@@ -91,7 +91,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
         when(this.issueService.newWarning(any(), any(), anyVararg())).thenAnswer(invocationOnMock -> {
             Warning warning = mock(Warning.class);
             when(warning.getSource()).thenReturn(invocationOnMock.getArguments()[0]);
-            when(warning.getDescription()).thenReturn((String) invocationOnMock.getArguments()[1]);
+            when(warning.getDescription()).thenReturn(String.valueOf(invocationOnMock.getArguments()[1]));
             return warning;
         });
     }
@@ -128,7 +128,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
         assertThat(collectedRegisters).hasSize(1);
         assertThat(collectedRegisters.get(0).getResultType()).isEqualTo(ResultType.NotSupported);
         assertThat(collectedRegisters.get(0).getIssues()).hasSize(1);
-        assertThat(collectedRegisters.get(0).getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.REGISTER_NOT_SUPPORTED.getKey());
+        assertThat(collectedRegisters.get(0).getIssues().get(0).getDescription()).isEqualTo(String.valueOf(MessageSeeds.REGISTER_NOT_SUPPORTED));
         assertThat(collectedRegisters.get(0).getIssues().get(0).getSource()).isInstanceOf(ObisCode.class);
     }
 
