@@ -154,12 +154,13 @@ public class DateTime {
         return new DateTime(cal);
     }
 
-    public static DateTime parseDateTime(int y, int m, int d, int h, int mi, TimeZone timeZone) {
+    public static DateTime parseDateTime(int y, int m, int d, int h, int mi, int millsec, TimeZone timeZone) {
         year = y;
         month = m;
         day = d;
         hour = h;
         minutes = mi;
+        milliSeconds = millsec;
         return createDateTime(timeZone);
     }
 }
