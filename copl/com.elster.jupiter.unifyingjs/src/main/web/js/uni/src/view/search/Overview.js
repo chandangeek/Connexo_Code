@@ -91,6 +91,8 @@ Ext.define('Uni.view.search.Overview', {
                                 ]
                             },
                             {
+                                hidden: true,
+                                itemId: 'search-domain-separator',
                                 xtype: 'menuseparator'
                             },
                             {
@@ -188,7 +190,9 @@ Ext.define('Uni.view.search.Overview', {
 
         var domainsListeners = domainsStore.on({
             load: function() {
-                me.down('#search-domain').setVisible(domainsStore.count() > 1);
+                var visible = domainsStore.count() > 1;
+                me.down('#search-domain').setVisible(visible);
+                me.down('#search-domain-separator').setVisible(visible);
             },
             scope: me,
             destroyable: true
