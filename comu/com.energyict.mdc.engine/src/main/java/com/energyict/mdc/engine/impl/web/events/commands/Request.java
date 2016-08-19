@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.events.EventRegistrationRequestInitiator;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 
 /**
@@ -24,6 +24,6 @@ import com.energyict.mdc.engine.events.EventRegistrationRequestInitiator;
  */
 public interface Request {
 
-    public void applyTo (EventPublisher eventPublisher);
+    void applyTo(EventPublisher eventPublisher);
 
 }

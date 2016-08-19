@@ -19,17 +19,17 @@ import static java.util.Collections.singleton;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:59)
  */
-public class ComTaskExecutionRequest extends IdBusinessObjectRequest {
+class ComTaskExecutionRequest extends IdBusinessObjectRequest {
 
     private final CommunicationTaskService communicationTaskService;
 
     private List<ComTaskExecution> comTaskExecutions;
 
-    public ComTaskExecutionRequest(CommunicationTaskService communicationTaskService, long comTaskExecutionId) {
+    ComTaskExecutionRequest(CommunicationTaskService communicationTaskService, long comTaskExecutionId) {
         this(communicationTaskService, singleton(comTaskExecutionId));
     }
 
-    public ComTaskExecutionRequest(CommunicationTaskService communicationTaskService, Set<Long> comTaskExecutionIds) {
+    ComTaskExecutionRequest(CommunicationTaskService communicationTaskService, Set<Long> comTaskExecutionIds) {
         super(comTaskExecutionIds);
         this.communicationTaskService = communicationTaskService;
         this.validateComTaskExecutionIds();

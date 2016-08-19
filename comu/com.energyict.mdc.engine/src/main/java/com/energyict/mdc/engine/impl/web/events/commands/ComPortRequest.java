@@ -1,12 +1,16 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
+
 import com.google.common.base.Strings;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -20,22 +24,22 @@ import static java.util.Collections.singleton;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:59)
  */
-public class ComPortRequest extends IdBusinessObjectRequest {
+class ComPortRequest extends IdBusinessObjectRequest {
 
     private final EngineConfigurationService engineConfigurationService;
     private List<ComPort> comPorts;
 
-    public ComPortRequest(EngineConfigurationService engineConfigurationService, long comPortId) {
+    ComPortRequest(EngineConfigurationService engineConfigurationService, long comPortId) {
         this(engineConfigurationService, singleton(comPortId));
     }
 
-    public ComPortRequest(EngineConfigurationService engineConfigurationService, Set<Long> comPortIds) {
+    ComPortRequest(EngineConfigurationService engineConfigurationService, Set<Long> comPortIds) {
         super(comPortIds);
         this.engineConfigurationService = engineConfigurationService;
         this.validateComPortIds();
     }
 
-    public ComPortRequest(EngineConfigurationService engineConfigurationService, String... comPortNames) {
+    ComPortRequest(EngineConfigurationService engineConfigurationService, String... comPortNames) {
         super(null);
         this.engineConfigurationService = engineConfigurationService;
         this.validateComPortNames(Arrays.asList(comPortNames));
@@ -65,7 +69,7 @@ public class ComPortRequest extends IdBusinessObjectRequest {
     private void validateComPortNames(List<String> comPortNames){
         this.comPorts = comPortNames
                 .stream()
-                .filter(((Predicate<? super String>) x-> Strings.isNullOrEmpty(x)).negate())
+                .filter(((Predicate<? super String>) Strings::isNullOrEmpty).negate())
                 .map(this::findComPort)
                 .collect(Collectors.toList());
     }
