@@ -23,7 +23,7 @@ Ext.define('Apr.view.appservers.WebserviceEndpointsGrid', {
                         return '-';
                     }
                     if (!me.needLink) {
-                        return value;
+                        return Ext.String.htmlEncode(value);
                     } else {
                         url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: record.get('id')});
                         return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
