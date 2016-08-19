@@ -6,11 +6,15 @@ import com.elster.jupiter.bootstrap.PropertyNotFoundException;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 
+import oracle.ucp.UniversalConnectionPoolException;
+import oracle.ucp.admin.UniversalConnectionPoolManager;
+import oracle.ucp.admin.UniversalConnectionPoolManagerImpl;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
 import oracle.ucp.jdbc.PoolDataSourceImpl;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -47,6 +51,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
     private String onsNodes;
 
     private Holder<DataSource> cache = HolderBuilder.lazyInitialize(this::doCreateDataSource);
+    private boolean initialized = false;
 
     public BootstrapServiceImpl() {
     }
@@ -66,9 +71,23 @@ public final class BootstrapServiceImpl implements BootstrapService {
         onsNodes = getOptionalProperty(context, ORACLE_ONS_NODES, null);
     }
 
+    @Deactivate
+    public void deactivate() {
+        if (initialized) {
+            try {
+                UniversalConnectionPoolManager manager = UniversalConnectionPoolManagerImpl. getUniversalConnectionPoolManager();
+                manager.destroyConnectionPool(ORACLE_CONNECTION_POOL_NAME);
+            } catch (UniversalConnectionPoolException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     @Override
     public DataSource createDataSource() {
-        return cache.get();
+        DataSource dataSource = cache.get();
+        initialized = true;
+        return dataSource;
     }
 
     private DataSource doCreateDataSource() {
