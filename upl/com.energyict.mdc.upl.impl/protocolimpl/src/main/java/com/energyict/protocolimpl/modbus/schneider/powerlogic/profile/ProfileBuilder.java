@@ -43,7 +43,7 @@ public class ProfileBuilder {
     }
 
     public int getProfileInterval() throws IOException {
-        return getLastProfileBlock().getProfileHeader().getIntegrationPeriod() * SECONDS_PER_MINUTE;
+        return getLastProfileBlock().getProfileHeader().getIntegrationPeriod();
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean generateEvents) throws IOException {
@@ -63,7 +63,7 @@ public class ProfileBuilder {
         }
         int index = getFromIndex(from);
         ReadGeneralReferenceRequest readGeneralReferenceRequest;
-        while (index < numberOfRecords.intValue() - 1) {
+        while (index < numberOfRecords.intValue()) {
             readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(index);
             profileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS, protocol.getTimeZone());
             profileDataBlocks.add(profileBlock);
@@ -77,17 +77,14 @@ public class ProfileBuilder {
     }
 
     private int getFromIndex(Date from) throws IOException {
-        ProfileBlock profileBlock;
-        int index = 1;
-        ReadGeneralReferenceRequest readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.intValue() + index);
-        profileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS, protocol.getTimeZone());
-        while(from.before(profileBlock.getOldestProfileRecordDate()) && index < numberOfRecords.intValue()) {
-            long diffInMillies = from.getTime() - profileBlock.getOldestProfileRecordDate().getTime();
-            if(diffInMillies > 360000) {
-                index += diffInMillies / 360000;
-            }
+        ReadGeneralReferenceRequest readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.intValue() + 1);
+        ProfileBlock firstBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS, protocol.getTimeZone());
+        Date firstBlockDate = firstBlock.getOldestProfileRecordDate();
+        if(from.after(firstBlockDate)){
+            return (int) ((from.getTime() - firstBlockDate.getTime())/(getProfileInterval()*60*1000)) + 5000;
+        }else{
+            return 1;
         }
-        return index;
     }
 
 
@@ -97,9 +94,9 @@ public class ProfileBuilder {
 
         for (ProfileBlock profileDataBlock : profileDataBlocks) {
             for (IntervalData intervalData : profileDataBlock.getProfileData().getIntervalDatas()) {
-               if (intervalData.getEndTime().after(from) && intervalData.getEndTime().before(to)) {
+              if (intervalData.getEndTime().after(from) && intervalData.getEndTime().before(to)) {
                     profileData.addInterval(intervalData);  // Only add entries fitting within the time boundaries
-               }
+              }
             }
         }
 
