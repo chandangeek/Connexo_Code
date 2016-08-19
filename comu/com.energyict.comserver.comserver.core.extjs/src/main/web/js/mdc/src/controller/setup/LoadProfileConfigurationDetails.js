@@ -646,6 +646,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         useMultiplier = multiplierRadioGroup.getValue().useMultiplier;
         if (registerType != null) {
             me.updateReadingTypeFields(registerType, useMultiplier);
+            me.updateOverflowField(registerType.get('isCumulative'));
             me.registerTypesObisCode = registerType.get('obisCode');
             me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
             me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
@@ -666,6 +667,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 useMultiplier
             );
         }
+    },
+
+    updateOverflowField: function (isCumulative) {
+        var form = this.getChannelForm(),
+            overflowField = form.down('#mdc-lpcfg-detailForm-overflow-value-field');
+        overflowField.setValue(isCumulative ? 99999999 : null);
     },
 
     updateReadingTypeFields: function(dataContainer, useMultiplier) {
@@ -723,9 +730,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             calculatedReadingTypeCombo.setVisible(false);
         }
 
-        if (me.channelConfigurationBeingEdited === null) {
-            overflowField.setValue(isCumulative ? 99999999 : null);
-        }
         overflowField.required = isCumulative;
         overflowField.allowBlank = !isCumulative;
         // Geert: I find the following lines of code not so neat. If anyone finds another way to make (dis)appear
