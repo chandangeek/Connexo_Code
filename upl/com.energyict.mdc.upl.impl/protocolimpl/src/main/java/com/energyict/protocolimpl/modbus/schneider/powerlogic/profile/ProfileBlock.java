@@ -34,14 +34,14 @@ public class ProfileBlock {
 
     private List<ChannelInfo> buildChannelInfos() {
         List<ChannelInfo> channelInfos = new ArrayList<>();
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Energy Delivered", Unit.get(BaseUnit.UNITLESS)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Energy Received", Unit.get(BaseUnit.UNITLESS)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power A", Unit.get(BaseUnit.UNITLESS)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power Total", Unit.get(BaseUnit.UNITLESS)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Apparent Energy Delivered", Unit.get(BaseUnit.UNITLESS)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Apparent Energy Received", Unit.get(BaseUnit.UNITLESS)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Reactive Energy Delivered", Unit.get(BaseUnit.UNITLESS)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Reactive Energy Received", Unit.get(BaseUnit.UNITLESS)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Energy Delivered", Unit.get(BaseUnit.WATTHOUR)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Energy Received", Unit.get(BaseUnit.WATTHOUR)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power A", Unit.get(BaseUnit.WATTHOUR)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power Total", Unit.get(BaseUnit.WATTHOUR)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Apparent Energy Delivered", Unit.get(BaseUnit.VOLTAMPERE)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Apparent Energy Received", Unit.get(BaseUnit.VOLTAMPERE)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Reactive Energy Delivered", Unit.get(BaseUnit.VOLTAMPERE)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Reactive Energy Received", Unit.get(BaseUnit.VOLTAMPERE)));
         return channelInfos;
     }
 
