@@ -407,6 +407,7 @@ Ext.define('Uni.service.Search', {
             isDefault: defaultColumns && defaultColumns.indexOf(field.get('propertyName')) >= 0,
             dataIndex: propertyName,
             header: displayValue,
+            disabled: propertyName === 'mRID',
             xtype: type
         };
     },
