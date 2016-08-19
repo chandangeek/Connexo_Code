@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.comportpoolcomports.Grid', {
     extend: 'Ext.grid.Panel',
     requires: [
-        'Uni.grid.column.Action',
+        'Uni.grid.column.RemoveAction',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.view.setup.comportpoolcomports.ActionMenu'
@@ -34,28 +34,22 @@ Ext.define('Mdc.view.setup.comportpoolcomports.Grid', {
                 flex: 1
             },
             {
-                xtype: 'actioncolumn',
+                xtype: 'uni-actioncolumn-remove',
                 privileges: Mdc.privileges.Communication.admin,
-                align: 'center',
-                items: [{
-                    iconCls: 'uni-icon-delete',
-                    tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                    handler: function (grid, rowIndex, colIndex, item, e, record) {
-                        var store = grid.getStore(),
-                            gridPanel = grid.up(),
-                            emptyMsg = gridPanel.up().down('displayfield');
+                handler: function (grid, rowIndex, colIndex, item, e, record) {
+                    var store = grid.getStore(),
+                        gridPanel = grid.up(),
+                        emptyMsg = gridPanel.up().down('displayfield');
 
-                        this.fireEvent('removeCommPort', record);
-                        grid.refresh();
-                        if (!store.getCount()) {
-                            Ext.suspendLayouts();
-                            gridPanel.hide();
-                            emptyMsg.show();
-                            Ext.resumeLayouts(true);
-                        }
+                    this.fireEvent('removeCommPort', record);
+                    grid.refresh();
+                    if (!store.getCount()) {
+                        Ext.suspendLayouts();
+                        gridPanel.hide();
+                        emptyMsg.show();
+                        Ext.resumeLayouts(true);
                     }
-                }]
-
+                }
             }
         ]
     },
