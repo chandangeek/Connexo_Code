@@ -59,7 +59,7 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         supportedMessages.add(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS);
         supportedMessages.add(DeviceMessageId.SECURITY_CHANGE_CLIENT_PASSWORDS);
 
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(pluggableClass.getDeviceProtocol()).thenReturn(protocol);
         when(protocol.getSupportedMessages()).thenReturn(supportedMessages);
 

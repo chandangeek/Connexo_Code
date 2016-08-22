@@ -6,7 +6,6 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -61,13 +60,12 @@ public class DeviceTypeInfo {
         deviceTypeInfo.logBookCount=deviceType.getLogBookTypes().size();
         deviceTypeInfo.deviceConfigurationCount=deviceType.getConfigurations().size();
         deviceTypeInfo.deviceConflictsCount=deviceType.getDeviceConfigConflictMappings().stream().filter(f -> !f.isSolved()).count();
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceType.getDeviceProtocolPluggableClass();
         deviceTypeInfo.canBeGateway= deviceType.canActAsGateway();
         deviceTypeInfo.canBeDirectlyAddressed = deviceType.isDirectlyAddressable();
-        if (deviceProtocolPluggableClass!=null) {
+        deviceType.getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> {
             deviceTypeInfo.deviceProtocolPluggableClassName =deviceProtocolPluggableClass.getName();
             deviceTypeInfo.deviceProtocolPluggableClassId =deviceProtocolPluggableClass.getId();
-        }
+        });
         DeviceLifeCycle deviceLifeCycle = deviceType.getDeviceLifeCycle();
         if (deviceLifeCycle != null) {
             deviceTypeInfo.deviceLifeCycleId = deviceLifeCycle.getId();

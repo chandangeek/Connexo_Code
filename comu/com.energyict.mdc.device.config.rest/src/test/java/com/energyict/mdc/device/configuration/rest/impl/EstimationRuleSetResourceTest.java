@@ -7,11 +7,8 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -19,6 +16,11 @@ import javax.ws.rs.core.Response.Status;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -45,6 +47,7 @@ public class EstimationRuleSetResourceTest extends DeviceConfigurationApplicatio
         when(deviceConfiguration.getId()).thenReturn(1003L);
         when(deviceConfiguration.getVersion()).thenReturn(1L);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(deviceType.getId()).thenReturn(1003L);
         when(deviceType.getVersion()).thenReturn(1L);
     }

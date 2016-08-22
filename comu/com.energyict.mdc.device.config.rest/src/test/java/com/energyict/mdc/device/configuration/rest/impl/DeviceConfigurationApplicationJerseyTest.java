@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.cps.*;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
@@ -47,6 +48,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     MasterDataService masterDataService;
     @Mock
     DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    KpiService kpiService;
     @Mock
     ValidationService validationService;
     @Mock
@@ -95,6 +98,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setMeteringService(meteringService);
         application.setMasterDataService(masterDataService);
         application.setDeviceConfigurationService(deviceConfigurationService);
+        application.setKpiService(kpiService);
         application.setValidationService(validationService);
         application.setEstimationService(estimationService);
         application.setProtocolPluggableService(protocolPluggableService);

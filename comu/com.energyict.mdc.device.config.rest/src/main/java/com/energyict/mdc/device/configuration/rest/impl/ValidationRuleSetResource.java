@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -36,6 +37,8 @@ import java.util.stream.Collectors;
  * Created by bvn on 9/12/14.
  */
 public class ValidationRuleSetResource {
+
+    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
 
     private final ResourceHelper resourceHelper;
     private final ValidationService validationService;
@@ -87,7 +90,8 @@ public class ValidationRuleSetResource {
     public Response addRuleSetsToDeviceConfiguration(
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             List<Long> ids,
-            @Context UriInfo uriInfo) {
+            @Context UriInfo uriInfo,
+            @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         boolean all = getBoolean(uriInfo, "all");
 
         if (!all && (ids == null || ids.size() == 0)) {
@@ -97,7 +101,7 @@ public class ValidationRuleSetResource {
         List<ValidationRuleSet> addedValidationRuleSets = new ArrayList<>();
 
         for (ValidationRuleSet validationRuleSet : all ? allRuleSets(deviceConfiguration) : ruleSetsFor(ids)) {
-            if (!deviceConfiguration.getValidationRuleSets().contains(validationRuleSet)) {
+            if (!deviceConfiguration.getValidationRuleSets().contains(validationRuleSet) && validationRuleSet.getQualityCodeSystem().name().equals(applicationName)) {
                 deviceConfiguration.addValidationRuleSet(validationRuleSet);
                 addedValidationRuleSets.add(validationRuleSet);
             }
