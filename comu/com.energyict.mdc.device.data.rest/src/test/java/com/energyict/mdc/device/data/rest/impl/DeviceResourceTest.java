@@ -158,7 +158,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionTask.getCommunicationWindow()).thenReturn(new ComWindow(100, 200));
-        when(connectionTask.isSimultaneousConnectionsAllowed()).thenReturn(true);
+        when(connectionTask.getNumberOfSimultaneousConnections()).thenReturn(2);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(connectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(15));
         when(connectionTask.getProperties()).thenReturn(Collections.emptyList());
@@ -196,7 +196,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .containsKey("isDefault")
                 .containsKey("connectionStrategy")
                 .containsKey("properties")
-                .containsKey("allowSimultaneousConnections")
+                .containsKey("numberOfSimultaneousConnections")
                 .containsKey("rescheduleRetryDelay")
                 .containsKey("nextExecutionSpecs");
     }
