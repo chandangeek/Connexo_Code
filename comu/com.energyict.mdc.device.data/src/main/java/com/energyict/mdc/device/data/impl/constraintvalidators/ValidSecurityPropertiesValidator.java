@@ -30,7 +30,7 @@ public class ValidSecurityPropertiesValidator implements ConstraintValidator<Val
     @Override
     public boolean isValid(Device device, ConstraintValidatorContext constraintValidatorContext) {
         Map<SecurityPropertySet, TypedProperties> dirtySecurityProperties = ((ServerDeviceForValidation) device).getDirtySecurityProperties();
-
+        boolean valid = true;
         for (SecurityPropertySet securityPropertySet : dirtySecurityProperties.keySet()) {
             TypedProperties typedProperties = dirtySecurityProperties.get(securityPropertySet);
 
@@ -44,11 +44,11 @@ public class ValidSecurityPropertiesValidator implements ConstraintValidator<Val
                                 .buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
                                 .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation()
                                 .disableDefaultConstraintViolation();
-                        return false;
+                        valid = false;
                     }
                 }
             }
         }
-        return true;
+        return valid;
     }
 }

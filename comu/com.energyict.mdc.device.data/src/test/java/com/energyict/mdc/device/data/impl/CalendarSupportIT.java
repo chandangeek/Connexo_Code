@@ -313,7 +313,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         assertThat(device.calendars().getActive()).isPresent();
         ActiveEffectiveCalendar activeEffectiveCalendar = device.calendars().getActive().get();
         assertThat(activeEffectiveCalendar.getRange()).isEqualTo(Range.atLeast(may1st2016));
-        assertThat(activeEffectiveCalendar.getLastVerifiedDate()).isEqualTo(may1st2016);
+        assertThat(activeEffectiveCalendar.getLastVerifiedDate()).isEqualTo(june1st2016);
         assertThat(activeEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
         assertThat(activeEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo("Casper1");
         assertThat(device.calendars().getPassive()).isPresent();

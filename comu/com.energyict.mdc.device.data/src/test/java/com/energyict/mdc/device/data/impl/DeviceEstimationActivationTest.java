@@ -35,9 +35,9 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
         deviceEstimation = device.forEstimation();
         assertThat(deviceEstimation.isEstimationActive()).isTrue();
         deviceEstimation.deactivateEstimation();
-        
-        List<DeviceEstimation> result = inMemoryPersistence.getDataModel().mapper(DeviceEstimation.class).find();
-        assertThat(result).hasSize(1);
+
+        device = inMemoryPersistence.getDeviceService().findByUniqueMrid("device").get();
+        assertThat(device.forEstimation().isEstimationActive()).isFalse();
     }
     
     @Test

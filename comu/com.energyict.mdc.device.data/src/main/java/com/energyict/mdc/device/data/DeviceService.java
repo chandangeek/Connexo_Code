@@ -145,8 +145,6 @@ public interface DeviceService {
 
     ActivatedBreakerStatus newActivatedBreakerStatusFrom(Device device, BreakerStatus collectedBreakerStatus, Interval interval);
 
-    Finder<DeviceEstimation> findDeviceEstimations(List<Device> deviceList);
-
     List<Device> findActiveValidatedDevices(List<Device> domainObjects);
 
     /**

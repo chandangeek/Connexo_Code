@@ -55,12 +55,11 @@ public class EstimationStatusSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addDeviceEstimation();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        return this.toSqlFragment("est.active", condition, now);
+        return this.toSqlFragment("dev.ESTIMATION_ACTIVE", condition, now);
     }
 
     @Override

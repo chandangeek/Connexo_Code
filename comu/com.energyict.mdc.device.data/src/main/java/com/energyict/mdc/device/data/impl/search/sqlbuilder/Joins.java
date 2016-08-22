@@ -84,13 +84,6 @@ enum Joins implements JoinType {
         }
     },
 
-    DeviceEstimation {
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" left join DDC_DEVICEESTACTIVATION est on est.device = dev.id ");
-        }
-    },
-
     DeviceType {
         @Override
         public void appendTo(SqlBuilder sqlBuilder) {

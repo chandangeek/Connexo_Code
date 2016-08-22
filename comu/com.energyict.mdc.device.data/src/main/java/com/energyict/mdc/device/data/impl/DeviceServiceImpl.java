@@ -18,7 +18,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -35,7 +34,6 @@ import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
@@ -432,12 +430,6 @@ public class DeviceServiceImpl implements ServerDeviceService {
     private Predicate<Channel> otherChannelsThenChannelFromSpec(ChannelSpec channelSpec) {
         return channel -> channel.getObisCode().equals(channelSpec.getDeviceObisCode()) && !channel.getReadingType()
                 .getMRID().equals(channelSpec.getReadingType().getMRID());
-    }
-
-    @Override
-    public Finder<DeviceEstimation> findDeviceEstimations(List<Device> deviceList) {
-        Condition condition = ListOperator.IN.contains(DeviceEstimationImpl.Fields.DEVICE.fieldName(), deviceList);
-        return DefaultFinder.of(DeviceEstimation.class, condition, deviceDataModelService.dataModel(), Device.class);
     }
 
     @Override

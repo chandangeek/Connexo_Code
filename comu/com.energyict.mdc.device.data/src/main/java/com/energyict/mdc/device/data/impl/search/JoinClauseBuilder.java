@@ -34,8 +34,6 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addMeterValidation();
 
-    JoinClauseBuilder addDeviceEstimation();
-
     JoinClauseBuilder addDeviceType();
 
     JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);

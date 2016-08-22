@@ -24,4 +24,10 @@ public interface ServerDevice extends Device {
     SyncDeviceWithKoreForInfo getKoreHelper();
 
     Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from, DeviceConfiguration deviceConfiguration);
+
+    void touch();
+
+    void activateEstimation();
+
+    void deactivateEstimation();
 }

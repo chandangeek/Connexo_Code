@@ -81,6 +81,12 @@ class ActiveEffectiveCalendarImpl implements ServerActiveEffectiveCalendar {
         this.lastVerifiedDate = lastVerifiedDate;
     }
 
+    @Override
+    public void updateLastVerifiedDate(Instant lastVerifiedDate) {
+        this.setLastVerifiedDate(lastVerifiedDate);
+        this.dataModel.update(this);
+    }
+
     public void setDevice(Device device) {
         this.device.set(device);
     }

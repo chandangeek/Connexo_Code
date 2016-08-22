@@ -121,6 +121,7 @@ public enum TableSpecs {
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             Column meterId = table.column("METERID").number().since(version(10, 2)).add();
             Column batchId = table.column("BATCH_ID").number().since(version(10, 2)).add();
+            table.column("ESTIMATION_ACTIVE").bool().map("estimationActive").since(version(10, 2)).add();
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                     on(configuration).
                     references(DeviceConfiguration.class).
@@ -675,17 +676,17 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<DeviceEstimation> table = dataModel.addTable(name(), DeviceEstimation.class);
-            table.map(DeviceEstimationImpl.class);
+            table.upTo(version(10, 2));
+            table.map(DeviceImpl.DeviceEstimationImpl.class);
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
-            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationImpl.Fields.ACTIVE.fieldName()).add();
+            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).add();
             table.addAuditColumns();
 
             table.primaryKey("PK_DDC_DEVESTACTIVATION").on(device).add();
             table.foreignKey("FK_DDC_DEVESTACTIVATION_DEVICE")
                     .on(device)
                     .references(DDC_DEVICE.name())
-                    .map(DeviceEstimationImpl.Fields.DEVICE.fieldName())
-                    .reverseMap("deviceEstimation")
+                    .map("device")
                     .add();
         }
     },
@@ -696,12 +697,14 @@ public enum TableSpecs {
             Table<DeviceEstimationRuleSetActivation> table = dataModel.addTable(name(), DeviceEstimationRuleSetActivation.class);
             table.map(DeviceEstimationRuleSetActivationImpl.class);
 
-            Column estimationActivationColumn = table.column("ESTIMATIONACTIVATION").number().conversion(NUMBER2LONG).notNull().add();
+            Column deviceColumn = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().since(version(10, 2)).add();
             Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET").number().conversion(NUMBER2LONG).notNull().add();
+            Column estimationActivationColumn = table.column("ESTIMATIONACTIVATION").number().conversion(NUMBER2LONG).notNull().upTo(version(10, 2)).add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationRuleSetActivationImpl.Fields.ACTIVE.fieldName()).add();
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEVRULESETACTJRNL").since(version(10, 2));
-            table.primaryKey("PK_DDC_DEVESTRULESETACTIV").on(estimationActivationColumn, estimationRuleSetColumn).add();
+            table.primaryKey("PK_EST_RS_ACTIVATION").on(deviceColumn, estimationRuleSetColumn).since(version(10, 2)).add();
+            table.primaryKey("PK_DDC_DEVESTRULESETACTIV").on(estimationActivationColumn, estimationRuleSetColumn).upTo(version(10, 2)).add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_RULESET")
                     .on(estimationRuleSetColumn)
                     .references(EstimationRuleSet.class)
@@ -709,10 +712,17 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_ESTACT")
                     .on(estimationActivationColumn)
+                    .map("estimationActivation")
+                    .upTo(version(10, 2))
                     .references(DDC_DEVICEESTACTIVATION.name())
-                    .map(DeviceEstimationRuleSetActivationImpl.Fields.ESTIMATIONACTIVATION.fieldName())
-                    .reverseMap(DeviceEstimationImpl.Fields.ESTRULESETACTIVATIONS.fieldName())
+                    .add();
+            table.foreignKey("FK_EST_RS_2_DEVICE")
+                    .on(deviceColumn)
+                    .references(Device.class)
+                    .map(DeviceEstimationRuleSetActivationImpl.Fields.DEVICE.fieldName())
+                    .reverseMap("estimationRuleSetActivations")
                     .composition()
+                    .since(version(10, 2))
                     .add();
         }
     },
