@@ -43,10 +43,8 @@ Ext.define('Wss.view.LandingPage', {
                     }
                 },
                 {
-                    xtype: 'button',
+                    xtype: 'uni-button-action',
                     privileges: Wss.privileges.Webservices.admin,
-                    text: Uni.I18n.translate('general.actions', 'WSS', 'Actions'),
-                    iconCls: 'x-uni-action-iconD',
                     margin: '20 0 0 0',
                     menu: {
                         xtype: 'webservices-action-menu'

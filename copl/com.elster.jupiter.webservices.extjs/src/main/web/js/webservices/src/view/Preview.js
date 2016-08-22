@@ -11,9 +11,7 @@ Ext.define('Wss.view.Preview', {
         var me = this;
         me.tools = [
             {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.actions', 'WSS', 'Actions'),
-                iconCls: 'x-uni-action-iconD',
+                xtype: 'uni-button-action',
                 itemId: 'webservicePreviewMenuButton',
                 privileges: Wss.privileges.Webservices.admin,
                 menu: {
@@ -24,7 +22,7 @@ Ext.define('Wss.view.Preview', {
 
         me.items = {
             xtype: 'webservices-preview-form',
-            itemId: 'webservices-grid-preview-form',
+            itemId: 'webservices-grid-preview-form'
         };
         me.callParent(arguments);
     }
