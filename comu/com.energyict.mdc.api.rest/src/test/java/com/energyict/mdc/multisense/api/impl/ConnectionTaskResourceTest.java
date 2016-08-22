@@ -62,7 +62,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
     public void testConnectionTaskInfoFields() throws Exception {
         Response response = target("devices/XAS/connectiontasks").request().accept(MediaType.APPLICATION_JSON).method("PROPFIND", Response.class);
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
-        assertThat(jsonModel.<JSONArray>get("$")).containsOnly("allowSimultaneousConnections", "version", "comPortPool", "comWindow",
+        assertThat(jsonModel.<JSONArray>get("$")).containsOnly("numberOfSimultaneousConnections", "version", "comPortPool", "comWindow",
                 "connectionStrategy", "connectionType", "id", "direction", "isDefault", "link", "connectionMethod", "nextExecutionSpecs", "properties",
                 "rescheduleRetryDelay", "status", "device");
     }
@@ -90,7 +90,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(jsonModel.<String>get("$.direction")).isEqualTo("Outbound");
         assertThat(jsonModel.<String>get("$.status")).isEqualTo("Active");
         assertThat(jsonModel.<Boolean>get("$.isDefault")).isEqualTo(true);
-        assertThat(jsonModel.<Boolean>get("$.allowSimultaneousConnections")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.numberOfSimultaneousConnections")).isEqualTo(2);
         assertThat(jsonModel.<String>get("$.connectionType")).isEqualTo("outbound pluggeable class");
         assertThat(jsonModel.<Integer>get("$.rescheduleRetryDelay.count")).isEqualTo(60);
         assertThat(jsonModel.<String>get("$.rescheduleRetryDelay.timeUnit")).isEqualTo("minutes");
@@ -277,7 +277,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         info.comPortPool = new LinkInfo();
         info.comPortPool.id = 13L;
         info.isDefault = true;
-        info.allowSimultaneousConnections = true;
+        info.numberOfSimultaneousConnections = 2;
         info.properties = new ArrayList<>();
         PropertyInfo property = new PropertyInfo();
         info.properties.add(property);
@@ -303,7 +303,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         when(scheduledConnectionTask.getId()).thenReturn(6789L);
         ArgumentCaptor<ConnectionTask.ConnectionTaskLifecycleStatus> connectionTaskLifecycleStatusArgumentCaptor = ArgumentCaptor.forClass(ConnectionTask.ConnectionTaskLifecycleStatus.class);
         when(builder.setConnectionTaskLifecycleStatus(connectionTaskLifecycleStatusArgumentCaptor.capture())).thenReturn(builder);
-        when(builder.setSimultaneousConnectionsAllowed(true)).thenReturn(builder);
+        when(builder.setNumberOfSimultaneousConnections(1)).thenReturn(builder);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Object> objectArgumentCaptor = ArgumentCaptor.forClass(Object.class);
         when(builder.setProperty(stringArgumentCaptor.capture(), objectArgumentCaptor.capture())).thenReturn(builder);
@@ -346,7 +346,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         info.comPortPool = new LinkInfo();
         info.comPortPool.id = 13L;
         info.isDefault = true;
-        info.allowSimultaneousConnections = true;
+        info.numberOfSimultaneousConnections = 2;
         info.version = 13333L;
         info.properties = new ArrayList<>();
         PropertyInfo property = new PropertyInfo();
@@ -374,7 +374,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         Response response = target("devices/XAS/connectiontasks/123456789").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(existing).setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);
-        verify(existing).setSimultaneousConnectionsAllowed(true);
+        verify(existing).setNumberOfSimultaneousConnections(2);
         verify(existing).setProperty("decimal.property", BigDecimal.valueOf(8080));
         verify(connectionTaskService).setDefaultConnectionTask(existing);
         verify(connectionTaskService, never()).clearDefaultConnectionTask(any());

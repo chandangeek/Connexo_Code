@@ -28,11 +28,7 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -138,9 +134,9 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
                 connectionTaskInfo.connectionStrategy = ((ScheduledConnectionTask) connectionTask).getConnectionStrategy();
             }
         });
-        map.put("allowSimultaneousConnections", (connectionTaskInfo, connectionTask, uriInfo) -> {
+        map.put("numberOfSimultaneousConnections", (connectionTaskInfo, connectionTask, uriInfo) -> {
             if (connectionTask instanceof ScheduledConnectionTask) {
-                connectionTaskInfo.allowSimultaneousConnections = ((ScheduledConnectionTask) connectionTask).isSimultaneousConnectionsAllowed();
+                connectionTaskInfo.numberOfSimultaneousConnections = ((ScheduledConnectionTask) connectionTask).getNumberOfSimultaneousConnections();
             }
         });
         map.put("rescheduleRetryDelay", (connectionTaskInfo, connectionTask, uriInfo) -> {
@@ -193,7 +189,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         scheduledConnectionTaskBuilder.setConnectionStrategy(info.connectionStrategy);
         scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(info.nextExecutionSpecs != null ? info.nextExecutionSpecs.asTemporalExpression() : null);
         scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(info.status);
-        scheduledConnectionTaskBuilder.setSimultaneousConnectionsAllowed(info.allowSimultaneousConnections!=null?info.allowSimultaneousConnections:false);
+        scheduledConnectionTaskBuilder.setNumberOfSimultaneousConnections(info.numberOfSimultaneousConnections != null ? info.numberOfSimultaneousConnections : 1);
         if (info.comWindow!=null && info.comWindow.end != null && info.comWindow.start != null) {
             scheduledConnectionTaskBuilder.setCommunicationWindow(new ComWindow(info.comWindow.start, info.comWindow.end));
         }
@@ -234,7 +230,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         }
         ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
         setPropertiesTo(connectionTaskInfo, scheduledConnectionTask);
-        scheduledConnectionTask.setSimultaneousConnectionsAllowed(connectionTaskInfo.allowSimultaneousConnections!=null?connectionTaskInfo.allowSimultaneousConnections:false);
+        scheduledConnectionTask.setNumberOfSimultaneousConnections(connectionTaskInfo.numberOfSimultaneousConnections != null ? connectionTaskInfo.numberOfSimultaneousConnections : 1);
         if (connectionTaskInfo.comWindow!=null && connectionTaskInfo.comWindow.start != null && connectionTaskInfo.comWindow.end!=null) {
             scheduledConnectionTask.setCommunicationWindow(new ComWindow(connectionTaskInfo.comWindow.start, connectionTaskInfo.comWindow.end));
         } else {

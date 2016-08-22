@@ -31,7 +31,7 @@ public class ConnectionTaskInfo extends LinkInfo<Long> {
     public ComWindowInfo comWindow;
     @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
     public ConnectionStrategy connectionStrategy;
-    public Boolean allowSimultaneousConnections;
+    public Integer numberOfSimultaneousConnections;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo nextExecutionSpecs;
 }

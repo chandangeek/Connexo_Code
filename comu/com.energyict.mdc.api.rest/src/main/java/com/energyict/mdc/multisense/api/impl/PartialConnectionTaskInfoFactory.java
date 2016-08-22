@@ -17,11 +17,7 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -100,9 +96,9 @@ public class PartialConnectionTaskInfoFactory extends SelectableFieldFactory<Par
                 partialConnectionTaskInfo.connectionStrategy = ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
             }
         });
-        map.put("allowSimultaneousConnections", (partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> {
+        map.put("numberOfSimultaneousConnections", (partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> {
             if (PartialScheduledConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
-                partialConnectionTaskInfo.allowSimultaneousConnections = ((PartialScheduledConnectionTask) partialConnectionTask).isSimultaneousConnectionsAllowed();
+                partialConnectionTaskInfo.numberOfSimultaneousConnections = ((PartialScheduledConnectionTask) partialConnectionTask).getNumberOfSimultaneousConnections();
             }
         });
         map.put("rescheduleRetryDelay", (partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> {
