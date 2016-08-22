@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -128,11 +129,14 @@ public class ServerConnectionTaskStatusTest {
 
     private void markConnectionTaskAsBusyPart2(ScheduledConnectionTask outboundConnectionTask) {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        List<ComTaskExecution> comTaskExecutions = Arrays.<ComTaskExecution>asList(comTaskExecution);
 
         Device device = mock(Device.class);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution));
+        when(device.getComTaskExecutions()).thenReturn(comTaskExecutions);
         when(comTaskExecution.isExecuting()).thenReturn(true);
         when(outboundConnectionTask.getDevice()).thenReturn(device);
+
+        when(outboundConnectionTask.getScheduledComTasks()).thenReturn(comTaskExecutions);
     }
 
     private void markConnectionTaskAsNotBusy(ScheduledConnectionTask outboundConnectionTask) {
