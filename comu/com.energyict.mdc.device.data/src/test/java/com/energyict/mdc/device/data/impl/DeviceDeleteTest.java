@@ -98,6 +98,8 @@ public class DeviceDeleteTest {
     @Mock
     private MeteringService meteringService;
     @Mock
+    private ServerDeviceService deviceService;
+    @Mock
     private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private ValidationService validationService;
@@ -204,7 +206,7 @@ public class DeviceDeleteTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        when(meteringService.getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE)).thenReturn(Optional.of(defaultMultiplierType));
+        when(deviceService.findOrCreateDefaultMultiplierType()).thenReturn(defaultMultiplierType);
         when(defaultMultiplierType.getName()).thenReturn(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
 
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
@@ -228,7 +230,7 @@ public class DeviceDeleteTest {
         when(openIssueQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
         when(issueService.query(HistoricalIssue.class)).thenReturn(historicalIssueQuery);
         when(historicalIssueQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
-        when(issueService.findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.<IssueStatus>empty());
+        when(issueService.findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.empty());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(finiteStateMachine.getId()).thenReturn(633L);
@@ -323,14 +325,6 @@ public class DeviceDeleteTest {
         when(deviceMessage.initialize(device, DeviceMessageId.CLOCK_SET_TIME)).thenReturn(deviceMessage);
     }
 
-    private void setupWithConnectionTasks(DeviceImpl device) {
-        when(connectionTaskService.findConnectionTasksByDevice(device)).thenReturn(Arrays.asList(connectionTask1, connectionTask2));
-    }
-
-    private void setupWithComTaskExecutions(DeviceImpl device) {
-        when(communicationTaskService.findAllComTaskExecutionsIncludingObsoleteForDevice(device)).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
-    }
-
     private void setupMocksForOpenIssues() {
         setupMocksForKoreMeter();
         when(issueService.findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
@@ -346,7 +340,7 @@ public class DeviceDeleteTest {
     }
 
     private DeviceImpl getNewDeviceWithMockedServices() {
-        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, metrologyConfigurationService, validationService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService);
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService);
         device.initialize(this.deviceConfiguration, "For testing purposes", "mRID", Instant.now());
         device.save();
         return device;

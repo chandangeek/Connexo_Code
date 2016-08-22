@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -50,7 +51,6 @@ public interface ServerDeviceService extends DeviceService {
      */
     boolean hasDevices(AllowedCalendar allowedCalendar);
 
-
     /**
      * Counts the number of {@link Device}s that rely on the value
      * of the dialect {@link PropertySpec} that is specified on the configuration level.
@@ -95,5 +95,7 @@ public interface ServerDeviceService extends DeviceService {
      * @return a list of devices which have an overridden value for the OBIS code, but not linked to provided ChannelSpec
      */
     List<Device> findDeviceWithOverruledObisCodeForOtherThanChannelSpec(ChannelSpec channelSpec);
+
+    MultiplierType findOrCreateDefaultMultiplierType();
 
 }

@@ -66,7 +66,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -81,7 +80,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceMultiplierTest {
 
-    private final static long ID = 9536541L;
+    private static final long ID = 9536541L;
 
     @Rule
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
@@ -98,6 +97,8 @@ public class DeviceMultiplierTest {
     private Clock clock;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private ServerDeviceService deviceService;
     @Mock
     private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
@@ -216,7 +217,7 @@ public class DeviceMultiplierTest {
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(finiteStateMachine.getId()).thenReturn(633L);
 
-        when(meteringService.getMultiplierType(anyString())).thenReturn(Optional.of(multiplierType));
+        when(deviceService.findOrCreateDefaultMultiplierType()).thenReturn(multiplierType);
         when(meterActivation.getMultiplier(multiplierType)).thenReturn(Optional.empty());
         when(meterActivation.getRange()).thenReturn(Range.atLeast(startOfMeterActivation));
         when(meterActivation.getUsagePoint()).thenReturn(Optional.empty());
@@ -227,17 +228,13 @@ public class DeviceMultiplierTest {
     }
 
     private Device createMockedDevice(Instant startOfMeterActivation) {
-        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, metrologyConfigurationService, validationService, securityPropertyService,
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider,
-                firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService);
+                firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService);
 //        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", "Mrid", startOfMeterActivation);
         device.save();
         return device;
-    }
-
-    private void setId(Object entity, long id) {
-        field("id").ofType(Long.TYPE).in(entity).set(id);
     }
 
     @Test

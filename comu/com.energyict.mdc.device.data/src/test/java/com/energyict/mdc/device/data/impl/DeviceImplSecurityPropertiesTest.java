@@ -82,6 +82,8 @@ public class DeviceImplSecurityPropertiesTest {
     @Mock
     private MeteringService meteringService;
     @Mock
+    private ServerDeviceService deviceService;
+    @Mock
     private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private ValidationService validationService;
@@ -147,6 +149,7 @@ public class DeviceImplSecurityPropertiesTest {
         when(meter.getLifecycleDates()).thenReturn(lifeCycleDates);
         mockDataModelWithNoValidationIssues();
         when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.of(amrSystem));
+        when(deviceService.findOrCreateDefaultMultiplierType()).thenReturn(multiplierType);
         when(meteringService.getMultiplierType("Default")).thenReturn(Optional.of(multiplierType));
         when(multiplierType.getName()).thenReturn("Default");
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
@@ -246,11 +249,11 @@ public class DeviceImplSecurityPropertiesTest {
     private DeviceImpl getTestInstance() {
         DeviceImpl device = new DeviceImpl(
                 this.dataModel, this.eventService, this.issueService, this.thesaurus, this.clock, this.meteringService,
-                this.metrologyConfigurationService, this.validationService, this.securityPropertyService,
+                this.validationService, this.securityPropertyService,
                 this.scheduledConnectionTaskProvider, this.inboundConnectionTaskProvider, this.connectionInitiationTaskProvider,
                 this.scheduledComTaskExecutionProvider, this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider, this.meteringGroupsService, this.customPropertySetService, this.readingTypeUtilService,
-                this.threadPrincipalService, this.userPreferencesService, this.deviceConfigurationService);
+                this.threadPrincipalService, this.userPreferencesService, this.deviceConfigurationService, deviceService);
         device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services", null);
         return device;
     }

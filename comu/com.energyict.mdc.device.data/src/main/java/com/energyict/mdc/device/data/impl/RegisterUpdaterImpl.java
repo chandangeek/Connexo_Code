@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -21,7 +20,7 @@ public class RegisterUpdaterImpl implements Register.RegisterUpdater {
 
     private final EventService eventService;
     private final Register register;
-    private final MeteringService meteringService;
+    private final ServerDeviceService deviceService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final Clock clock;
 
@@ -29,8 +28,8 @@ public class RegisterUpdaterImpl implements Register.RegisterUpdater {
     private BigDecimal overruledOverflowValue;
     private ObisCode overruledObisCode;
 
-    RegisterUpdaterImpl(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, EventService eventService, Register register) {
-        this.meteringService = meteringService;
+    RegisterUpdaterImpl(ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, EventService eventService, Register register) {
+        this.deviceService = deviceService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.clock = clock;
         this.eventService = eventService;
@@ -76,7 +75,7 @@ public class RegisterUpdaterImpl implements Register.RegisterUpdater {
         DeviceImpl device = (DeviceImpl) register.getDevice();
         if (register.getRegisterSpec() instanceof NumericalRegisterSpec) { //textRegisters don't have fraction digits and overflow values
             if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null) {
-                device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock, eventService)
+                device.syncWithKore(new KoreMeterConfigurationUpdater(this.deviceService, this.readingTypeUtilService, this.clock, eventService)
                         .withRegisterUpdater(this));
                 device.executeSyncs();
             }
