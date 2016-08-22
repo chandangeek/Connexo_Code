@@ -21,7 +21,9 @@ Ext.define('Mdc.model.RegisterConfiguration', {
             type: 'string',
             persist: false,
             convert: function registerTypeName(valueAsReadByReader, record){
-                return record.get('readingType').fullAliasName;
+                if (record.get('readingType')) {
+                    return record.get('readingType').fullAliasName;
+                }
             }
         },
         {name: 'asText', type:'boolean'},
