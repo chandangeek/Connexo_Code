@@ -76,6 +76,7 @@ Ext.define('Cps.customattributesets.view.AttributeSetsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 dock: 'bottom',
+                isFullTotalCount: true,
                 itemsPerPageMsg: Uni.I18n.translate('customattributesets.pagingtoolbarbottom.itemsPerPage', 'CPS', 'Custom attribute sets per page')
             }
         ];
