@@ -125,9 +125,10 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         this.loadProfileType = createLoadProfileType();
         when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(any())).thenAnswer(invocationOnMock -> new DeviceIdentifierForAlreadyKnownDeviceByMrID((Device) invocationOnMock.getArguments()[0]));
-        when(this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(any(), any(ObisCode.class))).thenAnswer(invocationOnMock -> new LoadProfileIdentifierForAlreadyKnownLoadProfile((LoadProfile) invocationOnMock
-                .getArguments()[0], any(ObisCode.class)));
-        ;
+        when(this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(any(), any(ObisCode.class))).thenAnswer(
+                invocationOnMock -> new LoadProfileIdentifierForAlreadyKnownLoadProfile(
+                        (LoadProfile) invocationOnMock.getArguments()[0], ObisCode.fromString("1.0.99.1.0.255"))
+        );
         when(this.serviceProvider.topologyService()).thenReturn(getTopologyService());
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
     }
@@ -269,10 +270,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         when(deviceIdentifier.getDeviceIdentifierType()).thenReturn(DeviceIdentifierType.ActualDevice);
         when(deviceIdentifier.getIdentifier()).thenReturn(String.valueOf(device.getId()));
         when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device)).thenReturn(deviceIdentifier);
-        LoadProfileIdentifier loadProfileIdentifier = mock(LoadProfileIdentifier.class);
-        when(loadProfileIdentifier.findLoadProfile()).thenReturn(device.getLoadProfiles().get(0));
-        when(this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(device.getLoadProfiles().get(0), any(ObisCode.class))).thenReturn(loadProfileIdentifier);
-        return new OfflineLoadProfileImpl(device.getLoadProfiles().get(0), getTopologyService(), this.identificationService);
+        LoadProfile loadProfile = device.getLoadProfiles().get(0);
+        return new OfflineLoadProfileImpl(loadProfile, getTopologyService(), this.identificationService);
     }
 
     @Test
