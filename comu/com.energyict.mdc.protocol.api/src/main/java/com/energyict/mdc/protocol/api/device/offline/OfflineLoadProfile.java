@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.device.offline;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
@@ -87,8 +88,12 @@ public interface OfflineLoadProfile extends Offline {
 
     String getDeviceMRID();
 
-    DeviceIdentifier<?> getDeviceIdentifier();
+    DeviceIdentifier<? extends BaseDevice> getDeviceIdentifier();
 
     LoadProfileIdentifier getLoadProfileIdentifier();
+
+    default boolean isDataLoggerSlaveLoadProfile(){
+        return false;
+    }
 
 }
