@@ -8,9 +8,7 @@ Ext.define('Fim.view.history.HistoryPreview', {
     ],
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'FIM', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             menu: {
                 xtype: 'fim-history-action-menu'
             }

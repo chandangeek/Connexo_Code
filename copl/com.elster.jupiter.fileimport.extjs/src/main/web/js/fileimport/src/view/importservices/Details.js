@@ -25,11 +25,9 @@ Ext.define('Fim.view.importservices.Details', {
                 }
             },
             {
-                xtype: 'button',
+                xtype: 'uni-button-action',
                 itemId: 'btn-action',
-                text: Uni.I18n.translate('general.actions', 'FIM', 'Actions'),
-                iconCls: 'x-uni-action-iconD',
-                margin: '20 0 0 0',                
+                margin: '20 0 0 0',
                 menu: {
                     xtype: 'fim-import-service-action-menu'
                 }

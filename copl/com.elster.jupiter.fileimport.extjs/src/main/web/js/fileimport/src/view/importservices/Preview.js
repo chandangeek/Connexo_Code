@@ -7,9 +7,7 @@ Ext.define('Fim.view.importservices.Preview', {
     ],
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'FIM', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             menu: {
                 xtype: 'fim-import-service-action-menu'
             }
