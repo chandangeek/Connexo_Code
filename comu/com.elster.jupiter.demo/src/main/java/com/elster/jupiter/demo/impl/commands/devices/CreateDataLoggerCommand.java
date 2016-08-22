@@ -171,7 +171,7 @@ public class CreateDataLoggerCommand {
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
                 .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "localhost")
                 .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(4059))
-                .setSimultaneousConnectionsAllowed(false)
+                .setNumberOfSimultaneousConnections(1)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
     }
