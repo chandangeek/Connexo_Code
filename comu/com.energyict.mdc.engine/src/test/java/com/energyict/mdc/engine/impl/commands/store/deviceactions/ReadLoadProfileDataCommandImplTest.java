@@ -39,7 +39,6 @@ import org.mockito.Mock;
 import java.util.*;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.assertj.core.api.Assertions.assertThat;

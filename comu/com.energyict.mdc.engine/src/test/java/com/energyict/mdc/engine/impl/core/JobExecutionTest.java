@@ -279,7 +279,6 @@ public class JobExecutionTest {
         DeviceProtocolPluggableClass severServerDeviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(severServerDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(genericDeviceProtocol);
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(severServerDeviceProtocolPluggableClass);
-        when(severServerDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(Optional.of(genericDeviceProtocol));
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         jobExecution.prepareAll(Arrays.asList(comTaskExecution));
         verify(genericDeviceProtocol, times(1)).organizeComCommands(any(CommandRoot.class));

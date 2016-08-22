@@ -125,8 +125,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         this.loadProfileType = createLoadProfileType();
         when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(any())).thenAnswer(invocationOnMock -> new DeviceIdentifierForAlreadyKnownDeviceByMrID((Device) invocationOnMock.getArguments()[0]));
-        when(this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(any())).thenAnswer(invocationOnMock -> new LoadProfileIdentifierForAlreadyKnownLoadProfile((LoadProfile) invocationOnMock
-                .getArguments()[0]));
+        when(this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(any(), any(ObisCode.class))).thenAnswer(invocationOnMock -> new LoadProfileIdentifierForAlreadyKnownLoadProfile((LoadProfile) invocationOnMock
+                .getArguments()[0], any(ObisCode.class)));
         ;
         when(this.serviceProvider.topologyService()).thenReturn(getTopologyService());
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
@@ -271,7 +271,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device)).thenReturn(deviceIdentifier);
         LoadProfileIdentifier loadProfileIdentifier = mock(LoadProfileIdentifier.class);
         when(loadProfileIdentifier.findLoadProfile()).thenReturn(device.getLoadProfiles().get(0));
-        when(this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(device.getLoadProfiles().get(0))).thenReturn(loadProfileIdentifier);
+        when(this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(device.getLoadProfiles().get(0), any(ObisCode.class))).thenReturn(loadProfileIdentifier);
         return new OfflineLoadProfileImpl(device.getLoadProfiles().get(0), getTopologyService(), this.identificationService);
     }
 
