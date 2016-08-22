@@ -135,6 +135,7 @@
 		<module>protocolimpl-v2</module>
 		<module>protocolimpl-elster</module>
 		<module>connectiontypes</module>
+		<module>protocolimpl-us</module>
 	</modules>
 
 	<build>
