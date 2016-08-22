@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.impl.configchange.ServerProtocolDialectForConfigChange;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -20,6 +19,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
+import com.energyict.mdc.device.data.impl.configchange.ServerProtocolDialectForConfigChange;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
  * @since 2012-05-31 (08:54)
  */
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
-public class ProtocolDialectPropertiesImpl
+class ProtocolDialectPropertiesImpl
         extends PersistentNamedObject<ProtocolDialectProperties>
         implements
         PropertyFactory<DeviceProtocolDialect, DeviceProtocolDialectProperty>,
@@ -65,20 +66,12 @@ public class ProtocolDialectPropertiesImpl
     private DeviceProtocolDialectUsagePluggableClass deviceProtocolDialectUsagePluggableClass;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    @SuppressWarnings("unused")
-    private String userName;
-    @SuppressWarnings("unused")
-    private long version;
-    @SuppressWarnings("unused")
-    private Instant createTime;
-    @SuppressWarnings("unused")
-    private Instant modTime;
 
     private ProtocolPluggableService protocolPluggableService;
     private final CustomPropertySetService customPropertySetService;
 
     @Inject
-    public ProtocolDialectPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, CustomPropertySetService customPropertySetService) {
+    ProtocolDialectPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, CustomPropertySetService customPropertySetService) {
         super(ProtocolDialectProperties.class, dataModel, eventService, thesaurus);
         this.customPropertySetService = customPropertySetService;
         this.cache = new PropertyCache<>(this);
@@ -99,7 +92,8 @@ public class ProtocolDialectPropertiesImpl
     }
 
     private DeviceProtocolPluggableClass getDeviceProtocolPluggableClass(ProtocolDialectConfigurationProperties configurationProperties) {
-        return configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+        // if we have this object then we can assume that the pluggableclass is present so it's more or less safe to call the get
+        return configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass().get();
     }
 
     DeviceProtocol getDeviceProtocol () {
@@ -188,7 +182,7 @@ public class ProtocolDialectPropertiesImpl
         return new DeviceProtocolDialectPropertyImpl(propertyName, propertyValue, Range.all(), this.getPluggableClass(), false);
     }
 
-    protected void saveAllProperties () {
+    private void saveAllProperties() {
         if (this.cache.isDirty()) {
             if (this.getTypedProperties().localSize() == 0) {
                 this.removeAllProperties();
@@ -221,7 +215,7 @@ public class ProtocolDialectPropertiesImpl
         return values;
     }
 
-    protected void removeAllProperties() {
+    private void removeAllProperties() {
         this.getCustomPropertySet().ifPresent(cps -> this.customPropertySetService.removeValuesFor(cps, this));
     }
 
@@ -271,7 +265,7 @@ public class ProtocolDialectPropertiesImpl
         return this.deviceProtocolPluggableClass;
     }
 
-    protected void clearPropertyCache() {
+    private void clearPropertyCache() {
         this.cache.clear();
     }
 

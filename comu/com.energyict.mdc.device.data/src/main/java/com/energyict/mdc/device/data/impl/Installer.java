@@ -19,9 +19,12 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.impl.ami.eventhandler.MeterReadingEventHandlerFactory;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
@@ -37,9 +40,11 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
@@ -52,9 +57,9 @@ import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 public class Installer implements FullInstaller, PrivilegesProvider {
 
     public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_NAME = "COMSCHED_RECALCULATOR";
-    public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME = "Recalculate communication schedules";
+    static final String COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME = "Recalculate communication schedules";
     public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME = "COMSCHED_BATCH_OBSOLETE";
-    public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME = "Handle obsolete communication schedules";
+    static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME = "Handle obsolete communication schedules";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
@@ -126,7 +131,9 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                         .getKey(), Arrays.asList(Privileges.Constants.IMPORT_INVENTORY_MANAGEMENT, Privileges.Constants.REVOKE_INVENTORY_MANAGEMENT)),
                 this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DATA_COLLECTION_KPI.getKey(), Privileges.RESOURCE_DATA_COLLECTION_KPI_DESCRIPTION
                         .getKey(), Arrays.asList(Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI, Privileges.Constants.VIEW_DATA_COLLECTION_KPI)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES.getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS))
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES
+                        .getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Collections
+                        .singletonList(Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS))
         );
 
     }
@@ -135,22 +142,21 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
         if (destinationSpec.isPresent()) {
             DestinationSpec jupiterEvents = destinationSpec.get();
-            Arrays.asList(
+            Stream.of(
                     Pair.of(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
                     Pair.of(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/comtaskenablement/PRIORITY_UPDATED")),
-                    Pair.of(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")))
-                    .stream()
-                    .
-                            filter(subscriber -> !jupiterEvents.getSubscribers()
+                    Pair.of(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
+                    Pair.of(MeterReadingEventHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo("com/elster/jupiter/metering/meterreading/CREATED")
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/connectiontask/COMPLETION"))))
+                    .filter(subscriber -> !jupiterEvents.getSubscribers()
                                     .stream()
                                     .anyMatch(s -> s.getName().equals(subscriber.getFirst())))
-                    .
-                            forEach(subscriber -> this.doSubscriber(jupiterEvents, subscriber));
+                    .forEach(subscriber -> this.doSubscriber(jupiterEvents, subscriber));
         }
     }
 
     private void doSubscriber(DestinationSpec jupiterEvents, Pair<String, Condition> subscriber) {
-        jupiterEvents.subscribe(subscriber.getFirst(), subscriber.getLast());
+        jupiterEvents.subscribe(subscriber.getFirst()).with(subscriber.getLast()).create();
     }
 
     private void createMessageHandlers() {
@@ -180,7 +186,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         if (!destinationSpecOptional.isPresent()) {
             DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
             queue.activate();
-            queue.subscribe(subscriberName);
+            queue.subscribe(subscriberName).create();
         } else {
             boolean notSubscribedYet = !destinationSpecOptional.get()
                     .getSubscribers()
@@ -188,7 +194,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                     .anyMatch(spec -> spec.getName().equals(subscriberName));
             if (notSubscribedYet) {
                 destinationSpecOptional.get().activate();
-                destinationSpecOptional.get().subscribe(subscriberName);
+                destinationSpecOptional.get().subscribe(subscriberName).create();
             }
         }
     }
@@ -207,6 +213,26 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         for (ServiceCallCommands.ServiceCallTypeMapping serviceCallTypeMapping : ServiceCallCommands.ServiceCallTypeMapping.values()) {
             createServiceCallType(serviceCallTypeMapping);
         }
+        createOnDemandReadServiceCallType();
+    }
+
+    private void createOnDemandReadServiceCallType() {
+        RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet()
+                .getId())
+                .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", OnDemandReadServiceCallCustomPropertySet.class
+                        .getSimpleName())));
+        RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(new CompletionOptionsCustomPropertySet()
+                .getId())
+                .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", CompletionOptionsCustomPropertySet.class
+                        .getSimpleName())));
+
+
+        serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
+                .orElseGet(() -> serviceCallService.createServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
+                        .handler(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
+                        .customPropertySet(customPropertySet)
+                        .customPropertySet(completionOptionsCustomPropertySet)
+                        .create());
     }
 
     private void createServiceCallType(ServiceCallCommands.ServiceCallTypeMapping serviceCallTypeMapping) {

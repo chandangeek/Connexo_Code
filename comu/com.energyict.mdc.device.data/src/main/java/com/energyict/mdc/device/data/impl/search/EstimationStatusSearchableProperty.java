@@ -15,9 +15,11 @@ import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class EstimationStatusSearchableProperty extends AbstractSearchableDeviceProperty {
 
@@ -42,27 +44,31 @@ public class EstimationStatusSearchableProperty extends AbstractSearchableDevice
 
     @Override
     protected boolean valueCompatibleForDisplay(Object value) {
-        return false;
+        return value instanceof DeviceDataStatusSearchWrapper;
     }
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return null;
+        return getThesaurus().getFormat(((DeviceDataStatusSearchWrapper) value)
+                .getDeviceDataStatusContainer().getTranslation()).format();
     }
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addDeviceEstimation();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        return this.toSqlFragment("est.active", condition, now);
+        return this.toSqlFragment("dev.ESTIMATION_ACTIVE", condition, now);
     }
 
     @Override
     public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
-        statement.setString(bindPosition, (Boolean) value ? "Y" : "N");
+        Boolean result = ((DeviceDataStatusSearchWrapper) value).getDeviceDataStatusContainer()
+                .getTranslation()
+                .getDefaultFormat()
+                .equals(DeviceDataStatusContainer.ACTIVE.getTranslation().getDefaultFormat());
+        statement.setString(bindPosition, result ? "Y" : "N");
     }
 
     @Override
@@ -82,10 +88,14 @@ public class EstimationStatusSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public PropertySpec getSpecification() {
+        Stream<DeviceDataStatusSearchWrapper> estimations =
+                Arrays.stream(DeviceDataStatusContainer.values()).map(DeviceDataStatusSearchWrapper::new);
         return this.propertySpecService
-                .booleanSpec()
+                .specForValuesOf(new DeviceDataStatusValueFactory())
                 .named(PROPERTY_NAME, this.getNameTranslationKey())
                 .fromThesaurus(this.getThesaurus())
+                .addValues(estimations.toArray(DeviceDataStatusSearchWrapper[]::new))
+                .markExhaustive()
                 .finish();
     }
 
@@ -113,5 +123,4 @@ public class EstimationStatusSearchableProperty extends AbstractSearchableDevice
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         //nothing to refresh
     }
-
 }

@@ -104,6 +104,8 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
                 if (this.device.getId() != 0) {
                     this.dataModel.touch(this.device);
                 }
+            } else {
+                this.getActive().ifPresent(activeCalendar -> activeCalendar.updateLastVerifiedDate(lastVerified));
             }
         } else {
             this.createNewActiveCalendar(allowedCalendar, lastVerified, effectivityInterval);
@@ -138,10 +140,10 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
 
     private boolean notPassiveYet(String calendarName) {
         return !this.device.getPassiveCalendar()
-                    .map(PassiveCalendar::getAllowedCalendar)
-                    .map(AllowedCalendar::getName)
-                    .map(allowedCalendarName -> allowedCalendarName.equals(calendarName))
-                    .orElse(false);
+                .map(PassiveCalendar::getAllowedCalendar)
+                .map(AllowedCalendar::getName)
+                .map(allowedCalendarName -> allowedCalendarName.equals(calendarName))
+                .orElse(false);
     }
 
     private void setPassiveCalendar(AllowedCalendar passiveCalendar, Instant now) {

@@ -22,7 +22,7 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_COMPORT_POOL_REQUIRED(1007, Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED, "A connection task requires a communication port pool"),
     FIELD_TOO_LONG(1011, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     VETO_COMPORTPOOL_DELETION(1012, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by at least one device"),
-    VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUse", "Device group {0} is still in use by a data collection KPI"),
+    VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUseCollection", "Device group {0} is still in use by a data collection KPI"),
     FIELD_IS_REQUIRED(1014, Keys.FIELD_REQUIRED, "This field is required"),
     CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS(1015, Keys.CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS, "You can not configure a multiplier in the past when your device already has data"),
     CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION(1016, Keys.CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION, "You can not configure a multiplier with a start date outside of the current meter activation"),
@@ -154,8 +154,12 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2130, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A communication server is currently executing this command, therefore it cannot be revoked"),
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2131, Keys.COULD_NOT_FIND_SERVICE_CALL_TYPE, "Could not find service call type {0} having version {1}"),
     COMMAND_ARGUMENT_SPEC_NOT_FOUND(2132, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}"),
-    ;
-
+    VAL_KPI_DEVICEGROUP_DELETION(2133, "deviceGroupXstillInUseValidation", "Device group {0} is still in use by a data validation KPI"),
+    KPIS_DEVICEGROUP_DELETION(2134, "deviceGroupXstillInUseMultiple", "Device group {0} is still in use by: data validation KPI, data collection KPI"),
+    VETO_ALLOWED_CALENDAR_OBSOLETE(2135, Keys.VETO_ALLOWED_CALENDAR_IN_USE, "The allowed calendar {0} is still used by at least one device"),
+    CANNOT_CHANGE_CONFIG_DATALOGGER_SLAVE(2136, Keys.CANNOT_CHANGE_CONFIG_DATALOGGER_SLAVE, "You cannot change the configuration of a datalogger slave"),
+    CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED(2137, Keys.CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED, "You cannot change the configuration to a datalogger enabled device"),
+    CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED(2138, Keys.CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED, "You cannot change the configuration of a datalogger enabled device"),;
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -333,5 +337,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_STATUS_INFORMATION_COMTASK = "no.status.information.comtask";
         public static final String COULD_NOT_FIND_SERVICE_CALL_TYPE = "could.not.find.service.call.type";
         public static final String COMMAND_ARGUMENT_SPEC_NOT_FOUND = "command.argument.spec.not.found";
+        public static final String VETO_ALLOWED_CALENDAR_IN_USE = "allowed.calendar.in.use";
+        public static final String CANNOT_CHANGE_CONFIG_DATALOGGER_SLAVE = "device.config.change.not.on.slave";
+        public static final String CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED = "device.config.change.not.to.datalogger";
+        public static final String CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED = "device.config.change.not.from.datalogger";
     }
 }

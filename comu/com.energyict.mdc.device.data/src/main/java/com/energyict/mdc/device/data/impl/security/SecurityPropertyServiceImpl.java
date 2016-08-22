@@ -92,8 +92,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
                             device,
                             activeDate,
                             securityPropertySet));
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -120,8 +119,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
                             values.getEffectiveRange(),
                             // Status is a required attribute on the relation should it cannot be null
                             complete));
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -189,11 +187,11 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
         values.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), this.isSecurityPropertySetComplete(securityPropertySet, properties));
         getDeviceProtocolCustomPropertySet(device)
                 .ifPresent(cps -> this.customPropertySetService.setValuesFor(
-                                        cps,
-                                        device,
-                                        values,
-                                        this.clock.instant(),
-                                        securityPropertySet));
+                        cps,
+                        device,
+                        values,
+                        this.clock.instant(),
+                        securityPropertySet));
     }
 
     private boolean isSecurityPropertySetComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
@@ -209,9 +207,9 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
 
     private void deleteSecurityPropertiesFor(Device device, CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> cps) {
         device
-            .getDeviceConfiguration()
-            .getSecurityPropertySets()
-            .forEach(securitySet -> this.customPropertySetService.removeValuesFor(cps, device, securitySet));
+                .getDeviceConfiguration()
+                .getSecurityPropertySets()
+                .forEach(securitySet -> this.customPropertySetService.removeValuesFor(cps, device, securitySet));
     }
 
     @Override
@@ -232,10 +230,10 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
     }
 
     private Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getDeviceProtocolCustomPropertySet(Device device) {
-        return device
-                .getDeviceType()
+        return device.getDeviceType()
                 .getDeviceProtocolPluggableClass()
-                .getDeviceProtocol()
-                .getCustomPropertySet();
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol()
+                        .getCustomPropertySet())
+                .orElse(Optional.empty());
     }
 }

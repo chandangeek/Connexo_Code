@@ -11,6 +11,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,21 +30,24 @@ public interface DeviceService {
      * @param deviceConfiguration the deviceConfiguration which models the device
      * @param name                the name which should be used for the device
      * @param mRID                the new Device's master resource identifier
+     * @param startDate           the meter activation's start date
      * @return the newly created Device
      */
-    Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID);
+    Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, Instant startDate);
 
     /**
      * Creates a new Device based on the given name, DeviceConfiguration and batch.
      * If batch with specified name doesn't exist then new one will be created.
+     * The device will have a {@link com.elster.jupiter.metering.MeterActivation} starting at the create time
      *
      * @param deviceConfiguration the deviceConfiguration which models the device
      * @param name                the name which should be used for the device
      * @param mRID                the new Device's master resource identifier
      * @param batch               the name of batch
+     * @param startDate           the start date of the {@link com.elster.jupiter.metering.MeterActivation}
      * @return the newly created Device
      */
-    Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch);
+    Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch, Instant startDate);
 
     /**
      * Finds the Device based on his unique ID.
@@ -140,8 +144,6 @@ public interface DeviceService {
     Optional<ActivatedBreakerStatus> getActiveBreakerStatus(Device device);
 
     ActivatedBreakerStatus newActivatedBreakerStatusFrom(Device device, BreakerStatus collectedBreakerStatus, Interval interval);
-
-    Finder<DeviceEstimation> findDeviceEstimations(List<Device> deviceList);
 
     List<Device> findActiveValidatedDevices(List<Device> domainObjects);
 

@@ -9,7 +9,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 
 import org.osgi.service.component.annotations.Component;
@@ -84,10 +83,12 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
      * @param securityPropertySet The SecurityPropertySet that is about to be deleted
      */
     private void validateNotUsedByDevice(SecurityPropertySet securityPropertySet) {
-        DeviceProtocol protocol = this.getDeviceProtocol(securityPropertySet);
-        protocol
-            .getCustomPropertySet()
-            .ifPresent(cps -> this.validateNotUsedByDevice(securityPropertySet, cps));
+        securityPropertySet.getDeviceConfiguration()
+                .getDeviceType()
+                .getDeviceProtocolPluggableClass()
+                .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol()
+                        .getCustomPropertySet()
+                        .ifPresent(cps -> this.validateNotUsedByDevice(securityPropertySet, cps)));
     }
 
     /**
@@ -99,7 +100,6 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
      * @param securityPropertySet The SecurityPropertySet that is about to be deleted
      */
     private void validateNotUsedByDevice(SecurityPropertySet securityPropertySet, CustomPropertySet customPropertySet) {
-        DeviceProtocol protocol = this.getDeviceProtocol(securityPropertySet);
         Condition condition = where(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.javaName()).isEqualTo(securityPropertySet);
         List valuesEntities = this.customPropertySetService
                 .getVersionedValuesEntitiesFor(customPropertySet)
@@ -109,9 +109,4 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
             throw new VetoDeleteSecurityPropertySetException(this.thesaurus, securityPropertySet);
         }
     }
-
-    private DeviceProtocol getDeviceProtocol(SecurityPropertySet securityPropertySet) {
-        return securityPropertySet.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol();
-    }
-
 }

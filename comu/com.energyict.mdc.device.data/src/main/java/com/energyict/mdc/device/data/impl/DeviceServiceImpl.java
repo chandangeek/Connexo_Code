@@ -18,27 +18,28 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
+import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
+import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
@@ -54,7 +55,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -69,9 +69,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,17 +95,19 @@ public class DeviceServiceImpl implements ServerDeviceService {
     private final DeviceDataModelService deviceDataModelService;
     private final QueryService queryService;
     private final Thesaurus thesaurus;
+    private final Clock clock;
 
     @Inject
-    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, NlsService nlsService) {
-        this(deviceDataModelService, queryService, nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN));
+    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, NlsService nlsService, Clock clock) {
+        this(deviceDataModelService, queryService, nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN), clock);
     }
 
-    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, Thesaurus thesaurus) {
+    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, Thesaurus thesaurus, Clock clock) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.queryService = queryService;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     @Override
@@ -120,6 +124,30 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public boolean hasDevices(ProtocolDialectConfigurationProperties configurationProperties) {
         return this.count(this.hasDevicesSqlBuilder(configurationProperties)) > 0;
+    }
+
+    @Override
+    public boolean hasDevices(AllowedCalendar allowedCalendar) {
+        if(allowedCalendar.isGhost()) {
+            return false;
+        }
+        Condition condition = where(ActiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName()).isEqualTo(allowedCalendar)
+                .and(Where.where(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName()).isEffective(this.clock.instant()));
+        Finder<ActiveEffectiveCalendar> page =
+                DefaultFinder.
+                        of(ActiveEffectiveCalendar.class, condition, this.deviceDataModelService.dataModel()).
+                        paged(0, 1);
+        List<ActiveEffectiveCalendar> allActiveCalendars = page.find();
+        if(!allActiveCalendars.isEmpty()) {
+            return true;
+        }
+
+        condition = where(PassiveCalendarImpl.Fields.CALENDAR.fieldName()).isEqualTo(allowedCalendar);
+        Finder<PassiveCalendar> pagedPassive =
+                DefaultFinder.of(PassiveCalendar.class, condition, this.deviceDataModelService.dataModel())
+                .paged(0,1);
+        List<PassiveCalendar> allPassiveCalendars = pagedPassive.find();
+        return !allPassiveCalendars.isEmpty();
     }
 
     @Override
@@ -147,9 +175,14 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     private void appendCountDevicesSql(ProtocolDialectConfigurationProperties configurationProperties, SqlBuilder sqlBuilder) {
         Instant now = this.deviceDataModelService.clock().instant();
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = configurationProperties.getDeviceConfiguration()
+                .getDeviceType()
+                .getDeviceProtocolPluggableClass();
         Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> customPropertySet =
-                this.getCustomPropertySet(deviceProtocolPluggableClass.getDeviceProtocol(), configurationProperties.getDeviceProtocolDialectName());
+                this.getCustomPropertySet(configurationProperties.getDeviceProtocolDialectName(),
+                        deviceProtocolPluggableClass.map(deviceProtocolPluggableClass1 -> deviceProtocolPluggableClass1.getDeviceProtocol()
+                                .getDeviceProtocolDialects())
+                                .orElse(Collections.emptyList()));
         if (customPropertySet.isPresent()) {
             String propertiesTable = customPropertySet.get().getPersistenceSupport().tableName();
             sqlBuilder.append(" from ");
@@ -170,9 +203,8 @@ public class DeviceServiceImpl implements ServerDeviceService {
         }
     }
 
-    private Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet(DeviceProtocol deviceProtocol, String name) {
-        return deviceProtocol
-                .getDeviceProtocolDialects()
+    private Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet(String name, List<DeviceProtocolDialect> deviceProtocolDialects) {
+        return deviceProtocolDialects
                 .stream()
                 .filter(dialect -> dialect.getDeviceProtocolDialectName().equals(name))
                 .map(DeviceProtocolDialect::getCustomPropertySet)
@@ -193,15 +225,17 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID) {
-        Device device = this.deviceDataModelService.dataModel().getInstance(DeviceImpl.class).initialize(deviceConfiguration, name, mRID);
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, Instant startDate) {
+        Device device = this.deviceDataModelService.dataModel()
+                .getInstance(DeviceImpl.class)
+                .initialize(deviceConfiguration, name, mRID, startDate);
         device.save(); // always returns a persisted device
         return device;
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch) {
-        Device device = newDevice(deviceConfiguration, name, mRID);
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch, Instant startDate) {
+        Device device = newDevice(deviceConfiguration, name, mRID, startDate);
         this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
         return device;
     }
@@ -396,12 +430,6 @@ public class DeviceServiceImpl implements ServerDeviceService {
     private Predicate<Channel> otherChannelsThenChannelFromSpec(ChannelSpec channelSpec) {
         return channel -> channel.getObisCode().equals(channelSpec.getDeviceObisCode()) && !channel.getReadingType()
                 .getMRID().equals(channelSpec.getReadingType().getMRID());
-    }
-
-    @Override
-    public Finder<DeviceEstimation> findDeviceEstimations(List<Device> deviceList) {
-        Condition condition = ListOperator.IN.contains(DeviceEstimationImpl.Fields.DEVICE.fieldName(), deviceList);
-        return DefaultFinder.of(DeviceEstimation.class, condition, deviceDataModelService.dataModel(), Device.class);
     }
 
     @Override

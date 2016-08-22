@@ -2,9 +2,16 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.kpi.Kpi;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -87,6 +94,17 @@ import static com.elster.jupiter.orm.Version.version;
  */
 public enum TableSpecs {
 
+    DDC_BATCH {
+        void addTo(DataModel dataModel) {
+            Table<Batch> table = dataModel.addTable(name(), Batch.class);
+            table.map(BatchImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map(BatchImpl.Fields.BATCH_NAME.fieldName()).add();
+            table.addAuditColumns();
+            table.primaryKey("DDC_PK_BATCH").on(idColumn).add();
+            table.unique("DDC_U_BATCH_NAME").on(nameColumn).add();
+        }
+    },
     DDC_DEVICE {
         @Override
         public void addTo(DataModel dataModel) {
@@ -94,6 +112,7 @@ public enum TableSpecs {
             table.map(DeviceImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
+            table.setJournalTableName("DDC_DEVICEJRNL").since(version(10, 2));
             table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
             table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar().map(DeviceFields.TIMEZONE.fieldName()).add();
@@ -101,6 +120,9 @@ public enum TableSpecs {
             table.column("CERTIF_YEAR").number().map("yearOfCertification").conversion(ColumnConversion.NUMBER2INT).add();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
+            Column meterId = table.column("METERID").number().since(version(10, 2)).add();
+            Column batchId = table.column("BATCH_ID").number().since(version(10, 2)).add();
+            table.column("ESTIMATION_ACTIVE").bool().map("estimationActive").since(version(10, 2)).add();
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                     on(configuration).
                     references(DeviceConfiguration.class).
@@ -111,6 +133,19 @@ public enum TableSpecs {
                     references(DeviceType.class).
                     map(DeviceFields.DEVICETYPE.fieldName()).
                     add();
+            table.foreignKey("FK_DDC_DEVICE_ENDDEVICE")
+                    .on(meterId)
+                    .references(EndDevice.class)
+                    .map(DeviceFields.METER.fieldName())
+                    .since(version(10, 2))
+                    .add();
+            table.foreignKey("FK_DDC_DEVICE_BATCH")
+                    .on(batchId)
+                    .references(Batch.class)
+                    .map(DeviceFields.BATCH.fieldName())
+                    .since(version(10, 2))
+                    .add();
+
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
         }
@@ -125,7 +160,8 @@ public enum TableSpecs {
             Column propertySpec = table.column("PROPERTYSPEC").map("propertyName").varChar().notNull().add();
             table.column("INFOVALUE").varChar().map("propertyValue").add();
             table.addAuditColumns();
-            table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId, propertySpec).add();
+            table.setJournalTableName("DDC_DEV_PROTOCOL_PROP_JRNL").since(version(10, 2));
+            table.primaryKey("PK_DDC_DEVICEPROTOCOLPROP").on(deviceId, propertySpec).add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE")
                     .on(deviceId)
                     .references(DDC_DEVICE.name())
@@ -266,7 +302,7 @@ public enum TableSpecs {
             Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class).alsoReferredToAs(DeviceProtocolDialectPropertyProvider.class);
             table.map(ProtocolDialectPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
+            table.addAuditColumns().forEach(column -> column.upTo(version(10, 2)));
             table.column("NAME").varChar().map("name").add();
             Column deviceProtocolId = table.column("DEVICEPROTOCOLID").number().conversion(NUMBER2LONG).notNull().map("pluggableClassId").add();
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
@@ -589,6 +625,7 @@ public enum TableSpecs {
                     .number()
                     .conversion(NUMBER2ENUM)
                     .map(DeviceMessageImpl.Fields.TRACKINGCATEGORY.fieldName())
+                    .since(version(10, 2))
                     .add();
             table.column("PROTOCOLINFO").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).add();
             table.column("RELEASEDATE").number().map(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
@@ -608,7 +645,9 @@ public enum TableSpecs {
             Table<DeviceMessageAttribute> table = dataModel.addTable(name(), DeviceMessageAttribute.class);
             table.map(DeviceMessageAttributeImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
+            table.addCreateTimeColumn("CREATETIME", "createTime").since(version(10, 2));
+            table.addModTimeColumn("MODTIME", "modTime").since(version(10, 2));
+            table.addUserNameColumn("USERNAME", "userName").since(version(10, 2));
             Column deviceMessage = table.column("DEVICEMESSAGE").number().conversion(NUMBER2LONG).notNull().add();
             Column name = table.column("NAME").varChar().map("name").notNull().add();
             table.column("VALUE").varChar().map("stringValue").notNull().add();
@@ -617,10 +656,19 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_DEVMESATTR_DEV")
                     .on(deviceMessage)
                     .references(DDC_DEVICEMESSAGE.name())
+                    .map("deviceMessage")
+                    .composition()
+                    .reverseMap(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
+                    .upTo(version(10, 2))
+                    .add();
+            table.foreignKey("FK_DDC_DEVMESATTR_DEV")
+                    .on(deviceMessage)
+                    .references(DDC_DEVICEMESSAGE.name())
                     .onDelete(CASCADE)
                     .map("deviceMessage")
                     .composition()
                     .reverseMap(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
+                    .since(version(10, 2))
                     .add();
             table.unique("UK_DDC_DEVMESATTR_NAME").on(deviceMessage, name).add();
         }
@@ -630,18 +678,17 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<DeviceEstimation> table = dataModel.addTable(name(), DeviceEstimation.class);
-            table.map(DeviceEstimationImpl.class);
+            table.upTo(version(10, 2));
+            table.map(DeviceImpl.DeviceEstimationImpl.class);
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
-            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationImpl.Fields.ACTIVE.fieldName()).add();
+            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).add();
             table.addAuditColumns();
 
             table.primaryKey("PK_DDC_DEVESTACTIVATION").on(device).add();
             table.foreignKey("FK_DDC_DEVESTACTIVATION_DEVICE")
                     .on(device)
                     .references(DDC_DEVICE.name())
-                    .map(DeviceEstimationImpl.Fields.DEVICE.fieldName())
-                    .reverseMap("deviceEstimation")
-                    .onDelete(CASCADE)
+                    .map("device")
                     .add();
         }
     },
@@ -652,12 +699,14 @@ public enum TableSpecs {
             Table<DeviceEstimationRuleSetActivation> table = dataModel.addTable(name(), DeviceEstimationRuleSetActivation.class);
             table.map(DeviceEstimationRuleSetActivationImpl.class);
 
-            Column estimationActivationColumn = table.column("ESTIMATIONACTIVATION").number().conversion(NUMBER2LONG).notNull().add();
+            Column deviceColumn = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().since(version(10, 2)).add();
             Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET").number().conversion(NUMBER2LONG).notNull().add();
+            Column estimationActivationColumn = table.column("ESTIMATIONACTIVATION").number().conversion(NUMBER2LONG).notNull().upTo(version(10, 2)).add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationRuleSetActivationImpl.Fields.ACTIVE.fieldName()).add();
             table.addAuditColumns();
-
-            table.primaryKey("PK_DDC_DEVICEESTRULESETACT").on(estimationActivationColumn, estimationRuleSetColumn).add();
+            table.setJournalTableName("DDC_DEVRULESETACTJRNL").since(version(10, 2));
+            table.primaryKey("PK_EST_RS_ACTIVATION").on(deviceColumn, estimationRuleSetColumn).since(version(10, 2)).add();
+            table.primaryKey("PK_DDC_DEVESTRULESETACTIV").on(estimationActivationColumn, estimationRuleSetColumn).upTo(version(10, 2)).add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_RULESET")
                     .on(estimationRuleSetColumn)
                     .references(EstimationRuleSet.class)
@@ -665,24 +714,18 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_ESTACT")
                     .on(estimationActivationColumn)
+                    .map("estimationActivation")
+                    .upTo(version(10, 2))
                     .references(DDC_DEVICEESTACTIVATION.name())
-                    .map(DeviceEstimationRuleSetActivationImpl.Fields.ESTIMATIONACTIVATION.fieldName())
-                    .reverseMap(DeviceEstimationImpl.Fields.ESTRULESETACTIVATIONS.fieldName())
-                    .composition()
-                    .onDelete(CASCADE)
                     .add();
-        }
-    },
-
-    DDC_BATCH {
-        void addTo(DataModel dataModel) {
-            Table<Batch> table = dataModel.addTable(name(), Batch.class);
-            table.map(BatchImpl.class);
-            Column idColumn = table.addAutoIdColumn();
-            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map(BatchImpl.Fields.BATCH_NAME.fieldName()).add();
-            table.addAuditColumns();
-            table.primaryKey("DDC_PK_BATCH").on(idColumn).add();
-            table.unique("DDC_U_BATCH_NAME").on(nameColumn).add();
+            table.foreignKey("FK_EST_RS_2_DEVICE")
+                    .on(deviceColumn)
+                    .references(Device.class)
+                    .map(DeviceEstimationRuleSetActivationImpl.Fields.DEVICE.fieldName())
+                    .reverseMap("estimationRuleSetActivations")
+                    .composition()
+                    .since(version(10, 2))
+                    .add();
         }
     },
 
@@ -690,6 +733,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<DeviceInBatch> table = dataModel.addTable(name(), DeviceInBatch.class);
             table.map(DeviceInBatch.class);
+            table.upTo(version(10, 2));
             Column deviceColumn = table.column("DEVICEID").number().notNull().add();
             Column batchColumn = table.column("BATCHID").number().notNull().add();
             table.addCreateTimeColumn("CREATETIME", DeviceInBatch.Fields.CREATE_TIME.fieldName());
@@ -706,7 +750,7 @@ public enum TableSpecs {
             table.map(DeviceConfigChangeRequestImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column config = table.column("DEVICECONFIG").number().notNull().add();
-            table.addAuditColumns();
+            table.addAuditColumns().forEach(each -> each.upTo(Version.version(10, 2)));
 
             table.primaryKey("PK_DDC_DCCREQUEST").on(idColumn).add();
             table.foreignKey("FK_DDC_DCCREQUEST_CONF").
@@ -726,7 +770,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column device = table.column("DEVICE").number().notNull().add();
             Column configRequest = table.column("DEVICECONFIGREQUEST").number().notNull().add();
-            table.addAuditColumns();
+            table.addAuditColumns().forEach(each -> each.upTo(Version.version(10, 2)));
 
             table.primaryKey("PK_DDC_CONFIGCHANGEINACTION").on(idColumn).add();
             table.foreignKey("FK_DDC_CONFCHANGACT_DEV").
@@ -820,6 +864,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<ActiveEffectiveCalendar> table = dataModel.addTable(name(), ActiveEffectiveCalendar.class);
+            table.since(version(10, 2));
             table.map(ActiveEffectiveCalendarImpl.class);
             table.since(version(10, 2));
 
@@ -856,6 +901,7 @@ public enum TableSpecs {
             Column device = table.column("DEVICEID").number().notNull().add();
             table.column("OBISCODE").varChar(NAME_LENGTH).notNull().map("obisCodeString").add();
             table.addAuditColumns();
+            table.setJournalTableName("DDC_OVERRULEDOBISCODEJRNL").since(version(10, 2));
             table.primaryKey("PK_DDC_OVERRULEDOBISCODE").on(readingType, device).add();
             table.foreignKey("FK_DDC_OVEROBIS_DEVICE").
                     on(device).
@@ -863,7 +909,6 @@ public enum TableSpecs {
                     .map("device").
                     reverseMap("readingTypeObisCodeUsages").
                     composition().
-                    onDelete(CASCADE).
                     add();
             table.foreignKey("FK_DDC_OVEROBIS_RDNGTYPE").
                     on(readingType).

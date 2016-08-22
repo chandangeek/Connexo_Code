@@ -58,6 +58,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
@@ -207,6 +208,7 @@ public class OracleIntegrationPersistence {
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new EstimationModule(),
                 new FiniteStateMachineModule(),
@@ -216,7 +218,6 @@ public class OracleIntegrationPersistence {
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
                 new TaskModule(),
-                new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
                 new SchedulingModule());
@@ -262,6 +263,7 @@ public class OracleIntegrationPersistence {
     private void initializeCustomPropertySets(Injector injector) {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
     }
 
     private void initializeMocks(String testName) {

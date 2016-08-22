@@ -20,8 +20,9 @@ import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -136,7 +137,7 @@ public class EstimationStatusSearchablePropertyTest {
         // Asserts
         assertThat(specification).isNotNull();
         assertThat(specification.isReference()).isFalse();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Boolean.class);
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(DeviceDataStatusSearchWrapper.class);
     }
 
     @Test
@@ -147,7 +148,7 @@ public class EstimationStatusSearchablePropertyTest {
         PropertySpec specification = property.getSpecification();
 
         // Asserts
-        assertThat(specification.getPossibleValues()).isNull();
+        assertThat(specification.getPossibleValues()).isNotNull();
     }
 
     @Test

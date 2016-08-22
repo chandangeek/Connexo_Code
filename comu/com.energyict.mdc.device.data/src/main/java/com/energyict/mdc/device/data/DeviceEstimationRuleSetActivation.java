@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.estimation.EstimationRuleSet;
+
+import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface DeviceEstimationRuleSetActivation {
@@ -12,6 +13,5 @@ public interface DeviceEstimationRuleSetActivation {
 
     EstimationRuleSet getEstimationRuleSet();
 
-    DeviceEstimation getDeviceEstimationActivation();
-
+    Device getDevice();
 }

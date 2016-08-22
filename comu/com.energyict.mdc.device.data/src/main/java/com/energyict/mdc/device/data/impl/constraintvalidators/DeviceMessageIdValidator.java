@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Collections;
 
 /**
  * Copyrights EnergyICT
@@ -21,7 +22,15 @@ public class DeviceMessageIdValidator implements ConstraintValidator<ValidDevice
     @Override
     public boolean isValid(DeviceMessageImpl deviceMessage, ConstraintValidatorContext constraintValidatorContext) {
 
-        if (deviceMessage.getDevice().getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages().stream().filter(deviceMessageId -> deviceMessageId.equals(deviceMessage.getDeviceMessageId())).count() != 1) {
+        if (deviceMessage.getDevice()
+                .getDeviceType()
+                .getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
+                        .getDeviceProtocol().getSupportedMessages())
+                .orElse(Collections.emptySet())
+                .stream()
+                .filter(deviceMessageId -> deviceMessageId.equals(deviceMessage.getDeviceMessageId()))
+                .count() != 1) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.
                     buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}").
@@ -30,7 +39,14 @@ public class DeviceMessageIdValidator implements ConstraintValidator<ValidDevice
                     addConstraintViolation();
             return false;
         }
-        if (!deviceMessage.getDevice().getDeviceConfiguration().getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessage.getDeviceMessageId())).findAny().isPresent()) {
+        if (!deviceMessage.getDevice()
+                .getDeviceConfiguration()
+                .getDeviceMessageEnablements()
+                .stream()
+                .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId()
+                        .equals(deviceMessage.getDeviceMessageId()))
+                .findAny()
+                .isPresent()) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.
                     buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG + "}").

@@ -143,12 +143,6 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
-    public JoinClauseBuilder addDeviceEstimation() {
-        this.joins.add(Joins.DeviceEstimation);
-        return this;
-    }
-
-    @Override
     public JoinClauseBuilder addDeviceType() {
         this.joins.add(Joins.DeviceType);
         return this;

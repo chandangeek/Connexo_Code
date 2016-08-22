@@ -67,6 +67,7 @@ import com.elster.jupiter.util.time.ExecutionTimerService;
 import com.elster.jupiter.util.time.impl.ExecutionTimerServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -75,6 +76,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
@@ -89,6 +91,7 @@ import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -187,6 +190,7 @@ public class InMemoryIntegrationPersistence {
     private BatchService batchService;
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
+    private DataValidationKpiService dataValidationKpiService;
     private FiniteStateMachineService finiteStateMachineService;
     private CalendarService calendarService;
     private ServiceCallService serviceCallService;
@@ -262,6 +266,7 @@ public class InMemoryIntegrationPersistence {
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new EstimationModule(),
                 new TimeModule(),
@@ -271,7 +276,6 @@ public class InMemoryIntegrationPersistence {
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
                 new TaskModule(),
-                new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
                 new SchedulingModule(),
@@ -318,6 +322,7 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(SearchService.class).register(deviceSearchDomain);
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
+            this.dataValidationKpiService = injector.getInstance(DataValidationKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.calendarService = injector.getInstance(CalendarService.class);
             initHeadEndInterface();
@@ -333,12 +338,13 @@ public class InMemoryIntegrationPersistence {
     private void initializeCustomPropertySets() {
         customPropertySetService.addCustomPropertySet(new CommandCustomPropertySet());
         customPropertySetService.addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+        customPropertySetService.addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
     }
 
     private void initializePrivileges() {
-        new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources().stream()
+        new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
-        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), serviceCallService, customPropertySetService).getModuleResources().stream()
+        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), serviceCallService, customPropertySetService).getModuleResources()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
     }
 
@@ -552,6 +558,10 @@ public class InMemoryIntegrationPersistence {
         return injector.getInstance(ChannelSpecUpdateEventHandler.class);
     }
 
+    public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService() {
+        return injector.getInstance(DeviceLifeCycleConfigurationService.class);
+    }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
@@ -606,6 +616,10 @@ public class InMemoryIntegrationPersistence {
 
     public DataCollectionKpiService getDataCollectionKpiService() {
         return dataCollectionKpiService;
+    }
+
+    public DataValidationKpiService getDataValidationKpiService(){
+        return dataValidationKpiService;
     }
 
 }

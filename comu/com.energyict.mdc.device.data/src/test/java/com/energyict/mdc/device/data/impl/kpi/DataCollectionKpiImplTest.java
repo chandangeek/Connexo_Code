@@ -62,6 +62,7 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
@@ -216,6 +217,7 @@ public class DataCollectionKpiImplTest {
                 new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new EventsModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new EstimationModule(),
                 new BasicPropertiesModule(),
@@ -231,7 +233,6 @@ public class DataCollectionKpiImplTest {
                 new ProtocolApiModule(),
                 new TaskModule(),
                 new TasksModule(),
-                new KpiModule(),
                 new MeteringGroupsModule(),
                 new SearchModule(),
                 new DeviceDataModule(),
@@ -245,6 +246,7 @@ public class DataCollectionKpiImplTest {
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
             injector.getInstance(MessageService.class);
             taskService = injector.getInstance(TaskService.class);
             kpiService = injector.getInstance(KpiService.class);

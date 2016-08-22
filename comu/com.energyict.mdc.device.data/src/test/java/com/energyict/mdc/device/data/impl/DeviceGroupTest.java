@@ -15,6 +15,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.events.EndDeviceGroupDeletionVetoEventHandler;
 import com.energyict.mdc.device.data.impl.events.VetoDeleteDeviceGroupException;
@@ -48,11 +49,14 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testPersistenceDynamicGroup() {
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME1, ED_MRID1);
+        Device device1 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME1, ED_MRID1, Instant.now());
         device1.save();
-        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME2, ED_MRID2);
+        Device device2 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME2, ED_MRID2, Instant.now());
         device2.save();
-        Device device3 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME3, ED_MRID3);
+        Device device3 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME3, ED_MRID3, Instant.now());
         device3.save();
         EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder builder = inMemoryPersistence.getMeteringGroupsService().createQueryEndDeviceGroup();
 
@@ -78,11 +82,14 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testPersistenceStaticGroup() {
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME1, ED_MRID1);
+        Device device1 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME1, ED_MRID1, Instant.now());
         device1.save();
-        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME2, ED_MRID2);
+        Device device2 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME2, ED_MRID2, Instant.now());
         device2.save();
-        Device device3 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME3, ED_MRID3);
+        Device device3 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME3, ED_MRID3, Instant.now());
         device3.save();
         inMemoryPersistence.getMeteringGroupsService().createEnumeratedEndDeviceGroup()
                 .setName(ENUM_EDG_NAME)
@@ -111,9 +118,10 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
     @Expected(value = VetoDeleteDeviceGroupException.class)
     public void testVetoDeletionOfDeviceGroupInKpi() throws Exception {
         DataCollectionKpiService kpiService = inMemoryPersistence.getDataCollectionKpiService();
+        DataValidationKpiService dataValidationKpi = inMemoryPersistence.getDataValidationKpiService();
         Thesaurus thesaurus = inMemoryPersistence.getThesaurusFromDeviceDataModel();
         MeteringGroupsService meteringGroupsService = inMemoryPersistence.getMeteringGroupsService();
-        ((EventServiceImpl)inMemoryPersistence.getEventService()).addTopicHandler(new EndDeviceGroupDeletionVetoEventHandler(kpiService, thesaurus));
+        ((EventServiceImpl)inMemoryPersistence.getEventService()).addTopicHandler(new EndDeviceGroupDeletionVetoEventHandler(kpiService, thesaurus, dataValidationKpi));
 
         QueryEndDeviceGroup queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup()
                 .setMRID("mine")
