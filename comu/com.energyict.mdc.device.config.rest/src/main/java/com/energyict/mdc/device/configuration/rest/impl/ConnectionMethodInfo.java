@@ -46,7 +46,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     public Integer comWindowEnd;
     public String connectionStrategy;
     public List<PropertyInfo> properties;
-    public Integer numberOfSimultaneousConnections;
+    public Integer numberOfSimultaneousConnections = 1;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo temporalExpression;
     public long version;
