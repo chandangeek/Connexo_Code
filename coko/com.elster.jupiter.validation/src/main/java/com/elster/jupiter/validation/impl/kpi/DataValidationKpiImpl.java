@@ -213,7 +213,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         return Stream.of(dataValidationKpiTask).
                 map(Reference::getOptional).
                 flatMap(Functions.asStream()).
-                map(RecurrentTask::getLastRun).
+                map(RecurrentTask::getLastOccurrence).
                 flatMap(Functions.asStream()).
                 map(TaskOccurrence::getTriggerTime).
                 max(Comparator.nullsLast(Comparator.naturalOrder()));
@@ -224,7 +224,6 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         return this.dataValidationKpiTask.isPresent() &&
                 this.dataValidationKpiTask.get().getNextExecution() != null;
     }
-
 
     @Override
     public void dropDataValidationKpi() {
