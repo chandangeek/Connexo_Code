@@ -37,12 +37,16 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
@@ -66,6 +70,7 @@ import com.energyict.mdc.tasks.impl.SystemComTask;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
@@ -143,6 +148,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     DataCollectionKpiService dataCollectionKpiService;
     @Mock
+    DataValidationKpiService dataValidationKpiService;
+    @Mock
     YellowfinGroupsService yellowfinGroupsService;
     @Mock
     FirmwareService firmwareService;
@@ -185,6 +192,10 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(taskService.findComTask(firmwareComTaskId)).thenReturn(Optional.of(firmwareComTask));
         when(firmwareComTask.isSystemComTask()).thenReturn(true);
         when(firmwareComTask.isUserComTask()).thenReturn(false);
+        when(topologyService.availabilityDate(any(Channel.class))).thenReturn(Optional.empty());
+        when(topologyService.availabilityDate(any(Register.class))).thenReturn(Optional.empty());
+        when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
     }
 
     protected boolean disableDeviceConstraintsBasedOnDeviceState() {
@@ -229,6 +240,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setFavoritesService(favoritesService);
         application.setDataCollectionKpiService(dataCollectionKpiService);
+        application.setDataValidationKpiService(dataValidationKpiService);
         application.setYellowfinGroupsService(yellowfinGroupsService);
         application.setFirmwareService(firmwareService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);

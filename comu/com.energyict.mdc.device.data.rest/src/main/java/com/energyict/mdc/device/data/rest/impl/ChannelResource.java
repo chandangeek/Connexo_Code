@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.estimation.Estimatable;
+import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -12,6 +14,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -25,6 +28,7 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
@@ -52,9 +56,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -79,9 +81,10 @@ public class ChannelResource {
     private final ValidationInfoFactory validationInfoFactory;
     private final IssueDataValidationService issueDataValidationService;
     private final EstimationHelper estimationHelper;
+    private final TopologyService topologyService;
 
     @Inject
-    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper) {
+    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper, TopologyService topologyService) {
         this.exceptionFactory = exceptionFactory;
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
@@ -90,6 +93,7 @@ public class ChannelResource {
         this.validationInfoFactory = validationInfoFactory;
         this.issueDataValidationService = issueDataValidationService;
         this.estimationHelper = estimationHelper;
+        this.topologyService = topologyService;
     }
 
     @GET
@@ -97,7 +101,7 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannels(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters);
+        return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters, topologyService);
     }
 
     @GET
@@ -107,7 +111,7 @@ public class ChannelResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannel(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        return channelHelper.get().getChannel(() -> channel);
+        return channelHelper.get().getChannel(() -> channel, topologyService);
     }
 
     @PUT
@@ -120,14 +124,14 @@ public class ChannelResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
-        if (!Objects.equals(channelInfo.overruledNbrOfFractionDigits, channelInfo.nbrOfFractionDigits)) {
+        if (!Objects.equals(channel.getNrOfFractionDigits(), channelInfo.overruledNbrOfFractionDigits)) {
             channelUpdater.setNumberOfFractionDigits(channelInfo.overruledNbrOfFractionDigits);
         }
-        if (channelInfo.overruledOverflowValue == null && channel.getOverflow().isPresent() ||
-                !Objects.equals(channelInfo.overruledOverflowValue, channelInfo.overflowValue)) {
+        if (channel.getOverflow().isPresent() && (channelInfo.overruledOverflowValue == null)
+                || !Objects.equals(channelInfo.overruledOverflowValue, channel.getOverflow().get())) {
             channelUpdater.setOverflowValue(channelInfo.overruledOverflowValue);
         }
-        if (!channelInfo.overruledObisCode.equals(channelInfo.obisCode)) {
+        if (!channel.getObisCode().equals(channelInfo.overruledObisCode)) {
             channelUpdater.setObisCode(channelInfo.overruledObisCode);
         }
         channelUpdater.update();
@@ -143,7 +147,11 @@ public class ChannelResource {
     public PagedInfoList getChannelCustomProperties(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel, this.clock.instant());
-        return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Arrays.asList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
+        return PagedInfoList
+                .fromCompleteList(
+                        "customproperties",
+                        customPropertySetInfo != null ? Collections.singletonList(customPropertySetInfo) : new ArrayList<>(),
+                        queryParameters);
     }
 
     @GET
@@ -355,12 +363,21 @@ public class ChannelResource {
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
-            Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            List<LoadProfileReading> channelData = channel.getChannelData(range);
-            List<ChannelDataInfo> infos = channelData.stream()
-                    .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation))
+            Range<Instant> range = Ranges.closedOpen(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+
+            // Always do it via the topologyService, if for some reason the performance is slow, check if you can optimize it for
+            // devices which are not dataloggers
+            List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
+            List<ChannelDataInfo> infos = channelTimeLine.stream()
+                    .flatMap(channelRangePair -> {
+                        Channel channelWithData = channelRangePair.getFirst();
+                        List<LoadProfileReading> loadProfileReadings = channelWithData.getChannelData(Interval.of(channelRangePair.getLast()).toOpenClosedRange());
+                        return loadProfileReadings.stream()
+                                .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channelWithData, loadProfileReading, isValidationActive, deviceValidation, channel.equals(channelWithData) ? null : channelWithData
+                                        .getDevice()));
+                    })
+                    .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
                     .collect(Collectors.toList());
-            infos = filter(infos, filter);
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);
             return Response.ok(pagedInfoList).build();
@@ -378,43 +395,49 @@ public class ChannelResource {
             @PathParam("channelid") long channelId,
             @PathParam("epochMillis") long epochMillis) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        DeviceValidation deviceValidation = channel.getDevice().forValidation();
-        boolean isValidationActive = deviceValidation.isValidationActive();
         Instant to = Instant.ofEpochMilli(epochMillis);
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, channel.getDevice().getZone());
-        Instant from = zonedDateTime.minus(channel.getInterval().asTemporalAmount()).toInstant();
-        Optional<LoadProfileReading> loadProfileReading = channel.getChannelData(Range.openClosed(from, to)).stream().findAny();
-        Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst());
+        Instant from = to.minus(channel.getInterval().asTemporalAmount());
+        Range<Instant> range = Ranges.openClosed(from, to);
+        List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
+        Optional<VeeReadingInfo> veeReadingInfo = channelTimeLine.stream()
+                .map(channelRangePair -> {
+                            Channel channelWithData = channelRangePair.getFirst();
 
-        Optional<VeeReadingInfo> veeReadingInfo = dataValidationStatus.map(status -> {
-            IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst())
-                    .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
-            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading, isValidationActive);
-        });
-        if (veeReadingInfo.isPresent()) {
-            return Response.ok(veeReadingInfo.get()).build();
-        } else {
-            Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis - 1), Instant.ofEpochMilli(epochMillis));
-            List<LoadProfileReading> channelData = channel.getChannelData(range);
-            Optional<ChannelDataInfo> found = channelData.stream()
-                    .map(oneLoadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, oneLoadProfileReading, isValidationActive, deviceValidation))
-                    .findFirst();
-            return Response.ok(found.orElse(new ChannelDataInfo())).build();
-        }
-    }
+                    Optional<LoadProfileReading> loadProfileReading = channelWithData.getChannelData(range).stream().findAny();
+                    if (loadProfileReading.isPresent()) {
+                        DeviceValidation deviceValidation = channelWithData.getDevice().forValidation();
 
-    private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, JsonQueryFilter filter) {
-        Predicate<ChannelDataInfo> fromParams = resourceHelper.getSuspectsFilter(filter, this::hasSuspects);
-        return infos.stream().filter(fromParams).collect(Collectors.toList());
+                        boolean isValidationActive = deviceValidation.isValidationActive();
+
+                        Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValidationStates()
+                                .entrySet()
+                                .stream()
+                                .map(Map.Entry::getValue)
+                                .findFirst());
+
+                        if (dataValidationStatus.isPresent()) {
+                            IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues()
+                                    .entrySet()
+                                    .stream()
+                                    .map(Map.Entry::getValue)
+                                    .findFirst())
+                                    .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+                            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus.get(), deviceValidation, channelReading, isValidationActive);
+                        } else {
+                            return new VeeReadingInfo();
+
+                        }
+                    } else {
+                        return new VeeReadingInfo();
+                    }
+                        }
+                ).findAny();
+        return Response.ok(veeReadingInfo.orElse(new VeeReadingInfo())).build();
     }
 
     private boolean hasSuspects(ChannelDataInfo info) {
         return ValidationStatus.SUSPECT.equals(info.mainValidationInfo.validationResult) ||
                 (info.bulkValidationInfo != null && ValidationStatus.SUSPECT.equals(info.bulkValidationInfo.validationResult));
-    }
-
-    private boolean hasMissingData(ChannelDataInfo info) {
-        return info.value == null;
     }
 
     @PUT
@@ -431,6 +454,7 @@ public class ChannelResource {
         List<BaseReading> confirmedReadings = new ArrayList<>();
         List<Instant> removeCandidates = new ArrayList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
+            validateLinkedToSlave(channel, Instant.ofEpochMilli(channelDataInfo.interval.end));
             if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
             } else {
@@ -453,6 +477,13 @@ public class ChannelResource {
                 .complete();
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private void validateLinkedToSlave(Channel channel, Instant readingTimeStamp) {
+        Optional<Channel> slaveChannel = topologyService.getSlaveChannel(channel, readingTimeStamp);
+        if (slaveChannel.isPresent()) {
+            throw this.exceptionFactory.newException(MessageSeeds.CANNOT_ADDEDITREMOVE_CHANNEL_VALUE_WHEN_LINKED_TO_SLAVE);
+        }
     }
 
     private boolean isToBeConfirmed(ChannelDataInfo channelDataInfo) {
@@ -506,6 +537,57 @@ public class ChannelResource {
         }
     }
 
+    @POST
+    @Transactional
+    @Path("/{channelid}/data/issue/estimate")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response saveEstimatesChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, EstimateChannelDataInfo estimateChannelDataInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
+        return saveEstimates(device, channel, estimateChannelDataInfo);
+    }
+
+    private Response saveEstimates(Device device, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
+        Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
+        ReadingType readingType = channel.getReadingType();
+        List<BaseReading> editedBulkReadings = new ArrayList<>();
+        List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
+                .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
+                .collect(Collectors.toList());
+        ImmutableSet<Range<Instant>> blocks = ranges.stream()
+                .collect(ImmutableRangeSet::<Instant>builder, ImmutableRangeSet.Builder::add, (b1, b2) -> b1.addAll(b2.build()))
+                .build()
+                .asRanges();
+
+        Instant calculatedReadingTypeTimeStampForEstimationPreview = getCalculatedReadingTypeTimeStampForEstimationPreview(estimateChannelDataInfo);
+        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview).isPresent()) {
+            readingType = channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview).get();
+        }
+
+        for (Range<Instant> block : blocks) {
+            EstimationResult estimationResult = estimationHelper.previewEstimate(QualityCodeSystem.MDC, device, readingType, block, estimator);
+            if (!estimationResult.remainingToBeEstimated().isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            ChannelDataInfo channelDataInfo = new ChannelDataInfo();
+            for (EstimationBlock estimated : estimationResult.estimated()) {
+                for (Estimatable estimatable : estimated.estimatables()) {
+                    channelDataInfo.interval = new IntervalInfo();
+                    channelDataInfo.interval.end = estimatable.getTimestamp().toEpochMilli();
+                    channelDataInfo.collectedValue = estimatable.getEstimation();
+                    editedBulkReadings.add(channelDataInfo.createNewBulk());
+                }
+            }
+        }
+        channel.startEditingData()
+                .editBulkChannelData(editedBulkReadings)
+                .complete();
+
+        return Response.status(Response.Status.OK).build();
+    }
+
     @GET
     @Transactional
     @Path("{channelid}/validationstatus")
@@ -524,7 +606,7 @@ public class ChannelResource {
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationStatusPreview(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        return channelHelper.get().getChannelValidationInfo(() -> channel);
+        return channelHelper.get().getChannelValidationInfo(() -> channel, topologyService);
     }
 
     @PUT
@@ -585,5 +667,15 @@ public class ChannelResource {
             return info;
         }).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("validationBlocks", validationBlocksInfo, parameters);
+    }
+
+    @GET
+    @Transactional
+    @Path("/{channelid}/history")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
+    public ChannelHistoryInfos getDataLoggerSlaveChannelHistory(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        return ChannelHistoryInfos.from(topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.atMost(clock.instant())));
     }
 }

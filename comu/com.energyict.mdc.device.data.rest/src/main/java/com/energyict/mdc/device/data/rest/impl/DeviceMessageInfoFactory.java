@@ -7,23 +7,19 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.MessagesTask;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Optional;
 
@@ -120,7 +116,6 @@ public class DeviceMessageInfoFactory {
                 return false;
         }
     }
-
 
 
 }
