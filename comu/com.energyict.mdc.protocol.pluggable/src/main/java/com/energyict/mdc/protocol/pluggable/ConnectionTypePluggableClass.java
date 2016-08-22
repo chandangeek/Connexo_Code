@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
@@ -18,6 +19,28 @@ import java.util.Optional;
  * @since 2012-05-30 (14:10)
  */
 public interface ConnectionTypePluggableClass extends PluggableClass {
+
+    enum TranslationKeys implements TranslationKey {
+        NR_OF_RETRIES(NR_OF_RETRIES_ATTRIBUTE_NAME, "Number of retries");
+
+        private final String key;
+        private final String defaultTranslation;
+
+        TranslationKeys(String key, String defaultTranslation) {
+            this.key = key;
+            this.defaultTranslation = defaultTranslation;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return defaultTranslation;
+        }
+    }
 
     String NR_OF_RETRIES_ATTRIBUTE_NAME = "connectionTypeRetries";
     int DEFAULT_NR_OF_RETRIES = 3;

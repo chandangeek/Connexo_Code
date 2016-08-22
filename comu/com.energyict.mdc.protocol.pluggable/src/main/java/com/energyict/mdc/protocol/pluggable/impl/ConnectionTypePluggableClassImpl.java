@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
@@ -17,7 +18,9 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,12 +34,14 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
 
     private final CustomPropertySetService customPropertySetService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final PropertySpecService propertySpecService;
 
     @Inject
-    public ConnectionTypePluggableClassImpl(EventService eventService, Thesaurus thesaurus, CustomPropertySetService customPropertySetService, ProtocolPluggableService protocolPluggableService) {
+    public ConnectionTypePluggableClassImpl(EventService eventService, Thesaurus thesaurus, CustomPropertySetService customPropertySetService, ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService) {
         super(eventService, thesaurus);
         this.customPropertySetService = customPropertySetService;
         this.protocolPluggableService = protocolPluggableService;
+        this.propertySpecService = propertySpecService;
     }
 
     static ConnectionTypePluggableClassImpl from(DataModel dataModel, PluggableClass pluggableClass) {
@@ -163,19 +168,21 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
 
     @Override
     public int getNrOfRetries() {
-        String propertyValue = getProperties().getStringProperty(NR_OF_RETRIES_ATTRIBUTE_NAME);
-        if (propertyValue != null && !propertyValue.isEmpty()) {
-            return Integer.valueOf(propertyValue);
-        } else {
-            return DEFAULT_NR_OF_RETRIES;
-        }
+        TypedProperties properties = getPluggableClass().getProperties(Arrays.asList(getNumberOfRetriesPropertySpec()));
+        return properties.getIntegerProperty(NR_OF_RETRIES_ATTRIBUTE_NAME, BigDecimal.valueOf(DEFAULT_NR_OF_RETRIES)).intValue();
     }
 
     @Override
     public void updateNrOfRetries(int nrOfRetries) {
-        Optional<PropertySpec> propertySpec = getPropertySpec(NR_OF_RETRIES_ATTRIBUTE_NAME);
-        if (propertySpec.isPresent()) {
-            setProperty(propertySpec.get(), String.valueOf(nrOfRetries));
-        }
+        this.getPluggableClass().setProperty(getNumberOfRetriesPropertySpec(), BigDecimal.valueOf(nrOfRetries));
+    }
+
+    private PropertySpec getNumberOfRetriesPropertySpec() {
+        return propertySpecService
+                .bigDecimalSpec()
+                .named(TranslationKeys.NR_OF_RETRIES)
+                .fromThesaurus(getThesaurus())
+                .setDefaultValue(BigDecimal.valueOf(DEFAULT_NR_OF_RETRIES))
+                .finish();
     }
 }
