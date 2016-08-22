@@ -1,10 +1,13 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
+
 import com.google.common.collect.Range;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +40,7 @@ import static java.util.stream.Collectors.toCollection;
 public class ValidationResultsResource {
 
     private final DeviceDataValidationService deviceDataValidationService;
+    private final MeteringGroupsService meteringGroupsService;
 
     private enum Validator {
         THRESHOLDVALIDATOR("thresholdViolation"),
@@ -72,8 +76,9 @@ public class ValidationResultsResource {
     }
 
     @Inject
-    public ValidationResultsResource(DeviceDataValidationService deviceDataValidationService) {
+    public ValidationResultsResource(DeviceDataValidationService deviceDataValidationService, MeteringGroupsService meteringGroupsService) {
         this.deviceDataValidationService = deviceDataValidationService;
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @GET
@@ -99,7 +104,7 @@ public class ValidationResultsResource {
                 }
                 if (filters.getJSONObject(i).get("property").equals("deviceGroups")) {
                     JSONArray groups = new JSONArray(filters.getJSONObject(i).get("value").toString());
-                    IntStream.range(0,groups.length()).forEach(iter -> {
+                    IntStream.range(0, groups.length()).forEach(iter -> {
                         try {
                             deviceGroups.add(groups.getLong(iter));
                         } catch (JSONException e) {
@@ -120,7 +125,7 @@ public class ValidationResultsResource {
                 }
                 if (filters.getJSONObject(i).get("property").equals("validator")) {
                     JSONArray validators = new JSONArray(filters.getJSONObject(i).get("value").toString());
-                    IntStream.range(0,validators.length()).forEach(iter -> {
+                    IntStream.range(0, validators.length()).forEach(iter -> {
                         try {
                             Validator.stringToEnum.put(validators.get(iter).toString(), true);
                         } catch (JSONException e) {
@@ -132,6 +137,9 @@ public class ValidationResultsResource {
         }
 
         Range<Instant> range = from != null && to != null ? Range.closed(from, to) : Range.all();
+        if (deviceGroups.isEmpty()) {
+            meteringGroupsService.findEndDeviceGroups().stream().map(HasId::getId).forEach(deviceGroups::add);
+        }
         List<ValidationSummaryInfo> data = deviceGroups.stream().flatMap(groupId ->
                 deviceDataValidationService
                         .getValidationResultsOfDeviceGroup(groupId, range)

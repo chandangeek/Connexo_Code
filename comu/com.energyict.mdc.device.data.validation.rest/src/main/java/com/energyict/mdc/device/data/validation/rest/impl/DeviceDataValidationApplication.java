@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -24,6 +25,7 @@ public class DeviceDataValidationApplication extends Application {
     public static final String COMPONENT_NAME = "DVR";
 
     private volatile DeviceDataValidationService deviceDataValidationService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile License license;
 
     @Override
@@ -46,6 +48,11 @@ public class DeviceDataValidationApplication extends Application {
         this.deviceDataValidationService = deviceDataValidationService;
     }
 
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
     @org.osgi.service.component.annotations.Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
@@ -56,6 +63,7 @@ public class DeviceDataValidationApplication extends Application {
         @Override
         protected void configure() {
             bind(deviceDataValidationService).to(DeviceDataValidationService.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
         }
     }
 }

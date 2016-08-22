@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.validation.rest.impl;
 import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 
 import javax.ws.rs.core.Application;
 
@@ -13,6 +14,8 @@ public class DeviceDataValidationRestApplicationJerseyTest extends FelixRestAppl
 
     @Mock
     DeviceDataValidationService deviceDataValidationService;
+    @Mock
+    MeteringGroupsService meteringGroupsService;
 
     @Before
     public void setup() {
@@ -22,6 +25,7 @@ public class DeviceDataValidationRestApplicationJerseyTest extends FelixRestAppl
     protected Application getApplication() {
         DeviceDataValidationApplication application = new DeviceDataValidationApplication();
         application.setDeviceDataValidationService(deviceDataValidationService);
+        application.setMeteringGroupsService(meteringGroupsService);
         return application;
     }
 }
