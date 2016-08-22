@@ -90,7 +90,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(jsonModel.<String>get("$.direction")).isEqualTo("Outbound");
         assertThat(jsonModel.<String>get("$.status")).isEqualTo("Active");
         assertThat(jsonModel.<Boolean>get("$.isDefault")).isEqualTo(true);
-        assertThat(jsonModel.<Boolean>get("$.numberOfSimultaneousConnections")).isEqualTo(2);
+        assertThat(jsonModel.<Integer>get("$.numberOfSimultaneousConnections")).isEqualTo(2);
         assertThat(jsonModel.<String>get("$.connectionType")).isEqualTo("outbound pluggeable class");
         assertThat(jsonModel.<Integer>get("$.rescheduleRetryDelay.count")).isEqualTo(60);
         assertThat(jsonModel.<String>get("$.rescheduleRetryDelay.timeUnit")).isEqualTo("minutes");

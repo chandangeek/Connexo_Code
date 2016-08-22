@@ -106,7 +106,7 @@ public class PartialConnectionTaskResourceTest extends MultisensePublicApiJersey
         assertThat(jsonModel.<Boolean>get("$.properties[0].required")).isEqualTo(true);
         assertThat(jsonModel.<Integer>get("$.comWindow.start")).isEqualTo(7200000);
         assertThat(jsonModel.<Integer>get("$.comWindow.end")).isEqualTo(14400000);
-        assertThat(jsonModel.<Boolean>get("$.numberOfSimultaneousConnections")).isEqualTo(2);
+        assertThat(jsonModel.<Integer>get("$.numberOfSimultaneousConnections")).isEqualTo(2);
         assertThat(jsonModel.<Integer>get("$.rescheduleRetryDelay.count")).isEqualTo(60);
         assertThat(jsonModel.<String>get("$.rescheduleRetryDelay.timeUnit")).isEqualTo("minutes");
     }
