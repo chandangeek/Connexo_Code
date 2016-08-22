@@ -196,7 +196,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.batch', 'MDC', 'Batch'),
                 renderer: function (value) {
                     if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue)) {
-                        return value.displayValue
+                        return Ext.String.htmlEncode(value.displayValue)
                     } else {
                         return '-'
                     }
