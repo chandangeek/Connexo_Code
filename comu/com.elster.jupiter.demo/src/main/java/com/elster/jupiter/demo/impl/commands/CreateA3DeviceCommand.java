@@ -234,7 +234,7 @@ public class CreateA3DeviceCommand {
                 .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "166.150.217.174")
                 .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(1153))
                 .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.propertySpecName(), TimeDuration.minutes(1))
-                .setSimultaneousConnectionsAllowed(false)
+                .setNumberOfSimultaneousConnections(1)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
     }

@@ -477,7 +477,7 @@ public class DemoTest {
         ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask)connTask;
         assertThat(scheduledConnectionTask.getComPortPool().getName()).isEqualTo(OutboundTCPComPortPoolTpl.ORANGE.getName());
         assertThat(scheduledConnectionTask.isDefault()).isTrue();
-        assertThat(scheduledConnectionTask.isSimultaneousConnectionsAllowed()).isFalse();
+        assertThat(scheduledConnectionTask.getNumberOfSimultaneousConnections()).isEqualTo(1);
         assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName()).getValue()).isEqualTo("10.0.0.135");
