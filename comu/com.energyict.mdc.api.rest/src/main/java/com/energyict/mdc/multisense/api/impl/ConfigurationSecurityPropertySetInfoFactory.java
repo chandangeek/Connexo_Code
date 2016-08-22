@@ -82,13 +82,13 @@ public class ConfigurationSecurityPropertySetInfoFactory extends SelectableField
         map.put("name", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> configurationSecurityPropertySetInfo.name = securityPropertySet.getName());
         map.put("authenticationAccessLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) ->
             configurationSecurityPropertySetInfo.authenticationAccessLevel = authenticationDeviceAccessLevelInfoFactoryProvider.get().asLink(
-                    securityPropertySet.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass(),
+                    securityPropertySet.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass().get(),
                     securityPropertySet.getAuthenticationDeviceAccessLevel(),
                     Relation.REF_RELATION,
                     uriInfo));
         map.put("encryptionAccessLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) ->
             configurationSecurityPropertySetInfo.encryptionAccessLevel = encryptionDeviceAccessLevelInfoFactoryProvider.get().asLink(
-                    securityPropertySet.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass(),
+                    securityPropertySet.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass().get(),
                     securityPropertySet.getEncryptionDeviceAccessLevel(),
                     Relation.REF_RELATION,
                     uriInfo
