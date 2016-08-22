@@ -10,9 +10,7 @@ Ext.define('Tme.view.relativeperiod.Preview', {
 
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'TME', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             menu: {
                 xtype: 'relative-periods-action-menu'
             }

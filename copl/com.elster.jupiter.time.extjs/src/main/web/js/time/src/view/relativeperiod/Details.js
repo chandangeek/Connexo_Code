@@ -28,10 +28,8 @@ Ext.define('Tme.view.relativeperiod.Details', {
                 ]
             },
             {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.actions', 'TME', 'Actions'),
+                xtype: 'uni-button-action',
                 privileges : Tme.privileges.Period.admin,
-                iconCls: 'x-uni-action-iconD',
                 margin: '20 0 0 0',
                 menu: {
                     xtype: 'relative-periods-action-menu'
