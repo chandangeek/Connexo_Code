@@ -100,6 +100,7 @@ class DeviceServiceImpl implements ServerDeviceService {
     private final QueryService queryService;
     private final Thesaurus thesaurus;
     private final Clock clock;
+    private MultiplierType defaultMultiplierType;
 
     @Inject
     DeviceServiceImpl(DeviceDataModelService deviceDataModelService, MeteringService meteringService, QueryService queryService, NlsService nlsService, Clock clock) {
@@ -469,9 +470,15 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public MultiplierType findOrCreateDefaultMultiplierType() {
-        return this.meteringService
-                    .getMultiplierType(MULTIPLIER_TYPE)
-                    .orElseGet(() -> this.meteringService.createMultiplierType(MULTIPLIER_TYPE));
+        if (this.defaultMultiplierType == null) {
+            Optional<MultiplierType> multiplierType = this.meteringService.getMultiplierType(MULTIPLIER_TYPE);
+            if (multiplierType.isPresent()) {
+                this.defaultMultiplierType = multiplierType.get();
+            } else {
+                this.defaultMultiplierType = this.meteringService.createMultiplierType(MULTIPLIER_TYPE);
+            }
+        }
+        return this.defaultMultiplierType;
     }
 
 }
