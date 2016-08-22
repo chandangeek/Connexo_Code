@@ -160,8 +160,10 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
 
         record.getProxy().extraParams = ({mrid: encodeURIComponent(me.mrid)});
         if (propertyForm) {
+            propertyForm.clearInvalid();
             propertyForm.updateRecord(record);
             record.propertiesStore = propertyForm.getRecord().properties();
+
         }
         record.save({
             backUrl: backUrl,
@@ -299,6 +301,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
 
     restoreAllDefaults: function () {
         var me = this;
+        me.getDeviceSecuritySettingEditView().down('property-form').clearInvalid();
         me.getDeviceSecuritySettingEditView().down('property-form').restoreAll();
         me.getRestoreAllButton().disable();
     },
