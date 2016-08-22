@@ -10,10 +10,8 @@ Ext.define('Sct.view.Preview', {
         var me = this;
         me.tools = [
             {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.actions', 'SCT', 'Actions'),
+                xtype: 'uni-button-action',
               //  privileges: Apr.privileges.AppServer.admin,
-                iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'sct-action-menu'
                 }
