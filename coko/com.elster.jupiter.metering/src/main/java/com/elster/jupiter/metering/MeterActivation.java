@@ -26,6 +26,10 @@ public interface MeterActivation extends HasId, Effectivity, ReadingContainer {
 
     long getVersion();
 
+    Instant getCreateDate();
+
+    Instant getModificationDate();
+
     Instant getStart();
 
     Instant getEnd();
