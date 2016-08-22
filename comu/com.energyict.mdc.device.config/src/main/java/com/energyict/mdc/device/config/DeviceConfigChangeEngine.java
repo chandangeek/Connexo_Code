@@ -4,8 +4,15 @@ import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeConnectionTaskItem;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeSecuritySetItem;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
+
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 /**
  * This engine will check every DeviceConfiguration and it will determine the actions that need to take place if one wants to change
@@ -29,13 +36,22 @@ public final class DeviceConfigChangeEngine {
      * @return the calculated DeviceConfigChangeActions
      */
     public List<DeviceConfigChangeAction> calculateDeviceConfigChangeActionsForConflicts(DeviceType deviceType) {
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = new ArrayList<>();
-        deviceType.getConfigurations().stream().filter(DeviceConfiguration::isActive).forEach(
-                origin -> deviceType.getConfigurations().stream()
-                        .filter(deviceConfiguration -> deviceConfiguration.isActive() && deviceConfiguration.getId() != origin.getId())
-                        .forEach(destination -> calculateForPossibleConflictingAttributes(origin, destination, deviceConfigChangeActions))
-        );
-        return deviceConfigChangeActions;
+        if (!deviceType.isDataloggerSlave()) {
+            List<DeviceConfigChangeAction> deviceConfigChangeActions = new ArrayList<>();
+            deviceType.getConfigurations().stream()
+                    .filter(DeviceConfiguration::isActive) // only perform the check on active device configurations
+                    .filter(not(DeviceConfiguration::isDataloggerEnabled))  // don't do the calculation for dataLogger enabled devices
+                    .forEach(
+                            origin -> deviceType.getConfigurations().stream()
+                                    .filter(DeviceConfiguration::isActive) // only active configs
+                                    .filter(not(DeviceConfiguration::isDataloggerEnabled)) // don't do the calculation for datalogger enabled devices
+                                    .filter(destinationConfig -> destinationConfig.getId() != origin.getId())
+                                    .forEach(destination -> calculateForPossibleConflictingAttributes(origin, destination, deviceConfigChangeActions))
+                    );
+            return Collections.unmodifiableList(deviceConfigChangeActions);
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     private void calculateForPossibleConflictingAttributes(DeviceConfiguration origin, DeviceConfiguration destination, List<DeviceConfigChangeAction> deviceConfigChangeActions) {
@@ -93,30 +109,24 @@ public final class DeviceConfigChangeEngine {
         deviceConfigChangeItem.getOriginItems().stream()
                 .filter(isItAlreadyAHandledItem(matchedIds).negate())
                 .filter(isItAlreadyAHandledItem(conflictIds).negate())
-                .forEach(originItem -> {
-                    createRemoveAction(deviceConfigChangeItem.getOriginDeviceConfig(), deviceConfigChangeItem.getDestinationDeviceConfig(), originItem, deviceConfigChangeActions);
-                });
+                .forEach(originItem -> createRemoveAction(deviceConfigChangeItem.getOriginDeviceConfig(), deviceConfigChangeItem.getDestinationDeviceConfig(), originItem, deviceConfigChangeActions));
         deviceConfigChangeItem.getDestinationItems().stream()
                 .filter(isItAlreadyAHandledItem(matchedIds).negate())
                 .filter(isItAlreadyAHandledItem(conflictIds).negate())
-                .forEach(destinationItem -> {
-                    createAddAction(deviceConfigChangeItem.getOriginDeviceConfig(), deviceConfigChangeItem.getDestinationDeviceConfig(), destinationItem, deviceConfigChangeActions);
-                });
+                .forEach(destinationItem -> createAddAction(deviceConfigChangeItem.getOriginDeviceConfig(), deviceConfigChangeItem.getDestinationDeviceConfig(), destinationItem, deviceConfigChangeActions));
     }
 
     private <T extends HasId> void findAndCreateConflictDeviceConfigChangeActions(DeviceConfigChangeItem<T> deviceConfigChangeItem, Set<Long> matchedIds, Set<Long> conflictIds, List<DeviceConfigChangeAction<T>> deviceConfigChangeActions) {
         deviceConfigChangeItem.getOriginItems().stream().filter(isItAlreadyAHandledItem(matchedIds).negate())
-                .forEach(originItem -> {
-                            deviceConfigChangeItem.getDestinationItems().stream()
-                                    .filter(isItAlreadyAHandledItem(matchedIds).negate())
-                                    .filter(deviceConfigChangeItem.isItAConflict(originItem))
-                                    .forEach(destinationItem -> {
-                                                createConflictAction(deviceConfigChangeItem.getOriginDeviceConfig(), deviceConfigChangeItem.getDestinationDeviceConfig(), originItem, destinationItem, deviceConfigChangeActions);
-                                                conflictIds.add(originItem.getId());
-                                                conflictIds.add(destinationItem.getId());
-                                            }
-                                    );
-                        }
+                .forEach(originItem -> deviceConfigChangeItem.getDestinationItems().stream()
+                        .filter(isItAlreadyAHandledItem(matchedIds).negate())
+                        .filter(deviceConfigChangeItem.isItAConflict(originItem))
+                        .forEach(destinationItem -> {
+                                    createConflictAction(deviceConfigChangeItem.getOriginDeviceConfig(), deviceConfigChangeItem.getDestinationDeviceConfig(), originItem, destinationItem, deviceConfigChangeActions);
+                                    conflictIds.add(originItem.getId());
+                                    conflictIds.add(destinationItem.getId());
+                                }
+                        )
                 );
     }
 

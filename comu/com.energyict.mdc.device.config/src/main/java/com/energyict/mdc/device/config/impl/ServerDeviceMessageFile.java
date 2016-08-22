@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.mdc.device.config.impl;
+
+import com.energyict.mdc.device.config.DeviceMessageFile;
+
+/**
+ * Adds behavior to {@link DeviceMessageFile} that is reserved
+ * for server-side components.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2016-07-15 (10:33)
+ */
+public interface ServerDeviceMessageFile extends DeviceMessageFile {
+}

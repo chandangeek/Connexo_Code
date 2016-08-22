@@ -1,16 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
-import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -21,6 +10,25 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
+import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
+import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -108,8 +116,9 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
 
     private List<DeviceProtocolDialect> getAllDeviceProtocolDialectsSupportedByTheDeviceType() {
         DeviceType deviceType = this.getDeviceConfiguration().getDeviceType();
-        DeviceProtocol deviceProtocol = deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol();
-        return deviceProtocol.getDeviceProtocolDialects();
+        return deviceType.getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getDeviceProtocolDialects()).orElse(Collections.emptyList());
+
     }
 
     @Override
@@ -168,9 +177,13 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         return DeleteEventType.PROTOCOLCONFIGPROPS;
     }
 
+    void prepareDelete() {
+        this.propertyList.clear();
+    }
+
     @Override
     protected final void doDelete() {
-        dataModel.mapper(ProtocolDialectConfigurationProperties.class).remove(this);
+        this.dataModel.mapper(ProtocolDialectConfigurationProperties.class).remove(this);
     }
 
     static ProtocolDialectConfigurationPropertiesImpl from(DataModel dataModel, DeviceConfiguration configuration, DeviceProtocolDialect protocolDialect) {
@@ -199,7 +212,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         }
     }
 
-    public void updateProperty(String name, Object value) {
+    private void updateProperty(String name, Object value) {
         this.findProperty(name).ifPresent(this::doRemoveProperty);
         this.setNewProperty(name, value);
     }
@@ -268,4 +281,5 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
             dataModel.touch(deviceConfiguration.get());
         }
     }
+
 }

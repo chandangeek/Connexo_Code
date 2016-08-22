@@ -53,7 +53,7 @@ import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED
  * @since 2012-12-14 (11:09)
  */
 @LevelMustBeProvidedIfSupportedByDevice(groups = {Save.Create.class, Save.Update.class})
-public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements ServerSecurityPropertySet, PersistenceAware {
+class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements ServerSecurityPropertySet, PersistenceAware {
 
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -77,7 +77,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private Instant modTime;
 
     @Inject
-    public SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus,
+    SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus,
                                    ThreadPrincipalService threadPrincipalService) {
         super(SecurityPropertySet.class, dataModel, eventService, thesaurus);
         this.threadPrincipalService = threadPrincipalService;
@@ -105,13 +105,19 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
-    protected DeleteEventType deleteEventType() {
+    public DeleteEventType deleteEventType() {
         return DeleteEventType.SECURITY_PROPERTY_SET;
     }
 
     @Override
     protected void doDelete() {
         this.getDataModel().mapper(SecurityPropertySet.class).remove(this);
+    }
+
+    @Override
+    public void prepareDelete() {
+        this.validateDelete();
+        this.userActionRecords.clear();
     }
 
     @Override
@@ -251,16 +257,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     private DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
-        DeviceProtocolPluggableClass protocolClass = deviceType.getDeviceProtocolPluggableClass();
-        if (protocolClass != null) {
-            return protocolClass;
-        } else { // DeviceType's Collection Method should be DeviceCollectionMethodType.HEADEND_SYSTEM, else we have a problem...
-//            if (deviceType.getDeviceCollectionMethodType() == DeviceCollectionMethodType.COMSERVER) {
-//                throw new ApplicationException(String.format("Protocol not defined for Device Type \"%s\"", deviceType.getName()));
-//            }
-            //throw CodingException.unsupportedMethod(this.getClass(), "getDeviceProtocolPluggableClass");
-            throw new UnsupportedOperationException();
-        }
+        return deviceType.getDeviceProtocolPluggableClass().orElseThrow(UnsupportedOperationException::new);
     }
 
     @Override
@@ -343,7 +340,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         return false;
     }
 
-    public boolean viewingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
+    private boolean viewingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
         return action.isViewing() && this.isAuthorized(action, user);
     }
 
@@ -351,7 +348,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         return user.hasPrivilege("MDC", action.getPrivilege());
     }
 
-    public boolean editingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
+    private boolean editingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
         return action.isEditing() && this.isAuthorized(action, user);
     }
 
@@ -425,12 +422,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         return version;
     }
 
-    public static class LevelsAreSupportedValidator implements ConstraintValidator<LevelMustBeProvidedIfSupportedByDevice, SecurityPropertySetImpl> {
+    static class LevelsAreSupportedValidator implements ConstraintValidator<LevelMustBeProvidedIfSupportedByDevice, SecurityPropertySetImpl> {
 
         private final Thesaurus thesaurus;
 
         @Inject
-        public LevelsAreSupportedValidator(Thesaurus thesaurus) {
+        LevelsAreSupportedValidator(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -455,7 +452,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         private List<EncryptionDeviceAccessLevel> supportedEncryptionlevels(SecurityPropertySetImpl value) {
             List<EncryptionDeviceAccessLevel> levels = value.getDeviceProtocol().getEncryptionAccessLevels();
             if (levels.isEmpty()) {
-                return Collections.<EncryptionDeviceAccessLevel>singletonList(new NoEncryption(thesaurus));
+                return Collections.singletonList(new NoEncryption(thesaurus));
             }
             else {
                 return levels;
@@ -474,7 +471,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         private List<AuthenticationDeviceAccessLevel> supportedAutheticationLevels(SecurityPropertySetImpl value) {
             List<AuthenticationDeviceAccessLevel> levels = value.getDeviceProtocol().getAuthenticationAccessLevels();
             if (levels.isEmpty()) {
-                return Collections.<AuthenticationDeviceAccessLevel>singletonList(new NoAuthentication(thesaurus));
+                return Collections.singletonList(new NoAuthentication(thesaurus));
             }
             else {
                 return levels;

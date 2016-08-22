@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * Date: 9/30/14
  * Time: 1:36 PM
  */
-public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessageEnablement> implements ServerDeviceMessageEnablement, PersistenceAware {
+class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessageEnablement> implements ServerDeviceMessageEnablement, PersistenceAware {
 
     static class DeviceMessageUserActionRecord {
 
@@ -68,12 +68,12 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    static DeviceMessageEnablement from(DataModel dataModel, DeviceConfigurationImpl deviceConfiguration, DeviceMessageId deviceMessageId) {
+    static DeviceMessageEnablementImpl from(DataModel dataModel, DeviceConfigurationImpl deviceConfiguration, DeviceMessageId deviceMessageId) {
         return dataModel.getInstance(DeviceMessageEnablementImpl.class).init(deviceConfiguration, deviceMessageId);
     }
 
     @Inject
-    public DeviceMessageEnablementImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    DeviceMessageEnablementImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(DeviceMessageEnablement.class, dataModel, eventService, thesaurus);
     }
 
@@ -82,13 +82,12 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
         return deviceMessageUserActions;
     }
 
-    private DeviceMessageEnablement init(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId) {
+    private DeviceMessageEnablementImpl init(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId) {
         setDeviceConfiguration(deviceConfiguration);
         this.deviceMessageId = deviceMessageId;
         this.deviceMessageIdDbValue = deviceMessageId.dbValue();
         return this;
     }
-
 
     public long getDeviceMessageDbValue(){
         return deviceMessageIdDbValue;
@@ -117,7 +116,6 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
     @Override
     public void addDeviceMessageCategory(DeviceMessageCategory deviceMessageCategory) {
 //            no implementation yet, as the requirement stated that we don't need to store full categories
-
     }
 
     @Override
@@ -142,7 +140,7 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
 
     @Override
     protected void validateDelete() {
-
+        // Nothing to validate
     }
 
     @Override
@@ -165,4 +163,9 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
         getUserActions().forEach(deviceMessageEnablement::addUserAction);
         return deviceMessageEnablement.build();
     }
+
+    void prepareDelete() {
+        this.deviceMessageUserActionRecords.clear();
+    }
+
 }

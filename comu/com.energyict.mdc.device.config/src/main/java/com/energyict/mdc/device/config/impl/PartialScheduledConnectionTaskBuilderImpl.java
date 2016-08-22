@@ -12,7 +12,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
  * Date: 13/03/14
  * Time: 15:31
  */
-public class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialScheduledConnectionTaskBuilder, PartialScheduledConnectionTaskImpl> implements PartialScheduledConnectionTaskBuilder {
+class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialScheduledConnectionTaskBuilder, PartialScheduledConnectionTaskImpl> implements PartialScheduledConnectionTaskBuilder {
 
     private ComWindow comWindow;
     private ConnectionStrategy connectionStrategy;

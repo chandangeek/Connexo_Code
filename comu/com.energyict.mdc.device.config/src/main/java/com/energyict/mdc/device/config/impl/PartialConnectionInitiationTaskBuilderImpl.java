@@ -10,7 +10,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
  * Date: 14/03/14
  * Time: 10:32
  */
-public class PartialConnectionInitiationTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialConnectionInitiationTaskBuilder, PartialConnectionInitiationTaskImpl> implements PartialConnectionInitiationTaskBuilder {
+class PartialConnectionInitiationTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialConnectionInitiationTaskBuilder, PartialConnectionInitiationTaskImpl> implements PartialConnectionInitiationTaskBuilder {
 
     PartialConnectionInitiationTaskBuilderImpl(DataModel dataModel, DeviceConfigurationImpl configuration, SchedulingService schedulingService, EventService eventService) {
         super(PartialConnectionInitiationTaskBuilder.class, dataModel, configuration, schedulingService, eventService);

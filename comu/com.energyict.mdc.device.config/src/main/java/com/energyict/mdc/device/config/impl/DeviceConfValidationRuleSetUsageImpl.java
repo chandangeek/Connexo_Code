@@ -1,31 +1,37 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import java.util.Optional;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Optional;
 
-public class DeviceConfValidationRuleSetUsageImpl implements DeviceConfValidationRuleSetUsage {
+class DeviceConfValidationRuleSetUsageImpl implements DeviceConfValidationRuleSetUsage {
 
     private long validationRuleSetId;
     private long deviceConfigurationId;
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     private transient ValidationRuleSet validationRuleSet;
     private transient DeviceConfiguration deviceConfiguration;
 
     private final DataModel dataModel;
-    private final EventService eventService;
     private final ValidationService validationService;
 
     @Inject
-    DeviceConfValidationRuleSetUsageImpl(DataModel dataModel, EventService eventService, ValidationService validationService) {
+    DeviceConfValidationRuleSetUsageImpl(DataModel dataModel, ValidationService validationService) {
         this.dataModel = dataModel;
-        this.eventService = eventService;
         this.validationService = validationService;
     }
 
@@ -66,13 +72,8 @@ public class DeviceConfValidationRuleSetUsageImpl implements DeviceConfValidatio
         dataModel.remove(this);
     }
 
-    void setValidationRuleSetIdRuleSetId(long validationRuleSetId) {
-        this.validationRuleSetId = validationRuleSetId;
-    }
-
     void setDeviceConfigurationId(long deviceConfigurationId) {
         this.deviceConfigurationId = deviceConfigurationId;
     }
-
 
 }

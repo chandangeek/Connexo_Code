@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class DeviceFunctionsAreSupportedByProtocolValidator implements ConstraintValidator<DeviceFunctionsAreSupportedByProtocol, DeviceConfigurationImpl> {
@@ -17,12 +18,12 @@ public class DeviceFunctionsAreSupportedByProtocolValidator implements Constrain
 
     @Override
     public boolean isValid(DeviceConfigurationImpl value, ConstraintValidatorContext context) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = value.getDeviceType().getDeviceProtocolPluggableClass();
-        if (deviceProtocolPluggableClass==null) {
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = value.getDeviceType().getDeviceProtocolPluggableClass();
+        if (!deviceProtocolPluggableClass.isPresent()) {
             return true;
         }
         Set<DeviceCommunicationFunction> communicationFunctions = value.getCommunicationFunctions();
-        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = deviceProtocolPluggableClass.getDeviceProtocol().getDeviceProtocolCapabilities();
+        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = deviceProtocolPluggableClass.get().getDeviceProtocol().getDeviceProtocolCapabilities();
         boolean valid=true;
         if (communicationFunctions.contains(DeviceCommunicationFunction.GATEWAY) && !deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_MASTER)) {
             context.disableDefaultConstraintViolation();

@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.config.events;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 /**
  * Models the different event types that are produced by this "device type and configurations bundle".
@@ -17,6 +16,7 @@ public enum EventType {
 
     DEVICETYPE_CREATED("devicetype/CREATED"),
     DEVICETYPE_UPDATED("devicetype/UPDATED"),
+    DEVICETYPE_VALIDATE_DELETE("devicetype/VALIDATEDELETE"),
     DEVICETYPE_DELETED("devicetype/DELETED"),
     DEVICELIFECYCLE_UPDATED("devicetype/dlc/UPDATED"),
     DEVICECONFIGURATION_CREATED("deviceconfiguration/CREATED"),
@@ -203,7 +203,8 @@ public enum EventType {
     DEVICE_MESSAGE_ENABLEMENT_UPDATED("devicemessageenablement/UPDATED"),
     DEVICE_MESSAGE_ENABLEMENT_CREATED("devicemessageenablement/CREATED"),
     DEVICE_MESSAGE_ENABLEMENT_DELETE("devicemessageenablement/DELETED"),
-    DEVICE_CONFIG_CONFLICT_VALIDATE_CREATE("deviceconfigconflict/VALIDATE_CREATE");
+    DEVICE_CONFIG_CONFLICT_VALIDATE_CREATE("deviceconfigconflict/VALIDATE_CREATE"),
+    ALLOWED_CALENDAR_VALIDATE_DELETE("allowedcalendar/VALIDATE_DELETE");
 
     private static final String NAMESPACE = "com/energyict/mdc/device/config/";
     private final String topic;

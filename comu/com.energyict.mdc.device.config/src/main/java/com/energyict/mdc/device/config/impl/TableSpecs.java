@@ -24,6 +24,11 @@ import com.energyict.mdc.tasks.ComTask;
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Version.version;
@@ -43,7 +48,6 @@ public enum TableSpecs {
             Table<DeviceType> table = dataModel.addTable(this.name(), DeviceType.class);
             table.map(DeviceTypeImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map(DeviceTypeImpl.Fields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName()).add();
@@ -55,7 +59,9 @@ public enum TableSpecs {
                     .conversion(NUMBER2BOOLEAN)
                     .map(DeviceTypeImpl.Fields.FILE_MANAGEMENT_ENABLED.fieldName())
                     .since(version(10, 2))
+                    .installValue("0")
                     .add();
+            table.addAuditColumns();
             table.unique("UK_DTC_DEVICETYPE").on(name).add();
             table.primaryKey("PK_DTC_DEVICETYPE").on(id).add();
         }
@@ -97,19 +103,19 @@ public enum TableSpecs {
             Column customPropertySet = table.column("CUSTOMPROPERTYSETID").number().add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_LOADPRFTYPEFORDEVTYPE").on(loadProfileType, deviceType).add();
-            table.foreignKey("FK_DTC_DEVTYPE_LPT_DEVTYPE").
-                    on(deviceType).
-                    references(DTC_DEVICETYPE.name())
-                    .map("deviceType").
-                    reverseMap("loadProfileTypeUsages").
-                    composition().
-                    onDelete(CASCADE).
-                    add();
-            table.foreignKey("FK_DTC_LPT_LPT_DEVTYPE").
-                    on(loadProfileType).
-                    references(LoadProfileType.class).
-                    map("loadProfileType").
-                    add();
+            table.foreignKey("FK_DTC_DEVTYPE_LPT_DEVTYPE")
+                    .on(deviceType)
+                    .references(DTC_DEVICETYPE.name())
+                    .map("deviceType")
+                    .reverseMap("loadProfileTypeUsages")
+                    .composition()
+                    .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("FK_DTC_LPT_LPT_DEVTYPE")
+                    .on(loadProfileType)
+                    .references(LoadProfileType.class)
+                    .map("loadProfileType")
+                    .add();
             table.foreignKey("FK_DTC_LPT_CPS_CPS")
                     .references(RegisteredCustomPropertySet.class)
                     .on(customPropertySet)
@@ -128,19 +134,19 @@ public enum TableSpecs {
             Column customPropertySet = table.column("CUSTOMPROPERTYSETID").number().add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_REGTYPEFORDEVICETYPE").on(registerType, deviceType).add();
-            table.foreignKey("FK_DTC_DEVTYPE_REGTYPE_DEVTYPE").
-                    on(deviceType).
-                    references(DTC_DEVICETYPE.name()).
-                    map("deviceType").
-                    reverseMap("registerTypeUsages").
-                    composition().
-                    onDelete(CASCADE).
-                    add();
-            table.foreignKey("FK_DTC_MAPID_REGTYPE_DEVTYPE").
-                    on(registerType).
-                    references(MeasurementType.class)
-                    .map("registerType").
-                    add();
+            table.foreignKey("FK_DTC_DEVTYPE_REGTYPE_DEVTYPE")
+                    .on(deviceType)
+                    .references(DTC_DEVICETYPE.name())
+                    .map("deviceType")
+                    .reverseMap("registerTypeUsages")
+                    .composition()
+                    .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("FK_DTC_MAPID_REGTYPE_DEVTYPE")
+                    .on(registerType)
+                    .references(MeasurementType.class)
+                    .map("registerType")
+                    .add();
             table.foreignKey("FK_DTC_REGTYPE_CPS_CPS")
                     .references(RegisteredCustomPropertySet.class)
                     .on(customPropertySet)
@@ -158,19 +164,19 @@ public enum TableSpecs {
             Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_LOGBOOKTYPEFORDEVTYPE").on(logBookType, deviceType).add();
-            table.foreignKey("FK_DTC_DEVTYPE_LOGBT_DEVTYPE").
-                    on(deviceType).
-                    references(DTC_DEVICETYPE.name()).
-                    map("deviceType").
-                    reverseMap("logBookTypeUsages").
-                    composition().
-                    onDelete(CASCADE).
-                    add();
-            table.foreignKey("FK_DTC_LBTYPE_LBTT_DEVTYPE").
-                    on(logBookType).
-                    references(LogBookType.class).
-                    map("logBookType").
-                    add();
+            table.foreignKey("FK_DTC_DEVTYPE_LOGBT_DEVTYPE")
+                    .on(deviceType)
+                    .references(DTC_DEVICETYPE.name())
+                    .map("deviceType")
+                    .reverseMap("logBookTypeUsages")
+                    .composition()
+                    .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("FK_DTC_LBTYPE_LBTT_DEVTYPE")
+                    .on(logBookType)
+                    .references(LogBookType.class)
+                    .map("logBookType")
+                    .add();
         }
     },
 
@@ -180,7 +186,6 @@ public enum TableSpecs {
             Table<DeviceConfiguration> table = dataModel.addTable(name(), DeviceConfiguration.class);
             table.map(DeviceConfigurationImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
             Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
@@ -190,15 +195,16 @@ public enum TableSpecs {
             table.column("USERACTIONS").number().conversion(NUMBER2LONG).notNull().map("supportsAllProtocolMessagesUserActionsBitVector").add();
             table.column("GATEWAY_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceConfigurationImpl.Fields.GATEWAY_TYPE.fieldName()).notNull().add();
             table.column("DATALOGGERENABLED").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map(DeviceConfigurationImpl.Fields.DATALOGGER_ENABLED.fieldName()).since(version(10, 2)).add();
+            table.setJournalTableName("DTC_DEVICECONFIGJRNL").since(version(10, 2));
+            table.addAuditColumns();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
-            table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE").
-                    on(deviceType).
-                    references(DTC_DEVICETYPE.name()).
-                    map("deviceType").
-                    reverseMap("deviceConfigurations").
-                    composition().
-                    onDelete(CASCADE).
-                    add();
+            table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE")
+                    .on(deviceType)
+                    .references(DTC_DEVICETYPE.name())
+                    .map("deviceType")
+                    .reverseMap("deviceConfigurations")
+                    .composition()
+                    .add();
             table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).add();
         }
     },
@@ -209,24 +215,24 @@ public enum TableSpecs {
             Table<LoadProfileSpec> table = dataModel.addTable(name(), LoadProfileSpec.class);
             table.map(LoadProfileSpecImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add(); // obiscode is not a free field: derived from real obiscode, so user can not exceed max length
+            table.setJournalTableName("DTC_LOADPROFILESPECJRNL").since(version(10, 2));
+            table.addAuditColumns();
             table.primaryKey("PK_DTC_LOADPROFILESPECID").on(id).add();
-            table.foreignKey("FK_DTC_LPRFSPEC_LOADPROFTYPE").
-                    on(loadProfileType).
-                    references(LoadProfileType.class).
-                    map("loadProfileType").
-                    add();
-            table.foreignKey("FK_DTC_LPRFSPEC_DEVCONFIG").
-                    on(deviceConfiguration).
-                    references(DTC_DEVICECONFIG.name()).
-                    map("deviceConfiguration").
-                    reverseMap("loadProfileSpecs").
-                    composition().
-                    onDelete(CASCADE).
-                    add();
+            table.foreignKey("FK_DTC_LPRFSPEC_LOADPROFTYPE")
+                    .on(loadProfileType)
+                    .references(LoadProfileType.class)
+                    .map("loadProfileType")
+                    .add();
+            table.foreignKey("FK_DTC_LPRFSPEC_DEVCONFIG")
+                    .on(deviceConfiguration)
+                    .references(DTC_DEVICECONFIG.name())
+                    .map("deviceConfiguration")
+                    .reverseMap("loadProfileSpecs")
+                    .composition()
+                    .add();
         }
     },
 
@@ -236,7 +242,6 @@ public enum TableSpecs {
             Table<ChannelSpec> table = dataModel.addTable(name(), ChannelSpec.class);
             table.map(ChannelSpecImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column channelType = table.column("CHANNELTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(Table.NAME_LENGTH).map(ChannelSpecImpl.ChannelSpecFields.OVERRULED_OBISCODE.fieldName()).add();
@@ -247,12 +252,13 @@ public enum TableSpecs {
             table.column("INTERVALCODE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(ChannelSpecImpl.ChannelSpecFields.INTERVAL_CODE.fieldName()).add();
             table.column("USEMULTIPLIER").number().conversion(NUMBER2BOOLEAN).map(ChannelSpecImpl.ChannelSpecFields.USEMULTIPLIER.fieldName()).add();
             Column calculatedReadingType = table.column("CALCULATEDREADINGTYPE").varChar(Table.NAME_LENGTH).add();
+            table.setJournalTableName("DTC_CHANNELSPECJRNL").since(version(10, 2));
+            table.addAuditColumns();
             table.primaryKey("PK_DTC_CHANNELSPEC").on(id).add();
             table.foreignKey("FK_DTC_CHANNELSPEC_DEVCONFIG").
                     on(deviceConfiguration).
                     references(DTC_DEVICECONFIG.name()).
                     map(ChannelSpecImpl.ChannelSpecFields.DEVICE_CONFIG.fieldName()).
-                    onDelete(CASCADE).
                     add();
             table.foreignKey("FK_DTC_CHANNELSPEC_REGMAP").
                     on(channelType).
@@ -280,7 +286,6 @@ public enum TableSpecs {
             Table<RegisterSpec> table = dataModel.addTable(name(), RegisterSpec.class);
             table.map(RegisterSpecImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column registerType = table.column("REGISTERTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("DEVICEOBISCODE").varChar().map("overruledObisCodeString").add();
@@ -289,27 +294,28 @@ public enum TableSpecs {
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("USEMULTIPLIER").number().conversion(NUMBER2BOOLEAN).map(RegisterSpecFields.USEMULTIPLIER.fieldName()).add();
             Column calculatedReadingType = table.column("CALCULATEDREADINGTYPE").varChar(Table.NAME_LENGTH).add();
+            table.setJournalTableName("DTC_REGISTERSPECJRNL").since(version(10, 2));
+            table.addAuditColumns();
             table.primaryKey("PK_DTC_REGISTERSPEC").on(id).add();
-            table.foreignKey("FK_DTC_REGISTERSPEC_REGMAP").
-                    on(registerType).
-                    references(MeasurementType.class).
-                    map(RegisterSpecFields.REGISTER_TYPE.fieldName()).
-                    add();
-            table.foreignKey("FK_DTC_REGISTERSPEC_DEVCONFIG").
-                    on(deviceConfiguration).
-                    references(DTC_DEVICECONFIG.name()).
-                    map("deviceConfig").
-                    reverseMap("registerSpecs").
-                    composition().
-                    onDelete(CASCADE).
-                    add();
+            table.foreignKey("FK_DTC_REGISTERSPEC_REGMAP")
+                    .on(registerType)
+                    .references(MeasurementType.class)
+                    .map(RegisterSpecFields.REGISTER_TYPE.fieldName())
+                    .add();
+            table.foreignKey("FK_DTC_REGISTERSPEC_DEVCONFIG")
+                    .on(deviceConfiguration)
+                    .references(DTC_DEVICECONFIG.name())
+                    .map("deviceConfig")
+                    .reverseMap("registerSpecs")
+                    .composition()
+                    .add();
             table.foreignKey("FK_DTC_REGISTERSPEC_CALC")
                     .on(calculatedReadingType)
                     .references(ReadingType.class)
                     .map(RegisterSpecFields.CALCULATED_READINGTYPE.fieldName()).add();
-            table.unique("U_DTC_REGISTERTYPE_IN_CONFIG").
-                    on(deviceConfiguration, registerType).
-                    add();
+            table.unique("U_DTC_REGISTERTYPE_IN_CONFIG")
+                    .on(deviceConfiguration, registerType)
+                    .add();
         }
     },
 
@@ -319,24 +325,24 @@ public enum TableSpecs {
             Table<LogBookSpec> table = dataModel.addTable(name(), LogBookSpec.class);
             table.map(LogBookSpecImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column logbooktypeid = table.column("LOGBOOKTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
+            table.setJournalTableName("DTC_LOGBOOKSPECJRNL").since(version(10, 2));
+            table.addAuditColumns();
             table.primaryKey("PK_DTC_LOGBOOKSPEC").on(id).add();
-            table.foreignKey("FK_DTC_LOGBOOKSPEC_DEVCONFIG").
-                    on(deviceconfigid).
-                    references(DTC_DEVICECONFIG.name()).
-                    map("deviceConfiguration").
-                    reverseMap("logBookSpecs").
-                    composition().
-                    onDelete(CASCADE).
-                    add();
-            table.foreignKey("FK_DTC_LOGBOOKSPEC_LOGBOOKTYPE").
-                    on(logbooktypeid).
-                    references(LogBookType.class)
-                    .map("logBookType").
-                    add();
+            table.foreignKey("FK_DTC_LOGBOOKSPEC_DEVCONFIG")
+                    .on(deviceconfigid)
+                    .references(DTC_DEVICECONFIG.name())
+                    .map("deviceConfiguration")
+                    .reverseMap("logBookSpecs")
+                    .composition()
+                    .add();
+            table.foreignKey("FK_DTC_LOGBOOKSPEC_LOGBOOKTYPE")
+                    .on(logbooktypeid)
+                    .references(LogBookType.class)
+                    .map("logBookType")
+                    .add();
         }
     },
 
@@ -346,18 +352,19 @@ public enum TableSpecs {
             Table<ProtocolDialectConfigurationProperties> table = dataModel.addTable(name(), ProtocolDialectConfigurationProperties.class);
             table.map(ProtocolDialectConfigurationPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add();
             table.column("DEVICEPROTOCOLDIALECT").varChar().notNull().map("protocolDialectName").add();
             Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
-            table.foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG").
-                    on(deviceConfiguration).
-                    references(DTC_DEVICECONFIG.name()).
-                    map("deviceConfiguration").
-                    reverseMap("configurationPropertiesList").
-                    onDelete(CASCADE).
-                    composition().
-                    add();
+            table.setJournalTableName("DTC_DIALECT_CONFIG_PROPSJRNL").since(version(10, 2));
+            table.addAuditColumns();
+            table
+                .foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG")
+                .on(deviceConfiguration)
+                .references(DTC_DEVICECONFIG.name())
+                .map("deviceConfiguration")
+                .reverseMap("configurationPropertiesList")
+                .composition()
+                .add();
             table.primaryKey("PK_DTC_DIALECTCONFIGPROPS").on(id).add();
             table.unique("UQ_DTC_CONFIGPROPS_NAME").on(deviceConfiguration, nameColumn).add();
         }
@@ -370,17 +377,18 @@ public enum TableSpecs {
             table.map(ProtocolDialectConfigurationPropertyImpl.class);
             Column id = table.column("ID").number().notNull().add();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
+            table.setJournalTableName("DTC_DIALCTCONFPROPSATTRJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.column("VALUE").varChar(4000).notNull().map("value").add();
-            table.foreignKey("FK_DTC_CONFPROPSATTR_PROPS").
-                    on(id).
-                    references(DTC_DIALECTCONFIGPROPERTIES.name()).
-                    map("properties").
-                    composition().
-                    reverseMap("propertyList").
-                    onDelete(CASCADE).
-                    add();
-            table.primaryKey("PK_DTC_DIALECTCONFIGPROPSATTR").on(id, name).add();
+            table
+                .foreignKey("DTC_DIALECTCONFIGPROPSATTRJRNL")
+                .on(id)
+                .references(DTC_DIALECTCONFIGPROPERTIES.name())
+                .map("properties")
+                .composition()
+                .reverseMap("propertyList")
+                .add();
+            table.primaryKey("PK_DTC_DIALCTCFGPROPSATTR").on(id, name).add();
         }
     },
 
@@ -392,6 +400,7 @@ public enum TableSpecs {
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("VALUE").varChar().notNull().map("value").add();
+            table.setJournalTableName("DTC_PRTCLCONFIGPROPSATTRJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.foreignKey("FK_DTC_PROTCONFPROPSATTR_CONF")
                     .on(deviceConfiguration)
@@ -399,9 +408,8 @@ public enum TableSpecs {
                     .map("deviceConfiguration")
                     .composition()
                     .reverseMap("protocolProperties")
-                    .onDelete(CASCADE)
                     .add();
-            table.primaryKey("PK_DTC_PROTOCOLCONFPROPSATTR").on(deviceConfiguration, name).add();
+            table.primaryKey("PK_DTC_PRTCLCONFPROPSATTR").on(deviceConfiguration, name).add();
         }
     },
 
@@ -411,7 +419,6 @@ public enum TableSpecs {
             Table<PartialConnectionTask> table = dataModel.addTable(name(), PartialConnectionTask.class);
             table.map(PartialConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column deviceConfiguration = table.column("DEVICECONFIG").number().add();
@@ -426,36 +433,36 @@ public enum TableSpecs {
             table.column("RESCHEDULERETRYDELAY").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.count").add();
             Column comportpool = table.column("COMPORTPOOL").number().add();
             table.column("RESCHEDULERETRYDELAYCODE").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.timeUnitCode").add();
+            table.setJournalTableName("DTC_PARTIALCONNECTIONTASKJRNL").since(version(10, 2));
+            table.addAuditColumns();
             table.primaryKey("PK_DTC_PARTIALCONNTASK").on(id).add();
-            table.foreignKey("FK_DTC_PARTIALCT_PLUGGABLE").
-                    on(connectionType).
-                    references(PluggableClass.class).
-                    map("pluggableClass").
-                    add();
-            table.foreignKey("FK_DTC_PARTIALCT_COMPORTPOOL").
-                    on(comportpool).
-                    references(ComPortPool.class).
-                    map("comPortPool").
-                    add();
-            table.foreignKey("FK_DTC_PARTIALCT_DEVCONFIG").
-                    on(deviceConfiguration).
-                    references(DTC_DEVICECONFIG.name()).
-                    map("configuration").
-                    reverseMap("partialConnectionTasks").
-                    onDelete(CASCADE).
-                    composition().
-                    add();
-            table.foreignKey("FK_DTC_PARTIALCT_NEXTEXECSPEC").
-                    on(nextexecutionspecs).
-                    references(NextExecutionSpecs.class).
-                    onDelete(CASCADE).
-                    map("nextExecutionSpecs").
-                    add();
-            table.foreignKey("FK_DTC_PARTIALCT_INITIATOR").
-                    on(initiator).
-                    references(DTC_PARTIALCONNECTIONTASK.name()).
-                    map("initiator").
-                    add();
+            table.foreignKey("FK_DTC_PARTIALCT_PLUGGABLE")
+                    .on(connectionType)
+                    .references(PluggableClass.class)
+                    .map("pluggableClass")
+                    .add();
+            table.foreignKey("FK_DTC_PARTIALCT_COMPORTPOOL")
+                    .on(comportpool)
+                    .references(ComPortPool.class)
+                    .map("comPortPool")
+                    .add();
+            table.foreignKey("FK_DTC_PARTIALCT_DEVCONFIG")
+                    .on(deviceConfiguration)
+                    .references(DTC_DEVICECONFIG.name())
+                    .map("configuration")
+                    .reverseMap("partialConnectionTasks")
+                    .composition()
+                    .add();
+            table.foreignKey("FK_DTC_PARTIALCT_NEXTEXECSPEC")
+                    .on(nextexecutionspecs)
+                    .references(NextExecutionSpecs.class)
+                    .map("nextExecutionSpecs")
+                    .add();
+            table.foreignKey("FK_DTC_PARTIALCT_INITIATOR")
+                    .on(initiator)
+                    .references(DTC_PARTIALCONNECTIONTASK.name())
+                    .map("initiator")
+                    .add();
             table.unique("UQ_DTC_PARTIALCT_NAME").on(deviceConfiguration, nameColumn).add();
         }
     },
@@ -468,16 +475,16 @@ public enum TableSpecs {
             Column partialconnectiontask = table.column("PARTIALCONNECTIONTASK").number().notNull().add();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("VALUE").varChar().notNull().map("value").add();
+            table.setJournalTableName("DTC_PARTIAL_CONNTASK_PROPSJRNL").since(version(10, 2));
             table.addAuditColumns();
-            table.foreignKey("FK_DTC_PARTIALCTPROPS_TASK").
-                    on(partialconnectiontask).
-                    references(DTC_PARTIALCONNECTIONTASK.name()).
-                    map("partialConnectionTask").
-                    reverseMap("properties").
-                    onDelete(CASCADE).
-                    composition().
-                    add();
-            table.primaryKey("PK_DTC_PARTIALCONTASKPROPS").on(partialconnectiontask, name).add();
+            table.foreignKey("FK_DTC_PARTIALCTPROPS_TASK")
+                    .on(partialconnectiontask)
+                    .references(DTC_PARTIALCONNECTIONTASK.name())
+                    .map("partialConnectionTask")
+                    .reverseMap("properties")
+                    .composition()
+                    .add();
+            table.primaryKey("PK_DTC_PARTIALCONTSKPROPS").on(partialconnectiontask, name).add();
         }
     },
 
@@ -489,15 +496,15 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column deviceConfig = table.column("DEVICECONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("DEVICEMESSAGEID").number().conversion(NUMBER2LONG).map("deviceMessageIdDbValue").notNull().add();
+            table.setJournalTableName("DTC_MESSAGEENABLEMENTJRNL").since(version(10, 2));
             table.addAuditColumns();
-            table.foreignKey("FK_DTC_DME_DEVCONFIG").
-                    on(deviceConfig).
-                    references(DTC_DEVICECONFIG.name()).
-                    map("deviceConfiguration").
-                    reverseMap(DeviceConfigurationImpl.Fields.DEVICE_MESSAGE_ENABLEMENTS.fieldName()).
-                    onDelete(CASCADE).
-                    composition().
-                    add();
+            table.foreignKey("FK_DTC_DME_DEVCONFIG")
+                    .on(deviceConfig)
+                    .references(DTC_DEVICECONFIG.name())
+                    .map("deviceConfiguration")
+                    .reverseMap(DeviceConfigurationImpl.Fields.DEVICE_MESSAGE_ENABLEMENTS.fieldName())
+                    .composition()
+                    .add();
             table.primaryKey("PK_DTC_DEVMESENABLEMENT").on(id).add();
         }
     },
@@ -509,16 +516,16 @@ public enum TableSpecs {
             table.map(DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class);
             Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
             Column deviceMessageEnablement = table.column("DEVICEMESSAGEENABLEMENT").number().notNull().add();
+            table.setJournalTableName("DTC_MSGENBLMNTUSRACTIONJRNL").since(version(10, 2));
             table.addAuditColumns();
-            table.foreignKey("FK_DTC_MESENUSRACTION").
-                    on(deviceMessageEnablement).
-                    references(DTC_MESSAGEENABLEMENT.name()).
-                    reverseMap("deviceMessageUserActionRecords").
-                    onDelete(CASCADE).
-                    composition().
-                    map("deviceMessageEnablement").
-                    add();
-            table.primaryKey("PK_DTC_MESENABLEUSERACTION").on(useraction, deviceMessageEnablement).add();
+            table.foreignKey("FK_DTC_MESENUSRACTION")
+                    .on(deviceMessageEnablement)
+                    .references(DTC_MESSAGEENABLEMENT.name())
+                    .reverseMap("deviceMessageUserActionRecords")
+                    .composition()
+                    .map("deviceMessageEnablement")
+                    .add();
+            table.primaryKey("PK_DTC_MSGENABLEUSRACTION").on(useraction, deviceMessageEnablement).add();
         }
     },
 
@@ -535,16 +542,16 @@ public enum TableSpecs {
             Column deviceConfiguration = table.column("DEVICECONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
             table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();
+            table.setJournalTableName("DTC_SECURITYPROPERTYSETJRNL").since(version(10, 2));
             table.addAuditColumns();
-            table.foreignKey("FK_DTC_SECPROPSET_DEVCONFIG").
-                    on(deviceConfiguration).
-                    references(DTC_DEVICECONFIG.name()).
-                    map("deviceConfiguration").
-                    reverseMap(DeviceConfigurationImpl.Fields.SECURITY_PROPERTY_SETS.fieldName()).
-                    onDelete(CASCADE).
-                    composition().
-                    add();
-            table.primaryKey("PK_DTC_SECURITYPROPERTYSET").on(id).add();
+            table.foreignKey("FK_DTC_SECPROPSET_DEVCONFIG")
+                    .on(deviceConfiguration)
+                    .references(DTC_DEVICECONFIG.name())
+                    .map("deviceConfiguration")
+                    .reverseMap(DeviceConfigurationImpl.Fields.SECURITY_PROPERTY_SETS.fieldName())
+                    .composition()
+                    .add();
+            table.primaryKey("PK_DTC_SECURITYPROPSET").on(id).add();
             table.unique("UK_DTC_SECPROPSET_NAME").on(deviceConfiguration, name).add();
         }
     },
@@ -556,16 +563,16 @@ public enum TableSpecs {
             table.map(SecurityPropertySetImpl.UserActionRecord.class);
             Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
             Column securitypropertyset = table.column("SECURITYPROPERTYSET").number().notNull().add();
+            table.setJournalTableName("DTC_SEC_PROP_SET_USRACTIONJRNL").since(version(10, 2));
             table.addAuditColumns();
-            table.foreignKey("FK_DTC_SECPROPSETUSRACT_SPS").
-                    on(securitypropertyset).
-                    references(DTC_SECURITYPROPERTYSET.name()).
-                    reverseMap("userActionRecords").
-                    onDelete(CASCADE).
-                    composition().
-                    map("set").
-                    add();
-            table.primaryKey("PK_DTC_SECPROPSETUSERACTION").on(useraction, securitypropertyset).add();
+            table.foreignKey("FK_DTC_SECPROPSETUSRACT_SPS")
+                    .on(securitypropertyset)
+                    .references(DTC_SECURITYPROPERTYSET.name())
+                    .reverseMap("userActionRecords")
+                    .composition()
+                    .map("set")
+                    .add();
+            table.primaryKey("PK_DTC_SECPROPSETUSRACTN").on(useraction, securitypropertyset).add();
         }
     },
 
@@ -585,30 +592,33 @@ public enum TableSpecs {
             table.column("PRIORITY").number().notNull().conversion(NUMBER2INT).map(ComTaskEnablementImpl.Fields.PRIORITY.fieldName()).add();
             Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add();
             table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
-            table.foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT").
-                    on(partialConnectionTask).
-                    references(DTC_PARTIALCONNECTIONTASK.name()).
-                    map(ComTaskEnablementImpl.Fields.PARTIAL_CONNECTION_TASK.fieldName()).add();
-            table.foreignKey("FK_DTC_COMTASKENABLMNT_SECURPS").
-                    on(securityPropertySet).
-                    references(DTC_SECURITYPROPERTYSET.name()).
-                    map(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName()).add();
-            table.foreignKey("FK_DTC_COMTASKENABLMNT_COMTASK").
-                    on(comtask).
-                    references(ComTask.class).
-                    map(ComTaskEnablementImpl.Fields.COM_TASK.fieldName()).add();
-            table.foreignKey("FK_DTC_COMTASKENBLMNT_DCOMCONF").
-                    on(deviceCommunicationConfigation).
-                    references(DTC_DEVICECONFIG.name()).
-                    map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName())
+            table.foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT")
+                    .on(partialConnectionTask)
+                    .references(DTC_PARTIALCONNECTIONTASK.name())
+                    .map(ComTaskEnablementImpl.Fields.PARTIAL_CONNECTION_TASK.fieldName())
+                    .add();
+            table.foreignKey("FK_DTC_COMTASKENABLMNT_SECURPS")
+                    .on(securityPropertySet)
+                    .references(DTC_SECURITYPROPERTYSET.name())
+                    .map(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName())
+                    .add();
+            table.foreignKey("FK_DTC_COMTASKENABLMNT_COMTASK")
+                    .on(comtask)
+                    .references(ComTask.class)
+                    .map(ComTaskEnablementImpl.Fields.COM_TASK.fieldName())
+                    .add();
+            table.foreignKey("FK_DTC_COMTASKENBLMNT_DCOMCONF")
+                    .on(deviceCommunicationConfigation)
+                    .references(DTC_DEVICECONFIG.name())
+                    .map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName())
                     .reverseMap(DeviceConfigurationImpl.Fields.COM_TASK_ENABLEMENTS.fieldName())
                     .composition()
                     .onDelete(CASCADE)
                     .add();
-            table.foreignKey("FK_DTC_COMTASKENABLMNT_PDCP").
-                    on(dialectConfigurationProperties).
-                    references(DTC_DIALECTCONFIGPROPERTIES.name()).
-                    map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName())
+            table.foreignKey("FK_DTC_COMTASKENABLMNT_PDCP")
+                    .on(dialectConfigurationProperties)
+                    .references(DTC_DIALECTCONFIGPROPERTIES.name())
+                    .map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName())
                     .onDelete(CASCADE)
                     .add();
             table.unique("UK_DTC_COMTASKENABLEMENT").on(comtask, deviceCommunicationConfigation).add();
@@ -622,7 +632,6 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<DeviceConfValidationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfValidationRuleSetUsage.class);
             table.map(DeviceConfValidationRuleSetUsageImpl.class);
-            table.setJournalTableName("DTC_DEVCFGVALRULESETUSAGEJRNL");
             Column validationRuleSetIdColumn =
                     table.column("VALIDATIONRULESETID")
                             .number()
@@ -637,6 +646,8 @@ public enum TableSpecs {
                             .conversion(NUMBER2LONG)
                             .map("deviceConfigurationId")
                             .add();
+            table.setJournalTableName("DTC_DEVCFGVALRULESETUSAGEJRNL");
+            table.addAuditColumns();
 
             table.primaryKey("DTC_PK_SETCONFIGUSAGE").on(validationRuleSetIdColumn, deviceConfigurationIdColumn).add();
             table.foreignKey("DTC_FK_RULESET").references(ValidationRuleSet.class).onDelete(RESTRICT).map("validationRuleSet").on(validationRuleSetIdColumn).add();
@@ -650,7 +661,6 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<DeviceConfigurationEstimationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfigurationEstimationRuleSetUsage.class);
             table.map(DeviceConfigurationEstimationRuleSetUsageImpl.class);
-            table.setJournalTableName(name() + "JRNL");
             Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET")
                     .number()
                     .notNull()
@@ -667,6 +677,7 @@ public enum TableSpecs {
                     .conversion(NUMBER2INT)
                     .map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.POSITION.fieldName())
                     .add();
+            table.setJournalTableName(name() + "JRNL");
             table.addAuditColumns();
 
             table.primaryKey("DTC_PK_ESTRULESETUSAGE").on(estimationRuleSetColumn, deviceConfigurationColumn).add();
@@ -823,10 +834,10 @@ public enum TableSpecs {
                             .notNull()
                             .add();
             table
-                    .column("CONTENTS")
-                    .blob()
-                    .map(DeviceMessageFileImpl.Fields.CONTENTS.fieldName())
-                    .add();
+                .column("CONTENTS")
+                .blob()
+                .map(DeviceMessageFileImpl.Fields.CONTENTS.fieldName())
+                .add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_DEVICEMESSAGEFILE").on(id).add();
             table
@@ -849,11 +860,13 @@ public enum TableSpecs {
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column calendar = table.column("CALENDAR").number().add();
             table.column("NAME").varChar().map(AllowedCalendarImpl.Fields.NAME.fieldName()).add();
+            table.setJournalTableName("DTC_DEVICETYPE_CAL_USAGEJRNL").since(version(10, 2));
+            table.addAuditColumns();
+            table.column("OBSOLETE").number().conversion(NUMBER2INSTANT).map(AllowedCalendarImpl.Fields.OBSOLETE.fieldName()).add();
             table.primaryKey("PK_DTC_CALUSAGE").on(id).add();
             table.foreignKey("FK_DTC_CALDEVICETYPE")
                     .references(DTC_DEVICETYPE.name())
                     .on(deviceType)
-                    .onDelete(CASCADE)
                     .map(AllowedCalendarImpl.Fields.DEVICETYPE.fieldName())
                     .reverseMap(DeviceTypeImpl.Fields.ALLOWEDCALENDARS.fieldName())
                     .composition()
@@ -862,7 +875,6 @@ public enum TableSpecs {
                     .references(Calendar.class)
                     .on(calendar)
                     .map(AllowedCalendarImpl.Fields.CALENDAR.fieldName())
-                    //.onDelete(CASCADE)
                     .add();
         }
     },
@@ -873,12 +885,12 @@ public enum TableSpecs {
             table.map(TimeOfUseOptionsImpl.class);
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
             table.column("OPTIONS").number().map(TimeOfUseOptionsImpl.Fields.OPTION_BITS.fieldName()).conversion(NUMBER2LONG).notNull().add();
+            table.setJournalTableName("DTC_TOU_MANAGEMENTOPTIONSJRNL").since(version(10, 2));
             table.addAuditColumns( );
             table.primaryKey("DTC_PK_TIMEOFUSEOPTIONS").on(deviceTypeColumn).add();
             table.foreignKey("DTC_TOUOPTIONS_FK_DEVICETYPE")
                     .references(DTC_DEVICETYPE.name())
                     .on(deviceTypeColumn)
-                    .onDelete(CASCADE)
                     .map(TimeOfUseOptionsImpl.Fields.DEVICETYPE.fieldName())
                     .add();
         }

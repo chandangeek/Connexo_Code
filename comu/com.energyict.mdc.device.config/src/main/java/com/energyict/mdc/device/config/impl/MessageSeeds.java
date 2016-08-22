@@ -149,11 +149,15 @@ public enum MessageSeeds implements MessageSeed {
     NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS(15006, Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS, "Next Execution Spec is required for OutboundConnectionTasks that minimize connections."),
     NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY(15007, Keys.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW, "Next Execution Spec is invalid for Communication Window."),
     NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY(15008, Keys.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY, "Next Execution Spec's offset is greater than its frequency."),
-    UNDER_MINIMUM_RESCHEDULE_DELAY(15009, Keys.UNDER_MINIMUM_RESCHEDULE_DELAY, "Reschedule delay is below minimum."),
+    RETRY_DELAY_MUST_BE_HIGHER(15009, Keys.RETRY_DELAY_MUST_BE_HIGHER, "Retry delay must be higher than 1 minute."),
     VETO_CONNECTIONTYPE_PLUGGABLECLASS_DELETION(15010, "connectionTypePluggableClass.XstillInUseByY", "ConnectionType Pluggable Class {0} is still in use by {1}"),
     VETO_COMPORTPOOL_DELETION(15011, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by connection method(s): {1}"),
     DESTINATION_DATA_SOURCE_IS_EMPTY(15012, Keys.DESTINATION_DATA_SOURCE_IS_EMPTY, "The value of the destination data source is empty while a 'map' solution was defined"),
     MULTIPLE_SOLUTIONS_FOR_SAME_CONFLICT(15013, Keys.MULTIPLE_SOLUTIONS_FOR_SAME_CONFLICT, "There are multiple solutions defined for the same device config change conflict"),
+    DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE(15014, Keys.DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before you can " +
+            "activate a datalogger slave device configuration"),
+    DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(15015, Keys.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before " +
+            "you can activate a datalogger device configuration"),
     ;
 
     private final int number;
@@ -234,7 +238,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP = "partialOutboundConnectionTask.executionSpecForbiddenForAsap";
         public static final String NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW = "partialOutboundConnectionTask.executionSpecInvalidForComWindow";
         public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY = "nextExecutionSpecs.offsetGreaterThanFrequency";
-        public static final String UNDER_MINIMUM_RESCHEDULE_DELAY = "partialScheduledConnectionTask.underMinimumRescheduleDelay";
+        public static final String RETRY_DELAY_MUST_BE_HIGHER = "partialScheduledConnectionTask.retryDelayMustBeHigher";
         public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "registerSpec.invalidNumberOfFractionDigits";
         public static final String REGISTER_SPEC_INVALID_OVERFLOW_VALUE = "registerSpec.invalidOverflow";
         public static final String CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "channelSpec.invalidNumberOfFractionDigits";
@@ -268,6 +272,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DATALOGGER_SLAVE_NO_PROTOCOL_PLUGGABLE_CLASS = "datalogger.slave.no.protocol.pluggable.class";
         public static final String DATALOGGER_SLAVE_NO_LOGBOOKSPEC_SUPPORT = "datalogger.slave.device.config.not.support.logbook.config";
         public static final String DATALOGGER_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG = "datalogger.enabled.change.on.active.config";
+        public static final String DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE = "datalogger.slave.at.least.one.datasource";
+        public static final String DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE = "datalogger.enablements.at.least.one.datasource";
     }
 
 }

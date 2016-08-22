@@ -15,7 +15,7 @@ import com.energyict.mdc.device.config.impl.MessageSeeds;
  */
 public class DuplicateDeviceMessageFileException extends LocalizedException{
     public DuplicateDeviceMessageFileException(DeviceType deviceType, String name, Thesaurus thesaurus) {
-        super(thesaurus, MessageSeeds.DUPLICATE_DEVICE_MESSAGE_FILE_IN_DEVICE_TYPE, deviceType.getName(), name);
+        super(thesaurus, MessageSeeds.DUPLICATE_DEVICE_MESSAGE_FILE_IN_DEVICE_TYPE, name, deviceType.getName());
         set("deviceType", deviceType);
     }
 }

@@ -367,7 +367,7 @@ public class DeviceMessageFileImplIT {
         long version = deviceType.getVersion();
 
         // Business method
-        deviceType.removeDeviceMessageFile(mock(DeviceMessageFile.class));
+        deviceType.removeDeviceMessageFile(mock(ServerDeviceMessageFile.class));
 
         // Asserts
         assertThat(deviceType.getVersion()).isEqualTo(version);
@@ -390,7 +390,7 @@ public class DeviceMessageFileImplIT {
         long version = deviceType.getVersion();
 
         // Business method
-        deviceType.removeDeviceMessageFile(mock(DeviceMessageFile.class));
+        deviceType.removeDeviceMessageFile(mock(ServerDeviceMessageFile.class));
 
         // Asserts
         assertThat(deviceType.getDeviceMessageFiles()).isNotEmpty();
@@ -533,16 +533,16 @@ public class DeviceMessageFileImplIT {
                 .create();
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("WithFileSupport").add();
         DeviceMessageId.fileManagementRelated()
-            .stream()
-            .forEach(deviceMessageId ->
-                    deviceConfiguration
-                            .createDeviceMessageEnablement(deviceMessageId)
-                            .addUserActions(
-                                    DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1,
-                                    DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2,
-                                    DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3,
-                                    DeviceMessageUserAction.EXECUTEDEVICEMESSAGE4)
-                            .build());
+                .stream()
+                .forEach(deviceMessageId ->
+                        deviceConfiguration
+                                .createDeviceMessageEnablement(deviceMessageId)
+                                .addUserActions(
+                                        DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1,
+                                        DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2,
+                                        DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3,
+                                        DeviceMessageUserAction.EXECUTEDEVICEMESSAGE4)
+                                .build());
         assertThat(deviceConfiguration.getDeviceMessageEnablements()).isNotEmpty();
 
         when(this.filePart.toString()).thenReturn("First");

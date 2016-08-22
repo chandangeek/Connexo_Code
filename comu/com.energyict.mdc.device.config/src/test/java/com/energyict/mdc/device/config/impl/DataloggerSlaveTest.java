@@ -45,7 +45,7 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getLogBookTypes()).isEmpty();
         assertThat(deviceType.getLoadProfileTypes()).isEmpty();
         assertThat(deviceType.getRegisterTypes()).isEmpty();
-        assertThat(deviceType.getDeviceProtocolPluggableClass()).isNull();
+        assertThat(deviceType.getDeviceProtocolPluggableClass().isPresent()).isFalse();
         assertThat(deviceType.getDescription()).isEqualTo(description);
         assertThat(deviceType.isDataloggerSlave()).isTrue();
     }
