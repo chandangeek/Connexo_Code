@@ -344,7 +344,13 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         }
 
         private ScheduleExpression toScheduleExpression() {
-            return new TemporalExpression(new TimeDurationFromDurationFactory().from(frequency));
+            if (frequency instanceof Duration) {
+                Duration duration = (Duration) frequency;
+                return new TemporalExpression(new TimeDurationFromDurationFactory().from(duration));
+            } else {
+                Period period = (Period) frequency;
+                return new TemporalExpression(new TimeDurationFromPeriodFactory().from(period));
+            }
         }
 
         private String scheduledExcutionPayload() {
