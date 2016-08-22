@@ -21,7 +21,7 @@ public class PartialConnectionTaskInfo extends LinkInfo<Long> {
     public ComWindowInfo comWindow;
     @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
     public ConnectionStrategy connectionStrategy;
-    public Integer numberOfSimultaneousConnections;
+    public Integer numberOfSimultaneousConnections = 1;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo nextExecutionSpecs;
 }
