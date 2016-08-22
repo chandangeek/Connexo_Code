@@ -1,5 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.ComTaskBreakdown;
@@ -17,9 +20,6 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.time.TimeDuration;
 import com.jayway.jsonpath.JsonModel;
 
 import java.math.BigDecimal;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
@@ -63,7 +63,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.target")).isNull();
-        assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
+        assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Successful')].count[0]")).isEqualTo(15);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Failed')].count[0]")).isEqualTo(56);
 
@@ -105,7 +105,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.target")).isEqualTo(100);
-        assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
+        assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Successful')].count[0]")).isEqualTo(15);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Failed')].count[0]")).isEqualTo(56);
 

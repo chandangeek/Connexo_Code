@@ -12,12 +12,16 @@ import com.energyict.mdc.dashboard.impl.ConnectionTaskHeatMapRowImpl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.config.ComPortPool;
+
 import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.Response;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +39,7 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
     }
 
     @Test
-    public void testConnectionHeatMapByDeviceTypeWithoutDeviceGroup() throws Exception {
+    public void testConnectionHeatMapByDeviceTypeWithoutDeviceGroup() throws UnsupportedEncodingException {
         ConnectionTaskDeviceTypeHeatMap heatMap = createDeviceTypeHeatMap();
         when(dashboardService.getConnectionsDeviceTypeHeatMap()).thenReturn(heatMap);
 
@@ -48,7 +52,7 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
     }
 
     @Test
-    public void testConnectionHeatMapByDeviceTypeWithDeviceGroup() throws Exception {
+    public void testConnectionHeatMapByDeviceTypeWithDeviceGroup() throws UnsupportedEncodingException {
         ConnectionTaskDeviceTypeHeatMap heatMap = createDeviceTypeHeatMap();
         QueryEndDeviceGroup endDeviceGroup = mockQueryEndDeviceGroup(11, "North region", "OIU-OOU7YQ-OPI001");
         Optional<EndDeviceGroup> endDeviceGroupOptional = Optional.of(endDeviceGroup);
@@ -64,8 +68,8 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
     }
 
     @Test
-    public void testConnectionHeatMapByDeviceTypeWithUnknownDeviceGroup() throws Exception {
-        when(meteringGroupsService.findEndDeviceGroup(anyInt())).thenReturn(Optional.<EndDeviceGroup>empty());
+    public void testConnectionHeatMapByDeviceTypeWithUnknownDeviceGroup() throws UnsupportedEncodingException {
+        when(meteringGroupsService.findEndDeviceGroup(anyInt())).thenReturn(Optional.empty());
 
         Response response = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter().property("breakdown", "deviceTypes").property("deviceGroup", -1L).create()).request().get();
 
@@ -92,14 +96,14 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
             DeviceType deviceType = mock(DeviceType.class);
             when(deviceType.getName()).thenReturn(name);
             when(deviceType.getId()).thenReturn(id++);
-            rows.add(new ConnectionTaskHeatMapRowImpl(deviceType, counters));
+            rows.add(newDeviceTypeRow(counters, deviceType));
         }
         when(heatMap.iterator()).thenReturn(rows.iterator());
         return heatMap;
     }
 
     @Test
-    public void testConnectionHeatMapByComPortPool() throws Exception {
+    public void testConnectionHeatMapByComPortPool() throws UnsupportedEncodingException {
         ComPortPoolHeatMap heatMap = createComPortPoolHeatMap();
         when(dashboardService.getConnectionsComPortPoolHeatMap()).thenReturn(heatMap);
 
@@ -123,12 +127,21 @@ public class ConnectionTaskHeatMapResourceTest extends DashboardApplicationJerse
             ComPortPool comPortPool = mock(ComPortPool.class);
             when(comPortPool.getName()).thenReturn(name);
             when(comPortPool.getId()).thenReturn(id++);
-            rows.add(new ConnectionTaskHeatMapRowImpl(comPortPool, counters));
+            rows.add(newComPortPoolRow(counters, comPortPool));
         }
         when(heatMap.iterator()).thenReturn(rows.iterator());
         return heatMap;
     }
 
+    private ConnectionTaskHeatMapRow<DeviceType> newDeviceTypeRow(ComSessionSuccessIndicatorOverviewImpl counters, DeviceType deviceType) {
+        return new ConnectionTaskHeatMapRowImpl<>(deviceType, counters);
+    }
+
+    private ConnectionTaskHeatMapRow<ComPortPool> newComPortPoolRow(ComSessionSuccessIndicatorOverviewImpl counters, ComPortPool comPortPool) {
+        return new ConnectionTaskHeatMapRowImpl<>(comPortPool, counters);
+    }
+
+    @SuppressWarnings("unchecked")
     private <C> Counter<C> createCounter(C status, Long count) {
         Counter<C> counter = mock(Counter.class);
         when(counter.getCount()).thenReturn(count);

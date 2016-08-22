@@ -1,9 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
 import java.util.stream.Stream;
 
@@ -15,8 +14,8 @@ import java.util.stream.Stream;
  */
 public enum ConnectionTaskSuccessIndicatorTranslationKeys implements TranslationKey {
 
-    SUCCESS(ConnectionTask.SuccessIndicator.SUCCESS, "Success"),
-    FAILURE(ConnectionTask.SuccessIndicator.FAILURE, "Failure"),
+    SUCCESS(ConnectionTask.SuccessIndicator.SUCCESS, "Successful"),
+    FAILURE(ConnectionTask.SuccessIndicator.FAILURE, "Failed"),
     NOT_APPLICABLE(ConnectionTask.SuccessIndicator.NOT_APPLICABLE, "Not applicable");
 
     private ConnectionTask.SuccessIndicator successIndicator;

@@ -1,10 +1,13 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.engine.config.ComPortPool;
+
+import com.jayway.jsonpath.JsonModel;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import com.jayway.jsonpath.JsonModel;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +36,7 @@ public class DashboardFieldResourceTest extends DashboardApplicationJerseyTest {
     public void testGetComSessionSuccessIndicators() {
         String response = target("/field/comsessionsuccessindicators").request().get(String.class);
         JsonModel model = JsonModel.model(response);
-        assertThat(model.<List<String>>get("$.successIndicators[*].localizedValue")).containsExactly("Broken", "Setup error", "Success");
+        assertThat(model.<List<String>>get("$.successIndicators[*].localizedValue")).containsExactly("Broken", "Setup error", "Successful");
     }
 
     private ComPortPool mockComPortPool(long id, String name) {
