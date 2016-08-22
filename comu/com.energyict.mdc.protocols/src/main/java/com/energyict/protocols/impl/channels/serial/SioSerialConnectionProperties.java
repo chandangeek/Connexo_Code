@@ -1,14 +1,13 @@
 package com.energyict.protocols.impl.channels.serial;
 
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.ModemProperties;
@@ -39,7 +38,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-04 (13:12)
  */
-public class SioSerialConnectionProperties implements PersistentDomainExtension<ConnectionProvider>, PersistenceAware {
+public class SioSerialConnectionProperties extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ConnectionProvider>, PersistenceAware {
 
     public enum Fields {
         PARITY("parity", "PARITIES") {
@@ -213,11 +212,7 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
     }
 
     @SuppressWarnings("unused")
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
-    @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
-    @SuppressWarnings("unused")
-    private Interval interval;
     private Parities parity;
     private FlowControl flowControl;
     private NrOfStopBits numberOfStopBits;
