@@ -48,8 +48,8 @@ public class PreStoreRegisters {
         this.unknownRegisters = new ArrayList<>();
         Map<DeviceIdentifier, List<Reading>> processedReadings = new HashMap<>();
         for (CollectedRegister collectedRegister : collectedRegisterList.getCollectedRegisters()) {
-            Optional<OfflineRegister> offlineRegister = this.comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier());
-            DeviceIdentifier deviceIdentifier = collectedRegister.getRegisterIdentifier().getDeviceIdentifier();
+            Optional<OfflineRegister> offlineRegister = this.comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadTime());
+            DeviceIdentifier deviceIdentifier = offlineRegister.get().getDeviceIdentifier();
             if (offlineRegister.isPresent()) {
                 Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister);
                 if (!collectedRegister.isTextRegister() && collectedRegister.getCollectedQuantity() != null) {

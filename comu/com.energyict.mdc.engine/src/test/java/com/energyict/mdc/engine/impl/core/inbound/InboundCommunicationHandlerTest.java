@@ -61,6 +61,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
+import org.assertj.core.api.Condition;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -582,13 +591,13 @@ public class InboundCommunicationHandlerTest {
         when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
-        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         Device device = getMockedDevice();
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(offlineDevice));
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
 
         when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
-        when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(device.getProtocolDialectProperties(any(String.class))).thenReturn(Optional.empty());
         ComTask comTask = mock(ComTask.class);
 // Todo (JP-2013): wait for ComTaskConfiguration interface to be committed

@@ -1,17 +1,24 @@
 package com.energyict.mdc.engine.impl.core.online;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
@@ -20,6 +27,7 @@ import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
@@ -30,6 +38,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.*;
 import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
@@ -42,11 +51,21 @@ import com.energyict.mdc.protocol.api.device.offline.*;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 
 /**
  * Provides a default implementation for the {@link ComServerDAO} interface
@@ -274,8 +293,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier) {
-        return Optional.of(new OfflineRegisterImpl((Register) identifier.findRegister(), this.serviceProvider.identificationService()));
+    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
+        return Optional.of(new OfflineRegisterImpl(this.getStorageRegister((Register) identifier.findRegister(), when), this.serviceProvider.identificationService()));
     }
 
     @Override
@@ -291,11 +310,16 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
         DeviceMessage<Device> deviceMessage = identifier.getDeviceMessage();
-        return Optional.of(
-                new OfflineDeviceMessageImpl(
-                        deviceMessage,
-                        deviceMessage.getDevice().getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol(),
-                        this.serviceProvider.identificationService()));
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = deviceMessage.getDevice().getDeviceType().getDeviceProtocolPluggableClass();
+        if (deviceProtocolPluggableClass.isPresent()) {
+            return Optional.of(
+                    new OfflineDeviceMessageImpl(
+                            deviceMessage,
+                            deviceProtocolPluggableClass.get().getDeviceProtocol(),
+                            this.serviceProvider.identificationService()));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -554,11 +578,16 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<DeviceMessage<Device>> deviceMessages) {
-        return deviceMessages.stream()
-                .map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice()
-                        .getDeviceProtocolPluggableClass()
-                        .getDeviceProtocol(), this.serviceProvider.identificationService()))
-                .collect(Collectors.toList());
+        List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>(deviceMessages.size());
+        deviceMessages.stream().forEach(deviceMessage -> {
+                    if (deviceMessage.getDevice().getDeviceProtocolPluggableClass().isPresent()) {
+                        offlineDeviceMessages.add(new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice()
+                                .getDeviceProtocolPluggableClass().get()
+                                .getDeviceProtocol(), serviceProvider.identificationService()));
+                    }
+                }
+        );
+        return offlineDeviceMessages;
     }
 
     private List<DeviceMessage<Device>> doConfirmSentMessagesAndGetPending(DeviceIdentifier<Device> deviceIdentifier, int confirmationCount) {
@@ -703,11 +732,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(loadProfileIdentifier.findLoadProfile().getDevice());
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(((LogBook) logBookIdentifier.getLogBook()).getDevice());
     }
@@ -828,6 +859,72 @@ public class ComServerDAOImpl implements ComServerDAO {
             getDeviceDataService().deleteOutdatedComTaskExecutionTriggers();
             return null;
         });
+    }
+
+    @Override
+    public List<Pair<OfflineLoadProfile,Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID , Range<Instant> dataPeriod) {
+        final Device dataLogger = (Device) offlineLoadProfile.getDeviceIdentifier().findDevice();
+        if (dataLogger != null){
+            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
+                Optional<Channel> dataLoggerChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
+                if (dataLoggerChannel.isPresent()){
+                    List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.serviceProvider.topologyService().findDataLoggerChannelUsagesForChannels(dataLoggerChannel.get(), dataPeriod);
+                    List<Pair<OfflineLoadProfile,Range<Instant>>> linkedOffLineLoadProfiles = new ArrayList<>();
+                    // 'linked' periods
+                    if (!dataLoggerChannelUsages.isEmpty()){
+                        dataLoggerChannelUsages.forEach(usage -> {
+                            Device slave = usage.getDataLoggerReference().getOrigin();
+                            List<? extends ReadingType> slaveChannelReadingTypes = usage.getSlaveChannel().getReadingTypes();
+                            Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> slaveChannelReadingTypes.contains(c.getReadingType())).findFirst();
+                            if (slaveChannel.isPresent()) {
+                               OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get().getLoadProfile(), this.serviceProvider.topologyService(),this.serviceProvider.identificationService()){
+                                   protected void goOffline() {
+                                       super.goOffline();
+                                       // To avoid to have to retrieve the involved slave channels again
+                                       setAllLoadProfileChannels(convertToOfflineChannels(Collections.singletonList(slaveChannel.get())));
+                                   }
+
+                                   @Override
+                                   public boolean isDataLoggerSlaveLoadProfile() {
+                                       return true;
+                                   }
+                               };
+
+                               linkedOffLineLoadProfiles.add(Pair.of(dataLoggerSlaveOfflineLoadProfile, usage.getRange().intersection(dataPeriod)));
+                            }
+                        });
+                    }
+                    //'unlinked periods'
+                    if (linkedOffLineLoadProfiles.isEmpty()) {
+                        linkedOffLineLoadProfiles.add(Pair.of(offlineLoadProfile, dataPeriod));   //All data is stored on the data logger channel
+                    }else{
+                        RangeSet<Instant> unlinkedPeriods = TreeRangeSet.create();
+                        unlinkedPeriods.add(dataPeriod);
+                        linkedOffLineLoadProfiles.stream().forEach((each)->{
+                            unlinkedPeriods.remove(each.getLast());
+                        });
+                        unlinkedPeriods.asRanges().forEach((unlinkedRange)->{
+                            linkedOffLineLoadProfiles.add(Pair.of(offlineLoadProfile, unlinkedRange));
+                        });
+                    }
+                    return linkedOffLineLoadProfiles;
+                }
+            }
+        }
+        return Collections.singletonList(Pair.of(offlineLoadProfile,dataPeriod));
+    }
+
+    private Register getStorageRegister(Register register, Instant readingDate) {
+        final Device dataLogger = register.getDevice();
+        if (dataLogger != null){
+            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
+                Optional<Register> slaveRegister  =  this.serviceProvider.topologyService().getSlaveRegister(register, readingDate);
+                if (slaveRegister.isPresent()){
+                    return slaveRegister.get();
+                }
+            }
+        }
+        return register;
     }
 
     private Instant now() {

@@ -4,12 +4,14 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -19,9 +21,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,8 +41,10 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
 
     public static final int CHANNEL_OVERFLOW_VALUE = 999999;
     static final String DEVICE_TYPE_NAME = DeviceCreator.class.getName() + "Type";
+    public static final String DATA_LOGGER_DEVICE_TYPE_NAME = "DataLoggerType";
 
     static final String DEVICE_CONFIGURATION_NAME = DeviceCreator.class.getName() + "Config";
+    public static final String DATA_LOGGER_DEVICE_CONFIGURATION_NAME = "DataLoggerConfig";
 
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
 
@@ -97,8 +103,33 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
     }
 
     @Override
-    public Device create() {
-        this.device = state.create();
+    public DeviceBuilderForTesting deviceTypeName(String deviceTypeName) {
+        return state.deviceTypeName(deviceTypeName);
+    }
+
+    @Override
+    public DeviceBuilderForTesting deviceConfigName(String deviceConfigName) {
+        return state.deviceConfigName(deviceConfigName);
+    }
+
+    @Override
+    public DeviceBuilderForTesting dataLoggerEnabled(boolean enabled) {
+        return  state.dataLoggerEnabled(enabled);
+    }
+
+    @Override
+    public DeviceBuilderForTesting dataLoggerSlaveDevice() {
+        return state.dataLoggerSlaveDevice();
+    }
+
+    @Override
+    public DeviceBuilderForTesting registerType(RegisterType registerType) {
+        return state.registerType(registerType);
+    }
+
+    @Override
+    public Device create(Instant when) {
+        this.device = state.create(when);
         this.state = COMPLETE;
         return device;
     }
@@ -107,10 +138,15 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
 
         private String name;
         private String mRDI;
-        private List<LoadProfileType> loadProfileTypes = new ArrayList<>();
+        private RegisterType registerType;
+        protected List<LoadProfileType> loadProfileTypes = new ArrayList<>();
         private List<LogBookType> logBookTypes = new ArrayList<>();
+        private String deviceTypeName = DEVICE_TYPE_NAME;
+        private String deviceConfigName = DEVICE_CONFIGURATION_NAME;
         private DeviceType deviceType;
         private DeviceConfiguration deviceConfiguration;
+        private boolean dataLoggerEnabled;
+        private DeviceTypePurpose deviceTypePurpose =  DeviceTypePurpose.REGULAR;
 
         @Override
         public DeviceBuilderForTesting name(String name) {
@@ -121,6 +157,12 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         @Override
         public DeviceBuilderForTesting mRDI(String mRDI) {
             this.mRDI = mRDI;
+            return DeviceCreator.this;
+        }
+
+        @Override
+        public DeviceBuilderForTesting registerType(RegisterType registerType) {
+            this.registerType = registerType;
             return DeviceCreator.this;
         }
 
@@ -137,27 +179,39 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         }
 
         @Override
-        public Device create() {
+        public DeviceBuilderForTesting deviceTypeName(String deviceTypeName) {
+            this.deviceTypeName = deviceTypeName;
+            return DeviceCreator.this;
+        }
+
+        @Override
+        public DeviceBuilderForTesting deviceConfigName(String deviceConfigName) {
+            this.deviceConfigName = deviceConfigName;
+            return DeviceCreator.this;
+        }
+
+        @Override
+        public DeviceBuilderForTesting dataLoggerEnabled(boolean enabled) {
+            this.dataLoggerEnabled = enabled;
+            return DeviceCreator.this;
+        }
+
+        @Override
+        public DeviceBuilderForTesting dataLoggerSlaveDevice() {
+            this.deviceTypePurpose = DeviceTypePurpose.DATALOGGER_SLAVE;
+            return DeviceCreator.this;
+        }
+
+        @Override
+        public Device create(Instant when) {
+            getDeviceType();
             DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
-            Device device = deviceService.newDevice(deviceConfiguration, name, mRDI);
-            device.save();
-            return device;
+            return deviceService.newDevice(deviceConfiguration, name, mRDI, when);
         }
 
         private DeviceConfiguration getDeviceConfiguration() {
             if (this.deviceConfiguration == null) {
-                DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = getDeviceType().newConfiguration(DEVICE_CONFIGURATION_NAME);
-                for (LoadProfileType loadProfileType : loadProfileTypes) {
-                    LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
-                    for (ChannelType channelType : loadProfileType.getChannelTypes()) {
-                        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfigurationBuilder.newChannelSpec(channelType, loadProfileSpecBuilder);
-                        channelSpecBuilder.overflow(BigDecimal.valueOf(CHANNEL_OVERFLOW_VALUE));
-                    }
-                }
-                for (LogBookType logBookType : logBookTypes) {
-                    deviceConfigurationBuilder.newLogBookSpec(logBookType);
-                }
-                this.deviceConfiguration = deviceConfigurationBuilder.add();
+                this.deviceConfiguration = configBuilder().add();
                 this.deviceConfiguration.activate();
             }
             return deviceConfiguration;
@@ -165,15 +219,48 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
 
         private DeviceType getDeviceType() {
             if (this.deviceType == null) {
-                this.deviceType = deviceConfigurationService.newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
-                for (LoadProfileType loadProfileType : loadProfileTypes) {
-                    this.deviceType.addLoadProfileType(loadProfileType);
-                }
-                for (LogBookType logBookType : logBookTypes) {
-                    this.deviceType.addLogBookType(logBookType);
+                Optional<DeviceType> type = deviceConfigurationService.findDeviceTypeByName(deviceTypeName);
+                if (type.isPresent()){
+                    this.deviceType = type.get();
+                }else {
+                    this.deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, deviceProtocolPluggableClass);
+                    if (this.deviceTypePurpose == DeviceTypePurpose.DATALOGGER_SLAVE) {
+                        deviceType.setDeviceTypePurpose(this.deviceTypePurpose);
+                    }
+                    for (LoadProfileType loadProfileType : loadProfileTypes) {
+                        this.deviceType.addLoadProfileType(loadProfileType);
+                    }
+                    for (LogBookType logBookType : logBookTypes) {
+                        this.deviceType.addLogBookType(logBookType);
+                    }
+                    if (this.registerType != null) {
+                        this.deviceType.addRegisterType(this.registerType);
+                    }
+                    this.deviceType.update();
                 }
             }
             return deviceType;
+        }
+
+        protected DeviceType.DeviceConfigurationBuilder configBuilder(){
+            DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = getDeviceType().newConfiguration(deviceConfigName);
+            for (LoadProfileType loadProfileType : loadProfileTypes) {
+                LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
+                for (ChannelType channelType : loadProfileType.getChannelTypes()) {
+                    ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfigurationBuilder.newChannelSpec(channelType, loadProfileSpecBuilder);
+                    channelSpecBuilder.overflow(BigDecimal.valueOf(CHANNEL_OVERFLOW_VALUE));
+                }
+            }
+            if (this.registerType != null) {
+                deviceConfigurationBuilder.newNumericalRegisterSpec(registerType).numberOfFractionDigits(0).overflowValue(BigDecimal.valueOf(999999999999999L));
+            }
+            for (LogBookType logBookType : logBookTypes) {
+                deviceConfigurationBuilder.newLogBookSpec(logBookType);
+            }
+            if (this.dataLoggerEnabled){
+                deviceConfigurationBuilder.dataloggerEnabled(true);
+            }
+            return deviceConfigurationBuilder;
         }
     }
 

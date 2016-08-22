@@ -210,7 +210,7 @@ public class SingleThreadedScheduledComPortTest {
         when(this.deviceProtocolPluggableClass.getJavaClassName()).thenReturn(SingleThreadedScheduledComPortTest.class.getName());
         when(this.device.getDeviceType()).thenReturn(this.deviceType);
         when(this.device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
-        when(this.device.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        when(this.device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(this.device.getProtocolDialectProperties(anyString())).thenReturn(Optional.<ProtocolDialectProperties>empty());
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.deviceCommandExecutor.getLogLevel()).thenReturn(ComServer.LogLevel.ERROR);

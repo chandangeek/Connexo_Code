@@ -45,7 +45,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.getMdcReadingTypeUtilService(), comServerDAO);
         PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
         if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
-            updateMeterDataStorer(preStoredLoadProfile.getDeviceIdentifier(), preStoredLoadProfile.getIntervalBlocks(), preStoredLoadProfile.getLastReading());
+            preStoredLoadProfile.updateCommand(this.meterDataStoreCommand);
         } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)) {
             final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
             this.addIssue(
@@ -64,13 +64,6 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
                             comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier())
                                     .map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString())
                                     .orElse("")));
-        }
-    }
-
-    private void updateMeterDataStorer(DeviceIdentifier<Device> deviceIdentifier, List<IntervalBlock> intervalBlocks, Instant lastReading) {
-        if (!intervalBlocks.isEmpty()) {
-            this.meterDataStoreCommand.addIntervalReadings(deviceIdentifier, intervalBlocks);
-            this.meterDataStoreCommand.addLastReadingUpdater(this.collectedLoadProfile.getLoadProfileIdentifier(), lastReading);
         }
     }
 

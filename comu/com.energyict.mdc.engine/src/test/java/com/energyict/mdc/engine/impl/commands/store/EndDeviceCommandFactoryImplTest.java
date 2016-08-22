@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
  * @since 2012-08-23 (09:02)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceCommandFactoryImplTest {
+public class EndDeviceCommandFactoryImplTest {
 
     @Mock
     private DeviceCommand.ServiceProvider serviceProvider;

@@ -339,6 +339,23 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         return null;
     }
 
+    private void addCommandFor(ComTaskExecution comTaskExecution, ProtocolTask protocolTask, CommandRoot root, List<ServerCollectedData> data) {
+        ComCommand command;
+        if (ComCommandTypes.MESSAGES_COMMAND.appliesTo(protocolTask)) {
+            command = new InboundCollectedMessageListCommandImpl(((MessagesTask) protocolTask), this.offlineDevice, root, data, comTaskExecution, this.serviceProvider.issueService(), this.serviceProvider
+                    .thesaurus());
+        } else if (ComCommandTypes.LOGBOOKS_COMMAND.appliesTo(protocolTask)) {
+            command = new InboundCollectedLogBookCommandImpl((LogBooksTask) protocolTask, this.offlineDevice, root, comTaskExecution, data, this.serviceProvider.deviceService());
+        } else if (ComCommandTypes.LOAD_PROFILE_COMMAND.appliesTo(protocolTask)) {
+            command = new InboundCollectedLoadProfileCommandImpl((LoadProfilesTask) protocolTask, this.offlineDevice, root, comTaskExecution, data);
+        } else if (ComCommandTypes.TOPOLOGY_COMMAND.appliesTo(protocolTask)) {
+            command = new InboundCollectedTopologyCommandImpl(root, ((TopologyTask) protocolTask).getTopologyAction(), offlineDevice, comTaskExecution, data);
+        } else {  // Must be ComCommandTypes.REGISTERS_COMMAND
+            command = new InboundCollectedRegisterCommandImpl((RegistersTask) protocolTask, this.offlineDevice, root, comTaskExecution, data, this.serviceProvider.deviceService());
+        }
+        this.addToRoot(command, root, comTaskExecution);
+    }
+
     private ProtocolTask getTopologyTask(ComTaskExecution comTaskExecution) {
         for (ComTask comTask : comTaskExecution.getComTasks()) {
             for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {

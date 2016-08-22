@@ -25,6 +25,13 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -35,6 +42,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

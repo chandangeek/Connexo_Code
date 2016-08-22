@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 /**
  * An offline implementation version of an {@link com.energyict.mdc.protocol.api.device.BaseDevice}
  * mainly containing information which is relevant to use at offline-time.
- * <p/>
+ * <p>
  *
  * @author gna
  * @since 12/04/12 - 13:58
@@ -147,8 +147,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
         setSerialNumber(this.device.getSerialNumber());
         addProperties(this.device.getDeviceProtocolProperties());
 
-        if (this.device.getDeviceProtocolPluggableClass() != null) {
-            setDeviceProtocolPluggableClass(this.device.getDeviceProtocolPluggableClass());
+        if (this.device.getDeviceProtocolPluggableClass().isPresent()) {
+            setDeviceProtocolPluggableClass(this.device.getDeviceProtocolPluggableClass().get());
         }
         if (context.needsSlaveDevices()) {
             List<Device> downstreamDevices = serviceProvider.topologyService().findPhysicalConnectedDevices(this.device);
@@ -181,8 +181,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
                                     this.serviceProvider.thesaurus()
                                             .getFormat(MessageSeeds.CALENDAR_NO_LONGER_ALLOWED)
                                             .format(
-                                                validator.failingCalendarNames(deviceMessage),
-                                                this.device.getDeviceType().getName()));
+                                                    validator.failingCalendarNames(deviceMessage),
+                                                    this.device.getDeviceType().getName()));
                             reallyPending.add(deviceMessage);
                         } else {
                             invalidSinceCreation.add(deviceMessage);
@@ -278,13 +278,13 @@ public class OfflineDeviceImpl implements OfflineDevice {
                 .collect(Collectors.toList());
     }
 
-    private List<OfflineLogBook> convertToOfflineLogBooks(final List<LogBook> logBooks){
+    private List<OfflineLogBook> convertToOfflineLogBooks(final List<LogBook> logBooks) {
         List<OfflineLogBook> offlineLogBooks = new ArrayList<>(logBooks.size());
         offlineLogBooks.addAll(logBooks.stream().map(logBook -> new OfflineLogBookImpl(logBook, serviceProvider.identificationService())).collect(Collectors.toList()));
         return offlineLogBooks;
     }
 
-    private List<OfflineRegister> convertToOfflineRegister(final List<Register> registers){
+    private List<OfflineRegister> convertToOfflineRegister(final List<Register> registers) {
         List<OfflineRegister> offlineRegisters = new ArrayList<>(registers.size());
         offlineRegisters.addAll(registers.stream().map(register -> new OfflineRegisterImpl(register, serviceProvider.identificationService())).collect(Collectors.toList()));
         return offlineRegisters;
@@ -376,7 +376,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
         }
         // adding the SerialNumber as a property value because legacy protocols check the serialNumber based on the property value
         this.allProperties.setProperty(MeterProtocol.SERIALNUMBER, getSerialNumber());
-        if(properties.getInheritedProperties() != null) {
+        if (properties.getInheritedProperties() != null) {
             this.allProperties.setAllProperties(properties.getInheritedProperties());
         }
         this.allProperties.setAllProperties(properties);
@@ -420,16 +420,17 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage<Device>> deviceMessages) {
         return deviceMessages
-                    .stream()
-                    .map(this::toOfflineDeviceMessage)
-                    .collect(Collectors.toList());
+                .stream()
+                .filter(deviceMessage -> deviceMessage.getDevice().getDeviceProtocolPluggableClass().isPresent())
+                .map(this::toOfflineDeviceMessage)
+                .collect(Collectors.toList());
     }
 
     private OfflineDeviceMessageImpl toOfflineDeviceMessage(DeviceMessage<Device> deviceMessage) {
         return new OfflineDeviceMessageImpl(
-                        deviceMessage,
-                        deviceMessage.getDevice().getDeviceProtocolPluggableClass().getDeviceProtocol(),
-                        serviceProvider.identificationService());
+                deviceMessage,
+                deviceMessage.getDevice().getDeviceProtocolPluggableClass().get().getDeviceProtocol(),
+                serviceProvider.identificationService());
     }
 
     private void setId(final long id) {

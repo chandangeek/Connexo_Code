@@ -174,7 +174,7 @@ public class OfflineDeviceImplTest {
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceProtocolProperties()).thenReturn(getDeviceProtocolProperties());
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = createMockDeviceProtocolPluggableClass();
-        when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(device.getId()).thenReturn(deviceId);
         when(device.getSerialNumber()).thenReturn(meterSerialNumber);
@@ -582,7 +582,7 @@ public class OfflineDeviceImplTest {
     public void deviceProtocolPluggableClassNullTest() {
         Device
                 device = createMockDevice();
-        when(device.getDeviceProtocolPluggableClass()).thenReturn(null);
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         //asserts
@@ -594,6 +594,7 @@ public class OfflineDeviceImplTest {
         long slaveId = 664513;
         Device master = createMockDevice();
         Device slaveWithoutCapability = mock(Device.class);
+        when(slaveWithoutCapability.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(slaveWithoutCapability.getId()).thenReturn(slaveId);
         DeviceType deviceTypeSlave = mock(DeviceType.class);
         when(slaveWithoutCapability.getDeviceType()).thenReturn(deviceTypeSlave);

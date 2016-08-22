@@ -63,6 +63,12 @@ import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
@@ -215,7 +221,7 @@ public class JobExecutionTest {
         when(device.getId()).thenReturn(DEVICE_ID);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
-        when(device.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(device.getProtocolDialectProperties(anyString())).thenReturn(Optional.<ProtocolDialectProperties>empty());
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
         when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(comTaskEnablement));
@@ -273,7 +279,7 @@ public class JobExecutionTest {
         DeviceProtocolPluggableClass severServerDeviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(severServerDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(genericDeviceProtocol);
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(severServerDeviceProtocolPluggableClass);
-        when(severServerDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(genericDeviceProtocol);
+        when(severServerDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(Optional.of(genericDeviceProtocol));
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         jobExecution.prepareAll(Arrays.asList(comTaskExecution));
         verify(genericDeviceProtocol, times(1)).organizeComCommands(any(CommandRoot.class));
@@ -286,6 +292,7 @@ public class JobExecutionTest {
         ExecutionContext executionContext = newTestExecutionContext();
         when(jobExecution.getExecutionContext()).thenReturn(executionContext);
         createMockedComTaskWithGivenProtocolTasks();
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         DeviceProtocolPluggableClass severServerDeviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(severServerDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
 
