@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -10,8 +11,8 @@ import org.osgi.service.event.Event;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -38,6 +39,8 @@ public class UpdateLicenseEventHandlerTest {
     private InboundDeviceProtocolService inboundDeviceProtocolService;
     @Mock
     private ConnectionTypeService connectionTypeService;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     @Test
     public void nonMDCEventDoesNotTriggerRegistrationProcess() {
@@ -93,6 +96,7 @@ public class UpdateLicenseEventHandlerTest {
         UpdateLicenseEventHandler eventHandler = new UpdateLicenseEventHandler();
         eventHandler.setProtocolPluggableService(this.protocolPluggableService);
         eventHandler.setTransactionService(this.transactionService);
+        eventHandler.setThreadPrincipalService(this.threadPrincipalService);
         return eventHandler;
     }
 

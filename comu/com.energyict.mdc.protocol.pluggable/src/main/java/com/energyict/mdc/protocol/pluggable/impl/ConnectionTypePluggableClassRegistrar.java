@@ -16,18 +16,18 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-09 (14:12)
  */
-public class ConnectionTypePluggableClassRegistrar extends PluggableClassRegistrar {
+class ConnectionTypePluggableClassRegistrar extends PluggableClassRegistrar {
 
     private final ServerProtocolPluggableService protocolPluggableService;
     private final TransactionService transactionService;
 
-    public ConnectionTypePluggableClassRegistrar(ServerProtocolPluggableService protocolPluggableService, TransactionService transactionService) {
+    ConnectionTypePluggableClassRegistrar(ServerProtocolPluggableService protocolPluggableService, TransactionService transactionService) {
         super();
         this.protocolPluggableService = protocolPluggableService;
         this.transactionService = transactionService;
     }
 
-    public void registerAll(List<ConnectionTypeService> connectionTypeServices) {
+    void registerAll(List<ConnectionTypeService> connectionTypeServices) {
         for (ConnectionTypeService connectionTypeService : connectionTypeServices) {
             Collection<PluggableClassDefinition> pluggableClasses = connectionTypeService.getExistingConnectionTypePluggableClasses();
             Iterator<PluggableClassDefinition> pluggableClassDefinitionIterator = pluggableClasses.iterator();

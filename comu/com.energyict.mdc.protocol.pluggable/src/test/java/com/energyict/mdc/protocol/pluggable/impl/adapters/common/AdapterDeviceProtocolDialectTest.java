@@ -90,6 +90,8 @@ public class AdapterDeviceProtocolDialectTest {
     @Mock
     private LicenseService licenseService;
     @Mock
+    private SearchService searchService;
+    @Mock
     private Thesaurus thesaurus;
 
     private PropertySpecService propertySpecService;
@@ -199,9 +201,9 @@ public class AdapterDeviceProtocolDialectTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(SearchService.class).toProvider(() -> searchService);
         }
     }
 
