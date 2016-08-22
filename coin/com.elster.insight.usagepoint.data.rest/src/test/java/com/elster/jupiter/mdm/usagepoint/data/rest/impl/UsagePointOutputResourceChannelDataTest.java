@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -25,9 +26,11 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -59,6 +62,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     private UsagePoint usagePoint;
     @Mock
     private ChannelsContainer channelsContainer;
+    @Mock
+    private MeterActivation meterActivation;
 
     @Before
     public void before() {
@@ -76,7 +81,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
 
-        when(channelsContainer.getRange()).thenReturn(Range.atLeast(interval_1.lowerEndpoint()));
+        when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
+        when(meterActivation.getRange()).thenReturn(Range.atLeast(interval_1.lowerEndpoint()));
     }
 
     private String buildFilter() throws UnsupportedEncodingException {
@@ -169,6 +175,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Test
     public void testGetChannelData() throws Exception {
         Channel channel = mock(Channel.class);
+        when(channel.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
         when(channel.toList(Range.openClosed(interval_1.lowerEndpoint(), interval_3.upperEndpoint()))).thenReturn(
                 Arrays.asList(interval_1.upperEndpoint(), interval_2.upperEndpoint(), interval_3.upperEndpoint())
@@ -219,6 +226,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         Range<Instant> interval_JUL = Range.openClosed(time.with(Month.JUNE).toInstant(), time.with(Month.JULY).toInstant());
         Range<Instant> interval_AUG = Range.openClosed(time.with(Month.JULY).toInstant(), time.with(Month.AUGUST).toInstant());
         Channel channel = mock(Channel.class);
+        when(channel.getIntervalLength()).thenReturn(Optional.of(Period.ofMonths(1)));
         when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
         when(channel.toList(Range.openClosed(time.toInstant(), interval_AUG.upperEndpoint()))).thenReturn(
                 Arrays.asList(interval_JUN.upperEndpoint(), interval_JUL.upperEndpoint(), interval_AUG.upperEndpoint())
@@ -258,7 +266,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(info.dataValidated).isTrue();
         assertThat(info.validationResult).isEqualTo(ValidationStatus.OK);
     }
-
 
     @Test
     public void testReadingValidationInfoForMissedReadingAfterLastCheckedDate() {
