@@ -12,10 +12,14 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.Expected;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -48,6 +52,9 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -605,4 +612,60 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         assertThat(reloadedChannelOverruledOnConfig.getObisCode()).isEqualTo(overruledObisCode);
         assertThat(reloadedChannelOverruledOnConfig.getChannelSpec().getDeviceObisCode()).isEqualTo(overruledObisCode);
     }
+
+    @Test
+    @Transactional
+    public void findMultiplierTypeForFirstTime() {
+        MeteringService meteringService = mock(MeteringService.class);
+        MultiplierType multiplierType = mock(MultiplierType.class);
+        when(meteringService.getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE)).thenReturn(Optional.of(multiplierType));
+        DeviceServiceImpl service = new DeviceServiceImpl(inMemoryPersistence.getDeviceDataModelService(), meteringService, mock(QueryService.class), mock(Thesaurus.class), inMemoryPersistence.getClock());
+
+        // Business method
+        MultiplierType defaultMultiplierType = service.findOrCreateDefaultMultiplierType();
+
+        // Asserts
+        verify(meteringService).getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
+        verify(meteringService, never()).createMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
+        assertThat(defaultMultiplierType).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    public void findMultiplierTypeWhenNotCreatedYet() {
+        MeteringService meteringService = mock(MeteringService.class);
+        MultiplierType multiplierType = mock(MultiplierType.class);
+        when(meteringService.getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE)).thenReturn(Optional.empty());
+        when(meteringService.createMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE)).thenReturn(multiplierType);
+        DeviceServiceImpl service = new DeviceServiceImpl(inMemoryPersistence.getDeviceDataModelService(), meteringService, mock(QueryService.class), mock(Thesaurus.class), inMemoryPersistence.getClock());
+
+        // Business method
+        MultiplierType defaultMultiplierType = service.findOrCreateDefaultMultiplierType();
+
+        // Asserts
+        verify(meteringService).getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
+        verify(meteringService).createMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
+        assertThat(defaultMultiplierType).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    public void findMultiplierTypeForSecondTime() {
+        MeteringService meteringService = mock(MeteringService.class);
+        MultiplierType multiplierType = mock(MultiplierType.class);
+        when(meteringService.getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE)).thenReturn(Optional.of(multiplierType));
+        DeviceServiceImpl service = new DeviceServiceImpl(inMemoryPersistence.getDeviceDataModelService(), meteringService, mock(QueryService.class), mock(Thesaurus.class), inMemoryPersistence.getClock());
+        // First call
+        service.findOrCreateDefaultMultiplierType();
+        reset(meteringService);
+
+        // Business method: second call
+        MultiplierType defaultMultiplierType = service.findOrCreateDefaultMultiplierType();
+
+        // Asserts
+        verify(meteringService, never()).getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
+        verify(meteringService, never()).createMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
+        assertThat(defaultMultiplierType).isNotNull();
+    }
+
 }
