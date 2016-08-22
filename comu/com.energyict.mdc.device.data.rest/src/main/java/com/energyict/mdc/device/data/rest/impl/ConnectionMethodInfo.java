@@ -43,7 +43,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public Integer comWindowEnd;
     public String connectionStrategy;
     public List<PropertyInfo> properties;
-    public Integer numberOfSimultaneousConnections;
+    public Integer numberOfSimultaneousConnections = 1;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo nextExecutionSpecs;
 
