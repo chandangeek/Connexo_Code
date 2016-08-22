@@ -13,11 +13,8 @@ Ext.define('Mdc.view.setup.comservercomports.Preview', {
     frame: true,
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            xtype: 'uni-button-action',
             privileges: Mdc.privileges.Communication.admin,
-            itemId: 'actionButton',
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'comServerComPortsActionMenu'
             }

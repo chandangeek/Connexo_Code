@@ -12,10 +12,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
     frame: true,
     tools: [
         {
-            xtype: 'button',
+            xtype: 'uni-button-action',
             itemId: 'load-profile-type-action-menu-button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'load-profile-type-action-menu'
             }
