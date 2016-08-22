@@ -74,6 +74,18 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             null,
             null){
     },
+     READ_DATA_LOGGER_REGISTER_DATA("Read data logger register data",
+            null,
+            null,
+            Collections.singletonList(RegisterGroupTpl.DATA_LOGGER_REGISTER_DATA),
+            null,
+            null),
+    READ_DATA_LOGGER_LOAD_PROFILE_DATA("Read data logger load profile data",
+            Collections.singletonList(LoadProfileTypeTpl.DATA_LOGGER_32),
+            null,
+            null,
+            null,
+            null),
     ;
     private String name;
     private List<LoadProfileTypeTpl> loadProfileTypes;

@@ -1,17 +1,15 @@
 package com.elster.jupiter.demo.impl.builders.device;
 
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.builders.UsagePointBuilder;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -54,7 +52,7 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
                 .flatMap(amrSystem -> amrSystem.findMeter("" + device.getId()));
         meter.ifPresent(mtr -> {
             System.out.println("==> activating usage point for meter " + mtr.getMRID());
-            usagePoint.activate(mtr, clock.instant());
+            usagePoint.activate(mtr, device.getCurrentMeterActivation().get().getStart());
         });
     }
 

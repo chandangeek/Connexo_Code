@@ -9,12 +9,14 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private final DeviceService deviceService;
+    private final Clock clock;
 
     private String mrid;
     private String serialNumber;
@@ -27,9 +29,10 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private List<Consumer<Device>> postBuilders;
 
     @Inject
-    public DeviceBuilder(DeviceService deviceService) {
+    public DeviceBuilder(DeviceService deviceService, Clock clock) {
         super(DeviceBuilder.class);
         this.deviceService = deviceService;
+        this.clock = clock;
         this.yearOfCertification = 2013;
     }
 
@@ -44,7 +47,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         return this;
     }
 
-    public DeviceBuilder withSpatialCoordinates(SpatialCoordinates spatialCoordinates){
+    public DeviceBuilder withSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
         this.spatialCoordinates = spatialCoordinates;
         return this;
     }
@@ -77,7 +80,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     @Override
     public Device create() {
         Log.write(this);
-        Device device = deviceService.newDevice(deviceConfiguration, getName(), mrid);
+        Device device = deviceService.newDevice(deviceConfiguration, getName(), mrid, clock.instant());
         device.setSerialNumber(serialNumber);
         device.setYearOfCertification(this.yearOfCertification);
         if (comSchedules != null) {

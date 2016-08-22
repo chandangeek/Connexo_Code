@@ -47,7 +47,7 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
         return this;
     }
 
-    public UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordiantes){
+    public UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordiantes) {
         this.geoCoordiantes = geoCoordiantes;
         return this;
     }

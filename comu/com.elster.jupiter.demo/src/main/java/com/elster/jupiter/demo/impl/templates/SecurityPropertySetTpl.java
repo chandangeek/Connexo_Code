@@ -34,7 +34,16 @@ public enum SecurityPropertySetTpl implements Template<SecurityPropertySet, Secu
                           DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1,
                           DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
     ),
-    HIGH_LEVEL_NO_ENCRYPTION("High level authentication - No encryption",
+    HIGH_LEVEL_NO_ENCRYPTION_MD5("High level authentication (MD5) - No encryption",
+            DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue(),
+            DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue(),
+            Arrays.asList(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1,
+                          DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2,
+                          DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1,
+                          DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
+
+    ),
+    HIGH_LEVEL_NO_ENCRYPTION_GMAC("High level authentication - No encryption",
             DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue(),
             DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue(),
             Arrays.asList(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1,

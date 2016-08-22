@@ -5,6 +5,7 @@ import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
 import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
 import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDataLoggerSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDefaultDeviceLifeCycleCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
@@ -63,6 +64,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
+import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -101,7 +103,8 @@ import java.time.Clock;
         "osgi.command.function=createDefaultDeviceLifeCycle",
         "osgi.command.function=setUpFirmwareManagement",
         "osgi.command.function=createImporters",
-        "osgi.command.function=createDemoUser"
+        "osgi.command.function=createDemoUser",
+        "osgi.command.function=createDataLogger"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -532,6 +535,21 @@ public class DemoServiceImpl {
     public void createA3Device(){
         executeTransaction(() -> {
             CreateA3DeviceCommand command = injector.getInstance(CreateA3DeviceCommand.class);
+            command.run();
+        });
+    }
+
+    public void createDataLogger(String dataLoggerMrid, String dataLoggerSerial, int numberOfSlaves){
+        executeTransaction(() -> {
+            CreateDataLoggerSetupCommand command = injector.getInstance(CreateDataLoggerSetupCommand.class);
+            if (!Strings.isNullOrEmpty(dataLoggerMrid)){
+                command.setDataLoggerMrid(dataLoggerMrid);
+            }
+            if (!Strings.isNullOrEmpty(dataLoggerSerial)){
+                command.setDataLoggerSerial(dataLoggerSerial);
+            }
+            command.setNumberOfSlaves(numberOfSlaves);
+
             command.run();
         });
     }

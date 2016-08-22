@@ -81,7 +81,7 @@ public class CreateDemoDataCommand {
         this.location = location;
     }
 
-    public void setGeoCoordinates(SpatialCoordinates geoCoordinates){
+    public void setGeoCoordinates(SpatialCoordinates geoCoordinates) {
        this.geoCoordinates = geoCoordinates;
     }
 

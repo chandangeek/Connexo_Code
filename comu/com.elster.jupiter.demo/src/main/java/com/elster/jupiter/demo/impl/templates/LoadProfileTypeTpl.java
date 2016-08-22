@@ -18,6 +18,15 @@ public enum LoadProfileTypeTpl implements Template<LoadProfileType, LoadProfileT
             RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E),
     ELSTER_A3_GENERIC("Elster A3 Generic [15min]", "0.15.99.1.0.255", TimeDuration.minutes(15),
             RegisterTypeTpl.DELTA_A_PLUS_ALL_PHASES, RegisterTypeTpl.DELTA_A_MINUS_ALL_PHASES, RegisterTypeTpl.DELRA_REACTIVE_ENERGY_PLUS, RegisterTypeTpl.DELRA_REACTIVE_ENERGY_MINUS),
+    DATA_LOGGER_32("Data Logger (32)",  "0.0.128.8.0.255", TimeDuration.minutes(15),
+            RegisterTypeTpl.DATA_LOGGER_1, RegisterTypeTpl.DATA_LOGGER_2, RegisterTypeTpl.DATA_LOGGER_3, RegisterTypeTpl.DATA_LOGGER_4,
+            RegisterTypeTpl.DATA_LOGGER_5, RegisterTypeTpl.DATA_LOGGER_6, RegisterTypeTpl.DATA_LOGGER_7, RegisterTypeTpl.DATA_LOGGER_8,
+            RegisterTypeTpl.DATA_LOGGER_9, RegisterTypeTpl.DATA_LOGGER_10, RegisterTypeTpl.DATA_LOGGER_11, RegisterTypeTpl.DATA_LOGGER_12,
+            RegisterTypeTpl.DATA_LOGGER_13, RegisterTypeTpl.DATA_LOGGER_14, RegisterTypeTpl.DATA_LOGGER_15, RegisterTypeTpl.DATA_LOGGER_16,
+            RegisterTypeTpl.DATA_LOGGER_17, RegisterTypeTpl.DATA_LOGGER_18, RegisterTypeTpl.DATA_LOGGER_19, RegisterTypeTpl.DATA_LOGGER_20,
+            RegisterTypeTpl.DATA_LOGGER_21, RegisterTypeTpl.DATA_LOGGER_22, RegisterTypeTpl.DATA_LOGGER_23, RegisterTypeTpl.DATA_LOGGER_24,
+            RegisterTypeTpl.DATA_LOGGER_25, RegisterTypeTpl.DATA_LOGGER_26, RegisterTypeTpl.DATA_LOGGER_27, RegisterTypeTpl.DATA_LOGGER_28,
+            RegisterTypeTpl.DATA_LOGGER_29, RegisterTypeTpl.DATA_LOGGER_30, RegisterTypeTpl.DATA_LOGGER_31, RegisterTypeTpl.DATA_LOGGER_32),
     ;
     private String name;
     private String obisCode;

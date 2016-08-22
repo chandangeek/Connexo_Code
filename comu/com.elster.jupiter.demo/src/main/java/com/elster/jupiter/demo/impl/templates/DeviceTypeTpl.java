@@ -63,7 +63,20 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     AS220 ("Elster AS220", "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", 1, OutboundTCPComPortPoolTpl.ORANGE,
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E, RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2),
             Arrays.<LoadProfileTypeTpl>asList(com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl._15_MIN_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.DAILY_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
-            Collections.singletonList(com.elster.jupiter.demo.impl.templates.LogBookTypeTpl.GENERIC))
+            Collections.singletonList(com.elster.jupiter.demo.impl.templates.LogBookTypeTpl.GENERIC)),
+    WEBRTU_Z2 ("WebRTU Z2", "com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP", 1, OutboundTCPComPortPoolTpl.ORANGE,
+            Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.DATA_LOGGER_1, RegisterTypeTpl.DATA_LOGGER_2, RegisterTypeTpl.DATA_LOGGER_3, RegisterTypeTpl.DATA_LOGGER_4, RegisterTypeTpl.DATA_LOGGER_5, RegisterTypeTpl.DATA_LOGGER_6
+                    ,RegisterTypeTpl.DATA_LOGGER_7, RegisterTypeTpl.DATA_LOGGER_8, RegisterTypeTpl.DATA_LOGGER_9, RegisterTypeTpl.DATA_LOGGER_10, RegisterTypeTpl.DATA_LOGGER_11, RegisterTypeTpl.DATA_LOGGER_12
+                    ,RegisterTypeTpl.DATA_LOGGER_13, RegisterTypeTpl.DATA_LOGGER_14, RegisterTypeTpl.DATA_LOGGER_15, RegisterTypeTpl.DATA_LOGGER_16, RegisterTypeTpl.DATA_LOGGER_17, RegisterTypeTpl.DATA_LOGGER_18
+                    ,RegisterTypeTpl.DATA_LOGGER_19, RegisterTypeTpl.DATA_LOGGER_20, RegisterTypeTpl.DATA_LOGGER_21, RegisterTypeTpl.DATA_LOGGER_22, RegisterTypeTpl.DATA_LOGGER_23, RegisterTypeTpl.DATA_LOGGER_24
+                    ,RegisterTypeTpl.DATA_LOGGER_25, RegisterTypeTpl.DATA_LOGGER_26, RegisterTypeTpl.DATA_LOGGER_27, RegisterTypeTpl.DATA_LOGGER_28, RegisterTypeTpl.DATA_LOGGER_29, RegisterTypeTpl.DATA_LOGGER_30
+                    ,RegisterTypeTpl.DATA_LOGGER_31, RegisterTypeTpl.DATA_LOGGER_32
+            ),
+            Collections.singletonList(LoadProfileTypeTpl.DATA_LOGGER_32),
+            Collections.emptyList()),
+    EIMETER_FLEX("EIMeter flex", null, 10, null,
+            Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E ),
+            Collections.singletonList(LoadProfileTypeTpl._15_MIN_ELECTRICITY)),
     ;
 
     private String longName;
@@ -76,13 +89,17 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     private List<LogBookTypeTpl> logBookTypes;
 
     DeviceTypeTpl(String name, String protocol, int deviceCount, OutboundTCPComPortPoolTpl poolTpl, List<RegisterTypeTpl> registerTypes, List<LoadProfileTypeTpl> loadProfileTypes, List<LogBookTypeTpl> logBookTypes) {
+        this(name, protocol, deviceCount, poolTpl,registerTypes,loadProfileTypes);
+        this.logBookTypes = logBookTypes;
+    }
+
+    DeviceTypeTpl(String name, String protocol, int deviceCount, OutboundTCPComPortPoolTpl poolTpl, List<RegisterTypeTpl> registerTypes, List<LoadProfileTypeTpl> loadProfileTypes) {
         this.longName = name;
         this.protocol = protocol;
         this.deviceCount = deviceCount;
         this.poolTpl = poolTpl;
         this.registerTypes = registerTypes;
         this.loadProfileTypes = loadProfileTypes;
-        this.logBookTypes = logBookTypes;
     }
 
     public void tuneDeviceCountForSpeedTest() {
@@ -96,10 +113,12 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
 
     @Override
     public DeviceTypeBuilder get(DeviceTypeBuilder builder){
-        return builder.withName(this.longName).withProtocol(this.protocol)
+        builder.withName(this.longName).withProtocol(this.protocol)
                 .withRegisterTypes(this.registerTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.toList()))
-                .withLoadProfileTypes(this.loadProfileTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LoadProfileType>toList()))
-                .withLogBookTypes(this.logBookTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LogBookType>toList()));
+                .withLoadProfileTypes(this.loadProfileTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LoadProfileType>toList()));
+        if (logBookTypes != null)
+            builder.withLogBookTypes(this.logBookTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LogBookType>toList()));
+        return builder;
     }
 
     public int getDeviceCount() {

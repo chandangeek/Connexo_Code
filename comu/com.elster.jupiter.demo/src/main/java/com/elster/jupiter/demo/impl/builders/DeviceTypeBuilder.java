@@ -10,6 +10,8 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.google.common.base.Strings;
+
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
@@ -60,20 +62,28 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
     @Override
     public DeviceType create() {
         Log.write(this);
-        List<DeviceProtocolPluggableClass> protocols = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(this.protocol);
-        if (protocols.isEmpty()) {
-            throw new IllegalStateException("Unable to retrieve the " + this.protocol + " protocol. Please check that license was correctly installed and that indexing process was finished for protocols.");
+        DeviceType.DeviceTypeBuilder deviceType;
+        if (Strings.isNullOrEmpty(protocol)){
+            deviceType = deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder(getName(), deviceLifeCycleConfigurationService
+                    .findDefaultDeviceLifeCycle()
+                    .get());
+        }else{
+            List<DeviceProtocolPluggableClass> protocols = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(this.protocol);
+            if (protocols.isEmpty()) {
+                throw new IllegalStateException("Unable to retrieve the " + this.protocol + " protocol. Please check that license was correctly installed and that indexing process was finished for protocols.");
+            }
+            deviceType = deviceConfigurationService.newDeviceTypeBuilder(getName(), protocols.get(0), deviceLifeCycleConfigurationService
+                    .findDefaultDeviceLifeCycle()
+                    .get());
         }
-        DeviceType.DeviceTypeBuilder deviceType = deviceConfigurationService.newDeviceTypeBuilder(getName(), protocols.get(0), deviceLifeCycleConfigurationService
-                .findDefaultDeviceLifeCycle()
-                .get());
+
         if (this.registerTypes != null) {
             deviceType.withRegisterTypes(registerTypes);
         }
         if (this.loadProfileTypes != null) {
             deviceType.withLoadProfileTypes(loadProfileTypes);
         }
-        if (logBookTypes != null) {
+        if (this.logBookTypes != null) {
             deviceType.withLogBookTypes(logBookTypes);
         }
         return deviceType.create();
