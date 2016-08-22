@@ -498,7 +498,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         ScheduledConnectionTaskBuilder setProperty(String propertyName, Object value);
 
-        ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections);
+        ScheduledConnectionTaskBuilder setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections);
 
         ScheduledConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 

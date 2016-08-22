@@ -132,19 +132,19 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
         this.successIndicator = successIndicator;
     }
 
-    long getReceivedBytes() {
+    public long getReceivedBytes() {
         return receivedBytes.getValue();
     }
 
-    long getSentBytes() {
+    public long getSentBytes() {
         return sentBytes.getValue();
     }
 
-    long getReceivedPackets() {
+    public long getReceivedPackets() {
         return receivedPackets.getValue();
     }
 
-    long getSentPackets() {
+    public long getSentPackets() {
         return sentPackets.getValue();
     }
 

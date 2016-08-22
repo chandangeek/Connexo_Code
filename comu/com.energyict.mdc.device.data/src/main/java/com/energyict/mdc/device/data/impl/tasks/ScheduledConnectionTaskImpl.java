@@ -66,7 +66,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private Instant plannedNextExecutionTimestamp;
     @SuppressWarnings("unused")
     private int priority;
-    private boolean allowSimultaneousConnections;
+    private int numberOfSimultaneousConnections;
     private Reference<ConnectionInitiationTask> initiationTask = ValueReference.absent();
     private int maxNumberOfTries = -1;
     private UpdateStrategy updateStrategy = new Noop();
@@ -478,13 +478,13 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    public boolean isSimultaneousConnectionsAllowed() {
-        return allowSimultaneousConnections;
+    public int getNumberOfSimultaneousConnections() {
+        return numberOfSimultaneousConnections;
     }
 
     @Override
-    public void setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections) {
-        this.allowSimultaneousConnections = allowSimultaneousConnections;
+    public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
+        this.numberOfSimultaneousConnections = numberOfSimultaneousConnections;
     }
 
     @Override

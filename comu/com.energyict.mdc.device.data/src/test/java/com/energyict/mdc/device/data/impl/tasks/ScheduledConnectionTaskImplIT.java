@@ -175,7 +175,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.OUTBOUND_CONNECTION_TASK_MINIMIZE_STRATEGY_NOT_COMPATIBLE_WITH_SIMULTANEOUS_CONNECTIONS + "}")
     public void testCreateMinimizeConnectionsWithSimultaneous() {
         ScheduledConnectionTaskImpl connectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("testCreateMinimizeConnectionsWithSimultaneous", new TemporalExpression(EVERY_DAY));
-        connectionTask.setSimultaneousConnectionsAllowed(true);
+        connectionTask.setNumberOfSimultaneousConnections(2);
 
         // Business method
         device.save();
@@ -640,7 +640,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                 .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                 .setNextExecutionSpecsFrom(new TemporalExpression(frequency, offset))
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE)
-                .setSimultaneousConnectionsAllowed(false)
+                .setNumberOfSimultaneousConnections(1)
                 .add();
 
         // Asserts
@@ -743,10 +743,10 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testAllowSimultaneousConnections() {
+    public void testNumberOfSimultaneousConnections() {
         // First one - allow simultaneous connections
         ScheduledConnectionTaskImpl outboundTrue = (createASimpleScheduledConnectionTask());
-        outboundTrue.setSimultaneousConnectionsAllowed(true);
+        outboundTrue.setNumberOfSimultaneousConnections(2);
         device.save();
 
         // second one - deny simultaneous connections
@@ -755,12 +755,12 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .add();
 
-        outboundFalse.setSimultaneousConnectionsAllowed(false);
+        outboundFalse.setNumberOfSimultaneousConnections(1);
         device.save();
 
         // Asserts
-        assertThat(outboundTrue.isSimultaneousConnectionsAllowed()).isTrue();
-        assertThat(outboundFalse.isSimultaneousConnectionsAllowed()).isFalse();
+        assertThat(outboundTrue.getNumberOfSimultaneousConnections()).isEqualTo(2);
+        assertThat(outboundFalse.getNumberOfSimultaneousConnections()).isEqualTo(1);
     }
 
     @Test
@@ -778,7 +778,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(created.getCommunicationWindow()).isEqualTo(loaded.getCommunicationWindow());
         assertThat(created.getNextExecutionSpecs()).isEqualTo(loaded.getNextExecutionSpecs());
         assertThat(created.getInitiatorTask()).isEqualTo(loaded.getInitiatorTask());
-        assertThat(created.isSimultaneousConnectionsAllowed()).isEqualTo(loaded.isSimultaneousConnectionsAllowed());
+        assertThat(created.getNumberOfSimultaneousConnections()).isEqualTo(loaded.getNumberOfSimultaneousConnections());
         assertThat(created.getNextExecutionTimestamp()).isEqualTo(loaded.getNextExecutionTimestamp());
         assertThat(created.getPlannedNextExecutionTimestamp()).isEqualTo(loaded.getPlannedNextExecutionTimestamp());
     }

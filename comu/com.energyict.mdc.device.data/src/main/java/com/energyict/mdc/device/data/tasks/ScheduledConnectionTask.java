@@ -144,9 +144,9 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return true if simultaneous connections are allowed, false otherwise
      */
-    boolean isSimultaneousConnectionsAllowed();
+    int getNumberOfSimultaneousConnections();
 
-    void setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections);
+    void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections);
 
     /**
      * Gets this ComTaskExecution's status.

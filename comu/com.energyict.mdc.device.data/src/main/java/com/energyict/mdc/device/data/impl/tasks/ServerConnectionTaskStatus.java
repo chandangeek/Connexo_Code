@@ -81,16 +81,7 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
-            if (task.isExecuting()) {
-                return true;
-            } else {
-                for (ComTaskExecution comTaskExecution : task.getDevice().getComTaskExecutions()) {
-                    if (comTaskExecution.isExecuting()) {
-                        return true;
-                    }
-                }
-                return false;
-            }
+            return task.isExecuting() || task.getScheduledComTasks().stream().filter(ComTaskExecution::isExecuting).findAny().isPresent();
         }
 
         @Override

@@ -4,11 +4,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -221,7 +217,7 @@ public enum TableSpecs {
             table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ConnectionTaskFields.PLANNED_NEXT_EXECUTION_TIMESTAMP.fieldName()).add();
             table.column("CONNECTIONSTRATEGY").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.CONNECTION_STRATEGY.fieldName()).add();
             table.column("PRIORITY").number().conversion(NUMBER2INT).map(ConnectionTaskFields.PRIORITY.fieldName()).add();
-            table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.ALLOW_SIMULTANEOUS_CONNECTIONS.fieldName()).add();
+            table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2INT).map(ConnectionTaskFields.ALLOW_SIMULTANEOUS_CONNECTIONS.fieldName()).add();
             Column initiator = table.column("INITIATOR").number().add();
             // InboundConnectionTaskImpl columns: none at this moment
             // ConnectionInitiationTaskImpl columns: none at this moment

@@ -26,4 +26,11 @@ public interface BuildsStatistics<S> {
 
     S resetReceivedPackets();
 
+    long getSentBytes();
+
+    long getReceivedBytes();
+
+    long getSentPackets();
+
+    long getReceivedPackets();
 }

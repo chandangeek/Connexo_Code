@@ -583,9 +583,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     @Override
     public void schedule(Instant when) {
-        this.schedule(when, this.getPlannedNextExecutionTimestamp());
-        if (this.getId() > 0) {
-            this.updateForScheduling();
+        if (!isOnHold() || when == null) {
+            this.schedule(when, this.getPlannedNextExecutionTimestamp());
+            if (this.getId() > 0) {
+                this.updateForScheduling();
+            }
         }
     }
 
@@ -598,6 +600,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
                 ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
                 ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName(),
                 ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
+                ComTaskExecutionFields.ONHOLD.fieldName(),
                 ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
     }
 
@@ -851,25 +854,19 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
         @Override
         public ComTaskExecutionBuilder<C> scheduleNow() {
-            if (!this.comTaskExecution.isOnHold()) {
-                this.comTaskExecution.scheduleNow();
-            }
+            this.comTaskExecution.scheduleNow();
             return this;
         }
 
         @Override
         public ComTaskExecutionBuilder<C> runNow() {
-            if (!this.comTaskExecution.isOnHold()) {
-                this.comTaskExecution.runNow();
-            }
+            this.comTaskExecution.runNow();
             return this;
         }
 
         @Override
         public ComTaskExecutionBuilder<C> schedule(Instant instant) {
-            if (!this.comTaskExecution.isOnHold()) {
-                this.comTaskExecution.schedule(instant);
-            }
+            this.comTaskExecution.schedule(instant);
             return null;
         }
 
