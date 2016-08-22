@@ -36,6 +36,11 @@ public class ServletInboundComPortListener extends ServletBasedComPortListenerIm
     }
 
     @Override
+    public int getThreadCount() {
+        return 1;
+    }
+
+    @Override
     protected void doStart() {
         super.doStart();
         this.embeddedWebServer.start();

@@ -317,6 +317,7 @@ public class ComServerDAOImplTest {
         ServerComTaskExecution comTaskExecution3 = mock(ServerComTaskExecution.class);
         when(comTaskExecution3.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(communicationTaskService.findComTaskExecutionsWhichAreExecuting(this.comPort)).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1, comTaskExecution2, comTaskExecution3));
+        when(connectionTaskService.findConnectionTask(anyLong())).thenReturn(Optional.of(connectionTask));
 
         // Business method
         this.comServerDAO.releaseTasksFor(this.comPort);

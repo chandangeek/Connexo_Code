@@ -64,7 +64,8 @@ public class CreateInboundComSessionTest {
     public void testExecuteDelegatesToComServerDAO() {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        CreateInboundComSession command = new CreateInboundComSession(Instant.now(), this.comPort, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        Instant now = Instant.now();
+        CreateInboundComSession command = new CreateInboundComSession(now, this.comPort, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
         command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
@@ -72,14 +73,15 @@ public class CreateInboundComSessionTest {
         command.execute(comServerDAO);
 
         // Asserts
-        verify(comServerDAO).createComSession(comSessionBuilder, Instant.now(), ComSession.SuccessIndicator.Success);
+        verify(comServerDAO).createComSession(comSessionBuilder, now, ComSession.SuccessIndicator.Success);
     }
 
     @Test
     public void testExecuteDuringShutdownDelegatesToComServerDAO() {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        CreateInboundComSession command = new CreateInboundComSession(Instant.now(), this.comPort, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        Instant now = Instant.now();
+        CreateInboundComSession command = new CreateInboundComSession(now, this.comPort, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
         command.setStopWatch(new StopWatch());
         command.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
@@ -88,7 +90,7 @@ public class CreateInboundComSessionTest {
         command.executeDuringShutdown(comServerDAO);
 
         // Asserts
-        verify(comServerDAO).createComSession(comSessionBuilder, Instant.now(), ComSession.SuccessIndicator.Success);
+        verify(comServerDAO).createComSession(comSessionBuilder, now, ComSession.SuccessIndicator.Success);
     }
 
     @Test(expected = MockedComServerDAOFailure.class)

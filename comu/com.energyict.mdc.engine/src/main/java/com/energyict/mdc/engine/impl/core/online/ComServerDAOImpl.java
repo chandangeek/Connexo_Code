@@ -259,14 +259,6 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void unlock(ScheduledConnectionTask connectionTask) {
-        Optional reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            getConnectionTaskService().unlockConnectionTask((ScheduledConnectionTask) reloaded.get());
-        }
-    }
-
-    @Override
     public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier) {
         return findOfflineDevice(identifier, DeviceOffline.needsEverything);
     }
@@ -355,7 +347,10 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     public void unlock(final OutboundConnectionTask connectionTask) {
-        getConnectionTaskService().unlockConnectionTask(connectionTask);
+        Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+        if (reloaded.isPresent()) {
+            getConnectionTaskService().unlockConnectionTask(reloaded.get());
+        }
     }
 
     @Override
@@ -486,9 +481,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
             // unlock the connection tasks (after all affected ComTaskExecs are unlocked)
             for (ServerConnectionTask lockedConnectionTask : lockedConnectionTasks) {
-                if (lockedConnectionTask instanceof ScheduledConnectionTask) {
-                    unlock((ScheduledConnectionTask) lockedConnectionTask);
-                } else if (lockedConnectionTask instanceof OutboundConnectionTask) {
+                if (lockedConnectionTask instanceof OutboundConnectionTask) {
                     unlock((OutboundConnectionTask) lockedConnectionTask);
                 }
             }

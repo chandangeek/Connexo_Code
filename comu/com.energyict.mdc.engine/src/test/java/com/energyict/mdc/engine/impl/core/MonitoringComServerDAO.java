@@ -130,7 +130,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
     @Override
     public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
-        return Optional.empty();
+        return actual.findOfflineDevice(identifier, offlineDeviceContext);
     }
 
     @Override
@@ -166,11 +166,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
     @Override
     public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
         return this.actual.attemptLock(connectionTask, comServer);
-    }
-
-    @Override
-    public void unlock (ScheduledConnectionTask connectionTask) {
-        this.actual.unlock(connectionTask);
     }
 
     @Override
@@ -423,7 +418,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
-            return Optional.empty();
+            return actual.findOfflineDevice(identifier, offlineDeviceContext);
         }
 
         @Override
@@ -459,11 +454,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
             return true;
-        }
-
-        @Override
-        public void unlock (ScheduledConnectionTask connectionTask) {
-            // No implementation required so far
         }
 
         @Override

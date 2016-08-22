@@ -311,11 +311,6 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void unlock (ScheduledConnectionTask connectionTask) {
-        this.connectionTaskLocking.remove(connectionTask);
-    }
-
-    @Override
     public void unlock (OutboundConnectionTask connectionTask) {
         this.connectionTaskLocking.remove(connectionTask);
     }

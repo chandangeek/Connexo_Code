@@ -29,6 +29,8 @@ import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -45,7 +47,6 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import org.assertj.core.api.Condition;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -57,7 +58,6 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
@@ -67,6 +67,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyCollectionOf;
 import static org.mockito.Mockito.*;
 
 /**
@@ -319,7 +320,6 @@ public class ScheduledJobImplTest {
 
     }
 
-    @Ignore //TODO TODO CXO-2121
     @Test(timeout = 5000)
     public void testThatThreadInterruptSetsAppropriateSuccessIndicator()
             throws
@@ -331,7 +331,7 @@ public class ScheduledJobImplTest {
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
-        OfflineDevice mockOfflineDevice = this.createMockOfflineDevice();
+        OfflineDevice offlineDevice = this.createMockOfflineDevice();
         Device device = this.createMockDevice();
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.connect(comPort)).thenReturn(new VoidTestComChannel());
@@ -339,27 +339,47 @@ public class ScheduledJobImplTest {
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
         ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        OfflineDevice offlineDevice = mock(OfflineDevice.class);
 
+        final ComServerDAO comServerDAO = mock(ComServerDAO.class);
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
+        when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
+        when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
+        when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenReturn(mock(ComSession.class));
+        when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
+        when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         final ScheduledComTaskExecutionGroup job = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, serviceProvider);
         job.add(scheduledComTask);
-        BlockingQueue<ScheduledJob> blockingQueue = mock(BlockingQueue.class);
-        //TODO CXO-2121
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, deviceCommandExecutor, transactionService, threadprincipalService, userService);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
         when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
+        when(((ServerCollectedData) collectedFirmwareVersion).toDeviceCommand(any(MeterDataStoreCommand.class), any(DeviceCommand.ServiceProvider.class))).thenReturn(mock(DeviceCommand.class));
         when(deviceProtocol.getFirmwareVersions()).thenReturn(collectedFirmwareVersion);
+        CollectedBreakerStatus collectedBreakerStatus = mock(CollectedBreakerStatus.class, withSettings().extraInterfaces(ServerCollectedData.class));
+        when(((ServerCollectedData) collectedBreakerStatus).toDeviceCommand(any(MeterDataStoreCommand.class), any(DeviceCommand.ServiceProvider.class))).thenReturn(mock(DeviceCommand.class));
+        when(collectedBreakerStatus.getResultType()).thenReturn(ResultType.NotSupported);
+        when(deviceProtocol.getBreakerStatus()).thenReturn(collectedBreakerStatus);
+        CollectedCalendar collectedCalendar = mock(CollectedCalendar.class, withSettings().extraInterfaces(ServerCollectedData.class));
+        when(((ServerCollectedData) collectedCalendar).toDeviceCommand(any(MeterDataStoreCommand.class), any(DeviceCommand.ServiceProvider.class))).thenReturn(mock(DeviceCommand.class));
+        when(collectedCalendar.getResultType()).thenReturn(ResultType.NotSupported);
+        when(deviceProtocol.getCollectedCalendar()).thenReturn(collectedCalendar);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+
+        when(this.deviceCommandExecutor.execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class))).thenAnswer(
+                invocationOnMock -> {
+                    DeviceCommand deviceCommand = (DeviceCommand) invocationOnMock.getArguments()[0];
+                    deviceCommand.execute(comServerDAO);
+                    return null;
+                }
+        );
+
         Runnable jobRunnable = () -> {
-            jobExecutor.execute(job);
             startLatch.countDown();
+            jobExecutor.execute(job);
         };
         Thread jobThread = new Thread(jobRunnable);
         jobThread.setName("ScheduledComTaskExecution for testThatThreadInterruptSetsAppropriateSuccessIndicator");
@@ -386,7 +406,7 @@ public class ScheduledJobImplTest {
 
         assertThat(createComSession).isNotNull();
         assertThat(createComSession.getComSessionBuilder()).isNotNull();
-        assertThat(createComSession.getComSession().getSuccessIndicator()).isEqualTo(ComSession.SuccessIndicator.Broken);
+        verify(comServerDAO).createComSession(eq(createComSession.getComSessionBuilder()), any(Instant.class), eq(ComSession.SuccessIndicator.Broken));
     }
 
     @Test
@@ -409,14 +429,13 @@ public class ScheduledJobImplTest {
         ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
-        when(comServerDAO.areStillPending(any(Collection.class))).thenReturn(true);
+        when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
         when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
         when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
         final ScheduledComTaskExecutionGroup job = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, serviceProvider);
 
-        BlockingQueue<ScheduledJob> blockingQueue = mock(BlockingQueue.class);
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, this.deviceCommandExecutor, this.transactionService, this.threadprincipalService, userService);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
@@ -474,13 +493,12 @@ public class ScheduledJobImplTest {
         ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
-        when(comServerDAO.areStillPending(any(Collection.class))).thenReturn(true);
+        when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
         when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
         when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
         final AlwaysFailComTaskExecutionJob job = new AlwaysFailComTaskExecutionJob(comPort, comServerDAO, deviceCommandExecutor, connectionTask, this.serviceProvider);
-        BlockingQueue<ScheduledJob> blockingQueue = mock(BlockingQueue.class);
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, this.deviceCommandExecutor, this.transactionService, this.threadprincipalService, userService);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));

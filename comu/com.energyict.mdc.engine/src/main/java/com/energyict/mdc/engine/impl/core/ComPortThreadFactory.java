@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.engine.config.ComPort;
 
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Provides an implementation for the {@link ThreadFactory} interface
@@ -18,7 +18,7 @@ public class ComPortThreadFactory implements ThreadFactory {
 
     private ComPort comPort;
     private ThreadFactory actual;
-    private AtomicInteger count = new AtomicInteger(0);
+    private AtomicLong count = new AtomicLong(0);
 
     public ComPortThreadFactory(ComPort comPort, ThreadFactory actual) {
         super();
@@ -29,8 +29,7 @@ public class ComPortThreadFactory implements ThreadFactory {
     @Override
     public Thread newThread(Runnable r) {
         Thread thread = this.actual.newThread(r);
-        thread.setName("ComPort schedule worker " + count.incrementAndGet() + " for " + this.comPort.getName());
+        thread.setName("ComPort schedule worker for " + this.comPort.getName() + " - " + count.getAndIncrement());
         return thread;
     }
-
 }

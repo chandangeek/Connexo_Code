@@ -152,14 +152,6 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer);
 
     /**
-     * Unlocks the ScheduledConnectionTask, basically undoing the effect
-     * of the attemptLock method providing that was successful.
-     *
-     * @param connectionTask The OutboundConnectionTask
-     */
-    void unlock(ScheduledConnectionTask connectionTask);
-
-    /**
      * Unlocks the OutboundConnectionTask, basically undoing the effect
      * of the attemptLock method providing that was successful.
      *

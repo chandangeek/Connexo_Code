@@ -38,6 +38,11 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
     }
 
     @Override
+    public int getThreadCount() {
+        return 1;
+    }
+
+    @Override
     protected void setThreadPrinciple() {
         Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
         if (user.isPresent()) {

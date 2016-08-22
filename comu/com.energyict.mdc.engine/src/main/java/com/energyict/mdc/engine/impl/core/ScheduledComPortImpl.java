@@ -81,13 +81,13 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         this.serviceProvider = serviceProvider;
         assert comPort != null : "Scheduling a ComPort requires at least the ComPort to be scheduled instead of null!";
         this.runningComServer = runningComServer;
-        this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.threadFactory = threadFactory;
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.schedulingInterpollDelay = comPort.getComServer().getSchedulingInterPollDelay();
         this.loggerHolder = new LoggerHolder(comPort);
         this.lastActivityTimestamp = this.serviceProvider.clock().instant();
+        setComPort(comPort);
     }
 
     protected abstract void setThreadPrinciple();
@@ -277,7 +277,9 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     protected interface JobScheduler {
-        void scheduleAll(List<ComJob> jobs);
+        int scheduleAll(List<ComJob> jobs);
+
+        int getConnectionCount();
     }
 
     private class ExceptionLogger {

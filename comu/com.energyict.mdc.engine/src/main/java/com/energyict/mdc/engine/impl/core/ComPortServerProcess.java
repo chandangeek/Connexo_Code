@@ -30,6 +30,11 @@ public interface ComPortServerProcess extends ServerProcess {
     public String getThreadName();
 
     /**
+     * @return the number of threads used by the process.
+     */
+    public int getThreadCount();
+
+    /**
      * Gets the instant in time of the last registered activity for this process.
      *
      * @return The instant in time

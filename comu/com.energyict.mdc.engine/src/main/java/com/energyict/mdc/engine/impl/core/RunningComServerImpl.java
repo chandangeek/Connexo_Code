@@ -137,7 +137,6 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.serviceProvider = serviceProvider;
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
-        registerAsMBean();
         EventPublisher eventPublisher = new EventPublisherImpl(this);
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
                 new WebSocketEventPublisherFactoryImpl(
@@ -217,6 +216,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.scheduledComPortFactory = scheduledComPortFactory;
         this.comPortListenerFactory = comPortListenerFactory;
         this.threadFactory = threadFactory;
+        registerAsMBean();
     }
 
     protected EmbeddedWebServerFactory getEmbeddedWebServerFactory() {

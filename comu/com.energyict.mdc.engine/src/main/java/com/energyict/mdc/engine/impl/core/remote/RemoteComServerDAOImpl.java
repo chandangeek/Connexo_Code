@@ -140,13 +140,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void unlock (ScheduledConnectionTask connectionTask) {
-        Map<String, Object> queryParameters = new HashMap<>();
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
-        this.post(QueryMethod.Unlock, queryParameters);
-    }
-
-    @Override
     public void unlock (OutboundConnectionTask connectionTask) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());

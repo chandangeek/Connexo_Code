@@ -2,16 +2,16 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.EngineServiceImpl;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import java.util.Optional;
+import com.energyict.mdc.engine.impl.EngineServiceImpl;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ThreadFactory;
-import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ScheduledComPort} interface
@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
  * @since 2012-04-03 (10:30)
  */
 public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
+
+    private JobScheduler jobScheduler;
 
     public SingleThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
@@ -39,8 +41,21 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
     }
 
     @Override
-    protected JobScheduler getJobScheduler () {
-        return new SingleThreadedJobScheduler(this.getComPort().getComServer().getCommunicationLogLevel());
+    public int getThreadCount() {
+        return 1;
+    }
+
+    @Override
+    public int getActiveThreadCount() {
+        return (((SingleThreadedJobScheduler) this.getJobScheduler()).isActive() ? 1 : 0);
+    }
+
+    @Override
+    protected JobScheduler getJobScheduler() {
+        if (this.jobScheduler == null) {
+            this.jobScheduler = new SingleThreadedJobScheduler(this.getComPort().getComServer().getCommunicationLogLevel());
+        }
+        return this.jobScheduler;
     }
 
     /**
@@ -50,28 +65,53 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
     private class SingleThreadedJobScheduler implements JobScheduler, ScheduledJobExecutionEventListener {
 
         private ComServer.LogLevel logLevel;
+        private List<ScheduledJob> scheduledJobs = new ArrayList<>();
 
-        private SingleThreadedJobScheduler (ComServer.LogLevel logLevel) {
+        private SingleThreadedJobScheduler(ComServer.LogLevel logLevel) {
             super();
             this.logLevel = logLevel;
         }
 
         @Override
-        public void executionStarted (ScheduledJob job) {
+        public void executionStarted(ScheduledJob job) {
             // I know because I kicked the execute method myself
         }
 
         @Override
-        public void scheduleAll(List<ComJob> jobs) {
-            for (ScheduledJob job : this.toScheduledJobs(jobs)) {
+        public int scheduleAll(List<ComJob> jobs) {
+            scheduledJobs = this.toScheduledJobs(jobs);
+            for (ScheduledJob job : scheduledJobs) {
                 new SingleThreadedScheduledJobExecutor(getServiceProvider().transactionService(), this.logLevel, getDeviceCommandExecutor()).acquireTokenAndPerformSingleJob(job);
             }
+            return jobs.size();
         }
 
-        private List<ScheduledJob> toScheduledJobs (List<ComJob> jobs) {
-            return jobs.stream().map(SingleThreadedScheduledComPort.this::newComTaskGroup).collect(Collectors.toList());
+        @Override
+        public int getConnectionCount() {
+            int count = 0;
+            for (ScheduledJob job : scheduledJobs) {
+                if (((JobExecution) job).isConnected()) {
+                    count++;
+                }
+            }
+            return count;
         }
 
+        public boolean isActive() {
+            for (ScheduledJob job : scheduledJobs) {
+                if (((JobExecution) job).getExecutionContext() != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private List<ScheduledJob> toScheduledJobs(List<ComJob> jobs) {
+            List<ScheduledJob> scheduledJobs = new ArrayList<>();
+            for (ComJob job : jobs) {
+                scheduledJobs.add(newComTaskGroup(job));
+            }
+            return scheduledJobs;
+        }
     }
-
 }
