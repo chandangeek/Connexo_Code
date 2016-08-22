@@ -18,7 +18,7 @@ public interface PartialScheduledConnectionTaskBuilder extends PartialOutboundCo
 
     PartialScheduledConnectionTaskBuilder connectionStrategy(ConnectionStrategy connectionStrategy);
 
-    PartialScheduledConnectionTaskBuilder allowSimultaneousConnections(boolean simultaneousConnectionsAllowed);
+    PartialScheduledConnectionTaskBuilder setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections);
 
     PartialScheduledConnectionTaskBuilder asDefault(boolean asDefault);
 

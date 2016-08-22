@@ -42,7 +42,7 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     private int comWindowEnd;
     @NotNull(message = '{' + MessageSeeds.Keys.FIELD_IS_REQUIRED + '}', groups = {Save.Create.class, Save.Update.class})
     private ConnectionStrategy connectionStrategy;
-    private boolean allowSimultaneousConnections;
+    private int numberOfSimultaneousConnections;
     private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();
 
     @Inject
@@ -77,8 +77,8 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     }
 
     @Override
-    public boolean isSimultaneousConnectionsAllowed() {
-        return allowSimultaneousConnections;
+    public int getNumberOfSimultaneousConnections() {
+        return numberOfSimultaneousConnections;
     }
 
     @Override
@@ -128,8 +128,8 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     }
 
     @Override
-    public void setAllowSimultaneousConnections(boolean allowSimultaneousConnections) {
-        this.allowSimultaneousConnections = allowSimultaneousConnections;
+    public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
+        this.numberOfSimultaneousConnections = numberOfSimultaneousConnections;
     }
 
     @Override
@@ -210,7 +210,7 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     @Override
     public PartialConnectionTask cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
         PartialScheduledConnectionTaskBuilder builder = deviceConfiguration.newPartialScheduledConnectionTask(getName(), getPluggableClass(), getRescheduleDelay(), getConnectionStrategy());
-        builder.allowSimultaneousConnections(isSimultaneousConnectionsAllowed());
+        builder.setNumberOfSimultaneousConnections(getNumberOfSimultaneousConnections());
         builder.asDefault(isDefault());
         builder.comWindow(new ComWindow(getCommunicationWindow().getStart(), getCommunicationWindow().getEnd()));
         builder.initiationTask(getCorrespondingConnectionInitiationTaskForDeviceConfig(deviceConfiguration));

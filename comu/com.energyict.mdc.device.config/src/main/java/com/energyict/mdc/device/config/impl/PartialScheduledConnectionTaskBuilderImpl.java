@@ -16,7 +16,7 @@ public class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduled
 
     private ComWindow comWindow;
     private ConnectionStrategy connectionStrategy;
-    private boolean allowSimultaneousConnections;
+    private int numberOfSimultaneousConnections;
     private PartialConnectionInitiationTaskImpl partialConnectionInitiationTask;
 
 
@@ -37,8 +37,8 @@ public class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduled
     }
 
     @Override
-    public PartialScheduledConnectionTaskBuilder allowSimultaneousConnections(boolean simultaneousConnectionsAllowed) {
-        this.allowSimultaneousConnections = simultaneousConnectionsAllowed;
+    public PartialScheduledConnectionTaskBuilder setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
+        this.numberOfSimultaneousConnections = numberOfSimultaneousConnections;
         return myself;
     }
 
@@ -67,7 +67,7 @@ public class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduled
             instance.setComWindow(comWindow);
         }
         instance.setConnectionStrategy(connectionStrategy);
-        instance.setAllowSimultaneousConnections(allowSimultaneousConnections);
+        instance.setNumberOfSimultaneousConnections(numberOfSimultaneousConnections);
         instance.setInitiationTask(partialConnectionInitiationTask);
     }
 }

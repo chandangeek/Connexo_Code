@@ -45,13 +45,13 @@ public interface PartialScheduledConnectionTask extends PartialOutboundConnectio
      *
      * @return true if simultaneous connections are allowed, false otherwise
      */
-    public boolean isSimultaneousConnectionsAllowed();
+    public int getNumberOfSimultaneousConnections();
 
     void setComWindow(ComWindow comWindow);
 
     void setConnectionStrategy(ConnectionStrategy connectionStrategy);
 
-    void setAllowSimultaneousConnections(boolean allowSimultaneousConnections);
+    void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections);
 
     void setInitiationTask(PartialConnectionInitiationTask partialConnectionInitiationTask);
 
