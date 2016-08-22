@@ -10,10 +10,8 @@ Ext.define('Mtr.readingtypes.view.Preview', {
 
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('readingtypesmanagment.actions', 'MTR', 'Actions'),
+            xtype: 'uni-button-action',
             itemId: 'action-button',
-            iconCls: 'x-uni-action-iconD',
             privileges : Mtr.privileges.ReadingTypes.admin,
             menu: {
                 xtype: 'reading-types-action-menu'
