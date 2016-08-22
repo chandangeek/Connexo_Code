@@ -74,7 +74,7 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
                     collectedRegisters.add(adapterDeviceRegister);
                 } catch (UnsupportedException | NoSuchRegisterException e) {
                     CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
-                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newProblem(register.getObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(), register.getObisCode()));
+                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newProblem(register.getObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.REGISTER_NOT_SUPPORTED, register.getObisCode()));
                     collectedRegisters.add(defaultDeviceRegister);
                 }
                 catch (IOException e) {

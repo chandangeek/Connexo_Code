@@ -48,7 +48,7 @@ public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
     }
 
     private Issue getIssue(Object source, MessageSeed description, Object... arguments){
-        return this.issueService.newWarning(source, description.getKey(), arguments);
+        return this.issueService.newWarning(source, description, arguments);
     }
 
     /**

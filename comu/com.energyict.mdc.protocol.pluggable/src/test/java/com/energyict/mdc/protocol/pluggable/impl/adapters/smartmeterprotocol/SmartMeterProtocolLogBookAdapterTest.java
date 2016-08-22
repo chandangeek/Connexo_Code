@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
@@ -13,8 +15,6 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLogBook;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
 import org.joda.time.DateMidnight;
 
 import java.io.IOException;
@@ -25,13 +25,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
@@ -89,10 +90,10 @@ public class SmartMeterProtocolLogBookAdapterTest {
 
     @Before
     public void initializeIssueService () {
-        when(this.issueService.newProblem(any(), anyString(), anyVararg())).thenAnswer(invocationOnMock -> {
+        when(this.issueService.newProblem(any(), any(), anyVararg())).thenAnswer(invocationOnMock -> {
             Problem problem = mock(Problem.class);
             when(problem.getSource()).thenReturn(invocationOnMock.getArguments()[0]);
-            when(problem.getDescription()).thenReturn((String) invocationOnMock.getArguments()[1]);
+            when(problem.getDescription()).thenReturn(String.valueOf(invocationOnMock.getArguments()[1]));
             return problem;
         });
     }
