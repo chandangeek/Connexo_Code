@@ -139,6 +139,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                 data: groups
             }));
 
+            linkContainer.removeAll();
             linkContainer.add(
                 {
                     xtype: 'button',
