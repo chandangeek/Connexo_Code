@@ -99,7 +99,7 @@ public class InMemoryIntegrationPersistence {
                 new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new IdsModule(),
-                new MeteringModule("0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0"),
+                new MeteringModule("0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0", "11.0.0.9.1.2.12.0.0.0.0.1.0.0.0.0.72.0"),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
