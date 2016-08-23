@@ -18,13 +18,10 @@ public class HexString implements Comparable, Serializable {
     }
 
     public HexString (String hexString) {
-        if (is(hexString).emptyOrOnlyWhiteSpace()) {
-            return;
-        }
-        else {
+        if (!is(hexString).emptyOrOnlyWhiteSpace()) {
             try {
                 new BigInteger(hexString.toUpperCase(), 16);
-                this.content = hexString.toUpperCase();
+                setContent(hexString);
             }
             catch (NumberFormatException x) {
                 throw new IllegalArgumentException("Invalid HexString");
@@ -32,9 +29,24 @@ public class HexString implements Comparable, Serializable {
         }
     }
 
+    protected void setContent(String hexString){
+        content = hexString.toUpperCase();
+    }
+
+    public boolean isValid(){
+        return true;
+    }
+
     public String getContent () {
         return content;
     }
+
+    public boolean isEmpty(){
+        return content == null || content.isEmpty();
+    }
+
+    public int lenght(){
+        return (content == null ? 0 : content.length());    }
 
     public int compareTo (Object o) {
         HexString other = (HexString) o;
