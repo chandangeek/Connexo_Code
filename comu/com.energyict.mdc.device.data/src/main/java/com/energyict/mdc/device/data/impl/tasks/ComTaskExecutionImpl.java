@@ -497,6 +497,10 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.doReschedule(nextExecutionTimestamp);
     }
 
+    void setLastExecutionStartTimestamp(Instant lastExecutionStartTimestamp) {
+        this.lastExecutionTimestamp = lastExecutionStartTimestamp;
+    }
+
     /**
      * Just for clarity's sake.<br/>
      * If the current ConnectionTask is either INBOUND or OUTBOUND with an ASAP strategy,
@@ -938,6 +942,12 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         public U forceNextExecutionTimeStampAndPriority(Instant nextExecutionTimestamp, int priority) {
             this.comTaskExecution.setNextExecutionTimestamp(nextExecutionTimestamp);
             this.comTaskExecution.setExecutingPriority(priority);
+            return self;
+        }
+
+        @Override
+        public U forceLastExecutionStartTimestamp(Instant lastExecutionStartTimestamp) {
+            this.comTaskExecution.setLastExecutionStartTimestamp(lastExecutionStartTimestamp);
             return self;
         }
 
