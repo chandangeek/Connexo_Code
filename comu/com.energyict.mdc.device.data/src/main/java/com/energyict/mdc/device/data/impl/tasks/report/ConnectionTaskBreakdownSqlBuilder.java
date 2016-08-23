@@ -116,7 +116,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
         this.sqlBuilder.append("      CASE");
         this.taskStatusses.stream().forEach(each -> each.appendBreakdownCaseClause(this.sqlBuilder, this.connectionTaskService.clock()));
         this.sqlBuilder.append("      END taskStatus");
-        this.sqlBuilder.append("    FROM CT WHERE not exists (SELECT 1 FROM busytask WHERE busytask.connectiontask = id)");
+        this.sqlBuilder.append("    FROM CT WHERE not exists (SELECT 1 FROM busytask WHERE busytask.connectiontask = id and comport is not null)");
         this.sqlBuilder.append("              AND comserver is null)");
     }
 

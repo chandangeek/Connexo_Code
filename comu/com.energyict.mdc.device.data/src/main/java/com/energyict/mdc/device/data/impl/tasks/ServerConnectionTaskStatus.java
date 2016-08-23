@@ -143,7 +143,7 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
-            sqlBuilder.append("        WHEN nextexecutiontimestamp <=");
+            sqlBuilder.append("        WHEN status = 0 and nextexecutiontimestamp <=");
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
             this.appendBreakdownThenClause(sqlBuilder);
         }
@@ -190,7 +190,8 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
-            sqlBuilder.append("        WHEN currentretrycount = 0");
+            sqlBuilder.append("        WHEN currentretrycount = 0 ");
+            sqlBuilder.append("         AND status = 0 ");
             sqlBuilder.append("         AND nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
             sqlBuilder.append("         AND lastsuccessfulcommunicationend is null");
@@ -236,8 +237,9 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
-            sqlBuilder.append("        WHEN currentretrycount > 0");
-            sqlBuilder.append("         AND nextexecutiontimestamp >");
+            sqlBuilder.append("        WHEN currentretrycount > 0 ");
+            sqlBuilder.append("         AND status = 0 ");
+            sqlBuilder.append("         AND nextexecutiontimestamp > ");
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
             this.appendBreakdownThenClause(sqlBuilder);
         }
@@ -289,6 +291,7 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
             sqlBuilder.append("        WHEN currentretrycount = 0");
+            sqlBuilder.append("         AND status = 0 ");
             sqlBuilder.append("         AND lastExecutionFailed = 1");
             sqlBuilder.append("         AND nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
@@ -343,6 +346,7 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
             sqlBuilder.append("        WHEN currentretrycount = 0");
+            sqlBuilder.append("         AND status = 0 ");
             sqlBuilder.append("         AND lastExecutionFailed = 0");
             sqlBuilder.append("         AND nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
