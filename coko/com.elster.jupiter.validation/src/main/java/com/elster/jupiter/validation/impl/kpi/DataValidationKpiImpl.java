@@ -197,12 +197,11 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         Optional<RecurrentTask> validationtask = this.dataValidationKpiTask.getOptional();
         if (validationtask.isPresent()) {
             validationtask.get().setNextExecution(null);
+            validationtask.get().suspend();
             validationtask.get().save();
-            validationtask.get().delete();
         }
-        this.dataValidationKpiTask.getOptional().ifPresent(RecurrentTask::delete);
-        //TODO check if device does not belong to other existing KPIs
         this.childrenKpis.forEach(DataValidationKpiChild::remove);
+        this.dataValidationKpiTask.getOptional().ifPresent(RecurrentTask::delete);
     }
 
     @Override
@@ -286,15 +285,15 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
             dataValidationKpiMembers.removeAll(commonElements);
             dataValidationKpiMembers
                     .forEach(id -> {
-                        List<Kpi> obsoleteKpiList = childrenKpis.stream().map(DataValidationKpiChild::getChildKpi).map(Kpi::getMembers)
-                                .flatMap(List::stream)
-                                .filter(member -> member.getName().endsWith("_" + id))
-                                .map(KpiMember::getKpi)
-                                .distinct()
-                                .collect(Collectors.toList());
-                        obsoleteKpiList.forEach(Kpi::remove);
-                    }
-            );
+                                List<Kpi> obsoleteKpiList = childrenKpis.stream().map(DataValidationKpiChild::getChildKpi).map(Kpi::getMembers)
+                                        .flatMap(List::stream)
+                                        .filter(member -> member.getName().endsWith("_" + id))
+                                        .map(KpiMember::getKpi)
+                                        .distinct()
+                                        .collect(Collectors.toList());
+                                obsoleteKpiList.forEach(Kpi::remove);
+                            }
+                    );
         }
     }
 
@@ -315,25 +314,25 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         public void save() {
             updateFrequency();
             DestinationSpec destination = messageService.getDestinationSpec(DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
-                RecurrentTask recurrentTask;
-                Optional<RecurrentTask> defaultTask = taskService.getRecurrentTask(taskName());
-                if (defaultTask.isPresent()) {
-                    recurrentTask = defaultTask.get();
-                    recurrentTask.setScheduleExpression(this.toScheduleExpression());
-                    recurrentTask.save();
-                } else {
-                    recurrentTask = taskService.newBuilder()
-                            .setApplication("MultiSense")
-                            .setName(taskName())
-                            .setScheduleExpression(this.toScheduleExpression())
-                            .setDestination(destination)
-                            .setPayLoad(scheduledExcutionPayload())
-                            .scheduleImmediately(true)
-                            .build();
-                }
-                this.setRecurrentTask(recurrentTask);
-
+            RecurrentTask recurrentTask;
+            Optional<RecurrentTask> defaultTask = taskService.getRecurrentTask(taskName());
+            if (defaultTask.isPresent()) {
+                recurrentTask = defaultTask.get();
+                recurrentTask.setScheduleExpression(this.toScheduleExpression());
+                recurrentTask.save();
+            } else {
+                recurrentTask = taskService.newBuilder()
+                        .setApplication("MultiSense")
+                        .setName(taskName())
+                        .setScheduleExpression(this.toScheduleExpression())
+                        .setDestination(destination)
+                        .setPayLoad(scheduledExcutionPayload())
+                        .scheduleImmediately(true)
+                        .build();
             }
+            this.setRecurrentTask(recurrentTask);
+
+        }
 
         protected Optional<RecurrentTask> getRecurrentTask() {
             return this.recurrentTask.getOptional();
