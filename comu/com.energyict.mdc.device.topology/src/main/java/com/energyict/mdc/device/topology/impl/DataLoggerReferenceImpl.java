@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
@@ -115,7 +116,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
             }
             FilteredMeterReading meterReading = new FilteredMeterReading(dataloggerChannel.deleteReadings(getInterval().toOpenClosedRange()),
                     block -> block.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
-                    reading -> reading.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
+                    reading -> reading.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()) && !isTouchedReading(reading),
                     rq -> rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false),
                     ImmutableMap.of(dataLoggerCollectedReadingType, slaveCollectedReadingType)
             );
@@ -126,6 +127,11 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
                 }
             }
         }
+    }
+    // Edited or estimated readings shouldn't be involved in the transfer from data logger to slave and vice versa
+    // Some protocols set the QualityCodeCategory.EDITED for 'modified' status bits => additional filter on QualityType with QualityCodeSystem != QualitySystemCode.EndDevice
+    private boolean isTouchedReading(BaseReading reading){
+        return reading.getReadingQualities().stream().map(ReadingQuality::getType).anyMatch(qt -> qt.getSystemCode() != QualityCodeSystem.ENDDEVICE.ordinal() && (qt.hasEditCategory() || qt.hasEstimatedCategory()));
     }
 
     private void updateLastReadingIfApplicable(TopologyServiceImpl topologyService, Channel channel) {
@@ -157,7 +163,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
             }
             FilteredMeterReading meterReading = new FilteredMeterReading(slaveChannel.deleteReadings(Range.atLeast(start)),
                     block -> block.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
-                    reading -> reading.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
+                    reading -> reading.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()) && !isTouchedReading(reading),
                     rq -> rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false),
                     ImmutableMap.of(slaveCollectedReadingType, dataLoggerCollectedReadingType)
             );
@@ -198,8 +204,8 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         public List<Reading> getReadings() {
             return decorated.getReadings().stream()
                     .filter(readingFilter)
-                    .map(reading -> new FilteredReading(reading, readingQualityPredicate, readingTypeMap.get(reading.getReadingTypeCode()))
-                    ).map(Reading.class::cast)
+                    .map(reading -> new FilteredReading(reading, readingQualityPredicate, readingTypeMap.get(reading.getReadingTypeCode())))
+                    .map(Reading.class::cast)
                     .collect(Collectors.toList());
         }
 
@@ -233,7 +239,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
 
         @Override
         public List<IntervalReading> getIntervals() {
-            return decorated.getIntervals().stream().map(ir -> new FilteredIntervalReading(ir, readingQualityPredicate)).map(IntervalReading.class::cast).collect(Collectors.toList());
+            return decorated.getIntervals().stream().filter(reading -> !isTouchedReading(reading)).map(ir -> new FilteredIntervalReading(ir, readingQualityPredicate)).map(IntervalReading.class::cast).collect(Collectors.toList());
         }
 
         @Override
