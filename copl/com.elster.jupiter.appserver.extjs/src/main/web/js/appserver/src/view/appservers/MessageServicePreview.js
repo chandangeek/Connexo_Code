@@ -11,10 +11,8 @@ Ext.define('Apr.view.appservers.MessageServicePreview', {
         var me = this;
         me.tools = [
             {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.actions', 'APR', 'Actions'),
+                xtype: 'uni-button-action',
                 privileges: Apr.privileges.AppServer.admin,
-                iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'message-services-action-menu'
                 }
