@@ -27,9 +27,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Overview', {
                         }
                     },
                     {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                        iconCls: 'x-uni-action-iconD',
+                        xtype: 'uni-button-action',
                         margin: '20 0 0 0',
                         menu: {
                             xtype: 'deviceLoadProfilesActionMenu'

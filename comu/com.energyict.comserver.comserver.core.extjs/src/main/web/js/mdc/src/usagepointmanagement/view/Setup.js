@@ -33,14 +33,12 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
                 items: [
                     '->',
                     {
-                        xtype: 'button',
+                        xtype: 'uni-button-action',
                         itemId: 'usage-point-landing-actions-btn',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                         privileges: Mdc.privileges.UsagePoint.admin,
                         style: {
                             'background-color': '#71adc7'
                         },
-                        iconCls: 'x-uni-action-iconD',
                         menu: {
                             xtype: 'usage-point-action-menu',
                             itemId: 'usagePointActionMenu',

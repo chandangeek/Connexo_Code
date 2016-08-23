@@ -20,9 +20,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
                     flex: 1
                 },
                 {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                    iconCls: 'x-uni-action-iconD',
+                    xtype: 'uni-button-action',
                     menu: {
                         xtype: 'comserver-actionmenu',
                         itemId: 'comserverOverviewMenu'

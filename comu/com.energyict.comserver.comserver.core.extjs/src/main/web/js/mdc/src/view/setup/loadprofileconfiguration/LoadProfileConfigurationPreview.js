@@ -13,10 +13,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
     router: null,
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            xtype: 'uni-button-action',
             privileges: Mdc.privileges.DeviceType.admin,
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'load-profile-configuration-action-menu'
             }

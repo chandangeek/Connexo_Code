@@ -5,12 +5,11 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypePreview', {
     frame: true,
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            xtype: 'uni-button-action',
             privileges: Mdc.privileges.MasterData.admin,
-            iconCls: 'x-uni-action-iconD',
             menu: {
-                xtype: 'logbook-type-action-menu' }
+                xtype: 'logbook-type-action-menu'
+            }
         }
     ],
     requires: [

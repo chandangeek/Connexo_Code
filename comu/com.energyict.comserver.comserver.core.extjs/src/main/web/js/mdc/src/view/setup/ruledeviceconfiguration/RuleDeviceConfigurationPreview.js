@@ -7,10 +7,8 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationPrevie
     ],
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            xtype: 'uni-button-action',
             privileges: Cfg.privileges.Validation.deviceConfiguration,
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'rule-device-configuration-action-menu'
             }
