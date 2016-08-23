@@ -286,6 +286,10 @@ public class DecoratedStream<T> implements Stream<T> {
         return new DecoratedStream<>(StreamSupport.stream(new PartitionWhenSpliterator<T>(decorated.spliterator(), startNewPartition), decorated.isParallel()));
     }
 
+    /**
+     * A Stream of values is turned into a Stream of pairs, where the first-value of each pair is the original value and
+     * the last-value of the pair is the index/place said value in the original stream.
+     */
     public DecoratedStream<Pair<T, Long>> zipWithIndex() {
         return new DecoratedStream<>(StreamSupport.stream(new ZipWithIndexSpliterator<T>(decorated.spliterator()), isParallel()));
     }
