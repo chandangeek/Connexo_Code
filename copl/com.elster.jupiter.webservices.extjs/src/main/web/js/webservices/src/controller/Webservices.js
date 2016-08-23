@@ -263,8 +263,8 @@ Ext.define('Wss.controller.Webservices', {
         record.save({
                 success: function (record) {
                     me.getApplication().fireEvent('acknowledge', record.get('active') ?
-                        Uni.I18n.translate('general.xActivated', 'WSS', '{0} activated ', [record.get('name')]) :
-                        Uni.I18n.translate('general.xDeactivated', 'WSS', '{0} deactivated ', [record.get('name')])
+                        Uni.I18n.translate('general.xActivated', 'WSS', '{0} activated ', record.get('name'), false) :
+                        Uni.I18n.translate('general.xDeactivated', 'WSS', '{0} deactivated ', record.get('name'), false)
                     );
                     if(me.getLandingPageForm()) {
                         me.getLandingPageForm().loadRecord(record);
