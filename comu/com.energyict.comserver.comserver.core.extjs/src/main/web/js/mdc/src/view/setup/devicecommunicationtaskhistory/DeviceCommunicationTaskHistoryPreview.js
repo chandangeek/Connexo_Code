@@ -23,9 +23,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             },
             tools: [
                 {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                    iconCls: 'x-uni-action-iconD',
+                    xtype: 'uni-button-action',
                     menu: {
                         items: [
                             {
@@ -135,9 +133,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             itemId: 'deviceConnectionHistoryPreviewPanel',
             tools: [
                 {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                    iconCls: 'x-uni-action-iconD',
+                    xtype: 'uni-button-action',
                     menu: {
                         items: [
                             {

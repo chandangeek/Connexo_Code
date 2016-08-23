@@ -12,19 +12,18 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryP
         var me = this;
         me.tools = [
             {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                xtype: 'uni-button-action',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 itemId: 'actions-button',
-                iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'metrology-configuration-versions-action-menu',
                     itemId: 'metrology-configuration-versions-action-menu-id',
                     usagePoint: me.usagePoint
                 }
             }
-        ],
-            me.callParent(arguments)
+        ];
+
+        me.callParent(arguments);
     },
 
     items: [

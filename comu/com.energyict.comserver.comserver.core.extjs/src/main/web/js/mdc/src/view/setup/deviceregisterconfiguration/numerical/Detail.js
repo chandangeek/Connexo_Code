@@ -131,9 +131,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                 router: me.router
                             },
                             {
-                                xtype: 'button',
-                                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                                iconCls: 'x-uni-action-iconD',
+                                xtype: 'uni-button-action',
                                 itemId: 'detailActionMenu',
                                 margin: '20 0 0 0',
                                 menu: {

@@ -75,10 +75,9 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
                 emptyMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbartop.emptyMsg', 'MDC', 'There are no connection methods to display'),
                 items: [
                     {
-                        xtype: 'button',
+                        xtype: 'uni-button-action',
                         text: Uni.I18n.translate('deviceconnectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
                         privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                        iconCls: 'x-uni-action-iconD',
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions,
                         menu: {
                             plain: true,

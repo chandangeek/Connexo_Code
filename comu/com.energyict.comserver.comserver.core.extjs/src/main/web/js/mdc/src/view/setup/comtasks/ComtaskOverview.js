@@ -27,9 +27,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskOverview', {
                     }
                 },
                 {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                    iconCls: 'x-uni-action-iconD',
+                    xtype: 'uni-button-action',
                     privileges: Mdc.privileges.Communication.admin,
                     margin: '20 0 0 0',
                     menu: {
