@@ -40,13 +40,13 @@ public class ObisCode implements Serializable {
     private int d;
     private int e;
     private int f;
-    private boolean relativeBillingPeriod;
+    private boolean hasRelativeBillingPeriod;
 
     //needed for Flex synchronization
     public ObisCode() {
     }
 
-    public ObisCode(int a, int b, int c, int d, int e, int f, boolean relativeBillingPeriod) {
+    public ObisCode(int a, int b, int c, int d, int e, int f, boolean hasRelativeBillingPeriod) {
         if (a < 0 || a > 255) {
             throw new IllegalArgumentException("Invalid a value " + a);
         }
@@ -62,7 +62,7 @@ public class ObisCode implements Serializable {
         if (e < 0 || e > 255) {
             throw new IllegalArgumentException("Invalid e value " + e);
         }
-        if (relativeBillingPeriod) {
+        if (hasRelativeBillingPeriod) {
             if (f < -99 || f > 1) {
                 throw new IllegalArgumentException("Invalid f value " + f);
             }
@@ -77,7 +77,7 @@ public class ObisCode implements Serializable {
         this.d = d;
         this.e = e;
         this.f = f;
-        this.relativeBillingPeriod = relativeBillingPeriod;
+        this.hasRelativeBillingPeriod = hasRelativeBillingPeriod;
     }
 
     public ObisCode(int a, int b, int c, int d, int e, int f) {
@@ -92,7 +92,7 @@ public class ObisCode implements Serializable {
             base.getD(),
             base.getE(),
             base.getF(),
-            base.useRelativeBillingPeriod());
+            base.hasRelativeBillingPeriod());
     }
 
     public ObisCode(ObisCode base, int channelIndex, int billingPeriodIndex) {
@@ -102,18 +102,14 @@ public class ObisCode implements Serializable {
             base.getC(),
             base.getD(),
             base.getE(),
-            base.useRelativeBillingPeriod() ?
+            base.hasRelativeBillingPeriod() ?
                     ((billingPeriodIndex + base.getF()) % 100) :
                     base.getF(),
             false);
     }
 
-    public boolean useRelativeBillingPeriod() {
-        return relativeBillingPeriod;
-    }
-
-    public boolean isRelativeBillingPeriod() {
-        return relativeBillingPeriod;
+    public boolean hasRelativeBillingPeriod() {
+        return hasRelativeBillingPeriod;
     }
 
     public String toString() {
@@ -132,7 +128,7 @@ public class ObisCode implements Serializable {
         buffer.append(".");
         buffer.append(e);
         buffer.append(".");
-        if (useRelativeBillingPeriod()) {
+        if (hasRelativeBillingPeriod()) {
             buffer.append("VZ");
             if (f > 0) {
                 buffer.append("+");
@@ -168,7 +164,7 @@ public class ObisCode implements Serializable {
                             ((this.d == other.d) || !d) &&
                             ((this.e == other.e) || !e) &&
                             ((this.f == other.f) || !f) &&
-                            ((this.relativeBillingPeriod == other.relativeBillingPeriod) || !relative);
+                            ((this.hasRelativeBillingPeriod == other.hasRelativeBillingPeriod) || !relative);
         } catch (ClassCastException ex) {
             return false;
         }
@@ -216,15 +212,15 @@ public class ObisCode implements Serializable {
     }
 
     public boolean isCurrentBillingPeriod() {
-        return useRelativeBillingPeriod() && f == 1;
+        return hasRelativeBillingPeriod() && f == 1;
     }
 
     public boolean isLastBillingPeriod() {
-        return useRelativeBillingPeriod() && f == 0;
+        return hasRelativeBillingPeriod() && f == 0;
     }
 
     public boolean hasBillingPeriod() {
-        return useRelativeBillingPeriod() || f < 100;
+        return hasRelativeBillingPeriod() || f < 100;
     }
 
     public String getDescription() {
@@ -234,30 +230,29 @@ public class ObisCode implements Serializable {
     // KV 12102004
 
     public static ObisCode fromByteArray(byte[] ln) {
-        boolean hasRelativeBillingPoint = false;
         int a = ln[0] & 0xFF;
         int b = ln[1] & 0xFF;
         int c = ln[2] & 0xFF;
         int d = ln[3] & 0xFF;
         int e = ln[4] & 0xFF;
         int f = ln[5] & 0xFF;
-        return new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
+        return new ObisCode(a, b, c, d, e, f, false);
     }
 
     public static ObisCode fromString(String codeString) {
         try {
             StringTokenizer tokenizer = new StringTokenizer(codeString, ".");
-            String aToken = tokenizer.nextToken();
+            String aToken = tokenizer.nextToken().trim();
             int a = Integer.parseInt(aToken);
-            String bToken = tokenizer.nextToken();
+            String bToken = tokenizer.nextToken().trim();
             int b = "x".equalsIgnoreCase(bToken) ? -1 : Integer.parseInt(bToken);
-            String cToken = tokenizer.nextToken();
+            String cToken = tokenizer.nextToken().trim();
             int c = Integer.parseInt(cToken);
-            String dToken = tokenizer.nextToken();
+            String dToken = tokenizer.nextToken().trim();
             int d = Integer.parseInt(dToken);
-            String eToken = tokenizer.nextToken();
+            String eToken = tokenizer.nextToken().trim();
             int e = Integer.parseInt(eToken);
-            String fToken = tokenizer.nextToken();
+            String fToken = tokenizer.nextToken().trim();
 
             if (tokenizer.hasMoreElements()) {
                 throw new IllegalArgumentException("Invalid obis format");
@@ -266,15 +261,7 @@ public class ObisCode implements Serializable {
             boolean hasRelativeBillingPoint = fToken.startsWith("VZ");
             int f;
             if (hasRelativeBillingPoint) {
-                if (fToken.trim().length() == 2) {
-                    f = 0;
-                } else {
-                    String billingPointOffset = fToken.substring(2).trim();
-                    if (billingPointOffset.startsWith("+")) {
-                        billingPointOffset = billingPointOffset.substring(1);
-                    }
-                    f = Integer.parseInt(billingPointOffset);
-                }
+                f = fToken.length() == 2 ? 0 : Integer.parseInt(fToken.substring(2).trim());
             } else {
                 f = Integer.parseInt(fToken);
             }
