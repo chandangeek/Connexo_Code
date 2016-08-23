@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -115,7 +116,6 @@ public class ValidationResultsResource {
                 if (filters.getJSONObject(i).get("property").equals("amountOfSuspects")) {
                     JSONObject value = new JSONObject(filters.getJSONObject(i).get("value").toString());
                     if (value.get("operator").equals("==")) {
-                        amountOfSuspectsList.add(0L);
                         amountOfSuspectsList.add(Long.parseLong(value.get("criteria").toString()));
                     } else if (value.get("operator").equals("BETWEEN")) {
                         JSONArray interval = new JSONArray(value.get("criteria").toString());
@@ -144,8 +144,10 @@ public class ValidationResultsResource {
                 deviceDataValidationService
                         .getValidationResultsOfDeviceGroup(groupId, range)
                         .stream()
-                        .filter(resultAmt -> amountOfSuspectsList.isEmpty() || (amountOfSuspectsList.get(0) <= resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects()
-                                && resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects() <= amountOfSuspectsList.get(1)))
+                        .filter(resultAmt -> (amountOfSuspectsList.isEmpty() || (amountOfSuspectsList.size() == 2 && amountOfSuspectsList.get(0)
+                                .longValue() <= resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects()
+                                && resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects() <= amountOfSuspectsList.get(1)
+                                .longValue())) || (amountOfSuspectsList.size() == 1 && amountOfSuspectsList.get(0).longValue() == resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects()))
                         .filter(validator -> Validator.stringToEnum.entrySet().stream().allMatch(a -> a.getValue() == false) ||
                                 (validator.getDeviceValidationKpiResults().isThresholdValidator() && Validator.fromAbbreviation(Validator.THRESHOLDVALIDATOR.getElementAbbreviation()) ||
                                         validator.getDeviceValidationKpiResults().isMissingValuesValidator() && Validator.fromAbbreviation(Validator.MISSINGVALUESVALIDATOR.getElementAbbreviation()) ||
