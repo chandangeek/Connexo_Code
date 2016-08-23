@@ -7,6 +7,12 @@ Ext.define('Bpm.monitorissueprocesses.view.ProcessList', {
 
     ui: 'medium',
     buttonAlign: 'left',
+
+    layout: {
+        type: 'vbox',
+        align: 'left'
+    },
+
     items: [
         {
             xtype: 'uni-form-empty-message',
