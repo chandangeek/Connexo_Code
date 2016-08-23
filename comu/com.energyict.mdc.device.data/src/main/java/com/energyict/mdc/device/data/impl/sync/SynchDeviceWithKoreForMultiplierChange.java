@@ -54,9 +54,7 @@ public class SynchDeviceWithKoreForMultiplierChange extends AbstractSyncDeviceWi
         } else {
             meterActivation = Optional.of(getDevice().getMeter().get().getMeterActivation(generalizedStartDate).get());
         }
-        if (meterActivation.isPresent() && meterActivation.get().getStart().compareTo(generalizedStartDate) < 0) {
-            meterActivation = Optional.of(endMeterActivationAndRestart(generalizedStartDate, meterActivation, Optional.empty()));
-        }
+        meterActivation = Optional.of(endMeterActivationAndRestart(generalizedStartDate, meterActivation, Optional.empty()));
         setMultiplier(meterActivation.get(), multiplier);
         device.getKoreHelper().setCurrentMeterActivation(meterActivation);
         return meterActivation.get();
