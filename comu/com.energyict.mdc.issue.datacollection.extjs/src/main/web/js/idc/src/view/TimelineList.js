@@ -7,6 +7,12 @@ Ext.define('Idc.view.TimelineList', {
 
     ui: 'medium',
     buttonAlign: 'left',
+
+    layout: {
+        type: 'vbox',
+        align: 'left'
+    },
+
     items: [
         {
             xtype: 'uni-form-empty-message',
