@@ -101,16 +101,17 @@ public class RegisterResource {
         Register<?, ?> register = doGetRegister(mRID, registerId);
         Register.RegisterUpdater registerUpdater = device.getRegisterUpdaterFor(register);
         if (register.getRegisterSpec() instanceof NumericalRegisterSpec) {
+            NumericalRegister numericalRegister = (NumericalRegister) register;
             NumericalRegisterInfo numericalRegisterInfo = ((NumericalRegisterInfo) registerInfo);
-            if (!Objects.equals(numericalRegisterInfo.overruledNumberOfFractionDigits, numericalRegisterInfo.numberOfFractionDigits)) {
+            if (!Objects.equals(numericalRegister.getNumberOfFractionDigits(), numericalRegisterInfo.overruledNumberOfFractionDigits)) {
                 registerUpdater.setNumberOfFractionDigits(numericalRegisterInfo.overruledNumberOfFractionDigits);
             }
-            if (numericalRegisterInfo.overruledOverflow == null && ((NumericalRegister) register).getOverflow().isPresent() ||
-                    !Objects.equals(numericalRegisterInfo.overruledOverflow, numericalRegisterInfo.overflow)) {
+            if (numericalRegister.getOverflow().isPresent() && (numericalRegisterInfo.overruledOverflow == null)
+                    || !Objects.equals(numericalRegisterInfo.overruledOverflow, numericalRegister.getOverflow().get())) {
                 registerUpdater.setOverflowValue(numericalRegisterInfo.overruledOverflow);
             }
         }
-        if (!registerInfo.overruledObisCode.equals(registerInfo.obisCode)) {
+        if (!register.getDeviceObisCode().equals(registerInfo.overruledObisCode)) {
             registerUpdater.setObisCode(registerInfo.overruledObisCode);
         }
         registerUpdater.update();
