@@ -106,6 +106,9 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     }
 
     private List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationForUsagePointInPeriod(UsagePoint usagePoint, Range<Instant> period) {
+        /* Could use the following
+         * return usagePoint.getEffectiveMetrologyConfigurations(period);
+         * but we want to eagerly fetch the configuration and the contracts as well. */
         return this.getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, MetrologyContract.class)
                 .select(where("usagePoint").isEqualTo(usagePoint)

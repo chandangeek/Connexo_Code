@@ -15,11 +15,11 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 
-public class MeterActivationChannelsContainerImpl extends ChannelsContainerImpl {
+class MeterActivationChannelsContainerImpl extends ChannelsContainerImpl {
     private Reference<MeterActivation> meterActivation = ValueReference.absent();
 
     @Inject
-    public MeterActivationChannelsContainerImpl(ServerMeteringService meteringService, EventService eventService, Provider<ChannelBuilder> channelBuilder) {
+    MeterActivationChannelsContainerImpl(ServerMeteringService meteringService, EventService eventService, Provider<ChannelBuilder> channelBuilder) {
         super(meteringService, eventService, channelBuilder);
     }
 
