@@ -5,7 +5,6 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
-import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
@@ -126,7 +125,9 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     @Override
     public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
-        return DefaultFinder.of(MetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
+        return DefaultFinder.of(MetrologyConfiguration.class, this.getDataModel(), MetrologyContract.class, ReadingTypeDeliverable.class, Formula.class, ReadingTypeRequirement.class)
+                .defaultSortColumn("lower(mc.name)")
+                .find();
     }
 
     @Override

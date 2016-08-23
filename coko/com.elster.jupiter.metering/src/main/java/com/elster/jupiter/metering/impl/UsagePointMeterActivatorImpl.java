@@ -5,6 +5,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -17,6 +18,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.SelfObjectValidator;
 import com.elster.jupiter.metering.impl.config.SelfValid;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import com.google.common.collect.Range;
 
@@ -62,6 +64,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             throw new IllegalArgumentException("Meter and meter role can not be null");
         }
         this.meterRoleMapping.put(meterRole, meter);
+        updateMeterDefaultLocation(meter);
         eventService.postEvent(EventType.METER_ACTIVATED.topic(), this.usagePoint);
         return this;
     }
@@ -289,6 +292,24 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             currentMeterActivation.save(); // doEndAt call the save method inside
         }
     }
+
+
+    private void updateMeterDefaultLocation(Meter meter) {
+        Optional<Location> usagePointLocation = usagePoint.getLocation();
+        Optional<SpatialCoordinates> usagePointSpatialCoordinates = usagePoint.getSpatialCoordinates();
+        if (usagePointLocation.isPresent()
+                && (!meter.getLocation().isPresent() || meter.getLocation().get().getId() == usagePointLocation.get().getId())) {
+            this.metrologyConfigurationService.getDataModel().mapper(Location.class).getOptional(usagePointLocation.get().getId()).ifPresent(meter::setLocation);
+            if (usagePointSpatialCoordinates.isPresent() &&
+                    (!meter.getSpatialCoordinates().isPresent() || meter.getSpatialCoordinates()
+                            .get().equals(usagePointSpatialCoordinates.get()))) {
+                meter.setSpatialCoordinates(usagePointSpatialCoordinates.get());
+                meter.update();
+            }
+            ;
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {

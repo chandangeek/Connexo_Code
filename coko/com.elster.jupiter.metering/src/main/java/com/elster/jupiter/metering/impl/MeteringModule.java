@@ -33,6 +33,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,22 +63,7 @@ public class MeteringModule extends AbstractModule {
 
     public MeteringModule withDataAggregationService(DataAggregationService dataAggregationService) {
         if (dataAggregationService != null && !(dataAggregationService instanceof ServerDataAggregationService)) {
-            this.dataAggregationMock = new ServerDataAggregationService() {
-                @Override
-                public Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
-                    return Stream.empty();
-                }
-
-                @Override
-                public Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when) {
-                    return Stream.empty();
-                }
-
-                @Override
-                public CalculatedMetrologyContractData calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
-                    return dataAggregationService.calculate(usagePoint, contract, period);
-                }
-            };
+            this.dataAggregationMock = new MockedDataAggregationService(dataAggregationService);
         } else {
             this.dataAggregationMock = null;
         }
@@ -110,11 +97,11 @@ public class MeteringModule extends AbstractModule {
         bind(DataAggregationService.class).toProvider(DataAggregationServiceProvider.class);
     }
 
-    public static class MeteringServiceProvider implements Provider<ServerMeteringService> {
+    private static class MeteringServiceProvider implements Provider<ServerMeteringService> {
         private final MeteringDataModelService meteringDataModelService;
 
         @Inject
-        public MeteringServiceProvider(MeteringDataModelService meteringDataModelService) {
+        private MeteringServiceProvider(MeteringDataModelService meteringDataModelService) {
             this.meteringDataModelService = meteringDataModelService;
         }
 
@@ -124,11 +111,11 @@ public class MeteringModule extends AbstractModule {
         }
     }
 
-    public static class MetrologyConfigurationServiceProvider implements Provider<ServerMetrologyConfigurationService> {
+    private static class MetrologyConfigurationServiceProvider implements Provider<ServerMetrologyConfigurationService> {
         private final MeteringDataModelService meteringDataModelService;
 
         @Inject
-        public MetrologyConfigurationServiceProvider(MeteringDataModelService meteringDataModelService) {
+        private MetrologyConfigurationServiceProvider(MeteringDataModelService meteringDataModelService) {
             this.meteringDataModelService = meteringDataModelService;
         }
 
@@ -138,11 +125,11 @@ public class MeteringModule extends AbstractModule {
         }
     }
 
-    public static class DataAggregationServiceProvider implements Provider<DataAggregationService> {
+    private static class DataAggregationServiceProvider implements Provider<DataAggregationService> {
         private final MeteringDataModelService meteringDataModelService;
 
         @Inject
-        public DataAggregationServiceProvider(MeteringDataModelService meteringDataModelService) {
+        private DataAggregationServiceProvider(MeteringDataModelService meteringDataModelService) {
             this.meteringDataModelService = meteringDataModelService;
         }
 
@@ -151,4 +138,28 @@ public class MeteringModule extends AbstractModule {
             return this.meteringDataModelService.getDataAggregationService();
         }
     }
+
+    private static class MockedDataAggregationService implements ServerDataAggregationService {
+        private final DataAggregationService dataAggregationService;
+
+        MockedDataAggregationService(DataAggregationService dataAggregationService) {
+            this.dataAggregationService = dataAggregationService;
+        }
+
+        @Override
+        public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public CalculatedMetrologyContractData calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+            return dataAggregationService.calculate(usagePoint, contract, period);
+        }
+    }
+
 }

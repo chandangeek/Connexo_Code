@@ -31,6 +31,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_METROLOGYCONFIGURATION("usagepoint.metrologyConfiguration", "Metrology configuration"),
     USAGEPOINT_INSTALLATION_TIME("usagepoint.installationTime", "Installation time"),
     USAGEPOINT_TYPE("usagepoint.type", "Type"),
+    USAGEPOINT_METER("usagepoint.meter", "Meter"),
 
     USAGEPOINT_CONNECTIONSTATE("usagepoint.connectionState", "Connection state"),
     USAGEPOINT_STARTTIME("usagepoint.startTime", "Start time"),

@@ -100,7 +100,9 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_DATA_PRESENT(7011, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time"),
     UNSUPPORTED_COMMAND(7012, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device with MRID {1}"),
     CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED(7013, Constants.CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED, "Current metrology configuration version can't be removed"),
-    START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE(7014, Constants.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "Start date must be greater or equal to Created date of usage point");
+    START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE(7014, Constants.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "Start date must be greater or equal to Created date of usage point"),
+
+    DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0");
 
     private final int number;
     private final String key;
@@ -229,6 +231,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNSPPORTED_COMMAND = "Unsupported.Command.for.enddevice";
         public static final String CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED = "Remove.current.effectve.mc";
         public static final String START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE = "version.start.should.be.greater.than.up.creation.date";
+
+        public static final String DENOMINATOR_CANNOT_BE_ZERO = "denominator.cannot.be.zero";
     }
 
 }
