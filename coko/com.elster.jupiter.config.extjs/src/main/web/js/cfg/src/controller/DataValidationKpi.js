@@ -101,7 +101,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
                 gridToolbarTop.totalCount = -1;
                 grid.down('pagingtoolbarbottom').totalCount--;
                 grid.getStore().loadPage(1);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datavalidationkpis.kpiRemoved', 'CFG', 'Data validation KPI removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datavalidationkpis.kpiRemoved', 'CFG', 'Data validation KPI scheduled for removal'));
             },
             callback: function () {
                 page.setLoading(false);
