@@ -858,6 +858,7 @@ public enum TableSpecs {
                 .blob()
                 .map(DeviceMessageFileImpl.Fields.CONTENTS.fieldName())
                 .add();
+            Column obsolete = table.column("OBSOLETE_DATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceMessageFileImpl.Fields.COBSOLETEDATE.fieldName()).add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_DEVICEMESSAGEFILE").on(id).add();
             table
@@ -868,7 +869,7 @@ public enum TableSpecs {
                 .reverseMap(DeviceTypeImpl.Fields.DEVICE_MESSAGE_FILES.fieldName())
                 .composition()
                 .add();
-            table.unique("UK_DTC_DEVICEMESSAGEFILENAME").on(id, name).add();
+            table.unique("UK_DTC_DEVICEMESSAGEFILENAME").on(deviceType, name, obsolete).add();
         }
     },
     DTC_DEVICETYPECALENDARUSAGE {

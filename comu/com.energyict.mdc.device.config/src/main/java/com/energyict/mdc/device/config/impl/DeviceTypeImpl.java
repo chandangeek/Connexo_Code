@@ -836,7 +836,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private void fileManagementDisabled() {
-        this.deviceMessageFiles.clear();
+        Instant now = this.clock.instant();
+        this.deviceMessageFiles
+                .stream()
+                .forEach(deviceMessageFile -> {
+                    deviceMessageFile.setObsolete(now);
+                    this.getEventService().postEvent(EventType.DEVICE_MESSAGE_FILE_OBSOLETE.topic(), deviceMessageFile);
+                });
+        this.touch();
         this.deviceConfigurations.forEach(ServerDeviceConfiguration::fileManagementDisabled);
     }
 
@@ -844,6 +851,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public List<DeviceMessageFile> getDeviceMessageFiles() {
         return this.deviceMessageFiles
                 .stream()
+                .filter(deviceMessageFile -> !deviceMessageFile.isObsolete())
                 .collect(Collectors.toList());
     }
 
@@ -861,7 +869,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private DeviceMessageFile createFile(ServerDeviceMessageFile file) {
-        if (this.deviceMessageFiles.stream().anyMatch(other -> other.getName().equals(file.getName()))) {
+        if (this.deviceMessageFiles.stream().anyMatch(other -> other.getName().equals(file.getName()) && !other.isObsolete())) {
             throw new DuplicateDeviceMessageFileException(this, file.getName(), this.getThesaurus());
         }
         Save.CREATE.validate(this.getDataModel(), file);
@@ -876,8 +884,15 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private void removeDeviceMessageFile(ServerDeviceMessageFile obsolete) {
-        if (this.deviceMessageFiles.remove(obsolete)) {
+        if (this.deviceMessageFiles.contains(obsolete)) {
+            Instant now = this.clock.instant();
+            this.deviceMessageFiles
+                    .stream()
+                    .filter(deviceMessageFile -> deviceMessageFile.equals(obsolete))
+                    .findFirst()
+                    .ifPresent(deviceMessageFile -> deviceMessageFile.setObsolete(now));
             this.touch();
+            this.getEventService().postEvent(EventType.DEVICE_MESSAGE_FILE_OBSOLETE.topic(), obsolete);
         }
     }
 

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Blob;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.FileBlob;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingIOException;
@@ -15,6 +16,7 @@ import com.energyict.mdc.device.config.DeviceType;
 
 import com.google.common.base.MoreObjects;
 
+import javax.inject.Inject;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Size;
 import java.io.IOException;
@@ -37,7 +39,8 @@ class DeviceMessageFileImpl implements ServerDeviceMessageFile {
         NAME("name"),
         DEVICE_TYPE("deviceType"),
         CONTENTS("contents"),
-        CREATIONDATE("creationDate")
+        CREATIONDATE("creationDate"),
+        COBSOLETEDATE("obsoleteDate")
         ;
 
         private final String javaFieldName;
@@ -53,6 +56,7 @@ class DeviceMessageFileImpl implements ServerDeviceMessageFile {
 
     @SuppressWarnings("unused")
     long id;
+    private DataModel dataModel;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String name;
@@ -62,6 +66,7 @@ class DeviceMessageFileImpl implements ServerDeviceMessageFile {
     @Max(value = DeviceConfigurationService.MAX_DEVICE_MESSAGE_FILE_SIZE_MB, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}", groups = {Save.Create.class, Save.Update.class})
     @SuppressWarnings("unused") // For validation only
     private BigDecimal blobSize = BigDecimal.ZERO;
+    private Instant obsoleteDate;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -70,6 +75,13 @@ class DeviceMessageFileImpl implements ServerDeviceMessageFile {
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+
+    @Inject
+    DeviceMessageFileImpl(DataModel dataModel) {
+        super();
+        this.dataModel = dataModel;
+    }
+
 
     DeviceMessageFileImpl init(DeviceType deviceType, Path path) {
         this.deviceType.set(deviceType);
@@ -95,6 +107,19 @@ class DeviceMessageFileImpl implements ServerDeviceMessageFile {
     @Override
     public Instant getCreateTime() {
         return createTime;
+    }
+
+    @Override
+    public void setObsolete(Instant instant) {
+        this.dataModel.mapper(DeviceMessageFile.class).lockNoWait(this.getId());
+        this.obsoleteDate = instant;
+        this.contents.clear();
+        this.dataModel.update(this);
+    }
+
+    @Override
+    public boolean isObsolete() {
+        return this.obsoleteDate != null;
     }
 
     @Override

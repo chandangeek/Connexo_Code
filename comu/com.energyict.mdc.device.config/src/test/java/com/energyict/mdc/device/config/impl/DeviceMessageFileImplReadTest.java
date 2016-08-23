@@ -89,7 +89,7 @@ public class DeviceMessageFileImplReadTest {
     }
 
     private DeviceMessageFileImpl getTestInstance() {
-        return new DeviceMessageFileImpl().init(this.deviceType, this.path);
+        return new DeviceMessageFileImpl(null).init(this.deviceType, this.path);
     }
 
     private void read(InputStream inputStream) {
