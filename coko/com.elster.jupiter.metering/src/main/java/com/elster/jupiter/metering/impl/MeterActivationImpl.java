@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -57,16 +58,20 @@ import static com.elster.jupiter.util.Ranges.does;
 import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
+@MeterRolePartOfMetrologyConfigurationIfAny(
+        message = "{" + MessageSeeds.Constants.METER_ROLE_NOT_IN_CONFIGURATION + "}",
+        groups = {Save.Create.class, Save.Update.class})
 public final class MeterActivationImpl implements IMeterActivation {
-    //persistent fields
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private Interval interval;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     // associations
@@ -119,7 +124,7 @@ public final class MeterActivationImpl implements IMeterActivation {
             meter.getHeadEndInterface()
                     .map(headEndInterface -> headEndInterface.getCapabilities(meter))
                     .map(EndDeviceCapabilities::getConfiguredReadingTypes)
-                    .ifPresent(readingTypeList -> createChannels(readingTypeList));
+                    .ifPresent(this::createChannels);
         }
         return this;
     }
@@ -349,13 +354,12 @@ public final class MeterActivationImpl implements IMeterActivation {
     void moveAllChannelsData(MeterActivation source, Range<Instant> range) {
         Map<Set<ReadingType>, ChannelImpl> sourceChannels = source.getChannelsContainer().getChannels().stream()
                 .map(ChannelImpl.class::cast)
-                .collect(Collectors.toMap(channel -> ImmutableSet.copyOf(channel.getReadingTypes()), Function.<ChannelImpl>identity()));
+                .collect(Collectors.toMap(channel -> ImmutableSet.copyOf(channel.getReadingTypes()), Function.identity()));
         Map<Set<ReadingType>, ChannelImpl> targetChannels = getChannelsContainer().getChannels().stream()
                 .map(ChannelImpl.class::cast)
-                .collect(Collectors.toMap(channel -> ImmutableSet.copyOf(channel.getReadingTypes()), Function.<ChannelImpl>identity()));
+                .collect(Collectors.toMap(channel -> ImmutableSet.copyOf(channel.getReadingTypes()), Function.identity()));
 
-        sourceChannels.entrySet().stream()
-                .forEach(entry -> moveSingleChannelData(entry.getValue(), targetChannels.get(entry.getKey()), range));
+        sourceChannels.entrySet().forEach(entry -> moveSingleChannelData(entry.getValue(), targetChannels.get(entry.getKey()), range));
     }
 
     private void moveSingleChannelData(ChannelImpl sourceChannel, ChannelImpl targetChannel, Range<Instant> range) {
@@ -469,8 +473,8 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .findFirst();
     }
 
-    class ChannelDataPresentException extends LocalizedException {
-        public ChannelDataPresentException() {
+    private class ChannelDataPresentException extends LocalizedException {
+        ChannelDataPresentException() {
             super(thesaurus, MessageSeeds.CHANNEL_DATA_PRESENT);
         }
     }
@@ -540,4 +544,5 @@ public final class MeterActivationImpl implements IMeterActivation {
     public Instant getModificationDate() {
         return modTime;
     }
+
 }

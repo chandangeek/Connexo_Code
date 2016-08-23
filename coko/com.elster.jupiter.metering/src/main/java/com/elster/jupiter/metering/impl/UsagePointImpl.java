@@ -90,6 +90,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -455,18 +456,30 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurations(Range<Instant> when) {
+        return this.metrologyConfigurations
+                .stream()
+                .filter(notEmpty())
+                .filter(emc -> emc.getRange().isConnected(when) && !emc.getRange().intersection(when).isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    private Predicate<EffectiveMetrologyConfigurationOnUsagePoint> notEmpty() {
+        return emc -> !emc.getStart().equals(emc.getEnd());
+    }
+
+    @Override
     public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when) {
         return this.metrologyConfigurations.stream()
-                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
+                .filter(notEmpty())
                 .filter(emc -> emc.getRange().contains(when))
                 .findFirst();
-
     }
 
     @Override
     public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationByStart(Instant start) {
         return this.metrologyConfigurations.stream()
-                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
+                .filter(notEmpty())
                 .filter(emc -> emc.getStart().equals(start))
                 .findFirst();
     }
@@ -474,7 +487,7 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getCurrentEffectiveMetrologyConfiguration() {
         return this.metrologyConfigurations.stream()
-                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
+                .filter(notEmpty())
                 .filter(emc -> emc.getRange().contains(clock.instant()))
                 .findFirst();
     }
@@ -482,7 +495,7 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurations() {
         return this.metrologyConfigurations.stream()
-                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
+                .filter(notEmpty())
                 .collect(Collectors.toList());
     }
 
