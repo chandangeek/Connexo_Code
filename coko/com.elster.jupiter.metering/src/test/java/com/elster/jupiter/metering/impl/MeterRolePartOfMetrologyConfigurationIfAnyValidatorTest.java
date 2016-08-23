@@ -8,7 +8,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -19,6 +21,7 @@ import com.google.common.collect.Range;
 import javax.inject.Provider;
 import javax.validation.ConstraintValidatorContext;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -32,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -132,6 +136,97 @@ public class MeterRolePartOfMetrologyConfigurationIfAnyValidatorTest {
         // Asserts
         assertThat(valid).isFalse();
         this.verifyBuildingOfConstraintViolation();
+    }
+
+    @Test
+    public void meterActivationWithMetrologyConfigurationWithOtherMeterRoleIsNotValid() {
+        MeterRole other = mock(MeterRole.class);
+        when(other.getDisplayName()).thenReturn("meterActivationWithMetrologyConfigurationWithOtherMeterRoleIsNotValid");
+        when(other.getKey()).thenReturn("meterActivationWithMetrologyConfigurationWithOtherMeterRoleIsNotValid");
+        UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
+        when(metrologyConfiguration.getMeterRoles()).thenReturn(Collections.singletonList(other));
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(this.usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
+        MeterActivationImpl meterActivation = new MeterActivationImpl(this.dataModel, this.eventService, this.clock, this.thesaurus);
+        meterActivation.init(this.meter, this.meterRole, this.usagePoint, Range.atLeast(this.clock.instant()));
+
+        // Business method
+        boolean valid = this.getTestInstance().isValid(meterActivation, this.validatorContext);
+
+        // Asserts
+        assertThat(valid).isFalse();
+        this.verifyBuildingOfConstraintViolation();
+    }
+
+    @Test
+    public void meterActivationWithMultipleMetrologyConfigurationsWithOtherMeterRoleIsNotValid() {
+        MeterRole other1 = mock(MeterRole.class);
+        when(other1.getDisplayName()).thenReturn("other1");
+        when(other1.getKey()).thenReturn("other1");
+        MeterRole other2 = mock(MeterRole.class);
+        when(other2.getDisplayName()).thenReturn("other2");
+        when(other2.getKey()).thenReturn("other2");
+        UsagePointMetrologyConfiguration metrologyConfiguration1 = mock(UsagePointMetrologyConfiguration.class);
+        when(metrologyConfiguration1.getMeterRoles()).thenReturn(Collections.singletonList(other1));
+        UsagePointMetrologyConfiguration metrologyConfiguration2 = mock(UsagePointMetrologyConfiguration.class);
+        when(metrologyConfiguration2.getMeterRoles()).thenReturn(Collections.singletonList(other2));
+        EffectiveMetrologyConfigurationOnUsagePoint effective1 = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effective1.getMetrologyConfiguration()).thenReturn(metrologyConfiguration1);
+        EffectiveMetrologyConfigurationOnUsagePoint effective2 = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effective2.getMetrologyConfiguration()).thenReturn(metrologyConfiguration2);
+        when(this.usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effective1, effective2));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Arrays.asList(effective1, effective2));
+        MeterActivationImpl meterActivation = new MeterActivationImpl(this.dataModel, this.eventService, this.clock, this.thesaurus);
+        meterActivation.init(this.meter, this.meterRole, this.usagePoint, Range.atLeast(this.clock.instant()));
+
+        // Business method
+        boolean valid = this.getTestInstance().isValid(meterActivation, this.validatorContext);
+
+        // Asserts
+        assertThat(valid).isFalse();
+        this.verifyBuildingOfConstraintViolation();
+    }
+
+    @Test
+    public void meterActivationWithMetrologyConfigurationWithSameMeterRoleIsValid() {
+        UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
+        when(metrologyConfiguration.getMeterRoles()).thenReturn(Collections.singletonList(this.meterRole));
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(this.usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
+        MeterActivationImpl meterActivation = new MeterActivationImpl(this.dataModel, this.eventService, this.clock, this.thesaurus);
+        meterActivation.init(this.meter, this.meterRole, this.usagePoint, Range.atLeast(this.clock.instant()));
+
+        // Business method
+        boolean valid = this.getTestInstance().isValid(meterActivation, this.validatorContext);
+
+        // Asserts
+        assertThat(valid).isTrue();
+    }
+
+    @Test
+    public void meterActivationWithMultipleMetrologyConfigurationsWithSameMeterRoleIsValid() {
+        UsagePointMetrologyConfiguration metrologyConfiguration1 = mock(UsagePointMetrologyConfiguration.class);
+        when(metrologyConfiguration1.getMeterRoles()).thenReturn(Collections.singletonList(this.meterRole));
+        UsagePointMetrologyConfiguration metrologyConfiguration2 = mock(UsagePointMetrologyConfiguration.class);
+        when(metrologyConfiguration2.getMeterRoles()).thenReturn(Collections.singletonList(this.meterRole));
+        EffectiveMetrologyConfigurationOnUsagePoint effective1 = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effective1.getMetrologyConfiguration()).thenReturn(metrologyConfiguration1);
+        EffectiveMetrologyConfigurationOnUsagePoint effective2 = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effective2.getMetrologyConfiguration()).thenReturn(metrologyConfiguration2);
+        when(this.usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effective1, effective2));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Arrays.asList(effective1, effective2));
+        MeterActivationImpl meterActivation = new MeterActivationImpl(this.dataModel, this.eventService, this.clock, this.thesaurus);
+        meterActivation.init(this.meter, this.meterRole, this.usagePoint, Range.atLeast(this.clock.instant()));
+
+        // Business method
+        boolean valid = this.getTestInstance().isValid(meterActivation, this.validatorContext);
+
+        // Asserts
+        assertThat(valid).isTrue();
     }
 
     private void verifyBuildingOfConstraintViolation() {
