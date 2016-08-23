@@ -1,15 +1,18 @@
 package com.energyict.dlms.protocolimplv2;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.aso.ConformanceBlock;
 
 import java.util.TimeZone;
 
 /**
  * Contains access to all properties to configure a DLMS session and its connection layers (TCP, HDLC,...)
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 8/02/12
  * Time: 15:08
@@ -157,4 +160,10 @@ public interface DlmsSessionProperties extends HasDynamicProperties, Communicati
      * Indicates how to construct the ID of MBus meters.
      */
     public boolean getFixMbusHexShortId();
+
+    /**
+     * Indicates to ignore the received DST status code (for LP interval data) or not.
+     */
+    public boolean isIgnoreDSTStatusCode();
+
 }

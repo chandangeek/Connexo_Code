@@ -94,7 +94,8 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
         CumulativeCaptureTimeChannel("CumulativeCaptureTimeChannel", "Cumulative capture time channel"),
         PSK_PROPERTY("PSK", "PSK"),
         CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME("CheckNumberOfBlocksDuringFirmwareResume", "Check number of blocks during firmware resume"),
-        USE_EQUIPMENT_IDENTIFIER_AS_SERIAL("UseEquipmentIdentifierAsSerialNumber", "Use equipment identifier as serial number");
+        USE_EQUIPMENT_IDENTIFIER_AS_SERIAL("UseEquipmentIdentifierAsSerialNumber", "Use equipment identifier as serial number"),
+        IGNORE_DST_STATUS_CODE("IgnoreDstStatusCode", "Ignore DST status code");
 
         private final String propertySpecName;
         private final String defaultFormat;
@@ -345,6 +346,11 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     @Override
     public boolean getFixMbusHexShortId() {
         return properties.<Boolean>getTypedProperty(FIX_MBUS_HEX_SHORT_ID, DEFAULT_FIX_MBUS_HEX_SHORT_ID);
+    }
+
+    @Override
+    public boolean isIgnoreDSTStatusCode() {
+        return false;   //Sub classes can override
     }
 
     protected int parseBigDecimalProperty(String key, BigDecimal defaultValue) {

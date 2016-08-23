@@ -1,9 +1,20 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;
+
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 public class DSMRProfileIntervalStatusBits implements ProfileIntervalStatusBits {
+
+    private final boolean isIgnoreDSTStatusCode;
+
+    public DSMRProfileIntervalStatusBits() {
+        this.isIgnoreDSTStatusCode = false;
+    }
+
+    public DSMRProfileIntervalStatusBits(boolean isIgnoreDSTStatusCode) {
+        this.isIgnoreDSTStatusCode = isIgnoreDSTStatusCode;
+    }
 
     static final int CRITICAL_ERROR = 0x01;
     static final int CLOCK_INVALID = 0x02;
@@ -26,7 +37,7 @@ public class DSMRProfileIntervalStatusBits implements ProfileIntervalStatusBits 
         if ((statusCodeProfile & DATA_NOT_VALID) == DATA_NOT_VALID) {
             eiCode |= IntervalStateBits.CORRUPTED;
         }
-        if ((statusCodeProfile & DAYLIGHT_SAVING) == DAYLIGHT_SAVING) {
+        if (!isIgnoreDSTStatusCode && ((statusCodeProfile & DAYLIGHT_SAVING) == DAYLIGHT_SAVING)) {
             eiCode |= IntervalStateBits.OTHER;
         }
         if ((statusCodeProfile & BILLING_RESET) == BILLING_RESET) {
