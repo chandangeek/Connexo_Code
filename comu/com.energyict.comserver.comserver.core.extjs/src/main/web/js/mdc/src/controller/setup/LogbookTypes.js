@@ -166,6 +166,10 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         baseForm.clearInvalid();
         formErrorsPanel.hide();
         if (record) {
+            if (!baseForm.isValid()){
+                formErrorsPanel.show();
+                return;
+            }
             record.set(values);
             record.save({
                 success: function (record) {

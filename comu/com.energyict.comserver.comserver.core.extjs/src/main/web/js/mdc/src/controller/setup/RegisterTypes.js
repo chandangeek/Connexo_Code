@@ -206,6 +206,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         me.hideErrorPanel();
         if (record) {
             me.getRegisterTypeEditForm().getForm().clearInvalid();
+            if (!me.getRegisterTypeEditForm().getForm().isValid()){
+                me.showErrorPanel();
+                return;
+            }
             editView.setLoading();
             record.set(values);
             if (me.getReadingTypeCombo().valueModels && me.getReadingTypeCombo().valueModels[0]) {
