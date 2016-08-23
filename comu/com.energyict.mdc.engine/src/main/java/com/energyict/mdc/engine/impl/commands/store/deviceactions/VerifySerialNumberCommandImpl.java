@@ -44,12 +44,12 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
         if (!(MeterProtocolAdapter.class.isAssignableFrom(deviceProtocol.getClass()))) {
             String meterSerialNumber = deviceProtocol.getSerialNumber();
             if (!meterSerialNumber.equals(offlineDevice.getSerialNumber())) {
-                addIssue(getIssueService().newProblem(getCommandType(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH.getKey(), meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
+                addIssue(getIssueService().newProblem(getCommandType(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH, meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
                 throw DeviceConfigurationException.serialNumberMisMatch(meterSerialNumber, offlineDevice.getSerialNumber(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH);
             }
         }
         else {
-            addIssue(getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER.getKey(), deviceProtocol.getSerialNumber(), deviceProtocol.getClass().getSimpleName()));
+            addIssue(getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, deviceProtocol.getSerialNumber(), deviceProtocol.getClass().getSimpleName()));
         }
     }
 

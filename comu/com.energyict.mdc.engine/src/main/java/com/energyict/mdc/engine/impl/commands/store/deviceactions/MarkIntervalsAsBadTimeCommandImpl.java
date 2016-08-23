@@ -54,7 +54,7 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
                     .map(TimeDuration::getSeconds)
                     .map(TimeDuration::seconds)
                     .orElse(TimeDuration.seconds(0));
-            addIssue(getIssueService().newWarning(getCommandType(), getThesaurus(), MessageSeeds.INTERVALS_MARKED_AS_BAD_TIME, diffInSeconds, maxDiffInSeconds), CompletionCode.ConfigurationWarning);
+            addIssue(getIssueService().newWarning(getCommandType(), MessageSeeds.INTERVALS_MARKED_AS_BAD_TIME, diffInSeconds, maxDiffInSeconds), CompletionCode.ConfigurationWarning);
 
             for (CollectedData collectedData : loadProfileCommand.getCollectedData()) {
                 if (collectedData instanceof DeviceLoadProfile) {

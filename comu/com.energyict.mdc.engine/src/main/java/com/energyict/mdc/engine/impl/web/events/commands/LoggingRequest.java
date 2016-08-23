@@ -15,12 +15,12 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:48)
  */
-public class LoggingRequest implements Request {
+class LoggingRequest implements Request {
 
     private LogLevel level;
     private EnumSet<Category> categories;
 
-    public LoggingRequest (LogLevel level, Set<Category> categories) {
+    LoggingRequest(LogLevel level, Set<Category> categories) {
         super();
         this.level = level;
         this.categories = EnumSet.copyOf(categories);
@@ -30,7 +30,7 @@ public class LoggingRequest implements Request {
         return level;
     }
 
-    public Set<Category> getCategories () {
+    Set<Category> getCategories() {
         return categories;
     }
 

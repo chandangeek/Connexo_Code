@@ -1,15 +1,14 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link Request} interface
@@ -19,21 +18,22 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:59)
  */
-public class DeviceRequest extends IdBusinessObjectRequest {
+class DeviceRequest extends IdBusinessObjectRequest {
 
     private final IdentificationService identificationService;
     private List<Device> devices;
 
-    public DeviceRequest(IdentificationService identificationService, Set<Long> deviceIds) {
+    DeviceRequest(IdentificationService identificationService, Set<Long> deviceIds) {
         super(deviceIds);
         this.identificationService = identificationService;
         this.validateDeviceIds();
     }
 
-    public DeviceRequest(IdentificationService identificationService, String... deviceMRIDs) {
+    DeviceRequest(IdentificationService identificationService, String... deviceMRIDs) {
         super(null);
-        if (deviceMRIDs == null)
+        if (deviceMRIDs == null) {
             throw new IllegalArgumentException("deviceMRID cannot be null");
+        }
         this.identificationService = identificationService;
         this.validateDeviceMRIDs(Arrays.asList(deviceMRIDs));
     }

@@ -47,7 +47,7 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
     public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         long timeDifference = this.clockCommand.getTimeDifference().orElse(TimeDuration.TimeUnit.MILLISECONDS.during(0)).getMilliSeconds();
         if (aboveMaximum(timeDifference)) {
-            addIssue(getIssueService().newWarning(timeDifference, getThesaurus(), MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED, timeDifference), CompletionCode.ConfigurationWarning);
+            addIssue(getIssueService().newWarning(timeDifference,MessageSeeds.TIME_DIFFERENCE_LARGER_THAN_MAX_DEFINED, timeDifference), CompletionCode.ConfigurationWarning);
         } else if (!belowMinimum(timeDifference)) {
             deviceProtocol.setTime(Date.from(getCommandRoot().getServiceProvider().clock().instant()));
         }

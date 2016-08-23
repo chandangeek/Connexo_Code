@@ -18,6 +18,6 @@ public interface VerifyTimeDifferenceCommand extends ComCommand {
      *
      * @return the timeDifference
      */
-    public Optional<TimeDuration> getTimeDifference();
+    Optional<TimeDuration> getTimeDifference();
 
 }

@@ -5,7 +5,6 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.time.Instant;
@@ -42,8 +41,7 @@ public class FakeIssueService implements IssueService {
         return this.newIssueCollector();
     }
 
-    @Override
-    public Problem newProblem(Object source, String description, Object... arguments) {
+    private Problem newProblem(Object source, String description, Object... arguments) {
         Problem problem = mock(Problem.class);
         when(problem.getTimestamp()).thenReturn(Instant.now());
         when(problem.isProblem()).thenReturn(true);
@@ -53,12 +51,11 @@ public class FakeIssueService implements IssueService {
     }
 
     @Override
-    public Problem newProblem(Object source, Thesaurus thesaurus, MessageSeed description, Object... arguments) {
+    public Problem newProblem(Object source, MessageSeed description, Object... arguments) {
         return this.newProblem(source, description.getKey(), arguments);
     }
 
-    @Override
-    public Warning newWarning(Object source, String description, Object... arguments) {
+    private Warning newWarning(Object source, String description, Object... arguments) {
         Warning warning = mock(Warning.class);
         when(warning.getTimestamp()).thenReturn(Instant.now());
         when(warning.isWarning()).thenReturn(true);
@@ -68,7 +65,7 @@ public class FakeIssueService implements IssueService {
     }
 
     @Override
-    public Warning newWarning(Object source, Thesaurus thesaurus, MessageSeed description, Object... arguments) {
+    public Warning newWarning(Object source, MessageSeed description, Object... arguments) {
         return this.newWarning(source, description.getKey(), arguments);
     }
 

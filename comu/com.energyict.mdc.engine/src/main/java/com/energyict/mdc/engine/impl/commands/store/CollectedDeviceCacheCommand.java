@@ -56,7 +56,7 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl<CollectedDevi
             else {
                 this.addIssue(CompletionCode.ConfigurationWarning,
                                      this.getIssueService().newWarning(this,
-                                                                MessageSeeds.COLLECTED_DEVICE_CACHE_FOR_UNKNOWN_DEVICE.getKey(),
+                                                                MessageSeeds.COLLECTED_DEVICE_CACHE_FOR_UNKNOWN_DEVICE,
                                                                 deviceCache.getDeviceIdentifier()));
             }
         }
