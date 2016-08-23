@@ -15,7 +15,6 @@ Ext.define('Imt.purpose.view.OutputReadings', {
     initComponent: function () {
         var me = this,
             output = me.output,
-            isComplete = me.purpose.get('status').id === 'complete',
             emptyComponent = {
                 xtype: 'no-readings-found-panel',
                 itemId: 'readings-empty-panel'
@@ -42,16 +41,10 @@ Ext.define('Imt.purpose.view.OutputReadings', {
 
         me.items = [
             {
-                xtype: 'uni-form-empty-message',
-                text: Uni.I18n.translate('readings.list.incomplete', 'IMT', "You can't view readings because purpose is incomplete."),
-                hidden: isComplete
-            },
-            {
                 xtype: 'uni-grid-filterpaneltop',
                 itemId: 'output-readings-topfilter',
                 store: me.dataStore,
                 hasDefaultFilters: true,
-                hidden: !isComplete,
                 filters: [
                     Ext.apply({
                         type: 'duration',
@@ -73,12 +66,10 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         xtype: 'readings-graph',
                         router: me.router,
                         output: me.output,
-                        interval: me.interval,
-                        hidden: !isComplete
+                        interval: me.interval
                     },
                     {
                         xtype: 'preview-container',
-                        hidden: !isComplete,
                         grid: {
                             xtype: 'readings-list',
                             output: me.output,
@@ -98,7 +89,6 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             case 'register':
                 me.items.push({
                     xtype: 'emptygridcontainer',
-                    hidden: !isComplete,
                     grid: {
                         xtype: 'register-data-grid',
                         output: me.output
