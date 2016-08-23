@@ -35,7 +35,7 @@ public interface DataValidationKpi extends HasId {
 
     void dropDataValidationKpi();
 
-    boolean isRunning();
+    boolean isCancelled();
 
     long getVersion();
 
