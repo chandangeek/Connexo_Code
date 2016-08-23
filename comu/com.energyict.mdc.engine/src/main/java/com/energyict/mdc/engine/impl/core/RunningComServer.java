@@ -10,24 +10,26 @@ import com.energyict.mdc.engine.config.ComServer;
  */
 public interface RunningComServer extends ServerProcess {
 
-    public ComServer getComServer ();
+    ComServer getComServer();
 
-    public boolean isRemoteQueryApiStarted ();
+    boolean isRemoteQueryApiStarted();
 
-    public int getCollectedDataStorageCapacity ();
+    int getCollectedDataStorageCapacity();
 
-    public int getCurrentCollectedDataStorageSize ();
+    int getCurrentCollectedDataStorageSize();
 
-    public int getCurrentCollectedDataStorageLoadPercentage ();
+    int getCurrentCollectedDataStorageLoadPercentage();
 
-    public int getNumberOfCollectedDataStorageThreads ();
+    int getNumberOfCollectedDataStorageThreads();
 
-    public int getCollectedDataStorageThreadPriority ();
+    int getCollectedDataStorageThreadPriority();
 
-    public void eventClientRegistered();
+    String getAcquiredTokenThreadNames();
 
-    public void eventClientUnregistered();
+    void eventClientRegistered();
 
-    public void eventWasPublished();
+    void eventClientUnregistered();
+
+    void eventWasPublished();
 
 }

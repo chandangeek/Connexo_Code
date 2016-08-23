@@ -19,7 +19,7 @@ public interface CollectedDataStorageStatistics {
      *
      * @return The maximum capacity of the CollectedData queue
      */
-     int getCapacity ();
+    int getCapacity();
 
     /**
      * Gets the current number of CollectedData
@@ -27,7 +27,7 @@ public interface CollectedDataStorageStatistics {
      *
      * @return The current number of CollectedData elements on the queue
      */
-     int getCurrentSize ();
+    int getCurrentSize();
 
     /**
      * Gets the current load of the data collection storage process
@@ -37,7 +37,7 @@ public interface CollectedDataStorageStatistics {
      *
      * @return The load as percentage
      */
-     int getLoadPercentage ();
+    int getLoadPercentage();
 
     /**
      * Gets the number of threads that are consuming
@@ -46,7 +46,7 @@ public interface CollectedDataStorageStatistics {
      *
      * @return The number of threads that consume CollectedData elements from the queue
      */
-     int getNumberOfThreads ();
+    int getNumberOfThreads();
 
     /**
      * Gets the priority of the threads that are consuming
@@ -57,6 +57,19 @@ public interface CollectedDataStorageStatistics {
      *
      * @return The priority of the threads that consume CollectedData elements
      */
-     int getThreadPriority ();
+    int getThreadPriority();
+
+    /**
+     * Gets a comma separated list of the name of the threads
+     * that currently have acquired tokens. The number of tokens
+     * they have acquired is printed in brackets if &gt; 1.
+     * It is not expected that one thread acquires more than 1
+     * token at a time so if you see tokens counts printed
+     * then that is a sign that tokens are not correctly
+     * being returned as a result of failures.
+     *
+     * @return The comma separated list of thread names
+     */
+    String getThreadNames();
 
 }

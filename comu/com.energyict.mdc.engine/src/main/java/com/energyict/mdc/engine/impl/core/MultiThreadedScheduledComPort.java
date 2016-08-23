@@ -1,12 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.EngineServiceImpl;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-
-import com.elster.jupiter.users.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +35,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
      */
     private BlockingQueue<ScheduledJob> jobQueue;
 
-    public MultiThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    MultiThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.jobQueue = new ArrayBlockingQueue<>(comPort.getNumberOfSimultaneousConnections());
     }
@@ -93,35 +91,12 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     }
 
     /**
-     * Frees the {@link DeviceCommandExecutionToken} that was reserved
-     * for the execution of the specified {@link ComTaskExecution}
-     * that apparently was already scheduled for execution by this MultiThreadedScheduledComPort.
-     *
-     * @param comTaskExecution The ComTaskExecution
-     * @param token The DeviceCommandExecutionToken that was reserved for the execution
-     */
-    protected void alreadyScheduled (ComTaskExecution comTaskExecution, DeviceCommandExecutionToken token) {
-        this.getDeviceCommandExecutor().free(token);
-        this.alreadyScheduled(comTaskExecution);
-    }
-
-    /**
-     * Notify interested parties that the {@link ComTaskExecution} was already
-     * scheduled for execution by this MultiThreadedScheduledComPort.
-     *
-     * @param comTaskExecution The ComTaskExecution
-     */
-    protected void alreadyScheduled(ComTaskExecution comTaskExecution) {
-        this.getLogger().alreadyScheduled(this.getThreadName(), comTaskExecution);
-    }
-
-    /**
      * Notify interested parties that the {@link ComTaskExecution} could not
      * be scheduled because the queue is full.
      *
      * @param comTaskExecution The ComTaskExecution
      */
-    protected void cannotSchedule(ComTaskExecution comTaskExecution) {
+    private void cannotSchedule(ComTaskExecution comTaskExecution) {
         this.getLogger().cannotSchedule(this.getThreadName(), comTaskExecution);
     }
 

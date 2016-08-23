@@ -225,7 +225,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         }
     }
 
-    protected final void executeTasks () {
+    final void executeTasks() {
         this.getLogger().lookingForWork(this.getThreadName());
         List<ComJob> jobs = this.getComServerDAO().findExecutableOutboundComTasks(this.getComPort());
         this.queriedForTasks();
