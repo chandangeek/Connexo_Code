@@ -157,7 +157,7 @@ Ext.define('Usr.controller.UserDirectories', {
         confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.remove', 'USR', 'Remove')
         }).show({
-            title: Ext.String.format(Uni.I18n.translate('userDirectories.remove.title', 'USR', 'Remove \'{0}\'?'), record.get('name')),
+            title: Uni.I18n.translate('userDirectories.remove.title', 'USR', 'Remove \'{0}\'?', record.get('name')),
             msg: Uni.I18n.translate('userDirectories.remove.message', 'USR', 'This user directory will no longer be available.'),
             fn: function (state) {
                 if (state === 'confirm') {
