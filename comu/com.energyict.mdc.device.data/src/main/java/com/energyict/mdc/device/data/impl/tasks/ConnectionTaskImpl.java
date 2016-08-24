@@ -41,6 +41,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -244,7 +245,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void saveAllProperties() {
         if (this.cache.isDirty()) {
             if (this.getTypedProperties().localSize() == 0) {
-                this.removeAllProperties();
+                Instant currentTime = clock.instant();
+                CustomPropertySetValues currentValues = this.getPluggableClass().getPropertiesFor(this, currentTime);
+                if (!currentValues.isEmpty() && !currentValues.getEffectiveRange().lowerEndpoint().equals(currentTime)) {
+                    this.getPluggableClass().setPropertiesFor(this, CustomPropertySetValues.emptyFrom(currentTime), currentTime);
+                }
             }
             else {
                 this.saveAllProperties(this.getAllProperties());
