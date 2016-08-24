@@ -503,13 +503,17 @@ public class DeviceResource {
     @Path("/{mRID}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public CustomPropertySetInfo getDeviceCustomProperty(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId) {
+    public CustomPropertySetInfo getDeviceCustomProperty(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @QueryParam("default") boolean defaultValues) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        return resourceHelper.getDeviceCustomPropertySetInfos(device)
-                .stream()
-                .filter(f -> f.id == cpsId)
-                .findFirst()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+        if(defaultValues){
+            return resourceHelper.getDeviceCustomPropertySetInfoWithDefaultValues(device, cpsId);
+        } else {
+            return resourceHelper.getDeviceCustomPropertySetInfos(device)
+                    .stream()
+                    .filter(f -> f.id == cpsId)
+                    .findFirst()
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+        }
     }
 
     @GET @Transactional
