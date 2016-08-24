@@ -86,15 +86,15 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'allowSimultaneousConnections',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.simultaneousConnectionsAllowed', 'MDC', 'Simultaneous connections allowed'),
+                                    name: 'numberOfSimultaneousConnections',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.numberOfSimultaneousConnections', 'MDC', 'Number of simultaneous connections'),
                                     renderer: function (value, field) {
                                         var record = this.up('form').getRecord();
                                         if (record && (record.get('direction') == 'Inbound')) {
                                             field.hide();
                                         } else {
                                             field.show();
-                                            return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                            return value;
                                         }
                                     }
                                 },
