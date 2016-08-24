@@ -2,6 +2,7 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.time.TimeService;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -18,37 +19,37 @@ public class DataExportTaskInfos {
 	public DataExportTaskInfos() {
     }
 
-    public DataExportTaskInfos(Iterable<? extends ExportTask> sets, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils, boolean withExtendedHistory) {
+    public DataExportTaskInfos(Iterable<? extends ExportTask> sets, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService, boolean withExtendedHistory) {
 	    if(withExtendedHistory){
-			addAllWithExtendedHistory(sets, thesaurus, timeService, propertyUtils);
+			addAllWithExtendedHistory(sets, thesaurus, timeService, propertyValueInfoService);
 		} else {
-			addAllWithoutExtendedHistory(sets, thesaurus, timeService, propertyUtils);
+			addAllWithoutExtendedHistory(sets, thesaurus, timeService, propertyValueInfoService);
 		}
 	}
 
-    private DataExportTaskInfo addWithExtendedHistory(ExportTask ruleSet, Thesaurus thesaurus, TimeService timService, PropertyUtils propertyUtils) {
-        DataExportTaskInfo result = new DataExportTaskInfo(ruleSet, thesaurus, timService, propertyUtils);
+    private DataExportTaskInfo addWithExtendedHistory(ExportTask ruleSet, Thesaurus thesaurus, TimeService timService, PropertyValueInfoService propertyValueInfoService) {
+        DataExportTaskInfo result = new DataExportTaskInfo(ruleSet, thesaurus, timService, propertyValueInfoService);
         dataExportTasks.add(result);
 	    total++;
 	    return result;
 	}
 
-	private DataExportTaskInfo addWithoutExtendedHistory(ExportTask ruleSet, Thesaurus thesaurus, TimeService timService, PropertyUtils propertyUtils) {
-		DataExportTaskInfoWithoutExtendedHistory result = new DataExportTaskInfoWithoutExtendedHistory(ruleSet, thesaurus, timService, propertyUtils);
+	private DataExportTaskInfo addWithoutExtendedHistory(ExportTask ruleSet, Thesaurus thesaurus, TimeService timService, PropertyValueInfoService propertyValueInfoService) {
+		DataExportTaskInfoWithoutExtendedHistory result = new DataExportTaskInfoWithoutExtendedHistory(ruleSet, thesaurus, timService, propertyValueInfoService);
 		dataExportTasks.add(result);
 		total++;
 		return result;
 	}
 
-    private void addAllWithExtendedHistory(Iterable<? extends ExportTask> sets, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+    private void addAllWithExtendedHistory(Iterable<? extends ExportTask> sets, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
 	    for (ExportTask each : sets) {
-			addWithExtendedHistory(each, thesaurus, timeService, propertyUtils);
+			addWithExtendedHistory(each, thesaurus, timeService, propertyValueInfoService);
 	    }
 	}
 
-	private void addAllWithoutExtendedHistory(Iterable<? extends ExportTask> sets, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+	private void addAllWithoutExtendedHistory(Iterable<? extends ExportTask> sets, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
 		for (ExportTask each : sets) {
-			addWithoutExtendedHistory(each, thesaurus, timeService, propertyUtils);
+			addWithoutExtendedHistory(each, thesaurus, timeService, propertyValueInfoService);
 		}
 	}
 }

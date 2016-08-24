@@ -3,6 +3,7 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -37,8 +38,8 @@ public class DataExportTaskInfo {
     public String application;
 
 
-    public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
-        doPopulate(dataExportTask, thesaurus, timeService, propertyUtils);
+    public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
+        doPopulate(dataExportTask, thesaurus, timeService, propertyValueInfoService);
         if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
             schedule = null;
         } else {
@@ -49,8 +50,8 @@ public class DataExportTaskInfo {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
-        //properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties());
-        lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService, propertyUtils)).orElse(null);
+        //properties = propertyValueInfoService.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties());
+        lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService, propertyValueInfoService)).orElse(null);
         dataExportTask.getDestinations().stream()
             .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
     }
@@ -62,11 +63,11 @@ public class DataExportTaskInfo {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
-    public void populate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
-        doPopulate(dataExportTask, thesaurus, timeService, propertyUtils);
+    public void populate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
+        doPopulate(dataExportTask, thesaurus, timeService, propertyValueInfoService);
     }
 
-    protected void doPopulate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+    protected void doPopulate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
         id = dataExportTask.getId();
         name = dataExportTask.getName();
 
@@ -82,13 +83,13 @@ public class DataExportTaskInfo {
 
         String dataFormatter = dataExportTask.getDataFormatter();
         dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter),
-                propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties())) ;
+                propertyValueInfoService.getPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties())) ;
 
         dataSelector =
                 new SelectorInfo(
                         selector,
                         thesaurus.getStringBeyondComponent(selector, selector),
-                        propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataSelectorPropertySpecs(), dataExportTask.getProperties()),
+                        propertyValueInfoService.getPropertyInfos(dataExportTask.getDataSelectorPropertySpecs(), dataExportTask.getProperties()),
                         selectorType);
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {

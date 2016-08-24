@@ -4,6 +4,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -22,13 +23,13 @@ public class FormattersResource {
 
     private final DataExportService dataExportService;
     private final Thesaurus thesaurus;
-    private final PropertyUtils propertyUtils;
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    public FormattersResource(DataExportService dataExportService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
+    public FormattersResource(DataExportService dataExportService, Thesaurus thesaurus, PropertyValueInfoService propertyValueInfoService) {
         this.dataExportService = dataExportService;
         this.thesaurus = thesaurus;
-        this.propertyUtils = propertyUtils;
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     @GET
@@ -50,7 +51,7 @@ public class FormattersResource {
         ProcessorInfos infos = new ProcessorInfos();
         for (DataFormatterFactory processor : formatters) {
             infos.add(processor.getName(), thesaurus.getStringBeyondComponent(processor.getName(), processor.getDisplayName()),
-                    propertyUtils.convertPropertySpecsToPropertyInfos(processor.getPropertySpecs()));
+                    propertyValueInfoService.getPropertyInfos(processor.getPropertySpecs()));
         }
         infos.total = formatters.size();
         return infos;

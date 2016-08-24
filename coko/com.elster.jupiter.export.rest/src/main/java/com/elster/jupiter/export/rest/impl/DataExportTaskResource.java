@@ -1,7 +1,15 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportOccurrenceFinder;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.EndDeviceEventTypeFilter;
+import com.elster.jupiter.export.EventDataSelector;
+import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -10,6 +18,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ListPager;
@@ -28,6 +37,7 @@ import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -50,7 +60,6 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -64,18 +73,18 @@ public class DataExportTaskResource {
     private final MeteringGroupsService meteringGroupsService;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
-    private final PropertyUtils propertyUtils;
+    private final PropertyValueInfoService propertyValueInfoService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory) {
+    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.queryService = queryService;
         this.dataExportService = dataExportService;
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
-        this.propertyUtils = propertyUtils;
+        this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
     }
 
@@ -86,7 +95,7 @@ public class DataExportTaskResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ExportTask> list = queryTasks(params);
 
-        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService, propertyUtils, false);
+        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService, propertyValueInfoService, false);
         infos.total = params.determineTotal(list.size());
 
         return infos;
@@ -103,7 +112,7 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id) {
-        return new DataExportTaskInfo(fetchDataExportTask(id), thesaurus, timeService, propertyUtils);
+        return new DataExportTaskInfo(fetchDataExportTask(id), thesaurus, timeService, propertyValueInfoService);
     }
 
     @PUT
@@ -139,7 +148,7 @@ public class DataExportTaskResource {
 
             propertiesSpecsForDataSelector.stream()
                     .forEach(spec -> {
-                        Object value = propertyUtils.findPropertyValue(spec, info.dataSelector.properties);
+                        Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
                         builder.addProperty(spec.getName()).withValue(value);
                     });
         } else {
@@ -183,7 +192,7 @@ public class DataExportTaskResource {
 
         propertiesSpecsForProcessor.stream()
                 .forEach(spec -> {
-                    Object value = propertyUtils.findPropertyValue(spec, info.dataProcessor.properties);
+                    Object value = propertyValueInfoService.findPropertyValue(spec, info.dataProcessor.properties);
                     builder.addProperty(spec.getName()).withValue(value);
                 });
 
@@ -195,7 +204,7 @@ public class DataExportTaskResource {
                     .forEach(destinationInfo -> destinationInfo.type.create(exportTask, destinationInfo));
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus, timeService, propertyUtils)).build();
+        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus, timeService, propertyValueInfoService)).build();
     }
 
     @DELETE
@@ -270,7 +279,7 @@ public class DataExportTaskResource {
 
             task.update();
             context.commit();
-            return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus, timeService, propertyUtils)).build();
+            return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus, timeService, propertyValueInfoService)).build();
         }
     }
 
@@ -325,7 +334,7 @@ public class DataExportTaskResource {
 
         List<? extends DataExportOccurrence> occurrences = occurrencesFinder.find();
 
-        DataExportTaskHistoryInfos infos = new DataExportTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus, timeService, propertyUtils);
+        DataExportTaskHistoryInfos infos = new DataExportTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus, timeService, propertyValueInfoService);
         infos.total = queryParameters.determineTotal(occurrences.size());
         return infos;
     }
@@ -409,14 +418,14 @@ public class DataExportTaskResource {
         task.setDataFormatter(info.dataProcessor.name);
         propertiesSpecsForDataProcessor.stream()
                 .forEach(spec -> {
-                    Object value = propertyUtils.findPropertyValue(spec, info.dataProcessor.properties);
+                    Object value = propertyValueInfoService.findPropertyValue(spec, info.dataProcessor.properties);
                     task.setProperty(spec.getName(), value);
                 });
         if (info.dataSelector.selectorType == SelectorType.CUSTOM) {
             List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
             propertiesSpecsForDataSelector.stream()
                     .forEach(spec -> {
-                        Object value = propertyUtils.findPropertyValue(spec, info.dataSelector.properties);
+                        Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
                         task.setProperty(spec.getName(), value);
                     });
         }

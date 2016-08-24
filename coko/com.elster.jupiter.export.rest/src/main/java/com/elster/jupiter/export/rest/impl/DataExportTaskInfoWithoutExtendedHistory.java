@@ -2,6 +2,7 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -16,8 +17,8 @@ public class DataExportTaskInfoWithoutExtendedHistory extends DataExportTaskInfo
 
     public DataTaskHistoryWithoutEmbeddedTaskInfo lastExportOccurrence;
 
-    public DataExportTaskInfoWithoutExtendedHistory(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
-        doPopulate(dataExportTask, thesaurus, timeService, propertyUtils);
+    public DataExportTaskInfoWithoutExtendedHistory(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
+        doPopulate(dataExportTask, thesaurus, timeService, propertyValueInfoService);
         if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
             schedule = null;
         } else {
@@ -29,7 +30,7 @@ public class DataExportTaskInfoWithoutExtendedHistory extends DataExportTaskInfo
             }
         }
         //properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties());
-        lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataTaskHistoryWithoutEmbeddedTaskInfo(oc, thesaurus, timeService, propertyUtils)).orElse(null);
+        lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataTaskHistoryWithoutEmbeddedTaskInfo(oc, thesaurus, timeService, propertyValueInfoService)).orElse(null);
         dataExportTask.getDestinations().stream()
                 .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
     }

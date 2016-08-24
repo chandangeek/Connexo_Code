@@ -1,7 +1,11 @@
 package com.elster.jupiter.export.rest.impl;
 
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportDestination;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -34,11 +38,11 @@ public class DataTaskHistoryWithoutEmbeddedTaskInfo {
     public DataTaskHistoryWithoutEmbeddedTaskInfo() {
     }
 
-    public DataTaskHistoryWithoutEmbeddedTaskInfo(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
-        populate(dataExportOccurrence, thesaurus, timeService, propertyUtils);
+    public DataTaskHistoryWithoutEmbeddedTaskInfo(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
+        populate(dataExportOccurrence, thesaurus, timeService, propertyValueInfoService);
     }
 
-    private void populate(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+    private void populate(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
         this.id = dataExportOccurrence.getId();
 
         this.trigger = (dataExportOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);

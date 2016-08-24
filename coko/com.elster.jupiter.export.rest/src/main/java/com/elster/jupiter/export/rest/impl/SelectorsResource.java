@@ -4,6 +4,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -20,13 +21,13 @@ public class SelectorsResource {
 
     private final DataExportService dataExportService;
     private final Thesaurus thesaurus;
-    private final PropertyUtils propertyUtils;
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    public SelectorsResource(DataExportService dataExportService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
+    public SelectorsResource(DataExportService dataExportService, Thesaurus thesaurus, PropertyValueInfoService propertyValueInfoService) {
         this.dataExportService = dataExportService;
         this.thesaurus = thesaurus;
-        this.propertyUtils = propertyUtils;
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     @GET
@@ -37,7 +38,7 @@ public class SelectorsResource {
         List<DataSelectorFactory> selectors = dataExportService.getAvailableSelectors();
         for (DataSelectorFactory selector : selectors) {
             infos.add(selector.getName(), thesaurus.getStringBeyondComponent(selector.getName(), selector.getDisplayName()),
-                    propertyUtils.convertPropertySpecsToPropertyInfos(selector.getPropertySpecs()), SelectorType.forSelector(selector.getName()));
+                    propertyValueInfoService.getPropertyInfos(selector.getPropertySpecs()), SelectorType.forSelector(selector.getName()));
         }
 
         infos.total = selectors.size();

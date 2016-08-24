@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -51,15 +52,15 @@ public class DataExportTaskHistoryInfo {
     public DataExportTaskHistoryInfo() {
     }
 
-    public DataExportTaskHistoryInfo(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
-        populate(dataExportOccurrence.getTask().getHistory(), dataExportOccurrence, thesaurus, timeService, propertyUtils);
+    public DataExportTaskHistoryInfo(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
+        populate(dataExportOccurrence.getTask().getHistory(), dataExportOccurrence, thesaurus, timeService, propertyValueInfoService);
     }
 
-    public DataExportTaskHistoryInfo(History<ExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
-        populate(history, dataExportOccurrence, thesaurus, timeService, propertyUtils);
+    public DataExportTaskHistoryInfo(History<ExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
+        populate(history, dataExportOccurrence, thesaurus, timeService, propertyValueInfoService);
     }
 
-    private void populate(History<ExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+    private void populate(History<ExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
         this.id = dataExportOccurrence.getId();
         this.summary = dataExportOccurrence.getSummary();
 
@@ -96,12 +97,12 @@ public class DataExportTaskHistoryInfo {
                 });
         setStatusOnDate(dataExportOccurrence, thesaurus);
         task = new DataExportTaskInfo();
-        task.populate(version, thesaurus, timeService, propertyUtils);
+        task.populate(version, thesaurus, timeService, propertyValueInfoService);
         populateForReadingTypeDataExportTask(version, dataExportOccurrence, thesaurus);
         version.getDestinations(dataExportOccurrence.getStartDate().get()).stream()
                 .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
                 .forEach(destination -> task.destinations.add(typeOf(destination).toInfo(destination)));
-        task.dataProcessor.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getDataProcessorPropertySpecs(), version.getProperties());
+        task.dataProcessor.properties = propertyValueInfoService.getPropertyInfos(version.getDataProcessorPropertySpecs(), version.getProperties());
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getStartDate().get());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
             task.schedule = null;
@@ -112,7 +113,7 @@ public class DataExportTaskHistoryInfo {
             } else {
                 task.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
-            task.dataSelector.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getDataSelectorPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
+            task.dataSelector.properties = propertyValueInfoService.getPropertyInfos(version.getDataSelectorPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
         }
 
         if (dataExportOccurrence.wasScheduled() && task.schedule==null) {
