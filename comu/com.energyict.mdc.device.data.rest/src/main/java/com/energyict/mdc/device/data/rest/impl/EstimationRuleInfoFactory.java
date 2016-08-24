@@ -2,9 +2,9 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -12,14 +12,14 @@ import java.util.Collection;
 public class EstimationRuleInfoFactory {
 
     private final EstimationService estimationService;
-    private final PropertyUtils propertyUtils;
     private final ResourceHelper resourceHelper;
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    EstimationRuleInfoFactory(EstimationService estimationService, PropertyUtils propertyUtils, ResourceHelper resourceHelper) {
+    EstimationRuleInfoFactory(EstimationService estimationService, ResourceHelper resourceHelper, PropertyValueInfoService propertyValueInfoService) {
         this.estimationService = estimationService;
-        this.propertyUtils = propertyUtils;
         this.resourceHelper = resourceHelper;
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     public EstimationRuleInfo createEstimationRuleInfo(Collection<? extends ReadingQuality> readingQualities) {
@@ -41,7 +41,7 @@ public class EstimationRuleInfoFactory {
         info.ruleSetId = estimationRule.getRuleSet().getId();
         info.deleted = estimationRule.isObsolete();
         info.name = estimationRule.getName();
-        info.properties = propertyUtils.convertPropertySpecsToPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
+        info.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
         info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
         return info;
     }

@@ -4,11 +4,11 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.SimplePropertyType;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.rest.util.properties.StringValidationRules;
-import com.elster.jupiter.validation.rest.BasicPropertyTypes;
 import com.energyict.mdc.device.data.Device;
 
 import java.util.ArrayList;
@@ -96,7 +96,7 @@ public class EditLocationInfo {
             infoProperties[i] = new PropertyInfo(thesaurus.getString(templateElementsNames.get(i), templateElementsNames.get(i)),
                     templateElementsNames.get(i),
                     new PropertyValueInfo<>(locationList.size() > i ? locationList.get(i) : null, "", false),
-                    new PropertyTypeInfo(BasicPropertyTypes.TEXT, stringValidationRules, null, null),
+                    new PropertyTypeInfo(SimplePropertyType.TEXT, stringValidationRules, null, null),
                     isMandatory);
         }
         properties = infoProperties;

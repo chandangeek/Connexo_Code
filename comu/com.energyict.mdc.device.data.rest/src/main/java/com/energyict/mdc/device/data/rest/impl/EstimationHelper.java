@@ -6,12 +6,12 @@ import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.device.data.Channel;
@@ -34,17 +34,17 @@ import java.util.stream.Collectors;
 public class EstimationHelper {
     private final EstimationService estimationService;
     private final ExceptionFactory exceptionFactory;
-    private final PropertyUtils propertyUtils;
+    private final PropertyValueInfoService propertyValueInfoService;
     private final Clock clock;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final Thesaurus thesaurus;
     public static final Logger LOGGER = Logger.getLogger(EstimationHelper.class.getName());
 
     @Inject
-    public EstimationHelper(EstimationService estimationService, ExceptionFactory exceptionFactory, PropertyUtils propertyUtils, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory) {
+    public EstimationHelper(EstimationService estimationService, ExceptionFactory exceptionFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory) {
         this.estimationService = estimationService;
         this.exceptionFactory = exceptionFactory;
-        this.propertyUtils = propertyUtils;
+        this.propertyValueInfoService = propertyValueInfoService;
         this.clock = clock;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.thesaurus = thesaurus;
@@ -60,7 +60,7 @@ public class EstimationHelper {
         Map<String, String> invalidProperties = new HashMap<>();
         for (PropertySpec propertySpec : estimator.getPropertySpecs()) {
             try {
-                Object value = propertyUtils.findPropertyValue(propertySpec, estimateChannelDataInfo.properties);
+                Object value = propertyValueInfoService.findPropertyValue(propertySpec, estimateChannelDataInfo.properties);
                 propertySpec.validateValue(value);
                 propertyMap.put(propertySpec.getName(), value);
             } catch (Exception ex) {
