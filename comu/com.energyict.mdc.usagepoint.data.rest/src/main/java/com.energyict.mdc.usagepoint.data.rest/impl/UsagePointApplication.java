@@ -10,7 +10,6 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -103,7 +102,6 @@ public class UsagePointApplication extends Application implements MessageSeedPro
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ChannelDataInfoFactory.class).to(ChannelDataInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
-            bind(PropertyUtils.class).to(PropertyUtils.class);
         }
     }
 }
