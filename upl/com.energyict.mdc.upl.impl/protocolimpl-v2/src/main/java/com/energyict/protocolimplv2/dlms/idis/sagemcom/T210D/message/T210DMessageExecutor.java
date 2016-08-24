@@ -1,12 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message;
 
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.GeneralLocalPortReadout;
-import com.energyict.dlms.cosem.ObjectDefinition;
-import com.energyict.dlms.cosem.RegisterMonitor;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
@@ -16,10 +12,7 @@ import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540MessageExecutor;
-import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
@@ -191,8 +184,8 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             }
             RegisterMonitor registerMonitor = getCosemObjectFactory().getRegisterMonitor(obisCode);
             Array thresholds = new Array();
-            thresholds.addDataType(new Unsigned16(positiveThreshold));
-            thresholds.addDataType(new Unsigned16(negativeThreshold));
+            thresholds.addDataType(new Integer16(positiveThreshold));
+            thresholds.addDataType(new Integer16(negativeThreshold));
             registerMonitor.writeThresholds(thresholds);
             return collectedMessage;
         }
@@ -232,5 +225,52 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         generalLocalPortReadout.writePushObjectList(objectDefinitions);
 
         return collectedMessage;
+    }
+
+    @Override
+    protected CollectedMessage verifyAndActivateFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
+
+        ImageTransferStatus imageTransferStatus = imageTransfer.readImageTransferStatus();
+        if (imageTransferStatus.equals(ImageTransferStatus.TRANSFER_INITIATED)) {
+            try {
+                imageTransfer.verifyAndPollForSuccess();
+            } catch (DataAccessResultException e) {
+                String errorMsg = "Verification of image failed: " + e.getMessage();
+                collectedMessage.setDeviceProtocolInformation(errorMsg);
+                collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, errorMsg));
+                return collectedMessage;
+            }
+        }
+
+        if (imageTransferStatus.equals(ImageTransferStatus.VERIFICATION_SUCCESSFUL)){
+            try {
+                imageTransfer.setUsePollingVerifyAndActivate(false);    //Don't use polling for the activation, the meter reboots immediately!
+                imageTransfer.imageActivation();
+                collectedMessage.setDeviceProtocolInformation("Image has been activated.");
+            } catch (IOException e) {
+                if (isTemporaryFailure(e) || isTemporaryFailure(e.getCause())) {
+                    collectedMessage.setDeviceProtocolInformation("Image activation returned 'temporary failure'. The activation is in progress, moving on.");
+                } else if (e.getMessage().toLowerCase().contains("timeout")) {
+                    collectedMessage.setDeviceProtocolInformation("Image activation timed out, meter is rebooting. Moving on.");
+                } else {
+                    throw e;
+                }
+            }
+        } else {
+            String errorMsg = "The ImageTransfer is in an invalid state: expected state '3' (Image verification successful), but was '" +
+                    imageTransferStatus.getValue() + "' (" + imageTransferStatus.getInfo() + "). " +
+                    "The activation will not be executed.";
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        }
+
+        return collectedMessage;
+    }
+
+    @Override
+    protected void activateFirmware(ImageTransfer imageTransfer) throws IOException {
+        //do nothing as we want to activate it with a different message
     }
 }

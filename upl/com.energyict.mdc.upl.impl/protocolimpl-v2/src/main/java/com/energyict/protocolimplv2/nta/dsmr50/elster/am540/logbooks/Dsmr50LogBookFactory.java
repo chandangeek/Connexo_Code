@@ -96,19 +96,23 @@ public class Dsmr50LogBookFactory implements DeviceLogBookSupport {
 
     private List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws ProtocolException {
         List<MeterEvent> meterEvents;
-        if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
-            meterEvents = new AM540StandardEventLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getControlLogObject().getObisCode())) {
-            meterEvents = new DisconnectControlLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getPowerFailureLogObject().getObisCode())) {
-            meterEvents = new PowerFailureLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getFraudDetectionLogObject().getObisCode())) {
-            meterEvents = new AM540FraudDetectionLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getMbusEventLogObject().getObisCode())) {
-            meterEvents = new AM540MBusLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equalsIgnoreBChannel(getMeterConfig().getMbusControlLog(0).getObisCode())) {
-            meterEvents = new AM540MbusControlLog(dataContainer).getMeterEvents();
-        } else {
+        try {
+            if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
+                meterEvents = new AM540StandardEventLog(dataContainer).getMeterEvents();
+            } else if (logBookObisCode.equals(getMeterConfig().getControlLogObject().getObisCode())) {
+                meterEvents = new DisconnectControlLog(dataContainer).getMeterEvents();
+            } else if (logBookObisCode.equals(getMeterConfig().getPowerFailureLogObject().getObisCode())) {
+                meterEvents = new PowerFailureLog(dataContainer).getMeterEvents();
+            } else if (logBookObisCode.equals(getMeterConfig().getFraudDetectionLogObject().getObisCode())) {
+                meterEvents = new AM540FraudDetectionLog(dataContainer).getMeterEvents();
+            } else if (logBookObisCode.equals(getMeterConfig().getMbusEventLogObject().getObisCode())) {
+                meterEvents = new AM540MBusLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
+            } else if (logBookObisCode.equalsIgnoreBChannel(getMeterConfig().getMbusControlLog(0).getObisCode())) {
+                meterEvents = new AM540MbusControlLog(dataContainer).getMeterEvents();
+            } else {
+                return new ArrayList<>();
+            }
+        } catch (NotInObjectListException e){
             return new ArrayList<>();
         }
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
