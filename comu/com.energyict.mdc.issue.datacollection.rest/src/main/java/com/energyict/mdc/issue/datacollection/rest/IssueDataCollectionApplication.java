@@ -2,9 +2,25 @@ package com.energyict.mdc.issue.datacollection.rest;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
+import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
+import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -14,25 +30,17 @@ import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.resource.IssueResource;
 import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
 
-import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
-import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
-import com.elster.jupiter.issue.rest.response.PropertyUtils;
-import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/idc", "app=MDC", "name=" + IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT})
 public class IssueDataCollectionApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
@@ -187,7 +195,6 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(DataCollectionIssueInfoFactory.class).to(DataCollectionIssueInfoFactory.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
-            bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
         }
