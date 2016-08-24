@@ -263,7 +263,7 @@ public enum TableSpecs {
             table.since(version(10, 2));
             Column dataValidationKpiColumn = table.column("DATAVALIDATIONKPI").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column childKpiColumn = table.column("CHILDKPI").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.primaryKey("VAl_PK_DATAVALKPICHILDREN").on(dataValidationKpiColumn, childKpiColumn).add();
+            table.primaryKey("VAL_PK_DATAVALKPICHILDREN").on(dataValidationKpiColumn, childKpiColumn).add();
             table.foreignKey("VAL_FK_DATAVALKPICHILDRENKPI")
                     .references(VAL_DATA_VALIDATION_KPI.name())
                     .on(dataValidationKpiColumn)

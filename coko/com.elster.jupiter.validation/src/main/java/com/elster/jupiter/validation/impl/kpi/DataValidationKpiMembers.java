@@ -7,12 +7,10 @@ import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
-import java.security.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,6 +56,7 @@ public class DataValidationKpiMembers {
             Instant timestamp = kpiMembers.entrySet().stream().filter(member -> member.getKey().equals(MonitoredDataValidationKpiMemberTypes.SUSPECT))
                     .map(member -> member.getValue().getScores(interval))
                     .flatMap(Collection::stream)
+                    .filter(score -> score.getScore().compareTo(BigDecimal.ZERO) == 1)
                     .map(KpiEntry::getTimestamp)
                     .max(Comparator.naturalOrder()).get();
             return newScore(timestamp, suspectMap);

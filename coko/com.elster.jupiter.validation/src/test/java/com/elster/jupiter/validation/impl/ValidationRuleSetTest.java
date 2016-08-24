@@ -66,10 +66,13 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     private javax.validation.Validator validator;
     @Mock
     private QueryExecutor<IValidationRule> queryExecutor;
+    @Mock
+    private Clock clock;
+
     private Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider = () -> new ReadingTypeInValidationRuleImpl(meteringService);
-    private final Clock clock = Clock.systemDefaultZone();
-    private Provider<ValidationRuleImpl> ruleProvider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, readingTypeInRuleProvider, clock);
+    private Provider<ValidationRuleImpl> ruleProvider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, readingTypeInRuleProvider);
     private Provider<ValidationRuleSetVersionImpl> versionProvider = () -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider, clock);
+    private final Clock clock = Clock.systemDefaultZone();
 
     @Before
     public void setUp() {
@@ -81,6 +84,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(queryExecutor);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
+        when(clock.instant()).thenReturn(Instant.now());
         validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider, clock).init(NAME, QualityCodeSystem.MDC, null);
     }
     @After
