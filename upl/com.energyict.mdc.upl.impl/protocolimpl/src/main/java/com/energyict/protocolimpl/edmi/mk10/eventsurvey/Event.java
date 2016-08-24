@@ -296,7 +296,7 @@ public class Event {
                     this.eventDescription += "EFA: VT failure." + description;
                     return;
                 case 13:
-                    this.eiServerEventCode = MeterEvent.MEASUREMENT_SYSTEM_ERROR;
+                    this.eiServerEventCode = MeterEvent.PHASE_FAILURE;
                     this.eventDescription += "EFA: Voltage tolerance error." + description;
                     return;
                 case 14:
