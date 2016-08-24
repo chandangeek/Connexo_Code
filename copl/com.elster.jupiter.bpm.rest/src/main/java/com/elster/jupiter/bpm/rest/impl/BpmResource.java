@@ -28,7 +28,6 @@ import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
 import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
 import com.elster.jupiter.bpm.rest.ProcessInstanceNodeInfos;
 import com.elster.jupiter.bpm.rest.ProcessesPrivilegesInfo;
-import com.elster.jupiter.bpm.rest.PropertyUtils;
 import com.elster.jupiter.bpm.rest.StartupInfo;
 import com.elster.jupiter.bpm.rest.TaskBulkReportInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfo;
@@ -43,6 +42,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -88,6 +88,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -104,18 +105,18 @@ public class BpmResource {
     private final UserService userService;
     private final Thesaurus thesaurus;
     private final BpmService bpmService;
-    private final PropertyUtils propertyUtils;
 
     private final String errorNotFoundMessage;
     private final String errorInvalidMessage;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    public BpmResource(BpmService bpmService, UserService userService, Thesaurus thesaurus, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory) {
+    public BpmResource(BpmService bpmService, UserService userService, Thesaurus thesaurus, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.bpmService = bpmService;
         this.userService = userService;
         this.thesaurus = thesaurus;
-        this.propertyUtils = propertyUtils;
+        this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
 
         this.errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Connexo Flow is not available.");
@@ -517,8 +518,7 @@ public class BpmResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_BPM)
     public ProcessAssociationInfos getProcessAssociations() {
         List<ProcessAssociationInfo> infos = bpmService.getProcessAssociationProviders().stream()
-                .map(provider -> new ProcessAssociationInfo(provider.getName(), provider.getType(), propertyUtils.convertPropertySpecsToPropertyInfos(provider
-                        .getPropertySpecs())))
+                .map(provider -> new ProcessAssociationInfo(provider.getName(), provider.getType(), propertyValueInfoService.getPropertyInfos(provider.getPropertySpecs())))
                 .collect(Collectors.toList());
         return new ProcessAssociationInfos(infos);
     }
@@ -561,7 +561,7 @@ public class BpmResource {
                     .setVersion(info.version)
                     .setStatus(info.active)
                     .setAppKey(foundProvider.isPresent() ? foundProvider.get().getAppKey() : "")
-                    .setProperties(propertyUtils.convertPropertyInfosToProperties(propertySpecs, info.properties))
+                    .setProperties(convertPropertyInfosToProperties(propertySpecs, info.properties))
                     .setPrivileges(targetPrivileges);
             process = processBuilder.create();
             targetPrivileges.stream().forEach(privilege -> {
@@ -582,7 +582,7 @@ public class BpmResource {
             process.setAssociation(info.type.toLowerCase());
             process.setStatus(info.active);
             process.setAppKey(foundProvider.isPresent() ? foundProvider.get().getAppKey() : "");
-            process.setProperties(propertyUtils.convertPropertyInfosToProperties(propertySpecs, info.properties));
+            process.setProperties(convertPropertyInfosToProperties(propertySpecs, info.properties));
             process.setPrivileges(targetPrivileges);
             process.save();
 
@@ -638,18 +638,14 @@ public class BpmResource {
                 Optional<ProcessAssociationProvider> foundProvider = bpmProcessDefinition.get()
                         .getAssociationProvider();
                 if (foundProvider.isPresent()) {
-                    processDefinitionInfo.setProperties(propertyUtils.convertPropertySpecsToPropertyInfos(foundProvider.get()
-                                    .getPropertySpecs(),
-                            bpmProcessDefinition.get().getProperties()));
+                    processDefinitionInfo.setProperties(propertyValueInfoService.getPropertyInfos(foundProvider.get().getPropertySpecs(), bpmProcessDefinition.get().getProperties()));
                     processDefinitionInfo.setAppKey(foundProvider.get().getAppKey());
                 }
             } else {
                 String association = queryParameters.get("association").get(0);
                 Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(association);
                 if (foundProvider.isPresent()) {
-                    processDefinitionInfo.setProperties(
-                            propertyUtils.convertPropertySpecsToPropertyInfos(
-                                    foundProvider.get().getPropertySpecs(),
+                    processDefinitionInfo.setProperties(propertyValueInfoService.getPropertyInfos(foundProvider.get().getPropertySpecs(),
                                     bpmProcessDefinition.isPresent() ? bpmProcessDefinition.get().getProperties() : new HashMap<>()));
                     processDefinitionInfo.setAppKey(foundProvider.get().getAppKey());
                 }
@@ -1211,6 +1207,17 @@ public class BpmResource {
         } else {
             return Response.ok().entity(taskContentInfos).build();
         }
+    }
+
+    private Map<String, Object> convertPropertyInfosToProperties(List<PropertySpec> propertySpecs, List<PropertyInfo> properties) {
+        Map<String, Object> propertyValues = new LinkedHashMap<>();
+        for (PropertySpec propertySpec : propertySpecs) {
+            Object value = propertyValueInfoService.findPropertyValue(propertySpec, properties);
+            if (value != null) {
+                propertyValues.put(propertySpec.getName(), value);
+            }
+        }
+        return propertyValues;
     }
 
     private Map<String, Object> getOutputContent(TaskContentInfos taskContentInfos, long taskId, String processId, String auth) {
