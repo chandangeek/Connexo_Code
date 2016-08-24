@@ -61,7 +61,7 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
         ZonedDateTime currentZonedDateTime = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L);
         Range<Instant> range = Range.closedOpen(currentZonedDateTime.minus(Period.ofDays(1)).toInstant(), currentZonedDateTime.toInstant());
         currentZonedDateTime = currentZonedDateTime.plus(Period.ofDays(1));
-        for (int i = 0; i <= dayCount; ++i) {
+        for (int i = 0; i < dayCount; ++i) {
             if (!dataValidationKpi.isRunning()) {
                 return;
             }
