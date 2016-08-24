@@ -51,7 +51,6 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
     protected KpiService kpiService;
 
     protected DataValidationTaskBuilder builder = initBuilderStub();
-    protected PropertyUtils propertyUtils;
 
     private DataValidationTaskBuilder initBuilderStub() {
         final Object proxyInstance = Proxy.newProxyInstance(DataValidationTaskBuilder.class.getClassLoader(), new Class<?>[]{DataValidationTaskBuilder.class}, new InvocationHandler() {
@@ -74,7 +73,6 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
     @Override
     public void setupMocks() {
         super.setupMocks();
-        propertyUtils = new PropertyUtils();
         when(validationService.newTaskBuilder()).thenReturn(builder);
         when(meteringGroupsService.findEndDeviceGroup(1)).thenReturn(Optional.of(endDeviceGroup));
         when(metrologyConfigurationService.findMetrologyContract(1)).thenReturn(Optional.of(metrologyContract));

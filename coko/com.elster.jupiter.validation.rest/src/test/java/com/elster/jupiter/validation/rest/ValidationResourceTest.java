@@ -23,6 +23,7 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.RelativePeriodFactory;
+import com.elster.jupiter.properties.SimplePropertyType;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -676,10 +677,10 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(rule.getReadingTypes()).thenReturn(readingTypes);
 
         List<PropertySpec> propertySpes = Arrays.asList(
-                mockPropertySpec(BasicPropertyTypes.NUMBER, "number", true),
-                mockPropertySpec(BasicPropertyTypes.NULLABLE_BOOLEAN, "nullableboolean", true),
-                mockPropertySpec(BasicPropertyTypes.BOOLEAN, "boolean", true),
-                mockPropertySpec(BasicPropertyTypes.TEXT, "text", true),
+                mockPropertySpec(SimplePropertyType.NUMBER, "number", true),
+                mockPropertySpec(SimplePropertyType.NULLABLE_BOOLEAN, "nullableboolean", true),
+                mockPropertySpec(SimplePropertyType.BOOLEAN, "boolean", true),
+                mockPropertySpec(SimplePropertyType.TEXT, "text", true),
                 mockListValueBeanPropertySpec("listvalue", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
         Validator validator = mock(Validator.class);
@@ -741,7 +742,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         return infos;
     }
 
-    private PropertySpec mockPropertySpec(BasicPropertyTypes propertyType, String name, boolean isRequired) {
+    private PropertySpec mockPropertySpec(SimplePropertyType propertyType, String name, boolean isRequired) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(name);
         when(propertySpec.isRequired()).thenReturn(isRequired);
@@ -762,7 +763,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         return propertySpec;
     }
 
-    private ValueFactory getValueFactoryFor(BasicPropertyTypes propertyType) {
+    private ValueFactory getValueFactoryFor(SimplePropertyType propertyType) {
         switch (propertyType) {
             case NUMBER:
                return new BigDecimalFactory();
