@@ -27,12 +27,10 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                 itemId: 'metrology-configuration-details-main-panel',
                 tools: [
                     {
-                        xtype: 'button',
+                        xtype: 'uni-button-action',
                         margin: '5 0 0 0',
                         itemId: 'metrology-configuration-details-top-actions-button',
-                        text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
                         privileges: Imt.privileges.MetrologyConfig.canAdministrate,
-                        iconCls: 'x-uni-action-iconD',
                         menu: {
                             xtype: 'menu',
                             itemId: 'metrology-configuration-details-actions-menu',

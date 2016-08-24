@@ -61,11 +61,9 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                 },
                 tools: [
                     {
-                        xtype: 'button',
+                        xtype: 'uni-button-action',
                         itemId: 'usage-point-attributes-actions-button',
-                        text: Uni.I18n.translate('general.actions','IMT','Actions'),
                         privileges: Imt.privileges.UsagePoint.admin,
-                        iconCls: 'x-uni-action-iconD',
                         usagePoint: me.usagePoint,
                         margin: '0 16 0 0',
                         menu: {

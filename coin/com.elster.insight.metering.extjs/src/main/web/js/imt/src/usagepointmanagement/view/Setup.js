@@ -42,10 +42,8 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         }
                     },
                     {
-                        xtype: 'button',
+                        xtype: 'uni-button-action',
                         itemId: 'usage-point-setup-actions-btn',
-                        iconCls: 'x-uni-action-iconD',
-                        text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
                         menu: {
                             xtype: 'usage-point-setup-action-menu',
                             itemId: 'usage-point-setup-action-menu-id',

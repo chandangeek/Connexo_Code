@@ -6,10 +6,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview', 
     ],
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
-            itemId: 'actionButton',
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             privileges: Imt.privileges.MetrologyConfig.admin,
             menu: {
                 xtype: 'metrology-configuration-action-menu',

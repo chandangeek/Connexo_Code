@@ -11,12 +11,10 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsP
 
         me.tools = [
             {
-                xtype: 'button',
+                xtype: 'uni-button-action',
                 itemId: 'custom-attribute-set-versions-preview-action-button',
                 hidden: me.hideAction,
                 privileges: Imt.privileges.UsagePoint.admin,
-                text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
-                iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'time-sliced-custom-attribute-set-action-menu',
                     itemId: 'time-sliced-custom-attribute-set-action-menu-id',
