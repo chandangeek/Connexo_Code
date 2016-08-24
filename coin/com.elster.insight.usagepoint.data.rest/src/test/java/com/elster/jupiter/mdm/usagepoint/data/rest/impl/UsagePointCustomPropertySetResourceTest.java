@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.time.Interval;
 
@@ -250,7 +251,7 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         info.parent.version = 1L;
 
         Response response = target("usagepoints/" + USAGE_POINT_MRID + "/customproperties/" + RCPS_ID).request().put(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(StatusCode.UNPROCESSABLE_ENTITY.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.message")).contains(" is not attached to the usage point.");
     }

@@ -11,9 +11,6 @@ public class MeterInfos {
     public int total;
     public List<MeterInfo> meterInfos = new ArrayList<>();
 
-    MeterInfos() {
-    }
-
     MeterInfos(Meter meter) {
         add(meter);
     }
@@ -22,14 +19,14 @@ public class MeterInfos {
         addAll(meters);
     }
 
-    MeterInfo add(Meter meter) {
+    final MeterInfo add(Meter meter) {
         MeterInfo result = new MeterInfo(meter);
         meterInfos.add(result);
         total++;
         return result;
     }
 
-    void addAll(Iterable<? extends Meter> meters) {
+    final void addAll(Iterable<? extends Meter> meters) {
         for (Meter each : meters) {
             add(each);
         }

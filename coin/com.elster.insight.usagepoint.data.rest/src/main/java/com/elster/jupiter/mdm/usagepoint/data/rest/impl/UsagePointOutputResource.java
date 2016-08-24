@@ -65,6 +65,9 @@ public class UsagePointOutputResource {
     private final Clock clock;
     private final ValidationStatusFactory validationStatusFactory;
 
+    private static final String INTERVAL_START = "intervalStart";
+    private static final String INTERVAL_END = "intervalEnd";
+
     @Inject
     public UsagePointOutputResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
                                     ValidationService validationService,
@@ -147,8 +150,8 @@ public class UsagePointOutputResource {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
         }
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
-        if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
-            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+        if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
+            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
             EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
             ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
             Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
@@ -210,8 +213,8 @@ public class UsagePointOutputResource {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_REGULAR, outputId);
         }
         List<OutputRegisterDataInfo> outputRegisterData = new ArrayList<>();
-        if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
-            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+        if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
+            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
             ChannelsContainer channelsContainer = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get();
             if (channelsContainer.getRange().isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);

@@ -171,8 +171,7 @@ public class UsagePointCustomPropertySetResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public CustomPropertySetInfo getCustomPropertySetByRegisteredId(@PathParam("mrid") String usagePointMrid,
-                                                                    @PathParam("rcpsId") long rcpsId,
-                                                                    @BeanParam JsonQueryParameters queryParameters) {
+                                                                    @PathParam("rcpsId") long rcpsId) {
         UsagePointPropertySet propertySet = resourceHelper
                 .findUsagePointByMrIdOrThrowException(usagePointMrid)
                 .forCustomProperties()
@@ -208,8 +207,7 @@ public class UsagePointCustomPropertySetResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public CustomPropertySetInfo setCustomPropertySetValuesByRegisteredId(@PathParam("mrid") String usagePointMrid,
-                                                                          @PathParam("rcpsId") long rcpsId,
+    public CustomPropertySetInfo setCustomPropertySetValuesByRegisteredId(@PathParam("rcpsId") long rcpsId,
                                                                           @BeanParam JsonQueryParameters queryParameters,
                                                                           CustomPropertySetInfo<UsagePointInfo> info) {
         UsagePointPropertySet propertySet = resourceHelper
@@ -226,8 +224,7 @@ public class UsagePointCustomPropertySetResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public IntervalInfo getCurrentTimeSlicedCustomPropertySetInterval(@PathParam("mrid") String usagePointMrid,
-                                                                      @PathParam("rcpsId") long rcpsId,
-                                                                      @BeanParam JsonQueryParameters queryParameters) {
+                                                                      @PathParam("rcpsId") long rcpsId) {
         Range<Instant> versionInterval = resourceHelper
                 .findUsagePointByMrIdOrThrowException(usagePointMrid)
                 .forCustomProperties()
@@ -264,7 +261,6 @@ public class UsagePointCustomPropertySetResource {
     @Transactional
     public Response addNewVersionForTimeSlicedCustomAttributeSet(@PathParam("mrid") String usagePointMrid,
                                                                  @PathParam("rcpsId") long rcpsId,
-                                                                 @BeanParam JsonQueryParameters queryParameters,
                                                                  @QueryParam("forced") boolean forced,
                                                                  @Context SecurityContext securityContext,
                                                                  CustomPropertySetInfo<UsagePointInfo> info) {
@@ -296,8 +292,7 @@ public class UsagePointCustomPropertySetResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public CustomPropertySetInfo getTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
                                                                         @PathParam("rcpsId") long rcpsId,
-                                                                        @PathParam("timestamp") long timestamp,
-                                                                        @BeanParam JsonQueryParameters queryParameters) {
+                                                                        @PathParam("timestamp") long timestamp) {
         UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
                 .findUsagePointByMrIdOrThrowException(usagePointMrid)
                 .forCustomProperties()

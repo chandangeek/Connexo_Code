@@ -5,6 +5,8 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
+import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
@@ -70,7 +72,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -133,6 +134,7 @@ public class UsagePointResource {
     private final ResourceHelper resourceHelper;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final UsagePointDataService usagePointDataService;
+    private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
 
     @Inject
     public UsagePointResource(RestQueryService queryService, MeteringService meteringService, TimeService timeService,
@@ -150,7 +152,8 @@ public class UsagePointResource {
                               MetrologyConfigurationService metrologyConfigurationService,
                               UsagePointDataService usagePointDataService,
                               Provider<GoingOnResource> goingOnResourceProvider,
-                              Provider<UsagePointOutputResource> usagePointOutputResourceProvider) {
+                              Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
+                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -170,6 +173,7 @@ public class UsagePointResource {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.usagePointDataService = usagePointDataService;
         this.usagePointOutputResourceProvider = usagePointOutputResourceProvider;
+        this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
     }
 
     @GET
@@ -204,7 +208,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public UsagePointInfo updateUsagePoint(@PathParam("id") String id, UsagePointInfo info) {
+    public UsagePointInfo updateUsagePoint(UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info);
 
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
@@ -237,7 +241,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public UsagePointInfo getUsagePoint(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
+    public UsagePointInfo getUsagePoint(@PathParam("mrid") String mRid) {
         return usagePointInfoFactory.fullInfoFrom(resourceHelper.findUsagePointByMrIdOrThrowException(mRid));
     }
 
@@ -483,7 +487,6 @@ public class UsagePointResource {
         try {
             BigDecimal numericLatitude = new BigDecimal(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
             BigDecimal numericLongitude = new BigDecimal(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
-            BigDecimal numericElevation = new BigDecimal(parts[2]);
             if (numericLatitude.compareTo(BigDecimal.valueOf(-90)) < 0
                     || numericLatitude.compareTo(BigDecimal.valueOf(90)) > 0
                     || numericLongitude.compareTo(BigDecimal.valueOf(-180)) < 0
@@ -561,7 +564,7 @@ public class UsagePointResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("{mRID}/runningservicecalls/{id}")
-    public Response cancelServiceCall(@PathParam("mRID") String mrid, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
+    public Response cancelServiceCall(@PathParam("id") long serviceCallId, ServiceCallInfo info) {
         if ("sclc.default.cancelled".equals(info.state.id)) {
             serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
             return Response.status(Response.Status.ACCEPTED).build();
@@ -741,7 +744,7 @@ public class UsagePointResource {
                 .filter(MetrologyContract::isMandatory) //Temporary. Should be replaced by active/inactive check
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(List::stream)
-                .map(ReadingTypeDeliverablesInfo::asInfo)
+                .map(readingTypeDeliverableFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
     }
