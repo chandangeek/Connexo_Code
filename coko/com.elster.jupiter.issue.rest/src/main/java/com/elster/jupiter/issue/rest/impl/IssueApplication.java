@@ -14,7 +14,6 @@ import com.elster.jupiter.issue.rest.impl.resource.StatusResource;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.IssueInfoFactory;
-import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
@@ -30,18 +29,18 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.ws.rs.core.Application;
 import java.util.Arrays;
@@ -68,6 +67,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile IssueInfoFactoryService issueInfoFactoryService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -130,6 +130,11 @@ public class IssueApplication extends Application implements TranslationKeyProvi
         this.issueInfoFactoryService = issueInfoFactoryService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     @Override
     public String getComponentName() {
         return ISSUE_REST_COMPONENT;
@@ -164,7 +169,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(thesaurus).to(Thesaurus.class);
-            bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(CreationRuleTemplateInfoFactory.class).to(CreationRuleTemplateInfoFactory.class);
             bind(CreationRuleInfoFactory.class).to(CreationRuleInfoFactory.class);
             bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);

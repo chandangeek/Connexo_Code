@@ -2,23 +2,23 @@ package com.elster.jupiter.issue.rest.response.cep;
 
 import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
 import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
-import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo.DueInInfo;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 
 public class CreationRuleInfoFactory {
 
-    private final PropertyUtils propertyUtils;
+    private final PropertyValueInfoService propertyValueInfoService;
     private final CreationRuleTemplateInfoFactory templateFactory;
     private final CreationRuleActionInfoFactory actionFactory;
 
     @Inject
-    public CreationRuleInfoFactory(PropertyUtils propertyUtils, CreationRuleTemplateInfoFactory templateFactory, CreationRuleActionInfoFactory actionFactory) {
-        this.propertyUtils = propertyUtils;
+    public CreationRuleInfoFactory(PropertyValueInfoService propertyValueInfoService, CreationRuleTemplateInfoFactory templateFactory, CreationRuleActionInfoFactory actionFactory) {
+        this.propertyValueInfoService = propertyValueInfoService;
         this.templateFactory = templateFactory;
         this.actionFactory = actionFactory;
     }
@@ -39,7 +39,7 @@ public class CreationRuleInfoFactory {
                 info.actions.add(actionFactory.asInfo(action));
             }
         }
-        info.properties = propertyUtils.convertPropertySpecsToPropertyInfos(rule.getPropertySpecs(), rule.getProperties());
+        info.properties = propertyValueInfoService.getPropertyInfos(rule.getPropertySpecs(), rule.getProperties());
         info.template = templateFactory.asInfo(rule.getTemplate());
         info.modificationDate = rule.getModTime().toEpochMilli();
         info.creationDate = rule.getCreateTime().toEpochMilli();

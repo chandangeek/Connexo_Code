@@ -10,7 +10,6 @@ import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
-import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueFilter;
@@ -26,6 +25,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
@@ -52,19 +52,20 @@ public class IssueResourceHelper {
     private final IssueService issueService;
     private final IssueActionService issueActionService;
     private final IssueActionInfoFactory actionInfoFactory;
-    private final PropertyUtils propertyUtils;
+    private final PropertyValueInfoService propertyValueInfoService;
     private final Thesaurus thesaurus;
     private final SecurityContext securityContext;
     private final MeteringService meteringService;
     private final UserService userService;
 
     @Inject
-    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService, UserService userService, IssueActionInfoFactory actionFactory, PropertyUtils propertyUtils, Thesaurus thesaurus, @Context SecurityContext securityContext) {
+    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService, UserService userService,
+                               IssueActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, @Context SecurityContext securityContext) {
         this.transactionService = transactionService;
         this.issueService = issueService;
         this.issueActionService = issueActionService;
         this.actionInfoFactory = actionFactory;
-        this.propertyUtils = propertyUtils;
+        this.propertyValueInfoService = propertyValueInfoService;
         this.thesaurus = thesaurus;
         this.securityContext = securityContext;
         this.meteringService = meteringService;
@@ -102,7 +103,7 @@ public class IssueResourceHelper {
         IssueActionType action = issueActionService.findActionType(request.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         Map<String, Object> properties = new HashMap<>();
         for (PropertySpec propertySpec : action.createIssueAction().get().getPropertySpecs()) {
-            Object value = propertyUtils.findPropertyValue(propertySpec, request.properties);
+            Object value = propertyValueInfoService.findPropertyValue(propertySpec, request.properties);
             if (value != null) {
                 properties.put(propertySpec.getName(), value);
             }

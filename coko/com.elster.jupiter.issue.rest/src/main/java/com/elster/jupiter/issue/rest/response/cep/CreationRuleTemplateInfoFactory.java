@@ -1,17 +1,17 @@
 package com.elster.jupiter.issue.rest.response.cep;
 
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.properties.PropertyValueInfoService;
+
 import javax.inject.Inject;
 
-import com.elster.jupiter.issue.rest.response.PropertyUtils;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
-
 public class CreationRuleTemplateInfoFactory {
-    
-    private final PropertyUtils propertyUtils;
+
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    public CreationRuleTemplateInfoFactory(PropertyUtils propertyUtils) {
-        this.propertyUtils = propertyUtils;
+    public CreationRuleTemplateInfoFactory(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     public CreationRuleTemplateInfo asInfo(CreationRuleTemplate template) {
@@ -19,7 +19,7 @@ public class CreationRuleTemplateInfoFactory {
         info.name = template.getName();
         info.displayName = template.getDisplayName();
         info.description = template.getDescription();
-        info.properties = propertyUtils.convertPropertySpecsToPropertyInfos(template.getPropertySpecs());
+        info.properties = propertyValueInfoService.getPropertyInfos(template.getPropertySpecs());
         return info;
     }
 }
