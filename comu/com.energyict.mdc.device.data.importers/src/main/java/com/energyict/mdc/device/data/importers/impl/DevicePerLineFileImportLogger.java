@@ -67,15 +67,15 @@ public class DevicePerLineFileImportLogger extends FileImportLoggerImpl<FileImpo
         } else if (linesProcessed != 0 && linesWithError == 0 && linesWithWarnings == 0) {
             // All devices were processed without warnings/errors
             fileImportOccurrence.markSuccess(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(linesProcessed));
-        } else if (linesProcessed !=0 && linesWithError != 0 && linesWithWarnings == 0) {
+        } else if (linesWithError != 0 && linesWithWarnings == 0) {
             // All devices were processed but some of the devices failed
             fileImportOccurrence.markSuccessWithFailures(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(linesProcessed, linesWithError));
-        } else if (linesProcessed !=0 && linesWithError != 0 && linesWithWarnings != 0) {
+        } else if (linesWithError != 0 && linesWithWarnings != 0) {
             // All devices were processed but part of them were processed with warnings and failures
             fileImportOccurrence.markSuccessWithFailures(this.context.getThesaurus()
                     .getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS)
                     .format(linesProcessed, linesWithWarnings, linesWithError));
-        } else if (linesProcessed !=0 && linesWithError == 0 && linesWithWarnings != 0) {
+        } else if (linesWithError == 0 && linesWithWarnings != 0) {
             // All devices were processed but part of them were processed with warnings
             fileImportOccurrence.markSuccess(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(linesProcessed, linesWithWarnings));
         } else {
