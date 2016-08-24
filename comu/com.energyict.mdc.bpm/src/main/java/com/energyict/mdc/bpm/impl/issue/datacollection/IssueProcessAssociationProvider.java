@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.BpmProcessPropertyFactory;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -116,7 +117,7 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
                 .toArray(IssueReasonInfo[]::new);
 
         return this.propertySpecService
-                .specForValuesOf(new IssueReasonInfoValueFactory())
+                .specForValuesOf(new IssueReasonInfoValuePropertyFactory())
                 .named(TranslationKeys.DATA_COLLECTION_ISSUE_REASON_TITLE.getKey(), TranslationKeys.DATA_COLLECTION_ISSUE_REASON_TITLE)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
@@ -185,7 +186,7 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
         }
     }
 
-    private class IssueReasonInfoValueFactory implements ValueFactory<HasIdAndName> {
+    private class IssueReasonInfoValuePropertyFactory implements ValueFactory<HasIdAndName>, BpmProcessPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             return issueService

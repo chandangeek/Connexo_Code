@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.BpmProcessPropertyFactory;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -125,7 +126,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
                         .toArray(DeviceStateInfo[]::new);
 
         return this.propertySpecService
-                .specForValuesOf(new DeviceStateInfoValueFactory())
+                .specForValuesOf(new DeviceStateInfoValuePropertyFactory())
                 .named(TranslationKeys.DEVICE_STATE_TITLE.getKey(), TranslationKeys.DEVICE_STATE_TITLE)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
@@ -215,7 +216,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
         }
     }
 
-    private class DeviceStateInfoValueFactory implements ValueFactory<HasIdAndName> {
+    private class DeviceStateInfoValuePropertyFactory implements ValueFactory<HasIdAndName>, BpmProcessPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             return finiteStateMachineService
