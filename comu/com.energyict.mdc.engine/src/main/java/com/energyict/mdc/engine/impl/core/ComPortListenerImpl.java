@@ -95,7 +95,7 @@ abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         return threadName;
     }
 
-    public void setThreadName (String threadName) {
+    void setThreadName(String threadName) {
         this.threadName = threadName;
     }
 

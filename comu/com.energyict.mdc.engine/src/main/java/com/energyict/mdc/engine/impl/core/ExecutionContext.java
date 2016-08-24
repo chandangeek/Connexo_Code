@@ -321,7 +321,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.createComSessionCommand(sessionBuilder, reason);
     }
 
-    public void failForRetryAsapComTaskExec(ComTaskExecution notExecutedComTaskExecution, Throwable t) {
+    void failForRetryAsapComTaskExec(ComTaskExecution notExecutedComTaskExecution, Throwable t) {
         failWith(t);
         comTaskExecutionCompleted(Success);
     }
@@ -534,7 +534,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.connectionLogger.cannotEstablishConnection(e, this.getJob().getThreadName());
     }
 
-    public boolean connectionFailed () {
+    boolean connectionFailed() {
         return this.connectionFailed;
     }
 
@@ -544,13 +544,17 @@ public final class ExecutionContext implements JournalEntryFactory {
                     add(new CreateOutboundComSession(
                             this.comPort.getComServer().getCommunicationLogLevel(),
                             (ScheduledConnectionTask) this.connectionTask,
-                            comSessionBuilder, successIndicator, serviceProvider.clock()));
+                            comSessionBuilder,
+                            successIndicator,
+                            serviceProvider.clock()));
         } else {
             this.getStoreCommand().
                     add(new CreateInboundComSession(
                             (InboundComPort) getComPort(),
                             (InboundConnectionTask) this.connectionTask,
-                            comSessionBuilder, successIndicator, serviceProvider.clock()));
+                            comSessionBuilder,
+                            successIndicator,
+                            serviceProvider.clock()));
         }
     }
 

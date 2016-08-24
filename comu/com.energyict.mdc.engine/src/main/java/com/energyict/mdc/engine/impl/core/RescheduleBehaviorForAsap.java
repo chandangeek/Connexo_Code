@@ -41,15 +41,16 @@ import java.util.List;
  * Date: 3/06/13
  * Time: 13:12
  */
-public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements RescheduleBehavior {
+class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements RescheduleBehavior {
 
     private final ExecutionContext executionContext;
 
-    protected RescheduleBehaviorForAsap(ComServerDAO comServerDAO,
-                                        List<ComTaskExecution> successfulComTaskExecutions,
-                                        List<ComTaskExecution> failedComTaskExecutions,
-                                        List<ComTaskExecution> notExecutedComTaskExecutions,
-                                        ConnectionTask connectionTask, ExecutionContext executionContext) {
+    RescheduleBehaviorForAsap(
+            ComServerDAO comServerDAO,
+            List<ComTaskExecution> successfulComTaskExecutions,
+            List<ComTaskExecution> failedComTaskExecutions,
+            List<ComTaskExecution> notExecutedComTaskExecutions,
+            ConnectionTask connectionTask, ExecutionContext executionContext) {
         super(comServerDAO, successfulComTaskExecutions, failedComTaskExecutions, notExecutedComTaskExecutions, connectionTask);
         this.executionContext = executionContext;
     }
@@ -102,7 +103,6 @@ public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implem
             if (this.executionContext != null) {
                 notExecutedComTaskExecution
                         .getComTasks()
-                        .stream()
                         .forEach(ct -> {
                             this.executionContext.prepareStart(this.executionContext.getJob(), notExecutedComTaskExecution);
                             this.getComServerDAO().executionStarted(notExecutedComTaskExecution, this.executionContext.getComPort(), false);

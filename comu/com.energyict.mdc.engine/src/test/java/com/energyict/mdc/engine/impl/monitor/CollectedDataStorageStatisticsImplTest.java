@@ -47,6 +47,7 @@ public class CollectedDataStorageStatisticsImplTest {
         when(this.runningComServer.getCurrentCollectedDataStorageLoadPercentage()).thenReturn(LOAD_PERCENTAGE);
         when(this.runningComServer.getNumberOfCollectedDataStorageThreads()).thenReturn(NUMBER_OF_THREADS);
         when(this.runningComServer.getCollectedDataStorageThreadPriority()).thenReturn(THREAD_PRIORITY);
+        when(this.runningComServer.getAcquiredTokenThreadNames()).thenReturn(Thread.currentThread().getName());
     }
 
     @Test

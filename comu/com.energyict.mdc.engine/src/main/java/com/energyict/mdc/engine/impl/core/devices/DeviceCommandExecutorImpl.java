@@ -300,8 +300,8 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     }
 
     private void commandFailed(DeviceCommand command, Throwable t) {
-        this.logger.commandFailed(t, this, command);
         this.workQueue.commandFailed(command);
+        this.logger.commandFailed(t, this, command);
         this.logCurrentQueueSize();
     }
 
@@ -493,9 +493,9 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
          * Execute the command, return true if it succeeded, or false if it failed for any reason.
          */
         private Boolean doCall(boolean duringShutdown) {
-            assignThreadUser();
             Throwable causeOfFailure = null;
             try {
+                this.assignThreadUser();
                 return comServerDAO.executeTransaction(() -> {
                     if (duringShutdown) {
                         this.command.executeDuringShutdown(this.comServerDAO);
@@ -617,6 +617,10 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             }
             this.tokens.addAll(newTokens);
             return newTokens;
+        }
+
+        private int size() {
+            return this.tokens.size();
         }
 
         private String getAcquiredTokenThreadNames() {
