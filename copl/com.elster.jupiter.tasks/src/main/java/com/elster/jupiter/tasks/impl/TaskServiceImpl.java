@@ -53,6 +53,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -201,7 +202,7 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
             throw new TaskServiceAlreadyLaunched();
         }
         TaskOccurrenceLauncher taskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(threadPrincipalService, transactionService, getDueTaskFetcher());
-        TaskScheduler taskScheduler = new TaskScheduler(taskOccurrenceLauncher, 1, TimeUnit.MINUTES);
+        TaskScheduler taskScheduler = new TaskScheduler(taskOccurrenceLauncher, 1, TimeUnit.MINUTES, factory -> Executors.newScheduledThreadPool(1, factory));
         schedulerThread = new Thread(threadPrincipalService.withContextAdded(taskScheduler, () -> "TaskService"));
         schedulerThread.setName("SchedulerThread");
         schedulerThread.start();
