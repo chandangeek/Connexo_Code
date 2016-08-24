@@ -323,9 +323,9 @@ public class ComServerDAOImplTest {
         this.comServerDAO.releaseTasksFor(this.comPort);
 
         // Asserts
-        verify(comTaskExecution1).unlock();
-        verify(comTaskExecution2).unlock();
-        verify(comTaskExecution3).unlock();
+        verify(communicationTaskService).unlockComTaskExecution(comTaskExecution1);
+        verify(communicationTaskService).unlockComTaskExecution(comTaskExecution2);
+        verify(communicationTaskService).unlockComTaskExecution(comTaskExecution3);
         verify(connectionTaskService).unlockConnectionTask(eq(connectionTask));
     }
 
