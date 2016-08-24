@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -35,25 +36,14 @@ import java.util.stream.Collectors;
 public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
 
     private Thesaurus thesaurus;
-    private PropertyUtils propertyUtils;
+    private final PropertyValueInfoService propertyValueInfoService;
     private ReferenceResolver referenceResolver;
 
-    //osgi
-    @SuppressWarnings("unused")
-    public ServiceCallInfoFactoryImpl() {
-        this(new PropertyUtils());
-    }
-
     @Inject
-    public ServiceCallInfoFactoryImpl(Thesaurus thesaurus, PropertyUtils propertyUtils, ReferenceResolver referenceResolver) {
-        this(propertyUtils);
+    public ServiceCallInfoFactoryImpl(Thesaurus thesaurus, PropertyValueInfoService propertyValueInfoService, ReferenceResolver referenceResolver) {
+        this.propertyValueInfoService = propertyValueInfoService;
         this.thesaurus = thesaurus;
         this.setReferenceResolver(referenceResolver);
-    }
-
-    private ServiceCallInfoFactoryImpl(PropertyUtils propertyUtils) {
-        super();
-        this.propertyUtils = propertyUtils;
     }
 
     @Reference
@@ -190,7 +180,7 @@ public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
         extension.propertyNames()
                 .stream()
                 .forEach(propertyName -> values.put(propertyName, extension.getProperty(propertyName)));
-        return new ServiceCallCustomPropertySetInfo(propertySet, propertyUtils.convertPropertySpecsToPropertyInfos(propertySet.getCustomPropertySet().getPropertySpecs(), values));
+        return new ServiceCallCustomPropertySetInfo(propertySet, propertyValueInfoService.getPropertyInfos(propertySet.getCustomPropertySet().getPropertySpecs(), values));
     }
 
     private IdWithDisplayValueInfo<String> toInfo(DefaultState state) {
