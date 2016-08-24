@@ -250,7 +250,7 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
                         ? Range.open(usagePoint.getCreateDate(), valuesRange.upperEndpoint())
                         : Range.atLeast(usagePoint.getCreateDate());
             } else if (usagePoint.getCreateDate().isAfter(valuesRange.lowerEndpoint())) {
-                throw new UsagePointCustomPropertySetVersionIncorrectStartDateException(thesaurus, MessageSeeds.START_DATE_NOT_BEFORE_USAGE_POINT_CREATION_DATE);
+                throw new UsagePointCustomPropertySetVersionIncorrectStartDateException(thesaurus, MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE);
             }
             if (anyTimeInVersionInterval == null) {
                 // create new version
