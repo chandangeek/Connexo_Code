@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -54,6 +55,7 @@ public class DataAggregationCommands {
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
+    private volatile Clock clock;
 
     @Reference
     public void setDataAggregationService(DataAggregationService dataAggregationService) {
@@ -80,6 +82,11 @@ public class DataAggregationCommands {
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     public void aggregate() {
         System.out.println("Usage: aggregate <usage point MRID> <contract purpose> <deliverable name> <start date>");
     }
@@ -102,7 +109,7 @@ public class DataAggregationCommands {
                     .orElseThrow(() -> new NoSuchElementException("Deliverable not found on contract"));
 
             Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
-            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, Range.openClosed(start, Instant.now()));
+            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, Range.openClosed(start, Instant.now(clock)));
 
             List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
             System.out.println("records found for deliverable:" + dataForDeliverable.size());

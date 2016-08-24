@@ -171,6 +171,7 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
         return this.dimension;
     }
 
+    @Override
     public boolean isRegular() {
         if (!hasWildCardForMacroPeriod()) {
             ReadingTypeTemplateAttribute macroPeriodAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD);
@@ -198,7 +199,7 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
         if (unitAttribute.getCode().isPresent()) {
             return getDimensionFromReadingTypeUnitCode(unitAttribute.getCode().get());
         }
-        // the unit attribute always have a code or possible values, but let's check it
+        // the unit attribute always has a code or possible values, but let's check it
         if (unitAttribute.getPossibleValues().isEmpty()) {
             throw new IllegalStateException("The UNIT_OF_MEASURE has no code and no possible values in reading type template '"
                     + getReadingTypeTemplate().getName() + "'.");
@@ -218,7 +219,7 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
             Map<ReadingTypeTemplateAttributeName, Function<ReadingType, Boolean>> attributeMatchersMap = getReadingTypeTemplate().getAttributes()
                     .stream()
                     .collect(Collectors.toMap(ReadingTypeTemplateAttribute::getName, this::getMatcherWithSystemPossibleValues));
-            this.overriddenAttributes.stream().forEach(attr -> attributeMatchersMap.put(attr.getName(),
+            this.overriddenAttributes.forEach(attr -> attributeMatchersMap.put(attr.getName(),
                     rt -> ReadingTypeTemplateAttributeName.getReadingTypeAttributeCode(attr.getName().getDefinition(), rt) == attr.getCode()));
             this.attributeMatchers = attributeMatchersMap.values();
         }

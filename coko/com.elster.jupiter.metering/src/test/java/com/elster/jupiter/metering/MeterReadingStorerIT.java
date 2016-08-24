@@ -223,7 +223,12 @@ public class MeterReadingStorerIT {
         String statusValue = "A value";
         String statusReason = "A reason";
         String statusRemark = "A remark";
-        Status endDeviceEventStatus = new Status(statusValue, statusReason, statusRemark, instant);
+        Status endDeviceEventStatus = Status.builder()
+                .value(statusValue)
+                .reason(statusReason)
+                .remark(statusRemark)
+                .at(instant)
+                .build();
         String endDeviceEventIssuerId = "The Issuer";
         String endDeviceEventIssuerTrackingId = "The Issuer tracking id";
         String endDeviceEventName = "The name";

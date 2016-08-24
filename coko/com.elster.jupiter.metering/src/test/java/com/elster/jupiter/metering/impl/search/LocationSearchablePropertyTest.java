@@ -15,7 +15,6 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.Collections;
 import java.util.List;

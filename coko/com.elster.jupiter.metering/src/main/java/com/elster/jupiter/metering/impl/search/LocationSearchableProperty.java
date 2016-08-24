@@ -11,9 +11,7 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -116,53 +114,36 @@ class LocationSearchableProperty extends AbstractSearchableUsagePointProperty {
         }
     }
 
-    private boolean isJSONArrayValid(String jsonData) {
-        try {
-            return new JSONObject(jsonData).get("values") instanceof JSONArray;
-        } catch (JSONException ex) {
-            return false;
-        }
-    }
-
     private JSONArray getJSONArrayData(String jsonData) throws JSONException {
         return new JSONObject(jsonData).getJSONArray("values");
     }
 
     @Override
     public Condition toCondition(Condition specification) {
-        Condition specialCases = ListOperator.IN.contains(new Subquery() {
-            @Override
-            public SqlFragment toFragment() {
-                return getBuilderFor(specification);
-            }
-        }, new String[]{"location"});
-        return specialCases;
+        return ListOperator.IN.contains(() -> this.getBuilderFor(specification), "location");
     }
 
     private SqlBuilder getBuilderFor(Condition specification) {
         SqlBuilder builder = new SqlBuilder();
 
         String searchCondition = ((Comparison) specification).getValues()[0].toString();
-        if (isJSONArrayValid(searchCondition)) {
 
-            try {
-                JSONArray arrayConditions = getJSONArrayData(searchCondition);
-                List<String> whereClauses = new ArrayList<>();
+        try {
+            JSONArray arrayConditions = getJSONArrayData(searchCondition);
+            List<String> whereClauses = new ArrayList<>();
 
-                for (int i = 0; i < arrayConditions.length(); i++) {
-                    JSONObject cond = arrayConditions.getJSONObject(i);
-                    String propertyName = cond.get("propertyName").toString();
-                    String propertyValue = cond.get("propertyValue").toString();
+            for (int i = 0; i < arrayConditions.length(); i++) {
+                JSONObject cond = arrayConditions.getJSONObject(i);
+                String propertyName = cond.get("propertyName").toString();
+                String propertyValue = cond.get("propertyValue").toString();
 
-                    whereClauses.add("(UPPER" + propertyName + " like UPPER('" + propertyValue + "'))");
-                }
-
-                builder.append(" select LOCATIONID from mtr_locationmember where ");
-                builder.append(whereClauses.stream().map(Object::toString).collect(Collectors.joining(" AND ")));
-
-            } catch (JSONException ex) {
+                whereClauses.add("(UPPER" + propertyName + " like UPPER('" + propertyValue + "'))");
             }
-        } else {
+
+            builder.append(" select LOCATIONID from mtr_locationmember where ");
+            builder.append(whereClauses.stream().map(Object::toString).collect(Collectors.joining(" AND ")));
+
+        } catch (JSONException ex) {
             builder.append(" select locOut.LOCATIONID from mtr_locationmember locOut right join ");
             builder.append(" (select LOCATIONID, UPPERCOUNTRYCODE, UPPERCOUNTRYNAME, UPPERADMINISTRATIVEAREA, UPPERLOCALITY, ");
             builder.append("        UPPERSUBLOCALITY, UPPERSTREETTYPE, UPPERSTREETNAME, UPPERSTREETNUMBER, ");
