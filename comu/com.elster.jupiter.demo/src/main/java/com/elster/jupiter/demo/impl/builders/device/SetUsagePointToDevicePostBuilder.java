@@ -1,15 +1,20 @@
 package com.elster.jupiter.demo.impl.builders.device;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.builders.UsagePointBuilder;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.util.units.Unit;
 import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -40,7 +45,27 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
                 .withLocation(device.getLocation().orElse(null))
                 .withGeoCoordinates(device.getSpatialCoordinates().orElse(null)));
         this.usagePointBuilder.create();
+        this.usagePointBuilder.get().forCustomProperties().getPropertySetsOnServiceCategory().stream()
+                .filter(cps -> "com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension".equals(cps.getCustomPropertySet().getId()))
+                .forEach(cps -> cps.setValues(getUsagePointGeneralDomainExtensionValues(clock.instant())));
+        this.usagePointBuilder.get().forCustomProperties().getAllPropertySets().stream()
+                .filter(cps -> "com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrDE".equals(cps.getCustomPropertySet().getId()))
+                .forEach(cps -> cps.setValues(getUsagePointTechnicalInstallationDomainExtensionValues()));
         setUsagePoint(device, this.usagePointBuilder.get());
+    }
+
+    private CustomPropertySetValues getUsagePointGeneralDomainExtensionValues(Instant from){
+        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(from);
+        values.setProperty("prepay", false);
+        values.setProperty("marketCodeSector", "Domestic");
+        values.setProperty("meteringPointType", "E17 - Consumption");
+        return values;
+    }
+
+    private CustomPropertySetValues getUsagePointTechnicalInstallationDomainExtensionValues(){
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty("substationDistance", Unit.METER.amount(BigDecimal.ZERO));
+        return values;
     }
 
     private String newMRID() {

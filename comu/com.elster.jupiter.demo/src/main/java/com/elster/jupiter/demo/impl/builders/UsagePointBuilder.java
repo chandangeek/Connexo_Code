@@ -62,7 +62,24 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
 
     @Override
     public UsagePoint create() {
-        return meteringService.getServiceCategory(serviceKind).get().newUsagePoint(mRID, installationTime)
+        UsagePoint usagePoint = meteringService.getServiceCategory(serviceKind).get().newUsagePoint(mRID, installationTime)
                 .withName(getName()).withLocation(location).withGeoCoordinates(geoCoordiantes).create();
+        switch (usagePoint.getServiceCategory().getKind()){
+            case ELECTRICITY:
+                usagePoint.newElectricityDetailBuilder(installationTime).create();
+                break;
+            case GAS:
+                usagePoint.newGasDetailBuilder(installationTime).create();
+                break;
+            case WATER:
+                usagePoint.newWaterDetailBuilder(installationTime).create();
+                break;
+            case HEAT:
+                usagePoint.newHeatDetailBuilder(installationTime).create();
+                break;
+            default:
+                usagePoint.newDefaultDetailBuilder(installationTime).create();
+        }
+        return usagePoint;
     }
 }
