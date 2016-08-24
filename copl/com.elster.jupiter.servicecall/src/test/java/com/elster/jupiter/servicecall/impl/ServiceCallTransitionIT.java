@@ -56,6 +56,8 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
@@ -87,7 +89,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -104,10 +105,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore // unstable test
+//@Ignore // unstable test
 public class ServiceCallTransitionIT {
 
     private static final String IMPORTER_NAME = "someImporter";
+    private static final int TIMEOUT_IN_MILLIS = 60_000;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private final Instant now = ZonedDateTime.of(2016, 1, 8, 10, 0, 0, 0, ZoneId.of("UTC")).toInstant();
     private Injector injector;
@@ -153,6 +155,7 @@ public class ServiceCallTransitionIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(MessageInterpolator.class).toInstance(messageInterpolator);
             bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
 //            bind(ServiceCallTypeOneCustomPropertySet.class).to(ServiceCallTypeOneCustomPropertySet.class);
         }
     }
@@ -282,7 +285,7 @@ public class ServiceCallTransitionIT {
         SubscriberSpec.Receiver receiver = messageQueue.newReceiver();
 
         try (TransactionContext context = transactionService.getContext()) {
-            Message message = await().atMost(200, TimeUnit.MILLISECONDS)
+            Message message = await().atMost(TIMEOUT_IN_MILLIS, TimeUnit.MILLISECONDS)
                     .until(receiver::receive, Matchers.any(Message.class));
 
             ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService, thesaurus);
@@ -330,7 +333,7 @@ public class ServiceCallTransitionIT {
                 .get();
         SubscriberSpec.Receiver receiver = messageQueue.newReceiver();
         try (TransactionContext context = transactionService.getContext()) {
-            Message message = await().atMost(200, TimeUnit.MILLISECONDS)
+            Message message = await().atMost(TIMEOUT_IN_MILLIS, TimeUnit.MILLISECONDS)
                     .until(receiver::receive, Matchers.any(Message.class));
 
             ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService, thesaurus);
@@ -386,7 +389,7 @@ public class ServiceCallTransitionIT {
                 .get();
         SubscriberSpec.Receiver receiver = messageQueue.newReceiver();
         try (TransactionContext context = transactionService.getContext()) {
-            Message message = await().atMost(200, TimeUnit.MILLISECONDS)
+            Message message = await().atMost(TIMEOUT_IN_MILLIS, TimeUnit.MILLISECONDS)
                     .until(receiver::receive, Matchers.any(Message.class));
 
             ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService, thesaurus);
@@ -480,14 +483,14 @@ public class ServiceCallTransitionIT {
 
         serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
 
-        assertThat(serviceCall.canTransitionTo(DefaultState.CANCELLED)).isFalse();
+        assertThat(serviceCall.canTransitionTo(DefaultState.CANCELLED)).isTrue();
 
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCall.requestTransition(DefaultState.PENDING);
+            serviceCall.requestTransition(DefaultState.REJECTED);
             context.commit();
         }
 
-        assertThat(serviceCall.canTransitionTo(DefaultState.CANCELLED)).isTrue();
+        assertThat(serviceCall.canTransitionTo(DefaultState.CANCELLED)).isFalse();
     }
 
     static class MyExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
