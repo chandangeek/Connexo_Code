@@ -84,7 +84,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
 
     private void appendBusyComTaskExecutionWithClause() {
         this.sqlBuilder.append(BUSY_TASK_ALIAS_NAME);
-        this.sqlBuilder.append(" as (select connectiontask /*+ NO_MERGE */ from DDC_COMTASKEXEC where comport is not null and obsolete_date is null)");
+        this.sqlBuilder.append(" as (select connectiontask, comport /*+ NO_MERGE */ from DDC_COMTASKEXEC where comport is not null and obsolete_date is null)");
     }
 
     private void appendConnectionTaskWithClause() {
