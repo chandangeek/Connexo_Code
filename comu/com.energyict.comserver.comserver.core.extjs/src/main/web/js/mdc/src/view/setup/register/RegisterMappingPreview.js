@@ -16,10 +16,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
 
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            xtype: 'uni-button-action',
             privileges: Mdc.privileges.DeviceType.admin,
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'register-mapping-action-menu',
                 itemId: 'register-mapping-action-menu'

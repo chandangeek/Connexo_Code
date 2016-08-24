@@ -11,10 +11,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
     frame: true,
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            itemId: 'actionButton',
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             menu: {
                 xtype: 'comserver-actionmenu',
                 itemId: 'comserverViewMenu'

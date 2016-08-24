@@ -2,7 +2,18 @@ Ext.define('Mdc.view.setup.devicegroup.StaticGroupDevicesGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     alias: 'widget.static-group-devices-grid',
     store: 'Mdc.store.StaticGroupDevices',
-
+    requires: [
+        'Uni.grid.column.Action',
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom',
+        'Uni.store.search.Results',
+        'Uni.view.search.ColumnPicker',
+        'Uni.grid.plugin.ShowConditionalToolTip'
+    ],
+    plugins: [{
+        ptype: 'showConditionalToolTip',
+        pluginId: 'showConditionalToolTipId'
+    }],
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
             'general.nrOfDevices.selected', count, 'MDC',

@@ -12,10 +12,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionsP
 
         me.tools = [
             {
-                xtype: 'button',
+                xtype: 'uni-button-action',
                 hidden: me.hideAction,
-                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'time-sliced-custom-attribute-set-action-menu',
                     type: me.type
