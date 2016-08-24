@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl.kpi;
 
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
@@ -22,6 +23,9 @@ public class DataManagementKpiCalculatorHandler implements TaskExecutor {
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
+        if(taskOccurrence.getStatus().name().equals(TaskStatus.BUSY) && taskOccurrence.getRecurrentTask().getNextExecution() == null){
+            return;
+        }
         KpiType.calculatorForRecurrentPayload(taskOccurrence, new ServiceProvider()).calculateAndStore();
     }
 
