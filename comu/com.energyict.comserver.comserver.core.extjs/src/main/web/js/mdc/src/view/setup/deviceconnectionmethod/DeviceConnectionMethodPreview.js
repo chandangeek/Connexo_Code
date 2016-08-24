@@ -87,7 +87,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 {
                                     xtype: 'displayfield',
                                     name: 'numberOfSimultaneousConnections',
-                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.simultaneousConnectionsAllowed', 'MDC', 'Simultaneous connections allowed')
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.numberOfSimultaneousConnections', 'MDC', 'Number of simultaneous connections')
                                 },
                                 {
                                     xtype: 'displayfield',
