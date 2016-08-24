@@ -8,9 +8,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
     },
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'DSH', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             itemId: 'communicationPreviewActionMenu',
             menu: {
 //                xtype: 'communications-action-menu'
