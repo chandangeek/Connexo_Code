@@ -14,24 +14,12 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
-import com.energyict.mdc.device.topology.Modulation;
-import com.energyict.mdc.device.topology.ModulationScheme;
-import com.energyict.mdc.device.topology.PhaseInfo;
-import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.*;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
@@ -50,7 +38,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.*;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -59,12 +46,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 
 /**
@@ -483,7 +464,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     public void releaseTasksFor(final ComPort comPort) {
         this.executeTransaction(() -> {
             List<ComTaskExecution> comTaskExecutionsWhichAreExecuting = getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(comPort);
-            Set<ServerConnectionTask> lockedConnectionTasks = new HashSet<>();
+            Set<ConnectionTask> lockedConnectionTasks = new HashSet<>();
 
             if (comTaskExecutionsWhichAreExecuting.isEmpty()) {
                 // There are no ComTaskExec locked for this com port,
@@ -497,14 +478,14 @@ public class ComServerDAOImpl implements ComServerDAO {
             } else {
                 for (ComTaskExecution comTaskExecution : comTaskExecutionsWhichAreExecuting) {
                     if (comTaskExecution.getConnectionTask().isPresent()) {
-                        lockedConnectionTasks.add((ServerConnectionTask) comTaskExecution.getConnectionTask().get());
-                        ((ServerComTaskExecution) comTaskExecution).unlock();
+                        lockedConnectionTasks.add(comTaskExecution.getConnectionTask().get());
+                        getCommunicationTaskService().unlockComTaskExecution(comTaskExecution);
                     }
                 }
             }
 
             // unlock the connection tasks (after all affected ComTaskExecs are unlocked)
-            for (ServerConnectionTask lockedConnectionTask : lockedConnectionTasks) {
+            for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
                 if (lockedConnectionTask instanceof OutboundConnectionTask) {
                     unlock((OutboundConnectionTask) lockedConnectionTask);
                 }
@@ -514,27 +495,23 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     /**
-     *  Find and release any ComTaskExec executed by a ComPort
-     *
-     *  Those tasks will not appear busy anymore, but the ComServer will still continue with these tasks until they are actually finished
-     *  Normally no other port will pick it up until the nextExecutionTimeStamp has passed,
-     *  but we update that nextExecutionTimestamp to the next according to his schedule in the beginning of the session (from Govanni)
+     * Find and release any ComTaskExec executed by a ComPort
+     * <p>
+     * Those tasks will not appear busy anymore, but the ComServer will still continue with these tasks until they are actually finished
+     * Normally no other port will pick it up until the nextExecutionTimeStamp has passed,
+     * but we update that nextExecutionTimestamp to the next according to his schedule in the beginning of the session (from Govanni)
      */
     private void unlockAllTasksByComPort(ComPort otherComPort) {
-        for (ComTaskExecution otherComTaskExec : getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(otherComPort)){
-            ((ServerComTaskExecution) otherComTaskExec).unlock();
+        for (ComTaskExecution otherComTaskExec : getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(otherComPort)) {
+            getCommunicationTaskService().unlockComTaskExecution(otherComTaskExec);
         }
     }
 
     /**
      * Find connections locked by a comServer
      */
-    private List<ServerConnectionTask> getLockedByComServer(ComServer comServer) {
-        List<ServerConnectionTask> lockedConnectionTasks = new ArrayList<>();
-        for (ConnectionTask connectionTask : ((ServerConnectionTaskService) getConnectionTaskService()).findLockedByComServer(comServer)){
-            lockedConnectionTasks.add((ServerConnectionTask)connectionTask );
-        }
-        return lockedConnectionTasks;
+    private List<ConnectionTask> getLockedByComServer(ComServer comServer) {
+        return getConnectionTaskService().findLockedByComServer(comServer);
     }
 
     @Override
