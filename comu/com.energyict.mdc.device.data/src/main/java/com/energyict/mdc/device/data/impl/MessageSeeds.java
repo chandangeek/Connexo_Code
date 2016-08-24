@@ -159,7 +159,9 @@ public enum MessageSeeds implements MessageSeed {
     VETO_ALLOWED_CALENDAR_OBSOLETE(2135, Keys.VETO_ALLOWED_CALENDAR_IN_USE, "The allowed calendar {0} is still used by at least one device"),
     CANNOT_CHANGE_CONFIG_DATALOGGER_SLAVE(2136, Keys.CANNOT_CHANGE_CONFIG_DATALOGGER_SLAVE, "You cannot change the configuration of a datalogger slave"),
     CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED(2137, Keys.CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED, "You cannot change the configuration to a datalogger enabled device"),
-    CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED(2138, Keys.CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED, "You cannot change the configuration of a datalogger enabled device"),;
+    CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED(2138, Keys.CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED, "You cannot change the configuration of a datalogger enabled device"),
+    INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS(2139, Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, "Invalid number of simultaneous connections, should be between 1 and 16"),
+    ;
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -341,5 +343,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_CHANGE_CONFIG_DATALOGGER_SLAVE = "device.config.change.not.on.slave";
         public static final String CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED = "device.config.change.not.to.datalogger";
         public static final String CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED = "device.config.change.not.from.datalogger";
+        public static final String INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS = "InvalidNumberOfSimultaneousConnections";
     }
 }
