@@ -2,7 +2,7 @@ package com.elster.jupiter.kore.api.rest.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetAttributeInfo;
-import com.elster.jupiter.cps.rest.impl.SimplePropertyType;
+import com.elster.jupiter.cps.rest.impl.PropertyType;
 import com.elster.jupiter.kore.api.impl.UsagePointCustomPropertySetInfo;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -123,9 +123,9 @@ public class UsagePointCustomPropertySetResourceTest extends PlatformPublicApiJe
     public void testUpdateCustomPropertySet() throws Exception {
         UsagePointCustomPropertySetInfo info = new UsagePointCustomPropertySetInfo();
         PropertyValueInfo<String> propertyValueInfo = new PropertyValueInfo<>("NewName", "name", true);
-        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null);
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(PropertyType.TEXT, null, null, null);
         PropertyValueInfo<BigDecimal> propertyValueInfo2 = new PropertyValueInfo<>(BigDecimal.valueOf(99), BigDecimal.valueOf(18), true);
-        PropertyTypeInfo propertyTypeInfo2 = new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null);
+        PropertyTypeInfo propertyTypeInfo2 = new PropertyTypeInfo(PropertyType.NUMBER, null, null, null);
         CustomPropertySetAttributeInfo info1 = new CustomPropertySetAttributeInfo();
         CustomPropertySetAttributeInfo info2 = new CustomPropertySetAttributeInfo();
         info.properties = Arrays.asList(info1, info2);
