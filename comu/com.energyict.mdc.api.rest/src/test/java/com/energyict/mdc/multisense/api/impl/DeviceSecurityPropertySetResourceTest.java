@@ -1,12 +1,12 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.properties.SimplePropertyType;
 import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.rest.BasicPropertyTypes;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -137,7 +137,7 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         info.configuredSecurityPropertySet.version = 1003L;
         PropertyValueInfo<String> valueInfo = new PropertyValueInfo<>("Hello Kitty", null, null, true);
         PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
-        propertyTypeInfo.simplePropertyType = BasicPropertyTypes.TEXT;
+        propertyTypeInfo.simplePropertyType = SimplePropertyType.TEXT;
         PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", valueInfo, propertyTypeInfo, true);
         info.properties = new ArrayList<>();
         info.properties.add(propertyInfo);
@@ -171,7 +171,7 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         info.configuredSecurityPropertySet.version = 1003L;
         PropertyValueInfo<String> valueInfo = new PropertyValueInfo<>(null, null, null, true);
         PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
-        propertyTypeInfo.simplePropertyType = BasicPropertyTypes.TEXT;
+        propertyTypeInfo.simplePropertyType = SimplePropertyType.TEXT;
         PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", valueInfo, propertyTypeInfo, true);
         info.properties = new ArrayList<>();
         info.properties.add(propertyInfo);
@@ -195,7 +195,7 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         info.configuredSecurityPropertySet.version = 1003L;
         PropertyValueInfo<String> valueInfo = new PropertyValueInfo<>(null, null, null, false);
         PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
-        propertyTypeInfo.simplePropertyType = BasicPropertyTypes.TEXT;
+        propertyTypeInfo.simplePropertyType = SimplePropertyType.TEXT;
         PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", valueInfo, propertyTypeInfo, true);
         info.properties = new ArrayList<>();
         info.properties.add(propertyInfo);
