@@ -74,11 +74,9 @@ Ext.define('Cfg.view.validation.RulePreview', {
         var me = this;        
         me.tools = [
             {
-                xtype: 'button',
+                xtype: 'uni-button-action',
                 itemId: 'rulePreviewActionsButton',
-                text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
                 privileges: Cfg.privileges.Validation.admin,
-                iconCls: 'x-uni-action-iconD',
                 hidden: me.noActionsButton,
                 menu: {
                     xtype: 'validation-rule-action-menu'

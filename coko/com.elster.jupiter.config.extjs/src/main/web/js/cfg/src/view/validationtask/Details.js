@@ -30,9 +30,7 @@ Ext.define('Cfg.view.validationtask.Details', {
                     }
                 },
                 {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
-                    iconCls: 'x-uni-action-iconD',
+                    xtype: 'uni-button-action',
                     margin: '20 0 0 0',
                     menu: {
                         xtype: 'cfg-validation-tasks-action-menu'
