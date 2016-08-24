@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -42,7 +43,8 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     private int comWindowEnd;
     @NotNull(message = '{' + MessageSeeds.Keys.FIELD_IS_REQUIRED + '}', groups = {Save.Create.class, Save.Update.class})
     private ConnectionStrategy connectionStrategy;
-    private int numberOfSimultaneousConnections;
+    @Range(min = 1, max = 16, message = '{' + MessageSeeds.Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS + '}', groups = {Save.Create.class, Save.Update.class})
+    private int numberOfSimultaneousConnections = 1;
     private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();
 
     @Inject

@@ -16,7 +16,7 @@ class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduledPartial
 
     private ComWindow comWindow;
     private ConnectionStrategy connectionStrategy;
-    private int numberOfSimultaneousConnections;
+    private int numberOfSimultaneousConnections = 1;
     private PartialConnectionInitiationTaskImpl partialConnectionInitiationTask;
 
 

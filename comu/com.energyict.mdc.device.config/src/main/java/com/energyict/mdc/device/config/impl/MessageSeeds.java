@@ -158,6 +158,7 @@ public enum MessageSeeds implements MessageSeed {
             "activate a datalogger slave device configuration"),
     DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(15015, Keys.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before " +
             "you can activate a datalogger device configuration"),
+    INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS(15016, Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, "Invalid number of simultaneous connections, should be between 1 and 16"),
     ;
 
     private final int number;
@@ -207,6 +208,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_TOO_LONG = "fieldTooLong";
         public static final String FIELD_IS_REQUIRED = "field.required";
         public static final String MAX_FILE_SIZE_EXCEEDED = "MaxFileSizeExceeded";
+        public static final String INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS = "InvalidNumberOfSimultaneousConnections";
         public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS = "deviceType.XstillHasActiveConfigurations";
         public static final String DEVICE_PROTOCOL_IS_REQUIRED = "deviceType.protocol.required";
         public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS = "deviceType.protocol.noupdate";
