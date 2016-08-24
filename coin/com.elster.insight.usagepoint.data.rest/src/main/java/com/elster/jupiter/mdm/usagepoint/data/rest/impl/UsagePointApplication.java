@@ -4,7 +4,6 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -22,6 +21,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
@@ -79,6 +79,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile DataAggregationService dataAggregationService;
     private volatile TimeService timeService;
     private volatile LicenseService licenseService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -238,6 +239,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.timeService = timeService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -268,8 +274,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
-            bind(PropertyUtils.class).to(PropertyUtils.class);
-            bind(com.elster.jupiter.validation.rest.PropertyUtils.class).to(com.elster.jupiter.validation.rest.PropertyUtils.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
             bind(OutputChannelDataInfoFactory.class).to(OutputChannelDataInfoFactory.class);

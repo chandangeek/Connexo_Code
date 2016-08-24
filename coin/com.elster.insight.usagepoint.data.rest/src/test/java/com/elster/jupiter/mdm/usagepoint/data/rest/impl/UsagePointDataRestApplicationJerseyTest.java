@@ -36,6 +36,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -109,6 +110,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     BpmService bpmService;
     @Mock
     ThreadPrincipalService threadPrincipalService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
     @Override
     protected Application getApplication() {
@@ -142,6 +145,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setMetrologyConfigurationService(metrologyConfigurationService);
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLicenseService(licenseService);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 
