@@ -1,19 +1,21 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -37,6 +39,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
     private volatile RestQueryService restQueryService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile TimeService timeService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -45,6 +48,11 @@ public class EstimationApplication extends Application implements MessageSeedPro
         return ImmutableSet.<Class<?>>of(
                 EstimationResource.class,
                 MeterGroupsResource.class);
+    }
+
+    @Activate
+    public void activate() {
+        propertyValueInfoService.addPropertyValueInfoConverter(new AdvanceReadingsSettingsValueConverter());
     }
 
     @Reference
@@ -78,6 +86,11 @@ public class EstimationApplication extends Application implements MessageSeedPro
         this.timeService = timeService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -107,7 +120,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
             bind(thesaurus).to(Thesaurus.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(timeService).to(TimeService.class);
-            bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
         }
     }
 }

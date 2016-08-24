@@ -14,8 +14,6 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
-import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleBuilder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -25,11 +23,10 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
-import com.elster.jupiter.properties.RelativePeriodFactory;
+import com.elster.jupiter.properties.SimplePropertyType;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -518,10 +515,10 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         when(rule.getReadingTypes()).thenReturn(readingTypes);
 
         List<PropertySpec> propertySpes = Arrays.asList(
-                mockPropertySpec(PropertyType.NUMBER, "number", true),
-                mockPropertySpec(PropertyType.NULLABLE_BOOLEAN, "nullableboolean", true),
-                mockPropertySpec(PropertyType.BOOLEAN, "boolean", true),
-                mockPropertySpec(PropertyType.TEXT, "text", true),
+                mockPropertySpec(SimplePropertyType.NUMBER, "number", true),
+                mockPropertySpec(SimplePropertyType.NULLABLE_BOOLEAN, "nullableboolean", true),
+                mockPropertySpec(SimplePropertyType.BOOLEAN, "boolean", true),
+                mockPropertySpec(SimplePropertyType.TEXT, "text", true),
                 mockListValueBeanPropertySpec("listvalue", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
         when(estimator.getPropertySpecs()).thenReturn(propertySpes);
@@ -583,7 +580,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         return infos;
     }
 
-    private PropertySpec mockPropertySpec(PropertyType propertyType, String name, boolean isRequired) {
+    private PropertySpec mockPropertySpec(SimplePropertyType propertyType, String name, boolean isRequired) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(name);
         when(propertySpec.isRequired()).thenReturn(isRequired);
@@ -604,7 +601,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         return propertySpec;
     }
 
-    private ValueFactory getValueFactoryFor(PropertyType propertyType) {
+    private ValueFactory getValueFactoryFor(SimplePropertyType propertyType) {
         switch (propertyType) {
             case NUMBER:
                 return new BigDecimalFactory();
@@ -614,14 +611,6 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
                 return new BooleanFactory();
             case TEXT:
                 return new StringFactory();
-            case RELATIVEPERIOD:
-                return new RelativePeriodFactory(this.timeService);
-            case ADVANCEREADINGSSETTINGS:
-                return new AdvanceReadingsSettingsFactory(this.meteringService);
-            case ADVANCEREADINGSSETTINGSWITHOUTNONE:
-                return new AdvanceReadingsSettingsWithoutNoneFactory(this.meteringService);
-            case LONG:
-                return new LongFactory();
             case UNKNOWN:
             default:
                 return null;

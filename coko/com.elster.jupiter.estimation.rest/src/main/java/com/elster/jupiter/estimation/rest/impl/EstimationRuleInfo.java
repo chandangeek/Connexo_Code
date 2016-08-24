@@ -2,8 +2,8 @@ package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class EstimationRuleInfo {
     public long version;
     public EstimationRuleSetInfo parent = new EstimationRuleSetInfo();
 
-    public EstimationRuleInfo(EstimationRule estimationRule, PropertyUtils propertyUtils) {
+    public EstimationRuleInfo(EstimationRule estimationRule, PropertyValueInfoService propertyValueInfoService) {
         id = estimationRule.getId();
         active = estimationRule.isActive();
         implementation = estimationRule.getImplementation();
@@ -34,7 +34,7 @@ public class EstimationRuleInfo {
         deleted = estimationRule.isObsolete();
         EstimationRuleSet ruleSet = estimationRule.getRuleSet();
         this.ruleSet = new EstimationRuleSetInfo(ruleSet);
-        properties = propertyUtils.convertPropertySpecsToPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
+        properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
         readingTypes.addAll(estimationRule.getReadingTypes().stream().map(ReadingTypeInfo::new).collect(Collectors.toList()));
         version = estimationRule.getVersion();
         parent.id = ruleSet.getId();

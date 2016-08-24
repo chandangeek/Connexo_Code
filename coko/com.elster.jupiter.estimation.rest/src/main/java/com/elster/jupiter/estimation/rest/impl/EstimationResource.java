@@ -1,6 +1,5 @@
 package com.elster.jupiter.estimation.rest.impl;
 
-
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationRule;
@@ -10,7 +9,6 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -18,6 +16,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -80,19 +79,20 @@ public class EstimationResource {
     private final Thesaurus thesaurus;
     private final TimeService timeService;
     private final MeteringGroupsService meteringGroupsService;
-    private final PropertyUtils propertyUtils;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    public EstimationResource(RestQueryService queryService, EstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService, MeteringGroupsService meteringGroupsService, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory) {
+    public EstimationResource(RestQueryService queryService, EstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService,
+                              MeteringGroupsService meteringGroupsService, ConcurrentModificationExceptionFactory conflictFactory, PropertyValueInfoService propertyValueInfoService) {
         this.queryService = queryService;
         this.estimationService = estimationService;
         this.transactionService = transactionService;
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
-        this.propertyUtils = propertyUtils;
         this.conflictFactory = conflictFactory;
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     private QualityCodeSystem getQualityCodeSystemFromApplicationName(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
@@ -136,7 +136,7 @@ public class EstimationResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         Optional<? extends EstimationRuleSet> optional = estimationService.getEstimationRuleSet(ruleSetId);
         if (optional.isPresent()) {
-            EstimationRuleInfos infos = new EstimationRuleInfos(propertyUtils);
+            EstimationRuleInfos infos = new EstimationRuleInfos(propertyValueInfoService);
             EstimationRuleSet set = optional.get();
             List<? extends EstimationRule> rules;
             if ((params.getLimit() > 0) && (params.getStartInt() >= 0)) {
@@ -150,7 +150,7 @@ public class EstimationResource {
             infos.total = set.getRules().size();
             return infos;
         } else {
-            return new EstimationRuleInfos(propertyUtils);
+            return new EstimationRuleInfos(propertyValueInfoService);
         }
     }
 
@@ -200,7 +200,7 @@ public class EstimationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
     public EstimationRuleSetInfo getEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId) {
         EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId);
-        return EstimationRuleSetInfo.withRules(estimationRuleSet, propertyUtils);
+        return EstimationRuleSetInfo.withRules(estimationRuleSet, propertyValueInfoService);
     }
 
     private EstimationRuleSet fetchEstimationRuleSet(long id) {
@@ -214,13 +214,12 @@ public class EstimationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
     public PagedInfoList getAvailableEstimators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @BeanParam JsonQueryParameters parameters) {
         QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
-
         List<EstimationInfo> data = estimationService.getAvailableEstimators(qualityCodeSystem).stream()
                 .sorted(Compare.BY_DISPLAY_NAME)
                 .map(estimator -> new EstimationInfo(
                         estimator.getClass().getName(),
                         estimator.getDisplayName(),
-                        propertyUtils.convertPropertySpecsToPropertyInfos(estimator.getPropertySpecs())))
+                        propertyValueInfoService.getPropertyInfos(estimator.getPropertySpecs())))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("estimators", data, parameters);
     }
@@ -267,12 +266,12 @@ public class EstimationResource {
                     Estimator estimator = estimationService.getEstimator(info.implementation).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
                     estimator.getPropertySpecs()
                             .forEach(propertySpec -> {
-                                Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                                Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
                                 estimationRuleBuilder.havingProperty(propertySpec.getName()).withValue(value);
                             });
                     estimationRuleBuilder.active(false);
                     EstimationRule rule = estimationRuleBuilder.create();
-                    return new EstimationRuleInfo(rule, propertyUtils);
+                    return new EstimationRuleInfo(rule, propertyValueInfoService);
                 });
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
@@ -282,14 +281,14 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public EstimationRuleInfos editRule(final EstimationRuleInfo info, @Context SecurityContext securityContext) {
-        EstimationRuleInfos result = new EstimationRuleInfos(propertyUtils);
+        EstimationRuleInfos result = new EstimationRuleInfos(propertyValueInfoService);
         result.add(transactionService.execute(() -> {
             EstimationRule rule = findAndLockRule(info);
             List<String> mRIDs = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList());
             Map<String, Object> propertyMap = new HashMap<>();
             try {
                 for (PropertySpec propertySpec : rule.getPropertySpecs()) {
-                    Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                    Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
                     propertyMap.put(propertySpec.getName(), value);
                 }
             } finally {
@@ -312,7 +311,7 @@ public class EstimationResource {
 
             return getEstimationRuleFromSetOrThrowException(ruleSet, ruleId);
         });
-        return Response.ok(new EstimationRuleInfo(rule, propertyUtils)).build();
+        return Response.ok(new EstimationRuleInfo(rule, propertyValueInfoService)).build();
     }
 
     @DELETE
