@@ -13,6 +13,8 @@ import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -36,7 +38,7 @@ public class UpgraderV10_2 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModel.useConnectionRequiringTransaction(connnection -> {
             try (Statement statement = connnection.createStatement()) {
-                ImmutableList<String> ddl = ImmutableList.of(
+                ImmutableList.of(
                         "create sequence MTR_MULTIPLIERTYPEID start with 1 cache 1000",
                         "alter table MTR_MULTIPLIERTYPE add (ID number)",
                         "update MTR_MULTIPLIERTYPE set ID = MTR_MULTIPLIERTYPEID.NEXTVAL",
@@ -57,17 +59,13 @@ public class UpgraderV10_2 implements Upgrader {
                         "alter table MTR_MULTIPLIERVALUE drop column MULITPLIERTYPE cascade constraints",
                         "alter table MTR_MULTIPLIERVALUE rename column TEMP to MULTIPLIERTYPE",
                         "alter table MTR_MULTIPLIERTYPE drop constraint MTR_PK_MULTIPLIERTYPE",
-                        "alter table MTR_MULTIPLIERTYPE add constraint MTR_PK_MULTIPLIERTYPE primary key(ID)"
-                );
-
-                ddl.forEach(command -> {
-                    try {
-                        statement.execute(command);
-                    } catch (SQLException e) {
-                        throw new UnderlyingSQLFailedException(e);
-                    }
-                });
+                        "drop index MTR_PK_MULTIPLIERTYPE",
+                        "alter table MTR_MULTIPLIERTYPE add constraint MTR_PK_MULTIPLIERTYPE primary key(ID)",
+                        "CREATE TABLE MTR_CHANNEL_CONTAINER (ID NUMBER NOT NULL, CONTAINER_TYPE VARCHAR2(80 BYTE) NOT NULL, METER_ACTIVATION NUMBER, EFFECTIVE_CONTRACT NUMBER, VERSIONCOUNT NUMBER NOT NULL, CREATETIME NUMBER NOT NULL, MODTIME NUMBER NOT NULL, USERNAME VARCHAR2(80 CHAR) NOT NULL, CONSTRAINT MTR_CONTRACT_CHANNEL_PK PRIMARY KEY (ID), CONSTRAINT MTR_CH_CONTAINER_MA_UQ UNIQUE (METER_ACTIVATION), CONSTRAINT MTR_CH_CONTAINER_EF_CONTR_UK UNIQUE (EFFECTIVE_CONTRACT), CONSTRAINT MTR_CH_CONTAINER_2_MA FOREIGN KEY (METER_ACTIVATION) REFERENCES MTR_METERACTIVATION (ID))",
+                        "INSERT INTO MTR_CHANNEL_CONTAINER (ID, CONTAINER_TYPE, METER_ACTIVATION, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME) SELECT ID, 'MeterActivation', ID, 1, CREATETIME, MODTIME, USERNAME FROM MTR_METERACTIVATION"
+                ).forEach(command -> execute(statement, command));
             }
+            createChannelsContainerSequence(connnection);
         });
 
         dataModelUpgrader.upgrade(dataModel, VERSION);
@@ -98,6 +96,15 @@ public class UpgraderV10_2 implements Upgrader {
         }
     }
 
-
+    private void createChannelsContainerSequence(Connection connnection) {
+        try (CallableStatement statement = connnection.prepareCall("DECLARE SEQ_START NUMBER;\n" +
+                "BEGIN SELECT (MAX(ID) + 1) INTO SEQ_START FROM MTR_METERACTIVATION;\n" +
+                "  EXECUTE IMMEDIATE 'CREATE SEQUENCE MTR_CHANNEL_CONTAINERID START WITH ' || SEQ_START || ' INCREMENT BY 1 CACHE 1000';\n" +
+                "END;")) {
+            statement.execute();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
 }
 
