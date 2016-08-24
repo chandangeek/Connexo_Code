@@ -157,6 +157,7 @@ public class CreateA3DeviceCommand {
         configuration
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())
+                .setNumberOfSimultaneousConnections(1)
                 .addProperty("portNumber", new BigDecimal(1153))
                 .asDefault(true).build();
         SecurityPropertySet securityPropertySet = configuration.createSecurityPropertySet(SECURITY_PROPERTY_NAME).authenticationLevel(2).encryptionLevel(2).build();

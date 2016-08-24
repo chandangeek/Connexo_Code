@@ -58,6 +58,7 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
         final PartialScheduledConnectionTaskBuilder builder = configuration
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(retryDelayInMinutes, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())
+                .setNumberOfSimultaneousConnections(1)
                 .asDefault(true);
         this.properties.entrySet().stream().forEach(x-> addProperty(builder, x));
         builder.build();
