@@ -72,8 +72,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidateMetrologyConfigurationChannelsContainerTestIT {
-    private static final String INPUT_RT_MRID = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
-    private static final String OUTPUT_RT_MRID = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String INPUT_RT_MRID = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final String OUTPUT_RT_MRID = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private static ValidationInMemoryBootstrapModule inMemoryBootstrapModule = new ValidationInMemoryBootstrapModule(INPUT_RT_MRID, OUTPUT_RT_MRID);
     private static MeterRole meterRole;
     private static MetrologyPurpose metrologyPurpose;
