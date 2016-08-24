@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
@@ -22,7 +23,6 @@ import java.util.concurrent.ThreadFactory;
  */
 public class RunningOnlineComServerImpl extends RunningComServerImpl implements RunningOnlineComServer {
 
-    private OnlineComServer comServer;
     private EmbeddedWebServer remoteQueryApi;
 
     public RunningOnlineComServerImpl(OnlineComServer comServer, ServiceProvider serviceProvider) {
@@ -31,22 +31,19 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
 
     private RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, null, null, new ComServerThreadFactory(comServer), serviceProvider);
-        this.comServer = comServer;
     }
 
     public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, serviceProvider);
-        this.comServer = comServer;
     }
 
     public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, embeddedWebServerFactory, serviceProvider);
-        this.comServer = comServer;
     }
 
     @Override
     public OnlineComServer getComServer() {
-        return this.comServer;
+        return (OnlineComServer) super.getComServer();
     }
 
     @Override
@@ -56,7 +53,7 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
     }
 
     private void startQueryApiListenerIfNecessary () {
-        List<RemoteComServer> remoteComServers = getServiceProvider().engineConfigurationService().findRemoteComServersForOnlineComServer(this.comServer);
+        List<RemoteComServer> remoteComServers = getServiceProvider().engineConfigurationService().findRemoteComServersForOnlineComServer(getComServer());
         if (!remoteComServers.isEmpty()) {
             this.startQueryApiListener();
         }
