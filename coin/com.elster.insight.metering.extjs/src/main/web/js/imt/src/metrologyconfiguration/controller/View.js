@@ -19,7 +19,9 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
     ],
     refs: [
         {ref: 'attributesPanel', selector: '#metrology-configuration-attributes-panel'},
-        {ref: 'purposePreview', selector: '#metrology-configuration-setup #purpose-preview'}
+        {ref: 'purposePreview', selector: '#metrology-configuration-setup #purpose-preview'},
+        {ref: 'customAttributeSetsPanel', selector: 'custom-attribute-sets'},
+        {ref: 'customAttributeSetsAddPanel', selector: 'custom-attribute-sets-add'}
     ],
 
     init: function () {
@@ -164,17 +166,22 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
     addCAStoMetrologyConfiguration: function (mc, records) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            panel = me.getCustomAttributeSetsAddPanel(),
             sets = _.map(records, function (r) {
                 return _.pick(r.getData(), 'customPropertySetId')
             });
 
+        panel.setLoading();
         mc.set('customPropertySets', mc.get('customPropertySets').concat(sets));
         mc.save({
             success: function (record, operation) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.label.CAS.added', 'IMT', 'Custom attribute sets added'));
                 router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').forward();
             },
-            backUrl: router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').buildUrl()
+            backUrl: router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').buildUrl(),
+            callback: function () {
+                panel.setLoading(false);
+            }
         });
     },
 
@@ -194,13 +201,18 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
 
     destroyCustomAttributeSet: function (record) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            panel = me.getCustomAttributeSetsPanel();
 
+        panel.setLoading();
         record.getProxy().extraParams.mcid = router.arguments.mcid;
         record.destroy({
             success: function () {
                 me.getController('Uni.controller.history.Router').getRoute().forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.label.CAS.removed', 'IMT', 'Custom attribute set removed'));
+            },
+            callback: function () {
+                panel.setLoading(false);
             }
         });
     }
