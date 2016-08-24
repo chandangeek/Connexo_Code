@@ -44,10 +44,9 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
     fillFieldContainers: function (calendarRecord) {
         var me = this;
         Ext.suspendLayouts();
-
-        me.setTitle(calendarRecord.get('name'));
-
+        me.setTitle(Ext.String.htmlEncode(calendarRecord.get('name')));
         me.down('form').loadRecord(calendarRecord);
+        me.setTitle(Ext.String.htmlEncode(calendarRecord.get('name')));
         me.down('#periodField').removeAll();
         calendarRecord.periods().each(function (record) {
             me.down('#periodField').add(

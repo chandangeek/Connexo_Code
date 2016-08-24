@@ -95,6 +95,7 @@ Ext.define('Uni.controller.history.Router', {
 
     defaultAction: 'showOverview',
     currentRoute: null,
+    previousRoute: null,
 
     /**
      * List of route arguments
@@ -218,6 +219,7 @@ Ext.define('Uni.controller.history.Router', {
         if (!config.disabled) {
             me.routes[key].crossroad = crossroads.addRoute(route, function () {
                 me.fireEvent('routeChangeStart', this);
+                me.previousRoute = me.currentRoute;
                 me.currentRoute = key;
                 // todo: this will not work with optional params
                 me.queryParams = Ext.Object.fromQueryString(me.getQueryString());

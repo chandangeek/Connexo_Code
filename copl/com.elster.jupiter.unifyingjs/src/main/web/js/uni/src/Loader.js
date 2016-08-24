@@ -30,6 +30,7 @@ Ext.define('Uni.Loader', {
         'Uni.view.form.field.Vtypes',
         'Uni.component.filter.view.FilterTopPanel',
         'Uni.form.NestedForm',
+        'Uni.button.Action',
 
         'Uni.override.ServerOverride',
         'Uni.override.ApplicationOverride',
