@@ -83,7 +83,7 @@ class SqlDiffFileListener implements DifferencesListener {
     }
 
     private Path getTargetFile() {
-        return fileSystem.getPath("./logs/connexo_difference.sql");
+        return fileSystem.getPath("./connexo_difference.sql");
     }
 
     private class InitialDifferencesListener implements DifferencesListener {
