@@ -1,10 +1,13 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+
 import org.junit.Ignore;
 import org.junit.Test;
-
-import java.io.*;
-import java.net.Socket;
 
 /**
  * Just a 'script' to test the (Inbound communication)logging in the ComServer monitor
@@ -12,7 +15,7 @@ import java.net.Socket;
  * Date: 20/01/2016
  * Time: 14:40
  */
-@Ignore
+@Ignore // local testing only
 public class InboundCommunicationLoggingTest {
 
     private static final int PREFIX_AND_HEX_LENGTH = 3;
