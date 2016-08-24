@@ -300,6 +300,19 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return dataModel.mapper(ServiceLocation.class).getJournal(id);
     }
 
+    final void defineSupportedApplicationsUrls(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            String mdcUrl = bundleContext.getProperty(MDC_URL);
+            if (mdcUrl != null) {
+                supportedApplicationsUrls.put(KnownAmrSystem.MDC, mdcUrl);
+            }
+            String energyAxisUrl = bundleContext.getProperty(ENERGY_AXIS_URL);
+            if (energyAxisUrl != null) {
+                supportedApplicationsUrls.put(KnownAmrSystem.ENERGY_AXIS, energyAxisUrl);
+            }
+        }
+    }
+
     /**
      * This method has an effect on resulting tableSpec, it must be called before adding TableSpecs.
      *
@@ -307,10 +320,6 @@ public class MeteringServiceImpl implements ServerMeteringService {
      * @param createDefaultLocationTemplate true if the default location template should be created
      */
     final void defineLocationTemplates(BundleContext bundleContext, boolean createDefaultLocationTemplate) {
-        if (bundleContext != null) {
-            supportedApplicationsUrls.put(KnownAmrSystem.MDC, bundleContext.getProperty(MDC_URL));
-            supportedApplicationsUrls.put(KnownAmrSystem.ENERGY_AXIS, bundleContext.getProperty(ENERGY_AXIS_URL));
-        }
         if (createDefaultLocationTemplate) {
             if (locationTemplate == null) {
                 createDefaultLocationTemplate();
