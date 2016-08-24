@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.AbstractValueFactory;
+import com.elster.jupiter.properties.BpmProcessPropertyFactory;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -98,7 +99,7 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
                         .toArray(MetrologyConfigurationInfo[]::new);
 
         return this.propertySpecService
-                .specForValuesOf(new MetrologyConfigurationInfoValueFactory())
+                .specForValuesOf(new MetrologyConfigurationInfoValuePropertyFactory())
                 .named(TranslationKeys.METROLOGY_CONFIGURATION_PROPERTY.getKey(), TranslationKeys.METROLOGY_CONFIGURATION_PROPERTY)
                 .fromThesaurus(this.thesaurus)
                 .addValues(possibleValues)
@@ -115,7 +116,7 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
                         .toArray(ConnectionStateInfo[]::new);
 
         return this.propertySpecService
-                .specForValuesOf(new ConnectionStateInfoValueFactory())
+                .specForValuesOf(new ConnectionStateInfoValuePropertyFactory())
                 .named(TranslationKeys.CONNECTION_STATE_PROPERTY.getKey(), TranslationKeys.CONNECTION_STATE_PROPERTY)
                 .fromThesaurus(this.thesaurus)
                 .addValues(possibleValues)
@@ -140,7 +141,7 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
         return Arrays.asList(TranslationKeys.values());
     }
 
-    class MetrologyConfigurationInfoValueFactory extends AbstractValueFactory<HasIdAndName> {
+    class MetrologyConfigurationInfoValuePropertyFactory extends AbstractValueFactory<HasIdAndName> implements BpmProcessPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             return metrologyConfigurationService
@@ -217,7 +218,7 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
         }
     }
 
-    class ConnectionStateInfoValueFactory extends AbstractValueFactory<HasIdAndName> {
+    class ConnectionStateInfoValuePropertyFactory extends AbstractValueFactory<HasIdAndName> implements BpmProcessPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             return Arrays.stream(ConnectionState.values())

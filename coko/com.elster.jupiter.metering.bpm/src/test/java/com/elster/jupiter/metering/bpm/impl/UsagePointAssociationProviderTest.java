@@ -86,8 +86,8 @@ public class UsagePointAssociationProviderTest {
     public void testMetrologyConfigurationValueFactory() {
         MetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(1050L, "Residential 3phases");
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn(Arrays.asList(metrologyConfiguration));
-        UsagePointProcessAssociationProvider.MetrologyConfigurationInfoValueFactory factory =
-                usagePointProcessAssociationProvider.new MetrologyConfigurationInfoValueFactory();
+        UsagePointProcessAssociationProvider.MetrologyConfigurationInfoValuePropertyFactory factory =
+                usagePointProcessAssociationProvider.new MetrologyConfigurationInfoValuePropertyFactory();
 
         //Asserts
         assertThat(factory.fromStringValue("1050").getId()).isEqualTo(metrologyConfiguration.getId());
