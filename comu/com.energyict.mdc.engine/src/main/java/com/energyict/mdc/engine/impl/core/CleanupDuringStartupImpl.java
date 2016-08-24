@@ -11,12 +11,12 @@ import java.sql.SQLException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-01 (16:33)
  */
-public class CleanupDuringStartupImpl implements CleanupDuringStartup {
+class CleanupDuringStartupImpl implements CleanupDuringStartup {
 
     private ComServerDAO comServerDAO;
     private OutboundCapableComServer comServer;
 
-    public CleanupDuringStartupImpl (OutboundCapableComServer comServer, ComServerDAO comServerDAO) {
+    CleanupDuringStartupImpl(OutboundCapableComServer comServer, ComServerDAO comServerDAO) {
         super();
         this.comServer = comServer;
         this.comServerDAO = comServerDAO;

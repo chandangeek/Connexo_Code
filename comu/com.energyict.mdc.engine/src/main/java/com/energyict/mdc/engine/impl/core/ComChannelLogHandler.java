@@ -17,11 +17,11 @@ import java.util.logging.LogRecord;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-03-14 (10:17)
  */
-public class ComChannelLogHandler extends Handler {
+class ComChannelLogHandler extends Handler {
 
     private JournalEntryFactory journalEntryFactory;
 
-    public ComChannelLogHandler (JournalEntryFactory journalEntryFactory) {
+    ComChannelLogHandler(JournalEntryFactory journalEntryFactory) {
         super();
         this.journalEntryFactory = journalEntryFactory;
     }

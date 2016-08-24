@@ -14,13 +14,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-08-29 (14:22)
  */
-public class ComPortThreadFactory implements ThreadFactory {
+class ComPortThreadFactory implements ThreadFactory {
 
     private ComPort comPort;
     private ThreadFactory actual;
     private AtomicInteger count = new AtomicInteger(0);
 
-    public ComPortThreadFactory(ComPort comPort, ThreadFactory actual) {
+    ComPortThreadFactory(ComPort comPort, ThreadFactory actual) {
         super();
         this.comPort = comPort;
         this.actual = actual;

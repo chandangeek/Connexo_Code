@@ -502,11 +502,11 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
                     } else {
                         this.command.execute(this.comServerDAO);
                     }
-                    return true;
+                    return Boolean.TRUE;
                 });
             } catch (Exception t) {
                 causeOfFailure = t;
-                return false;
+                return Boolean.FALSE;
             } finally {
                 // in both cases the semaphore is released
                 if (causeOfFailure == null) {

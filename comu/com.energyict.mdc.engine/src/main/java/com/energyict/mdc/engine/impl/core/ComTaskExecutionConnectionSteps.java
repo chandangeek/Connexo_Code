@@ -15,9 +15,9 @@ package com.energyict.mdc.engine.impl.core;
 public class ComTaskExecutionConnectionSteps {
 
     public static final int SIGNON = 0b0000_0000_0000_0001;
-    public static final int DAISYCHAIN_LOGON = 0b0000_0000_0000_0010;
-    public static final int DAISYCHAIN_LOGOFF = 0b0000_0000_0000_0100;
     public static final int SIGNOFF = 0b0000_0000_0000_1000;
+    private static final int DAISYCHAIN_LOGON = 0b0000_0000_0000_0010;
+    private static final int DAISYCHAIN_LOGOFF = 0b0000_0000_0000_0100;
 
     private int flags;
 
@@ -41,26 +41,26 @@ public class ComTaskExecutionConnectionSteps {
         return isSet(SIGNOFF);
     }
 
-    public void addFlag(int flag) {
+    private void addFlag(int flag) {
         this.flags |= flag;
     }
 
-    public ComTaskExecutionConnectionSteps signOn() {
+    ComTaskExecutionConnectionSteps signOn() {
         addFlag(SIGNON);
         return this;
     }
 
-    public ComTaskExecutionConnectionSteps signOff() {
+    ComTaskExecutionConnectionSteps signOff() {
         addFlag(SIGNOFF);
         return this;
     }
 
-    public ComTaskExecutionConnectionSteps logOn() {
+    ComTaskExecutionConnectionSteps logOn() {
         addFlag(DAISYCHAIN_LOGON);
         return this;
     }
 
-    public ComTaskExecutionConnectionSteps logOff() {
+    ComTaskExecutionConnectionSteps logOff() {
         addFlag(DAISYCHAIN_LOGOFF);
         return this;
     }

@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 4/06/13
  * Time: 16:44
  */
-public abstract class AbstractRescheduleBehavior {
+abstract class AbstractRescheduleBehavior {
 
     private final ComServerDAO comServerDAO;
     private final List<ComTaskExecution> successfulComTaskExecutions;
@@ -22,10 +22,11 @@ public abstract class AbstractRescheduleBehavior {
     private final List<ComTaskExecution> notExecutedComTaskExecutions;
     private final ConnectionTask connectionTask;
 
-    protected AbstractRescheduleBehavior(ComServerDAO comServerDAO,
-                                         List<ComTaskExecution> successfulComTaskExecutions,
-                                         List<ComTaskExecution> failedComTaskExecutions,
-                                         List<ComTaskExecution> notExecutedComTaskExecutions, ConnectionTask connectionTask) {
+    AbstractRescheduleBehavior(
+            ComServerDAO comServerDAO,
+            List<ComTaskExecution> successfulComTaskExecutions,
+            List<ComTaskExecution> failedComTaskExecutions,
+            List<ComTaskExecution> notExecutedComTaskExecutions, ConnectionTask connectionTask) {
         this.comServerDAO = comServerDAO;
         this.successfulComTaskExecutions = successfulComTaskExecutions;
         this.failedComTaskExecutions = failedComTaskExecutions;
@@ -33,27 +34,27 @@ public abstract class AbstractRescheduleBehavior {
         this.connectionTask = connectionTask;
     }
 
-    protected void retryFailedComTasks() {
+    void retryFailedComTasks() {
         this.comServerDAO.executionFailed(this.failedComTaskExecutions);
     }
 
-    protected void rescheduleSuccessfulComTasks() {
+    void rescheduleSuccessfulComTasks() {
         this.comServerDAO.executionCompleted(this.successfulComTaskExecutions);
     }
 
-    protected void rescheduleNotExecutedComTasks() {
+    void rescheduleNotExecutedComTasks() {
         this.comServerDAO.executionCompleted(this.notExecutedComTaskExecutions);
     }
 
-    protected void retryConnectionTask() {
+    void retryConnectionTask() {
         this.comServerDAO.executionFailed(this.connectionTask);
     }
 
-    protected void rescheduleSuccessfulConnectionTask(){
+    void rescheduleSuccessfulConnectionTask(){
         this.comServerDAO.executionCompleted(this.connectionTask);
     }
 
-    protected void performRescheduleNotExecutedComTasks(Instant startingPoint) {
+    private void performRescheduleNotExecutedComTasks(Instant startingPoint) {
         notExecutedComTaskExecutions.forEach(comTaskExecution -> this.comServerDAO.executionRescheduled(comTaskExecution, startingPoint));
     }
 

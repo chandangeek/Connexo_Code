@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author sva
  * @since 2016-06-29 (17:06)
  */
-public class ComServerCleanupProcessImpl implements Runnable, ComServerCleanupProcess {
+class ComServerCleanupProcessImpl implements Runnable, ComServerCleanupProcess {
 
     private static final TimeDuration WAIT_TIME = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
@@ -30,7 +30,7 @@ public class ComServerCleanupProcessImpl implements Runnable, ComServerCleanupPr
     private OutboundCapableComServer comServer;
     private ComServerDAO comServerDAO;
 
-    public ComServerCleanupProcessImpl(OutboundCapableComServer comServer, ComServerDAO comServerDAO, ThreadFactory threadFactory) {
+    ComServerCleanupProcessImpl(OutboundCapableComServer comServer, ComServerDAO comServerDAO, ThreadFactory threadFactory) {
         super();
         this.initialize(comServer, comServerDAO, threadFactory);
     }

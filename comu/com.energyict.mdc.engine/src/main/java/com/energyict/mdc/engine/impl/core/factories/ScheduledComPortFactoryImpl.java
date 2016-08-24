@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.MultiThreadedScheduledComPort;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 import com.energyict.mdc.engine.impl.core.ScheduledComPortImpl;
 import com.energyict.mdc.engine.impl.core.SingleThreadedScheduledComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -24,7 +24,7 @@ public class ScheduledComPortFactoryImpl implements ScheduledComPortFactory {
     private ThreadFactory threadFactory;
     private final ScheduledComPortImpl.ServiceProvider serviceProvider;
 
-    public ScheduledComPortFactoryImpl(ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledComPortImpl.ServiceProvider serviceProvider) {
+    ScheduledComPortFactoryImpl(ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledComPortImpl.ServiceProvider serviceProvider) {
         this(comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
     }
 

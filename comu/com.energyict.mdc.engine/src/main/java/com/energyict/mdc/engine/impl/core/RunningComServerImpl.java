@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
@@ -588,6 +589,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                     }
                 }
             }
+        } catch (UnderlyingSQLFailedException e) {
+            this.getLogger().monitorChangesFailed(this.comServer, e.getCause());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

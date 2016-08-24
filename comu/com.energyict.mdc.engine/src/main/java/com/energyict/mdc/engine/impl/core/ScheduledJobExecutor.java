@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.engine.config.ComServer;
@@ -66,29 +67,34 @@ abstract class ScheduledJobExecutor {
          *    External application that want to update the object will block
          *    until the lock is released, i.e. until the job's execution completed.
          *    Slow connections such as mod-bus with lots of slaves can take up to 20mins to complete. */
-        ValidationTransaction validationTransaction = new ValidationTransaction(job);
-        switch (this.transactionService.execute(validationTransaction)) {
-            case ATTEMPT_LOCK_SUCCESS: {
-                try {
-                    job.execute();
-                    job.completed();
-                } catch (ConnectionSetupException t) {
-                    logIfDebuggingIsEnabled(t);
-                    job.failed(t, ExecutionFailureReason.CONNECTION_SETUP);
-                } catch (Exception t) {
-                    logIfDebuggingIsEnabled(t);
-                    job.failed(t, ExecutionFailureReason.CONNECTION_BROKEN);
+        try {
+            ValidationTransaction validationTransaction = new ValidationTransaction(job);
+            switch (this.transactionService.execute(validationTransaction)) {
+                case ATTEMPT_LOCK_SUCCESS: {
+                    try {
+                        job.execute();
+                        job.completed();
+                    } catch (ConnectionSetupException t) {
+                        logIfDebuggingIsEnabled(t);
+                        job.failed(t, ExecutionFailureReason.CONNECTION_SETUP);
+                    } catch (Exception t) {
+                        logIfDebuggingIsEnabled(t);
+                        job.failed(t, ExecutionFailureReason.CONNECTION_BROKEN);
+                    }
+                    break;
                 }
-                break;
+                case JOB_OUTSIDE_COM_WINDOW: {
+                    job.outsideComWindow();
+                    break;
+                }
+                case ATTEMPT_LOCK_FAILED:   // intentional fall through
+                case NOT_PENDING_ANYMORE:   // intentional fall through
+                default:
+                    job.releaseToken();
             }
-            case JOB_OUTSIDE_COM_WINDOW: {
-                job.outsideComWindow();
-                break;
-            }
-            case ATTEMPT_LOCK_FAILED:   // intentional fall through
-            case NOT_PENDING_ANYMORE:   // intentional fall through
-            default:
-                job.releaseToken();
+        } catch (UnderlyingSQLFailedException e) {
+            // Likely cause: failure to obtain database connection
+            job.releaseToken();
         }
     }
 

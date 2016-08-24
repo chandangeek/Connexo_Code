@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.InboundComPortExecutor;
-import com.energyict.mdc.engine.config.InboundComPort;
 
 /**
  * Copyrights EnergyICT
@@ -20,6 +20,6 @@ public interface InboundComPortExecutorFactory {
      * @param deviceCommandExecutor The DeviceCommandExecutor
      * @return the newly created InboundComPortExecutor
      */
-    public InboundComPortExecutor create(InboundComPort inboundComPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor);
+    InboundComPortExecutor create(InboundComPort inboundComPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor);
 
 }

@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-03 (11:26)
  */
-public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
+abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     private static final Duration WAIT_AFTER_COMMUNICATION_TIMEOUT = Duration.ofMinutes(1);
 
@@ -52,11 +52,11 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     protected abstract void setThreadPrinciple();
 
-    protected ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
+    ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         this(comPort, clock, comServerDAO, Executors.defaultThreadFactory(), deviceCommandExecutor, serviceProvider);
     }
 
-    protected ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
+    ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
         this.loggerHolder = new LoggerHolder(comPort);
         this.doSetComPort(comPort);
@@ -78,7 +78,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         return comPort;
     }
 
-    protected InboundComPort getServerInboundComPort(){
+    InboundComPort getServerInboundComPort(){
         return getComPort();
     }
 
@@ -104,7 +104,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         return this.lastActivityTimestamp;
     }
 
-    protected void registerActivity() {
+    void registerActivity() {
         this.lastActivityTimestamp = this.clock.instant();
     }
 

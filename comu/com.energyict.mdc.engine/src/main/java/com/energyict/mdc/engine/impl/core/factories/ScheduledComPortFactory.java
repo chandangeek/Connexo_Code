@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
-import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 
 /**
  * Provides factory services for {@link com.energyict.mdc.engine.impl.core.ScheduledComPort}s,
@@ -22,6 +22,6 @@ public interface ScheduledComPortFactory {
      * @return The ScheduledComPort or <code>null</code> if it was not necessary to schedule
      *         the OutboundComPort
      */
-    public ScheduledComPort newFor(OutboundComPort comPort);
+    ScheduledComPort newFor(OutboundComPort comPort);
 
 }
