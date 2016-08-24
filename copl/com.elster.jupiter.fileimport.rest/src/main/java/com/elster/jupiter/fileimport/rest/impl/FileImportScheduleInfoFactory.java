@@ -3,6 +3,7 @@ package com.elster.jupiter.fileimport.rest.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
@@ -14,15 +15,15 @@ import javax.inject.Inject;
 public class FileImportScheduleInfoFactory {
 
     private final AppService appService;
-    private final PropertyUtils propertyUtils;
+    private final PropertyValueInfoService propertyValueInfoService;
     private final FileImportService fileImportService;
     private final AppNamesProvider appNamesProvider;
     private final FileImporterInfoFactory fileImporterInfoFactory;
 
     @Inject
-    public FileImportScheduleInfoFactory(AppService appService, PropertyUtils propertyUtils, FileImportService fileImportService, AppNamesProvider appNamesProvider, FileImporterInfoFactory fileImporterInfoFactory) {
+    public FileImportScheduleInfoFactory(AppService appService, PropertyValueInfoService propertyValueInfoService, FileImportService fileImportService, AppNamesProvider appNamesProvider, FileImporterInfoFactory fileImporterInfoFactory) {
         this.appService = appService;
-        this.propertyUtils = propertyUtils;
+        this.propertyValueInfoService = propertyValueInfoService;
         this.fileImportService = fileImportService;
         this.appNamesProvider = appNamesProvider;
         this.fileImporterInfoFactory = fileImporterInfoFactory;
@@ -62,7 +63,7 @@ public class FileImportScheduleInfoFactory {
         }
 
         info.scheduled = !appService.getImportScheduleAppServers(importSchedule.getId()).isEmpty();
-        info.properties = propertyUtils.convertPropertySpecsToPropertyInfos(importSchedule.getPropertySpecs(), importSchedule.getProperties());
+        info.properties = propertyValueInfoService.getPropertyInfos(importSchedule.getPropertySpecs(), importSchedule.getProperties());
         info.version = importSchedule.getVersion();
         return info;
     }

@@ -1,23 +1,24 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 
 import javax.inject.Inject;
 
 public class FileImporterInfoFactory {
 
-    private final PropertyUtils propertyUtils;
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    public FileImporterInfoFactory(PropertyUtils propertyUtils) {
-        this.propertyUtils = propertyUtils;
+    public FileImporterInfoFactory(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     public FileImporterInfo asInfo(FileImporterFactory fileImporter) {
         FileImporterInfo info = new FileImporterInfo();
         info.name = fileImporter.getName();
         info.displayName = fileImporter.getDisplayName();
-        info.properties = propertyUtils.convertPropertySpecsToPropertyInfos(fileImporter.getPropertySpecs());
+        info.properties = propertyValueInfoService.getPropertyInfos(fileImporter.getPropertySpecs());
         return info;
     }
 }

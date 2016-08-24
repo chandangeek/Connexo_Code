@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -54,18 +55,18 @@ public class FileImportScheduleResource {
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final CronExpressionParser cronExpressionParser;
-    private final PropertyUtils propertyUtils;
+    private final PropertyValueInfoService propertyValueInfoService;
     private final FileSystem fileSystem;
     private final FileImportScheduleInfoFactory fileImportScheduleInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public FileImportScheduleResource(FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyUtils propertyUtils, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
+    public FileImportScheduleResource(FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyValueInfoService propertyValueInfoService, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
         this.fileImportService = fileImportService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
         this.cronExpressionParser = cronExpressionParser;
-        this.propertyUtils = propertyUtils;
+        this.propertyValueInfoService = propertyValueInfoService;
         this.fileSystem = fileSystem;
         this.fileImportScheduleInfoFactory = fileImportScheduleInfoFactory;
         this.conflictFactory = conflictFactory;
@@ -128,7 +129,7 @@ public class FileImportScheduleResource {
 
         propertiesSpecs.stream()
                 .forEach(spec -> {
-                    Object value = propertyUtils.findPropertyValue(spec, info.properties);
+                    Object value = propertyValueInfoService.findPropertyValue(spec, info.properties);
                     builder.addProperty(spec.getName()).withValue(value);
                 });
         ImportSchedule importSchedule;
@@ -289,7 +290,7 @@ public class FileImportScheduleResource {
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
         propertiesSpecs.stream()
                 .forEach(spec -> {
-                    Object value = propertyUtils.findPropertyValue(spec, info.properties);
+                    Object value = propertyValueInfoService.findPropertyValue(spec, info.properties);
                     importSchedule.setProperty(spec.getName(), value);
                 });
     }

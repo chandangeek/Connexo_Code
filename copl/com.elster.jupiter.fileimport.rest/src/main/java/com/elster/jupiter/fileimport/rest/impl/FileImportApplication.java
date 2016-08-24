@@ -7,11 +7,13 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -44,6 +46,7 @@ public class FileImportApplication extends Application implements MessageSeedPro
     private volatile FileSystem fileSystem;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile PropertyValueInfoService propertyValueInfoService;
     private List<App> apps = new CopyOnWriteArrayList<>();
 
     public Set<Class<?>> getClasses() {
@@ -83,6 +86,11 @@ public class FileImportApplication extends Application implements MessageSeedPro
     }
 
     @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         Thesaurus domainThesaurus = nlsService.getThesaurus(FileImportService.COMPONENT_NAME, Layer.DOMAIN);
@@ -114,7 +122,7 @@ public class FileImportApplication extends Application implements MessageSeedPro
             protected void configure() {
                 bind(restQueryService).to(RestQueryService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-                bind(PropertyUtils.class).to(PropertyUtils.class);
+                bind(propertyValueInfoService).to(PropertyValueInfoService.class);
                 bind(nlsService).to(NlsService.class);
                 bind(fileImportService).to(FileImportService.class);
                 bind(cronExpressionParser).to(CronExpressionParser.class);
