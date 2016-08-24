@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.DeviceConfigurationPropertyFactory;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -177,7 +178,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         return issue;
     }
 
-    private class DeviceConfigurationInfoValueFactory implements ValueFactory<HasIdAndName> {
+    private class DeviceConfigurationInfoValueFactory implements ValueFactory<HasIdAndName>, DeviceConfigurationPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             return deviceConfigurationService
