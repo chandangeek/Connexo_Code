@@ -105,7 +105,7 @@ public class DeviceReadingsMultipliedImporterIntegrationTest extends Persistence
         assertThat(channelReadings).hasSize(1);
         assertThat(channelReadings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 3, 0, 0, 0, 0, ZoneOffset.UTC).toInstant());
         assertThat(channelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(810.81));
-        assertThat(channelReadings.get(0).filter(calculatedReadingType).getValue().toString()).isEqualTo(BigDecimal.valueOf(810810, 2));
+        assertThat(channelReadings.get(0).filter(calculatedReadingType).getValue()).isEqualTo(BigDecimal.valueOf(810810, 2));
     }
 
     private DeviceConfiguration setup() {
