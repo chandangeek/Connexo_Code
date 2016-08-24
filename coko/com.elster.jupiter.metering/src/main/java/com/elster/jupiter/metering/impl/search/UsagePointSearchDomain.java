@@ -313,7 +313,8 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new TypeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ReadRouteSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())));
+                new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new MeterSearchableProperty(this, this.propertySpecService, this.meteringService)));
     }
 
     private boolean isMultisensePropertiesOnly() {

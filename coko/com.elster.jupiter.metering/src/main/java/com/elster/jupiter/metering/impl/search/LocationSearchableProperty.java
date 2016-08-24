@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 class LocationSearchableProperty extends AbstractSearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
@@ -114,36 +113,47 @@ class LocationSearchableProperty extends AbstractSearchableUsagePointProperty {
         }
     }
 
+    private boolean isJSONArrayValid(String jsonData) {
+        try {
+            return new JSONObject(jsonData).get("values") instanceof JSONArray;
+        } catch (JSONException ex) {
+            return false;
+        }
+    }
+
     private JSONArray getJSONArrayData(String jsonData) throws JSONException {
         return new JSONObject(jsonData).getJSONArray("values");
     }
 
     @Override
     public Condition toCondition(Condition specification) {
-        return ListOperator.IN.contains(() -> this.getBuilderFor(specification), "location");
+        return ListOperator.IN.contains(() -> getBuilderFor(specification), "location");
     }
 
     private SqlBuilder getBuilderFor(Condition specification) {
         SqlBuilder builder = new SqlBuilder();
 
         String searchCondition = ((Comparison) specification).getValues()[0].toString();
+        if (isJSONArrayValid(searchCondition)) {
+            try {
+                JSONArray arrayConditions = getJSONArrayData(searchCondition);
+                List<String> whereClauses = new ArrayList<>();
 
-        try {
-            JSONArray arrayConditions = getJSONArrayData(searchCondition);
-            List<String> whereClauses = new ArrayList<>();
+                for (int i = 0; i < arrayConditions.length(); i++) {
+                    JSONObject cond = arrayConditions.getJSONObject(i);
+                    String propertyName = cond.get("propertyName").toString();
+                    String propertyValue = cond.get("propertyValue").toString();
 
-            for (int i = 0; i < arrayConditions.length(); i++) {
-                JSONObject cond = arrayConditions.getJSONObject(i);
-                String propertyName = cond.get("propertyName").toString();
-                String propertyValue = cond.get("propertyValue").toString();
+                    whereClauses.add("(UPPER" + propertyName + " like UPPER('" + propertyValue + "'))");
+                }
 
-                whereClauses.add("(UPPER" + propertyName + " like UPPER('" + propertyValue + "'))");
+                builder.append(" select LOCATIONID from mtr_locationmember where ");
+                builder.append(whereClauses.stream().map(Object::toString).collect(Collectors.joining(" AND ")));
+
+            } catch (JSONException ex) {
+                // IsJSONArrayValid catches JSONException and returns false so not expecting any JSONException any longer
             }
-
-            builder.append(" select LOCATIONID from mtr_locationmember where ");
-            builder.append(whereClauses.stream().map(Object::toString).collect(Collectors.joining(" AND ")));
-
-        } catch (JSONException ex) {
+        } else {
             builder.append(" select locOut.LOCATIONID from mtr_locationmember locOut right join ");
             builder.append(" (select LOCATIONID, UPPERCOUNTRYCODE, UPPERCOUNTRYNAME, UPPERADMINISTRATIVEAREA, UPPERLOCALITY, ");
             builder.append("        UPPERSUBLOCALITY, UPPERSTREETTYPE, UPPERSTREETNAME, UPPERSTREETNUMBER, ");
