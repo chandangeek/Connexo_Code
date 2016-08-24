@@ -35,10 +35,8 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
                 title: Uni.I18n.translate('devicemenu.deviceAttributes', 'MDC', 'Device attributes'),
                 tools: [
                     {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        xtype: 'uni-button-action',
                         itemId: 'device-attributes-actions-button',
-                        iconCls: 'x-uni-action-iconD',
                         menu: {
                             xtype: 'device-attributes-action-menu',
                             router: me.router

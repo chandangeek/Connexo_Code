@@ -7,8 +7,14 @@ Ext.define('Mdc.view.setup.devicegroup.DynamicGroupDevicesGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.store.search.Results',
-        'Uni.view.search.ColumnPicker'
+        'Uni.view.search.ColumnPicker',
+        'Uni.grid.plugin.ShowConditionalToolTip'
     ],
+    plugins: [{
+        ptype: 'showConditionalToolTip',
+        pluginId: 'showConditionalToolTipId'
+    }],
+
     forceFit: true,
     enableColumnMove: true,
     columns: [],

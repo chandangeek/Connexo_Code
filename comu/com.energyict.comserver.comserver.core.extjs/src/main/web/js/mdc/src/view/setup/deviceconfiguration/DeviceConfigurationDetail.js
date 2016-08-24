@@ -24,10 +24,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                     flex: 1
                 },
                 {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    xtype: 'uni-button-action',
                     privileges: Mdc.privileges.DeviceType.admin,
-                    iconCls: 'x-uni-action-iconD',
                     menu: {
                         xtype: 'device-configuration-action-menu'
                     }

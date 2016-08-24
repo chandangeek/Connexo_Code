@@ -18,10 +18,8 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
 
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            xtype: 'uni-button-action',
             privileges:Mdc.privileges.DeviceSecurity.viewOrEditLevels,
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'device-security-setting-action-menu'
             }

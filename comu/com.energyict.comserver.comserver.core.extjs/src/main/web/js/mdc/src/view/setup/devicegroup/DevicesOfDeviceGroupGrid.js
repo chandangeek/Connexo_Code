@@ -7,8 +7,15 @@ Ext.define('Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.DevicesOfDeviceGroup',
-        'Uni.store.search.Fields'
+        'Uni.store.search.Fields',
+        'Uni.view.search.ColumnPicker',
+        'Uni.grid.plugin.ShowConditionalToolTip'
     ],
+    plugins: [{
+        ptype: 'showConditionalToolTip',
+        pluginId: 'showConditionalToolTipId'
+    }],
+
     selModel: {
         mode: 'SINGLE'
     },
