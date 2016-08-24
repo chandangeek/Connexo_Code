@@ -124,13 +124,15 @@ public class JbpmTaskResource {
                         String theKey = (String) it.next();
                         if (theKey.equals("status")) {
                             for (int i = 0; i < filterProperties.get("status").size(); i++) {
-                                if (filterProperties.get("status").get(i).toString().contains("OPEN")) {
+                                if (filterProperties.get("status").get(i).toString().contains("CREATED")) {
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Created));
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Ready));
-                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Reserved));
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Suspended));
                                 }
-                                if (filterProperties.get("status").get(i).toString().contains("INPROGRESS")) {
+                                if(filterProperties.get("status").get(i).toString().contains("ASSIGNED")){
+                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Reserved));
+                                }
+                                if (filterProperties.get("status").get(i).toString().contains("ONGOING")) {
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.InProgress));
                                 }
                                 if (filterProperties.get("status").get(i).toString().contains("COMPLETED")) {
@@ -138,6 +140,9 @@ public class JbpmTaskResource {
                                 }
                                 if (filterProperties.get("status").get(i).toString().contains("FAILED")) {
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Failed));
+                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Error));
+                                }
+                                if(filterProperties.get("status").get(i).toString().contains("CANCELLED")){
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Exited));
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Obsolete));
                                 }
