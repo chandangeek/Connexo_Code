@@ -2,7 +2,6 @@ package com.energyict.mdc.issue.datavalidation.rest.impl;
 
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
-import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
@@ -15,6 +14,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -112,7 +112,6 @@ public class IssueDataValidationApplication extends Application {
             bind(DataValidationIssueInfoFactory.class).to(DataValidationIssueInfoFactory.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
-            bind(PropertyUtils.class).to(PropertyUtils.class);
         }
     }
 }
