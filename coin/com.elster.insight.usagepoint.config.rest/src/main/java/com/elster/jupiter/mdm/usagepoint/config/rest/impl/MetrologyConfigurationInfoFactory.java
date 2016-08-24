@@ -89,7 +89,10 @@ public class MetrologyConfigurationInfoFactory {
         info.id = metrologyContract.getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
         info.mandatory = metrologyContract.isMandatory();
-        info.readingTypeDeliverables = metrologyContract.getDeliverables().stream().map(readingTypeDeliverableFactory::asInfo).collect(Collectors.toList());
+        info.readingTypeDeliverables = metrologyContract.getDeliverables()
+                .stream()
+                .map(deliverable -> readingTypeDeliverableFactory.asInfo(deliverable, metrologyContract.getMetrologyConfiguration()))
+                .collect(Collectors.toList());
         return info;
     }
 }

@@ -35,7 +35,7 @@ public class ReadingTypeDeliverableFactory {
         return asInfo(readingTypeDeliverable, readingTypeDeliverable.getMetrologyConfiguration());
     }
 
-    private ReadingTypeDeliverablesInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable, MetrologyConfiguration metrologyConfiguration) {
+    public ReadingTypeDeliverablesInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable, MetrologyConfiguration metrologyConfiguration) {
         ReadingTypeDeliverablesInfo info = new ReadingTypeDeliverablesInfo();
         info.id = readingTypeDeliverable.getId();
         info.name = readingTypeDeliverable.getName();
