@@ -2,16 +2,11 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -20,6 +15,9 @@ import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyList;
@@ -48,7 +46,7 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
     @Mock
     private ValidationRule rule1, rule2;
     @Mock
-    private PropertyUtils propertyUtils;
+    private PropertyValueInfoService propertyValueInfoService;
 
     @Test
     public void testAddRuleSetsToDeviceConfiguration() throws Exception {
@@ -60,7 +58,7 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
         when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findDeviceConfiguration(DEVICE_CONFIGURATION_ID)).thenReturn(Optional.of(deviceConfiguration));
-        when(propertyUtils.convertPropertySpecsToPropertyInfos(anyList(), anyMap())).thenReturn(Collections.<PropertyInfo>emptyList());
+        when(propertyValueInfoService.getPropertyInfos(anyList(), anyMap())).thenReturn(Collections.emptyList());
 
         Invocation.Builder all = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/")
                 .queryParam("all", Boolean.FALSE)

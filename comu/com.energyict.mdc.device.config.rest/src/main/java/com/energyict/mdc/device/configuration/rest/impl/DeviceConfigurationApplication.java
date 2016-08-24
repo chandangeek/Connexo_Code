@@ -2,7 +2,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
-import com.elster.jupiter.calendar.rest.impl.CalendarInfoFactoryImpl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.kpi.KpiService;
@@ -14,6 +13,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
@@ -22,7 +22,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -84,6 +83,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
     private volatile CustomPropertySetService customPropertySetService;
     private volatile CalendarInfoFactory calendarInfoFactory;
     private volatile CalendarService calendarService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -261,6 +261,11 @@ public class DeviceConfigurationApplication extends Application implements Messa
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -290,7 +295,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(deviceService).to(DeviceService.class);
             bind(userService).to(UserService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
-            bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
