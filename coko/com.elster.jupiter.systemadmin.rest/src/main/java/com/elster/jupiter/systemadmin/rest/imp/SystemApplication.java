@@ -12,10 +12,10 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.system.SubsystemService;
 import com.elster.jupiter.systemadmin.rest.imp.resource.BundleTypeTranslationKeys;
-import com.elster.jupiter.systemadmin.rest.imp.resource.ComponentStatusTranslationKeys;
 import com.elster.jupiter.systemadmin.rest.imp.resource.ComponentResource;
-import com.elster.jupiter.systemadmin.rest.imp.resource.FieldResource;
+import com.elster.jupiter.systemadmin.rest.imp.resource.ComponentStatusTranslationKeys;
 import com.elster.jupiter.systemadmin.rest.imp.resource.DataPurgeResource;
+import com.elster.jupiter.systemadmin.rest.imp.resource.FieldResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseStatusTranslationKeys;
 import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseTypeTranslationKeys;
@@ -32,16 +32,18 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,6 +69,7 @@ public class SystemApplication extends Application implements MessageSeedProvide
     private volatile Thesaurus thesaurus;
     private volatile JsonService jsonService;
     private volatile SubsystemService subsystemService;
+    private volatile Clock clock;
 
     private BundleContext bundleContext;
     private Long lastStartedTime;
@@ -134,6 +137,11 @@ public class SystemApplication extends Application implements MessageSeedProvide
         this.subsystemService = subsystemService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -191,6 +199,7 @@ public class SystemApplication extends Application implements MessageSeedProvide
             bind(lastStartedTime).to(Long.class).named("LAST_STARTED_TIME");
             bind(LicenseInfoFactory.class).to(LicenseInfoFactory.class);
             bind(NlsService.class).to(NlsService.class);
+            bind(clock).to(Clock.class);
         }
     }
 }
