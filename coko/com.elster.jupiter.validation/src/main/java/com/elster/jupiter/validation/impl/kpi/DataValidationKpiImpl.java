@@ -194,8 +194,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     @Override
     public void delete() {
         this.dataValidationKpiTask.getOptional().ifPresent(found -> {
-                    if (found.getNextExecution().toEpochMilli() - found.getCreateTime().toEpochMilli() >
-                            ((TemporalExpression) found.getScheduleExpression()).getEvery().getMilliSeconds()) {
+                    if (found.getUserName().equals("TaskService")) {
+                        // else name will be creation user or batch executor
                         found.setNextExecution(null);
                         found.save();
                     } else {
