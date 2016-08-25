@@ -36,6 +36,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -69,6 +70,7 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     public List<? extends MeterActivation> getMeterActivations() {
         return this.meterActivations.stream()
                 .filter(ma -> !ma.getStart().equals(ma.getEnd()))
+                .sorted(Comparator.comparing(MeterActivation::getStart))
                 .collect(Collectors.toList());
     }
 
