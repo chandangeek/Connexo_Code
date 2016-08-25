@@ -62,6 +62,8 @@ public class MasterDataSync {
 
         MasterDataAnalyser masterDataAnalyser = analyseWhatToSync(allMasterData);
 
+        info.append(masterDataAnalyser.getInfo());
+
         /**
          * Do the synchronization sequence
          * order of those operation is very important!
