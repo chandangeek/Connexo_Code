@@ -12,6 +12,7 @@ import com.elster.jupiter.transaction.TransactionBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.transaction.TransactionService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -29,12 +30,12 @@ public class TransactionServiceImpl implements TransactionService {
 	private volatile Publisher publisher;
 	private final ThreadLocal<TransactionState> transactionStateHolder = new ThreadLocal<>();
 	private volatile boolean printSql;
-	
+
 	public TransactionServiceImpl() {
 	}
-	
+
     @Inject
-    public TransactionServiceImpl(BootstrapService bootstrapService, ThreadPrincipalService threadPrincipalService, Publisher publisher, 
+    public TransactionServiceImpl(BootstrapService bootstrapService, ThreadPrincipalService threadPrincipalService, Publisher publisher,
     		@Named("printSql") boolean printSql) {
         setThreadPrincipalService(threadPrincipalService);
         setPublisher(publisher);
@@ -48,9 +49,9 @@ public class TransactionServiceImpl implements TransactionService {
     		T result = transaction.perform();
     		context.commit();
     		return result;
-    	} 
+    	}
     }
-	
+
     @Override
     public TransactionContext getContext() {
     	if (isInTransaction()) {
@@ -60,12 +61,12 @@ public class TransactionServiceImpl implements TransactionService {
 		transactionStateHolder.set(transactionState);
 		return new TransactionContextImpl(this);
     }
-    
+
     @Override
     public TransactionBuilder builder() {
     	return new TransactionBuilderImpl(this, threadPrincipalService);
     }
-    
+
     private TransactionEvent terminate(boolean commit) {
     	try {
     		return transactionStateHolder.get().terminate(commit);
@@ -75,15 +76,15 @@ public class TransactionServiceImpl implements TransactionService {
     		transactionStateHolder.remove();
     	}
     }
-    
+
     TransactionEvent commit() {
     	return terminate(true);
     }
-    
+
     TransactionEvent rollback() {
     	return terminate(false);
     }
-    
+
 	@Reference
 	public void setBootstrapService(BootstrapService bootStrapService) {
         doSetBootstrapService(bootStrapService);
@@ -95,12 +96,12 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Reference
 	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-		this.threadPrincipalService = threadPrincipalService;		
+		this.threadPrincipalService = threadPrincipalService;
 	}
-	
+
 	@Reference
 	public void setPublisher(Publisher publisher) {
-		this.publisher = publisher;		
+		this.publisher = publisher;
 	}
 
     public void setRollbackOnly() {
@@ -110,13 +111,11 @@ public class TransactionServiceImpl implements TransactionService {
             throw new NotInTransactionException();
         }
 	}
-	
-	
-	
+
 	Connection getConnection() throws SQLException {
         return isInTransaction() ? transactionStateHolder.get().getConnection() : newConnection(true);
 	}
-	
+
 	DataSource getDataSource() {
 		return dataSource;
 	}
@@ -131,31 +130,29 @@ public class TransactionServiceImpl implements TransactionService {
         return result;
     }
 
-
 	@Override
 	public boolean isInTransaction() {
 		return transactionStateHolder.get() != null;
     }
-    
+
     void addThreadSubscriber(Subscriber subscriber) {
     	publisher.addThreadSubscriber(subscriber);
     }
-    
+
     void removeThreadSubscriber(Subscriber subscriber) {
     	publisher.removeThreadSubscriber(subscriber);
     }
-    
+
     void publish(Object event) {
     	publisher.publish(event);
     }
-  
+
     boolean printSql() {
     	return printSql;
     }
-    
+
     void printSql(boolean printSql) {
     	this.printSql = printSql;
     }
-    
-    
+
 }

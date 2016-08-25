@@ -12,11 +12,13 @@ public interface TransactionService {
 	 * Most clients should use the execute method, but the TransactionContext gives access to the tx statistics if needed
 	 */
 	TransactionContext getContext();
+
 	/*
-	 * Standard way of executing a transaction that returns a value. Any exception throw, by transaction.perform() will rollback 
+	 * Standard way of executing a transaction that returns a value. Any exception throw, by transaction.perform() will rollback
 	 * the tx and passed to caller.
 	 */
 	<T> T execute(Transaction<T> transaction);
+
 	/*
 	 * if we overload execute with Runnable, mocking the transactionService with Mockito is more difficult
 	 * so we pick a different name for executing a void tx.
@@ -29,17 +31,18 @@ public interface TransactionService {
     		return context.getStats();
     	}
 	}
+
 	/*
-	 * TransactionBuilder provides an easy interface to setup the security context before executing a tx 
+	 * TransactionBuilder provides an easy interface to setup the security context before executing a tx
 	 */
-	
 	TransactionBuilder builder();
 
 	/**
-	 * indicates if there is a transaction running or not
+	 * Indicates if there is a transaction running or not.
 	 *
 	 * @return true is there is a transaction running, false else
 	 * @since 1.1
 	 */
 	boolean isInTransaction();
+
 }
