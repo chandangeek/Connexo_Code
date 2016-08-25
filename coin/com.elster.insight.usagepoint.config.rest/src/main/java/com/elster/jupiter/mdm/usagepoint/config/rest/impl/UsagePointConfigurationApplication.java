@@ -2,9 +2,8 @@ package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfoFactory;
+import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
@@ -49,7 +48,6 @@ public class UsagePointConfigurationApplication extends Application implements T
     private volatile TimeService timeService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
-    private volatile License license;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -112,11 +110,6 @@ public class UsagePointConfigurationApplication extends Application implements T
         this.transactionService = transactionService;
     }
 
-    @Reference(target = "(com.elster.jupiter.license.application.key=" + APP_KEY + ")")
-    public void setLicense(License license) {
-        this.license = license;
-    }
-
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
@@ -157,6 +150,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
+            bind(ReadingTypeDeliverableFactory.class).to(ReadingTypeDeliverableFactory.class);
             bind(meteringService).to(MeteringService.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
         }

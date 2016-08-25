@@ -7,8 +7,8 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfoFactory;
-import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyContractInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
+import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -68,13 +68,13 @@ public class MetrologyConfigurationResource {
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
-
+    private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
     public MetrologyConfigurationResource(ResourceHelper resourceHelper, MeteringService meteringService, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService,
                                           CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory,
-                                          MetrologyConfigurationService metrologyConfigurationService, TimeService timeService, Thesaurus thesaurus) {
+                                          MetrologyConfigurationService metrologyConfigurationService, TimeService timeService, Thesaurus thesaurus, ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
         this.resourceHelper = resourceHelper;
         this.meteringService = meteringService;
         this.usagePointConfigurationService = usagePointConfigurationService;
@@ -85,6 +85,7 @@ public class MetrologyConfigurationResource {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.timeService = timeService;
         this.thesaurus = thesaurus;
+        this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
     }
 
     @GET
@@ -120,7 +121,7 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getMetrologyConfigurationDeliverables(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
-        List<ReadingTypeDeliverablesInfo> deliverables =  metrologyConfiguration.getDeliverables().stream().map(metrologyConfigurationInfoFactory::asInfo).collect(Collectors.toList());
+        List<ReadingTypeDeliverablesInfo> deliverables =  metrologyConfiguration.getDeliverables().stream().map(readingTypeDeliverableFactory::asInfo).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
     }
 
@@ -145,7 +146,7 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Transactional
-    public Response updateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info, @Context SecurityContext securityContext) {
+    public Response updateMetrologyConfiguration(MetrologyConfigurationInfo info, @Context SecurityContext securityContext) {
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
         info.updateCustomPropertySets(metrologyConfiguration, resourceHelper::getRegisteredCustomPropertySetOrThrowException);
         return Response.ok().entity(metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration)).build();
@@ -225,8 +226,8 @@ public class MetrologyConfigurationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response updateMetrologyContractWithValidationRuleSets(@PathParam("id") long id, @PathParam("contractId") long contractId, @QueryParam("action") String action, MetrologyContractInfo metrologyContractInfo) {
-        metrologyContractInfo.id = id;
+    public Response updateMetrologyContractWithValidationRuleSets(@PathParam("contractId") long contractId, @QueryParam("action") String action, MetrologyContractInfo metrologyContractInfo) {
+        metrologyContractInfo.id = contractId;
         MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo);
         if (action != null && action.equals("remove")) {
             ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(metrologyContractInfo.validationRuleSets.stream().findFirst().get().id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -244,7 +245,7 @@ public class MetrologyConfigurationResource {
     @Path("/{id}/contracts/{contractId}")
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public MetrologyContractInfo getLinkableValidationRuleSetsForMetrologyContract(@PathParam("id") long id, @PathParam("contractId") long contractId) {
+    public MetrologyContractInfo getLinkableValidationRuleSetsForMetrologyContract(@PathParam("contractId") long contractId) {
         MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(contractId).get();
         List<ValidationRuleSetInfo> linkableValidationRuleSets = validationService.getValidationRuleSets()
                 .stream()

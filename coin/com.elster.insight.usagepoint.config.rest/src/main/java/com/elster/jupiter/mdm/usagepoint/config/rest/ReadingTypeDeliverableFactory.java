@@ -1,15 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.CustomPropertiesInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.FormulaInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.MetrologyConfigurationInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypeDeliverablesInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypePatternAttributeInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypePatternInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypeRequirementsInfo;
-import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
@@ -18,8 +8,6 @@ import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
@@ -30,126 +18,53 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.search.rest.SearchCriteriaVisualizationInfo;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MetrologyConfigurationInfoFactory {
+public class ReadingTypeDeliverableFactory {
 
-    private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
-    private final Thesaurus thesaurus;
-
-    @Inject
-    public MetrologyConfigurationInfoFactory(Thesaurus thesaurus, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
-        this.thesaurus = thesaurus;
-        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
-    }
-
-    public MetrologyConfigurationInfo asInfo(UsagePointMetrologyConfiguration metrologyConfiguration) {
-        MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
-        info.id = metrologyConfiguration.getId();
-        info.name = metrologyConfiguration.getName();
-        info.description = metrologyConfiguration.getDescription();
-        info.status = asInfo(metrologyConfiguration.getStatus());
-        info.serviceCategory = asInfo(metrologyConfiguration.getServiceCategory());
-        info.version = metrologyConfiguration.getVersion();
-        info.meterRoles = metrologyConfiguration.getMeterRoles().stream().map(this::asInfo).collect(Collectors.toList());
-        info.purposes = metrologyConfiguration.getContracts().stream().map(this::asInfo).collect(Collectors.toList());
-        info.usagePointRequirements = metrologyConfiguration.getUsagePointRequirements()
-                .stream()
-                .map(requirement -> SearchCriteriaVisualizationInfo.from(requirement.getSearchableProperty(), requirement.toValueBean()))
-                .collect(Collectors.toList());
-        return info;
-    }
-
-    public MetrologyConfigurationInfo asDetailedInfo(UsagePointMetrologyConfiguration metrologyConfiguration) {
-        MetrologyConfigurationInfo info = asInfo(metrologyConfiguration);
-        info.metrologyContracts = metrologyConfiguration.getContracts().stream().map(this::asDetailedInfo).collect(Collectors.toList());
-        info.customPropertySets = metrologyConfiguration.getCustomPropertySets()
-                .stream()
-                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                .map(this.customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
-                .collect(Collectors.toList());
-        return info;
-    }
-
-    public List<MetrologyContractInfo> getMetrologyContractsInfo(MetrologyConfiguration metrologyConfiguration) {
-        return metrologyConfiguration.getContracts().stream().map(this::asDetailedInfo).collect(Collectors.toList());
-    }
-
-    private IdWithNameInfo asInfo(MetrologyConfigurationStatus status) {
-        IdWithNameInfo info = new IdWithNameInfo();
-        info.id = status.getId();
-        info.name = thesaurus.getFormat(status.getTranslationKey()).format();
-        return info;
-    }
-
-    private IdWithNameInfo asInfo(ServiceCategory serviceCategory) {
-        IdWithNameInfo info = new IdWithNameInfo();
-        info.id = serviceCategory.getKind().name();
-        info.name = serviceCategory.getName();
-        return info;
-    }
-
-    private IdWithNameInfo asInfo(MeterRole meterRole) {
-        IdWithNameInfo info = new IdWithNameInfo();
-        info.id = meterRole.getKey();
-        info.name = meterRole.getDisplayName();
-        return info;
-    }
-
-    private IdWithNameInfo asInfo(MetrologyContract metrologyContract) {
-        IdWithNameInfo info = new IdWithNameInfo();
-        info.id = metrologyContract.getId();
-        info.name = metrologyContract.getMetrologyPurpose().getName();
-        return info;
-    }
-
-    private MetrologyContractInfo asDetailedInfo(MetrologyContract metrologyContract) {
-        MetrologyContractInfo info = new MetrologyContractInfo();
-        info.id = metrologyContract.getId();
-        info.name = metrologyContract.getMetrologyPurpose().getName();
-        info.mandatory = metrologyContract.isMandatory();
-        info.readingTypeDeliverables = metrologyContract.getDeliverables().stream().map(this::asInfo).collect(Collectors.toList());
-        return info;
+    public ReadingTypeDeliverableFactory() {
     }
 
     public ReadingTypeDeliverablesInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable) {
+        return asInfo(readingTypeDeliverable, readingTypeDeliverable.getMetrologyConfiguration());
+    }
+
+    public ReadingTypeDeliverablesInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable, MetrologyConfiguration metrologyConfiguration) {
         ReadingTypeDeliverablesInfo info = new ReadingTypeDeliverablesInfo();
         info.id = readingTypeDeliverable.getId();
         info.name = readingTypeDeliverable.getName();
         info.readingType = readingTypeDeliverable.getReadingType() != null ? new ReadingTypeInfo(readingTypeDeliverable.getReadingType()) : null;
-        info.formula = readingTypeDeliverable.getFormula() != null ? asInfo(readingTypeDeliverable.getFormula()) : null;
+        info.formula = readingTypeDeliverable.getFormula() != null ? asInfo(readingTypeDeliverable.getFormula(), metrologyConfiguration) : null;
         return info;
     }
 
-    private FormulaInfo asInfo(Formula formula) {
+    private FormulaInfo asInfo(Formula formula, MetrologyConfiguration metrologyConfiguration) {
         FormulaInfo info = new FormulaInfo();
         info.description = formula.getDescription();
-        info.readingTypeRequirements = asInfoList(formula.getExpressionNode());
+        info.readingTypeRequirements = asInfoList(formula.getExpressionNode(), metrologyConfiguration);
         FormulaVisitor visitor = new FormulaVisitor();
         formula.getExpressionNode().accept(visitor);
         info.customProperties = visitor.getCustomPropertiesInfos();
         return info;
     }
 
-    private List<ReadingTypeRequirementsInfo> asInfoList(ExpressionNode expressionNode) {
+
+    private List<ReadingTypeRequirementsInfo> asInfoList(ExpressionNode expressionNode, MetrologyConfiguration metrologyConfiguration) {
         ReadingTypeVisitor readingTypeVisitor = new ReadingTypeVisitor();
         expressionNode.accept(readingTypeVisitor);
-        return readingTypeVisitor.readingTypeRequirementNodes.stream().map(this::asInfo).collect(Collectors.toList());
+        return readingTypeVisitor.readingTypeRequirementNodes.stream().map(e -> asInfo(e, metrologyConfiguration)).collect(Collectors.toList());
     }
 
-    private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirementNode requirementNode) {
+    private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirementNode requirementNode, MetrologyConfiguration metrologyConfiguration) {
         ReadingTypeRequirement requirement = requirementNode.getReadingTypeRequirement();
         ReadingTypeRequirementsInfo info = new ReadingTypeRequirementsInfo();
-        info.meterRole = ((UsagePointMetrologyConfiguration) requirement.getMetrologyConfiguration())
+        info.meterRole = ((UsagePointMetrologyConfiguration) metrologyConfiguration)
                 .getMeterRoleFor(requirement)
                 .map(this::asInfo)
                 .orElse(null);
@@ -183,6 +98,13 @@ public class MetrologyConfigurationInfoFactory {
         return info;
     }
 
+    private IdWithNameInfo asInfo(MeterRole meterRole) {
+        IdWithNameInfo info = new IdWithNameInfo();
+        info.id = meterRole.getKey();
+        info.name = meterRole.getDisplayName();
+        return info;
+    }
+
     private class FormulaVisitor implements ExpressionNode.Visitor<Void> {
 
         private List<CustomPropertiesInfo> customProperties = new ArrayList<>();
@@ -203,7 +125,7 @@ public class MetrologyConfigurationInfoFactory {
         }
 
         public List<CustomPropertiesInfo> getCustomPropertiesInfos() {
-            return customProperties;
+            return Collections.unmodifiableList(customProperties);
         }
 
         @Override
