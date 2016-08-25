@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -23,6 +24,8 @@ import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -61,6 +64,9 @@ public class UsagePointOutputResource {
     private final PurposeInfoFactory purposeInfoFactory;
     private final Clock clock;
     private final ValidationStatusFactory validationStatusFactory;
+
+    private static final String INTERVAL_START = "intervalStart";
+    private static final String INTERVAL_END = "intervalEnd";
 
     @Inject
     public UsagePointOutputResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
@@ -144,15 +150,15 @@ public class UsagePointOutputResource {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
         }
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
-        if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
-            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+        if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
+            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
             EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
             ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
-            if (channelsContainer.getRange().isConnected(requestedInterval)) {
-                Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);
-                effectiveInterval = Range.openClosed(effectiveInterval.lowerEndpoint(), effectiveInterval.upperEndpoint());
+            Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
+            if (usagePointActivationInterval.isConnected(requestedInterval)) {
+                Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);
                 Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
-                TemporalAmount intervalLength = readingTypeDeliverable.getReadingType().getIntervalLength().get();
+                TemporalAmount intervalLength = channel.getIntervalLength().get();
                 ValidationEvaluator evaluator = validationService.getEvaluator();
                 IntervalReadingWithValidationStatus.Builder builder = IntervalReadingWithValidationStatus.builder(
                         validationStatusFactory.isValidationActive(effectiveMetrologyConfiguration, metrologyContract),
@@ -185,6 +191,13 @@ public class UsagePointOutputResource {
         return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
     }
 
+    private Range<Instant> getUsagePointActivationInterval(UsagePoint usagePoint) {
+        RangeSet<Instant> meterActivationIntervals = usagePoint.getMeterActivations().stream()
+                .map(MeterActivation::getRange)
+                .collect(TreeRangeSet::<Instant>create, RangeSet::add, RangeSet::addAll);
+        return !meterActivationIntervals.isEmpty() ? meterActivationIntervals.span() : Range.singleton(Instant.MIN);
+    }
+
     @GET
     @Transactional
     @Path("/{purposeId}/outputs/{outputId}/registerData")
@@ -200,8 +213,8 @@ public class UsagePointOutputResource {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_REGULAR, outputId);
         }
         List<OutputRegisterDataInfo> outputRegisterData = new ArrayList<>();
-        if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
-            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+        if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
+            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
             ChannelsContainer channelsContainer = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get();
             if (channelsContainer.getRange().isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);

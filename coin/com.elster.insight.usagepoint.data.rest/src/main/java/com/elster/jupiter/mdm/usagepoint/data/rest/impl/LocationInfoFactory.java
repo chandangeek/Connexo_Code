@@ -15,10 +15,10 @@ public class LocationInfoFactory {
     private final LocationService locationService;
 
     @Inject
-    public LocationInfoFactory(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, LocationService locationService1) {
+    public LocationInfoFactory(MeteringService meteringService, Thesaurus thesaurus, LocationService locationService) {
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
-        this.locationService = locationService1;
+        this.locationService = locationService;
     }
 
     public LocationInfo from(Long locationId) {

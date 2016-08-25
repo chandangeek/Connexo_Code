@@ -3,16 +3,11 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.UserTaskInfo;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.users.User;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -20,10 +15,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -39,33 +32,25 @@ public class GoingOnResource {
 
     private final ServiceCallService serviceCallService;
     private final BpmService bpmService;
-    private final IssueService issueService;
     private final ResourceHelper resourceHelper;
-    private final MeteringService meteringService;
     private final Clock clock;
 
     @Inject
-    public GoingOnResource(ResourceHelper resourceHelper, ServiceCallService serviceCallService, BpmService bpmService, IssueService issueService, MeteringService meteringService, Clock clock) {
+    public GoingOnResource(ResourceHelper resourceHelper, ServiceCallService serviceCallService, BpmService bpmService, Clock clock) {
         this.resourceHelper = resourceHelper;
         this.serviceCallService = serviceCallService;
         this.bpmService = bpmService;
-        this.issueService = issueService;
-        this.meteringService = meteringService;
         this.clock = clock;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters,
-                               @Context SecurityContext securityContext, @HeaderParam("authorization") String auth,
-                               @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
+                               @HeaderParam("authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
 
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
 
-        GoingOnInfoFactory goingOnInfoFactory = new GoingOnInfoFactory(null);
-        if (securityContext.getUserPrincipal() instanceof User) {
-            goingOnInfoFactory = new GoingOnInfoFactory((User) securityContext.getUserPrincipal());
-        }
+        GoingOnInfoFactory goingOnInfoFactory = new GoingOnInfoFactory();
 
         List<GoingOnInfo> issues = Collections.emptyList();
 
@@ -92,26 +77,10 @@ public class GoingOnResource {
             return "?variableid=usagePointId&variablevalue=" + usagePoint.getMRID();
     }
 
-    private class GoingOnInfoFactory {
+    private final class GoingOnInfoFactory {
 
-        private final User currentUser;
+        private GoingOnInfoFactory() {
 
-        private GoingOnInfoFactory(User currentUser) {
-            this.currentUser = currentUser;
-        }
-
-        private GoingOnInfo toGoingOnInfo(Issue issue) {
-            GoingOnInfo goingOnInfo = new GoingOnInfo();
-            goingOnInfo.type = "issue";
-            goingOnInfo.id = issue.getId();
-            goingOnInfo.reference = null;
-            goingOnInfo.description = issue.getTitle();
-            goingOnInfo.dueDate = issue.getDueDate();
-            goingOnInfo.severity = severity(issue.getDueDate());
-            goingOnInfo.assignee = Optional.ofNullable(issue.getAssignee()).map(IssueAssignee::getName).orElse(null);
-            goingOnInfo.assigneeIsCurrentUser = Optional.ofNullable(issue.getAssignee()).map(IssueAssignee::getId).map(id -> id.equals(currentUser.getId())).orElse(false);
-            goingOnInfo.status = issue.getStatus().getName();
-            return goingOnInfo;
         }
 
         private GoingOnInfo toGoingOnInfo(ServiceCall serviceCall) {

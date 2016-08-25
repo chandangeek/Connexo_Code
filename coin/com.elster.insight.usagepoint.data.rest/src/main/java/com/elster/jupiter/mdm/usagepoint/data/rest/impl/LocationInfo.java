@@ -40,7 +40,7 @@ public class LocationInfo {
 
     }
 
-    public void createLocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, Long locationId) {
+    public final void createLocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, Long locationId) {
         this.locationId = locationId;
         List<String> unformattedList = new ArrayList<>();
         Optional<Location> location = locationService.findLocationById(locationId);
