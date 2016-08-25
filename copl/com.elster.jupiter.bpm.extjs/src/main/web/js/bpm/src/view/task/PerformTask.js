@@ -23,15 +23,6 @@ Ext.define('Bpm.view.task.PerformTask', {
                         itemId: 'detail-top-title',
                         ui: 'large',
                         flex: 1
-                    },
-                    {
-                        xtype: 'previous-next-navigation-toolbar',
-                        margin: '10 0 0 0',
-                        store: 'Bpm.store.task.Tasks',
-                        router: me.router,
-                        routerIdArgument: 'taskId',
-                        itemsName: me.itemNameLink,
-                        hidden: me.showNavigation == 'false'
                     }
                 ]
             },
@@ -207,6 +198,12 @@ Ext.define('Bpm.view.task.PerformTask', {
                                                 itemId: 'btn-complete',
                                                 action: 'completeTask',
                                                 taskRecord: me.taskRecord
+                                            },
+                                            {
+                                                xtype: 'button',
+                                                itemId: 'btn-task-cancel-link',
+                                                text: Uni.I18n.translate('general.cancel', 'BPM', 'Cancel'),
+                                                ui: 'link'
                                             }
                                         ]
                                     }

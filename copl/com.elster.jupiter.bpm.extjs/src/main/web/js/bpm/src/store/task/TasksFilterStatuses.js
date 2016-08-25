@@ -7,12 +7,28 @@ Ext.define('Bpm.store.task.TasksFilterStatuses', {
         me.callParent([Ext.apply({
             data: [
                 {
-                    value: 'OPEN',
-                    display: Uni.I18n.translate('bpm.filter.openStatus', 'BPM', 'Open')
+                    value: 'CREATED',
+                    display: Uni.I18n.translate('bpm.filter.created', 'BPM', 'Created')
                 },
                 {
-                    value: 'INPROGRESS',
+                    value: 'ASSIGNED',
+                    display: Uni.I18n.translate('bpm.filter.assigned', 'BPM', 'Assigned')
+                },
+                {
+                    value: 'ONGOING',
                     display: Uni.I18n.translate('bpm.filter.ongoingStatus', 'BPM', 'Ongoing')
+                },
+                {
+                    value: 'COMPLETED',
+                    display: Uni.I18n.translate('bpm.filter.completed', 'BPM', 'Completed')
+                },
+                {
+                    value: 'FAILED',
+                    display: Uni.I18n.translate('bpm.filter.failed', 'BPM', 'Failed')
+                },
+                {
+                    value: 'CANCELLED',
+                    display: Uni.I18n.translate('bpm.filter.cancelled', 'BPM', 'Cancelled')
                 }
             ],
             fields: [
