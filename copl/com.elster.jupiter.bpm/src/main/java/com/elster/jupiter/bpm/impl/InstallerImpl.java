@@ -86,7 +86,7 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(BpmService.BPM_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
         destinationSpec.activate();
-        destinationSpec.subscribe(BpmService.BPM_QUEUE_SUBSC).create();
+        destinationSpec.subscribe(BpmService.BPM_QUEUE_SUBSC);
     }
 
     private void createDefaultRoles() {
