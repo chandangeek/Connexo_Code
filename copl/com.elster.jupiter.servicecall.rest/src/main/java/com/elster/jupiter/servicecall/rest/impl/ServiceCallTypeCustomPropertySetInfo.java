@@ -6,26 +6,34 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ServiceCallTypeCustomPropertySetInfo {
 
     public long id;
     public String name;
+    public boolean active;
     public List<ServiceCallTypeCustomPropertySetAttributeInfo> attributes;
+
     public ServiceCallTypeCustomPropertySetInfo() {
-
     }
 
-    public ServiceCallTypeCustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet) {
+    ServiceCallTypeCustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet) {
         this.id = registeredCustomPropertySet.getId();
-        this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
-        this.attributes = getAttributes(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs());
+        if (registeredCustomPropertySet.isActive()) {
+            this.active = true;
+            this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
+            this.attributes = getAttributes(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs());
+        } else {
+            this.active = false;
+            this.name = registeredCustomPropertySet.getCustomPropertySetId();
+            this.attributes = Collections.emptyList();
+        }
     }
 
-    public static List<ServiceCallTypeCustomPropertySetAttributeInfo> getAttributes(List<PropertySpec> propertySpecs) {
+    private List<ServiceCallTypeCustomPropertySetAttributeInfo> getAttributes(List<PropertySpec> propertySpecs) {
         List<ServiceCallTypeCustomPropertySetAttributeInfo> serviceCallTypeCustomPropertySetAttributeInfos = new ArrayList<>();
         for (PropertySpec propertySpec : propertySpecs) {
             serviceCallTypeCustomPropertySetAttributeInfos.add(new ServiceCallTypeCustomPropertySetAttributeInfo(propertySpec));
@@ -33,12 +41,4 @@ public class ServiceCallTypeCustomPropertySetInfo {
         return serviceCallTypeCustomPropertySetAttributeInfos;
     }
 
-    public static List<ServiceCallTypeCustomPropertySetInfo> from(List<RegisteredCustomPropertySet> registeredCustomPropertySets) {
-        List<ServiceCallTypeCustomPropertySetInfo> serviceCallTypeCustomPropertySetInfos = new ArrayList<>();
-        for (RegisteredCustomPropertySet registeredCustomPropertySet : registeredCustomPropertySets) {
-            serviceCallTypeCustomPropertySetInfos.add(new ServiceCallTypeCustomPropertySetInfo(registeredCustomPropertySet));
-        }
-        return serviceCallTypeCustomPropertySetInfos;
-    }
 }
-
