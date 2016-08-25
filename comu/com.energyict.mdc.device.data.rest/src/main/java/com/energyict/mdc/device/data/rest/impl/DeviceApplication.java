@@ -557,6 +557,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(calendarService).to(CalendarService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
+            bind(MeterActivationInfoFactory.class).to(MeterActivationInfoFactory.class);
         }
     }
 }

@@ -8,14 +8,13 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.search.SearchDomain;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -27,9 +26,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 10/13/14.
@@ -139,7 +148,7 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         }).when(endDeviceGroup).delete();
 
         Response response = target("/devicegroups/111").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(StatusCode.UNPROCESSABLE_ENTITY.getStatusCode());
     }
     
     @Test

@@ -83,7 +83,7 @@ public class DataLoggerSlaveDeviceInfo {
         info.yearOfCertification = device.getYearOfCertification();
         info.version = device.getVersion();
         info.fromExistingLink = true;
-        info.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
+        info.batch = device.getBatch().map(Batch::getName).orElse(null);
         info.linkingTimeStamp = topologyService.findDataloggerReference(device, clock.instant())
                 .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint().toEpochMilli())
                 .orElse(null);

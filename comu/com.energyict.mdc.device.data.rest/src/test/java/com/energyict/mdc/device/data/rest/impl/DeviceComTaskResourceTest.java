@@ -695,7 +695,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.comServer.id")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.comServer.name")).isEqualTo("com server");
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.comPort")).isEqualTo("com port");
-        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.status")).isEqualTo("Failure");
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.status")).isEqualTo("Failed");
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.result.id")).isEqualTo("Broken");
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comSession.result.displayValue")).isEqualTo("Broken");
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.result.retries")).isEqualTo(7);

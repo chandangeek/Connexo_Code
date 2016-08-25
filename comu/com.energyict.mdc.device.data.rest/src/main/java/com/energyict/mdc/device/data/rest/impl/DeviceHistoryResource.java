@@ -23,12 +23,15 @@ public class DeviceHistoryResource {
     private ResourceHelper resourceHelper;
     private DeviceLifeCycleHistoryInfoFactory deviceLifeCycleHistoryInfoFactory;
     private DeviceFirmwareHistoryInfoFactory deviceFirmwareHistoryInfoFactory;
+    private MeterActivationInfoFactory meterActivationInfoFactory;
 
     @Inject
-    public DeviceHistoryResource(ResourceHelper resourceHelper, DeviceLifeCycleHistoryInfoFactory deviceLifeCycleStatesHistoryInfoFactory, DeviceFirmwareHistoryInfoFactory deviceFirmwareHistoryInfoFactory) {
+    public DeviceHistoryResource(ResourceHelper resourceHelper, DeviceLifeCycleHistoryInfoFactory deviceLifeCycleStatesHistoryInfoFactory,
+                                 DeviceFirmwareHistoryInfoFactory deviceFirmwareHistoryInfoFactory, MeterActivationInfoFactory meterActivationInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceLifeCycleHistoryInfoFactory = deviceLifeCycleStatesHistoryInfoFactory;
         this.deviceFirmwareHistoryInfoFactory = deviceFirmwareHistoryInfoFactory;
+        this.meterActivationInfoFactory = meterActivationInfoFactory;
     }
 
     @GET
@@ -59,7 +62,7 @@ public class DeviceHistoryResource {
     public PagedInfoList getMeterActivationsHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<MeterActivationInfo> meterActivationInfoList = device.getMeterActivationsMostRecentFirst().stream()
-                .map(meterActivation -> new MeterActivationInfo(meterActivation, device))
+                .map(meterActivation -> meterActivationInfoFactory.asInfo(meterActivation, device))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("meterActivations", meterActivationInfoList, queryParameters);
     }

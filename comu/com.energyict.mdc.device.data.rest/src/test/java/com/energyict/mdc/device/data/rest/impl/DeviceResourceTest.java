@@ -41,6 +41,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
@@ -170,7 +171,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Finder<OpenIssue> issueFinder = mock(Finder.class);
         when(issueFinder.find()).thenReturn(Collections.emptyList());
         when(issueService.findOpenIssuesForDevice(any(String.class))).thenReturn(issueFinder);
-        when(batchService.findBatch(any(Device.class))).thenReturn(Optional.empty());
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.findDataLoggerChannelUsagesForChannels(any(Channel.class), any(Range.class))).thenReturn(Collections.emptyList());
@@ -1332,7 +1332,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device gateway = mockDeviceForTopologyTest("gateway");
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
-        when(batchService.findBatch(device)).thenReturn(Optional.empty());
+        when(device.getBatch()).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
         when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
@@ -1387,7 +1387,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(deviceConfigurationService.findTimeOfUseOptions(any())).thenReturn(Optional.empty());
 
-        when(batchService.findBatch(device)).thenReturn(Optional.empty());
+        when(device.getBatch()).thenReturn(Optional.empty());
         Device oldMaster = mock(Device.class);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMaster));
 
@@ -1428,7 +1428,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
-        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(dataLogger.getBatch()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
@@ -1519,7 +1519,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
-        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(dataLogger.getBatch()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty()); // Slave device will not be found
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
@@ -1575,7 +1575,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
-        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(dataLogger.getBatch()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
@@ -1612,7 +1612,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         // Simulating a mismatch between mdc-channels and pulse channels: e.g. pulse channel having the mdc-channels' readingtype does not exist
         verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(StatusCode.UNPROCESSABLE_ENTITY.getStatusCode());
         assertThat(response.hasEntity()).isTrue();
 
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -1734,7 +1734,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
-        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(dataLogger.getBatch()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty());
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
@@ -1797,7 +1797,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
-        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(dataLogger.getBatch()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty());
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
@@ -1845,7 +1845,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
-        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(dataLogger.getBatch()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty());
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
@@ -1918,7 +1918,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
-        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(dataLogger.getBatch()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
 
         DataLoggerSlaveRegisterInfo registerMappingForSlave1 = new DataLoggerSlaveRegisterInfo();
@@ -2014,7 +2014,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
-        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(dataLogger.getBatch()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
@@ -2106,7 +2106,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
-        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(dataLogger.getBatch()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
 
         DataLoggerSlaveRegisterInfo registerMappingForSlave1 = new DataLoggerSlaveRegisterInfo();
@@ -2142,7 +2142,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         // Simulating a mismatch between mdc-channels and pulse channels: e.g. pulse channel having the mdc-channels' readingtype does not exist
         verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(StatusCode.UNPROCESSABLE_ENTITY.getStatusCode());
         assertThat(response.hasEntity()).isTrue();
 
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -2177,7 +2177,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
-        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(dataLogger.getBatch()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty());
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
@@ -2237,7 +2237,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(batchService.findBatch(device)).thenReturn(Optional.empty());
+        when(device.getBatch()).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();
@@ -2261,7 +2261,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(batchService.findBatch(device)).thenReturn(Optional.empty());
+        when(device.getBatch()).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();
@@ -2309,6 +2309,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(dates.setReceivedDate(any(Instant.class))).thenReturn(dates);
+        when(device.getBatch()).thenReturn(Optional.empty());
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getStart()).thenReturn(shipmentDate);
         doReturn(Optional.of(meterActivation)).when(device).getCurrentMeterActivation();
@@ -2753,7 +2754,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(device.getDeviceType()).thenReturn(deviceType);
-        when(batchService.findBatch(device)).thenReturn(Optional.empty());
+        when(device.getBatch()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getStart()).thenReturn(shipmentDate);
@@ -2796,7 +2797,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(device.getDeviceType()).thenReturn(deviceType);
-        when(batchService.findBatch(device)).thenReturn(Optional.empty());
+        when(device.getBatch()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
@@ -2836,7 +2837,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(device.getDeviceType()).thenReturn(deviceType);
-        when(batchService.findBatch(device)).thenReturn(Optional.empty());
+        when(device.getBatch()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);

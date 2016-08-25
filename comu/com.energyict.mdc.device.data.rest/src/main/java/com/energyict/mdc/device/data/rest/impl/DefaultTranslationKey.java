@@ -19,7 +19,7 @@ public enum DefaultTranslationKey implements TranslationKey {
     DEFAULT("Default", "Default"),
     DEFAULT_NOT_DEFINED("DefaultNotDefined", "Default (not defined yet)"),
     INDIVIDUAL("Individual", "Individual"),
-    FAILURE("Failure", "Failure"),
+    FAILURE("Failure", "Failed"),
     INBOUND(ConnectionType.Direction.INBOUND.name(), "Inbound"),
     OUTBOUND(ConnectionType.Direction.OUTBOUND.name(), "Outbound"),
     COMPLETE("Complete", "Complete"),
