@@ -154,15 +154,15 @@ Ext.define('Bpm.controller.TaskBulk', {
                 if(loadBpmForm) me.loadJbpmForm(record);
             },
             failure: function (response, operation) {
-
-                record.beginEdit();
-                record.set('hasMandatory', true);
-                record.data.tasksForm = this.data;
-                if(loadBpmForm) record.mandatoryValidated = false;
-                record.endEdit();
-                //if(loadBpmForm) me.loadJbpmForm(record);
-
                 if (operation.response.status == 400) {
+                    record.beginEdit();
+                    record.set('hasMandatory', true);
+                    record.data.tasksForm = this.data;
+                    if (loadBpmForm) {
+                        record.mandatoryValidated = false;
+                    }
+                    record.endEdit();
+
                     var json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
                         propertyForm.getForm().markInvalid('');
@@ -424,9 +424,11 @@ Ext.define('Bpm.controller.TaskBulk', {
                 wizard.setLoading(false);
             },
             failure: function (response, operation) {
-                wizard.down('#tskbw-step5').setResultMessage(action, false, Ext.decode(response.responseText).total, Ext.decode(response.responseText).failed);
-                window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
-                wizard.setLoading(false);
+                if (operation.response.status === 400) {
+                    wizard.down('#tskbw-step5').setResultMessage(action, false, Ext.decode(response.responseText).total, Ext.decode(response.responseText).failed);
+                    window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                    wizard.setLoading(false);
+                }
             }
         });
     },

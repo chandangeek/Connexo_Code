@@ -306,12 +306,13 @@ Ext.define('Bpm.processes.controller.Processes', {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editProcess.successMsg.saved', 'BPM', 'Process saved'));
             },
             failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText, true);
-                if (json && json.errors) {
-                    editProcessForm.getForm().markInvalid(json.errors);
-
+                if (operation.response.status === 400) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        editProcessForm.getForm().markInvalid(json.errors);
+                    }
+                    formErrorsPanel.show();
                 }
-                formErrorsPanel.show();
             }
         })
     },
