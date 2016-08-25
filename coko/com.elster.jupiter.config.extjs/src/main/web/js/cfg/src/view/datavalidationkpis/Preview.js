@@ -9,10 +9,8 @@ Ext.define('Cfg.view.datavalidationkpis.Preview', {
 
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
+            xtype: 'uni-button-action',
             privileges: Cfg.privileges.Validation.admin,
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'cfg-data-validation-kpis-action-menu',
                 itemId: 'data-validation-kpis-preview-action-menu'

@@ -10,9 +10,7 @@ Ext.define('Cfg.view.validationtask.Preview', {
 
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             menu: {
                 xtype: 'cfg-validation-tasks-action-menu'
             }
