@@ -17,10 +17,8 @@ Ext.define('Usr.view.group.Details', {
 
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'USR', 'Actions'),
+            xtype: 'uni-button-action',
             privileges: Usr.privileges.Users.admin,
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'group-action-menu'
             }
