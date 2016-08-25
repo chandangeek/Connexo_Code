@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -79,7 +80,6 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.LongStream;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -911,11 +911,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         ReadingType readingType2 = READING_TYPE_2;
         when(registerType101.getId()).thenReturn(RM_ID_1);
         when(registerType101.getReadingType()).thenReturn(readingType1);
-        when(readingType1.getAliasName()).thenReturn("zzz");
+        when(readingType1.getFullAliasName()).thenReturn("zzz");
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);
         when(registerType102.getReadingType()).thenReturn(readingType2);
-        when(readingType2.getAliasName()).thenReturn("aaa");
+        when(readingType2.getFullAliasName()).thenReturn("aaa");
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101, registerType102));
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
 
@@ -1481,7 +1481,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         deviceTypeInfo.version = OK_VERSION;
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
         Response response = target("/devicetypes/31").request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(StatusCode.UNPROCESSABLE_ENTITY.getStatusCode());
     }
 
     @Test

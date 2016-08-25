@@ -8,6 +8,6 @@ public class RegisterTypeComparator implements Comparator<RegisterType> {
 
     @Override
     public int compare(RegisterType o1, RegisterType o2) {
-        return o1.getReadingType().getAliasName().compareToIgnoreCase(o2.getReadingType().getAliasName());
+        return o1.getReadingType().getFullAliasName().compareToIgnoreCase(o2.getReadingType().getFullAliasName());
     }
 }
