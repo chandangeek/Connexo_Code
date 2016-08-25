@@ -177,7 +177,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         store.clearFilter(true);
         store.filter('direction', 'Inbound');
         if(store.count() > 0 ) {
-            showInbound = false;
+            showInbound = true;
         }
         if(showOutbound && showInbound) {
             emptyOutboundButton && emptyOutboundButton.show();
