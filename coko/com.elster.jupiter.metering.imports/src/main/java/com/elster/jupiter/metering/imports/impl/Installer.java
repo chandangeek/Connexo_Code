@@ -34,6 +34,6 @@ final class Installer implements FullInstaller {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(UsagePointFileImporterMessageHandler.DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME).create();
+        destinationSpec.subscribe(UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME);
     }
 }
