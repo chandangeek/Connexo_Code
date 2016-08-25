@@ -106,7 +106,12 @@ Ext.define('Uni.property.view.property.Quantity', {
             possibleValues = me.getProperty().getPossibleValues();
 
         if (!Ext.isEmpty(value) && Ext.isString(value)) {
-            return value.replace(valueRegExp, '$1') + ' ' + Ext.Array.findBy(possibleValues, function (possibleValue) {return possibleValue.id === value.replace(unitRegExp, '0$1')}).displayValue;
+            var val = value.replace(valueRegExp, '$1'),
+                unit = Ext.Array.findBy(possibleValues, function (possibleValue) {
+                    return possibleValue.id === value.replace(unitRegExp, '0$1')
+                });
+
+            return val + ' ' + unit ? unit.displayValue : '';
         } else {
             return '-';
         }
