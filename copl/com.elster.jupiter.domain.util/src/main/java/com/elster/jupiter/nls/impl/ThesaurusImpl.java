@@ -170,7 +170,7 @@ class ThesaurusImpl implements IThesaurus {
     private NlsString nlsStringFor(MessageSeed seed) {
         String key = seed.getKey();
         String defaultFormat = seed.getDefaultFormat();
-        return NlsString.from(this, getComponent(), key, defaultFormat);
+        return NlsString.from(this, seed.getModule(), key, defaultFormat);
     }
 
     private NlsString nlsStringFor(TranslationKey translationKey) {
