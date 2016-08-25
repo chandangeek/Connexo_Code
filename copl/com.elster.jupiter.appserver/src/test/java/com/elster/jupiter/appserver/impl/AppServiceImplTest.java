@@ -115,8 +115,6 @@ public class AppServiceImplTest {
     @Mock
     private SubscriberSpec subscriberSpec;
     @Mock
-    private SubscriberSpec.Receiver receiver;
-    @Mock
     private TransactionService transactionService;
     @Mock
     private UserService userService;
@@ -182,7 +180,6 @@ public class AppServiceImplTest {
         when(importTask1.getImportSchedule()).thenReturn(Optional.of(schedule1));
         when(importTask2.getImportSchedule()).thenReturn(Optional.of(schedule2));
         when(subscriberSpec.getDestination()).thenReturn(destination);
-        when(subscriberSpec.newReceiver()).thenReturn(receiver);
         when(destination.message(anyString())).thenReturn(messageBuilder);
         when(nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
@@ -213,7 +210,7 @@ public class AppServiceImplTest {
 
     private void setupBlockingCancellableSubscriberSpec() throws SQLException {
         final CountDownLatch cancelLatch = new CountDownLatch(1);
-        when(receiver.receive()).thenAnswer(new Answer<Message>() {
+        when(subscriberSpec.receive()).thenAnswer(new Answer<Message>() {
             @Override
             public Message answer(InvocationOnMock invocationOnMock) throws Throwable {
                 arrivalLatch.countDown();
@@ -227,7 +224,7 @@ public class AppServiceImplTest {
                 cancelLatch.countDown();
                 return null;
             }
-        }).when(receiver).cancel();
+        }).when(subscriberSpec).cancel();
 
     }
 
@@ -247,9 +244,9 @@ public class AppServiceImplTest {
 
             arrivalLatch.await(); // wait until receive() blocks
 
-            verify(receiver).receive();
+            verify(subscriberSpec).receive();
         } finally {
-            receiver.cancel(); // unblock the receive();
+            subscriberSpec.cancel(); // unblock the receive();
         }
     }
 
@@ -266,9 +263,9 @@ public class AppServiceImplTest {
 
             appService.deactivate();
 
-            verify(receiver).cancel();
+            verify(subscriberSpec).cancel();
         } finally {
-            receiver.cancel(); // unblock the receive();
+            subscriberSpec.cancel(); // unblock the receive();
         }
     }
 
@@ -283,9 +280,9 @@ public class AppServiceImplTest {
 
             arrivalLatch.await(); // wait until receive() blocks
 
-            verify(receiver).receive();
+            verify(subscriberSpec).receive();
         } finally {
-            receiver.cancel(); // unblock the receive();
+            subscriberSpec.cancel(); // unblock the receive();
         }
     }
 
@@ -305,7 +302,7 @@ public class AppServiceImplTest {
 
             verify(appServer, times(1)).launchWebServices();
         } finally {
-            receiver.cancel(); // unblock the receive();
+            subscriberSpec.cancel(); // unblock the receive();
         }
     }
 
@@ -326,7 +323,7 @@ public class AppServiceImplTest {
 
             verify(webServicesService, never()).publishEndPoint(anyObject());
         } finally {
-            receiver.cancel(); // unblock the receive();
+            subscriberSpec.cancel(); // unblock the receive();
         }
     }
 
@@ -343,9 +340,9 @@ public class AppServiceImplTest {
 
             appService.deactivate();
 
-            verify(receiver).cancel();
+            verify(subscriberSpec).cancel();
         } finally {
-            receiver.cancel(); // unblock the receive();
+            subscriberSpec.cancel(); // unblock the receive();
         }
     }
 
@@ -449,7 +446,7 @@ public class AppServiceImplTest {
             verify(mainBundle).stop();
 
         } finally {
-            receiver.cancel(); // unblock the receive();
+            subscriberSpec.cancel(); // unblock the receive();
             Thread.interrupted(); // make sure to clear the interrupted flag
         }
     }
@@ -465,7 +462,7 @@ public class AppServiceImplTest {
         AppServerCommand appServerCommand = new AppServerCommand(Command.STOP);
         when(jsonService.deserialize(SERIALIZED.getBytes(), AppServerCommand.class)).thenReturn(appServerCommand);
 
-        doReturn(message).doReturn(null).when(receiver).receive();
+        doReturn(message).doReturn(null).when(subscriberSpec).receive();
 
         Bundle mainBundle = mock(Bundle.class);
         when(context.getBundle(0)).thenReturn(mainBundle);
@@ -485,9 +482,9 @@ public class AppServiceImplTest {
 
             verify(mainBundle).stop();
 
-            verify(receiver).receive();
+            verify(subscriberSpec).receive();
         } finally {
-            receiver.cancel(); // unblock the receive();
+            subscriberSpec.cancel(); // unblock the receive();
             Thread.interrupted(); // clear interrupted flag
         }
     }
@@ -512,7 +509,7 @@ public class AppServiceImplTest {
                 arrivalLatch.countDown();
                 return null;
             }
-        }).when(receiver).receive();
+        }).when(subscriberSpec).receive();
 
         try {
             appService.activate(context);
@@ -522,7 +519,7 @@ public class AppServiceImplTest {
             verify(ormService).invalidateCache(COMPONENT_NAME, TABLE_NAME);
 
         } finally {
-            receiver.cancel(); // unblock the receive();
+            subscriberSpec.cancel(); // unblock the receive();
         }
     }
 
@@ -546,7 +543,7 @@ public class AppServiceImplTest {
                 arrivalLatch.countDown();
                 return null;
             }
-        }).when(receiver).receive();
+        }).when(subscriberSpec).receive();
 
         try {
             appService.activate(context);
@@ -556,7 +553,7 @@ public class AppServiceImplTest {
             verify(fileImportService).schedule(schedule1);
 
         } finally {
-            receiver.cancel(); // unblock the receive();
+            subscriberSpec.cancel(); // unblock the receive();
         }
     }
 

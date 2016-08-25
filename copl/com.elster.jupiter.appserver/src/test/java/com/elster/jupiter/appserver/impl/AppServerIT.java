@@ -205,7 +205,7 @@ public class AppServerIT {
 
         MessageService messageService = injector.getInstance(MessageService.class);
         DestinationSpec destinationSpec = messageService.getDestinationSpec(((AppServerImpl) appServer).messagingName()).get();
-        Message message = destinationSpec.getSubscribers().get(0).newReceiver().receive();
+        Message message = destinationSpec.getSubscribers().get(0).receive();
         AppServerCommand command = injector.getInstance(JsonService.class).deserialize(message.getPayload(), AppServerCommand.class);
         assertThat(command.getCommand()).isEqualTo(Command.CONFIG_CHANGED);
     }
@@ -255,13 +255,12 @@ public class AppServerIT {
 
         DestinationSpec destinationSpec = messageService.getDestinationSpec(((AppServerImpl) appServer).messagingName()).get();
         SubscriberSpec subscriberSpec = destinationSpec.getSubscribers().get(0);
-        SubscriberSpec.Receiver receiver = subscriberSpec.newReceiver();
-        Message message = receiver.receive();
+        Message message = subscriberSpec.receive();
         AppServerCommand command = jsonService.deserialize(message.getPayload(), AppServerCommand.class);
         assertThat(command.getCommand()).isEqualTo(Command.CONFIG_CHANGED);
-        Expects.expect(receiver::receive)
+        Expects.expect(subscriberSpec::receive)
                 .toTimeOutAfter(50, TimeUnit.MILLISECONDS)
-                .andCancelWith(receiver::cancel);
+                .andCancelWith(subscriberSpec::cancel);
     }
 
     @Test
@@ -326,13 +325,12 @@ public class AppServerIT {
 
         DestinationSpec destinationSpec = messageService.getDestinationSpec(((AppServerImpl) appServer).messagingName()).get();
         SubscriberSpec subscriberSpec = destinationSpec.getSubscribers().get(0);
-        SubscriberSpec.Receiver receiver = subscriberSpec.newReceiver();
-        Message message = receiver.receive();
+        Message message = subscriberSpec.receive();
         AppServerCommand command = jsonService.deserialize(message.getPayload(), AppServerCommand.class);
         assertThat(command.getCommand()).isEqualTo(Command.CONFIG_CHANGED);
-        Expects.expect(receiver::receive)
+        Expects.expect(subscriberSpec::receive)
                 .toTimeOutAfter(50, TimeUnit.MILLISECONDS)
-                .andCancelWith(receiver::cancel);
+                .andCancelWith(subscriberSpec::cancel);
     }
 
 
@@ -439,13 +437,12 @@ public class AppServerIT {
 
         DestinationSpec destinationSpec = messageService.getDestinationSpec(((AppServerImpl) appServer).messagingName()).get();
         SubscriberSpec subscriberSpec = destinationSpec.getSubscribers().get(0);
-        SubscriberSpec.Receiver receiver = subscriberSpec.newReceiver();
-        Message message = receiver.receive();
+        Message message = subscriberSpec.receive();
         AppServerCommand command = jsonService.deserialize(message.getPayload(), AppServerCommand.class);
         assertThat(command.getCommand()).isEqualTo(Command.CONFIG_CHANGED);
-        Expects.expect(receiver::receive)
+        Expects.expect(subscriberSpec::receive)
                 .toTimeOutAfter(50, TimeUnit.MILLISECONDS)
-                .andCancelWith(receiver::cancel);
+                .andCancelWith(subscriberSpec::cancel);
 
         // Ok then now for the update we'll remove the first subscriberExecutionSpec and the first importScheduleOnAppServer
         // we'll also change the second subscriberExecutionSpec's threadCount and the second importScheduleOnAppServer's
@@ -493,13 +490,12 @@ public class AppServerIT {
 
         destinationSpec = messageService.getDestinationSpec(((AppServerImpl) appServer).messagingName()).get();
         subscriberSpec = destinationSpec.getSubscribers().get(0);
-        receiver = subscriberSpec.newReceiver();
-        message = receiver.receive();
+        message = subscriberSpec.receive();
         command = jsonService.deserialize(message.getPayload(), AppServerCommand.class);
         assertThat(command.getCommand()).isEqualTo(Command.CONFIG_CHANGED);
-        Expects.expect(receiver::receive)
+        Expects.expect(subscriberSpec::receive)
                 .toTimeOutAfter(50, TimeUnit.MILLISECONDS)
-                .andCancelWith(receiver::cancel);
+                .andCancelWith(subscriberSpec::cancel);
 
     }
 
