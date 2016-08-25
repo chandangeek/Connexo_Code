@@ -657,10 +657,12 @@ Ext.define('Cfg.controller.Tasks', {
                 }
             },
             failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText, true);
-                if (json && json.errors) {
-                    form.getForm().markInvalid(json.errors);
-                    formErrorsPanel.show();
+                if (operation.response.status == 400) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        form.getForm().markInvalid(json.errors);
+                        formErrorsPanel.show();
+                    }
                 }
             }
         })
