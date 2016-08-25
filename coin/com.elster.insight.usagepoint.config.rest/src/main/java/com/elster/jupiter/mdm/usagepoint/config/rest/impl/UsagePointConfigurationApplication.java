@@ -7,6 +7,7 @@ import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFacto
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -15,6 +16,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.PropertyUtils;
@@ -68,7 +70,7 @@ public class UsagePointConfigurationApplication extends Application implements T
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST).join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
+        this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Override
@@ -152,7 +154,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(ReadingTypeDeliverableFactory.class).to(ReadingTypeDeliverableFactory.class);
-            bind(meteringService).to(MeteringService.class);
+//            bind(meteringService).to(MeteringService.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
         }
