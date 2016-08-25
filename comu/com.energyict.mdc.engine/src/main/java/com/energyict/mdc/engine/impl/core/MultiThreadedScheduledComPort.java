@@ -50,9 +50,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     @Override
     protected void setThreadPrinciple() {
         Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        if (user.isPresent()) {
-            getServiceProvider().threadPrincipalService().set(user.get(), "MultiThreadedComPortRunner", "Executing", Locale.ENGLISH);
-        }
+        user.ifPresent(u -> getServiceProvider().threadPrincipalService().set(user.get(), "MultiThreadedComPortRunner", "Executing", user.get().getLocale().orElse(Locale.ENGLISH)));
     }
 
     @Override

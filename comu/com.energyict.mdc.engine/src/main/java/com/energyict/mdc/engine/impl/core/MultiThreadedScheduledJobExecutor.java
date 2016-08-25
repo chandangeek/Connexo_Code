@@ -58,7 +58,7 @@ public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor impl
 
     private void setThreadPrinciple() {
         Optional<User> user = userService.findUser(EngineServiceImpl.COMSERVER_USER);
-        user.ifPresent(u -> threadPrincipalService.set(u, "MultiThreadedComPort", "Executing", Locale.ENGLISH));
+        user.ifPresent(u -> threadPrincipalService.set(u, "MultiThreadedComPort", "Executing", user.get().getLocale().orElse(Locale.ENGLISH)));
     }
 
 }
