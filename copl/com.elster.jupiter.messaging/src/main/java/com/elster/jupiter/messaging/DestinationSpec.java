@@ -16,8 +16,6 @@ import java.util.List;
 @ProviderType
 public interface DestinationSpec extends HasName {
 
-    long getVersion();
-
     /**
      * @return the QueueTableSpec in which this Destination is defined.
      */
@@ -71,14 +69,20 @@ public interface DestinationSpec extends HasName {
     List<SubscriberSpec> getSubscribers();
 
     /**
-     * Starts the creation of a new subscriber with the given name.
+     * Create a new subscriber with the given name and worker count.
      *
-     * @param name The name of the subscriber that will be built
-     * @return The SubscriberSpecBuilder
-     * @since 2.0
+     * @param name
+     * @return
      */
     @TransactionRequired
-    SubscriberSpecBuilder subscribe(String name);
+    SubscriberSpec subscribe(String name);
+
+    SubscriberSpec subscribe(String name, Condition filter);
+
+
+    SubscriberSpec subscribeSystemManaged(String name);
+
+    void save();
 
     boolean isBuffered();
 
@@ -86,16 +90,19 @@ public interface DestinationSpec extends HasName {
      * Unsubscribes the subscriber with the passed name
      *
      * @param subscriberSpecName the name of the subscriber
-     * @since 1.1
+     * @since 2.0
      */
     @TransactionRequired
     void unSubscribe(String subscriberSpecName);
 
+    /**
+     * since 2.0
+     */
+    void delete();
+
     long numberOfMessages();
 
     int numberOfRetries();
-
-    long errorCount();
 
     Duration retryDelay();
 
@@ -105,26 +112,11 @@ public interface DestinationSpec extends HasName {
 
     void purgeCorrelationId(String correlationId);
 
+    long errorCount();
+
     static Where whereCorrelationId() {
         return Where.where("corrid");
     }
 
-    void save();
-
-    /**
-     * @since 1.1
-     */
-    void delete();
-
-    @ProviderType
-    interface SubscriberSpecBuilder {
-        SubscriberSpecBuilder with(Condition filter);
-        SubscriberSpecBuilder with(DequeueOptions dequeueOptions);
-        default SubscriberSpecBuilder systemManaged() {
-            return this.systemManaged(true);
-        }
-        SubscriberSpecBuilder systemManaged(boolean flag);
-        SubscriberSpec create();
-    }
-
+    long getVersion();
 }
