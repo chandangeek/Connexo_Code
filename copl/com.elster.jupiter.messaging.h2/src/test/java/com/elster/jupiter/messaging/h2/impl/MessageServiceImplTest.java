@@ -4,18 +4,16 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
-
 import oracle.jdbc.OracleConnection;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -98,7 +96,7 @@ public class MessageServiceImplTest {
         queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", true);
         destination = queueTableSpec.createDestinationSpec(DESTINATION, 0);
         destination.activate();
-        subscriberSpec = destination.subscribe(SUBSCRIBER).create();
+        subscriberSpec = destination.subscribe(SUBSCRIBER);
 
         assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER).get()).isEqualTo(subscriberSpec);
     }
