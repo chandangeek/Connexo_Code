@@ -1,5 +1,7 @@
 package com.elster.jupiter.properties;
 
+import com.elster.jupiter.util.exception.MessageSeed;
+
 public class InvalidValueException extends Exception {
 
     private static final long serialVersionUID = 1L;
@@ -12,6 +14,10 @@ public class InvalidValueException extends Exception {
         this.messageId = messageId;
         this.defaultPattern = defaultPattern;
         this.arguments = arguments;
+    }
+
+    public InvalidValueException(MessageSeed messageSeed, String propertyName, Object value) {
+        this(messageSeed.getKey(), messageSeed.getDefaultFormat(), new Object[] { propertyName, value });
     }
 
     public InvalidValueException(String messageId, String defaultPattern, String propertyName) {
