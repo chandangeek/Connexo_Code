@@ -27,7 +27,7 @@ Ext.define('Imt.servicecategories.view.Setup', {
                     emptyComponent: {
                         xtype: 'uni-form-empty-message',
                         itemId: 'no-service-categories-found-panel',
-                        text: Uni.I18n.translate('serviceCategories.empty.list.item1', 'IMT', 'No service categories defined yet.')
+                        text: Uni.I18n.translate('serviceCategories.empty.list.item', 'IMT', 'No service categories defined yet.')
                     },
                     previewComponent: {
                         xtype: 'container',

@@ -229,7 +229,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                     metersContainer.add({
                         xtype: 'displayfield',
                         labelWidth: 120,
-                        fieldLabel: Uni.I18n.translate('general.label.meters', 'IMT', '{0} meters', count),
+                        fieldLabel: Uni.I18n.translate('general.label.countedMeters', 'IMT', '{0} meters', count),
                         value: '-'
                     });
                 } else if (!count) {

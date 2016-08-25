@@ -20,12 +20,12 @@ Ext.define('Imt.purpose.view.ReadingsList', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
+                header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval',
                 renderer: function (interval) {
                     return  interval.end
                         ? Uni.I18n.translate(
-                        'general.dateAtTime', 'MDC', '{0} at {1}',
+                        'general.dateAtTime', 'IMT', '{0} at {1}',
                         [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))] )
                         : '';
                 },
@@ -33,8 +33,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             },
             {
                 header: unit
-                    ? Uni.I18n.translate('general.value', 'MDM', 'Value ({0})', [unit])
-                    : Uni.I18n.translate('general.value.empty', 'MDC', 'Value'),
+                    ? Uni.I18n.translate('general.valueOf', 'IMT', 'Value ({0})', [unit])
+                    : Uni.I18n.translate('general.value.empty', 'IMT', 'Value'),
                 flex: 2,
                 renderer: function (v) {
                     return Ext.isEmpty(v) ? '-' : v;
