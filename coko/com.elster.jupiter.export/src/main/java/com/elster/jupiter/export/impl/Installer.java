@@ -78,6 +78,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 logger
         );
         userService.addModulePrivileges(this);
+
     }
 
     @Override
@@ -98,6 +99,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
         return resources;
     }
 
+
     private void createRelativePeriodCategory() {
         timeService.createRelativePeriodCategory(RELATIVE_PERIOD_CATEGORY);
         timeService.createRelativePeriodCategory(RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY);
@@ -109,7 +111,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
         destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(SUBSCRIBER_NAME).create();
+        destinationSpec.subscribe(SUBSCRIBER_NAME);
     }
 
     private RelativePeriodCategory getCategory(String name) {
@@ -117,26 +119,27 @@ class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private void createRelativePeriods() {
-        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, TODAY, YESTERDAY)
+        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, TODAY, YESTERDAY).stream()
                 .forEach(definition -> {
                     RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
                             .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_CATEGORY));
                 });
 
-        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, YESTERDAY)
+        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, YESTERDAY).stream()
                 .forEach(definition -> {
                     RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
                             .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY));
                 });
 
-        EnumSet.of(THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY)
+        EnumSet.of(THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY).stream()
                 .forEach(definition -> {
                     RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
                             .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY));
                 });
-    }
 
+
+    }
 }
