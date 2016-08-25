@@ -110,14 +110,14 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                     } else {
                         addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, getServiceProvider().thesaurus(), MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ProtocolError);
                     }
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice());
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
 
                 } catch (DataParseException e) {
                     addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, getServiceProvider().thesaurus(), MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ProtocolError);
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice());
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
                 } catch (DeviceConfigurationException | CanNotFindForIdentifier | DuplicateException e) {
                     addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, getServiceProvider().thesaurus(), MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ConfigurationError);
-                    executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice());
+                    executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
 
                 } catch (LegacyProtocolException e) {
                     if (isExceptionCausedByALegacyTimeout(e)) {
@@ -126,7 +126,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                         addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, getServiceProvider().thesaurus(), MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e, getCommunicationLogLevel(executionContext))), CompletionCode.UnexpectedError);
                     }
                     getGroupedDeviceCommand().skipOtherComTaskExecutions();
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice());
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
                 } finally {
                     if (success) {
                         this.basicComCommandBehavior.setExecutionState(BasicComCommandBehavior.ExecutionState.SUCCESSFULLY_EXECUTED);

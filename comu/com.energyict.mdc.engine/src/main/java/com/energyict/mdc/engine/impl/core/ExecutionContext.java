@@ -457,7 +457,7 @@ public final class ExecutionContext implements JournalEntryFactory {
      * @param comTaskExecution The ComTaskExecution
      */
     public void comTaskExecutionFailed(ComTaskExecution comTaskExecution) {
-        connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), comTaskExecution.getComTasks().get(0).getName(), comTaskExecution.getDevice());
+        connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), comTaskExecution.getComTasks().get(0).getName(), comTaskExecution.getDevice().getmRID());
         publish(new ComTaskExecutionFailureEvent(new ComServerEventServiceProvider(), comTaskExecution, getComPort(), getConnectionTask()));
         failWithProblems();
     }

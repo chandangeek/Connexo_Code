@@ -62,14 +62,14 @@ public class CompositeComPortConnectionLogger implements ComPortConnectionLogger
     }
 
     @Override
-    public void taskExecutionFailed(Throwable e, String comPortThreadName, String comTaskName, Device device) {
+    public void taskExecutionFailed(Throwable e, String comPortThreadName, String comTaskName, String device) {
         for (ComPortConnectionLogger logger : this.loggers) {
             logger.taskExecutionFailed(e, comPortThreadName, comTaskName, device);
         }
     }
 
     @Override
-    public void taskExecutionFailedDueToProblems(String comPortThreadName, String comTaskName, Device device) {
+    public void taskExecutionFailedDueToProblems(String comPortThreadName, String comTaskName, String device) {
         for (ComPortConnectionLogger logger : this.loggers) {
             logger.taskExecutionFailedDueToProblems(comPortThreadName, comTaskName, device);
         }

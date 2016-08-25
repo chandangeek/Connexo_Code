@@ -58,7 +58,7 @@ public class CommandRootImpl implements CommandRoot {
                     groupedDeviceCommand.perform(executionContext);
                 } catch (Throwable e) {
                     // we really should not get here, log stuff and continue with the others
-                    executionContext.connectionLogger.taskExecutionFailed(e, getCurrentThreadName(), getComTasksDescription(), executionContext.getComTaskExecution().getDevice());
+                    executionContext.connectionLogger.taskExecutionFailed(e, getCurrentThreadName(), getComTasksDescription(), executionContext.getComTaskExecution().getDevice().getmRID());
                 }
             }
         }

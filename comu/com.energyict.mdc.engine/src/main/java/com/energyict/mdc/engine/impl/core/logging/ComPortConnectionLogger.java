@@ -67,7 +67,7 @@ public interface ComPortConnectionLogger {
      * @param comTaskName       The name of the {@link com.energyict.mdc.tasks.ComTask} whose execution failed
      */
     @Configuration(format = "The execution of task ''{1}'' for device ''{2}'' by ''{0}'' failed, see related reported problems", logLevel = LogLevel.ERROR)
-    public void taskExecutionFailedDueToProblems(String comPortThreadName, String comTaskName, Device device);
+    public void taskExecutionFailedDueToProblems(String comPortThreadName, String comTaskName, String device);
 
 
     /**
@@ -90,7 +90,7 @@ public interface ComPortConnectionLogger {
      * @param comTaskName       The name of the {@link com.energyict.mdc.tasks.ComTask} whose execution failed
      */
     @Configuration(format = "The execution of task ''{1}'' for device ''{2}'' by ''{0}'' failed, see stacktrace below", logLevel = LogLevel.ERROR)
-    public void taskExecutionFailed(Throwable e, String comPortThreadName, String comTaskName, Device device);
+    public void taskExecutionFailed(Throwable e, String comPortThreadName, String comTaskName, String device);
 
 
     /**
