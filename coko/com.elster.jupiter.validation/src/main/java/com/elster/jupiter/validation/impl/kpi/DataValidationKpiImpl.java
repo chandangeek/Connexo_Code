@@ -235,7 +235,10 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     @Override
     public void dropDataValidationKpi() {
         this.dataModel.remove(this);
-        this.dataValidationKpiTask.getOptional().ifPresent(RecurrentTask::delete);
+        this.dataValidationKpiTask.getOptional().ifPresent(task -> {
+            task.suspend();
+            task.delete();
+        });
         this.childrenKpis.forEach(DataValidationKpiChild::remove);
     }
 
