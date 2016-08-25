@@ -21,17 +21,19 @@ public class InboundSimulator {
 //    public static final String gbt2 = "0001000100660092e08000020000818adb0853414767755d4d1382018d30000069241fbdbf6ca84d9ddaca53e5f51802f28b7dabbe87ed1cd51ae727edbc0a0c9951615462e70329f991c559192d05cd3754490ca19bdb3150db3cb2486bdc5d6a1ee4687ecad19130904b9aa47d8d68a4a411e8005c11ee1981f3d5b89d1c1498b4e49fe4ad15c2d247d56ec8e544501030b413a74f89787c3c"; //gbt frame 2
     public static final String gbt1 = "00010001006600e2e0000001000081dadb0853414767755d4d138201ab3000006b93003b1f587f3ef56e725631c1ca6817e0ddea4a6e215b36801304692f0c62983cf88cca6968f5c2536df60dcc361b3a0e87644bbca75cebce258c0756157cf7200a0ec64e738a3cd46387373109b06d142812c3dbc16a4cf0e147a9c1afe5312c04fa4254821929cfa30bba0c531022306aa04ff4bec70b6f49d38935275a6527a7678b5257c4a1018ebe9e59d995b4320e9994b106b28a40bc6d933403a20b34ecd53c15cd7f865048d8b250b99968c129512b0dbf051a2ed04a517fe66eea4ccbec399fc7d469cd"; //gbt frame 1
     public static final String gbt2 = "00010001006600cee0800002000081c6db0853414767755d4d138201ab3000006b93003b1f587f3ef56e725631c1ca6817e0ddea4a6e215b36801304692f0c62983cf88cca6968f5c2536df60dcc361b3a0e87644bbca75cebce258c0756157cf7200a0ec64e738a3cd46387373109b06d142812c3dbc16a4cf0e147a9c1afe5312c04fa4254821929cfa30bba0c531022306aa04ff4bec70b6f49d38935275a6527a7678b5257c4a1018ebe9e59d995b4320e9994b106b28a40bc6d933403a20b34ecd53c15cd7f865048d8b250b99968c129512b0d"; //gbt frame 2
+    public static final String interval2 = "00010001006601a9db0853414767755d4d1382019c3000009e4a69bbc31a3640deca2f0412b3ed72fbb9a5a3ebc2ad1b7ba46214261a1969e63af32b1b68c09e6e8d4065556158f2364ae1472faac20bb40474f3ccd40988679b8a1a70f7d36ef4cca697cac3adf07cc565c5b9bdbf1006fc2a725187a8532be99ac7e223aa83da6a8c87e3115d8fe537ac4807e82323b5eb734e91099ae953d9cd43b8d7f3fe70cb38e3c53cfc673f2dfb4c50bcfc5aa86da1498c716cff6307579bcc68217fc7b168c52f81a540df5b65c3bbef99245d40dfe1d393e3206d3c726e8a1980ec7908bd0faaf9dd1d051bcf8bb67764889f5efb3c8c0ae4f64f375ca72d59204d17c3dc40d0011b50aa88139cda706f92ac740111efb383b8a7bb05c52e598d0da7282613d2f92f6855dbc109c9de7e6bace712e308dc97042e150185b8ccd18c8dc1a1cd8a635c0aeb040681d551326ebcb7122938c4cb319d40b3f6e98ae19c263b4d5b434705cbe76cf16aedf95f3afd3c001ee76cd6e65a62148ce4d17fe3ff49ac68bf8c4572661c9774adc11a13e7324c9c6f2875581986d682ff03c83edb9ce79cc9077b19e71db60066dd366a33"; //gbt frame 2
     public static final String hostNameOfComserver = "localhost";
     public static final int portNumberOfComserver = 4060;
 
     public static void main(String[] args) throws Exception {
 
 //            simulatePushData(hostNameOfComserver, portNumberOfComserver, interval1);
+        simulatePushData(hostNameOfComserver, portNumberOfComserver, interval2);
 //            simulatePushData(hostNameOfComserver, portNumberOfComserver, pushOnConectivity);
 //            simulatePushData(hostNameOfComserver, portNumberOfComserver, pushOnInstallation);
 //            simulatePushData(hostNameOfComserver, portNumberOfComserver, pushOnAlarm);
 //            simulatePushData(hostNameOfComserver, portNumberOfComserver, tag48);
-            InboundSimulator.simulateGBT(hostNameOfComserver, portNumberOfComserver, gbt1, gbt2);
+//            InboundSimulator.simulateGBT(hostNameOfComserver, portNumberOfComserver, gbt1, gbt2);
 
         }
 

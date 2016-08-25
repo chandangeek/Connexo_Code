@@ -215,8 +215,8 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         for(int i = 2; i <= pushObjectList.size() - 1; i++){
             ObisCode obisCode = pushObjectList.get(i).getObisCode();
             DataContainer dataContainer = new DataContainer();
-            dataContainer.parseObjectList(structure.getNextDataType().getContentByteArray(), Logger.getLogger(this.getClass().getName()));
-            collectedLogBook.addCollectedMeterEvents(parseEvents(dataContainer, obisCode));
+            dataContainer.parseObjectList(structure.getNextDataType().getBEREncodedByteArray(), Logger.getLogger(this.getClass().getName()));
+            getCollectedLogBook().addCollectedMeterEvents(parseEvents(dataContainer, obisCode));
         }
     }
 
