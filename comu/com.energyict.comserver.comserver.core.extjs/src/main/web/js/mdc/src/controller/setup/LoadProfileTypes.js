@@ -441,16 +441,18 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 window.location.href = backUrl;
             },
             failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText, true);
-                if (json && json.errors) {
-                    Ext.Array.each(json.errors, function (item) {
-                        if (item.id.indexOf("interval") !== -1) {
-                            me.getEditPage().down('#timeDuration').setActiveError(item.msg);
-                        }
-                    });
-                    basicForm.markInvalid(json.errors);
-                    me.registerTypesIsValid(json.errors);
-                    formErrorsPanel.show();
+                if (operation.response.status === 400) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id.indexOf("interval") !== -1) {
+                                me.getEditPage().down('#timeDuration').setActiveError(item.msg);
+                            }
+                        });
+                        basicForm.markInvalid(json.errors);
+                        me.registerTypesIsValid(json.errors);
+                        formErrorsPanel.show();
+                    }
                 }
             },
             callback: function () {
