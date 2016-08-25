@@ -45,7 +45,7 @@ class Installer implements FullInstaller {
     }
 
     private SubscriberSpec getSubscriberSpec() {
-        return getDestination().getSubscribers().stream().findFirst().orElseGet(() -> getDestination().subscribe(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST).create());
+        return getDestination().getSubscribers().stream().findFirst().orElseGet(() -> getDestination().subscribe(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST));
     }
 
     private void createTask() {
