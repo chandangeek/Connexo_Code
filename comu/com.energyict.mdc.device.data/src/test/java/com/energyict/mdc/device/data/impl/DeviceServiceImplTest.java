@@ -70,13 +70,8 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
     private final BigDecimal overflowValue = BigDecimal.valueOf(1234567);
 
     private ReadingType forwardBulkSecondaryEnergyReadingType;
-    private ReadingType forwardDeltaSecondaryEnergyReadingType;
-    private ReadingType forwardBulkPrimaryEnergyReadingType;
     private ReadingType forwardDeltaPrimaryMonthlyEnergyReadingType;
     private ReadingType reverseBulkSecondaryEnergyReadingType;
-    private ReadingType reverseBulkPrimaryEnergyReadingType;
-    private String averageForwardEnergyReadingTypeMRID;
-    private ObisCode averageForwardEnergyObisCode;
     private ObisCode forwardEnergyObisCode;
     private ObisCode reverseEnergyObisCode;
 
@@ -128,10 +123,10 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
     private void setupReadingTypes() {
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().code();
         this.forwardBulkSecondaryEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        this.forwardDeltaSecondaryEnergyReadingType = inMemoryPersistence.getMeteringService()
+        inMemoryPersistence.getMeteringService()
                 .getReadingType(getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().accumulate(Accumulation.DELTADELTA).code())
                 .get();
-        this.forwardBulkPrimaryEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(getForwardBulkPrimaryEnergyReadingType().code()).get();
+        inMemoryPersistence.getMeteringService().getReadingType(getForwardBulkPrimaryEnergyReadingType().code()).get();
         this.forwardDeltaPrimaryMonthlyEnergyReadingType = inMemoryPersistence.getMeteringService()
                 .getReadingType(getForwardDeltaPrimaryMonthlyEnergyReadingType().period(MacroPeriod.MONTHLY).code())
                 .get();
@@ -144,16 +139,16 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
                 .flow(FlowDirection.REVERSE)
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
-        this.reverseBulkPrimaryEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(reverseBulkPrimaryCode).get();
+        inMemoryPersistence.getMeteringService().getReadingType(reverseBulkPrimaryCode).get();
         this.reverseEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(reverseBulkSecondaryEnergyReadingType).getObisCode();
-        this.averageForwardEnergyReadingTypeMRID = ReadingTypeCodeBuilder
+        String averageForwardEnergyReadingTypeMRID = ReadingTypeCodeBuilder
                 .of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .accumulate(Accumulation.BULKQUANTITY)
                 .aggregate(Aggregate.AVERAGE).period(MacroPeriod.DAILY)
                 .flow(FlowDirection.FORWARD)
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
-        this.averageForwardEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(this.averageForwardEnergyReadingTypeMRID).getObisCode();
+        inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(averageForwardEnergyReadingTypeMRID).getObisCode();
     }
 
 
@@ -622,29 +617,11 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         DeviceServiceImpl service = new DeviceServiceImpl(inMemoryPersistence.getDeviceDataModelService(), meteringService, mock(QueryService.class), mock(Thesaurus.class), inMemoryPersistence.getClock());
 
         // Business method
-        MultiplierType defaultMultiplierType = service.findOrCreateDefaultMultiplierType();
+        MultiplierType defaultMultiplierType = service.findDefaultMultiplierType();
 
         // Asserts
         verify(meteringService).getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
         verify(meteringService, never()).createMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
-        assertThat(defaultMultiplierType).isNotNull();
-    }
-
-    @Test
-    @Transactional
-    public void findMultiplierTypeWhenNotCreatedYet() {
-        MeteringService meteringService = mock(MeteringService.class);
-        MultiplierType multiplierType = mock(MultiplierType.class);
-        when(meteringService.getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE)).thenReturn(Optional.empty());
-        when(meteringService.createMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE)).thenReturn(multiplierType);
-        DeviceServiceImpl service = new DeviceServiceImpl(inMemoryPersistence.getDeviceDataModelService(), meteringService, mock(QueryService.class), mock(Thesaurus.class), inMemoryPersistence.getClock());
-
-        // Business method
-        MultiplierType defaultMultiplierType = service.findOrCreateDefaultMultiplierType();
-
-        // Asserts
-        verify(meteringService).getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
-        verify(meteringService).createMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
         assertThat(defaultMultiplierType).isNotNull();
     }
 
@@ -656,11 +633,11 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         when(meteringService.getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE)).thenReturn(Optional.of(multiplierType));
         DeviceServiceImpl service = new DeviceServiceImpl(inMemoryPersistence.getDeviceDataModelService(), meteringService, mock(QueryService.class), mock(Thesaurus.class), inMemoryPersistence.getClock());
         // First call
-        service.findOrCreateDefaultMultiplierType();
+        service.findDefaultMultiplierType();
         reset(meteringService);
 
         // Business method: second call
-        MultiplierType defaultMultiplierType = service.findOrCreateDefaultMultiplierType();
+        MultiplierType defaultMultiplierType = service.findDefaultMultiplierType();
 
         // Asserts
         verify(meteringService, never()).getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);

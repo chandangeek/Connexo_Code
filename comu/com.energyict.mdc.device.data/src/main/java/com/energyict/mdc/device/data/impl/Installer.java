@@ -6,6 +6,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -47,6 +48,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
+import static com.energyict.mdc.device.data.impl.SyncDeviceWithKoreMeter.MULTIPLIER_TYPE;
 
 /**
  * Represents the Installer for the Device data bundle.
@@ -66,16 +68,18 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final UserService userService;
     private final EventService eventService;
     private final MessageService messageService;
+    private final MeteringService meteringService;
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
 
     @Inject
-    public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
+    public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService, MeteringService meteringService, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
         this.eventService = eventService;
         this.messageService = messageService;
+        this.meteringService = meteringService;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
     }
@@ -106,6 +110,11 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         doTry(
                 "Create service call types",
                 this::createServiceCallTypes,
+                logger
+        );
+        doTry(
+                "Create default multiplier type",
+                this::createDefaultMultiplierType,
                 logger
         );
         userService.addModulePrivileges(this);
@@ -251,4 +260,9 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                     .create();
         }
     }
+
+    private void createDefaultMultiplierType() {
+        this.meteringService.createMultiplierType(MULTIPLIER_TYPE);
+    }
+
 }

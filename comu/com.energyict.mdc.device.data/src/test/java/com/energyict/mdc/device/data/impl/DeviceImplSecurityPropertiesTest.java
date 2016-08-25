@@ -149,7 +149,7 @@ public class DeviceImplSecurityPropertiesTest {
         when(meter.getLifecycleDates()).thenReturn(lifeCycleDates);
         mockDataModelWithNoValidationIssues();
         when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.of(amrSystem));
-        when(deviceService.findOrCreateDefaultMultiplierType()).thenReturn(multiplierType);
+        when(deviceService.findDefaultMultiplierType()).thenReturn(multiplierType);
         when(meteringService.getMultiplierType("Default")).thenReturn(Optional.of(multiplierType));
         when(multiplierType.getName()).thenReturn("Default");
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));

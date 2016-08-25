@@ -158,7 +158,7 @@ public class DeviceLifeCycleChangeEventsTest {
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(this.mdcAmrSystem));
-        when(deviceService.findOrCreateDefaultMultiplierType()).thenReturn(multiplierType);
+        when(deviceService.findDefaultMultiplierType()).thenReturn(multiplierType);
         when(multiplierType.getName()).thenReturn("Default");
         when(this.mdcAmrSystem.findMeter("0")).thenReturn(Optional.of(this.meter));
         when(this.meter.getStateTimeline()).thenReturn(Optional.of(this.stateTimeline));
