@@ -12,7 +12,6 @@ import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -38,7 +37,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -101,19 +99,11 @@ public class RegisterResource {
         Register<?, ?> register = doGetRegister(mRID, registerId);
         Register.RegisterUpdater registerUpdater = device.getRegisterUpdaterFor(register);
         if (register.getRegisterSpec() instanceof NumericalRegisterSpec) {
-            NumericalRegister numericalRegister = (NumericalRegister) register;
             NumericalRegisterInfo numericalRegisterInfo = ((NumericalRegisterInfo) registerInfo);
-            if (!Objects.equals(numericalRegister.getNumberOfFractionDigits(), numericalRegisterInfo.overruledNumberOfFractionDigits)) {
-                registerUpdater.setNumberOfFractionDigits(numericalRegisterInfo.overruledNumberOfFractionDigits);
-            }
-            if (numericalRegister.getOverflow().isPresent() && (numericalRegisterInfo.overruledOverflow == null)
-                    || !Objects.equals(numericalRegisterInfo.overruledOverflow, numericalRegister.getOverflow().get())) {
-                registerUpdater.setOverflowValue(numericalRegisterInfo.overruledOverflow);
-            }
+            registerUpdater.setNumberOfFractionDigits(numericalRegisterInfo.overruledNumberOfFractionDigits);
+            registerUpdater.setOverflowValue(numericalRegisterInfo.overruledOverflow);
         }
-        if (!register.getDeviceObisCode().equals(registerInfo.overruledObisCode)) {
-            registerUpdater.setObisCode(registerInfo.overruledObisCode);
-        }
+        registerUpdater.setObisCode(registerInfo.overruledObisCode);
         registerUpdater.update();
         return Response.ok().build();
     }

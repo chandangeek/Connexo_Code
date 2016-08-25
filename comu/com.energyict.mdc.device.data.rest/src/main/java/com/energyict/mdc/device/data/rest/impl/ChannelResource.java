@@ -61,7 +61,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -124,18 +123,10 @@ public class ChannelResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
-        if (!Objects.equals(channel.getNrOfFractionDigits(), channelInfo.overruledNbrOfFractionDigits)) {
-            channelUpdater.setNumberOfFractionDigits(channelInfo.overruledNbrOfFractionDigits);
-        }
-        if (channel.getOverflow().isPresent() && (channelInfo.overruledOverflowValue == null)
-                || !Objects.equals(channelInfo.overruledOverflowValue, channel.getOverflow().get())) {
-            channelUpdater.setOverflowValue(channelInfo.overruledOverflowValue);
-        }
-        if (!channel.getObisCode().equals(channelInfo.overruledObisCode)) {
-            channelUpdater.setObisCode(channelInfo.overruledObisCode);
-        }
+        channelUpdater.setNumberOfFractionDigits(channelInfo.overruledNbrOfFractionDigits);
+        channelUpdater.setOverflowValue(channelInfo.overruledOverflowValue);
+        channelUpdater.setObisCode(channelInfo.overruledObisCode);
         channelUpdater.update();
-
         return Response.ok().build();
     }
 
