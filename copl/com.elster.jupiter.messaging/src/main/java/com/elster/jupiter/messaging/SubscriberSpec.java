@@ -1,9 +1,8 @@
 package com.elster.jupiter.messaging;
 
 
-import com.elster.jupiter.util.HasName;
-
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasName;
 
 /**
  * Models a Subscriber on a Destination.
@@ -16,22 +15,16 @@ public interface SubscriberSpec extends HasName {
      */
     DestinationSpec getDestination();
 
-    Receiver newReceiver();
+    /**
+     * This method blocks indefinitely until the next message on the Destination is available.
+     * @return the next message on the Destination
+     */
+    Message receive();
 
     boolean isSystemManaged();
 
-    interface Receiver {
-
-        /**
-         * This method blocks indefinitely until the next message on the Destination is available.
-         * @return the next message on the Destination
-         */
-        Message receive();
-
-        /**
-         * Other threads may safely invoke this method to cancel a blocking receive().
-         */
-        void cancel();
-
-    }
+    /**
+     * Other threads may safely invoke this method to cancel a blocking receive().
+     */
+    void cancel();
 }
