@@ -24,17 +24,30 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                 },
                 flex: 6
             },
+
             {
                 header: Uni.I18n.translate('validation.activeVersion', 'MDC', 'Active version'),
                 dataIndex: 'activeVersion',
-                flex: 8,
+                flex: 6,
                 align: 'left',
                 sortable: false,
                 fixed: true
-            },	        
+            },
+            {
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                dataIndex: 'isActive',
+                renderer: function (value) {
+                    return value
+                        ? Uni.I18n.translate('general.active', 'MDC', 'Active')
+                        : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
+                },
+                flex: 2,
+                align: 'left',
+                sortable: false,
+                fixed: true
+            },
             {
                 xtype: 'uni-actioncolumn',
-                flex: 2,
                 privileges:Cfg.privileges.Validation.device,
                 items: 'Mdc.view.setup.devicedatavalidation.RulesSetActionMenu',
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationRuleSetsActions

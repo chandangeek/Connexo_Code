@@ -25,89 +25,80 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             bulkValidationInfo,
             dataQualities,
             dataQualitiesForChannels = false,
-            router = me.router,
-            callback = function () {
-                var detailRecord = arguments[0] || record;
-                Ext.suspendLayouts();
-                me.down('#general-panel').setTitle(title);
-                me.down('#values-panel').setTitle(title);
-                me.down('#mdc-qualities-panel').setTitle(title);
-                me.down('#general-panel').loadRecord(record);
-                me.down('#values-panel').loadRecord(record);
-
-                if (record.get('multiplier')) {
-                    me.down('#general-panel #mdc-multiplier').show();
-                    me.down('#values-panel #mdc-multiplier').show();
-                } else {
-                    me.down('#general-panel #mdc-multiplier').hide();
-                    me.down('#values-panel #mdc-multiplier').hide();
-                }
-
-                if (me.channels) {
-                    dataQualitiesForChannels = false;
-                    Ext.Array.each(me.channels, function (channel) {
-                        var mainValidationInfoField = me.down('#mainValidationInfo' + channel.id),
-                            channelBulkValueField = me.down('#channelBulkValue' + channel.id),
-                            containter = me.down("#channelFieldContainer" + channel.id);
-
-                        if (record.get('channelValidationData')[channel.id]) {
-                            mainValidationInfo = record.get('channelValidationData')[channel.id].mainValidationInfo;
-                            bulkValidationInfo = record.get('channelValidationData')[channel.id].bulkValidationInfo;
-                            dataQualities = record.get('channelValidationData')[channel.id].readingQualities;
-                            containter.down('#mainValidationInfo' + channel.id).setValue(mainValidationInfo);
-                            containter.down('#bulkValidationInfo' + channel.id).setValue(bulkValidationInfo);
-
-                            if (me.down('#channelValue' + channel.id)) {
-                                me.down('#channelValue' + channel.id).setValue(record.get('channelData')[channel.id]);
-                            }
-                            if (channelBulkValueField) {
-                                channelBulkValueField.setValue(record.get('channelCollectedData')[channel.id]);
-                            }
-                            dataQualitiesForChannels |= !Ext.isEmpty(dataQualities);
-                            me.setDataQualityForChannel(channel.id, dataQualities);
-                        } else {
-                            if (mainValidationInfoField) {
-                                mainValidationInfoField.hide();
-                            }
-                            me.down('#bulkValidationInfo' + channel.id).hide();
-                        }
-                    });
-                    if (!dataQualitiesForChannels) {
-                        me.down('#mdc-noReadings-msg').show();
-                    } else {
-                        me.down('#mdc-noReadings-msg').hide();
-                    }
-                    Ext.Array.findBy(me.channels, function (channel) {
-                        if (record.get('channelValidationData')[channel.id]) {
-                            me.down('#readingDataValidated').setValue(record.get('channelValidationData')[channel.id].dataValidated);
-                            return !record.get('channelValidationData')[channel.id].dataValidated;
-                        }
-                    });
-                } else {
-                    me.setDataQuality(detailRecord.get('readingQualities'));
-                    me.down('#readingDataValidated').setValue(record.get('dataValidated'));
-                    var dataLoggerSlaveField = me.down('#mdc-channel-data-preview-data-logger-slave');
-                    if (dataLoggerSlaveField) {
-                        dataLoggerSlaveField.setValue(record.get('slaveChannel'));
-                    }
-                }
-
-                Ext.resumeLayouts(true);
-                detailRecord.set('value', record.get('value'));
-                detailRecord.set('collectedValue', record.get('collectedValue'));
-                me.down('#values-panel').loadRecord(detailRecord);
-                me.setLoading(false);
-            };
+            router = me.router;
 
         me.setLoading();
-        switch (record.$className) {
-            case 'Mdc.model.ChannelOfLoadProfileOfDeviceData':
-                record.getDetailedInformation(router.arguments.mRID, router.arguments.channelId, callback);
-                break;
-            case 'Mdc.model.LoadProfilesOfDeviceData':
-                record.refresh(router.arguments.mRID, router.arguments.channelId, callback);
-                break;
-        }
+        record.getDetailedInformation(router.arguments.mRID, router.arguments.channelId, function (detailRecord) {
+            Ext.suspendLayouts();
+            me.down('#general-panel').setTitle(title);
+            me.down('#values-panel').setTitle(title);
+            me.down('#mdc-qualities-panel').setTitle(title);
+            me.down('#general-panel').loadRecord(record);
+            me.down('#values-panel').loadRecord(record);
+
+            if (record.get('multiplier')) {
+                me.down('#general-panel #mdc-multiplier').show();
+                me.down('#values-panel #mdc-multiplier').show();
+            } else {
+                me.down('#general-panel #mdc-multiplier').hide();
+                me.down('#values-panel #mdc-multiplier').hide();
+            }
+
+            if (me.channels) {
+                dataQualitiesForChannels = false;
+                Ext.Array.each(me.channels, function (channel) {
+                    var mainValidationInfoField = me.down('#mainValidationInfo' + channel.id),
+                        channelBulkValueField = me.down('#channelBulkValue' + channel.id),
+                        containter = me.down("#channelFieldContainer" + channel.id);
+
+                    if (record.get('channelValidationData')[channel.id]) {
+                        mainValidationInfo = record.get('channelValidationData')[channel.id].mainValidationInfo;
+                        bulkValidationInfo = record.get('channelValidationData')[channel.id].bulkValidationInfo;
+                        dataQualities = record.get('channelValidationData')[channel.id].readingQualities;
+                        //containter.down('#mainValidationInfo' + channel.id).setValue(mainValidationInfo);
+                        containter.down('#bulkValidationInfo' + channel.id).setValue(bulkValidationInfo);
+
+                        if (me.down('#channelValue' + channel.id)) {
+                            me.down('#channelValue' + channel.id).setValue(record.get('channelData')[channel.id]);
+                        }
+                        if (channelBulkValueField) {
+                            channelBulkValueField.setValue(record.get('channelCollectedData')[channel.id]);
+                        }
+                        dataQualitiesForChannels |= !Ext.isEmpty(dataQualities);
+                        me.setDataQualityForChannel(channel.id, dataQualities);
+                    } else {
+                        if (mainValidationInfoField) {
+                            mainValidationInfoField.hide();
+                        }
+                        me.down('#bulkValidationInfo' + channel.id).hide();
+                    }
+                });
+                if (!dataQualitiesForChannels) {
+                    me.down('#mdc-noReadings-msg').show();
+                } else {
+                    me.down('#mdc-noReadings-msg').hide();
+                }
+                Ext.Array.findBy(me.channels, function (channel) {
+                    if (record.get('channelValidationData')[channel.id]) {
+                        me.down('#readingDataValidated').setValue(record.get('channelValidationData')[channel.id].dataValidated);
+                        return !record.get('channelValidationData')[channel.id].dataValidated;
+                    }
+                });
+            } else {
+                me.setDataQuality(detailRecord.get('readingQualities'));
+                me.down('#readingDataValidated').setValue(record.get('dataValidated'));
+                var dataLoggerSlaveField = me.down('#mdc-channel-data-preview-data-logger-slave');
+                if (dataLoggerSlaveField) {
+                    dataLoggerSlaveField.setValue(record.get('slaveChannel'));
+                }
+            }
+
+            Ext.resumeLayouts(true);
+            detailRecord.set('value', record.get('value'));
+            detailRecord.set('collectedValue', record.get('collectedValue'));
+            me.down('#values-panel').loadRecord(detailRecord);
+            me.setLoading(false);
+        });
     },
 
     setValueWithResult: function (value, type, channel) {

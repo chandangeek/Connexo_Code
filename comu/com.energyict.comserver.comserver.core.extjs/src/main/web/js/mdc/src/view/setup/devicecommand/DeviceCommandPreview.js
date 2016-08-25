@@ -16,11 +16,9 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreview', {
     },
     tools: [
         {
-            xtype: 'button',
+            xtype: 'uni-button-action',
             itemId: 'commandsPreviewActionButton',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
             hidden: Mdc.privileges.DeviceCommands.executeCommands,
-            iconCls: 'x-uni-action-iconD',
             hidden: true,
             menu: {
                 xtype: 'device-command-action-menu'

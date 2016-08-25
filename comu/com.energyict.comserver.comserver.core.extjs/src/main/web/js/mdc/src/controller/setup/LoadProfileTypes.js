@@ -414,6 +414,10 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         formErrorsPanel.hide();
         basicForm.clearInvalid();
         form.down('#register-types-fieldcontainer').clearInvalid();
+        if (!form.isValid()){
+            formErrorsPanel.show();
+            return;
+        }
         form.updateRecord(model);
 
         if (model.getId()) {

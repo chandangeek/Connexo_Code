@@ -19,10 +19,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
 
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            xtype: 'uni-button-action',
             itemId: 'actionsPreviewBtn',
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'device-communication-task-action-menu'
             }

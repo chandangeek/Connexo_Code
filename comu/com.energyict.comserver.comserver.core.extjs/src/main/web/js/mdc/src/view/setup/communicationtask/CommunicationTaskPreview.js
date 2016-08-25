@@ -9,10 +9,8 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
     title: ' ',
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            xtype: 'uni-button-action',
             privileges: Mdc.privileges.DeviceType.admin,
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'communication-task-action-menu'
             }
