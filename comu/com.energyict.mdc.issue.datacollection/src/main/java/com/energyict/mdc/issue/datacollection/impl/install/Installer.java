@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
 public class Installer implements FullInstaller {
+    private static final Logger LOG = Logger.getLogger("DataCollectionIssueInstaller");
 
     private final MessageService messageService;
     private final IssueService issueService;
@@ -87,13 +88,10 @@ public class Installer implements FullInstaller {
     private void setAQSubscriber() {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
         try {
-            destinationSpec
-                .subscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC)
-                .with(whereCorrelationId().like("com/energyict/mdc/connectiontask/%")
-                        .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/data/device/CREATED")
-                        .or(whereCorrelationId().isEqualTo("com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE"))
-                        .or(whereCorrelationId().isEqualTo("com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE"))))
-                .create();
+            destinationSpec.subscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, whereCorrelationId().like("com/energyict/mdc/connectiontask/%")
+                    .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/data/device/CREATED")
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE"))));
         } catch (DuplicateSubscriberNameException e) {
             // subscriber already exists, ignoring
         }
