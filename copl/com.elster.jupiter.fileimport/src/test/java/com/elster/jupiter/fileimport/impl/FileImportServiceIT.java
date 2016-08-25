@@ -333,7 +333,7 @@ public class FileImportServiceIT {
 
         folderScanningJob.run();
 
-        Message received = subscriberSpec.newReceiver().receive();
+        Message received = subscriberSpec.receive();
         StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler) fileImportService.createMessageHandler();
         transactionService.execute(() -> {
             importMessageHandler.process(received);
@@ -361,7 +361,7 @@ public class FileImportServiceIT {
 
         folderScanningJob.run();
 
-        Message received = subscriberSpec.newReceiver().receive();
+        Message received = subscriberSpec.receive();
         StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler) fileImportService.createMessageHandler();
         transactionService.execute(() -> {
             importMessageHandler.process(received);
@@ -389,7 +389,7 @@ public class FileImportServiceIT {
 
         folderScanningJob.run();
 
-        Message received = subscriberSpec.newReceiver().receive();
+        Message received = subscriberSpec.receive();
         StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler) fileImportService.createMessageHandler();
         transactionService.execute(() -> {
             importMessageHandler.process(received);
