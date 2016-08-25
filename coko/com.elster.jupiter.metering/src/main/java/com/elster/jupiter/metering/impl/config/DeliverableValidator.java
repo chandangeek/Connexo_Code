@@ -22,6 +22,8 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.cbo.Accumulation.BULKQUANTITY;
+
 class DeliverableValidator implements ConstraintValidator<ValidDeliverable, ReadingTypeDeliverable> {
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
@@ -48,6 +50,9 @@ class DeliverableValidator implements ConstraintValidator<ValidDeliverable, Read
                     }
                     if (formula.getExpressionNode().accept(new NoBulkReadingTypeRequirements())) {
                         throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.BULK_READINGTYPE_NOT_ALLOWED);
+                    }
+                    if (this.isBulk(readingType) && !formula.getExpressionNode().accept(new OnlyBulkReadingTypeRequirements())) {
+                        throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.BULK_DELIVERABLES_CAN_ONLY_USE_BULK_READINGTYPES);
                     }
                 } else {
                     IrregularDeliverableComplexityAnalyzer complexity = new IrregularDeliverableComplexityAnalyzer();
@@ -104,6 +109,10 @@ class DeliverableValidator implements ConstraintValidator<ValidDeliverable, Read
         if (!expressionNode.accept(new ConsistentAggregationLevelValidator())) {
             throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INCONSISTENT_LEVELS_IN_AGGREGATION_FUNCTIONS);
         }
+    }
+
+    private boolean isBulk(ReadingType readingType) {
+        return BULKQUANTITY.equals(readingType.getAccumulation());
     }
 
     private class ConsistentAggregationLevelValidator implements ExpressionNode.Visitor<Boolean> {

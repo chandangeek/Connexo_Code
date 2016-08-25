@@ -82,6 +82,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_READINGTYPE_UNIT_IN_REQUIREMENT(5020, Constants.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT, "The readingtype for a requirement is not valid, it should represent a numerical value."),
     INCOMPATIBLE_INTERVAL_LENGTHS(5021, Constants.INCOMPATIBLE_INTERVAL_LENGTHS, "''{0}'' values cannot be aggregated to ''{1}'' values."),
     BULK_READINGTYPE_NOT_ALLOWED(5022, Constants.BULK_READINGTYPE_NOT_ALLOWED, "Bulk reading type is not allowed in deliverables with regular reading type"),
+    BULK_DELIVERABLES_CAN_ONLY_USE_BULK_READINGTYPES(5023, Constants.BULK_DELIVERABLES_CAN_ONLY_USE_BULK_READINGTYPES, "Deliverables with bulk reading type can only use reading types with bulk reading types"),
 
     CONTRACT_NOT_ACTIVE(6000, Constants.CONTRACT_NOT_ACTIVE, "The metrology contract with purpose {0} is not active on usage point ''{1}'' during the requested data aggregation period ({2})"),
     CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION(6001, Constants.CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION, "The property ''{0}'' cannot be used because the custom property set ''{1}'' is not configured on this metrology configuration."),
@@ -234,6 +235,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED = "Remove.current.effectve.mc";
         public static final String BULK_READINGTYPE_NOT_ALLOWED = "bulk.readingtype.not.allowed";
         public static final String START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE = "version.start.should.be.greater.than.up.creation.date";
+        public static final String BULK_DELIVERABLES_CAN_ONLY_USE_BULK_READINGTYPES = "bulk.deliverable.can.only.use.other.bulk.reading";
 
         public static final String DENOMINATOR_CANNOT_BE_ZERO = "denominator.cannot.be.zero";
     }

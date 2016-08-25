@@ -531,7 +531,7 @@ public class FormulaCrudTest {
 
         ReadingType readingTypeDeliverable =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype for deliverable");
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype for deliverable");
         assertThat(readingTypeDeliverable).isNotNull();
 
         ReadingTypeDeliverableBuilder builder =
@@ -565,7 +565,7 @@ public class FormulaCrudTest {
 
         ReadingType readingTypeDeliverable =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "11.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype for deliverable2");
+                        "11.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype for deliverable2");
         assertThat(readingTypeDeliverable).isNotNull();
 
         ReadingTypeDeliverableBuilder builder =
@@ -1424,6 +1424,32 @@ public class FormulaCrudTest {
 
     @Test(expected = VerboseConstraintViolationException.class)
     @Transactional
+    // formula = Requirement
+    public void testBulkReadingTypeDeliverableWithDeltaRequirement() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config2", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config).isNotNull();
+        ReadingType bulkRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.5.1.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Bulk");
+        assertThat(bulkRT).isNotNull();
+        ReadingType deltaRT  = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.5.4.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Delta");
+        assertThat(deltaRT).isNotNull();
+
+        FullySpecifiedReadingTypeRequirement deltaRequirement = config.newReadingTypeRequirement("Delta").withReadingType(deltaRT);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", bulkRT, Formula.Mode.AUTO);
+        try {
+            builder.build(builder.requirement(deltaRequirement));
+        } catch (VerboseConstraintViolationException e) {
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo(MessageSeeds.BULK_DELIVERABLES_CAN_ONLY_USE_BULK_READINGTYPES.getDefaultFormat());
+            throw e;
+        }
+    }
+
+    @Test(expected = VerboseConstraintViolationException.class)
+    @Transactional
     // formula = other deliverable
     public void testBulkReadingTypeInDeliverable() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
@@ -1438,11 +1464,11 @@ public class FormulaCrudTest {
         assertThat(regRT).isNotNull();
 
         ReadingTypeDeliverableBuilder bulkBuilder = config.newReadingTypeDeliverable("Bulk", bulkRT, Formula.Mode.AUTO);
-        ReadingTypeDeliverable buldDeliverable = bulkBuilder.build(bulkBuilder.constant(BigDecimal.TEN));
+        ReadingTypeDeliverable bulkDeliverable = bulkBuilder.build(bulkBuilder.constant(BigDecimal.TEN));
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("DelUsingBulkDel", regRT, Formula.Mode.AUTO);
         try {
-            builder.build(builder.deliverable(buldDeliverable));
+            builder.build(builder.deliverable(bulkDeliverable));
         } catch (VerboseConstraintViolationException e) {
             assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo(MessageSeeds.BULK_READINGTYPE_NOT_ALLOWED.getDefaultFormat());
             throw e;

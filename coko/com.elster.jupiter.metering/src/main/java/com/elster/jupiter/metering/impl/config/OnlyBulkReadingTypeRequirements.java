@@ -19,26 +19,26 @@ import static com.elster.jupiter.cbo.Accumulation.BULKQUANTITY;
 
 /**
  * Checks that an {@link ExpressionNode}
- * does not contain any bulk reading type requirements or deliverables.
+ * only contains bulk reading type requirements or deliverables.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2016-08-18 (10:24)
+ * @since 2016-08-25 (11:44)
  */
-class NoBulkReadingTypeRequirements implements ExpressionNode.Visitor<Boolean> {
+class OnlyBulkReadingTypeRequirements implements ExpressionNode.Visitor<Boolean> {
 
     @Override
     public Boolean visitConstant(ConstantNode constant) {
-        return Boolean.FALSE;
+        return Boolean.TRUE;
     }
 
     @Override
     public Boolean visitProperty(CustomPropertyNode property) {
-        return Boolean.FALSE;
+        return Boolean.TRUE;
     }
 
     @Override
     public Boolean visitNull(NullNode nullNode) {
-        return Boolean.FALSE;
+        return Boolean.TRUE;
     }
 
     @Override
@@ -47,7 +47,7 @@ class NoBulkReadingTypeRequirements implements ExpressionNode.Visitor<Boolean> {
             FullySpecifiedReadingTypeRequirement readingTypeRequirement = (FullySpecifiedReadingTypeRequirement) requirement.getReadingTypeRequirement();
             return this.isBulk(readingTypeRequirement.getReadingType());
         } else {
-            return false;
+            return Boolean.TRUE;
         }
     }
 
@@ -59,7 +59,7 @@ class NoBulkReadingTypeRequirements implements ExpressionNode.Visitor<Boolean> {
     @Override
     public Boolean visitOperation(OperationNode operationNode) {
         return operationNode.getLeftOperand().accept(this)
-            || operationNode.getRightOperand().accept(this);
+            && operationNode.getRightOperand().accept(this);
     }
 
     @Override
@@ -67,7 +67,7 @@ class NoBulkReadingTypeRequirements implements ExpressionNode.Visitor<Boolean> {
         return functionCall
                 .getChildren()
                 .stream()
-                .anyMatch(argument -> argument.accept(this));
+                .allMatch(argument -> argument.accept(this));
     }
 
     private boolean isBulk(ReadingType readingType) {
