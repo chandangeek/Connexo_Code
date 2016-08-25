@@ -3,7 +3,6 @@ package com.elster.jupiter.messaging.oracle.impl;
 import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.AlreadyASubscriberForQueueException;
-import com.elster.jupiter.messaging.DequeueOptions;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.InactiveDestinationException;
@@ -172,6 +171,21 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     @Override
+    public SubscriberSpec subscribe(String name) {
+        return subscribe(name, false);
+    }
+
+    @Override
+    public SubscriberSpec subscribe(String name, Condition filter) {
+        return subscribe(name, false, filter);
+    }
+
+    @Override
+    public SubscriberSpec subscribeSystemManaged(String name) {
+        return subscribe(name, true);
+    }
+
+    @Override
     public void save() {
         if (fromDB) {
             Save.UPDATE.save(dataModel, this);
@@ -179,6 +193,7 @@ class DestinationSpecImpl implements DestinationSpec {
             Save.CREATE.save(dataModel, this);
             fromDB = true;
         }
+
     }
 
     @Override
@@ -286,12 +301,11 @@ class DestinationSpecImpl implements DestinationSpec {
         return this;
     }
 
-    @Override
-    public SubscriberSpecBuilder subscribe(String name) {
-        return new SubscriberSpecBuilderImpl(name);
+    private SubscriberSpec subscribe(String name, boolean systemManaged) {
+        return subscribe(name, systemManaged, null);
     }
 
-    private SubscriberSpec createSubscriberSpec(String name, boolean systemManaged, Condition filter, DequeueOptions dequeueOptions) {
+    private SubscriberSpec subscribe(String name, boolean systemManaged, Condition filter) {
         if (!isActive()) {
             throw new InactiveDestinationException(thesaurus, this, name);
         }
@@ -304,7 +318,7 @@ class DestinationSpecImpl implements DestinationSpec {
         if (isQueue() && !currentConsumers.isEmpty()) {
             throw new AlreadyASubscriberForQueueException(thesaurus, this);
         }
-        SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, name, systemManaged, filter, dequeueOptions);
+        SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, name, systemManaged, filter);
         result.subscribe();
         subscribers.add(result);
         dataModel.mapper(DestinationSpec.class).update(this);
@@ -455,42 +469,4 @@ class DestinationSpecImpl implements DestinationSpec {
             throw new UnderlyingSQLFailedException(e);
         }
     }
-
-    private class SubscriberSpecBuilderImpl implements SubscriberSpecBuilder {
-        private final String name;
-        private Condition filter;
-        private boolean systemManaged = false;
-        private DequeueOptions options;
-
-        private SubscriberSpecBuilderImpl(String name) {
-            this.name = name;
-            this.options = DequeueOptions
-                                .wait(Duration.ofSeconds(SubscriberSpecImpl.DEQUEUE_DEFAULT_WAIT_SECONDS))
-                                .retryAfter(Duration.ofSeconds(SubscriberSpecImpl.INBETWEEN_DEQUEUE_DEFAULT_WAIT_SECONDS));
-        }
-
-        @Override
-        public SubscriberSpecBuilder with(Condition filter) {
-            this.filter = filter;
-            return this;
-        }
-
-        @Override
-        public SubscriberSpecBuilder with(DequeueOptions dequeueOptions) {
-            this.options = dequeueOptions;
-            return this;
-        }
-
-        @Override
-        public SubscriberSpecBuilder systemManaged(boolean flag) {
-            this.systemManaged = flag;
-            return this;
-        }
-
-        @Override
-        public SubscriberSpec create() {
-            return createSubscriberSpec(this.name, this.systemManaged, this.filter, this.options);
-        }
-    }
-
 }
