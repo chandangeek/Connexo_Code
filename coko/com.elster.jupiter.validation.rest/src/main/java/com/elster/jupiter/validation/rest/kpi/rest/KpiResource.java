@@ -110,6 +110,7 @@ public class KpiResource {
     public Response getDeviceGroupsWithValidationKpi(@BeanParam JsonQueryParameters queryParameters) {
         List<EndDeviceGroup> usedGroups = dataValidationKpiService.findAllDataValidationKpis()
                 .stream()
+                .filter(kpi -> kpi.getLatestCalculation().isPresent())
                 .map(kpi -> kpi.getDeviceGroup().getId())
                 .map(meteringGroupsService::findEndDeviceGroup)
                 .filter(Optional::isPresent)
