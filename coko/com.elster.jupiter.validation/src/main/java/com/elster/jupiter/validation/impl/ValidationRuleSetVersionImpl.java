@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,13 +63,15 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     private final EventService eventService;
     private final DataModel dataModel;
     private final Provider<ValidationRuleImpl> validationRuleProvider;
+    private final Clock clock;
 
     @Inject
-    ValidationRuleSetVersionImpl(DataModel dataModel, EventService eventService, Provider<ValidationRuleImpl> validationRuleProvider) {
+    ValidationRuleSetVersionImpl(DataModel dataModel, EventService eventService, Provider<ValidationRuleImpl> validationRuleProvider, Clock clock) {
         // for persistence
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.validationRuleProvider = validationRuleProvider;
+        this.clock = clock;
     }
 
     ValidationRuleSetVersionImpl init(ValidationRuleSet validationRuleSet, String description, Instant startDate) {
@@ -129,9 +132,9 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
 
     @Override
     public ValidationVersionStatus getStatus() {
-        if(Instant.now().isBefore(getNotNullStartDate()))
+        if(Instant.now(clock).isBefore(getNotNullStartDate()))
             return ValidationVersionStatus.FUTURE;
-        if(Instant.now().isAfter(getNotNullEndDate()))
+        if(Instant.now(clock).isAfter(getNotNullEndDate()))
             return ValidationVersionStatus.PREVIOUS;
         return ValidationVersionStatus.CURRENT;
     }
@@ -190,8 +193,8 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
 
     @Override
     public void delete() {
-        this.setObsoleteTime(Instant.now()); // mark obsolete
-        doGetRules().forEach(rule -> rule. delete());
+        this.setObsoleteTime(Instant.now(clock)); // mark obsolete
+        doGetRules().forEach(IValidationRule::delete);
         validationRuleSetVersionFactory().update(this);
         eventService.postEvent(EventType.VALIDATIONRULESETVERSION_DELETED.topic(), this);
     }

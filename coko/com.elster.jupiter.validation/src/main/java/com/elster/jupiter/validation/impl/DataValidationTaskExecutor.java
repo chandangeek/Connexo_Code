@@ -21,6 +21,7 @@ import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationContextImpl;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
@@ -36,15 +37,17 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private final ValidationServiceImpl validationService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final Clock clock;
     private final User user;
 
 
-    public DataValidationTaskExecutor(ValidationServiceImpl validationService, MetrologyConfigurationService metrologyConfigurationService, TransactionService transactionService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, User user) {
+    public DataValidationTaskExecutor(ValidationServiceImpl validationService, MetrologyConfigurationService metrologyConfigurationService, TransactionService transactionService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, Clock clock, User user) {
         this.thesaurus = thesaurus;
         this.validationService = validationService;
         this.transactionService = transactionService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.threadPrincipalService = threadPrincipalService;
+        this.clock = clock;
         this.user = user;
     }
 
@@ -116,7 +119,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     }
 
     private void executeMdcTask(DataValidationOccurrence occurrence, Logger logger, DataValidationTask task) {
-        List<EndDevice> devices = task.getEndDeviceGroup().get().getMembers(Instant.now());
+        List<EndDevice> devices = task.getEndDeviceGroup().get().getMembers(Instant.now(clock));
         for (EndDevice device : devices) {
             Optional<Meter> found = device.getAmrSystem().findMeter(device.getAmrId());
             if (found.isPresent()) {

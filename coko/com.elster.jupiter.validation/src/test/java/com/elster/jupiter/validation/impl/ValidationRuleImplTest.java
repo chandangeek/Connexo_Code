@@ -32,6 +32,7 @@ import com.google.common.collect.Range;
 import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -137,7 +138,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     }
 
     private ValidationRuleImpl newRule() {
-        return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, provider);
+        return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, provider, Clock.systemDefaultZone());
     }
     
     @Override

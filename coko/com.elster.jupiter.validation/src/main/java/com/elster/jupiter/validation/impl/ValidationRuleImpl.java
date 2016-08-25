@@ -34,6 +34,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.validation.groups.Default;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -89,15 +90,17 @@ public final class ValidationRuleImpl implements IValidationRule {
     private final MeteringService meteringService;
     private final EventService eventService;
     private final Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider;
+    private final Clock clock;
 
     @Inject
-    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator, Thesaurus thesaurus, MeteringService meteringService, EventService eventService, Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider) {
+    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator, Thesaurus thesaurus, MeteringService meteringService, EventService eventService, Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider, Clock clock) {
         this.dataModel = dataModel;
         this.validatorCreator = validatorCreator;
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
         this.eventService = eventService;
         this.readingTypeInRuleProvider = readingTypeInRuleProvider;
+        this.clock = clock;
     }
 
     ValidationRuleImpl init(ValidationRuleSetVersion ruleSetVersion, ValidationAction action, String implementation, String name) {
@@ -177,7 +180,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     public void delete() {
-        this.setObsoleteTime(Instant.now()); // mark obsolete
+        this.setObsoleteTime(Instant.now(clock)); // mark obsolete
         doUpdate();
         eventService.postEvent(EventType.VALIDATIONRULE_DELETED.topic(), this);
     }

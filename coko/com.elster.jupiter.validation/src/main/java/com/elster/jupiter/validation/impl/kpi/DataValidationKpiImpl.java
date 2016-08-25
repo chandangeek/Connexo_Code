@@ -31,6 +31,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
@@ -67,6 +68,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     private final MessageService messageService;
     private final KpiService kpiService;
     private final Thesaurus thesaurus;
+    private final Clock clock;
 
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
@@ -88,13 +90,14 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateRecurrentTask(dataValidationKpiTask, KpiType.VALIDATION);
 
     @Inject
-    public DataValidationKpiImpl(DataModel dataModel, TaskService taskService, MessageService messageService, KpiService kpiService, Thesaurus thesaurus) {
+    public DataValidationKpiImpl(DataModel dataModel, TaskService taskService, MessageService messageService, KpiService kpiService, Thesaurus thesaurus, Clock clock) {
         super();
         this.dataModel = dataModel;
         this.taskService = taskService;
         this.messageService = messageService;
         this.kpiService = kpiService;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     DataValidationKpiImpl initialize(EndDeviceGroup group) {
@@ -115,8 +118,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     void dataValidationKpiBuilder(EndDeviceGroup endDeviceGroup) {
-        endDeviceGroup
-                .getMembers(Instant.now())
+        endDeviceGroup.getMembers(Instant.now(clock))
                 .forEach(device -> createValidationKpiMember(device.getId()));
     }
 
@@ -259,7 +261,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     void updateMembers() {
         updateFrequency();
         EndDeviceGroup endDeviceGroup = getDeviceGroup();
-        List<Long> deviceGroupDeviceIds = endDeviceGroup.getMembers(Instant.now()).stream().map(EndDevice::getId).collect(Collectors.toList());
+        List<Long> deviceGroupDeviceIds = endDeviceGroup.getMembers(Instant.now(clock)).stream().map(EndDevice::getId).collect(Collectors.toList());
         List<Long> dataValidationKpiMembers = new ArrayList<>();
         this.childrenKpis.forEach(child ->
                 child.getChildKpi().getMembers().stream()

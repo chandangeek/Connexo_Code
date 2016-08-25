@@ -7,7 +7,7 @@ import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import com.google.common.collect.Range;
 
-import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -18,16 +18,18 @@ import java.util.stream.Collectors;
 public class DataValidationReportServiceImpl implements DataValidationReportService {
 
     private final ValidationService validationService;
+    private final Clock clock;
 
-    public DataValidationReportServiceImpl(ValidationService validationService){
+    public DataValidationReportServiceImpl(ValidationService validationService, Clock clock){
         this.validationService = validationService;
+        this.clock = clock;
     }
 
     @Override
     public Map<String, List<DataValidationStatus>> getRegisterSuspects(EndDeviceGroup deviceGroup, Range<Instant> range) {
         Map<String, List<DataValidationStatus>> registerSuspects = new HashMap<>();
         if(!validationService.getDataValidationAssociatinProviders().isEmpty()) {
-            registerSuspects = deviceGroup.getMembers(Instant.now()).stream()
+            registerSuspects = deviceGroup.getMembers(Instant.now(clock)).stream()
                     .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.REGISTER.fieldName() + endDevice.getId(),
                             endDevice -> validationService.getDataValidationAssociatinProviders()
                                     .get(0)
@@ -40,7 +42,7 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
     public Map<String, List<DataValidationStatus>> getChannelsSuspects(EndDeviceGroup deviceGroup, Range<Instant> range) {
         Map<String, List<DataValidationStatus>> channelsSuspects = new HashMap<>();
         if(!validationService.getDataValidationAssociatinProviders().isEmpty()) {
-            channelsSuspects = deviceGroup.getMembers(Instant.now()).stream()
+            channelsSuspects = deviceGroup.getMembers(Instant.now(clock)).stream()
                     .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.CHANNEL.fieldName() + endDevice.getId(),
                             endDevice -> validationService.getDataValidationAssociatinProviders()
                                     .get(0)
@@ -53,7 +55,7 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
     public Map<String, Boolean> getAllDataValidated(EndDeviceGroup deviceGroup, Range<Instant> range){
         Map<String, Boolean> allDataValidated = new HashMap<>();
         if(!validationService.getDataValidationAssociatinProviders().isEmpty()) {
-            allDataValidated = deviceGroup.getMembers(Instant.now()).stream()
+            allDataValidated = deviceGroup.getMembers(Instant.now(clock)).stream()
                     .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.ALLDATAVALIDATED.fieldName() + endDevice.getId(),
                             endDevice -> validationService.getDataValidationAssociatinProviders()
                                     .get(0)
