@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Created by iulian on 5/27/2016.
@@ -31,6 +32,8 @@ public class MasterDataAnalyser {
     private List<Beacon3100DeviceType>      deviceTypesToAdd;
     private List<Long>                   deviceTypesToDelete;
 
+    private StringBuilder           info;
+
     public MasterDataAnalyser() {
         schedulesToAdd = new ArrayList<>();
         schedulesToDelete = new ArrayList<>();
@@ -41,6 +44,7 @@ public class MasterDataAnalyser {
         deviceTypesToDelete = new ArrayList<>();
         deviceTypesToAdd = new ArrayList<>();
         deviceTypesToUpdate = new ArrayList<>();
+        info = new StringBuilder();
     }
 
     public List<Beacon3100Schedule> getSchedulesToUpdate() {
@@ -158,37 +162,53 @@ public class MasterDataAnalyser {
         Map<Long, AbstractDataType> existingBeaconDeviceTypes = new HashMap<>();
         Map<Long, Boolean> active = new HashMap<>();
 
+        log("Analysing DeviceType existing in Beacon:");
         for (AbstractDataType existingDeviceType : existingBeaconDeviceTypesArray) {
             if (existingDeviceType.isStructure() && existingDeviceType.getStructure().nrOfDataTypes() > 0) {
                 final long existingDeviceTypeId = existingDeviceType.getStructure().getDataType(0).longValue(); //First element of the structure is the deviceType ID
                 existingBeaconDeviceTypes.put(existingDeviceTypeId, existingDeviceType);
                 active.put(existingDeviceTypeId, false); // for start consider that beacon items are obsolete
+                log("- deviceType exists in Beacon: "+existingDeviceTypeId);
             }
         }
 
-
+        log("Checking DeviceType defined in EIServer:");
         for (Beacon3100DeviceType deviceType : masterDataDeviceTypes) {
             active.put(deviceType.getId(), true); // types found in masterdata are still active
 
             if (existingBeaconDeviceTypes.containsKey(deviceType.getId())) {
                 if (deviceType.equals( existingBeaconDeviceTypes.get(deviceType.getId()))){
                     // do nothing, the same - SKIP
+                    log("- deviceType is the same as in Beacon, will not be updated: "+deviceType.getId());
                 } else {
                     // we'll have to update this one
                     deviceTypesToUpdate.add(deviceType);
+                    log("- deviceType is different as the one in the Beacon, will be updated: "+deviceType.getId());
                 }
             } else {
                 // we'll have to add this one
                 deviceTypesToAdd.add(deviceType);
+                log("- deviceType is new (does not exist in the Beacon), will be added: "+deviceType.getId());
             }
         }
 
+        log("Checking DeviceType which are not in use in EIServer anymore, but exists in the Beacon:");
         // delete the remaining inactive items
         for (Long beaconDeviceTypeId : active.keySet()){
             if (!active.get(beaconDeviceTypeId)){
                 // we'll have to delete this one
                 deviceTypesToDelete.add(beaconDeviceTypeId);
+                log("- deviceType is not used anymore, will be deleted: "+beaconDeviceTypeId);
             }
         }
+        log("/finished analysing DeviceTypes");
+    }
+
+    private void log(String text) {
+        info.append(text + "\n");
+    }
+
+    public String getInfo() {
+        return info.toString();
     }
 }
