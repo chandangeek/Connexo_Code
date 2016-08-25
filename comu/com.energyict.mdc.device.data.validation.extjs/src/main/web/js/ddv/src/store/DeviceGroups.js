@@ -10,13 +10,13 @@ Ext.define('Ddv.store.DeviceGroups', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devicegroups',
+        url: '/api/val/kpis/kpigroups',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
         reader: {
             type: 'json',
-            root: 'devicegroups'
+            root: 'deviceGroups'
         }
     }
 });
