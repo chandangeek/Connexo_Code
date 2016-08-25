@@ -228,7 +228,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
     }
 
     private MultiplierType getDefaultMultiplierType() {
-        return this.deviceService.findOrCreateDefaultMultiplierType();
+        return this.deviceService.findDefaultMultiplierType();
     }
 
     /**

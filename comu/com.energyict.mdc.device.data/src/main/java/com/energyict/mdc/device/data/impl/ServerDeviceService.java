@@ -96,6 +96,8 @@ public interface ServerDeviceService extends DeviceService {
      */
     List<Device> findDeviceWithOverruledObisCodeForOtherThanChannelSpec(ChannelSpec channelSpec);
 
-    MultiplierType findOrCreateDefaultMultiplierType();
+    MultiplierType findDefaultMultiplierType();
+
+    void clearMultiplierTypeCache();
 
 }

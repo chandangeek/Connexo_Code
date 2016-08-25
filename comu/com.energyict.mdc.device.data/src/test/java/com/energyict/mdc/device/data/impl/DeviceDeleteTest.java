@@ -206,7 +206,7 @@ public class DeviceDeleteTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        when(deviceService.findOrCreateDefaultMultiplierType()).thenReturn(defaultMultiplierType);
+        when(deviceService.findDefaultMultiplierType()).thenReturn(defaultMultiplierType);
         when(defaultMultiplierType.getName()).thenReturn(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
 
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));

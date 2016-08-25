@@ -469,16 +469,21 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public MultiplierType findOrCreateDefaultMultiplierType() {
+    public MultiplierType findDefaultMultiplierType() {
         if (this.defaultMultiplierType == null) {
             Optional<MultiplierType> multiplierType = this.meteringService.getMultiplierType(MULTIPLIER_TYPE);
             if (multiplierType.isPresent()) {
                 this.defaultMultiplierType = multiplierType.get();
             } else {
-                this.defaultMultiplierType = this.meteringService.createMultiplierType(MULTIPLIER_TYPE);
+                throw new IllegalStateException("mdc.device.data installer has not run yet!");
             }
         }
         return this.defaultMultiplierType;
+    }
+
+    @Override
+    public void clearMultiplierTypeCache() {
+        this.defaultMultiplierType = null;
     }
 
 }
