@@ -136,7 +136,7 @@ public class JbpmTaskResource {
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.InProgress));
                                 }
                                 if (filterProperties.get("status").get(i).toString().contains("COMPLETED")) {
-                                    predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Completed));
+                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Completed));
                                 }
                                 if (filterProperties.get("status").get(i).toString().contains("FAILED")) {
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Failed));
