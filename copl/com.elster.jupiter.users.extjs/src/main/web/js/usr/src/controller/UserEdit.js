@@ -114,9 +114,11 @@ Ext.define('Usr.controller.UserEdit', {
                 location.href = '#/administration/users';
             },
             failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText);
-                if (json && json.errors) {
-                    form.markInvalid(json.errors);
+                if (operation.response.status === 400) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        form.markInvalid(json.errors);
+                    }
                 }
             }
         });
