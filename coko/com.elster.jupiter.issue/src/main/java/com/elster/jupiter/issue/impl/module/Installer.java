@@ -113,7 +113,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
                 .createDestinationSpec(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DESTINATION, ISSUE_OVERDUE_TASK_RETRY_DELAY);
         destination.activate();
-        destination.subscribe(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER).create();
+        destination.subscribe(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER);
 
         RecurrentTask task = taskService.newBuilder()
                 .setApplication("Admin")
