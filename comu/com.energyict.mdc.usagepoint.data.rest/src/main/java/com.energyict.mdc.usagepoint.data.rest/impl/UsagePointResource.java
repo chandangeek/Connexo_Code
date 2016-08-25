@@ -143,7 +143,9 @@ public class UsagePointResource {
                 List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(effectiveInterval);
                 for (IntervalReadingRecord intervalReadingRecord : intervalReadings) {
                     IntervalReadingWithValidationStatus readingHolder = preFilledChannelDataMap.get(intervalReadingRecord.getTimeStamp());
-                    readingHolder.setIntervalReadingRecord(intervalReadingRecord);
+                    if (readingHolder != null) {
+                        readingHolder.setIntervalReadingRecord(intervalReadingRecord);
+                    }
                 }
                 RangeMap<Instant, Instant> lastCheckedOfSourceChannels = getLastCheckedOfSourceChannels(effectiveMetrologyConfiguration, channel);
                 outputChannelDataInfoList = preFilledChannelDataMap.entrySet().stream()
