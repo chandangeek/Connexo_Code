@@ -81,7 +81,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private SubscriberSpec getSubscriberSpec() {
-        return getDestination().getSubscribers().stream().findFirst().orElseGet(() -> getDestination().subscribe(DATA_LIFE_CYCLE_DESTINATION_NAME).create());
+        return getDestination().getSubscribers().stream().findFirst().orElseGet(() -> getDestination().subscribe(DATA_LIFE_CYCLE_DESTINATION_NAME));
     }
 
     private void createTask() {
