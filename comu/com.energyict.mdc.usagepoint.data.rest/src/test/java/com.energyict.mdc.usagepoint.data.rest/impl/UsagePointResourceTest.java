@@ -1,7 +1,6 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -34,7 +33,6 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -45,7 +43,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -73,7 +70,6 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
     private State deviceState;
 
     private ReadingType readingType;
-    ;
 
     @Before
     public void before() {
@@ -97,7 +93,6 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
 
     @Test
     public void testDevicesHistory() {
-
         // Business method
         String json = target("/usagepoints/testUP/history/devices").request().get(String.class);
 
@@ -179,33 +174,6 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.deviceChannels[1].mRID")).isEqualTo("testOldDevice");
         assertThat(jsonModel.<String>get("$.deviceChannels[1].channel.name")).isEqualTo("testR");
         assertThat(jsonModel.<Integer>get("$.deviceChannels[1].channel.id")).isNull();
-    }
-
-    @Test
-    @Ignore
-    public void testGetChannelData() throws UnsupportedEncodingException {
-        EffectiveMetrologyConfigurationOnUsagePoint mc = mockEffectiveMetrologyConfiguration();
-        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
-        when(mc.getUsagePoint()).thenReturn(usagePoint);
-        ValidationEvaluator validationEvaluator = mock(ValidationEvaluator.class);
-        when(validationService.getEvaluator(any(), any())).thenReturn(validationEvaluator);
-        when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.empty());
-
-        //Business method
-        String filter = ExtjsFilter.filter().property("intervalStart", 1468846440000L).property("intervalEnd", 1500382440000L).create();
-        String json = target("/usagepoints/testUP/channels/1/data").queryParam("filter", filter).request().get(String.class);
-
-        //Asserts
-        JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<List>get("$.data")).hasSize(1);
-        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(1468875600000L);
-        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1468962000000L);
-        assertThat(jsonModel.<Long>get("$.data[0].readingTime")).isEqualTo(1468962000000L);
-        assertThat(jsonModel.<String>get("$.data[0].value")).isEqualTo("10");
-        assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isEqualTo(true);
-        assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<String>get("$.data[0].validationAction")).isEqualTo("FAIL");
     }
 
     private EffectiveMetrologyConfigurationOnUsagePoint mockEffectiveMetrologyConfiguration() {

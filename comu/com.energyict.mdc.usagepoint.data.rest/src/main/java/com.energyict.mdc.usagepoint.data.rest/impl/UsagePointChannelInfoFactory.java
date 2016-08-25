@@ -78,22 +78,27 @@ public class UsagePointChannelInfoFactory {
             } else {
                 UsagePointDeviceChannelInfo deviceChannelInfo = new UsagePointDeviceChannelInfo();
                 String mrid = meterActivation.getMeter().get().getMRID();
-                Device device = deviceService.findByUniqueMrid(mrid)
-                        .orElseThrow(() -> new IllegalArgumentException("Device " + mrid + " not found"));
-                deviceChannelInfo.mRID = mrid;
-                deviceChannelInfo.from = meterActivation.getStart().toEpochMilli();
-                deviceChannelInfo.until = meterActivation.getEnd() != null ? meterActivation.getEnd().toEpochMilli() : null;
-                requirementsCollector.getReadingTypeRequirements().stream()
-                        .flatMap(readingTypeRequirement -> readingTypeRequirement.getMatchingChannelsFor(meterActivation.getChannelsContainer()).stream())
-                        .forEach(ch -> {
-                            ReadingType mainReadingType = ch.getMainReadingType();
-                            com.energyict.mdc.device.data.Channel channelOnDevice = device.getChannels().stream()
-                                    .filter(deviceChannel -> ch.getReadingTypes().contains(deviceChannel.getReadingType()))
-                                    .findFirst()
-                                    .orElse(null);
-                            deviceChannelInfo.channel = new IdWithNameInfo(channelOnDevice != null ? channelOnDevice.getId() : null, mainReadingType.getFullAliasName());
-                        });
-                info.deviceChannels.add(deviceChannelInfo);
+                Optional<Device> device = deviceService.findByUniqueMrid(mrid);
+                if(device.isPresent()) {
+                    deviceChannelInfo.mRID = mrid;
+                    deviceChannelInfo.from = meterActivation.getStart().toEpochMilli();
+                    deviceChannelInfo.until = meterActivation.getEnd() != null ? meterActivation.getEnd()
+                            .toEpochMilli() : null;
+                    requirementsCollector.getReadingTypeRequirements().stream()
+                            .flatMap(readingTypeRequirement -> readingTypeRequirement.getMatchingChannelsFor(meterActivation
+                                    .getChannelsContainer()).stream())
+                            .forEach(ch -> {
+                                ReadingType mainReadingType = ch.getMainReadingType();
+                                com.energyict.mdc.device.data.Channel channelOnDevice = device.get().getChannels().stream()
+                                        .filter(deviceChannel -> ch.getReadingTypes()
+                                                .contains(deviceChannel.getReadingType()))
+                                        .findFirst()
+                                        .orElse(null);
+                                deviceChannelInfo.channel = new IdWithNameInfo(channelOnDevice != null ? channelOnDevice
+                                        .getId() : null, mainReadingType.getFullAliasName());
+                            });
+                    info.deviceChannels.add(deviceChannelInfo);
+                }
             }
             meterActivationOld = meterActivation;
         }
