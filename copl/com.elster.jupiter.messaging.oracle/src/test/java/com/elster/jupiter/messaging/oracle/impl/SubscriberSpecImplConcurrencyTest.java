@@ -2,7 +2,6 @@ package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataModel;
 
 import oracle.jdbc.OracleConnection;
@@ -86,15 +85,12 @@ public class SubscriberSpecImplConcurrencyTest {
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-        SubscriberSpec.Receiver receiver = subscriberSpec.newReceiver();
         for (int i = 0; i < 4; i++) {
-            executorService.submit((Runnable) () -> {
-                receiver.receive();
-            });
+            executorService.submit((Runnable) () -> subscriberSpec.receive());
         }
         executorService.shutdown();
         allThreadsBlocking.await(2, TimeUnit.SECONDS);
-        receiver.cancel();
+        subscriberSpec.cancel();
         executorService.awaitTermination(2, TimeUnit.SECONDS);
         assertThat(cancelCounter.get()).isEqualTo(4);
         verify(connection1, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
@@ -113,16 +109,13 @@ public class SubscriberSpecImplConcurrencyTest {
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-        SubscriberSpec.Receiver receiver = subscriberSpec.newReceiver();
         for (int i = 0; i < 4; i++) {
-            executorService.submit((Runnable) () -> {
-                receiver.receive();
-            });
+            executorService.submit((Runnable) () -> subscriberSpec.receive());
         }
         executorService.shutdown();
         allThreadsBlocking.await(2, TimeUnit.SECONDS);
-        receiver.cancel();
-        receiver.cancel();
+        subscriberSpec.cancel();
+        subscriberSpec.cancel();
         executorService.awaitTermination(2, TimeUnit.SECONDS);
         assertThat(cancelCounter.get()).isEqualTo(4);
         verify(connection1, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());

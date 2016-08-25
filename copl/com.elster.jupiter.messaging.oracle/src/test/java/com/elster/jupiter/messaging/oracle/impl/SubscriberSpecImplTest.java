@@ -2,12 +2,18 @@ package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataModel;
-
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -18,22 +24,10 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubscriberSpecImplTest {
@@ -89,7 +83,7 @@ public class SubscriberSpecImplTest {
     public void testReceive() throws SQLException {
         when(connection.dequeue(eq(DESTINATION), any(AQDequeueOptions.class), eq(PAYLOAD_TYPE))).thenReturn(message);
 
-        Message received = subscriberSpec.newReceiver().receive();
+        Message received = subscriberSpec.receive();
 
         assertThat(received.getPayload()).isEqualTo(message.getPayload());
     }
@@ -98,20 +92,19 @@ public class SubscriberSpecImplTest {
     public void testCancelBreaksOutOfABlockingReceive() throws Exception {
         mockConnectionBlockingOnEmptyQueue();
 
-        SubscriberSpec.Receiver receiver = subscriberSpec.newReceiver();
         RunnableFuture<Message> task = new FutureTask<>(new Callable<Message>(){
             @Override
             public Message call() {
-                return receiver.receive();
+                return subscriberSpec.receive();
             }
         });
-        Thread receiverThread = new Thread(task);
-        receiverThread.start();
-        while (Thread.State.BLOCKED != receiverThread.getState() && Thread.State.WAITING != receiverThread.getState()) {
+        Thread receiver = new Thread(task);
+        receiver.start();
+        while (Thread.State.BLOCKED != receiver.getState() && Thread.State.WAITING != receiver.getState()) {
             Thread.yield();  // spin wait until receive is blocking, yielding may improve the chance that the other thread gets there faster
         }
 
-        receiver.cancel();
+        subscriberSpec.cancel();
 
         verify(connection).cancel();
 
