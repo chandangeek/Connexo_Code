@@ -1,10 +1,15 @@
 package com.elster.partners.jbpm.extension;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
 public class ProcessInstanceVariableInfo {
+
+    @JsonIgnore
+    static final String passwordVariableName = "password";
 
     public String variableName;
     public String value;
@@ -19,14 +24,20 @@ public class ProcessInstanceVariableInfo {
     public ProcessInstanceVariableInfo(Object[] obj){
         this.variableName = obj[7] == null ? "" : (String) obj[7];
         this.logDate = obj[1] == null ? null : (Timestamp) obj[1];
-        this.value = obj[6] == null ? "" : (String) obj[6];
+        this.value = obj[6] == null ? "" :
+                this.variableName.toLowerCase().contains(this.passwordVariableName)
+                        ? ""
+                        :(String) obj[6];
         this.oldValue = obj[3] == null ? "" : (String) obj[3];
     }
 
     public ProcessInstanceVariableInfo(Object[] obj, List<ProcessInstanceNodeInfo> nodes){
         this.variableName = obj[7] == null ? "" : (String) obj[7];
         this.logDate = obj[1] == null ? null : (Timestamp) obj[1];
-        this.value = obj[6] == null ? "" : (String) obj[6];
+        this.value = obj[6] == null ? "" :
+                this.variableName.toLowerCase().contains(this.passwordVariableName)
+                        ? ""
+                        :(String) obj[6];
         this.oldValue = obj[3] == null ? "" : (String) obj[3];
         if(logDate != null) {
             for (int i=0; i< nodes.size();i++) {
