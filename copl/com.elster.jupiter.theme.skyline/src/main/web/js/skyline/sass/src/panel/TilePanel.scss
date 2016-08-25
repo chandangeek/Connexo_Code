@@ -43,6 +43,8 @@ $ui-body-color: $panel-tile-body-color
 .#{$prefix}panel-tile .#{$prefix}form-display-field{
     height: auto;
     min-height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 

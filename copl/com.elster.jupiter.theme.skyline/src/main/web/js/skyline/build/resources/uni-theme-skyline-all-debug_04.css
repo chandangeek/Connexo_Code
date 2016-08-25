@@ -2703,6 +2703,8 @@
 .x-panel-tile .x-form-display-field {
   height: auto;
   min-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* line 1, ../../sass/src/panel/TilePanel2.scss */
