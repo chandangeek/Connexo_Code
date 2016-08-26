@@ -107,7 +107,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
             backUrl: me.getLandingUrl(),
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved'));
-                me.goToAttributesLanding(record.get('mrid').displayValue);
+                me.goToAttributesLanding(encodeURIComponent(record.get('mrid').displayValue));
             },
             failure: function (record, operation) {
                 if (operation && operation.response && operation.response.status === 400) {
