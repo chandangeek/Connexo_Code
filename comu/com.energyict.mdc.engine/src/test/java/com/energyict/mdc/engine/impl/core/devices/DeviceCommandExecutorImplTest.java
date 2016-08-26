@@ -32,7 +32,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -467,7 +466,7 @@ public class DeviceCommandExecutorImplTest {
      * Tests that {@link DeviceCommand}s that fail with a DataAccessException
      * also releases resources so that subsequent preparation calls succeed.
      */
-    @Ignore // TODO: unstable behavior, sometimes this succeeds, sometimes this fails ...
+//    @Ignore : TODO: unstable behavior, sometimes this succeeds, sometimes this fails ... // RETESTED, and found it to be stable on local machine (vs heavy load)
     @Test
     public void testPrepareExecutionAfterDataAccessExceptionFailure() throws InterruptedException {
         ComServer comServer = mock(ComServer.class);
@@ -504,7 +503,7 @@ public class DeviceCommandExecutorImplTest {
      * Tests that {@link DeviceCommand}s that fail with an ApplicationException
      * also release resources so that subsequent preparation calls succeed.
      */
-    @Ignore // TODO: unstable behavior, sometimes this succeeds, sometimes this fails ...
+//    @Ignore // TODO: unstable behavior, sometimes this succeeds, sometimes this fails ... // RETESTED, and found it to be stable on local machine (vs heavy load)
     @Test
     public void testPrepareExecutionAfterApplicationExceptionFailure() throws InterruptedException {
         int numberOfExecutingCommands = CAPACITY - 1;
@@ -539,7 +538,7 @@ public class DeviceCommandExecutorImplTest {
      * Tests that {@link DeviceCommand}s that fail with a RuntimeException
      * also release resources so that subsequent preparation calls succeed.
      */
-    @Ignore // TODO: unstable behavior, sometimes this succeeds, sometimes this fails ...
+//    @Ignore // TODO: unstable behavior, sometimes this succeeds, sometimes this fails ... // RETESTED, and found it to be stable on local machine (vs heavy load)
     @Test
     public void testPrepareExecutionAfterRuntimeExceptionFailure() throws InterruptedException {
         int numberOfExecutingCommands = CAPACITY - 1;
