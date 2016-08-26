@@ -6,6 +6,11 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         'Imt.purpose.store.Readings',
         'Uni.view.toolbar.PagingTop'
     ],
+    plugins: [
+        {
+            ptype: 'bufferedrenderer'
+        }
+    ],
     store: 'Imt.purpose.store.Readings',
 
     initComponent: function () {
