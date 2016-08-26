@@ -121,7 +121,6 @@ public class IdsCrudTest {
             interval = Range.openClosed(dateTime.toInstant(), dateTime.plusMinutes(15).toInstant());
             assertThat(ts.getEntries(interval)).isEmpty();
             assertThat(ts.getEntries(Range.atLeast(Instant.EPOCH))).hasSize(1);
-            assertThat(ts.getLastDateTime()).isEqualTo(dateTime.toInstant());
         }
     }
 

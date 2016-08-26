@@ -367,14 +367,6 @@ public final class TimeSeriesImpl implements TimeSeries {
 			}
 		}
 		getVault().removeEntries(this, range);
-		if (lastTime != null && range.contains(getLastDateTime())) {
-			if (range.hasLowerBound()) {
-				lastTime = getEntriesOnOrBefore(range.lowerEndpoint(), 1).stream().map(entry -> entry.getTimeStamp()).findFirst().orElse(null);
-			} else {
-				lastTime = null;
-			}
-			dataModel.update(this, "lastTime");
-		}
 	}
 
 	@Override
