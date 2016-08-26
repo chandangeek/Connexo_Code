@@ -4,7 +4,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -15,6 +14,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.ServerDevice;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.SyncDeviceWithKoreMeter;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -38,7 +38,7 @@ import java.util.Optional;
  */
 public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithKoreMeter {
 
-    private final MeteringService meteringService;
+    private final ServerDeviceService deviceService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final EventService eventService;
 
@@ -46,8 +46,8 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
     private ServerDevice device;
     private MultiplierType multiplierType;
 
-    AbstractSyncDeviceWithKoreMeter(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService, Instant start) {
-        this.meteringService = meteringService;
+    AbstractSyncDeviceWithKoreMeter(ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService, Instant start) {
+        this.deviceService = deviceService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.eventService = eventService;
         this.start = generalizeDatesToMinutes(start);
@@ -70,14 +70,14 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         this.start = generalizeDatesToMinutes(start);
     }
 
-    protected void endCurrentMeterConfigurationIfPresent() {
+    void endCurrentMeterConfigurationIfPresent() {
         device.getMeter()
                 .get()
                 .getConfiguration(start)
                 .ifPresent(meterConfiguration -> meterConfiguration.endAt(start));
     }
 
-    protected void endCurrentMeterActivationIfPresent() {
+    void endCurrentMeterActivationIfPresent() {
         device.getMeter().get().getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(start));
     }
 
@@ -87,7 +87,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         }
     }
 
-    protected Meter.MeterConfigurationBuilder meterconfigurationBuilder(boolean withCalculatedReadingType) {
+    private Meter.MeterConfigurationBuilder meterconfigurationBuilder(boolean withCalculatedReadingType) {
         Meter.MeterConfigurationBuilder meterConfigurationBuilder = device.getMeter()
                 .get()
                 .startingConfigurationOn(start);
@@ -96,10 +96,8 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         return meterConfigurationBuilder;
     }
 
-    protected Optional<MeterConfiguration> createKoreMeterConfiguration(boolean addCalculatedReadingType) {
-        if (device.getDeviceConfiguration().getChannelSpecs().size() > 0 || device.getDeviceConfiguration()
-                .getRegisterSpecs()
-                .size() > 0) {
+    Optional<MeterConfiguration> createKoreMeterConfiguration(boolean addCalculatedReadingType) {
+        if (!device.getDeviceConfiguration().getChannelSpecs().isEmpty() || !device.getDeviceConfiguration().getRegisterSpecs().isEmpty()) {
             return Optional.of(meterconfigurationBuilder(addCalculatedReadingType).create());
         }
         return Optional.empty();
@@ -111,7 +109,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
 
     abstract MeterActivation doActivateMeter(Instant generalizedStartDate);
 
-    protected void addKoreChannelsIfNecessary(MeterActivation activation) {
+    void addKoreChannelsIfNecessary(MeterActivation activation) {
         device.getChannels().forEach((x) -> addKoreChannelIfNecessary(activation, x));
         device.getRegisters().forEach((x) -> addKoreChannelIfNecessary(activation, x));
     }
@@ -130,7 +128,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         }
     }
 
-    protected void createMeterConfigurationsForChannelSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
+    void createMeterConfigurationsForChannelSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
         device.getDeviceConfiguration().getChannelSpecs()
                 .forEach(channelSpec ->
                         configureReadingType(
@@ -142,7 +140,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
                 );
     }
 
-    protected void createMeterConfigurationsForRegisterSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
+    void createMeterConfigurationsForRegisterSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
         device.getDeviceConfiguration().getRegisterSpecs().stream().filter(registerSpec -> !registerSpec.isTextual())
                 .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1))
                 .forEach(registerSpec ->
@@ -151,12 +149,11 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
                                 registerSpec.getReadingType(),
                                 registerSpec.getNumberOfFractionDigits(),
                                 registerSpec.getOverflowValue(),
-                                (addCalculatedReadingType && registerSpec.isUseMultiplier() ? registerSpec.getCalculatedReadingType()
-                                        .get() : null))
+                                (addCalculatedReadingType && registerSpec.isUseMultiplier() ? registerSpec.getCalculatedReadingType().get() : null))
                 );
     }
 
-    protected Meter.MeterReadingTypeConfigurationBuilder configureReadingType(Meter.MeterConfigurationBuilder meterConfigurationBuilder, ReadingType readingType, int numberOfFractionDigits, Optional<BigDecimal> overflowValue, ReadingType calculatedReadingType) {
+    Meter.MeterReadingTypeConfigurationBuilder configureReadingType(Meter.MeterConfigurationBuilder meterConfigurationBuilder, ReadingType readingType, int numberOfFractionDigits, Optional<BigDecimal> overflowValue, ReadingType calculatedReadingType) {
         Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
                 .configureReadingType(readingType)
                 .withNumberOfFractionDigits(numberOfFractionDigits);
@@ -199,7 +196,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
      * @param newUsagePoint the UsagePoint for the new meterActivation. If not given the meterActivation's UsagePoint is used
      * @return the new MeterActivation
      */
-    protected MeterActivation endMeterActivationAndRestart(Instant end, Optional<MeterActivation> meterActivation, Optional<UsagePoint> newUsagePoint) {
+    MeterActivation endMeterActivationAndRestart(Instant end, Optional<MeterActivation> meterActivation, Optional<UsagePoint> newUsagePoint) {
         meterActivation.ifPresent(ma -> ma.endAt(end));
         MeterActivation newMeterActivation;
 
@@ -213,8 +210,10 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         } else if (meterActivation.flatMap(MeterActivation::getUsagePoint).isPresent()) {
             newMeterActivation = device.getMeter()
                     .get()
-                    .activate(meterActivation.flatMap(MeterActivation::getUsagePoint)
-                            .get(), meterActivation.flatMap(MeterActivation::getMeterRole).get(), end);
+                    .activate(
+                            meterActivation.flatMap(MeterActivation::getUsagePoint).get(),
+                            meterActivation.flatMap(MeterActivation::getMeterRole).get(),
+                            end);
         } else {
             newMeterActivation = device.getMeter().get().activate(end);
         }
@@ -229,11 +228,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
     }
 
     private MultiplierType getDefaultMultiplierType() {
-        Optional<MultiplierType> mt = this.meteringService.getMultiplierType(MULTIPLIER_TYPE);
-        if (!mt.isPresent()) {
-            return this.meteringService.createMultiplierType(MULTIPLIER_TYPE);
-        }
-        return mt.get();
+        return this.deviceService.findDefaultMultiplierType();
     }
 
     /**

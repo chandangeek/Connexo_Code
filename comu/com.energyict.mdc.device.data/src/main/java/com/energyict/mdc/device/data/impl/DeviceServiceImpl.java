@@ -8,6 +8,8 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -82,6 +84,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.energyict.mdc.device.data.impl.SyncDeviceWithKoreMeter.MULTIPLIER_TYPE;
 
 /**
  * Provides an implementation for the {@link DeviceService} interface.
@@ -90,20 +93,23 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @since 2014-03-10 (16:27)
  */
 @LiteralSql
-public class DeviceServiceImpl implements ServerDeviceService {
+class DeviceServiceImpl implements ServerDeviceService {
 
+    private final MeteringService meteringService;
     private final DeviceDataModelService deviceDataModelService;
     private final QueryService queryService;
     private final Thesaurus thesaurus;
     private final Clock clock;
+    private MultiplierType defaultMultiplierType;
 
     @Inject
-    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, NlsService nlsService, Clock clock) {
-        this(deviceDataModelService, queryService, nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN), clock);
+    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, MeteringService meteringService, QueryService queryService, NlsService nlsService, Clock clock) {
+        this(deviceDataModelService, meteringService, queryService, nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN), clock);
     }
 
-    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, Thesaurus thesaurus, Clock clock) {
+    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, MeteringService meteringService, QueryService queryService, Thesaurus thesaurus, Clock clock) {
         super();
+        this.meteringService = meteringService;
         this.deviceDataModelService = deviceDataModelService;
         this.queryService = queryService;
         this.thesaurus = thesaurus;
@@ -461,4 +467,23 @@ public class DeviceServiceImpl implements ServerDeviceService {
         sqlBuilder.addLong(outdatedTimeStamp.getEpochSecond());
         return sqlBuilder;
     }
+
+    @Override
+    public MultiplierType findDefaultMultiplierType() {
+        if (this.defaultMultiplierType == null) {
+            Optional<MultiplierType> multiplierType = this.meteringService.getMultiplierType(MULTIPLIER_TYPE);
+            if (multiplierType.isPresent()) {
+                this.defaultMultiplierType = multiplierType.get();
+            } else {
+                throw new IllegalStateException("mdc.device.data installer has not run yet!");
+            }
+        }
+        return this.defaultMultiplierType;
+    }
+
+    @Override
+    public void clearMultiplierTypeCache() {
+        this.defaultMultiplierType = null;
+    }
+
 }

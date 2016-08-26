@@ -3,9 +3,9 @@ package com.energyict.mdc.device.data.impl.sync;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.time.Instant;
@@ -16,13 +16,11 @@ import java.util.Optional;
  */
 public class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKoreMeter {
 
-    private DeviceImpl device;
     private Optional<Location> location = Optional.empty();
     private Optional<SpatialCoordinates> spatialCoordinates = Optional.empty();
 
-    public SyncDeviceWithKoreForSimpleUpdate(DeviceImpl device, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService) {
-        super(meteringService, readingTypeUtilService, eventService, null);
-        this.device = device;
+    public SyncDeviceWithKoreForSimpleUpdate(DeviceImpl device, ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService) {
+        super(deviceService, readingTypeUtilService, eventService, null);
     }
 
     public void setLocation(Location location) {

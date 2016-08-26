@@ -94,6 +94,8 @@ public class DeviceLifeCycleChangeEventsTest {
     @Mock
     private MeteringService meteringService;
     @Mock
+    private ServerDeviceService deviceService;
+    @Mock
     private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private ValidationService validationService;
@@ -156,11 +158,11 @@ public class DeviceLifeCycleChangeEventsTest {
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(this.mdcAmrSystem));
-        when(meteringService.getMultiplierType("Default")).thenReturn(Optional.of(multiplierType));
+        when(deviceService.findDefaultMultiplierType()).thenReturn(multiplierType);
         when(multiplierType.getName()).thenReturn("Default");
         when(this.mdcAmrSystem.findMeter("0")).thenReturn(Optional.of(this.meter));
         when(this.meter.getStateTimeline()).thenReturn(Optional.of(this.stateTimeline));
-        when(this.stateTimeline.getSlices()).thenReturn(Collections.<StateTimeSlice>emptyList());
+        when(this.stateTimeline.getSlices()).thenReturn(Collections.emptyList());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(finiteStateMachine.getId()).thenReturn(633L);
@@ -245,7 +247,7 @@ public class DeviceLifeCycleChangeEventsTest {
         State mappedState = mock(State.class);
         when(administrativeChangeState.getState()).thenReturn(mappedState);
         when(administrativeChangeState.getUser()).thenReturn(Optional.of(this.user));
-        when(this.stateTimeline.getSlices()).thenReturn(Arrays.<StateTimeSlice>asList(initialStateTimeSlice, administrativeChangeState));
+        when(this.stateTimeline.getSlices()).thenReturn(Arrays.asList(initialStateTimeSlice, administrativeChangeState));
 
         DeviceImpl device = this.getTestInstance();
 
@@ -303,7 +305,7 @@ public class DeviceLifeCycleChangeEventsTest {
         State newState = mock(State.class);
         when(changeState.getState()).thenReturn(newState);
         when(changeState.getUser()).thenReturn(Optional.of(this.user));
-        when(this.stateTimeline.getSlices()).thenReturn(Arrays.<StateTimeSlice>asList(initialStateTimeSlice, changeState));
+        when(this.stateTimeline.getSlices()).thenReturn(Arrays.asList(initialStateTimeSlice, changeState));
 
         DeviceImpl device = this.getTestInstance();
 
@@ -337,7 +339,6 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.thesaurus,
                 this.clock,
                 this.meteringService,
-                this.metrologyConfigurationService,
                 this.validationService,
                 this.securityPropertyService,
                 this.scheduledConnectionTaskProvider,
@@ -351,7 +352,7 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.readingTypeUtilService,
                 this.threadPrincipalService,
                 this.userPreferencesService,
-                this.deviceConfigurationService)
+                this.deviceConfigurationService, deviceService)
                 .initialize(this.deviceConfiguration, "Hello world", "mRID", Instant.now());
         device.save();
         return device;

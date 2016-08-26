@@ -2382,13 +2382,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
 
-        ReadingType monthlyBulkAMinus = inMemoryPersistence.getMeteringService().getReadingType("13.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-        ReadingType monthlyBulkAPlus = inMemoryPersistence.getMeteringService().getReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-        ReadingType minutes15DeltaAPlus = inMemoryPersistence.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        ReadingType monthlyDeltaAMinus = inMemoryPersistence.getMeteringService().getReadingType("13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         ReadingType monthlyDeltaAPlus = inMemoryPersistence.getMeteringService().getReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        ReadingType minutes15DeltaAPlus = inMemoryPersistence.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
 
-        UsagePointMetrologyConfiguration mc0 = createMetrologyConfiguration("mc0", Collections.singletonList(monthlyBulkAMinus));
-        UsagePointMetrologyConfiguration mc1 = createMetrologyConfiguration("mc1", Arrays.asList(monthlyBulkAPlus, minutes15DeltaAPlus));
+        UsagePointMetrologyConfiguration mc0 = createMetrologyConfiguration("mc0", Collections.singletonList(monthlyDeltaAMinus));
+        UsagePointMetrologyConfiguration mc1 = createMetrologyConfiguration("mc1", Arrays.asList(monthlyDeltaAPlus, minutes15DeltaAPlus));
         UsagePointMetrologyConfiguration mc2 = createMetrologyConfiguration("mc2", Collections.singletonList(monthlyDeltaAPlus));
 
         Instant startMC0 = freezeClock(2016, 6, 2);
@@ -2403,7 +2402,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         expectedEx.expectMessage(
                 "This device doesn’t have the following reading types that are specified " +
                         "in the metrology configurations of the selected usage point: " +
-                        "'" + mc1.getName() + "' (" + monthlyBulkAPlus.getName() + "), " +
+                        "'" + mc1.getName() + "' (" + monthlyDeltaAPlus.getName() + "), " +
                         "'" + mc2.getName() + "' (" + monthlyDeltaAPlus.getName() + ")");
 
         // Business method

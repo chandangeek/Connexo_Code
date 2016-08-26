@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -104,17 +105,17 @@ public abstract class PersistenceIntegrationTest {
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         int anySecurityLevel = 0;
         when(authenticationAccessLevel.getId()).thenReturn(anySecurityLevel);
-        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
         EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
-        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
         freezeClock(1970, Calendar.JANUARY, 1); // Experiencing timing issues in tests that set clock back in time and the respective devices need their device life cycle
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfigurationBuilder.isDirectlyAddressable(true);
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
@@ -134,6 +135,11 @@ public abstract class PersistenceIntegrationTest {
     @After
     public void resetClock () {
         initializeClock();
+    }
+
+    @After
+    public void clearMultiplierTypeCache() {
+        inMemoryPersistence.getDeviceService().clearMultiplierTypeCache();
     }
 
     private static void initializeClock() {
@@ -166,4 +172,5 @@ public abstract class PersistenceIntegrationTest {
     protected Device getReloadedDevice(Device device) {
         return inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
     }
+
 }

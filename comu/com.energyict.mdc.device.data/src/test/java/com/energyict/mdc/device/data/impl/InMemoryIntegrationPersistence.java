@@ -344,7 +344,7 @@ public class InMemoryIntegrationPersistence {
     private void initializePrivileges() {
         new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
-        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), serviceCallService, customPropertySetService).getModuleResources()
+        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), meteringService, serviceCallService, customPropertySetService).getModuleResources()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
     }
 

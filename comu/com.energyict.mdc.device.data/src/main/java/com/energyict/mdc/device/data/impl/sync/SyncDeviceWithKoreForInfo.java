@@ -2,10 +2,9 @@ package com.energyict.mdc.device.data.impl.sync;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.math.BigDecimal;
@@ -24,11 +23,10 @@ public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
     private DeviceImpl device;
     private final Clock clock;
     private Optional<MeterActivation> currentMeterActivation = null;
-    @IsPresent
     private Optional<Instant> initialMeterActivationStartDate = Optional.empty();
 
-    public SyncDeviceWithKoreForInfo(DeviceImpl device, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, EventService eventService) {
-        super(meteringService, readingTypeUtilService, eventService, null);
+    public SyncDeviceWithKoreForInfo(DeviceImpl device, ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, EventService eventService) {
+        super(deviceService, readingTypeUtilService, eventService, null);
         this.device = device;
         this.clock = clock;
     }
