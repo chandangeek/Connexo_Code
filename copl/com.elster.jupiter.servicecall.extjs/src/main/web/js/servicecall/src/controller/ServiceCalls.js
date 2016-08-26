@@ -57,6 +57,9 @@ Ext.define('Scs.controller.ServiceCalls', {
             },
             '#service-calls-overview-scs-menu': {
                 click: this.chooseAction
+            },
+            '#scsAtionButton scs-action-menu': {
+                click: this.chooseAction
             }
         });
     },
