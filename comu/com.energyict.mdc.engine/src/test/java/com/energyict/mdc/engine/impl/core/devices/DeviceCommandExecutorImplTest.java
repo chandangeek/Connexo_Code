@@ -29,6 +29,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
 import org.junit.Before;
@@ -370,8 +372,10 @@ public class DeviceCommandExecutorImplTest {
             deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
+            List<Future<Boolean>> futures = new ArrayList<>();
             for (DeviceCommandExecutionToken token : alreadyPrepared) {
-                deviceCommandExecutor.execute(new LatchDrivenCommand(startLatch, stopLatch), token);
+                Future<Boolean> future = deviceCommandExecutor.execute(new LatchDrivenCommand(startLatch, stopLatch), token);
+                futures.add(future);
             }
 
             // Triggering the start latch, kicks the executing command(s)
@@ -379,6 +383,8 @@ public class DeviceCommandExecutorImplTest {
 
             // Now wait until the commands complete
             stopLatch.await();
+
+            waitFor(futures);
 
             // Business method
             List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
@@ -466,7 +472,6 @@ public class DeviceCommandExecutorImplTest {
      * Tests that {@link DeviceCommand}s that fail with a DataAccessException
      * also releases resources so that subsequent preparation calls succeed.
      */
-//    @Ignore : TODO: unstable behavior, sometimes this succeeds, sometimes this fails ... // RETESTED, and found it to be stable on local machine (vs heavy load)
     @Test
     public void testPrepareExecutionAfterDataAccessExceptionFailure() throws InterruptedException {
         ComServer comServer = mock(ComServer.class);
@@ -479,8 +484,10 @@ public class DeviceCommandExecutorImplTest {
             deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
+            List<Future<Boolean>> futures = new ArrayList<>();
             for (DeviceCommandExecutionToken token : alreadyPrepared) {
-                deviceCommandExecutor.execute(new DataAccessExceptionCommand(startLatch, stopLatch), token);
+                Future<Boolean> future = deviceCommandExecutor.execute(new DataAccessExceptionCommand(startLatch, stopLatch), token);
+                futures.add(future);
             }
 
             // Triggering the start latch, kicks the executing command(s)
@@ -488,6 +495,8 @@ public class DeviceCommandExecutorImplTest {
 
             // Now wait until the commands complete
             stopLatch.await();
+
+            waitFor(futures);
 
             // Business method
             List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
@@ -503,7 +512,6 @@ public class DeviceCommandExecutorImplTest {
      * Tests that {@link DeviceCommand}s that fail with an ApplicationException
      * also release resources so that subsequent preparation calls succeed.
      */
-//    @Ignore // TODO: unstable behavior, sometimes this succeeds, sometimes this fails ... // RETESTED, and found it to be stable on local machine (vs heavy load)
     @Test
     public void testPrepareExecutionAfterApplicationExceptionFailure() throws InterruptedException {
         int numberOfExecutingCommands = CAPACITY - 1;
@@ -514,8 +522,10 @@ public class DeviceCommandExecutorImplTest {
             deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
+            List<Future<Boolean>> futures = new ArrayList<>();
             for (DeviceCommandExecutionToken token : alreadyPrepared) {
-                deviceCommandExecutor.execute(new ApplicationExceptionCommand(startLatch, stopLatch), token);
+                Future<Boolean> future = deviceCommandExecutor.execute(new ApplicationExceptionCommand(startLatch, stopLatch), token);
+                futures.add(future);
             }
 
             // Triggering the start latch, kicks the executing command(s)
@@ -523,6 +533,8 @@ public class DeviceCommandExecutorImplTest {
 
             // Now wait until the commands complete
             stopLatch.await();
+
+            waitFor(futures);
 
             // Business method
             List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
@@ -538,7 +550,6 @@ public class DeviceCommandExecutorImplTest {
      * Tests that {@link DeviceCommand}s that fail with a RuntimeException
      * also release resources so that subsequent preparation calls succeed.
      */
-//    @Ignore // TODO: unstable behavior, sometimes this succeeds, sometimes this fails ... // RETESTED, and found it to be stable on local machine (vs heavy load)
     @Test
     public void testPrepareExecutionAfterRuntimeExceptionFailure() throws InterruptedException {
         int numberOfExecutingCommands = CAPACITY - 1;
@@ -549,15 +560,18 @@ public class DeviceCommandExecutorImplTest {
             deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
+            List<Future<Boolean>> futures = new ArrayList<>();
             for (DeviceCommandExecutionToken token : alreadyPrepared) {
-                deviceCommandExecutor.execute(new RuntimeExceptionCommand(startLatch, stopLatch), token);
+                Future<Boolean> future = deviceCommandExecutor.execute(new RuntimeExceptionCommand(startLatch, stopLatch), token);
+                futures.add(future);
             }
-
             // Triggering the start latch, kicks the executing command(s)
             startLatch.countDown();
 
             // Now wait until the commands complete
             stopLatch.await();
+
+            waitFor(futures);
 
             // Business method
             List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(2);
@@ -567,6 +581,18 @@ public class DeviceCommandExecutorImplTest {
         } finally {
             shutdown(deviceCommandExecutor);
         }
+    }
+
+    private void waitFor(List<Future<Boolean>> futures) {
+        futures.forEach(f -> {
+            try {
+                f.get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e.getCause());
+            }
+        });
     }
 
     @Test(expected = IllegalStateException.class)
@@ -607,8 +633,10 @@ public class DeviceCommandExecutorImplTest {
             SignalReceiver receiver = mock(SignalReceiver.class);
             final CountDownLatch startLatch = new CountDownLatch(1);
             CountDownLatch stopLatch = new CountDownLatch(CAPACITY);
+            List<Future<Boolean>> futures = new ArrayList<>();
             for (DeviceCommandExecutionToken token : tokens) {
-                deviceCommandExecutor.execute(new SignalSender(receiver, startLatch, stopLatch), token);
+                Future<Boolean> future = deviceCommandExecutor.execute(new SignalSender(receiver, startLatch, stopLatch), token);
+                futures.add(future);
             }
 
             // Triggering the start latch, kicks the executing command(s)
@@ -616,6 +644,8 @@ public class DeviceCommandExecutorImplTest {
 
             // Business method
             deviceCommandExecutor.shutdown();
+
+            waitFor(futures);
 
             // Asserts
             assertThat(deviceCommandExecutor.getStatus()).isEqualTo(ServerProcessStatus.SHUTDOWN);
