@@ -1,16 +1,17 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.impl.PreparedStatementProvider;
+import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.util.sql.SqlBuilder;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
@@ -51,7 +52,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
     }
 
     private void build() {
-        this.appendWithClauses();
+        this.appendWithClauses(this.connectionTaskService.clock());
         if (this.includeBusyTasks) {
             this.sqlBuilder.append("select '");
             this.sqlBuilder.append(ServerConnectionTaskStatus.Busy.name());
@@ -71,15 +72,23 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
         this.groupByAspect.appendToList(this.sqlBuilder);
     }
 
-    private void appendWithClauses() {
+    private void appendWithClauses(Clock clock) {
         this.sqlBuilder = new SqlBuilder("WITH ");
+        this.appendRestrictedStatesWithClause(clock);
+        this.sqlBuilder.append(", ");
         this.appendBusyComTaskExecutionWithClause();
         this.sqlBuilder.append(", ");
         this.appendConnectionTaskWithClause();
         if (this.needsNotBusyConnectionTaskWithClause()) {
             this.sqlBuilder.append(", ");
-            this.appendNotBusyConnectionTaskWithClause();
+            this.appendNotBusyConnectionTaskWithClause(this.connectionTaskService.clock());
         }
+    }
+
+    private void appendRestrictedStatesWithClause(Clock clock) {
+        DeviceStateSqlBuilder
+                .forDefaultExcludedStates("enddevices")
+                .appendRestrictedStatesWithClause(this.sqlBuilder, clock.instant());
     }
 
     private void appendBusyComTaskExecutionWithClause() {
@@ -95,7 +104,6 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
         this.sqlBuilder.append("     WHERE connT.status = 0");
         this.sqlBuilder.append("       AND connT.obsolete_date is null");
         this.sqlBuilder.append("       AND connT.nextexecutiontimestamp is not null");
-        this.appendRestrictedStatesClause();
         this.appendDeviceInGroupSql();
         this.sqlBuilder.append(")");
     }
@@ -106,15 +114,17 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
 
     protected void appendConnectionTaskFromClauseInWithClause(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" FROM DDC_CONNECTIONTASK connT");
+        sqlBuilder.append(" JOIN DDC_DEVICE dev ON connT.device = dev.id");
+        sqlBuilder.append(" JOIN enddevices kd dev.meterid = kd.id");
     }
 
-    private void appendNotBusyConnectionTaskWithClause() {
+    private void appendNotBusyConnectionTaskWithClause(Clock clock) {
         this.sqlBuilder.append("notBusyCT as (");
         this.sqlBuilder.append("    SELECT /*+ NO_MERGE */ 1 dummy");
         this.groupByAspect.appendToList(this.sqlBuilder);
         this.sqlBuilder.append(",");
         this.sqlBuilder.append("      CASE");
-        this.taskStatusses.stream().forEach(each -> each.appendBreakdownCaseClause(this.sqlBuilder, this.connectionTaskService.clock()));
+        this.taskStatusses.forEach(each -> each.appendBreakdownCaseClause(this.sqlBuilder, clock));
         this.sqlBuilder.append("      END taskStatus");
         this.sqlBuilder.append("    FROM CT WHERE not exists (SELECT 1 FROM busytask WHERE busytask.connectiontask = id)");
         this.sqlBuilder.append("              AND comserver is null)");
@@ -139,11 +149,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
         return intersection;
     }
 
-    private void appendRestrictedStatesClause() {
-        this.connectionTaskService.appendRestrictedStatesClause(this.sqlBuilder, "connT");
-    }
-
-    protected void appendDeviceInGroupSql() {
+    private void appendDeviceInGroupSql() {
         this.connectionTaskService.appendDeviceGroupConditions(this.deviceGroup, this.sqlBuilder, "connT");
     }
 

@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
-import java.time.Clock;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,17 +42,6 @@ public class DeviceStateSqlBuilder {
         return new DeviceStateSqlBuilder(alias, SetStrategy.EXCLUDE_MULTIPLE, EnumSet.of(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED));
     }
 
-    public static DeviceStateSqlBuilder includeStates(String alias, Set<DefaultState> state) {
-        SetStrategy setStrategy;
-        if (state.size() == 1) {
-            setStrategy = SetStrategy.INCLUDE_ONE;
-        }
-        else {
-            setStrategy = SetStrategy.INCLUDE_MULTIPLE;
-        }
-        return new DeviceStateSqlBuilder(alias, setStrategy, state);
-    }
-
     private DeviceStateSqlBuilder(String alias, SetStrategy setStrategy, Set<DefaultState> states) {
         super();
         this.alias = alias;
@@ -61,38 +49,22 @@ public class DeviceStateSqlBuilder {
         this.setStrategy = setStrategy;
     }
 
-    public void appendRestrictedStatesCondition(SqlBuilder sqlBuilder, Clock clock) {
-        this.appendRestrictedStatesCondition(sqlBuilder, clock.instant().toEpochMilli());
-    }
-
-    public void appendRestrictedStatesCondition(SqlBuilder sqlBuilder, long timeInMillis) {
+    public void appendRestrictedStatesWithClause(SqlBuilder sqlBuilder, Instant now) {
         sqlBuilder.append(this.alias);
-        sqlBuilder.append(".device in (");
-        sqlBuilder.append("select ED.amrid");
+        sqlBuilder.append(" as (");
+        sqlBuilder.append("select ES.enddevice id");
         sqlBuilder.append("  from MTR_ENDDEVICESTATUS ES,");
-        sqlBuilder.append("       (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and FS.NAME ");
+        sqlBuilder.append("       (select FS.ID");
+        sqlBuilder.append("          from FSM_STATE FS");
+        sqlBuilder.append("         where FS.OBSOLETE_TIMESTAMP IS NULL");
+        sqlBuilder.append("           and FS.NAME ");
         this.setStrategy.append(sqlBuilder, this.states);
-        sqlBuilder.append(") FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
-        sqlBuilder.addLong(timeInMillis);
-        sqlBuilder.append(" and ES.ENDTIME > ");
-        sqlBuilder.addLong(timeInMillis);
-        sqlBuilder.append(" and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID)");
-    }
-
-    public int appendRestrictedStatesCondition(StringBuilder sqlBuilder) {
-        sqlBuilder.append(" and ");
-        sqlBuilder.append(this.alias);
-        sqlBuilder.append(".device in (");
-        sqlBuilder.append("select ED.amrid");
-        sqlBuilder.append("  from MTR_ENDDEVICESTATUS ES,");
-        sqlBuilder.append("       (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and FS.NAME ");
-        this.setStrategy.append(sqlBuilder, this.states);
-        sqlBuilder.append(") FS, MTR_ENDDEVICE ED");
-        sqlBuilder.append(" where ES.STARTTIME <= ?");
-        sqlBuilder.append("   and ES.ENDTIME > ?");
-        sqlBuilder.append("   and ED.ID = ES.ENDDEVICE");
+        sqlBuilder.append(") FS");
+        sqlBuilder.append(" where ES.STARTTIME <=");
+        sqlBuilder.addLong(now.toEpochMilli());
+        sqlBuilder.append("   and ES.ENDTIME >");
+        sqlBuilder.addLong(now.toEpochMilli());
         sqlBuilder.append("   and ES.STATE = FS.ID)");
-        return 2;
     }
 
     private enum SetStrategy {
