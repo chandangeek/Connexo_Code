@@ -32,7 +32,7 @@ public class T210DMessaging extends AM540Messaging {
         //Supervision monitor
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR_FOR_IMPORT_EXPORT);
         //FW messages
-        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION);
+        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER);
         supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmware);
         //Alarms
         supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS);

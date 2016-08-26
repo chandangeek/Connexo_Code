@@ -7,9 +7,11 @@ import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540MessageExecutor;
 import com.energyict.protocolimplv2.messages.*;
@@ -51,6 +53,8 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             collectedMessage = configureSuperVisionMonitor(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ConfigureGeneralLocalPortReadout)) {
             collectedMessage = configureConsumerP1port(pendingMessage, collectedMessage);
+        } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
+            firmwareUpgrade(pendingMessage);
         } else {
             collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
         }
@@ -269,8 +273,23 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         return collectedMessage;
     }
 
-    @Override
-    protected void activateFirmware(ImageTransfer imageTransfer) throws IOException {
-        //do nothing as we want to activate it with a different message
+    protected void firmwareUpgrade(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+
+        OfflineDeviceMessageAttribute imageAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, firmwareUpdateUserFileAttributeName);
+        byte[] binaryImage = ProtocolTools.getBytesFromHexString(imageAttribute.getDeviceMessageAttributeValue(), "");
+        boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, resumeFirmwareUpdateAttributeName).getDeviceMessageAttributeValue());
+        String firmwareIdentifier = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
+        int length = binaryImage[0];
+        ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
+        if (resume) {
+            int lastTransferredBlockNumber = imageTransfer.readFirstNotTransferedBlockNumber().intValue();
+            if (lastTransferredBlockNumber > 0) {
+                imageTransfer.setStartIndex(lastTransferredBlockNumber - 1);
+            }
+        }
+
+        imageTransfer.setUsePollingVerifyAndActivate(true);    //Poll verification
+        imageTransfer.upgrade(binaryImage, false, firmwareIdentifier, true);
     }
+
 }

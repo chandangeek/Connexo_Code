@@ -111,8 +111,10 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 //            }
 
             //the following is just a hack to be able to reuse this connection. remove it when GBT will work
+            System.out.println("GBT tag received, ignore and use dummy push on alarm inbound data to continue");
             parseInboundFrame(ByteBuffer.wrap(DatatypeConverter.parseHexBinary(InboundSimulator.pushOnAlarm)));
         } else if (tag == 48){//unknown tag (yet) that we receive from device. Simulate some other data so we can reuse this connection for testing
+            System.out.println("Tag 48 received, ignore and use dummy push on alarm inbound data to continue");
             parseInboundFrame(ByteBuffer.wrap(DatatypeConverter.parseHexBinary(InboundSimulator.pushOnAlarm)));
         } else {
             //TODO support general ciphering & general signing (suite 0, 1 and 2)
@@ -245,6 +247,14 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         long alarmDescriptor = nextDataType.getUnsigned32().getValue();
         System.out.println("AlarmDescriptor = "+alarmDescriptor);
         createCollectedLogBook(T210DMeterAlarmParser.parseAlarmCode(eventDate, alarmDescriptor, alarmRegister));
+    }
+
+    protected void createCollectedLogBook(List<MeterEvent> meterEvents) {
+        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
+        for(MeterEvent meterEvent: meterEvents){
+            meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(meterEvent));
+        }
+        getCollectedLogBook().setCollectedMeterEvents(meterProtocolEvents);
     }
 
     private void parsePushObjectList(AbstractDataType dataType) {
@@ -401,6 +411,8 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         List<ChannelInfo> channelInfos = new ArrayList<>();
 
         //TODO: use these hardcoded channels (also check the final configuration before releasing to the client)
+        //TODO configure attr 3 on push object
+        //TODO read the configuration from InboundDAO
         ChannelInfo ci1 = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale), deviceIdentifier.getIdentifier());
         ChannelInfo ci2 = new ChannelInfo(1, "1.0.2.8.0.255", Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, scale), deviceIdentifier.getIdentifier());
         ChannelInfo ci3 = new ChannelInfo(2, "1.0.3.8.0.255", Unit.get(BaseUnit.UNITLESS, scale), deviceIdentifier.getIdentifier());
