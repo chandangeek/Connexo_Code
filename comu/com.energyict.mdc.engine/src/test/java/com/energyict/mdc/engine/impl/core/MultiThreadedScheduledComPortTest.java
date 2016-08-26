@@ -244,6 +244,7 @@ public class MultiThreadedScheduledComPortTest {
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
         when(this.serviceProvider.issueService()).thenReturn(this.issueService);
         when(this.serviceProvider.userService()).thenReturn(this.userService);
+        when(this.userService.findUser(anyString())).thenReturn(Optional.empty());
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);

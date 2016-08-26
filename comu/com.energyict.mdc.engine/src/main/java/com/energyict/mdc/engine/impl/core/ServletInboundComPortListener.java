@@ -66,7 +66,7 @@ public class ServletInboundComPortListener extends ServletBasedComPortListenerIm
     @Override
     protected void setThreadPrinciple() {
         Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        user.ifPresent(u -> getServiceProvider().threadPrincipalService().set(user.get(), "ServletInboundComPortListener", "Executing", user.get().getLocale().orElse(Locale.ENGLISH)));
+        user.ifPresent(u -> getServiceProvider().threadPrincipalService().set(u, "ServletInboundComPortListener", "Executing", u.getLocale().orElse(Locale.ENGLISH)));
     }
 
 }

@@ -89,7 +89,7 @@ public class ComServlet extends HttpServlet {
 
     private void setThreadPrinciple() {
         Optional<User> user = this.serviceProvider.userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        user.ifPresent(u -> this.serviceProvider.threadPrincipalService().set(user.get(), "ComServlet", "doPost", user.get().getLocale().orElse(Locale.ENGLISH)));
+        user.ifPresent(u -> this.serviceProvider.threadPrincipalService().set(u, "ComServlet", "doPost", u.getLocale().orElse(Locale.ENGLISH)));
     }
 
     private void handOverToInboundDeviceProtocol(HttpServletRequest request, HttpServletResponse response) {

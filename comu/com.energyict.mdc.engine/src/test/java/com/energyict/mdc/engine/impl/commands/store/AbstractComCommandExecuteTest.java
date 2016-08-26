@@ -1,9 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.impl.CompositeThesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -36,6 +39,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -58,6 +62,8 @@ public abstract class AbstractComCommandExecuteTest {
     private static final long PROTOCOL_DIALECT_CONFIG_PROPS_ID = 6516;
 
     @Mock
+    protected ThreadPrincipalService threadPrincipalService;
+    @Mock
     protected ExecutionContext.ServiceProvider executionContextServiceProvider;
     @Mock
     protected CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
@@ -71,18 +77,38 @@ public abstract class AbstractComCommandExecuteTest {
     @Mock
     private NlsService nlsService;
     @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurusISU, thesaurusCES, thesaurusJoined;
 
     private Clock clock = Clock.systemDefaultZone();
 
     @Before
     public void setupServiceProvider() {
-        when(nlsService.getThesaurus(any(), any())).thenReturn(thesaurus);
-        when(thesaurus.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
-        when(thesaurus.getFormat(any(TranslationKey.class)))
+        when(thesaurusISU.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(thesaurusISU.getString(any(), any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+        when(thesaurusISU.getFormat(any(TranslationKey.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((TranslationKey) invocation.getArguments()[0]));
-        when(thesaurus.getFormat(any(MessageSeed.class)))
+        when(thesaurusISU.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
+        when(nlsService.getThesaurus("ISU", Layer.DOMAIN)).thenReturn(thesaurusISU);
+
+        when(thesaurusCES.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(thesaurusCES.getString(any(), any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+        when(thesaurusCES.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((TranslationKey) invocation.getArguments()[0]));
+        when(thesaurusCES.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
+
+        when(nlsService.getThesaurus("CES", Layer.DOMAIN)).thenReturn(thesaurusCES);
+        when(thesaurusISU.join(thesaurusCES)).thenReturn(new CompositeThesaurus(threadPrincipalService),thesaurusISU, thesaurusCES );
+
+        when(thesaurusJoined.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(thesaurusJoined.getString(any(), any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+        when(thesaurusJoined.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((TranslationKey) invocation.getArguments()[0]));
+        when(thesaurusJoined.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
+
+        when(thesaurusISU.join(thesaurusCES)).thenReturn(thesaurusJoined);
 
         DeviceService deviceService = mock(DeviceService.class, RETURNS_DEEP_STUBS);
         IssueServiceImpl issueService = new IssueServiceImpl(this.clock, this.nlsService);
@@ -95,7 +121,7 @@ public abstract class AbstractComCommandExecuteTest {
         when(commandRootServiceProvider.clock()).thenReturn(this.clock);
         when(commandRootServiceProvider.issueService()).thenReturn(issueService);
         when(commandRootServiceProvider.deviceService()).thenReturn(deviceService);
-        when(commandRootServiceProvider.thesaurus()).thenReturn(thesaurus);
+        when(commandRootServiceProvider.thesaurus()).thenReturn(thesaurusCES);
     }
 
     @After

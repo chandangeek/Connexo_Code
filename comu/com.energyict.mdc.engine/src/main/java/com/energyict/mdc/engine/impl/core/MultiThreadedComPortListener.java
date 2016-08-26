@@ -113,7 +113,7 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     @Override
     protected void setThreadPrinciple() {
         Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        user.ifPresent(u -> getServiceProvider().threadPrincipalService().set(user.get(), "MultiThreadedComPortListener", "Executing", user.get().getLocale().orElse(Locale.ENGLISH)));
+        user.ifPresent(u -> getServiceProvider().threadPrincipalService().set(u, "MultiThreadedComPortListener", "Executing", u.getLocale().orElse(Locale.ENGLISH)));
     }
 
     protected ResourceManager getResourceManager() {

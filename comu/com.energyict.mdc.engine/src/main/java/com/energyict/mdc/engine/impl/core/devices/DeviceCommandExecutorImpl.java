@@ -464,7 +464,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
          */
         private void assignThreadUser() {
             Optional<User> user = userService.findUser(EngineServiceImpl.COMSERVER_USER);
-            user.ifPresent(u -> threadPrincipalService.set(user.get(), "ComServer", "Store", user.get().getLocale().orElse(Locale.ENGLISH)));
+            user.ifPresent(u -> threadPrincipalService.set(u, "ComServer", "Store", u.getLocale().orElse(Locale.ENGLISH)));
         }
 
         @Override
