@@ -218,6 +218,7 @@ public class SingleThreadedScheduledComPortTest {
         when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
         when(this.serviceProvider.issueService()).thenReturn(this.issueService);
         when(this.serviceProvider.userService()).thenReturn(this.userService);
+        when(userService.findUser(anyString())).thenReturn(Optional.empty());
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
