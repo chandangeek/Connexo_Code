@@ -74,7 +74,7 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
     public void update() {
         DeviceImpl device = (DeviceImpl) channel.getDevice();
         if (numberOfFractionDigitsHasChanged() || overflowValueHasChanged()) {
-            device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock, eventService)
+            device.syncWithKore(new KoreMeterConfigurationUpdater(this.deviceService, this.readingTypeUtilService, this.clock, eventService)
                     .withChannelUpdater(this));
             device.executeSyncs();
         }
