@@ -72,6 +72,7 @@ public class CompositeThesaurus implements IThesaurus {
     @Override
     public NlsMessageFormat getFormat(TranslationKey key) {
         return components.stream()
+                .filter(th -> th.hasKey(key.getKey()))
                 .map(th -> th.getFormat(key))
                 .findAny()
                 .orElseGet(() -> new NlsTranslationFormatImpl(this, nlsStringFor(key)));
@@ -129,5 +130,10 @@ public class CompositeThesaurus implements IThesaurus {
     @Override
     public DateTimeFormatter forLocale(DateTimeFormatter dateTimeFormatter) {
         return components.stream().findFirst().map(th -> th.forLocale(dateTimeFormatter)).orElseThrow(IllegalStateException::new);
+    }
+
+    @Override
+    public boolean hasKey(String key){
+        return this.components.stream().anyMatch(th -> th.hasKey(key));
     }
 }

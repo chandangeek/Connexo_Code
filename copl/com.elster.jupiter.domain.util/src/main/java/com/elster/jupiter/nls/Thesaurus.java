@@ -41,4 +41,5 @@ public interface Thesaurus extends MessageInterpolator {
 
     DateTimeFormatter forLocale(DateTimeFormatter dateTimeFormatter);
 
+    boolean hasKey(String key);
 }

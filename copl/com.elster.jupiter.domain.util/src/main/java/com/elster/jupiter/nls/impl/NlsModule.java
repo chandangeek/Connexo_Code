@@ -101,6 +101,11 @@ public class NlsModule extends AbstractModule {
                 return MessageFormat.format(defaultFormat, args);
             }
         }
+
+        @Override
+        public boolean hasKey(String key){
+            return false;
+        }
     }
 
 }

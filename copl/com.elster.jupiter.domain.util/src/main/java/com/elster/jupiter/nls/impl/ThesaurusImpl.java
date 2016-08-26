@@ -237,4 +237,13 @@ class ThesaurusImpl implements IThesaurus {
     private String translate(NlsKeyImpl nlsKey) {
         return nlsKey.translate(getLocale()).orElse(nlsKey.getDefaultMessage());
     }
+
+    @Override
+    public boolean hasKey(String key){
+        return this.translations.entrySet()
+                .stream()
+                .filter(e -> e.getKey().equals(key))
+                .findFirst()
+                .isPresent();
+    }
 }
