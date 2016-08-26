@@ -2,6 +2,7 @@ package com.energyict.mdc.issues.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.time.Clock;
 
@@ -47,11 +48,21 @@ public class IssueCollectorDefaultImplementation implements IssueCollector {
         return this.addIssue(new ProblemImpl(this.thesaurus, this.clock.instant(), description));
     }
 
+    @Override
+    public Issue addProblem(MessageSeed descriptionSeed) {
+        return addIssue(new ProblemBackedByMessageSeed(this, this.clock.instant(), thesaurus, descriptionSeed, null));
+    }
+
     /**
      * {@inheritDoc}
      */
     public Issue addProblem(Object source, String description, Object... arguments) {
         return this.addIssue(new ProblemImpl(this.thesaurus, this.clock.instant(), source, description, arguments));
+    }
+
+    @Override
+    public Issue addProblem(Object source, MessageSeed descriptionSeed, Object... arguments) {
+        return addIssue(new ProblemBackedByMessageSeed(source, this.clock.instant(), thesaurus, descriptionSeed, arguments));
     }
 
     /**
@@ -61,11 +72,19 @@ public class IssueCollectorDefaultImplementation implements IssueCollector {
         return this.addIssue(new WarningImpl(this.thesaurus, this.clock.instant(), description));
     }
 
+    public Issue addWarning(MessageSeed descriptionSeed) {
+        return addIssue(new WarningBackedByMessageSeed(this, clock.instant(), thesaurus, descriptionSeed, null));
+    }
+
     /**
      * {@inheritDoc}
      */
     public Issue addWarning(Object source, String description, Object... arguments) {
         return this.addIssue(new WarningImpl(this.thesaurus, this.clock.instant(), source, description, arguments));
+    }
+
+    public Issue addWarning(Object source, MessageSeed seedDescription, Object... arguments) {
+        return addIssue(new WarningBackedByMessageSeed(source, this.clock.instant(), this.thesaurus, seedDescription, arguments));
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.energyict.mdc.issues;
 
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.Collection;
@@ -16,15 +18,19 @@ public interface IssueCollector {
     /**
      * Clears the {@link Issue}s that have already been collected so far.
      */
-    public void clear ();
+     void clear ();
 
     /**
      * Add a new {@link Warning} with the specified human readable description.
      *
      * @param description The translatable description of the Warning
      * @return The Warning that was created and added
+     *
+     * if translation is needed, use addWarning(MessageSeed)
      */
-    public Issue addWarning (String description);
+    Issue addWarning (String description);
+
+    Issue addWarning (MessageSeed descriptionSeed);
 
     /**
      * Add a new {@link Warning} caused by the source object
@@ -34,16 +40,24 @@ public interface IssueCollector {
      * @param description The translatable description of the Warning (can contain a default pattern to put in the arguments)
      * @param arguments   additional arguments to put into the description
      * @return The Warning that was created and added
+     *
+     * if translation is needed, use addWarning(Source source, MessageSeed descriptionSeed, arguments)
      */
-    public Issue addWarning(Object source, String description, Object... arguments);
+    Issue addWarning(Object source, String description, Object... arguments);
+
+    Issue addWarning (Object source, MessageSeed descriptionSeed, Object... arguments);
 
     /**
      * Add a new {@link Problem} with the specified description.
      *
      * @param description The translatable description of the Problem
      * @return The Problem that was created and added
+     *
+     * if translation is needed, use addProblem(MessageSeed)
      */
     public Issue addProblem (String description);
+
+    Issue addProblem (MessageSeed descriptionSeed);
 
     /**
      * Add a new {@link Problem} caused by the source object
@@ -53,8 +67,12 @@ public interface IssueCollector {
      * @param description The translatable description of the Problem (can contain a default pattern to put in the arguments)
      * @param arguments   additional arguments to put into the description
      * @return The Problem that was created and added
+     *
+     * if translation is needed, use addProblem(Source source, MessageSeed descriptionSeed, arguments)
      */
-    public Issue addProblem(Object source, String description, Object... arguments);
+    Issue addProblem(Object source, String description, Object... arguments);
+
+    Issue addProblem (Object source, MessageSeed descriptionSeed, Object... arguments);
 
     /**
      * Tests if {@link Issue}s were reported to this IssueCollector.
