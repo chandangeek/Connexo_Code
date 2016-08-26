@@ -34,12 +34,25 @@ import java.util.stream.Collectors;
 @LiteralSql
 public class DeviceStateSqlBuilder {
 
+    static final String DEVICE_STATE_ALIAS_NAME = "enddevices";
+
     private final String alias;
     private final Set<DefaultState> states;
     private final SetStrategy setStrategy;
 
     public static DeviceStateSqlBuilder forDefaultExcludedStates(String alias) {
-        return new DeviceStateSqlBuilder(alias, SetStrategy.EXCLUDE_MULTIPLE, EnumSet.of(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED));
+        return forExcludeStates(alias, EnumSet.of(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED));
+    }
+
+    public static DeviceStateSqlBuilder forExcludeStates(String alias, Set<DefaultState> state) {
+        SetStrategy setStrategy;
+        if (state.size() == 1) {
+            setStrategy = SetStrategy.EXCLUDE_ONE;
+        }
+        else {
+            setStrategy = SetStrategy.EXCLUDE_MULTIPLE;
+        }
+        return new DeviceStateSqlBuilder(alias, setStrategy, state);
     }
 
     private DeviceStateSqlBuilder(String alias, SetStrategy setStrategy, Set<DefaultState> states) {
@@ -87,9 +100,13 @@ public class DeviceStateSqlBuilder {
         EXCLUDE_MULTIPLE {
             @Override
             void append(SqlBuilder sqlBuilder, Set<DefaultState> states) {
-                sqlBuilder.append("not in (");
-                appendStates(sqlBuilder, states);
-                sqlBuilder.append(")");
+                if (!states.isEmpty()) {
+                    sqlBuilder.append("not in (");
+                    appendStates(sqlBuilder, states);
+                    sqlBuilder.append(")");
+                } else {
+                    sqlBuilder.append(" is not null");
+                }
             }
 
             @Override

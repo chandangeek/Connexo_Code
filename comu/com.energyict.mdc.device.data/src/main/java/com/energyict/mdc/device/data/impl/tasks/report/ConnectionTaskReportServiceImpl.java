@@ -269,7 +269,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
                 .appendRestrictedStatesWithClause(sqlBuilder, this.clock().instant());
         sqlBuilder.append("select ct.lastSessionSuccessIndicator, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" join ");
+        sqlBuilder.append(" ct join ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" dev on ct.device = dev.id join enddevices kd on dev.meterid = kd.id ");
         sqlBuilder.append("where ct.nextexecutiontimestamp is not null");

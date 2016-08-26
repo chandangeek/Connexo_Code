@@ -1,17 +1,17 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 
 import java.time.Clock;
 import java.util.EnumSet;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-06 (13:39)
  */
-public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuilder {
+class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuilder {
 
     private static final String BUSY_ALIAS_NAME = ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
 
@@ -36,7 +36,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
 
-    public ConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> deviceQueryExecutor) {
+    ConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> deviceQueryExecutor) {
         super(filterSpecification, clock, deviceQueryExecutor);
         this.validate(filterSpecification);
         this.copyTaskStatuses(filterSpecification);
@@ -119,9 +119,10 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     }
 
     public SqlBuilder build(DataMapper<ConnectionTask> dataMapper, int pageStart, int pageSize) {
-    	this.setActualBuilder(WithClauses.BUSY_COMTASK_EXECUTION.sqlBuilder(BUSY_ALIAS_NAME));
+        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilderForRestrictedStates();
+    	WithClauses.BUSY_COMTASK_EXECUTION.appendTo(actualBuilder, BUSY_ALIAS_NAME);
     	SqlBuilder sqlBuilder = dataMapper.builder(connectionTaskAliasName());
-        this.getActualBuilder().append(sqlBuilder);
+        actualBuilder.append(sqlBuilder);
         this.appendJoinedTables();
         String sqlStartClause = sqlBuilder.getText();
         if (this.taskStatuses.isEmpty()) {

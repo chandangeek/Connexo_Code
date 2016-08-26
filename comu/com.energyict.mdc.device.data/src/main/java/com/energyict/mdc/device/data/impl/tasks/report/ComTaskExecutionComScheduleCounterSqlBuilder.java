@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.elster.jupiter.orm.QueryExecutor;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
@@ -8,8 +9,6 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-
-import com.elster.jupiter.orm.QueryExecutor;
 
 import java.time.Clock;
 
@@ -33,6 +32,7 @@ class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTaskExecut
         this.setActualBuilder(sqlBuilder);
         this.appendSelectClause();
         this.appendFromClause();
+        this.appendJoinClauses();
         this.appendWhereClause();
         this.appendGroupByClause();
     }
@@ -48,6 +48,10 @@ class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTaskExecut
         this.append(TableSpecs.DDC_COMTASKEXEC.name());
         this.append(" ");
         this.append(communicationTaskAliasName());
+    }
+
+    private void appendJoinClauses() {
+        this.appendDeviceStateJoinClauses();
         this.append(" join sch_comschedule cs on cte.comschedule = cs.id");
         this.append(" join sch_comtaskincomschedule ctincs on ctincs.comschedule = cs.id");
     }

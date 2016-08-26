@@ -115,7 +115,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
     protected void appendConnectionTaskFromClauseInWithClause(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" FROM DDC_CONNECTIONTASK connT");
         sqlBuilder.append(" JOIN DDC_DEVICE dev ON connT.device = dev.id");
-        sqlBuilder.append(" JOIN enddevices kd dev.meterid = kd.id");
+        sqlBuilder.append(" JOIN enddevices kd ON dev.meterid = kd.id");
     }
 
     private void appendNotBusyConnectionTaskWithClause(Clock clock) {

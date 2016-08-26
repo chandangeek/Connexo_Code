@@ -1,16 +1,14 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.elster.jupiter.orm.QueryExecutor;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
-import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.AbstractComTaskExecutionFilterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-
-import com.elster.jupiter.orm.QueryExecutor;
 
 import java.time.Clock;
 
@@ -44,9 +42,7 @@ class ComTaskExecutionFilterMatchCounterSqlBuilder extends AbstractComTaskExecut
     }
 
     private void appendFromClause() {
-        this.append(" from ");
-        this.append(TableSpecs.DDC_COMTASKEXEC.name());
-        this.append(" ");
+        this.append(" from ctes ");
         this.append(communicationTaskAliasName());
     }
 

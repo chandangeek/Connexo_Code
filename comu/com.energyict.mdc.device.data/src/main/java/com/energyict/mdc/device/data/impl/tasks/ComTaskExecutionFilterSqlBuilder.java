@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
@@ -8,11 +12,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Interval;
 
 import java.time.Clock;
 import java.util.EnumSet;
@@ -71,8 +70,14 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder) {
-        this.setActualBuilder(WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME));
-        getActualBuilder().append(sqlBuilder);
+        return this.build(sqlBuilder, communicationTaskAliasName());
+    }
+
+    public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
+        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilderForRestrictedStates();
+        WithClauses.BUSY_CONNECTION_TASK.appendTo(actualBuilder, BUSY_ALIAS_NAME);
+        actualBuilder.append(sqlBuilder);
+        this.appendDeviceStateJoinClauses(communicationTaskAliasName);
         String sqlStartClause = sqlBuilder.getText();
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         while (statusIterator.hasNext()) {

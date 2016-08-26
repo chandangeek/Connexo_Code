@@ -25,6 +25,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
@@ -56,6 +57,7 @@ import java.util.stream.Stream;
 public class CommunicationTaskReportServiceImpl implements CommunicationTaskReportService {
 
     private static final String BUSY_ALIAS_NAME = ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
+    private static final String DEVICE_STATE_ALIAS_NAME = "enddevices";
 
     private final DeviceDataModelService deviceDataModelService;
     private final MeteringService meteringService;
@@ -93,7 +95,13 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(filter)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
+                sqlBuilder = ClauseAwareSqlBuilder
+                                .withExcludedStates(
+                                        DEVICE_STATE_ALIAS_NAME,
+                                        DefaultState.fromKeys(filter.restrictedDeviceStates),
+                                        this.deviceDataModelService.clock().instant());
+                WithClauses.COMTASK_EXECUTION_WITH_DEVICE_STATE.appendTo(sqlBuilder, "ctes");
+                WithClauses.BUSY_CONNECTION_TASK.appendTo(sqlBuilder, BUSY_ALIAS_NAME);
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
             } else {
                 sqlBuilder.unionAll();
@@ -193,7 +201,12 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
+                sqlBuilder = ClauseAwareSqlBuilder
+                        .withExcludedStates(
+                                DEVICE_STATE_ALIAS_NAME,
+                                DefaultState.fromKeys(filterSpecification.restrictedDeviceStates),
+                                this.deviceDataModelService.clock().instant());
+                WithClauses.BUSY_CONNECTION_TASK.appendTo(sqlBuilder, BUSY_ALIAS_NAME);
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
             }
             else {
@@ -251,15 +264,6 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
 
     @Override
     public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap() {
-        /* For clarity's sake, here is the formatted SQL
-           select dev.DEVICETYPE, ctes.highestPrioCompletionCode, count(*)
-            from DDC_COMTASKEXEC cte
-            join DDC_COMTASKEXECSESSION ctes on cte.lastsession = ctes.id
-            join DDC_DEVICE dev on cte.device = dev.id
-           where cte.obsolete_date is null
-             and cte.lastsession is not null
-           group by dev.DEVICETYPE, ctes.highestPrioCompletionCode
-         */
         return this.getComTasksDeviceTypeHeatMap(null);
     }
 
@@ -273,7 +277,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte join ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" dev on cte.device = dev.id join endevices kd on dev.meterid = kd.id ");
+        sqlBuilder.append(" dev on cte.device = dev.id join enddevices kd on dev.meterid = kd.id ");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
         sqlBuilder.append(" where cte.obsolete_date is null");
         sqlBuilder.append("   and cte.lastsession is not null");
@@ -352,7 +356,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
 
     @Override
     public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount() {
-        return this.getComTaskLastComSessionHighestPriorityCompletionCodeCount(Optional.<EndDeviceGroup>empty());
+        return this.getComTaskLastComSessionHighestPriorityCompletionCodeCount(Optional.empty());
     }
 
     @Override
@@ -362,6 +366,9 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
 
     private Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(Optional<EndDeviceGroup> deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
+        DeviceStateSqlBuilder
+                .forDefaultExcludedStates("cte")
+                .appendRestrictedStatesWithClause(sqlBuilder, this.deviceDataModelService.clock().instant());
         sqlBuilder.append("select cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte join ");

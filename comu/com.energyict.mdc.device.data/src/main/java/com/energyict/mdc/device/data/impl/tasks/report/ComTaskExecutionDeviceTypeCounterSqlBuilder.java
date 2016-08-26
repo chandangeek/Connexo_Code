@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.elster.jupiter.orm.QueryExecutor;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
@@ -7,8 +8,6 @@ import com.energyict.mdc.device.data.impl.tasks.AbstractComTaskExecutionFilterSq
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-
-import com.elster.jupiter.orm.QueryExecutor;
 
 import java.time.Clock;
 
@@ -32,6 +31,7 @@ class ComTaskExecutionDeviceTypeCounterSqlBuilder extends AbstractComTaskExecuti
         this.setActualBuilder(sqlBuilder);
         this.appendSelectClause();
         this.appendFromClause();
+        this.appendJoinClauses();
         this.appendWhereClause();
         this.appendGroupByClause();
     }
@@ -47,9 +47,10 @@ class ComTaskExecutionDeviceTypeCounterSqlBuilder extends AbstractComTaskExecuti
         this.append(TableSpecs.DDC_COMTASKEXEC.name());
         this.append(" ");
         this.append(communicationTaskAliasName());
-        this.append(" join ");
-        this.append(TableSpecs.DDC_DEVICE.name());
-        this.append(" dev on cte.device = dev.id");
+    }
+
+    private void appendJoinClauses() {
+        this.appendDeviceStateJoinClauses();
     }
 
     private void appendWhereClause() {
