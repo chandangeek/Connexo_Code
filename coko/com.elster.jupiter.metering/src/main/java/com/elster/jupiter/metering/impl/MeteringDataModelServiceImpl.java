@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.UsagePointTypeInfo;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -317,6 +318,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));
+        translationKeys.addAll(Arrays.asList(UsagePointTypeInfo.UsagePointType.Translation.values()));
         return translationKeys;
     }
 
