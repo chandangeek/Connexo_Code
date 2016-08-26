@@ -16,6 +16,7 @@
         <fileSet>
             <directory>assembly/bin</directory>
             <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
             <directory>assembly/lib</directory>
