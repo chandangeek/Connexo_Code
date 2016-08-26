@@ -23,15 +23,6 @@ Ext.define('Bpm.view.task.EditTask', {
                         itemId: 'detail-top-title',
                         ui: 'large',
                         flex: 1
-                    },
-                    {
-                        xtype: 'previous-next-navigation-toolbar',
-                        margin: '10 0 0 0',
-                        store: 'Bpm.store.task.Tasks',
-                        router: me.router,
-                        routerIdArgument: 'taskId',
-                        itemsName: me.itemNameLink,
-                        hidden: me.showNavigation == 'false'
                     }
                 ]
             },
@@ -157,13 +148,27 @@ Ext.define('Bpm.view.task.EditTask', {
                                                 ]
                                             },
                                             {
-                                                text: Uni.I18n.translate('task.task.edit.save', 'BPM', 'Save'),
-                                                xtype: 'button',
-                                                ui: 'action',
-                                                itemId: 'btn-task-save',
-                                                action: 'saveTask',
-                                                margin: '10 0 0 265',
-                                                taskRecord: me.taskRecord
+                                                xtype: 'fieldcontainer',
+                                                ui: 'actions',
+                                                fieldLabel: '&nbsp',
+                                                layout: 'hbox',
+                                                margin: '10 0 0 150',
+                                                items: [
+                                                    {
+                                                        text: Uni.I18n.translate('task.task.edit.save', 'BPM', 'Save'),
+                                                        xtype: 'button',
+                                                        ui: 'action',
+                                                        itemId: 'btn-task-save',
+                                                        action: 'saveTask',
+                                                        taskRecord: me.taskRecord
+                                                    },
+                                                    {
+                                                        xtype: 'button',
+                                                        itemId: 'btn-task-cancel-link',
+                                                        text: Uni.I18n.translate('general.cancel', 'BPM', 'Cancel'),
+                                                        ui: 'link'
+                                                    }
+                                                ]
                                             }
                                         ]
                                     }

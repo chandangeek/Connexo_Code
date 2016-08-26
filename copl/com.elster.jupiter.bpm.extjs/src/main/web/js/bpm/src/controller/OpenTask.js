@@ -88,11 +88,23 @@ Ext.define('Bpm.controller.OpenTask', {
             'bpm-task-perform-task #btn-save': {
                 click: this.chooseAction
             },
+            '#btn-task-cancel-link': {
+                click: this.returnToPreviousPage
+            },
             'bpm-task-perform-task #btn-complete': {
                 click: this.chooseAction
             }
         });
 
+    },
+
+    returnToPreviousPage: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            tasksRoute;
+
+        tasksRoute = router.getRoute('workspace/tasks');
+        tasksRoute.forward();
     },
 
     showEditTask: function (taskId) {
@@ -242,7 +254,7 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this,
             taskRecord = button.taskRecord,
             assignUser = Ext.create('Bpm.model.task.Assign'),
-            assigneeForm = me.getAssigneeUserForm();
+            assigneeForm = me.getAssigneeUserForm(),
             editTaskForm = me.getEditTaskForm();
 
         assignUser.getProxy().extraParams = {
@@ -251,21 +263,10 @@ Ext.define('Bpm.controller.OpenTask', {
             duedate: editTaskForm.down('#due-date').getValue() ? moment(editTaskForm.down('#due-date').getValue()).valueOf() : ''
         };
         assignUser.getProxy().setUrl(taskRecord.get('id'), taskRecord.get('optLock'));
-        assigneeForm.setLoading();
         assignUser.save({
             success: function () {
-                assigneeForm.setLoading(false);
 
-                var task = me.getModel('Bpm.model.task.Task');
-                task.load(taskRecord.get('id'), {
-                        success: function (taskRec) {
-                            button.taskRecord = taskRec;
-                            me.loadAboutTaskForm(taskRec);
-                        }
-                    }
-                );
-
-                me.loadJbpmForm(taskRecord);
+                me.returnToPreviousPage();
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -273,7 +274,6 @@ Ext.define('Bpm.controller.OpenTask', {
                     assigneeForm.getForm().markInvalid(json.errors);
                 }
 
-                assigneeForm.setLoading(false);
             }
         })
     },
