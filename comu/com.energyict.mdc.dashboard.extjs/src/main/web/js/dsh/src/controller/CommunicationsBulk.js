@@ -207,6 +207,7 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
 
     adaptFilterObject: function(filterObject) {
         // Assure that properties that are expected to be an int array, are indeed int arrays
+
         var props = ['deviceTypes', 'deviceGroups', 'comTasks', 'comSchedules'];
         Ext.Array.each(props, function(prop) {
             if (filterObject.hasOwnProperty(prop)) {
@@ -218,6 +219,14 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
                     var theOneValue = filterObject[prop];
                     filterObject[prop] = [];
                     filterObject[prop][0] = !Ext.isNumber(theOneValue) ? parseInt(theOneValue) : theOneValue;
+                }
+            }
+        });
+
+        Ext.Array.each(['currentStates'], function(prop) {
+            if (filterObject.hasOwnProperty(prop)) {
+                if (!Ext.isArray(filterObject[prop])) {
+                    filterObject[prop] = [filterObject[prop]];
                 }
             }
         });
