@@ -22,22 +22,25 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import com.google.common.collect.Range;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -48,14 +51,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerseyTest {
@@ -63,8 +70,9 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     @Rule
     public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
 
-    public static final long DEVICE_ID = 56854L;
-    public static final Instant NOW = ZonedDateTime.of(2014, 6, 14, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
+    private static final String DEVICE_MRID = "MRID";
+    private static final long DEVICE_ID = 56854L;
+    private static final Instant NOW = ZonedDateTime.of(2014, 6, 14, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
 
     @Mock
     private MdcPropertyUtils mdcPropertyUtils;
@@ -74,9 +82,9 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     private AmrSystem mdcAmrSystem;
     @Mock
     private ValidationEvaluator evaluator;
-
     @Mock
-    private DeviceImpl device;
+    private Device device;
+    private long deviceVersion;
     @Mock
     private Meter meter;
     @Mock
@@ -93,6 +101,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     private ChannelsContainer channelsContainer1, channelsContainer2, channelsContainer3;
     @Mock
     private Channel channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8, channel9;
+    private ValidationRuleSet ruleSet;
     @Mock
     private DataValidationStatus validationStatus1, validationStatus2, validationStatus3, validationStatus4, validationStatus5, validationStatus6;
     @Mock
@@ -116,9 +125,12 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
 
     @Before
     public void setUp1() {
-        when(deviceService.findByUniqueMrid("MRID")).thenReturn(Optional.of(device));
+        when(device.getmRID()).thenReturn(DEVICE_MRID);
+        deviceVersion = 0;
+        when(deviceService.findByUniqueMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
         when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(mdcAmrSystem));
         when(device.getId()).thenReturn(DEVICE_ID);
+        when(device.getVersion()).thenAnswer(invocationOnMock -> deviceVersion);
         when(mdcAmrSystem.findMeter("" + DEVICE_ID)).thenReturn(Optional.of(meter));
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
@@ -129,12 +141,10 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
         when(cimLifecycleDates.getReceivedDate()).thenReturn(Optional.empty());
         doModelStubbing();
-
     }
 
     @Test
     public void testGetValidationFeatureStatusCheckRegisterCount() {
-
         DeviceValidationStatusInfo response = target("devices/MRID/validationrulesets/validationstatus").request().get(DeviceValidationStatusInfo.class);
 
         assertThat(response.registerSuspectCount).isEqualTo(5);
@@ -142,7 +152,6 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetValidationFeatureStatusCheckLoadProfileCount() {
-
         DeviceValidationStatusInfo response = target("devices/MRID/validationrulesets/validationstatus").request().get(DeviceValidationStatusInfo.class);
 
         assertThat(response.loadProfileSuspectCount).isEqualTo(4);
@@ -150,7 +159,6 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetValidationMonitoringConfigurationView() {
-
         String loadProfilePeriodsInfo =
                 "{\"id\":1," +
                         "\"intervalStart\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "," +
@@ -178,7 +186,6 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetValidationMonitoringDataView() {
-
         String loadProfilePeriodsInfo =
                 "{\"id\":1," +
                         "\"intervalStart\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "," +
@@ -203,8 +210,38 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         assertThat(response.detailedValidationLoadProfile.get(0).name).isEqualTo("Profile1");
     }
 
+    @Test
+    public void testSetValidationRuleSetStatusOnDevice() {
+        long deviceConfigurationId = deviceConfiguration.getId();
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(deviceConfigurationId), anyLong()))
+                .thenReturn(Optional.of(deviceConfiguration));
+        ArgumentCaptor<Long> versionCaptor = ArgumentCaptor.forClass(long.class);
+        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(DEVICE_MRID), versionCaptor.capture()))
+                .thenAnswer(invocationOnMock -> versionCaptor.getValue() == deviceVersion ? Optional.of(device) : Optional.empty());
+        doAnswer(invocationOnMock -> deviceVersion++).when(device).save();
+        Response response = target("devices/" + DEVICE_MRID + "/validationrulesets/" + ruleSet.getId() + "/status")
+                .request()
+                .buildPut(Entity.json(new DeviceValidationRuleSetInfo(ruleSet, device, true)))
+                .invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(validationService).activate(channelsContainer3, ruleSet);
+        DeviceValidationRuleSetInfo responseInfo = response.readEntity(DeviceValidationRuleSetInfo.class);
+        assertThat(responseInfo.isActive).isTrue();
+        assertThat(responseInfo.device.version).isEqualTo(1);
+        responseInfo.isActive = false;
+        response = target("devices/" + DEVICE_MRID + "/validationrulesets/" + ruleSet.getId() + "/status")
+                .request()
+                .buildPut(Entity.json(responseInfo))
+                .invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(validationService).deactivate(channelsContainer3, ruleSet);
+        responseInfo = response.readEntity(DeviceValidationRuleSetInfo.class);
+        assertThat(responseInfo.isActive).isFalse();
+        assertThat(responseInfo.device.version).isEqualTo(2);
+    }
+
     private void doModelStubbing() {
-        when(device.getRegisters()).thenReturn(Arrays.asList(register1));
+        when(device.getRegisters()).thenReturn(Collections.singletonList(register1));
         when(register1.getReadingType()).thenReturn(regReadingType);
         doReturn(registerSpec).when(register1).getRegisterSpec();
         when(registerSpec.getReadingType()).thenReturn(regReadingType);
@@ -213,7 +250,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(channelReadingType1.getMRID()).thenReturn("CH1");
         when(channelReadingType2.getMRID()).thenReturn("CH2");
 
-        when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1));
+        when(device.getLoadProfiles()).thenReturn(Collections.singletonList(loadProfile1));
         when(loadProfile1.getChannels()).thenReturn(Arrays.asList(ch1, ch2));
         when(loadProfile1.getId()).thenReturn(1L);
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec1);
@@ -228,8 +265,10 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         ZonedDateTime from = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(2);
         ZonedDateTime to = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusDays(10);
         when(meterActivation1.getInterval()).thenReturn(Interval.endAt(from.toInstant()));
-        when(meterActivation2.getInterval()).thenReturn(new Interval(Date.from(from.toInstant()), Date.from(to.toInstant())));
+        when(meterActivation2.getInterval()).thenReturn(Interval.of(from.toInstant(), to.toInstant()));
         when(meterActivation3.getInterval()).thenReturn(Interval.startAt(to.toInstant()));
+        when(meterActivation3.getChannelsContainer()).thenReturn(channelsContainer3);
+        doReturn(Optional.of(meterActivation3)).when(device).getCurrentMeterActivation();
         when(channelsContainer1.getChannels()).thenReturn(Arrays.asList(channel1, channel2, channel3));
         when(channel1.getChannelsContainer()).thenReturn(channelsContainer1);
         when(channel2.getChannelsContainer()).thenReturn(channelsContainer1);
@@ -254,15 +293,15 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(channel7.getMainReadingType()).thenReturn(regReadingType);
         when(channel8.getMainReadingType()).thenReturn(channelReadingType1);
         when(channel9.getMainReadingType()).thenReturn(channelReadingType2);
-        doReturn(Arrays.asList(regReadingType)).when(channel1).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType1)).when(channel2).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType2)).when(channel3).getReadingTypes();
-        doReturn(Arrays.asList(regReadingType)).when(channel4).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType1)).when(channel5).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType2)).when(channel6).getReadingTypes();
-        doReturn(Arrays.asList(regReadingType)).when(channel7).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType1)).when(channel8).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType2)).when(channel9).getReadingTypes();
+        doReturn(Collections.singletonList(regReadingType)).when(channel1).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType1)).when(channel2).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType2)).when(channel3).getReadingTypes();
+        doReturn(Collections.singletonList(regReadingType)).when(channel4).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType1)).when(channel5).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType2)).when(channel6).getReadingTypes();
+        doReturn(Collections.singletonList(regReadingType)).when(channel7).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType1)).when(channel8).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType2)).when(channel9).getReadingTypes();
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(validationService.getEvaluator(eq(meter), any(Range.class))).thenReturn(evaluator);
         when(suspect.getTypeCode()).thenReturn("2.5.258");
@@ -279,16 +318,16 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus3).getReadingQualities();
 
         ZonedDateTime fromCh = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
-        Range wholeInterval = Range.openClosed(fromCh.toInstant(), toNow);
-        when(deviceValidation.getValidationStatus(eq(ch1), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus4));
+        Range<Instant> wholeInterval = Range.openClosed(fromCh.toInstant(), toNow);
+        when(deviceValidation.getValidationStatus(eq(ch1), anyList(), eq(wholeInterval))).thenReturn(Collections.singletonList(validationStatus4));
         when(deviceValidation.getValidationStatus(eq(ch2), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus5, validationStatus6));
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus4).getReadingQualities();
         doReturn(Arrays.asList(suspect, notSuspect)).when(validationStatus5).getReadingQualities();
         doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus6).getReadingQualities();
 
-        when(deviceValidation.getLastChecked()).thenReturn(Optional.<Instant>empty());
+        when(deviceValidation.getLastChecked()).thenReturn(Optional.empty());
 
-        ValidationRuleSet ruleSet = mockValidationRuleSet(1,true);
+        ruleSet = mockValidationRuleSet(1,true);
         doReturn(ruleSet.getRules()).when(validationStatus4).getOffendedRules();
         doReturn(ruleSet.getRules()).when(validationStatus2).getOffendedRules();
         when(device.getDeviceType()).thenReturn(deviceType);
@@ -302,12 +341,12 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(ruleSet.getDescription()).thenReturn("MyDescription");
         if (version) {
             ValidationRuleSetVersion ruleSetVersion = mockValidationRuleSetVersion(11, ruleSet);
-            List versions = Arrays.asList(ruleSetVersion);
-            when(ruleSet.getRuleSetVersions()).thenReturn(versions);
+            List<ValidationRuleSetVersion> versions = Collections.singletonList(ruleSetVersion);
+            doReturn(versions).when(ruleSet).getRuleSetVersions();
 
-            List rules = Arrays.asList(mockValidationRuleInRuleSetVersion(20, ruleSet, ruleSetVersion));
-            when(ruleSetVersion.getRules()).thenReturn(rules);
-            when(ruleSet.getRules()).thenReturn(rules);
+            List<ValidationRule> rules = Collections.singletonList(mockValidationRuleInRuleSetVersion(20, ruleSet, ruleSetVersion));
+            doReturn(rules).when(ruleSetVersion).getRules();
+            doReturn(rules).when(ruleSet).getRules();
         }
 
         doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(id);
@@ -334,7 +373,6 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(rule.isActive()).thenReturn(true);
         when(rule.getRuleSetVersion()).thenReturn(ruleSetVersion);
         when(rule.getRuleSet()).thenReturn(ruleSet);
-
 
         Map<String, Object> props = new HashMap<>();
         props.put("number", 13);
