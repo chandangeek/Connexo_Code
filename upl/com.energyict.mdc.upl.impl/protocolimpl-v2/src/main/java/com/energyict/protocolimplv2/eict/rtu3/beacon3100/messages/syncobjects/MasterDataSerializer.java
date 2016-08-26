@@ -197,7 +197,7 @@ public class MasterDataSerializer {
         }
 
         //The dlmsMeterKEK is a general property on the Beacon DC device
-        final byte[] dlmsMeterKEK = parseKey(Beacon3100ConfigurationSupport.DLMS_METER_KEK, masterDevice.getProtocolProperties().getStringProperty(Beacon3100ConfigurationSupport.DLMS_METER_KEK));
+        final byte[] dlmsMeterKEK = parseKey(device.getId(), Beacon3100ConfigurationSupport.DLMS_METER_KEK, masterDevice.getProtocolProperties().getStringProperty(Beacon3100ConfigurationSupport.DLMS_METER_KEK));
 
         //Get the DLMS keys from the device. If they are empty, an empty OctetString will be sent to the beacon.
         final byte[] password = getSecurityKey(device, SecurityPropertySpecName.PASSWORD.toString());
@@ -227,14 +227,14 @@ public class MasterDataSerializer {
                     clientId = ((BigDecimal) protocolSecurityProperty.getValue()).intValue();
                 } else if (protocolSecurityProperty.getName().equals(SecurityPropertySpecName.PASSWORD.toString())) {
                     if(securityPropertySet.getAuthenticationDeviceAccessLevelId() >= 3){
-                        hlsPassword = parseASCIIPassword(protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
+                        hlsPassword = parseASCIIPassword(device.getId(), protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
                     } else {
-                        password = parseASCIIPassword(protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
+                        password = parseASCIIPassword(device.getId(), protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
                     }
                 } else if (protocolSecurityProperty.getName().equals(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())) {
-                    ak = parseKey(protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
+                    ak = parseKey(device.getId(), protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
                 } else if (protocolSecurityProperty.getName().equals(SecurityPropertySpecName.ENCRYPTION_KEY.toString())) {
-                    ek = parseKey(protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
+                    ek = parseKey(device.getId(), protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
                 }
             }
             //Get the DLMS keys from the device. If they are empty, an empty OctetString will be sent to the beacon.
@@ -655,9 +655,9 @@ public class MasterDataSerializer {
                 if (securityProperty.getName().equals(propertyName)) {
                     final String propertyValue = (String) securityProperty.getValue();
                     if (propertyName.equals(SecurityPropertySpecName.PASSWORD.toString())) {
-                        return parseASCIIPassword(propertyName, propertyValue);
+                        return parseASCIIPassword(device.getId(), propertyName, propertyValue);
                     } else {
-                        return parseKey(propertyName, propertyValue);
+                        return parseKey(device.getId(), propertyName, propertyValue);
                     }
                 }
             }
@@ -665,31 +665,31 @@ public class MasterDataSerializer {
         return null;
     }
 
-    public static byte[] parseKey(String propertyName, String propertyValue) {
+    public static byte[] parseKey(int offlineDeviceId, String propertyName, String propertyValue) {
         if (propertyValue == null) {
             throw missingProperty(propertyName);
         }
         if (propertyValue.length() != 32) {
-            throw invalidFormatException(propertyName, "(hidden)", "Should be 32 hex characters");
+            throw invalidFormatException(propertyName, "(hidden) of the device with id:"  + offlineDeviceId, " should have 32 hex characters.");
         }
         try {
             return ProtocolTools.getBytesFromHexString(propertyValue, "");
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
-            throw invalidFormatException(propertyName, "(hidden)", "Should be 32 hex characters");
+            throw invalidFormatException(propertyName, "(hidden) of the device with id:"  + offlineDeviceId, " should have 32 hex characters.");
         }
     }
 
-    private static byte[] parseASCIIPassword(String propertyName, String propertyValue) {
+    private static byte[] parseASCIIPassword(int offlineDeviceId, String propertyName, String propertyValue) {
         if (propertyValue == null) {
             throw missingProperty(propertyName);
         }
         if ((propertyValue.length() % 8) != 0) {
-            throw invalidFormatException(propertyName, "(hidden)", "Should be a multiple of 8 ASCII characters");
+            throw invalidFormatException(propertyName, "(hidden) of the device with id:"  + offlineDeviceId, " should be a multiple of 8 ASCII characters.");
         }
         try {
             return propertyValue.getBytes();
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
-            throw invalidFormatException(propertyName, "(hidden)", "Should be a multiple of 8 ASCII characters");
+            throw invalidFormatException(propertyName, "(hidden) of the device with id:"  + offlineDeviceId, " should be a multiple of 8 ASCII characters.");
         }
     }
 
