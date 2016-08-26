@@ -495,7 +495,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public void purge(PurgeConfiguration purgeConfiguration) {
-        new DataPurger(purgeConfiguration, this).purge();
+        new DataPurger(purgeConfiguration, this, clock).purge();
     }
 
     @Override

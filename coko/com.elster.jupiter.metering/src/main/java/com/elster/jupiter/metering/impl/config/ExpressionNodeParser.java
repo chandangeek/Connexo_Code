@@ -141,7 +141,7 @@ public class ExpressionNodeParser {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) readingTypeRequirement.get().getId());
             }
             if ((mode.equals(Formula.Mode.AUTO) && (!UnitConversionSupport.isValidForAggregation(readingTypeRequirement.get().getUnit())))) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
+                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
             }
 
             nodes.add(new ReadingTypeRequirementNodeImpl(readingTypeRequirement.get()));

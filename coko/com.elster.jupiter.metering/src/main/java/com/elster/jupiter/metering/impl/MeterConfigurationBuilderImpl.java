@@ -51,14 +51,12 @@ class MeterConfigurationBuilderImpl implements MeterConfigurationBuilder {
         DiGraph<ReadingType> multiplierGraph = new DiGraph<>();
         readingTypes.stream()
                 .filter(builder -> builder.calculated != null)
-                .forEach(builder -> {
-                    multiplierGraph.addEdge(builder.measured, builder.calculated);
-                });
+                .forEach(builder -> multiplierGraph.addEdge(builder.measured, builder.calculated));
         if (!multiplierGraph.isForest()) {
             throw new IllegalArgumentException(); // TODO proper exception
         }
 
-        readingTypes.stream()
+        readingTypes
                 .forEach(builder -> {
                     MeterReadingTypeConfigurationImpl config = MeterReadingTypeConfigurationImpl.from(meterConfiguration, (IReadingType) builder.measured);
                     config.setOverflowValue(builder.overflowValue);
@@ -80,8 +78,7 @@ class MeterConfigurationBuilderImpl implements MeterConfigurationBuilder {
         private Integer numberOfFractionDigits;
         private MultiplierTypeImpl multiplierType;
 
-
-        public ReadingTypeConfigurationBuilder(ReadingType readingType) {
+        ReadingTypeConfigurationBuilder(ReadingType readingType) {
             this.measured = readingType;
         }
 
