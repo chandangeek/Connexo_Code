@@ -18,7 +18,6 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
@@ -339,11 +338,10 @@ public class InMemoryIntegrationPersistence {
     }
 
     private void initializePrivileges() {
-        new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources().stream()
+        new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
-        new com.energyict.mdc.device.data.impl.Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), injector.getInstance(ServiceCallService.class), injector.getInstance(CustomPropertySetService.class))
+        new com.energyict.mdc.device.data.impl.Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), meteringService, injector.getInstance(ServiceCallService.class), injector.getInstance(CustomPropertySetService.class))
                 .getModuleResources()
-                .stream()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
     }
 
@@ -361,11 +359,11 @@ public class InMemoryIntegrationPersistence {
         privileges.add(vPrivilege1);
         when(this.principal.getPrivileges()).thenReturn(privileges);
         this.licenseService = mock(LicenseService.class);
-        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
+        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         this.thesaurus = mock(Thesaurus.class);
         this.locationService = mock(LocationService.class);
         this.issueService = mock(IssueService.class, RETURNS_DEEP_STUBS);
-        when(this.issueService.findStatus(any())).thenReturn(Optional.<IssueStatus>empty());
+        when(this.issueService.findStatus(any())).thenReturn(Optional.empty());
     }
 
     private Privilege mockPrivilege(EditPrivilege privilege1) {
