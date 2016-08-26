@@ -1,7 +1,12 @@
 package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.util.streams.Functions;
+
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -48,6 +53,27 @@ public enum DefaultState  {
                     .findFirst();
         } else {
             return Optional.empty();
+        }
+    }
+
+    public static Optional<DefaultState> fromKey(String key) {
+        return Stream
+                    .of(DefaultState.values())
+                    .filter(s -> s.getKey().equals(key))
+                    .findFirst();
+    }
+
+    public static Set<DefaultState> fromKeys(Set<String> keys) {
+        Set<DefaultState> states =
+            keys
+                .stream()
+                .map(DefaultState::fromKey)
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toSet());
+        if (!states.isEmpty()) {
+            return EnumSet.copyOf(states);
+        } else {
+            return EnumSet.noneOf(DefaultState.class);
         }
     }
 
