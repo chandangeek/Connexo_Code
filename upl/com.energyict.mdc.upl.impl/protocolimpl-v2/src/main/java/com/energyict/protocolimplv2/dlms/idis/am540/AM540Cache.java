@@ -23,7 +23,8 @@ public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, 
     UniversalObject[] mirrorObjectList;
     UniversalObject[] gatewayObjectList;
 
-    protected Map<Integer, Long> frameCounters = new HashMap<>();
+    protected Map<Integer, Long> frameCountersGateway = new HashMap<>();
+    protected Map<Integer, Long> frameCountersMirror = new HashMap<>();
 
     public AM540Cache(boolean connectionToBeaconMirror) {
         this.connectionToBeaconMirror = connectionToBeaconMirror;
@@ -67,16 +68,28 @@ public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, 
 
     @Override
     public void setTXFrameCounter(final int clientId, int frameCounter){
-        frameCounters.put(clientId, Long.valueOf(frameCounter));
+        if (isConnectionToBeaconMirror()) {
+            frameCountersMirror.put(clientId, Long.valueOf(frameCounter));
+        } else {
+            frameCountersGateway.put(clientId, Long.valueOf(frameCounter));
+        }
         setChanged(true);
     }
 
     @Override
     public long getTXFrameCounter(final int clientId){
-        if (frameCounters.containsKey(clientId)) {
-            return frameCounters.get(clientId);
+        if (isConnectionToBeaconMirror()) {
+            if (frameCountersMirror.containsKey(clientId)) {
+                return frameCountersMirror.get(clientId);
+            } else {
+                return -1;
+            }
         } else {
-            return -1;
+            if (frameCountersGateway.containsKey(clientId)) {
+                return frameCountersGateway.get(clientId);
+            } else {
+                return -1;
+            }
         }
     }
 

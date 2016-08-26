@@ -215,21 +215,21 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
      * @return
      */
     protected boolean readAndTestCachedFrameCounter(ComChannel comChannel){
-        getLogger().finest("Will try to use a cached frame counter");
+        getLogger().info("Will try to use a cached frame counter");
         final int clientId = getDlmsSessionProperties().getClientMacAddress();
-        long cachedFrameCounter = am540Cache.getTXFrameCounter(clientId);
+        long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         if (cachedFrameCounter > 0) {
-            getLogger().finest(" - cached frame counter: "+cachedFrameCounter);
+            getLogger().info(" - cached frame counter: "+cachedFrameCounter);
             this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFrameCounter + 1);
             if (getDlmsSessionProperties().validateCachedFrameCounter()){
                 return testConnection(comChannel);
             } else {
-                getLogger().finest(" - cached frame counter will not be validated - if the communication fails please set the cache property back to {No}, so a fresh one will be read-out");
+                getLogger().warning(" - cached frame counter will not be validated - if the communication fails please set the cache property back to {No}, so a fresh one will be read-out");
                 // do not validate, just use it and hope for the best
                 return true;
             }
         } else {
-            getLogger().finest("Cache does not have a cached frame counter for clientId="+clientId);
+            getLogger().warning("Cache does not have a cached frame counter for clientId="+clientId);
         }
 
         return false;
