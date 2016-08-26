@@ -365,9 +365,11 @@ Ext.define('Bpm.controller.TaskBulk', {
             selectionGrid = wizard.down('bulk-selection-grid'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             action = wizard.down('#tasks-bulk-action-radiogroup').getValue().action,
+            tasksGroupGrid = me.getGroupGrid(),
             manageTaskForm,
             tasksQueryParams ={},
             tasksPayload,
+            groupStore,
             tasks = [];
 
         manageTaskForm = wizard.down('#tskbw-step3').down('task-manage-form');
@@ -402,7 +404,17 @@ Ext.define('Bpm.controller.TaskBulk', {
             });
         }
         else {
+
             wizard.setLoading(true);
+            groupStore = tasksGroupGrid.getStore();
+            groupStore.each(function(record){
+                for (var i = 0; i < record.get('tasksForm').properties.length; i++) {
+                    if(record.tasksForm.propertiesStore.data.items[i].data.value)
+                        record.get('tasksForm').properties[i].propertyValueInfo.value = record.tasksForm.propertiesStore.data.items[i].data.value;
+                }
+
+            });
+
             tasksPayload = {
                 taskGroups: Ext.pluck(me.getStore('Bpm.store.task.TaskGroups').data.items, 'data')
             };
