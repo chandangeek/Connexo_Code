@@ -65,7 +65,7 @@ Ext.define('Usr.controller.Group', {
         confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.remove', 'USR', 'Remove')
         }).show({
-            title: Ext.String.format(Uni.I18n.translate('role.remove.title', 'USR', 'Remove \'{0}\'?'), record.get('name')),
+            title: Ext.String.format(Uni.I18n.translate('role.remove.title', 'USR', 'Remove \'{0}\'?'), Ext.htmlEncode(record.get('name'))),
             msg: Uni.I18n.translate('role.remove.message', 'USR', 'Any user with this role will lose the associated privileges unless they are associated with other roles for the concerned user.'),
             fn: function (state) {
                 if (state === 'confirm') {
