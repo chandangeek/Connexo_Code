@@ -13,7 +13,7 @@ public interface BootstrapService {
     String JDBC_USER = "com.elster.jupiter.datasource.jdbcuser";
     String JDBC_PASSWORD = "com.elster.jupiter.datasource.jdbcpassword";
     String JDBC_POOLMAXLIMIT = "com.elster.jupiter.datasource.pool.maxlimit";
-    String JDBC_POOLMAXLIMIT_DEFAULT = "50";
+    String JDBC_POOLMAXLIMIT_DEFAULT = "100";
     String JDBC_POOLMAXSTATEMENTS = "com.elster.jupiter.datasource.pool.maxstatements";
     String JDBC_POOLMAXSTATEMENTS_DEFAULT = "50";
     String JDBC_DRIVER_URL = "com.elster.jupiter.datasource.jdbcurl";
