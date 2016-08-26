@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,19 +31,17 @@ import java.util.stream.Stream;
  */
 class MeterActivationSetImpl implements MeterActivationSet {
     private final UsagePointMetrologyConfiguration configuration;
-    private final Collection<MeterActivation> meterActivations = new ArrayList<>();
+    private final List<MeterActivation> meterActivations = new ArrayList<>();
     private final int sequenceNumber;
+    private final Range<Instant> period;
     private final Instant start;
     private Instant end;
 
-    MeterActivationSetImpl(UsagePointMetrologyConfiguration configuration, int sequenceNumber, Instant start) {
+    MeterActivationSetImpl(UsagePointMetrologyConfiguration configuration, int sequenceNumber, Range<Instant> period, Instant start) {
         this.configuration = configuration;
         this.sequenceNumber = sequenceNumber;
+        this.period = period;
         this.start = start;
-    }
-
-    void endAt(Instant end) {
-        this.end = end;
     }
 
     @Override
@@ -52,6 +51,10 @@ class MeterActivationSetImpl implements MeterActivationSet {
 
     @Override
     public Range<Instant> getRange() {
+        return this.period.intersection(this.range());
+    }
+
+    private Range<Instant> range() {
         if (this.end != null) {
             return Range.closedOpen(this.start, this.end);
         } else {
@@ -62,6 +65,15 @@ class MeterActivationSetImpl implements MeterActivationSet {
     @Override
     public void add(MeterActivation meterActivation) {
         this.meterActivations.add(meterActivation);
+        Instant meterActivationEnd = meterActivation.getEnd();
+        if (this.end == null || (meterActivationEnd != null && !meterActivationEnd.isAfter(this.end))) {
+            this.end = meterActivationEnd;
+        }
+    }
+
+    @Override
+    public List<MeterActivation> getMeterActivations() {
+        return Collections.unmodifiableList(this.meterActivations);
     }
 
     @Override

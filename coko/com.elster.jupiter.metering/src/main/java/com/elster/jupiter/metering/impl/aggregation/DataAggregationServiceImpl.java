@@ -79,6 +79,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     @Override
     public CalculatedMetrologyContractData calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        Loggers.ANALYSIS.debug(() -> new DataAggregationAnalysisLogger().calculationStarted(usagePoint, contract, period));
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
         this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
         Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
@@ -106,13 +107,13 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     }
 
     private List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationForUsagePointInPeriod(UsagePoint usagePoint, Range<Instant> period) {
-        /* Could use the following
-         * return usagePoint.getEffectiveMetrologyConfigurations(period);
-         * but we want to eagerly fetch the configuration and the contracts as well. */
-        return this.getDataModel()
-                .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, MetrologyContract.class)
-                .select(where("usagePoint").isEqualTo(usagePoint)
-                        .and(where("interval").isEffective(period)));
+        List<EffectiveMetrologyConfigurationOnUsagePoint> result =
+                this.getDataModel()
+                    .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, MetrologyContract.class)
+                    .select(     where("usagePoint").isEqualTo(usagePoint)
+                            .and(where("interval").isEffective(period)));
+        Loggers.ANALYSIS.debug(() -> new DataAggregationAnalysisLogger().verboseEffectiveMetrologyConfigurations(result));
+        return result;
     }
 
     private void validateContractAppliesToUsagePoint(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
@@ -122,13 +123,17 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     }
 
     private Range<Instant> clipToContractActivePeriod(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, MetrologyContract contract, Range<Instant> period) {
-        return effectivities
+        Range<Instant> clippedPeriod = effectivities
                 .stream()
                 .filter(each -> this.hasContract(each, contract))
                 .findFirst()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getRange)
                 .map(period::intersection)
                 .orElseThrow(() -> new IllegalStateException("Validation that contract was active on contract failed before"));
+        if (!clippedPeriod.equals(period)) {
+            Loggers.ANALYSIS.debug(() -> "Requested period clipped to effectivity of the contract: " + clippedPeriod);
+        }
+        return clippedPeriod;
     }
 
     private boolean hasContract(EffectiveMetrologyConfigurationOnUsagePoint each, MetrologyContract contract) {
@@ -137,12 +142,12 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     @Override
     public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
-        return new MeterActivationSetStreamBuilder(usagePoint, period).build().collect(Collectors.toList());
+        return new MeterActivationSetBuilder(usagePoint, period).build();
     }
 
     @Override
     public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when) {
-        return new MeterActivationSetStreamBuilder(usagePoint, when).build().collect(Collectors.toList());
+        return new MeterActivationSetBuilder(usagePoint, when).build();
     }
 
     private void prepare(UsagePoint usagePoint, MeterActivationSet meterActivationSet, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {

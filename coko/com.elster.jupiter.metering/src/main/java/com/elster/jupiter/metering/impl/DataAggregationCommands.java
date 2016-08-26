@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.aggregation.ReadingQuality;
@@ -25,6 +26,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -34,6 +36,7 @@ import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.metering.aggregation.console", service = DataAggregationCommands.class, property = {
         "osgi.command.scope=dag",
@@ -52,6 +55,7 @@ public class DataAggregationCommands {
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
+    private volatile Clock clock;
 
     @Reference
     public void setDataAggregationService(DataAggregationService dataAggregationService) {
@@ -78,6 +82,11 @@ public class DataAggregationCommands {
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     public void aggregate() {
         System.out.println("Usage: aggregate <usage point MRID> <contract purpose> <deliverable name> <start date>");
     }
@@ -100,7 +109,7 @@ public class DataAggregationCommands {
                     .orElseThrow(() -> new NoSuchElementException("Deliverable not found on contract"));
 
             Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
-            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, Range.openClosed(start, Instant.now()));
+            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, Range.openClosed(start, Instant.now(clock)));
 
             List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
             System.out.println("records found for deliverable:" + dataForDeliverable.size());
@@ -109,34 +118,67 @@ public class DataAggregationCommands {
     }
 
     public void showData() {
-        System.out.println("Usage: showData <usage point MRID> <contract purpose> <deliverable name> <start date>");
+        System.out.println("Usage: showData <usage point MRID> <contract purpose> <deliverable name> <start date> [<end date>]");
     }
 
     public void showData(String usagePointMRID, String contractPurpose, String deliverableName, String startDate) {
+        Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+        Range<Instant> period = Range.openClosed(start, Instant.now());
+        this.showData(usagePointMRID, contractPurpose, deliverableName, period);
+    }
+
+    public void showData(String usagePointMRID, String contractPurpose, String deliverableName, String startDate, String endDate) {
+        Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+        Instant end = ZonedDateTime.ofInstant(Instant.parse(endDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+        Range<Instant> period = Range.closedOpen(start, end);
+        this.showData(usagePointMRID, contractPurpose, deliverableName, period);
+    }
+
+    private void showData(String usagePointMRID, String contractPurpose, String deliverableName, Range<Instant> period) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
-            MetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+            UsagePointMetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                     .orElseThrow(() -> new NoSuchElementException("No metrology configuration"));
             MetrologyContract contract = configuration.getContracts().stream()
                     .filter(c -> c.getMetrologyPurpose().getName().equals(contractPurpose))
                     .findFirst()
-                    .orElseThrow(() -> new NoSuchElementException("No contract for purpose " + contractPurpose));
+                    .orElseThrow(() -> noContractForPurpose(contractPurpose, configuration));
             ReadingTypeDeliverable deliverable = contract.getDeliverables().stream()
                     .filter(d -> d.getName().equals(deliverableName))
                     .findFirst()
-                    .orElseThrow(() -> new NoSuchElementException("Deliverable not found on contract"));
+                    .orElseThrow(() -> deliverableNotAvailableInContract(deliverableName, contract));
 
-            Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
-            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, Range.openClosed(start, Instant.now()));
+            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, period);
 
             List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
             dataForDeliverable.forEach(this::showReading);
             System.out.println("records found for deliverable:" + dataForDeliverable.size());
             context.commit();
         }
+    }
+
+    private NoSuchElementException noContractForPurpose(String purpose, UsagePointMetrologyConfiguration configuration) {
+        String availableContracts = configuration
+                .getContracts()
+                .stream()
+                .map(MetrologyContract::getMetrologyPurpose)
+                .map(MetrologyPurpose::getName)
+                .collect(Collectors.joining(", "));
+        System.out.println("available contracts: " + availableContracts);
+        return new NoSuchElementException("No contract for purpose " + purpose);
+    }
+
+    private NoSuchElementException deliverableNotAvailableInContract(String deliverableName, MetrologyContract contract) {
+        String availableDeliverables = contract
+                .getDeliverables()
+                .stream()
+                .map(ReadingTypeDeliverable::getName)
+                .collect(Collectors.joining(", "));
+        System.out.println("available deliverables: " + availableDeliverables);
+        return new NoSuchElementException("Deliverable not found on contract");
     }
 
     private void showReading(BaseReadingRecord readingRecord) {
@@ -146,13 +188,14 @@ public class DataAggregationCommands {
                         .withZone(ZoneId.systemDefault());
 
         List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
+        Range<Instant> range = readingRecord.getTimePeriod().get();
         if (qualities.isEmpty()) {
-            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " in " + readingRecord.getTimePeriod()
-                    .get() + " : " + readingRecord.getValue());
+            System.out.println(
+                    formatter.format(readingRecord.getTimeStamp()) + " in " + range + " : " + readingRecord.getValue());
         } else {
-            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " in " + readingRecord.getTimePeriod()
-                    .get() + " : " + readingRecord.getValue() + " , "
-                    + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
+            System.out.println(
+                    formatter.format(readingRecord.getTimeStamp()) + " in " + range + " : " + readingRecord.getValue()
+                    + " , " + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
         }
     }
 

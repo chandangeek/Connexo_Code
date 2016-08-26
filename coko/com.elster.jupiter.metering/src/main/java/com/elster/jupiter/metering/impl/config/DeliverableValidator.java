@@ -46,6 +46,9 @@ class DeliverableValidator implements ConstraintValidator<ValidDeliverable, Read
                     if (!formula.getExpressionNode().accept(new RegularDeliverableComplexityAnalyzer())) {
                         throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS);
                     }
+                    if (formula.getExpressionNode().accept(new NoBulkReadingTypeRequirements())) {
+                        throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.BULK_READINGTYPE_NOT_ALLOWED);
+                    }
                 } else {
                     IrregularDeliverableComplexityAnalyzer complexity = new IrregularDeliverableComplexityAnalyzer();
                     formula.getExpressionNode().accept(complexity);
@@ -55,7 +58,7 @@ class DeliverableValidator implements ConstraintValidator<ValidDeliverable, Read
                 }
                 if (formula.getMode().equals(Formula.Mode.AUTO)
                         && !UnitConversionSupport.isValidForAggregation(readingType)) {
-                    throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_IN_DELIVERABLE);
+                    throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_UNIT_IN_DELIVERABLE);
                 }
             }
             if ((readingType != null) && formula.getMode().equals(Formula.Mode.AUTO) && !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {

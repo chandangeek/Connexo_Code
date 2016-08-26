@@ -25,7 +25,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Created by igh on 24/03/2016.
+ * Provides an implementation for the {@link ReadingTypeDeliverableBuilder} interface.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-03-24
  */
 public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverableBuilder {
 
@@ -72,7 +75,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) requirement.getId());
         }
         if ((isAutoMode()) && (!UnitConversionSupport.isValidForAggregation(requirement.getUnit()))) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
         }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.requirement(requirement));
     }

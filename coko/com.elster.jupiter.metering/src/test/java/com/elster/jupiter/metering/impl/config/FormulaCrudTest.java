@@ -11,6 +11,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -68,7 +69,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -353,8 +353,8 @@ public class FormulaCrudTest {
         try {
             new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("maxOf(max(constant(1), constant(2)), plus(constant(2), constant(3)))");
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessageSeed(), MessageSeeds.FUNCTION_NOT_ALLOWED_IN_AUTOMODE);
-            assertEquals(e.get("Function"), Function.MAX_AGG);
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.FUNCTION_NOT_ALLOWED_IN_AUTOMODE);
+            assertThat(e.get("Function")).isEqualTo(Function.MAX_AGG);
             throw e;
         }
     }
@@ -501,7 +501,7 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.requirement(req));
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The requirement with id '" + req.getId() + "' cannot be used because it has a different metrology configuration.");
+            assertThat(e.getMessage()).isEqualTo("The requirement with id '" + req.getId() + "' cannot be used because it has a different metrology configuration.");
             throw e;
         }
     }
@@ -574,7 +574,8 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.requirement(req));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+            assertThat(e.getConstraintViolations().iterator().next().getMessage())
+                .isEqualTo(
                     "The readingtype \"" + readingTypeDeliverable.getMRID() + " (" + readingTypeDeliverable.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
                             "deliverable" + " = " + req.getName()
@@ -615,7 +616,8 @@ public class FormulaCrudTest {
             deliverable1.startUpdate().setReadingType(temperatureRT).complete();
             fail("ConstraintViolationException expected");
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+            assertThat(e.getConstraintViolations().iterator().next().getMessage())
+                .isEqualTo(
                     "The readingtype \"" + temperatureRT.getMRID() + " (" + temperatureRT.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
                             deliverable1.getName() + " = " + deliverable1.getFormula().getExpressionNode().toString()
@@ -628,7 +630,7 @@ public class FormulaCrudTest {
 
         try {
             deliverable1.startUpdate().setReadingType(conskWhMonthlyRT).complete();
-            assertEquals(deliverable1.getReadingType(), conskWhMonthlyRT);
+            assertThat(deliverable1.getReadingType()).isEqualTo(conskWhMonthlyRT);
         } catch (InvalidNodeException e) {
             fail("No InvalidNodeException expected!");
         }
@@ -681,7 +683,8 @@ public class FormulaCrudTest {
             deliverable1.startUpdate().setReadingType(temperatureRT).complete();
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+            assertThat(e.getConstraintViolations().iterator().next().getMessage())
+                .isEqualTo(
                     "The readingtype \"" + temperatureRT.getMRID() + " (" + temperatureRT.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
                             deliverable1.getName() + " = " + deliverable1.getFormula().getExpressionNode().toString()
@@ -697,7 +700,7 @@ public class FormulaCrudTest {
 
         try {
             deliverable1.startUpdate().setReadingType(conskWhMonthlyRT).complete();
-            assertEquals(deliverable1.getReadingType(), conskWhMonthlyRT);
+            assertThat(deliverable1.getReadingType()).isEqualTo(conskWhMonthlyRT);
         } catch (InvalidNodeException e) {
             fail("No InvalidNodeException expected!");
         }
@@ -853,10 +856,8 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.requirement(req));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations()
-                    .iterator()
-                    .next()
-                    .getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+            assertThat(e.getConstraintViolations().iterator().next().getMessage())
+                .isEqualTo("The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
             throw e;
         }
     }
@@ -881,8 +882,8 @@ public class FormulaCrudTest {
 
         ReadingType fifteenMinRT =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(monthly).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -941,10 +942,8 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations()
-                    .iterator()
-                    .next()
-                    .getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+            assertThat(e.getConstraintViolations().iterator().next().getMessage())
+                .isEqualTo("The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
             throw e;
         }
     }
@@ -964,13 +963,13 @@ public class FormulaCrudTest {
 
         ReadingType thirtyMinTR =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR"));
+                        "0.0.5.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR"));
 
         ReadingType fifteenMinRT =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(thirtyMinTR).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -992,7 +991,7 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "MINUTE15 values cannot be aggregated to MINUTE30 values.");
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo("MINUTE15 values cannot be aggregated to MINUTE30 values.");
             throw e;
         }
     }
@@ -1012,13 +1011,13 @@ public class FormulaCrudTest {
 
         ReadingType thirtyMinTR =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR"));
+                        "0.0.5.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR"));
 
         ReadingType fifteenMinRT =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(thirtyMinTR).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -1041,7 +1040,7 @@ public class FormulaCrudTest {
             ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
             builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "MINUTE15 values cannot be aggregated to MINUTE30 values.");
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo("MINUTE15 values cannot be aggregated to MINUTE30 values.");
             throw e;
         }
     }
@@ -1061,13 +1060,13 @@ public class FormulaCrudTest {
 
         ReadingType thirtyMinTR =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR"));
+                        "0.0.5.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR"));
 
         ReadingType fifteenMinRT =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(thirtyMinTR).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -1090,10 +1089,8 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations()
-                    .iterator()
-                    .next()
-                    .getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+            assertThat(e.getConstraintViolations().iterator().next().getMessage())
+                .isEqualTo("The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
             throw e;
         }
     }
@@ -1185,7 +1182,8 @@ public class FormulaCrudTest {
         try {
             deliverable1.startUpdate().setReadingType(temperatureRT).complete();
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+            assertThat(e.getConstraintViolations().iterator().next().getMessage())
+                .isEqualTo(
                     "The readingtype \"" + conskWhRT60min.getMRID() + " (" + conskWhRT60min.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
                             deliverable2.getName() + " = " + deliverable2.getFormula().getExpressionNode().toString()
@@ -1208,8 +1206,8 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh"));
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh"));
         assertThat(conskWhRT15min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
@@ -1222,7 +1220,7 @@ public class FormulaCrudTest {
             ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.EXPERT);
             builder2.build(builder2.deliverable(deliverable1));
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Auto mode and export mode cannot be combined.");
+            assertThat(e.getMessage()).isEqualTo("Auto mode and export mode cannot be combined.");
             throw e;
         }
     }
@@ -1255,7 +1253,7 @@ public class FormulaCrudTest {
             ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.AUTO);
             builder2.build(builder2.deliverable(deliverable1));
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Auto mode and export mode cannot be combined.");
+            assertThat(e.getMessage()).isEqualTo("Auto mode and export mode cannot be combined.");
             throw e;
         }
     }
@@ -1283,7 +1281,7 @@ public class FormulaCrudTest {
             ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("conskWhRT15min", conskWhRT15min, Formula.Mode.EXPERT);
             builder.build(builder.plus(builder.maximum(AggregationLevel.DAY, builder.requirement(requirement)), builder.maximum(AggregationLevel.MONTH, builder.requirement(requirement))));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "All aggregation functions must use the same aggregation level argument.");
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo("All aggregation functions must use the same aggregation level argument.");
             throw e;
         }
     }
@@ -1309,7 +1307,8 @@ public class FormulaCrudTest {
             ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("InvalidDeliverable", status, Formula.Mode.AUTO);
             builder.build(builder.constant(10));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype for the deliverable is not valid, it should represent a numerical value.");
+            assertThat(e.getConstraintViolations().iterator().next().getMessage())
+                .isEqualTo("The readingtype for the deliverable is not valid, it should represent a numerical value.");
             throw e;
         }
     }
@@ -1362,11 +1361,10 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.requirement(req));
         } catch (InvalidNodeException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
             throw e;
         }
     }
-
 
     @Test(expected = InvalidNodeException.class)
     @Transactional
@@ -1393,7 +1391,60 @@ public class FormulaCrudTest {
         try {
             new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
         } catch (InvalidNodeException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
+            throw e;
+        }
+    }
+
+    @Test(expected = VerboseConstraintViolationException.class)
+    @Transactional
+    // formula = Requirement
+    public void testBulkReadingTypeInRequirement() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config2", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config).isNotNull();
+        ReadingType bulkRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.5.1.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Bulk");
+        assertThat(bulkRT).isNotNull();
+        ReadingType regRT  = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.5.4.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Regular");
+        assertThat(regRT).isNotNull();
+
+        FullySpecifiedReadingTypeRequirement bulkRequirement = config.newReadingTypeRequirement("Bulk").withReadingType(bulkRT);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
+        try {
+            builder.build(builder.requirement(bulkRequirement));
+        } catch (VerboseConstraintViolationException e) {
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo(MessageSeeds.BULK_READINGTYPE_NOT_ALLOWED.getDefaultFormat());
+            throw e;
+        }
+    }
+
+    @Test(expected = VerboseConstraintViolationException.class)
+    @Transactional
+    // formula = other deliverable
+    public void testBulkReadingTypeInDeliverable() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config2", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config).isNotNull();
+        ReadingType bulkRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.5.1.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Bulk");
+        assertThat(bulkRT).isNotNull();
+        ReadingType regRT  = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.5.4.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Regular");
+        assertThat(regRT).isNotNull();
+
+        ReadingTypeDeliverableBuilder bulkBuilder = config.newReadingTypeDeliverable("Bulk", bulkRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverable buldDeliverable = bulkBuilder.build(bulkBuilder.constant(BigDecimal.TEN));
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("DelUsingBulkDel", regRT, Formula.Mode.AUTO);
+        try {
+            builder.build(builder.deliverable(buldDeliverable));
+        } catch (VerboseConstraintViolationException e) {
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo(MessageSeeds.BULK_READINGTYPE_NOT_ALLOWED.getDefaultFormat());
             throw e;
         }
     }
@@ -1426,10 +1477,36 @@ public class FormulaCrudTest {
         try {
             new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
         } catch (InvalidNodeException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
             throw e;
         }
+    }
 
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testBulkReadingTypeInRequirementAllowedForIrregular() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config2", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config).isNotNull();
+        ReadingType bulkRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.1.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Bulk");
+        assertThat(bulkRT).isNotNull();
+        ReadingType regRT  = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.4.0.41.109.0.0.0.0.0.0.0.0.0.72.0", "Regular");
+        assertThat(regRT).isNotNull();
+
+        FullySpecifiedReadingTypeRequirement bulkRequirement = config.newReadingTypeRequirement("Bulk").withReadingType(bulkRT);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
+
+        // Business method
+        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.requirement(bulkRequirement));
+
+        // Asserts
+        assertThat(readingTypeDeliverable).isNotNull();
+        assertThat(readingTypeDeliverable.getReadingType()).isEqualTo(regRT);
     }
 
     @Test
@@ -1446,7 +1523,6 @@ public class FormulaCrudTest {
         Formula formula = service.newFormulaBuilder(myMode).init(node).build();
         assertThat(formula).isNotNull();
     }
-
 
     @Test
     @Transactional
@@ -1484,7 +1560,7 @@ public class FormulaCrudTest {
             ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "MINUTE10 values cannot be aggregated to MINUTE15 values.");
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo("MINUTE10 values cannot be aggregated to MINUTE15 values.");
         }
     }
 
@@ -1531,7 +1607,7 @@ public class FormulaCrudTest {
             ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "MINUTE5 values cannot be aggregated to MINUTE10 values.");
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo("MINUTE5 values cannot be aggregated to MINUTE10 values.");
         }
     }
 
@@ -1551,13 +1627,13 @@ public class FormulaCrudTest {
 
         ReadingType sixtyMinTR =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "sixtyMinTR"));
+                        "0.0.7.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.7.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "sixtyMinTR"));
 
         ReadingType fifteenMinRT =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(sixtyMinTR).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -1627,8 +1703,8 @@ public class FormulaCrudTest {
 
         ReadingType fifteenMinRT =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(fifteenMinRT).isNotNull();
         config.newReadingTypeRequirement("15Min").withReadingType(fifteenMinRT);
@@ -1760,7 +1836,8 @@ public class FormulaCrudTest {
             deliverable1.startUpdate().setReadingType(incompatibleRT).complete();
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+            assertThat(e.getConstraintViolations().iterator().next().getMessage())
+                .isEqualTo(
                     "The readingtype \"" + otherRT.getMRID() + " (" + otherRT.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
                             deliverable2.getName() + " = " + deliverable2.getFormula().getExpressionNode().toString()
@@ -1822,7 +1899,8 @@ public class FormulaCrudTest {
             toUpdate.startUpdate().setReadingType(incompatibleRT).complete();
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+            assertThat(e.getConstraintViolations().iterator().next().getMessage())
+                .isEqualTo(
                     "The readingtype \"" + otherRT.getMRID() + " (" + otherRT.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
                             deliverable2.getName() + " = " + deliverable2.getFormula().getExpressionNode().toString()
