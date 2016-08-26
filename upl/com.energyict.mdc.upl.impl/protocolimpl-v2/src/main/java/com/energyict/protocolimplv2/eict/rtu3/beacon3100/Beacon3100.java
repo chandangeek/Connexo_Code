@@ -1,5 +1,13 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.LastSeenDateInfo;
 import com.energyict.cpo.PropertySpec;
@@ -7,8 +15,10 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
@@ -16,7 +26,12 @@ import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -31,6 +46,11 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -92,7 +112,6 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         readFrameCounter(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
-
     /**
      * Will return the correct frame counter obis code, for each client ID.
      * Management Client (1): 0 0 43 1 1 255 -> With a pre-established framecounter association.
@@ -118,31 +137,52 @@ public class Beacon3100 extends AbstractDlmsProtocol {
     /**
      * First read out the frame counter for the management client, using the public client. It has a pre-established association.
      * Note that this happens without setting up an association, since the it's pre-established for the public client.
+     *
+     * For EVN we'll read the frame counter using the frame counter provider custom method in the beacon
      */
     protected void readFrameCounter(ComChannel comChannel) {
-        if (usesSessionKey()) {
-            //No need to read out the global FC if we're going to use a new session key in this AA.
-            return;
+        if (this.usesSessionKey()) {
+        	//No need to read out the global FC if we're going to use a new session key in this AA.
+        	return;
         }
+        // construct a temporary session with 0:0 security and clientId=16 (public)
+        final TypedProperties publicProperties = getDlmsSessionProperties().getProperties().clone();
+        publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
+        final Beacon3100Properties publicClientProperties = new Beacon3100Properties();
+        publicClientProperties.addProperties(publicProperties);
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, publicProperties));    //SecurityLevel 0:0
 
-        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
-        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
-        Beacon3100Properties publicClientProperties = new Beacon3100Properties();
-        publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
+        final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
+        final ObisCode frameCounterObisCode = this.getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress());
+        final long frameCounter;
+        
+        if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()){
+        	publicDlmsSession.getDlmsV2Connection().connectMAC();
+        	publicDlmsSession.createAssociation();
+            try {
 
-        DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
-        publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
-        long frameCounter;
-        try {
-            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress())).getValueAttr().longValue();
-        } catch (DataAccessResultException | ProtocolException e) {
-            frameCounter = new SecureRandom().nextInt();
-        } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+                FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
+                frameCounter = frameCounterProvider.getFrameCounter(publicDlmsSession.getProperties().getSecurityProvider().getAuthenticationKey());
+
+            } catch (IOException e) {
+                    throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+            } catch (Exception e) {
+                final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
+                throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+            } finally {
+            	publicDlmsSession.disconnect();
+            }
+        } else {
+        	/* Pre-established */
+            publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
+            try {
+                frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
+            } catch (IOException e) {
+                throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+            }
+            //frameCounter = new SecureRandom().nextInt();
         }
-
-        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
 
     /**

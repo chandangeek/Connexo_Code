@@ -308,10 +308,23 @@ public class DlmsSession implements ProtocolLink {
      */
     protected ApplicationServiceObject buildAso() {
         if (getProperties().isNtaSimulationTool()) {
-            return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null);
+            return buildAso(getProperties().getSerialNumber());
         } else {
             return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId());
         }
+    }
+
+    /**
+     * Build a new ApplicationServiceObject using the DLMSProperties, specific for a calledSystemTitle
+     * This one is used mainly in 2 cases:
+     *    - when using an NTA Simulator (from the calledSystemTitle the simulator will build-up the meter with that serial number
+     *    - when calling a Beacon and invoing get_frame_counter secure method
+     *
+     * @param calledSystemTitle
+     * @return
+     */
+    protected ApplicationServiceObject buildAso(String calledSystemTitle){
+        return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), calledSystemTitle.getBytes(), null);
     }
 
     /**
