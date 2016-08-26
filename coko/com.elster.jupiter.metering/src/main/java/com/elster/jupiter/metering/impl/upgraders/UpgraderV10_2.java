@@ -1,7 +1,10 @@
 package com.elster.jupiter.metering.impl.upgraders;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.impl.CreateLocationMemberTableOperation;
 import com.elster.jupiter.metering.impl.GeoCoordinatesSpatialMetaDataTableOperation;
+import com.elster.jupiter.metering.impl.InstallerV10_2Impl;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -17,6 +20,8 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.EnumSet;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -26,12 +31,16 @@ public class UpgraderV10_2 implements Upgrader {
     private final BundleContext bundleContext;
     private final DataModel dataModel;
     private final ServerMeteringService meteringService;
+    private final EventService eventService;
+    private final InstallerV10_2Impl installerV10_2;
 
     @Inject
-    public UpgraderV10_2(BundleContext bundleContext, DataModel dataModel, ServerMeteringService meteringService) {
+    public UpgraderV10_2(BundleContext bundleContext, DataModel dataModel, ServerMeteringService meteringService, EventService eventService, InstallerV10_2Impl installerV10_2) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
+        this.eventService = eventService;
+        this.installerV10_2 = installerV10_2;
     }
 
     @Override
@@ -86,6 +95,8 @@ public class UpgraderV10_2 implements Upgrader {
         meteringService.createLocationTemplate();
 
         new GasDayOptionsCreator(this.meteringService).createIfMissing(this.bundleContext);
+        installNewEventTypes();
+        installerV10_2.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_2.class.getName()));
     }
 
     private void execute(Statement statement, String sql) {
@@ -105,6 +116,18 @@ public class UpgraderV10_2 implements Upgrader {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
+    }
+
+    private void installNewEventTypes() {
+        EnumSet.of(EventType.METER_ACTIVATED,
+                EventType.METROLOGYCONFIGURATION_CREATED,
+                EventType.METROLOGYCONFIGURATION_UPDATED,
+                EventType.METROLOGYCONFIGURATION_DELETED,
+                EventType.METROLOGY_PURPOSE_DELETED,
+                EventType.READING_TYPE_DELIVERABLE_CREATED,
+                EventType.READING_TYPE_DELIVERABLE_UPDATED,
+                EventType.READING_TYPE_DELIVERABLE_DELETED)
+                .forEach(eventType -> eventType.install(eventService));
     }
 }
 
