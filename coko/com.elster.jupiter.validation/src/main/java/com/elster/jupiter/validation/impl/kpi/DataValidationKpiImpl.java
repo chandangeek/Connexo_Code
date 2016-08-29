@@ -195,15 +195,16 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     @Override
     public void delete() {
-        this.dataModel.remove(this);
-        Optional<RecurrentTask> validationtask = this.dataValidationKpiTask.getOptional();
-        if (validationtask.isPresent()) {
-            validationtask.get().setNextExecution(null);
-            validationtask.get().suspend();
-            validationtask.get().save();
-        }
-        this.childrenKpis.forEach(DataValidationKpiChild::remove);
-        this.dataValidationKpiTask.getOptional().ifPresent(RecurrentTask::delete);
+        this.dataValidationKpiTask.getOptional().ifPresent(found -> {
+                    if (found.getUserName().equals("TaskService")) {
+                        // else name will be creation user or batch executor
+                        found.setNextExecution(null);
+                        found.save();
+                    } else {
+                        dropDataValidationKpi();
+                    }
+                }
+        );
     }
 
     @Override
@@ -213,25 +214,32 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     @Override
     public Optional<Instant> getLatestCalculation() {
-        return Stream.of(dataValidationKpiTask).
-                map(Reference::getOptional).
-                flatMap(Functions.asStream()).
-                map(RecurrentTask::getLastOccurrence).
-                flatMap(Functions.asStream()).
-                map(TaskOccurrence::getTriggerTime).
-                max(Comparator.nullsLast(Comparator.naturalOrder()));
+        Optional<RecurrentTask> task = this.dataValidationKpiTask.getOptional();
+        if (task.isPresent()) {
+            return task.get().getLastRun();
+        }
+        return Optional.empty();
+
     }
 
     @Override
-    public boolean isRunning() {
-        return this.dataValidationKpiTask.isPresent() &&
-                this.dataValidationKpiTask.get().getNextExecution() != null;
+    public boolean isCancelled() {
+        Optional<RecurrentTask> validationTask = this.dataValidationKpiTask.getOptional();
+        if (validationTask.isPresent()) {
+            return taskService.getRecurrentTask(validationTask.get().getId()).get().getNextExecution() == null;
+        } else {
+            return true;
+        }
     }
 
     @Override
     public void dropDataValidationKpi() {
-        deleteDataValidationKpi();
-        this.save();
+        this.dataModel.remove(this);
+        this.dataValidationKpiTask.getOptional().ifPresent(task -> {
+            task.suspend();
+            task.delete();
+        });
+        this.childrenKpis.forEach(DataValidationKpiChild::remove);
     }
 
     @Override
@@ -242,14 +250,6 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     @Override
     public long getVersion() {
         return this.version;
-    }
-
-    private void deleteDataValidationKpi() {
-        Optional<RecurrentTask> recurrentTask = dataValidationKpiTask.getOptional();
-        recurrentTask.ifPresent(x -> dataValidationKpiTask.setNull());
-        this.save();
-        childrenKpis.forEach(DataValidationKpiChild::remove);
-        recurrentTask.ifPresent(RecurrentTask::delete);
     }
 
     private void updateFrequency() {

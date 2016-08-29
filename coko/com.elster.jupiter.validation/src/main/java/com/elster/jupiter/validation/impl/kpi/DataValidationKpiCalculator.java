@@ -46,12 +46,13 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
     @Override
     public void calculateAndStore() {
         dataValidationKpi.updateMembers();
-        if (!dataValidationKpi.isRunning()) {
+        if (dataValidationKpi.isCancelled()) {
+            dataValidationKpi.dropDataValidationKpi();
             return;
         }
         DataValidationKpi dataValidationKpiClone = dataValidationKpi;
         try {
-            dataValidationKpiClone = (DataValidationKpi)dataValidationKpi.clone();
+            dataValidationKpiClone = (DataValidationKpi) dataValidationKpi.clone();
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
@@ -62,7 +63,8 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
         Range<Instant> range = Range.closedOpen(currentZonedDateTime.minus(Period.ofDays(1)).toInstant(), currentZonedDateTime.toInstant());
         currentZonedDateTime = currentZonedDateTime.plus(Period.ofDays(1));
         for (int i = 0; i < dayCount; ++i) {
-            if (!dataValidationKpi.isRunning()) {
+            if (dataValidationKpi.isCancelled()) {
+                dataValidationKpi.dropDataValidationKpi();
                 return;
             }
             Instant localTimeStamp = currentZonedDateTime.minusDays(i).toInstant();
@@ -71,27 +73,34 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
             Map<String, Boolean> allDataValidated = dataValidationReportService.getAllDataValidated(dataValidationKpiClone.getDeviceGroup(), range);
             Map<String, BigDecimal> totalSuspects = aggregateSuspects(registerSuspects, channelsSuspects);
             List<String> ruleValidators = aggregateRuleValidators(registerSuspects, channelsSuspects);
-            dataValidationKpiClone.getDataValidationKpiChildren().stream().forEach(kpi -> kpi.getChildKpi().getMembers().stream()
-                    .forEach(member -> {
-                        if (!dataValidationKpi.isRunning()) {
-                            return;
-                        }
-                        if (registerSuspects.get(member.getName()) != null) {
-                            member.score(localTimeStamp, new BigDecimal(registerSuspects.get(member.getName()).size()));
-                        }
-                        if (channelsSuspects.get(member.getName()) != null) {
-                            member.score(localTimeStamp, new BigDecimal(channelsSuspects.get(member.getName()).size()));
-                        }
-                        if (totalSuspects.get(member.getName()) != null) {
-                            member.score(localTimeStamp, totalSuspects.get(member.getName()));
-                        }
-                        if (allDataValidated.get(member.getName()) != null) {
-                            member.score(localTimeStamp, allDataValidated.get(member.getName()) ? BigDecimal.ONE : BigDecimal.ZERO);
-                        }
-                        if (ruleValidators.stream().anyMatch(r -> r.equals(member.getName()))) {
-                            member.score(localTimeStamp, BigDecimal.ONE);
-                        }
-                    }));
+            dataValidationKpiClone.getDataValidationKpiChildren().stream().forEach(kpi -> {
+                if (dataValidationKpi.isCancelled()) {
+                    dataValidationKpi.dropDataValidationKpi();
+                    return;
+                }
+                kpi.getChildKpi().getMembers().stream()
+                        .forEach(member -> {
+                            if (dataValidationKpi.isCancelled()) {
+                                dataValidationKpi.dropDataValidationKpi();
+                                return;
+                            }
+                            if (registerSuspects.get(member.getName()) != null) {
+                                member.score(localTimeStamp, new BigDecimal(registerSuspects.get(member.getName()).size()));
+                            }
+                            if (channelsSuspects.get(member.getName()) != null) {
+                                member.score(localTimeStamp, new BigDecimal(channelsSuspects.get(member.getName()).size()));
+                            }
+                            if (totalSuspects.get(member.getName()) != null) {
+                                member.score(localTimeStamp, totalSuspects.get(member.getName()));
+                            }
+                            if (allDataValidated.get(member.getName()) != null) {
+                                member.score(localTimeStamp, allDataValidated.get(member.getName()) ? BigDecimal.ONE : BigDecimal.ZERO);
+                            }
+                            if (ruleValidators.stream().anyMatch(r -> r.equals(member.getName()))) {
+                                member.score(localTimeStamp, BigDecimal.ONE);
+                            }
+                        });
+            });
             range = Range.closedOpen(localTimeStamp.minus(Period.ofDays(1)), localTimeStamp);
             logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!" + " date " + localTimeStamp + " count " + i);
         }
@@ -132,5 +141,7 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                                         .fieldName())).size()))
                 ));
     }
+
+
 
 }
