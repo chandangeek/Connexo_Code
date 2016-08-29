@@ -93,8 +93,8 @@ public class UpgraderV10_2 implements Upgrader {
         new GeoCoordinatesSpatialMetaDataTableOperation(dataModel).execute();
         meteringService.createLocationTemplate();
 
-        new GasDayOptionsCreator(this.meteringService).createIfMissing(this.bundleContext);
         installNewEventTypes();
+        new GasDayOptionsCreator(this.meteringService).createIfMissing(this.bundleContext);
         installerV10_2.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_2.class.getName()));
     }
 
@@ -102,7 +102,7 @@ public class UpgraderV10_2 implements Upgrader {
         try {
             statement.execute(sql);
         } catch (SQLException e) {
-            Logger.getLogger("MTR_UPGR").severe("Error in statement: " + sql);
+            Logger.getLogger(UpgraderV10_2.class.getSimpleName()).severe("Error in statement: " + sql);
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -110,6 +110,7 @@ public class UpgraderV10_2 implements Upgrader {
     private void createChannelsContainerSequence(Connection connnection) {
         try (CallableStatement statement = connnection.prepareCall("DECLARE SEQ_START NUMBER;\n" +
                 "BEGIN SELECT (MAX(ID) + 1) INTO SEQ_START FROM MTR_METERACTIVATION;\n" +
+                "IF SEQ_START IS NULL THEN SEQ_START := 1;  END IF;\n" +
                 "  EXECUTE IMMEDIATE 'CREATE SEQUENCE MTR_CHANNEL_CONTAINERID START WITH ' || SEQ_START || ' INCREMENT BY 1 CACHE 1000';\n" +
                 "END;")) {
             statement.execute();
