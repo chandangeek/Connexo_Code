@@ -79,8 +79,8 @@ public class MeterTopology extends AbstractMeterTopology {
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             UniversalObject uo = DLMSUtils.findCosemObjectInObjectListIgnoreBChannel(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
-            uo.setObisCodeChannelB((byte) i);
             if (uo != null) {
+                uo.setObisCodeChannelB((byte) i);
                 ComposedMbusSerialNumber cMbusSerial = new ComposedMbusSerialNumber(
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), uo.getClassID()),
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), uo.getClassID()),

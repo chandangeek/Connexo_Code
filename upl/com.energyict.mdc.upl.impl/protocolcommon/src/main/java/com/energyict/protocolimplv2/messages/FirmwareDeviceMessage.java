@@ -77,7 +77,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(UnicastClientWPort, BigDecimal.ONE),
             PropertySpecFactory.bigDecimalPropertySpec(BroadcastClientWPort, BigDecimal.valueOf(64)),
-            PropertySpecFactory.bigDecimalPropertySpec(MulticastClientWPort, BigDecimal.valueOf(66)),
+            PropertySpecFactory.bigDecimalPropertySpec(MulticastClientWPort, BigDecimal.valueOf(102)),
             PropertySpecFactory.bigDecimalPropertySpec(LogicalDeviceLSap, BigDecimal.ONE),
             PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelUnicast, BigDecimal.valueOf(3)),
             PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelBroadcast, BigDecimal.valueOf(3)),
@@ -97,7 +97,12 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.URL_PATH),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.JAR_FILE_SIZE),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.JAD_FILE_SIZE)),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER(21,
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName, true)),
     ;
+
 
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 

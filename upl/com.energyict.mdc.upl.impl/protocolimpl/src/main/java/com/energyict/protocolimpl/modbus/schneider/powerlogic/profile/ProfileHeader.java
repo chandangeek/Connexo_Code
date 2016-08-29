@@ -5,7 +5,7 @@ public class ProfileHeader {
 
     private int recordCount;
     private int recordSize;
-    private int integrationPeriod;
+    private int integrationPeriod = 5;
 
     public ProfileHeader() {
     }

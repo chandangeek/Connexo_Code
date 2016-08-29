@@ -49,9 +49,9 @@ public class T210DPushEventNotification extends DataPushNotification {
             }
         }
 
-//        if(parser.getCollectedLogBook() != null){
-//            collectedDatas.add(parser.getCollectedLogBook());
-//        }
+        if(parser.getCollectedLogBook() != null){
+            collectedDatas.add(parser.getCollectedLogBook());
+        }
 //
 //        if(parser.getCollectedRegisters() != null){
 //            collectedDatas.add(parser.getCollectedRegisters());

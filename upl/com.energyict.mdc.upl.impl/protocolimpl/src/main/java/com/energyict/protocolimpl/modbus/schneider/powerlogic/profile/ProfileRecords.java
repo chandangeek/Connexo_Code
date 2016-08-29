@@ -33,7 +33,8 @@ public class ProfileRecords {
         int day = dateArray[3];
         int hours = dateArray[4];
         int minutes = dateArray[5];
-        lstValues.add(DateTime.parseDateTime(year, month, day, hours, minutes, timezone).getMeterCalender().getTime());
+        int milliseconds = Integer.parseInt(new String(dateArray[6] + dateArray[7] + ""));
+        lstValues.add(DateTime.parseDateTime(year, month, day, hours, minutes, milliseconds, timezone).getMeterCalender().getTime());
         offset += objectSize[0];
         for (int i = 1; i < NO_OBJECTS; i++){
             if(objectType[i].equals(LONG)) {

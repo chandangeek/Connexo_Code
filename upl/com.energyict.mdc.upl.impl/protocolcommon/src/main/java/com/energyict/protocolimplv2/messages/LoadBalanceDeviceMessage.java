@@ -90,7 +90,15 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
     UPDATE_SUPERVISION_MONITOR(15,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(monitorInstanceAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3)),
             PropertySpecFactory.bigDecimalPropertySpec(thresholdInAmpereAttributeName)
-    );
+    ),
+    CONFIGURE_SUPERVISION_MONITOR_FOR_IMPORT_EXPORT(16,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(phaseAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3)),
+            PropertySpecFactory.bigDecimalPropertySpec(positiveThresholdInAmpereAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(negativeThresholdInAmpereAttributeName)
+    ),
+
+    ;
+
 
     private static final DeviceMessageCategory LOAD_BALANCE_CATEGORY = DeviceMessageCategories.LOAD_BALANCE;
 

@@ -179,6 +179,8 @@ public class DeviceMessageConstants {
 
     public static final String phaseAttributeName = "LoadBalanceDeviceMessage.phase";
     public static final String thresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.thresholdinampere";
+    public static final String positiveThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.positivethresholdinampere";
+    public static final String negativeThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.negativethresholdinampere";
     public static final String capturePeriodAttributeName = "LoadProfileConfigurationMessage.captureperiod";
     public static final String consumerProducerModeAttributeName = "LoadProfileConfigurationMessage.consumerproducermode";
     public static final String monitorInstanceAttributeName = "LoadBalanceDeviceMessage.monitorInstance";

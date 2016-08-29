@@ -1,10 +1,14 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
 import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.FrameCounterProvider;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.connection.FlagIEC1107Connection;
 import com.energyict.mdc.channels.ComChannelType;
@@ -21,8 +25,12 @@ import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.*;
+import com.energyict.protocol.support.FrameCounterCache;
 import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
@@ -33,8 +41,10 @@ import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
+import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -46,7 +56,7 @@ import java.util.List;
  * @author sva
  * @since 11/08/2015 - 14:04
  */
-public class AM540 extends AM130 implements SerialNumberSupport {
+public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCache {
 
     private AM540Cache am540Cache;
     private HHUSignOnV2 hhuSignOn;
@@ -62,6 +72,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         setMeterToTransparentMode(comChannel);
         readFrameCounter(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+        initFrameCounterCache(null);
     }
 
     private void setMeterToTransparentMode(ComChannel comChannel) {
@@ -168,15 +179,116 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         return new AM540ConfigurationSupport();
     }
 
+    protected void initFrameCounterCache(SecurityContext securityContext){
+        if (securityContext == null) {
+            securityContext = getDlmsSession().getAso().getSecurityContext();
+        }
+        securityContext.setFrameCounterCache(getDlmsSessionProperties().getClientMacAddress(), getDeviceCache());
+    }
+
     /**
      * First read out the frame counter for the management client, using the public client.
      * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
      */
     protected void readFrameCounter(ComChannel comChannel) {
-        if (!getDlmsSessionProperties().usesPublicClient()) {
-            super.readFrameCounter(comChannel);
+        boolean weHaveValidaCachedFrameCounter = false;
+
+        if (getDlmsSessionProperties().useCachedFrameCounter()) {
+            weHaveValidaCachedFrameCounter = readAndTestCachedFrameCounter(comChannel);
+        }
+
+        if (!weHaveValidaCachedFrameCounter) {
+            if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
+                readFrameCounterSecure(comChannel);
+            } else {
+                if (!getDlmsSessionProperties().usesPublicClient()) {
+                    super.readFrameCounter(comChannel);
+                }
+            }
         }
     }
+
+    /**
+     * Before using an cached frame counter, test it first to see if it's still good
+     * If not, we shall resume back to public client initialization
+     *
+     * @return
+     */
+    protected boolean readAndTestCachedFrameCounter(ComChannel comChannel){
+        getLogger().info("Will try to use a cached frame counter");
+        final int clientId = getDlmsSessionProperties().getClientMacAddress();
+        long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
+        if (cachedFrameCounter > 0) {
+            getLogger().info(" - cached frame counter: "+cachedFrameCounter);
+            this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFrameCounter + 1);
+            if (getDlmsSessionProperties().validateCachedFrameCounter()){
+                return testConnection(comChannel);
+            } else {
+                getLogger().warning(" - cached frame counter will not be validated - if the communication fails please set the cache property back to {No}, so a fresh one will be read-out");
+                // do not validate, just use it and hope for the best
+                return true;
+            }
+        } else {
+            getLogger().warning("Cache does not have a cached frame counter for clientId="+clientId);
+        }
+
+        return false;
+    }
+
+    protected boolean testConnection(ComChannel comChannel){
+        DlmsSession testDlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
+        initFrameCounterCache(testDlmsSession.getAso().getSecurityContext());
+        try {
+            testDlmsSession.getDlmsV2Connection().connectMAC();
+            testDlmsSession.createAssociation();
+            if (testDlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
+                testDlmsSession.disconnect();
+                getLogger().info("Cached FrameCounter is valid!");
+                return true;
+            }
+            testDlmsSession.disconnect();
+            return false;
+        } catch (Exception ex){
+            getLogger().info("Cached frame counter is not valid anymore, we'll get a new one again.");
+        }
+        return false;
+    }
+
+    /**
+     * Read frame counter by calling a custom method in the Beacon
+     */
+    private void readFrameCounterSecure(ComChannel comChannel) {
+        getLogger().info("Reading frame counter using secure method");
+        // construct a temporary session with 0:0 security and clientId=16 (public)
+        final TypedProperties publicProperties = getDlmsSessionProperties().getProperties().clone();
+        publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
+        final AM540Properties publicClientProperties = new AM540Properties();
+        publicClientProperties.addProperties(publicProperties);
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, publicProperties));    //SecurityLevel 0:0
+
+        final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
+        final ObisCode frameCounterObisCode = FRAMECOUNTER_OBISCODE;
+        final long frameCounter;
+
+        publicDlmsSession.getDlmsV2Connection().connectMAC();
+        publicDlmsSession.createAssociation();
+
+        try {
+
+            FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
+            frameCounter = frameCounterProvider.getFrameCounter(publicDlmsSession.getProperties().getSecurityProvider().getAuthenticationKey());
+
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+        } catch (Exception e) {
+            final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the secure frame counter, cannot continue! " + e.getMessage());
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+        } finally {
+            publicDlmsSession.disconnect();
+        }
+        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+    }
+
 
     /**
      * There's 2 different ways to connect to the public client.
@@ -326,5 +438,17 @@ public class AM540 extends AM130 implements SerialNumberSupport {
             idisMessaging = new AM540Messaging(this);
         }
         return idisMessaging;
+    }
+
+    @Override
+    public void setTXFrameCounter(int clientId, int frameCounter) {
+        if (clientId == getDlmsSessionProperties().getClientMacAddress()) {
+            getDlmsSessionProperties().getSecurityProvider().getRespondingFrameCounterHandler().resetRespondingFrameCounter(frameCounter);
+        }
+    }
+
+    @Override
+    public long getTXFrameCounter(int clientId) {
+        return 0;
     }
 }

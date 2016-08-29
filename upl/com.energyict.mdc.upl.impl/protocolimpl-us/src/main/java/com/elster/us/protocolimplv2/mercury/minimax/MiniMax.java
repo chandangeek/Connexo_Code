@@ -1,0 +1,763 @@
+package com.elster.us.protocolimplv2.mercury.minimax;
+
+import static com.elster.us.protocolimplv2.mercury.minimax.utility.ResponseValueHelper.*;
+import static com.elster.us.protocolimplv2.mercury.minimax.utility.ByteArrayHelper.*;
+import static com.elster.us.protocolimplv2.mercury.minimax.Command.*;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.identifiers.*;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdw.core.LoadProfile;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+
+import com.elster.us.protocolimplv2.mercury.minimax.frame.RequestFrame;
+import com.elster.us.protocolimplv2.mercury.minimax.frame.ResponseFrame;
+import com.elster.us.protocolimplv2.mercury.minimax.frame.data.*;
+import com.elster.us.protocolimplv2.mercury.minimax.utility.ObisCodeMapper;
+import com.elster.us.protocolimplv2.mercury.minimax.utility.UnitMapper;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ProtocolExceptionReference;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
+import com.energyict.protocolimpl.base.FirmwareVersion;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Logger;
+
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.*;
+
+/**
+ * The main class for the Mercury protocol
+ * Currently supports MiniMax devices
+ *
+ * @author James Fox
+ */
+public class MiniMax implements DeviceProtocol {
+
+    private MiniMaxConnection connection;
+    private MiniMaxProperties properties = new MiniMaxProperties();
+
+    private OfflineDevice offlineDevice;
+    private ComChannel comChannel;
+
+    List<ObisCode> channelObisCodes;
+
+    private NoOrPasswordSecuritySupport securitySupport = new NoOrPasswordSecuritySupport();
+
+    Logger logger = Logger.getLogger(this.getClass().getName());
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    private void populateUnitMap() {
+        List<String> registers = new ArrayList<String>();
+        registers.add(OBJECT_UOM_PRESS);
+        registers.add(OBJECT_UOM_PRESS_DECIMALS);
+        registers.add(OBJECT_UOM_TEMP);
+        registers.add(OBJECT_UOM_COR_VOL);
+        registers.add(OBJECT_UOM_UNC_VOL);
+        registers.add(OBJECT_UOM_ENERGY);
+        registers.add(OBJECT_UOM_DATE_FORMAT);
+
+        ResponseFrame responses = getConnection().readMultipleRegisterValues(registers);
+        MultiReadResponseData data = (MultiReadResponseData)responses.getData();
+        for (int count = 0; count < registers.size(); count++) {
+            String dataStr = data.getResponse(count);
+            switch (count) {
+                case 0:
+                    UnitMapper.setPressureUnits(dataStr, getLogger());
+                    break;
+                case 1:
+                    UnitMapper.setPressureDecimals(dataStr);
+                    break;
+                case 2:
+                    UnitMapper.setTemperatureUnits(dataStr, getLogger());
+                    break;
+                case 3:
+                    UnitMapper.setCorVolUnits(dataStr, getLogger());
+                    break;
+                case 4:
+                    UnitMapper.setUncVolUnits(dataStr, getLogger());
+                    break;
+                case 5:
+                    UnitMapper.setEnergyUnits(dataStr, getLogger());
+                    break;
+                case 6:
+                    UnitMapper.setDateFormat(dataStr, getLogger());
+                    break;
+                default:
+                    getLogger().warning("Failed to handle unit mapping: " + dataStr);
+            }
+        }
+        UnitMapper.setupUnitMappings(getLogger());
+    }
+
+    private TimeZone getTimeZone() {
+        return TimeZone.getTimeZone(properties.getTimezone());
+    }
+
+    /**
+     * Gets the firmware version from the device
+     * @return a String representing the firmware version
+     * @throws IOException
+     */
+    /*
+    public String getFirmwareVersion() throws IOException {
+        ResponseFrame responseFrame = getConnection().readSingleRegisterValue(OBJECT_FIRMWARE_VERSION);
+        BasicResponseData data = responseFrame.getData();
+        if (data instanceof SingleReadResponseData) {
+            return ((SingleReadResponseData)data).getValue();
+        } else {
+            getLogger().warning("Failed to read firmware version " + data.getError());
+            return "";
+        }
+    }
+    */
+
+    /**
+     * Gets the time from the device
+     * @return a {@link Date} representation of the current time of the device
+     * @throws IOException
+     */
+    @Override
+    public Date getTime() {
+        String[] registerArray = {OBJECT_TIME, OBJECT_DATE, OBJECT_DATE_FORMAT};
+        ResponseFrame timeResponse = getConnection().readMultipleRegisterValues(Arrays.asList(registerArray));
+        BasicResponseData data = timeResponse.getData();
+        if (data instanceof MultiReadResponseData) {
+            MultiReadResponseData mrrd = (MultiReadResponseData)data;
+            // Get the time, date and date format strings from the response
+            String timeStr = mrrd.getResponse(0);
+            String dateStr = mrrd.getResponse(1);
+            // Date format seems to have nothing in it. use the standard one
+            //String dateFormatStr = mrrd.getResponse(2);
+            // Create a date from the date string and the date format
+            Date d = getDate(dateStr, timeStr);
+            // Create a calendar, and then set the date and time into it
+
+            SimpleDateFormat format = new SimpleDateFormat("ddMMyyyyhhmmss");
+            String str = format.format(d);
+
+            format.setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+
+            Date d1 = null;
+            try {
+                d1 = format.parse(str);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+            // Get the timezone that we are running in
+            cal.setTime(d1);
+            TimeZone tz = getTimeZone();
+            cal.setTimeZone(tz);
+            return cal.getTime();
+        } else {
+            getLogger().warning("Failed to read time " + data.getError());
+            return new Date();
+        }
+    }
+
+    private Date getDate(String dateStr, String timeStr) {
+        try {
+            String dateFormatStr = UnitMapper.getDateFormat().toPattern();
+            String dateFormatStrIncTime = dateFormatStr + "-" + "hh mm ss";
+            return new SimpleDateFormat(dateFormatStrIncTime).parse(dateStr+"-"+timeStr);
+        } catch (ParseException pe) {
+            getLogger().warning("Failed to parse the date from the device: " + dateStr + ", returning current date");
+        }
+        return new Date();
+    }
+
+    /**
+     * Update the device time
+     * @param date a {@Date} representation of the time to set into the device
+     * @throws IOException
+     */
+    @Override
+    public void setTime(Date date) {
+        // Get a calendar in the local timezone of the comserver
+        Calendar cal = Calendar.getInstance(getTimeZone());
+        // set the date into the calendar
+        cal.setTime(date);
+        // Set the calendar to the timezone of the device
+        cal.setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+        // Now get the time from the calendar
+        int hours = cal.get(Calendar.HOUR_OF_DAY);
+        int minutes = cal.get(Calendar.MINUTE);
+        int seconds = cal.get(Calendar.SECOND);
+        String curTime = String.format("%02d %02d %02d", hours, minutes, seconds);
+        ResponseFrame response = getConnection().writeSingleRegisterValue(Consts.OBJECT_TIME, curTime);
+        try {
+            if (!response.isOK()) {
+                throw new IOException("Failed to set the device time: " + response.getError());
+            }
+        } catch (IOException ioe) {
+            // TODO:
+        }
+    }
+
+    /**
+     * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles from the meter.
+     * Build up a list of <CODE>LoadProfileConfiguration</CODE> objects and return them so the
+     * framework can validate them to the configuration in EIServer
+     *
+     * @param loadProfilesToRead the <CODE>List</CODE> of <CODE>LoadProfileReaders</CODE> to indicate which profiles will be read
+     * @return a list of <CODE>LoadProfileConfiguration</CODE> objects corresponding with the meter
+     * @throws java.io.IOException if a communication or parsing error occurred
+     */
+    @Override
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+
+        // Read what is setup in the meter
+        List<String> registers = new ArrayList<String>();
+        registers.add(OBJECT_AUDIT_1);
+        registers.add(OBJECT_AUDIT_2);
+        registers.add(OBJECT_AUDIT_3);
+        registers.add(OBJECT_AUDIT_4);
+        registers.add(OBJECT_AUDIT_5);
+        registers.add(OBJECT_AUDIT_6);
+        registers.add(OBJECT_AUDIT_7);
+        registers.add(OBJECT_AUDIT_8);
+        registers.add(OBJECT_AUDIT_9);
+        registers.add(OBJECT_AUDIT_10);
+
+        ResponseFrame responseFrame = getConnection().readMultipleRegisterValues(registers);
+        MultiReadResponseData data = (MultiReadResponseData)responseFrame.getData();
+
+        List<String> registersToMap = new ArrayList();
+
+        for (int count = 0; count < registers.size(); count++) {
+            registersToMap.add(data.getResponse(count));
+        }
+
+        // Get the obis codes corresponding to the registers defined in the device
+        List<ObisCode> obisCodesFromDevice = ObisCodeMapper.mapDeviceChannels(registersToMap);
+
+        this.channelObisCodes = obisCodesFromDevice;
+
+        // What we need to do here?
+        // We have a list of channels that EiServer suspects we should support
+        // And we have a list of register IDs from the device, which is what it actually supports
+        // So, what we need to do is:
+        // 1) Convert all of the register IDs from the device into obis codes
+        // 2) Look up all of the units for each of the registers
+        // 3) For each of the LoadProfileReader objects received from EiServer:
+        //      a) Check whether the obis codes for each of the channels under it exists in the list from the device
+        //      b) If it does, then return a channel with that Obis code and the unit from the device plus all other data populated
+
+
+        // Go through the list of load profiles provided from EiServer
+        List<CollectedLoadProfileConfiguration> loadProfileConfigList = new ArrayList<CollectedLoadProfileConfiguration>();
+        for (LoadProfileReader lpReader : loadProfilesToRead) {
+
+            String serialNumber = lpReader.getMeterSerialNumber();
+            ObisCode obisCode = lpReader.getProfileObisCode();
+
+            // Create a LoadProfileConfiguration to return
+            CollectedLoadProfileConfiguration config = new DeviceLoadProfileConfiguration(obisCode, serialNumber);
+            List<ChannelInfo> channelInfosToReturn = new ArrayList<ChannelInfo>();
+            config.setChannelInfos(channelInfosToReturn);
+            // These devices are always 1 hour intervals
+            config.setProfileInterval(3600);
+            // Get the channels for this load profile
+            List<ChannelInfo> channelInfos = lpReader.getChannelInfos();
+            for (ChannelInfo channelInfo : channelInfos) {
+                ObisCode obisCodeFromChannelInfo = null;
+                try {
+                    obisCodeFromChannelInfo = channelInfo.getChannelObisCode();
+                } catch (IOException ioe) {
+                    throw NotFoundException.notFound(ObisCode.class, channelInfo.getMeterIdentifier());
+                }
+
+                // Check if the obis code for this channel exists in the device
+                if (obisCodesFromDevice.contains(obisCodeFromChannelInfo)) {
+                    // If the channel exists, we will return it with the unit defined for this channel in the device
+                    channelInfo.setUnit(UnitMapper.getUnitForObisCode(obisCodeFromChannelInfo));
+                    channelInfosToReturn.add(channelInfo);
+                }
+            }
+            loadProfileConfigList.add(config);
+        }
+        return loadProfileConfigList;
+    }
+
+    /**
+     * <p>
+     * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
+     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * if not then all channels may be returned in the <CODE>ProfileData</CODE>. If {@link LoadProfileReader#channelInfos} contains an empty list
+     * or null, then all channels from the corresponding LoadProfile should be fetched.
+     * </p>
+     * <p>
+     * <b>Implementors should throw an exception if all data since {@link LoadProfileReader#getStartReadingTime()} can NOT be fetched</b>,
+     * as the collecting system will update its lastReading setting based on the returned ProfileData
+     * </p>
+     *
+     * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
+     * @return a list of <CODE>ProfileData</CODE> objects containing interval records
+     * @throws java.io.IOException if a communication or parsing error occurred
+     */
+    @Override
+    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
+
+        List<CollectedLoadProfile> profileDataList = new ArrayList<CollectedLoadProfile>();
+
+        for (LoadProfileReader lpr : loadProfiles) {
+
+            LoadProfileIdentifier lpi = new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode());
+            CollectedLoadProfile profileData1 = new DeviceLoadProfile(lpi);
+            profileDataList.add(profileData1);
+
+            // These are the channels we are interested in...
+            List<ChannelInfo> channelInfosFromEiServer = lpr.getChannelInfos();
+            List<Integer> interestedIn = new ArrayList<Integer>();
+
+            for (ChannelInfo channelInfo : channelInfosFromEiServer) {
+                int index = -1;
+                try {
+                    ObisCode obis = channelInfo.getChannelObisCode();
+                    index = channelObisCodes.indexOf(obis);
+                } catch (IOException ioe) {
+                    // TODO
+                    ioe.printStackTrace();
+                }
+
+                if (index != -1) {
+                    interestedIn.add(index);
+                }
+            }
+
+            List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
+
+            // Construct the date and time strings to send to the device
+            Date startReadingTime = lpr.getStartReadingTime();
+
+            getLogger().info("startReadingTime: " + startReadingTime);
+
+            Calendar startTimeCal = Calendar.getInstance();
+            startTimeCal.setTime(startReadingTime);
+            startTimeCal.setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+
+            UnitMapper.getEventDateFormat().setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+            String startDateStr = UnitMapper.getEventDateFormat().format(startReadingTime);
+
+            int startHour = startTimeCal.get(Calendar.HOUR_OF_DAY);
+            int startMinute = startTimeCal.get(Calendar.MINUTE);
+            int startSecond = startTimeCal.get(Calendar.SECOND);
+            String startTimeStr = String.format("%02d%02d%02d", startHour, startMinute, startSecond);
+
+            getLogger().info("Start date: " + startDateStr + ", start time: " + startTimeStr);
+
+            Date endReadingTime = lpr.getEndReadingTime();
+
+            getLogger().info("endReadingTime: " + endReadingTime);
+
+            Calendar endTimeCal = Calendar.getInstance();
+            endTimeCal.setTime(endReadingTime);
+            endTimeCal.setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+
+            UnitMapper.getEventDateFormat().setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+            String endDateStr = UnitMapper.getEventDateFormat().format(endReadingTime);
+
+            int endHour = endTimeCal.get(Calendar.HOUR_OF_DAY);
+            int endMinute = endTimeCal.get(Calendar.MINUTE);
+            int endSecond = endTimeCal.get(Calendar.SECOND);
+            String endTimeStr = String.format("%02d%02d%02d", endHour, endMinute, endSecond);
+
+            getLogger().info("end date: " + endDateStr + ", end time: " + endTimeStr);
+
+            List<ResponseFrame> auditLogs = null;
+            try {
+                // Construct the command params
+                ByteArrayOutputStream commandParams = new ByteArrayOutputStream();
+                String recPerPacPadded = String.format("%03d", RECORDS_PER_PACKET);
+                commandParams.write(getBytes(recPerPacPadded));
+
+                commandParams.write(CONTROL_STX);
+                commandParams.write('*');
+                commandParams.write(',');
+
+                commandParams.write(getBytes(startDateStr));
+                commandParams.write(',');
+                commandParams.write(getBytes(startTimeStr));
+                commandParams.write(',');
+                commandParams.write(getBytes(endDateStr));
+                commandParams.write(',');
+                commandParams.write(getBytes(endTimeStr));
+                // Construct the data
+                ExtendedData eData = new ExtendedData(getBytes(DM.name()), commandParams.toByteArray());
+                // Construct the frame, including the data
+                RequestFrame snFrame = new RequestFrame(eData);
+
+                // Keep a record of the last command we sent to the device
+                getConnection().setLastCommandSent(DM);
+
+                auditLogs = getConnection().sendAndReceiveFrames(snFrame);
+            } catch (IOException ioe) {
+                // TODO: handle this
+            }
+
+
+
+            if (auditLogs != null && auditLogs.size() == 1 && !(auditLogs.get(0).getData() instanceof DMResponseData)) {
+                BasicResponseData brd = (BasicResponseData)auditLogs.get(0).getData();
+                if (arraysEqual(brd.getErrorCode(), getBytes(RESPONSE_OK))) {
+                    // Ignore this
+                } else if (arraysEqual(brd.getErrorCode(), getBytes(ERROR_NO_AUDIT_TRAIL_RECORDS_AVAILABLE))){
+                    // We can probably ignore and log
+                    getLogger().warning(brd.getError());
+                } else {
+                    //throw new IOException(brd.getError());
+                    // TODO: throw the correct exception
+                }
+            } else {
+                for (ResponseFrame frame : auditLogs) {
+                    DMResponseData dmData = (DMResponseData)frame.getData();
+                    List<AuditLogRecord> records = dmData.getRecords();
+                    for (AuditLogRecord record : records) {
+                        if (record.isIntervalRecord()) {
+                            int eiStatus = 0;
+                            if (record.getAlarm(AuditLogRecord.ALARM_INDEX_BATT_LOW)) {
+                                eiStatus += IntervalStateBits.BATTERY_LOW;
+                            }
+                            if (record.getAlarm(AuditLogRecord.ALARM_INDEX_PRESS_OUT_OF_RANGE)) {
+                                eiStatus += IntervalStateBits.OTHER;
+                            }
+
+                            // This timestamp has the time from the meter, but the timezone will be whatever eiserver is running in
+                            Date recordTimestamp = record.getTimestamp();
+
+                            getLogger().info("Timestamp from meter is: " + recordTimestamp);
+
+                            SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                            //isoFormat.setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+                            //isoFormat.setTimeZone(getTimeZone());
+                            String timeStrMeterTz = isoFormat.format(recordTimestamp);
+
+                            getLogger().info("timeStrMeterTz is: " + timeStrMeterTz);
+
+                            isoFormat.setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+                            Date dateInMeterTz = null;
+                            try {
+                                dateInMeterTz = isoFormat.parse(timeStrMeterTz);
+                            } catch (ParseException pe) {
+                                // this is not possible, we are parsing a string we just created in the same format
+                            }
+
+                            getLogger().info("dateInMeterTz is: " + dateInMeterTz);
+
+                            IntervalData interval = new IntervalData(dateInMeterTz, eiStatus);
+                            for (int i : interestedIn) {
+                                BigDecimal value = null;
+                                try {
+                                    value = new BigDecimal(record.getStuff(i).trim());
+                                } catch (Throwable t) {
+                                    getLogger().warning("Exception when setting value into interval data: "
+                                            + t + ", setting value to 0");
+                                    value = new BigDecimal(0);
+                                }
+                                interval.addValue(value);
+
+                            }
+                            intervalDatas.add(interval);
+                        } else {
+                            getLogger().info("Not handling non-interval record: " + record.getAlarmsString());
+                        }
+                    }
+                }
+            }
+
+            profileData1.setCollectedIntervalData(intervalDatas, channelInfosFromEiServer);
+        }
+        return profileDataList;
+    }
+
+    /**
+     * Gets the connection
+     * @return
+     */
+    public MiniMaxConnection getConnection() {
+        return connection;
+    }
+
+    /**
+     * Gets the version
+     * @return
+     */
+    public String getVersion() {
+        return "$Date: 2016-06-14 09:25:49 -0400 (Tue, 14 Jun 2016) $";
+    }
+
+    @Override
+    public void addProperties(TypedProperties typedProperties) {
+        properties.setAllProperties(typedProperties);
+    }
+
+    /*
+    public void resetDemand() throws IOException {
+        getConnection().writeSingleRegisterValue(OBJECT_MAX_DAY, "0");
+    }
+    */
+
+    @Override
+    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.offlineDevice = offlineDevice;
+        this.comChannel = comChannel;
+        connection = new MiniMaxConnection(comChannel, properties, logger);
+    }
+
+    @Override
+    public void terminate() {
+
+    }
+
+    @Override
+    public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
+        return Arrays.asList(new DeviceProtocolCapabilities[]{DeviceProtocolCapabilities.PROTOCOL_SESSION, DeviceProtocolCapabilities.PROTOCOL_MASTER});
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return properties.getRequiredProperties();
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return properties.getOptionalProperties();
+    }
+
+    @Override
+    public List<PropertySpec> getSecurityProperties() {
+        return securitySupport.getSecurityProperties();
+    }
+
+    @Override
+    public String getSecurityRelationTypeName() {
+        return securitySupport.getSecurityRelationTypeName();
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        return this.securitySupport.getAuthenticationAccessLevels();
+    }
+
+    @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        return this.securitySupport.getEncryptionAccessLevels();
+    }
+
+    @Override
+    public PropertySpec getSecurityPropertySpec(String s) {
+        return this.securitySupport.getSecurityPropertySpec(s);
+    }
+
+    @Override
+    public List<ConnectionType> getSupportedConnectionTypes() {
+        List<ConnectionType> retVal = new ArrayList<>();
+        retVal.add(new OutboundTcpIpConnectionType());
+        return retVal;
+    }
+
+    @Override
+    public void logOn() {
+        getConnection().doConnect();
+        populateUnitMap();
+    }
+
+    @Override
+    public void daisyChainedLogOn() {
+        // Not implemented
+    }
+
+    @Override
+    public void logOff() {
+        getConnection().doDisconnect();
+    }
+
+    @Override
+    public void daisyChainedLogOff() {
+        // Not implemented
+    }
+
+    @Override
+    public String getSerialNumber() {
+        ResponseFrame responseFrame = getConnection().readSingleRegisterValue(OBJECT_SERIAL_NUMBER);
+        BasicResponseData data = responseFrame.getData();
+        if (data instanceof SingleReadResponseData) {
+            return ((SingleReadResponseData)data).getValue();
+        } else {
+            getLogger().warning("Failed to read serial number " + data.getError());
+            return "";
+        }
+    }
+
+    @Override
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        // Not implemented
+    }
+
+    @Override
+    public DeviceProtocolCache getDeviceCache() {
+        // Not implemented
+        return null;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Mercury MiniMax";
+    }
+
+    @Override
+    public List<CollectedLogBook> getLogBookData(List<LogBookReader> list) {
+        // Not implemented
+        return null;
+    }
+
+    @Override
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        // Not implemented
+        return null;
+    }
+
+    @Override
+    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> list) {
+        // not implemented
+        return null;
+    }
+
+    @Override
+    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> list) {
+        // Not implemented - related to messages
+        return null;
+    }
+
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object o) {
+        return null;
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        // Not implemented
+        return null;
+    }
+
+    @Override
+    public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
+        List<DeviceProtocolDialect> dialect = new ArrayList();
+        dialect.add(new MiniMaxTcpDeviceProtocolDialect());
+        return dialect;
+    }
+
+    @Override
+    public void addDeviceProtocolDialectProperties(TypedProperties typedProperties) {
+        properties.setAllProperties(typedProperties);
+    }
+
+    /**
+     * Read multiple register values from the device
+     * @param list a {@List} of {@Register} representing the registers to be read
+     * @return a {@List} of {@RegisterValue} representing the register values
+     * @throws IOException
+     */
+    @Override
+    public List<CollectedRegister> readRegisters(List<OfflineRegister> list) {
+        try {
+            List<String> registerIds = ObisCodeMapper.mapRegisters(list);
+            ResponseFrame response = getConnection().readMultipleRegisterValues(registerIds);
+            MultiReadResponseData data = (MultiReadResponseData) response.getData();
+            List<CollectedRegister> retVal = new ArrayList<CollectedRegister>();
+            Unit unit = null;
+            Date eventDate = null;
+            for (int i = 0; i < list.size(); i++) {
+                eventDate = null;
+                String str = data.getResponse(i);
+                String obisCode = list.get(i).getObisCode().getValue();
+                if (obisCode.equals(ObisCodeMapper.OBIS_BATTERY_READING)) {
+                    unit = UnitMapper.getVoltageUnits();
+                } else if (obisCode.equals(ObisCodeMapper.OBIS_CORRECTED_VOLUME) ||
+                        obisCode.equals(ObisCodeMapper.OBIS_MAX_DAY_CORRECTED_VOLUME)) {
+                    unit = UnitMapper.getCorVolUnits();
+                    if (obisCode.equals(ObisCodeMapper.OBIS_MAX_DAY_CORRECTED_VOLUME)) {
+                        // We also have to get the event time from a register in the device
+                        String maxValDate = ((SingleReadResponseData) getConnection().readSingleRegisterValue(OBJECT_MAX_DAY_DATE).getData()).getValue();
+                        try {
+                            eventDate = UnitMapper.getDateFormat().parse(maxValDate);
+                        } catch (ParseException e) {
+                            getLogger().warning("Failed to parse the date for the max corrected volume day: " + maxValDate);
+                            // TODO: throw the correct type of exception
+                        }
+                    }
+                } else if (obisCode.equals(ObisCodeMapper.OBIS_UNCORRECTED_VOLUME)) {
+                    unit = UnitMapper.getUncVolUnits();
+                }
+
+                RegisterIdentifier registerIdentifier = new RegisterIdentifierById(list.get(i).getRegisterId(), list.get(i).getObisCode());
+                CollectedRegister register = new DefaultDeviceRegister(registerIdentifier);
+                retVal.add(register);
+
+                if (isStringValue(str)) {
+                    register.setCollectedData(str);
+                } else {
+                    Quantity quantity = new Quantity(getNumericValue(str), unit);
+                    if (eventDate == null) {
+                        register.setCollectedData(quantity);
+                    } else {
+                        register.setCollectedData(quantity);
+                        register.setReadTime(eventDate);
+                        //retVal.add(new RegisterValue(list.get(i), quantity, eventDate));
+                    }
+                }
+            }
+            return retVal;
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return new ArrayList<CollectedRegister>();
+        }
+    }
+
+    @Override
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        properties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+    }
+
+    public OfflineDevice getOfflineDevice() { return offlineDevice; }
+
+    @Override
+    public CollectedTopology getDeviceTopology() {
+        // Only master
+        return MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+    }
+}

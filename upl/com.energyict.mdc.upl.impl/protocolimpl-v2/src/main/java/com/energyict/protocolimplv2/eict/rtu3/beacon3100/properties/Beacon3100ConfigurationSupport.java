@@ -6,6 +6,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String PSK_ENCRYPTION_KEY = "PSKEncryptionKey";
     public static final String DLMS_WAN_KEK = "DlmsWanKEK";
     public static final String POLLING_DELAY = "PollingDelay";
+    public static final String REQUEST_AUTHENTICATED_FRAME_COUNTER = "RequestAuthenticatedFrameCounter";
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
@@ -35,6 +37,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(cipheringTypePropertySpec());
         optionalProperties.add(generalCipheringKeyTypePropertySpec());
         optionalProperties.add(pollingDelayPropertySpec());
+        optionalProperties.add(requestAuthenticatedFrameCounter());
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
         optionalProperties.remove(fixMbusHexShortIdPropertySpec());
@@ -43,6 +46,9 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         return optionalProperties;
     }
 
+    private PropertySpec requestAuthenticatedFrameCounter() {
+        return PropertySpecFactory.booleanPropertySpec(REQUEST_AUTHENTICATED_FRAME_COUNTER);
+    }
     private PropertySpec pollingDelayPropertySpec() {
         return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(POLLING_DELAY, new TimeDuration(0));
     }

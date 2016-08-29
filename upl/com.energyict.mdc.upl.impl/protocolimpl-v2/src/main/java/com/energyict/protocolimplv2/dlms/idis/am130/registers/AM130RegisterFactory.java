@@ -259,15 +259,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                     } else if (dataValue.getTypeEnum() != null) {
                         registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.getTypeEnum().getValue(), Unit.getUndefined()));
                     } else {
-                        if (offlineRegister.getObisCode().equals(ObisCode.fromString(ALARM_REGISTER1)) || offlineRegister.getObisCode().equals(ObisCode.fromString(ERROR_REGISTER))) {
-                            AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(offlineRegister.getObisCode(), dataValue.longValue());
-                            registerValue = alarmBitsRegister.getRegisterValue();
-                        } else if (offlineRegister.getObisCode().equals(ObisCode.fromString(ALARM_REGISTER2))) {
-                            AlarmBitsRegister2 alarmBitsRegister2 = new AlarmBitsRegister2(offlineRegister.getObisCode(), dataValue.longValue());
-                            registerValue = alarmBitsRegister2.getRegisterValue();
-                        } else {
-                            registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.toBigDecimal(), Unit.getUndefined()));
-                        }
+                        registerValue = getRegisterValueForAlarms(offlineRegister, dataValue);
                     }
                     return createCollectedRegister(registerValue, offlineRegister);
                 } else if (composedObject instanceof ComposedDisconnectControl) {
@@ -304,6 +296,20 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 return null;
             }
         }
+    }
+
+    protected RegisterValue getRegisterValueForAlarms(OfflineRegister offlineRegister, AbstractDataType dataValue) {
+        RegisterValue registerValue;
+        if (offlineRegister.getObisCode().equals(ObisCode.fromString(ALARM_REGISTER1)) || offlineRegister.getObisCode().equals(ObisCode.fromString(ERROR_REGISTER))) {
+            AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(offlineRegister.getObisCode(), dataValue.longValue());
+            registerValue = alarmBitsRegister.getRegisterValue();
+        } else if (offlineRegister.getObisCode().equals(ObisCode.fromString(ALARM_REGISTER2))) {
+            AlarmBitsRegister2 alarmBitsRegister2 = new AlarmBitsRegister2(offlineRegister.getObisCode(), dataValue.longValue());
+            registerValue = alarmBitsRegister2.getRegisterValue();
+        } else {
+            registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.toBigDecimal(), Unit.getUndefined()));
+        }
+        return registerValue;
     }
 
     private boolean containsActiveFirmwareSignature(ComposedData composedData) {
