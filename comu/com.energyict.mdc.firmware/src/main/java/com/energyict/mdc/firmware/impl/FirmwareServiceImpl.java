@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -483,7 +484,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(PropertySpecService.class).toInstance(propertySpecService);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier("MultiSense", FirmwareService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("MultiSense", FirmwareService.COMPONENTNAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
