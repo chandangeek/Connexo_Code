@@ -93,7 +93,7 @@ public class DeviceCommandExecutorImplTest {
         when(this.comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testStart() {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
@@ -106,7 +106,7 @@ public class DeviceCommandExecutorImplTest {
         verify(threadFactory, never()).newThread(any(Runnable.class));  // We are not expecting that new Threads are already started
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testPrepareExecution() {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
@@ -120,7 +120,7 @@ public class DeviceCommandExecutorImplTest {
         assertThat(tokens).hasSize(numberOfCommands);
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testExecuteCreatesNewThreads() {
         Thread mockedThread = mock(Thread.class);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
@@ -138,7 +138,7 @@ public class DeviceCommandExecutorImplTest {
         verify(threadFactory).newThread(any(Runnable.class));
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testExecuteWithHighPriority() {
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
@@ -160,7 +160,7 @@ public class DeviceCommandExecutorImplTest {
         }
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testExecuteWithPreparation() throws InterruptedException {
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
@@ -188,7 +188,7 @@ public class DeviceCommandExecutorImplTest {
         }
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testExecuteInReverseOrder() throws InterruptedException {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
@@ -272,7 +272,7 @@ public class DeviceCommandExecutorImplTest {
      * <li>number of commands to prepare = 12</li>
      * </ul>
      */
-    @Test
+    @Test(timeout=60_000)
     public void testPrepareExecutionWithTooManyCommands1() {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
@@ -297,7 +297,7 @@ public class DeviceCommandExecutorImplTest {
      * <li>number of commands to prepare = 2</li>
      * </ul>
      */
-    @Test
+    @Test(timeout=60_000)
     public void testPrepareExecutionWithTooManyCommands2() {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
@@ -323,7 +323,7 @@ public class DeviceCommandExecutorImplTest {
      * <li>number of commands to prepare = 2</li>
      * </ul>
      */
-    @Test
+    @Test(timeout=60_000)
     public void testPrepareExecutionWithTooManyCommands3() {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
@@ -360,7 +360,7 @@ public class DeviceCommandExecutorImplTest {
      * <li>number of commands to prepare = 2</li>
      * </ul>
      */
-    @Test
+    @Test(timeout=60_000)
     public void testPrepareExecutionAfterSuccesfullExecution() throws InterruptedException {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
@@ -408,7 +408,7 @@ public class DeviceCommandExecutorImplTest {
      * <li>number of commands to prepare = 2</li>
      * </ul>
      */
-    @Test
+    @Test(timeout=60_000)
     public void testPrepareExecutionAfterFree() throws InterruptedException {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
@@ -472,7 +472,7 @@ public class DeviceCommandExecutorImplTest {
      * Tests that {@link DeviceCommand}s that fail with a DataAccessException
      * also releases resources so that subsequent preparation calls succeed.
      */
-    @Test
+    @Test(timeout=60_000)
     public void testPrepareExecutionAfterDataAccessExceptionFailure() throws InterruptedException {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
@@ -512,7 +512,7 @@ public class DeviceCommandExecutorImplTest {
      * Tests that {@link DeviceCommand}s that fail with an ApplicationException
      * also release resources so that subsequent preparation calls succeed.
      */
-    @Test
+    @Test(timeout=60_000)
     public void testPrepareExecutionAfterApplicationExceptionFailure() throws InterruptedException {
         int numberOfExecutingCommands = CAPACITY - 1;
         CountDownLatch startLatch = new CountDownLatch(1);
@@ -550,7 +550,7 @@ public class DeviceCommandExecutorImplTest {
      * Tests that {@link DeviceCommand}s that fail with a RuntimeException
      * also release resources so that subsequent preparation calls succeed.
      */
-    @Test
+    @Test(timeout=60_000)
     public void testPrepareExecutionAfterRuntimeExceptionFailure() throws InterruptedException {
         int numberOfExecutingCommands = CAPACITY - 1;
         CountDownLatch startLatch = new CountDownLatch(1);
@@ -606,7 +606,7 @@ public class DeviceCommandExecutorImplTest {
         // Expected an IllegalStateException because the DeviceCommandExecutor has not been started
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testShutdownWithoutCommands() {
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
@@ -623,7 +623,7 @@ public class DeviceCommandExecutorImplTest {
         }
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testShutdownWithCommandsOnSingleThread() {
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
@@ -655,7 +655,7 @@ public class DeviceCommandExecutorImplTest {
         }
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testShutdownWithCommandsOnMultipleThreads() {
         ComServerThreadFactory realThreadFactory = new ComServerThreadFactory(this.comServer);
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(realThreadFactory);
@@ -708,7 +708,7 @@ public class DeviceCommandExecutorImplTest {
      *
      * @throws InterruptedException Indicates test failure
      */
-    @Test
+    @Test(timeout=60_000)
     public void testShutdownImmediateOnlyExecutesImmediateCommands() throws InterruptedException {
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
         DeviceCommandExecutorImpl deviceCommandExecutor = null;
@@ -743,7 +743,7 @@ public class DeviceCommandExecutorImplTest {
         }
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testChangeThreadPriority() {
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
         int threadPriority = Thread.MIN_PRIORITY;
@@ -769,7 +769,7 @@ public class DeviceCommandExecutorImplTest {
         }
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testIncreaseQueueCapacity() {
         int threadPriority = Thread.MIN_PRIORITY;
         int initialCapacity = CAPACITY;
@@ -792,7 +792,7 @@ public class DeviceCommandExecutorImplTest {
         }
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testReduceQueueCapacity() {
         int threadPriority = Thread.MIN_PRIORITY;
         int initialCapacity = CAPACITY;
@@ -815,7 +815,7 @@ public class DeviceCommandExecutorImplTest {
         }
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testIncreaseNumberOfThreads() throws InterruptedException {
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
         int threadPriority = Thread.MIN_PRIORITY;
@@ -854,7 +854,7 @@ public class DeviceCommandExecutorImplTest {
         }
     }
 
-    @Test
+    @Test(timeout=60_000)
     public void testDecreaseNumberOfThreads() throws InterruptedException {
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
         int threadPriority = Thread.MIN_PRIORITY;
