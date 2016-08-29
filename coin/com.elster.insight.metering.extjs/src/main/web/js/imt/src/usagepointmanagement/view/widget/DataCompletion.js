@@ -50,7 +50,12 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
         var me = this,
             store,
             purposesStore = Ext.getStore('Imt.usagepointmanagement.store.Purposes'),
-            defaultPurposeId = purposesStore.first().getId();
+            defaultPurposeId;
+
+        purposesStore.filter(function(p){
+            return !!p.get('active');
+        });
+        defaultPurposeId = purposesStore.first().getId();
 
         me.bindStore(me.store || 'ext-empty-store', true);
         store = me.getStore();
@@ -69,7 +74,6 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
                         valueField: 'id',
                         store: purposesStore,
                         displayField: 'name',
-                        queryMode: 'local',
                         editable: false,
                         labelWidth: 60,
                         width: 250,
