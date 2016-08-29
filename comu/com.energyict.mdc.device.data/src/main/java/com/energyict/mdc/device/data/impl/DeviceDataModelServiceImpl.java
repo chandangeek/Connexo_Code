@@ -76,6 +76,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -94,12 +95,13 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Provides an implementation for the {@link DeviceDataModelService} interface.
@@ -550,7 +552,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     public void activate(BundleContext bundleContext) {
         this.createRealServices();
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceDataServices.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceDataServices.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
         this.registerRealServices(bundleContext);
     }
 

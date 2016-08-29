@@ -121,7 +121,7 @@ public enum TableSpecs {
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             Column meterId = table.column("METERID").number().since(version(10, 2)).add();
             Column batchId = table.column("BATCH_ID").number().since(version(10, 2)).add();
-            table.column("ESTIMATION_ACTIVE").bool().map("estimationActive").since(version(10, 2)).add();
+            table.column("ESTIMATION_ACTIVE").bool().map("estimationActive").since(version(10, 2)).installValue("'N'").add();
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                     on(configuration).
                     references(DeviceConfiguration.class).
@@ -628,7 +628,7 @@ public enum TableSpecs {
             table.column("PROTOCOLINFO").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).add();
             table.column("RELEASEDATE").number().map(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("SENTDATE").number().map(DeviceMessageImpl.Fields.SENTDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
-            table.column("CREATEUSERNAME").varChar(80).notNull().map(DeviceMessageImpl.Fields.CREATEDBYUSER.fieldName()).since(version(10, 2)).add();
+            table.column("CREATEUSERNAME").varChar(80).notNull().map(DeviceMessageImpl.Fields.CREATEDBYUSER.fieldName()).since(version(10, 2)).installValue("'install/upgrade'").add();
             table.primaryKey("PK_DDC_DEVICEMESSAGE").on(id).add();
             table.foreignKey("FK_DDC_DEVMESSAGE_DEV")
                     .on(device).references(DDC_DEVICE.name())
@@ -854,6 +854,7 @@ public enum TableSpecs {
                     .references(DDC_PASSIVE_CALENDAR.name())
                     .on(plannedPassiveCalendar)
                     .map("plannedPassiveCalendar")
+                    .since(version(10, 2))
                     .add();
         }
     },
@@ -864,7 +865,6 @@ public enum TableSpecs {
             Table<ActiveEffectiveCalendar> table = dataModel.addTable(name(), ActiveEffectiveCalendar.class);
             table.since(version(10, 2));
             table.map(ActiveEffectiveCalendarImpl.class);
-            table.since(version(10, 2));
 
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName());
