@@ -54,7 +54,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public DiscoverResultType doDiscovery() {
-        getEventPushNotificationParser().parseInboundFrame();
+        getEventPushNotificationParser().readAndParseInboundFrame();
         collectedLogBook = getEventPushNotificationParser().getCollectedLogBook();
         context.logOnAllLoggerHandlers(getLoggingMessage(), Level.INFO);
         if (isJoinAttempt()) {

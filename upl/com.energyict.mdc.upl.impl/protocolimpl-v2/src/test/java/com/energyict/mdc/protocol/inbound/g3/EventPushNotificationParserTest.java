@@ -14,6 +14,9 @@ import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
+
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -41,6 +44,8 @@ public class EventPushNotificationParserTest extends TestCase {
 
     private static final byte[] PLAIN_FRAME = ProtocolTools.getBytesFromHexString("000100010001007AC2004E2C000080000CFF030205090F3636302D3030353435442D31313235090C07DE080D030A2A11410000001200001200C209464733203A204E6F6465205B303232333A374546463A464546443A414145395D205B3078303030365D206861732072656769737465726564206F6E20746865206E6574776F726B", "");
     private static final byte[] PLAIN_FRAME2 = ProtocolTools.getBytesFromHexString("0001000100010062C2004E2C000080000CFF030205090F3636302D3035394634332D31343235090C07DF010D020F1A03130000001200001200C5092E4A6F696E696E67207265717565737420666F72206E6F6465205B303232333A374546463A464546443A383438445DC2", "");
+    private static final byte[] PLAIN_FRAME3 = ProtocolTools.getBytesFromHexString("0001000100010079C2004E2C000080000CFF030203090E33343135373330303032383030331200010204090C07E0071302060927300000001200001200c209414e6f6465205b303032333a374546463a464546443a373733385d205b3078303030315d206861732072656769737465726564206f6e20746865206e6574776f726b", "");
+
     private static final byte[] ENCRYPTED_FRAME = ProtocolTools.getBytesFromHexString("0001000100010072db084443303539463433672000000001ba9521c6c8f9ed4f4d5c57680a850e5e8e642f9d9a664d46765c182ee5dabc33aef24bc6b7d7e2688749d3ef523a5d521b71c27829e852f01aba7e615b56b017511c696ebc69fc8da85f94f5fea609425a6650a463fbf8fc97e20aed4f62a09aa302", "");
     private static final byte[] ENCRYPTED_FRAME2 = ProtocolTools.getBytesFromHexString("0001000100010072DB084443303539463433672000000026F13F7B1196D51210A4E9CDA0A23F724BEDE53EE4FADC914BB85826862DCD067ECE37131ADE80BE5E1E1DEF69B8550F0D218172D44E20302A16D8DF1A88DD233724A778307E1F0907CF9144A793000912912255447EE05A78D3A21C750D71378C55A4", "");
     private static final byte[] ENCRYPTED_FRAME3 = ProtocolTools.getBytesFromHexString("000100010001008ADB0844433035394634337F200000002AD41FCCC0B439CFEBFBD7728B6E11C65855FAD2B460BD225C5FB5A9069E96F56B0602F0A689453F9FE424F1EF7FF0D9695E719FC2492763B2B9427A067ADAFAFAC7584386F8DB9B72F3A5827A34E4277E9B044840FBEC83F7FDF9BEEF915D37D8EDD07CAE83592F79ACB0EDF09343CF4CC1FF03D9D3FA505DD04A", "");
@@ -55,11 +60,20 @@ public class EventPushNotificationParserTest extends TestCase {
     private static final String AK = "B6C52294F40A30B9BDF9FE4270B03685";
     private static final String EK = "EFD82FCB93E5826ED805E38A6B2EC9F1";
 
+    private static final String AK_1 = "161A30B734F60189F4CFAFA3124AE361";
+    private static final String EK_1 = "A2B3A3FC6AA16AD81A3934A46EDFEE33";
+
     private static final byte[] METER_EVENT_NOTIFICATION_1_3_0 = ProtocolTools.getBytesFromHexString("0001000100010037c2004e2c000080000cff030204090e33343135303030303030303234350910454c532d5547572d00237efffefd77361200120600200000", "");
     private static final byte[] BEACON_NOTIFICATION_1_3_0 = ProtocolTools.getBytesFromHexString("0001000100010042C2004E2C000080000CFF030205090E3334313537333030303238303033090C07E00318040A152B2C000000120017120000090F54616D706572206465746563746564", "");
 
     private static final byte[] METER_EVENT_NOTIFICATION_1_4_0 = ProtocolTools.getBytesFromHexString("0001000100010028C2004E2C000080000CFF030203090D53455249414C2D4E554D424552120016020209000600003039", "");
     private static final byte[] BEACON_NOTIFICATION_1_4_0 = ProtocolTools.getBytesFromHexString("000100010001004DC2004E2C000080000CFF030203091445717569706D656E742D4964656E7469666965721200010204090C07B20102050B11244E00000012007B1201C8090F4164646974696F6E616C20696E666F", "");
+    private static final byte[] DATA_NOTIFICATION_ENCRYPTED_WITH_AUTHENTICATION_1_6_0 = ProtocolTools.getBytesFromHexString("0001000100010063db08454c5373000280035830000000021c18c0e78b589afefa0a404db82a1ae76963257f18279b19072edf8b57422663a03ce3e4119fff81f3ce3066d1e5c5bb77ae153301ec3b8d269a0d978e63e26209f6b02d8b3f429098d38399139eec23df8f3d", "");
+    private static final byte[] DATA_NOTIFICATION_PLAIN_1_6_0 = ProtocolTools.getBytesFromHexString("00010001000100470f000000010c07e0071302082728410000000203090e33343135373330303032383030331200010204090c07e00713020827283f0000001200021200000908506f776572207570", "");
+    private static final byte[] RELAY_EVENT_NOTIFICATION_1_6_0 = ProtocolTools.getBytesFromHexString("0001001400100010c20000010000616214ff020600002000", "");
+    private static final byte[] RELAY_EVENT_NOTIFICATION_1_6_1 = ProtocolTools.getBytesFromHexString("0001001400100039c20000010000616214ff020203090e333431353733303030323937383112001402020910454c532d5547572d020000fffe00003b0600002000", "");
+    private static final byte[] METER_RELAYED_PASSTHROUGH_NOTIFICATION_1_6_0 = ProtocolTools.getBytesFromHexString("0001000100010028C2004E2C000080000CFF030203090D53455249414C2D4E554D424552120016020209000600003039", "");
+
 
     @Mock
     protected CollectedDataFactoryProvider collectedDataFactoryProvider;
@@ -75,7 +89,7 @@ public class EventPushNotificationParserTest extends TestCase {
         context = mock(InboundDiscoveryContext.class);
         inboundDAO = mock(InboundDAO.class);
 
-        List<SecurityProperty> securityProperties = createSecurityProperties(3);
+        List<SecurityProperty> securityProperties = createSecurityProperties(3, AK, EK);
         when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
         when(context.getInboundDAO()).thenReturn(inboundDAO);
 
@@ -85,18 +99,24 @@ public class EventPushNotificationParserTest extends TestCase {
         when(collectedDataFactory.createCollectedLogBook(any)).thenReturn(new DeviceLogBook(any));
     }
 
-    private List<SecurityProperty> createSecurityProperties(int dataTransportLevel) {
+    public void setSecurityContext_1_6() throws IOException {
+        List<SecurityProperty> securityProperties = createSecurityProperties(3, AK_1, EK_1);
+        when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
+        when(context.getInboundDAO()).thenReturn(inboundDAO);
+    }
+
+    private List<SecurityProperty> createSecurityProperties(int dataTransportLevel, String aKey, String eKey) {
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getAuthenticationDeviceAccessLevelId()).thenReturn(5);
         when(securityPropertySet.getEncryptionDeviceAccessLevelId()).thenReturn(dataTransportLevel);
 
         SecurityProperty akProperty = mock(SecurityProperty.class);
-        when(akProperty.getValue()).thenReturn(AK);
+        when(akProperty.getValue()).thenReturn(aKey);
         when(akProperty.getName()).thenReturn(SecurityPropertySpecName.AUTHENTICATION_KEY.toString());
         when(akProperty.getSecurityPropertySet()).thenReturn(securityPropertySet);
 
         SecurityProperty ekProperty = mock(SecurityProperty.class);
-        when(ekProperty.getValue()).thenReturn(EK);
+        when(ekProperty.getValue()).thenReturn(eKey);
         when(ekProperty.getName()).thenReturn(SecurityPropertySpecName.ENCRYPTION_KEY.toString());
         when(ekProperty.getSecurityPropertySet()).thenReturn(securityPropertySet);
 
@@ -109,7 +129,7 @@ public class EventPushNotificationParserTest extends TestCase {
     @Test
     public void testPlainFrame() throws IOException, SQLException, BusinessException {
         EventPushNotificationParser parser = spyParser(PLAIN_FRAME);
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-00545D-1125"), parser.getDeviceIdentifier());
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -125,7 +145,7 @@ public class EventPushNotificationParserTest extends TestCase {
         Throwable expected = null;
         try {
             //Business code
-            parser.parseInboundFrame();
+            parser.readAndParseInboundFrame();
         } catch (DataParseException e) {
             expected = e;
         }
@@ -137,7 +157,7 @@ public class EventPushNotificationParserTest extends TestCase {
         EventPushNotificationParser parser = spyParser(BEACON_NOTIFICATION_1_3_0);
 
         //Business code
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
 
         assertEquals(parser.getDeviceIdentifier().getIdentifier(), "34157300028003");
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -153,7 +173,7 @@ public class EventPushNotificationParserTest extends TestCase {
         Throwable expected = null;
         try {
             //Business code
-            parser.parseInboundFrame();
+            parser.readAndParseInboundFrame();
         } catch (DataParseException e) {
             expected = e;
         }
@@ -165,7 +185,7 @@ public class EventPushNotificationParserTest extends TestCase {
         EventPushNotificationParser parser = spyParser(BEACON_NOTIFICATION_1_4_0);
 
         //Business code
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
 
         assertEquals(parser.getDeviceIdentifier().getIdentifier(), "Equipment-Identifier");
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -178,7 +198,7 @@ public class EventPushNotificationParserTest extends TestCase {
     @Test
     public void testPlainFrameEventSerialNumberReadout() throws IOException, SQLException, BusinessException {
         EventPushNotificationParser parser = spyParser(BEACON_PLAIN_EVENT_SERIAL_NUMBER_READOUT);
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("01054250370100162134157300029781"), parser.getDeviceIdentifier());
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -191,7 +211,7 @@ public class EventPushNotificationParserTest extends TestCase {
     @Test
     public void testPlainFrameEventMeterRegistered() throws IOException, SQLException, BusinessException {
         EventPushNotificationParser parser = spyParser(BEACON_PLAIN_EVENT_METER_REGISTERED);
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("01054250370100162134157300026645"), parser.getDeviceIdentifier());
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -204,7 +224,7 @@ public class EventPushNotificationParserTest extends TestCase {
     @Test
     public void testPlainFrame2() throws IOException, SQLException, BusinessException {
         EventPushNotificationParser parser = spyParser(PLAIN_FRAME2);
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser.getDeviceIdentifier());
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -215,11 +235,52 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
+    public void testPlainFrame3() throws IOException, SQLException, BusinessException {
+        EventPushNotificationParser parser = spyParser(PLAIN_FRAME3);
+        parser.readAndParseInboundFrame();
+        assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
+
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(meterProtocolEvent.getTime().getTime(), 1468908579000L);
+        assertEquals(meterProtocolEvent.getMessage(), "Node [0023:7EFF:FEFD:7738] [0x0001] has registered on the network");
+        assertEquals(meterProtocolEvent.getEiCode(), 0);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 194);
+    }
+
+    @Test
+    public void testPlainDataNotification() throws IOException, SQLException, BusinessException {
+        EventPushNotificationParser parser = spyParser(DATA_NOTIFICATION_PLAIN_1_6_0);
+        parser.readAndParseInboundFrame();
+        assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
+
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
+        assertEquals(meterProtocolEvent.getEiCode(), 0);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 2);
+        assertEquals(meterProtocolEvent.getMessage(), "Power up");
+    }
+
+    @Test
+    public void testPlainRelayEventNotification() throws IOException, SQLException, BusinessException {
+        EventPushNotificationParser parser = spyParser(RELAY_EVENT_NOTIFICATION_1_6_0);
+        parser.readAndParseInboundFrame();
+        assertEquals(parser.getSourceSAP(), 1);
+        assertEquals(parser.getDestinationSAP(), 20);
+        assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
+
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
+        assertEquals(meterProtocolEvent.getEiCode(), 0);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 2);
+        assertEquals(meterProtocolEvent.getMessage(), "Power up");
+    }
+
+    @Test
     public void testEncryptedFrame() throws IOException, SQLException, BusinessException {
-        List<SecurityProperty> securityProperties = createSecurityProperties(2);
+        List<SecurityProperty> securityProperties = createSecurityProperties(2, AK, EK);
         when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
         EventPushNotificationParser parser = spyParser(ENCRYPTED_FRAME);
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser.getDeviceIdentifier());
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -229,7 +290,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent.getProtocolCode(), 197);
 
         EventPushNotificationParser parser2 = spyParser(ENCRYPTED_FRAME2);
-        parser2.parseInboundFrame();
+        parser2.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser2.getDeviceIdentifier());
 
         MeterProtocolEvent meterProtocolEvent2 = parser2.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -239,7 +300,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent2.getProtocolCode(), 197);
 
         EventPushNotificationParser parser3 = spyParser(ENCRYPTED_FRAME3);
-        parser3.parseInboundFrame();
+        parser3.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser3.getDeviceIdentifier());
 
         MeterProtocolEvent meterProtocolEvent3 = parser3.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -249,7 +310,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent3.getProtocolCode(), 194);
 
         EventPushNotificationParser parser4 = spyParser(ENCRYPTED_FRAME4);
-        parser4.parseInboundFrame();
+        parser4.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser4.getDeviceIdentifier());
 
         MeterProtocolEvent meterProtocolEvent4 = parser4.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -260,9 +321,27 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
+    public void testBeaconDataNotification_EncrypWithAuth_1_6_0() throws IOException, SQLException, BusinessException {
+        setSecurityContext_1_6();
+
+        EventPushNotificationParser parser = spyParser(DATA_NOTIFICATION_ENCRYPTED_WITH_AUTHENTICATION_1_6_0);
+
+        //Business code
+        parser.readAndParseInboundFrame();
+
+        assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
+
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
+        assertEquals(meterProtocolEvent.getEiCode(), 0);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 2);
+        assertEquals(meterProtocolEvent.getMessage(), "Power up");
+    }
+
+    @Test
     public void testEncryptedAndAuthenticatedFrame() throws IOException, SQLException, BusinessException {
         EventPushNotificationParser parser = spyParser(ENCRYPTED_FRAME_WITH_AUTHENTICATION);
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser.getDeviceIdentifier());
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -273,7 +352,7 @@ public class EventPushNotificationParserTest extends TestCase {
 
 
         EventPushNotificationParser parser2 = spyParser(ENCRYPTED_FRAME_WITH_AUTHENTICATION2);
-        parser2.parseInboundFrame();
+        parser2.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser2.getDeviceIdentifier());
 
         MeterProtocolEvent meterProtocolEvent2 = parser2.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -285,11 +364,11 @@ public class EventPushNotificationParserTest extends TestCase {
 
     @Test
     public void testAuthenticatedFrameNotEncrypted() throws IOException, SQLException, BusinessException {
-        List<SecurityProperty> securityProperties = createSecurityProperties(1);
+        List<SecurityProperty> securityProperties = createSecurityProperties(1, AK, EK);
         when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
 
         EventPushNotificationParser parser = spyParser(AUTHENTICATED_NOT_ENCRYPTED);
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser.getDeviceIdentifier());
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -307,7 +386,7 @@ public class EventPushNotificationParserTest extends TestCase {
         PushEventNotification pushEventNotification = new PushEventNotification();
         pushEventNotification.initComChannel(parser.getComChannel());
         pushEventNotification.initializeDiscoveryContext(context);
-        pushEventNotification.getEventPushNotificationParser().parseInboundFrame();
+        pushEventNotification.getEventPushNotificationParser().readAndParseInboundFrame();
         pushEventNotification.collectedLogBook = pushEventNotification.getEventPushNotificationParser().getCollectedLogBook();
         assertEquals(pushEventNotification.getLoggingMessage(), "Received inbound event notification from [device with serial number 660-00545D-1125].  Message: 'G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network', protocol code: '194'");
     }
