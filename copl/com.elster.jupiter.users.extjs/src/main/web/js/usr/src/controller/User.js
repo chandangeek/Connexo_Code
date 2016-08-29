@@ -131,8 +131,8 @@ Ext.define('Usr.controller.User', {
                     form.loadRecord(record);
                 }
                 me.getApplication().fireEvent('acknowledge', isActive
-                    ? Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated')
-                    : Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated'));
+                    ? Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated.')
+                    : Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated.'));
             },
             callback: function () {
                 viewport.setLoading(false);
