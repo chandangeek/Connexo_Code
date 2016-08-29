@@ -1,24 +1,17 @@
 package com.elster.jupiter.validation.impl.kpi;
 
-
-import com.elster.jupiter.kpi.KpiEntry;
-import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
-
-public final class DataValidationKpiScoreImpl implements DataValidationKpiScore {
+final class DataValidationKpiScoreImpl implements DataValidationKpiScore {
 
     private final Instant timestamp;
     private final  Map<MonitoredDataValidationKpiMemberTypes, BigDecimal> entries;
 
-    public DataValidationKpiScoreImpl(Instant timestamp,  Map<MonitoredDataValidationKpiMemberTypes, BigDecimal> entries) {
+    DataValidationKpiScoreImpl(Instant timestamp, Map<MonitoredDataValidationKpiMemberTypes, BigDecimal> entries) {
         this.timestamp = timestamp;
         this.entries = entries;
     }
@@ -27,7 +20,6 @@ public final class DataValidationKpiScoreImpl implements DataValidationKpiScore 
     public Instant getTimestamp() {
         return this.timestamp;
     }
-
 
     private BigDecimal getValue(MonitoredDataValidationKpiMemberTypes member) {
         return entries.get(member);

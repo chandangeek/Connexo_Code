@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation.impl.kpi;
 
-public enum DataValidationKpiMemberTypes {
-
+enum DataValidationKpiMemberTypes {
     SUSPECT("SUSPECT_"),
     REGISTER("REGISTER_"),
     CHANNEL("CHANNEL_"),

@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.impl.kpi;
 
-
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
@@ -12,7 +11,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum KpiType {
+enum KpiType {
 
     VALIDATION {
         @Override
@@ -66,4 +65,4 @@ public enum KpiType {
         }
     }
 
-    }
+}

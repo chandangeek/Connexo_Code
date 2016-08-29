@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation.impl.kpi;
 
-
-public interface DataManagementKpiCalculator {
+interface DataManagementKpiCalculator {
 
     void calculateAndStore();
 

@@ -1,16 +1,15 @@
 package com.elster.jupiter.validation.impl.kpi;
 
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PayloadContainsInvalidId implements DataManagementKpiCalculator{
+class PayloadContainsInvalidId implements DataManagementKpiCalculator {
 
     private final Logger logger;
     private final String payLoad;
     private final NumberFormatException exception;
 
-    public PayloadContainsInvalidId(Logger logger, String payLoad, NumberFormatException exception) {
+    PayloadContainsInvalidId(Logger logger, String payLoad, NumberFormatException exception) {
         super();
         this.logger = logger;
         this.payLoad = payLoad;

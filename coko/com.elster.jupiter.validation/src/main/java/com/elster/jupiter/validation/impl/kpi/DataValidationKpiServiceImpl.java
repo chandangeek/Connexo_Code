@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.impl.kpi;
 
-
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -8,22 +7,15 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 
-import javax.inject.Inject;
-import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
 
-public class DataValidationKpiServiceImpl implements DataValidationKpiService{
+public class DataValidationKpiServiceImpl implements DataValidationKpiService {
 
-    private volatile ValidationService validationService;
+    private final ValidationService validationService;
 
-    public DataValidationKpiServiceImpl(){
-
-    }
-
-    @Inject
-    public DataValidationKpiServiceImpl(ValidationService validationService){
+    public DataValidationKpiServiceImpl(ValidationService validationService) {
         this.validationService = validationService;
     }
 
@@ -39,7 +31,10 @@ public class DataValidationKpiServiceImpl implements DataValidationKpiService{
 
     @Override
     public Finder<DataValidationKpi> dataValidationKpiFinder() {
-        return DefaultFinder.of(DataValidationKpi.class, this.validationService.dataModel(), EndDeviceGroup.class).defaultSortColumn(DataValidationKpiImpl.Fields.END_DEVICE_GROUP.fieldName()+".name");
+        return DefaultFinder.of(
+                    DataValidationKpi.class,
+                    this.validationService.dataModel(),
+                    EndDeviceGroup.class).defaultSortColumn(DataValidationKpiImpl.Fields.END_DEVICE_GROUP.fieldName() + ".name");
     }
 
     @Override

@@ -6,9 +6,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.inject.Inject;
 
-
 public class TranslatableApplicationException extends LocalizedException {
-
     @Inject
     public TranslatableApplicationException(Thesaurus thesaurus, MessageSeed messageSeed, Object ...args) {
         super(thesaurus, messageSeed, args);

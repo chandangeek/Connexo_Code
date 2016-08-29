@@ -3,11 +3,11 @@ package com.elster.jupiter.validation.impl.kpi;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class UnexpectedPayloadFormat implements DataManagementKpiCalculator {
+class UnexpectedPayloadFormat implements DataManagementKpiCalculator {
     private final Logger logger;
     private final String payLoad;
 
-    public UnexpectedPayloadFormat(Logger logger, String payLoad) {
+    UnexpectedPayloadFormat(Logger logger, String payLoad) {
         super();
         this.logger = logger;
         this.payLoad = payLoad;

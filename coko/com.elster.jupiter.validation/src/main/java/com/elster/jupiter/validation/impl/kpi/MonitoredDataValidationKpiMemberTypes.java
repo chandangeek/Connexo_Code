@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation.impl.kpi;
 
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
 
 public enum MonitoredDataValidationKpiMemberTypes {
@@ -63,9 +62,4 @@ public enum MonitoredDataValidationKpiMemberTypes {
 
     public abstract Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes();
 
-    public long calculateFrom(Map<DataValidationKpiMemberTypes, Long> statusCounters) {
-        return this.monitoredKpiMemberTypes().stream()
-                .mapToLong(statusCounters::get)
-                .sum();
-    }
 }

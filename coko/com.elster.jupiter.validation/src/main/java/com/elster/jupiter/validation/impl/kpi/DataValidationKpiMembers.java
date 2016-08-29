@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class DataValidationKpiMembers {
+class DataValidationKpiMembers {
     private final Map<MonitoredDataValidationKpiMemberTypes, KpiMember> kpiMembers = new EnumMap<>(MonitoredDataValidationKpiMemberTypes.class);
 
     DataValidationKpiMembers(List<? extends KpiMember> kpiMembers) {
@@ -28,24 +28,32 @@ public class DataValidationKpiMembers {
     }
 
     Optional<DataValidationKpiScore> getScores(Range<Instant> interval) {
-
         Map<MonitoredDataValidationKpiMemberTypes, BigDecimal> suspectMap = Stream.of(MonitoredDataValidationKpiMemberTypes.values()).limit(3)
-                .collect(Collectors.toMap(s -> s, s -> this.kpiMembers.get(s).getScores(interval).stream().map(KpiEntry::getScore)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add)));
+                .collect(Collectors.toMap(
+                        s -> s,
+                        s -> this.kpiMembers.get(s)
+                                .getScores(interval)
+                                .stream()
+                                .map(KpiEntry::getScore)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add)));
         Map<MonitoredDataValidationKpiMemberTypes, BigDecimal> dataValidationStatusMap = Stream.of(MonitoredDataValidationKpiMemberTypes.values())
                 .filter(kpiMemberType -> kpiMemberType.equals(MonitoredDataValidationKpiMemberTypes.ALLDATAVALIDATED))
-                .collect(Collectors.toMap(s -> s, s -> this.kpiMembers.get(s)
-                        .getScores(interval)
-                        .stream()
-                        .map(KpiEntry::getScore)
-                        .allMatch(a -> a.longValue() == 1) ? BigDecimal.ONE : BigDecimal.ZERO));
+                .collect(Collectors.toMap(
+                        s -> s,
+                        s -> this.kpiMembers.get(s)
+                                .getScores(interval)
+                                .stream()
+                                .map(KpiEntry::getScore)
+                                .allMatch(a -> a.longValue() == 1) ? BigDecimal.ONE : BigDecimal.ZERO));
         Map<MonitoredDataValidationKpiMemberTypes, BigDecimal> validatorsMap = Stream.of(MonitoredDataValidationKpiMemberTypes.values()).skip(4)
-                .collect(Collectors.toMap(s -> s, s -> this.kpiMembers.get(s)
-                        .getScores(interval)
-                        .stream()
-                        .map(KpiEntry::getScore)
-                        .parallel()
-                        .anyMatch(a -> a.longValue() == 1) ? BigDecimal.ONE : BigDecimal.ZERO));
+                .collect(Collectors.toMap(
+                        s -> s,
+                        s -> this.kpiMembers.get(s)
+                                .getScores(interval)
+                                .stream()
+                                .map(KpiEntry::getScore)
+                                .parallel()
+                                .anyMatch(a -> a.longValue() == 1) ? BigDecimal.ONE : BigDecimal.ZERO));
         suspectMap.putAll(dataValidationStatusMap);
         suspectMap.putAll(validatorsMap);
         if (suspectMap.entrySet().stream()
@@ -53,20 +61,21 @@ public class DataValidationKpiMembers {
                 .allMatch(a -> a.getValue().compareTo(BigDecimal.ZERO) == 0)) {
             return Optional.empty();
         } else {
-            Instant timestamp = kpiMembers.entrySet().stream().filter(member -> member.getKey().equals(MonitoredDataValidationKpiMemberTypes.SUSPECT))
-                    .map(member -> member.getValue().getScores(interval))
-                    .flatMap(Collection::stream)
-                    .filter(score -> score.getScore().compareTo(BigDecimal.ZERO) == 1)
-                    .map(KpiEntry::getTimestamp)
-                    .max(Comparator.naturalOrder()).get();
+            Instant timestamp = kpiMembers
+                                    .entrySet()
+                                    .stream()
+                                    .filter(member -> member.getKey().equals(MonitoredDataValidationKpiMemberTypes.SUSPECT))
+                                    .map(member -> member.getValue().getScores(interval))
+                                    .flatMap(Collection::stream)
+                                    .filter(score -> score.getScore().compareTo(BigDecimal.ZERO) == 1)
+                                    .map(KpiEntry::getTimestamp)
+                                    .max(Comparator.naturalOrder()).get();
             return newScore(timestamp, suspectMap);
         }
-
     }
 
     private Optional<DataValidationKpiScore> newScore(Instant timestamp, Map<MonitoredDataValidationKpiMemberTypes, BigDecimal> scores) {
-        return Optional.of(new DataValidationKpiScoreImpl(
-                timestamp, scores
-        ));
+        return Optional.of(new DataValidationKpiScoreImpl(timestamp, scores));
     }
+
 }

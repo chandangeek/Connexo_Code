@@ -16,7 +16,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -196,7 +195,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     @Override
     public void delete() {
         this.dataValidationKpiTask.getOptional().ifPresent(found -> {
-                    if (found.getUserName().equals("TaskService")) {
+                    if ("TaskService".equals(found.getUserName())) {
                         // else name will be creation user or batch executor
                         found.setNextExecution(null);
                         found.save();
@@ -273,15 +272,12 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
                         .forEach(dataValidationKpiMembers::add));
         deviceGroupDeviceIds.sort(Comparator.naturalOrder());
         dataValidationKpiMembers.sort(Comparator.naturalOrder());
-        if (deviceGroupDeviceIds == null && dataValidationKpiMembers == null) {
-            return;
-        }
         if (deviceGroupDeviceIds.equals(dataValidationKpiMembers)) {
             return;
         }
         List<Long> commonElements = new ArrayList<>(deviceGroupDeviceIds);
         commonElements.retainAll(dataValidationKpiMembers);
-        if (!deviceGroupDeviceIds.isEmpty() && !deviceGroupDeviceIds.equals(dataValidationKpiMembers)) {
+        if (!deviceGroupDeviceIds.isEmpty()) {
             deviceGroupDeviceIds.removeAll(commonElements);
             deviceGroupDeviceIds.forEach(this::createValidationKpiMember);
             dataValidationKpiMembers.removeAll(commonElements);

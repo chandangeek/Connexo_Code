@@ -8,14 +8,13 @@ import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import java.time.Clock;
 
-
-public class DataManagementKpiCalculatorHandler implements TaskExecutor {
+class DataManagementKpiCalculatorHandler implements TaskExecutor {
 
     private final DataValidationKpiService dataValidationKpiService;
     private final DataValidationReportService dataValidationReportService;
     private final Clock clock;
 
-    public DataManagementKpiCalculatorHandler(DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService, Clock clock){
+    DataManagementKpiCalculatorHandler(DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService, Clock clock){
         this.dataValidationKpiService = dataValidationKpiService;
         this.dataValidationReportService = dataValidationReportService;
         this.clock = clock;
@@ -23,7 +22,7 @@ public class DataManagementKpiCalculatorHandler implements TaskExecutor {
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
-        if(taskOccurrence.getStatus().name().equals(TaskStatus.BUSY) && taskOccurrence.getRecurrentTask().getNextExecution() == null){
+        if (taskOccurrence.getStatus().equals(TaskStatus.BUSY) && taskOccurrence.getRecurrentTask().getNextExecution() == null) {
             return;
         }
         KpiType.calculatorForRecurrentPayload(taskOccurrence, new ServiceProvider()).calculateAndStore();

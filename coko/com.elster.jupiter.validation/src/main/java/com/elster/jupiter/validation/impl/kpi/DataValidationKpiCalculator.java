@@ -23,15 +23,14 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
-public class DataValidationKpiCalculator implements DataManagementKpiCalculator {
+class DataValidationKpiCalculator implements DataManagementKpiCalculator {
 
     private volatile DataValidationKpiImpl dataValidationKpi;
     private volatile Logger logger;
     private volatile DataValidationReportService dataValidationReportService;
     private volatile Clock clock;
 
-    public DataValidationKpiCalculator(DataValidationKpiImpl dataValidationKpi, Logger logger, DataValidationReportService dataValidationReportService, Clock clock) {
+    DataValidationKpiCalculator(DataValidationKpiImpl dataValidationKpi, Logger logger, DataValidationReportService dataValidationReportService, Clock clock) {
         this.dataValidationKpi = dataValidationKpi;
         this.logger = logger;
         this.dataValidationReportService = dataValidationReportService;
@@ -41,7 +40,6 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
     public void setClock(Clock clock) {
         this.clock = clock;
     }
-
 
     @Override
     public void calculateAndStore() {
@@ -73,12 +71,12 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
             Map<String, Boolean> allDataValidated = dataValidationReportService.getAllDataValidated(dataValidationKpiClone.getDeviceGroup(), range);
             Map<String, BigDecimal> totalSuspects = aggregateSuspects(registerSuspects, channelsSuspects);
             List<String> ruleValidators = aggregateRuleValidators(registerSuspects, channelsSuspects);
-            dataValidationKpiClone.getDataValidationKpiChildren().stream().forEach(kpi -> {
+            dataValidationKpiClone.getDataValidationKpiChildren().forEach(kpi -> {
                 if (dataValidationKpi.isCancelled()) {
                     dataValidationKpi.dropDataValidationKpi();
                     return;
                 }
-                kpi.getChildKpi().getMembers().stream()
+                kpi.getChildKpi().getMembers()
                         .forEach(member -> {
                             if (dataValidationKpi.isCancelled()) {
                                 dataValidationKpi.dropDataValidationKpi();
@@ -141,7 +139,5 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                                         .fieldName())).size()))
                 ));
     }
-
-
 
 }
