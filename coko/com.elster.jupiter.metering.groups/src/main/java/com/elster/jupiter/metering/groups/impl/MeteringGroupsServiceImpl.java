@@ -26,6 +26,7 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
 import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
 import com.elster.jupiter.util.conditions.Condition;
@@ -45,7 +46,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -111,7 +111,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
                     bind(ExecutionTimer.class).toInstance(endDeviceGroupMemberCountTimer);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
