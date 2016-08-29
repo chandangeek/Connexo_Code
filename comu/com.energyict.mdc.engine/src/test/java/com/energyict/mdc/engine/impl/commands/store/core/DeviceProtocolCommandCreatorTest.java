@@ -111,8 +111,8 @@ public class DeviceProtocolCommandCreatorTest {
                 null, comTaskExecutionConnectionStep, null, issueService);
 
         InOrder order = Mockito.inOrder(groupedDeviceCommand);
-        order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
         order.verify(groupedDeviceCommand).addCommand(isA(AddPropertiesCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
         order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
         order.verify(groupedDeviceCommand).addCommand(isA(LogOnCommand.class), any(ComTaskExecution.class));
         order.verify(groupedDeviceCommand).addCommand(isA(LogOffCommand.class), any(ComTaskExecution.class));
