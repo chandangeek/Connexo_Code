@@ -53,8 +53,9 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
         this.where.orAnd(this.actualBuilder);
     }
 
-    public void append(SqlFragment sqlFragment) {
+    public ClauseAwareSqlBuilder append(SqlFragment sqlFragment) {
         this.actualBuilder.add(sqlFragment);
+        return this;
     }
 
     /**
@@ -66,44 +67,54 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
         this.where.orOr(this.actualBuilder);
     }
 
-    public void addObject(Object value) {
+    public ClauseAwareSqlBuilder addObject(Object value) {
         this.actualBuilder.addObject(value);
+        return this;
     }
 
-    public void addInt(int value) {
+    public ClauseAwareSqlBuilder addInt(int value) {
         this.actualBuilder.addInt(value);
+        return this;
     }
 
-    public void addLong(long value) {
+    public ClauseAwareSqlBuilder addLong(long value) {
         this.actualBuilder.addLong(value);
+        return this;
     }
 
-    public void addNull(int sqlType) {
+    public ClauseAwareSqlBuilder addNull(int sqlType) {
         this.actualBuilder.addNull(sqlType);
+        return this;
     }
 
-    public void space() {
+    public ClauseAwareSqlBuilder space() {
         this.actualBuilder.space();
+        return this;
     }
 
-    public void append(String string) {
+    public ClauseAwareSqlBuilder append(String string) {
         this.actualBuilder.append(string);
+        return this;
     }
 
-    public void spaceOpenBracket() {
+    public ClauseAwareSqlBuilder spaceOpenBracket() {
         this.actualBuilder.spaceOpenBracket();
+        return this;
     }
 
-    public void openBracket() {
+    public ClauseAwareSqlBuilder openBracket() {
         this.actualBuilder.openBracket();
+        return this;
     }
 
-    public void closeBracketSpace() {
+    public ClauseAwareSqlBuilder closeBracketSpace() {
         this.actualBuilder.closeBracketSpace();
+        return this;
     }
 
-    public void closeBracket() {
+    public ClauseAwareSqlBuilder closeBracket() {
         this.actualBuilder.closeBracket();
+        return this;
     }
 
     @Override

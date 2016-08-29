@@ -37,25 +37,10 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
-            sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(" busytask where busytask.connectiontask = ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and comport is not null) ");
-            sqlBuilder.append(" and ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".comserver is null) ");
-            sqlBuilder.append("and (   (discriminator =");
-            sqlBuilder.addObject(ConnectionTaskImpl.INBOUND_DISCRIMINATOR);
-            sqlBuilder.append(" and ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".status > 0)");
-            sqlBuilder.append("     or (discriminator =");
-            sqlBuilder.addObject(ConnectionTaskImpl.SCHEDULED_DISCRIMINATOR);
-            sqlBuilder.append(" and (");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".status > 0 or ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".nextExecutionTimestamp is null)))");
+            sqlBuilder.append("and (    not exists (select * from busytask where busytask.connectiontask = ").append(connectionTaskTableName).append(".id and comport is not null)");
+            sqlBuilder.append("     and ").append(connectionTaskTableName).append(".comserver is null) ");
+            sqlBuilder.append("and (   (discriminator =").addObject(ConnectionTaskImpl.INBOUND_DISCRIMINATOR).append(" and ").append(connectionTaskTableName).append(".status > 0)");
+            sqlBuilder.append("     or (discriminator =").addObject(ConnectionTaskImpl.SCHEDULED_DISCRIMINATOR).append(" and (").append(connectionTaskTableName).append(".status > 0 or ").append(connectionTaskTableName).append(".nextExecutionTimestamp is null)))");
         }
 
         @Override
@@ -81,23 +66,16 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
-            return task.isExecuting() || task.getScheduledComTasks().stream().filter(ComTaskExecution::isExecuting).findAny().isPresent();
+            return task.isExecuting() || task.getScheduledComTasks().stream().anyMatch(ComTaskExecution::isExecuting);
         }
 
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
-            sqlBuilder.append("and ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".status = 0 and ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".nextexecutiontimestamp is not null and (exists (select * from ");
-            sqlBuilder.append(" busytask where busytask.connectiontask = ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and comport is not null)");
-            sqlBuilder.append("     or ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".comserver is not null)");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".status = 0 ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".nextexecutiontimestamp is not null ");
+            sqlBuilder.append("and ").append("(   exists (select * from busytask where busytask.connectiontask = ").append(connectionTaskTableName).append(".id and comport is not null)");
+            sqlBuilder.append("                or ").append(connectionTaskTableName).append(".comserver is not null)");
         }
 
         @Override
@@ -125,25 +103,19 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".status = 0 ");
-            sqlBuilder.append(" and ((" + connectionTaskTableName + ".discriminator = " + ConnectionTaskImpl.INBOUND_DISCRIMINATOR + ") or ");
-            sqlBuilder.append(" ((not exists (select * from ");
-            sqlBuilder.append(" busytask where busytask.connectiontask = ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and comport is not null) and ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".comserver is null) ");
+            sqlBuilder.append(connectionTaskTableName).append(".status = 0 ");
+            sqlBuilder.append(" and (   (").append(connectionTaskTableName).append(".discriminator = ").append(ConnectionTaskImpl.INBOUND_DISCRIMINATOR).append(")");
+            sqlBuilder.append("      or ((    not exists (select * from busytask where busytask.connectiontask = ").append(connectionTaskTableName).append(".id and comport is not null)");
+            sqlBuilder.append("           and ").append(connectionTaskTableName).append(".comserver is null) ");
             sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".nextexecutiontimestamp <=");
-            sqlBuilder.addLong(this.asSeconds(clock.instant()));
+            sqlBuilder.append(connectionTaskTableName).append(".nextexecutiontimestamp <=").addLong(this.asSeconds(clock.instant()));
             sqlBuilder.append("))");
         }
 
         @Override
         public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
-            sqlBuilder.append("        WHEN status = 0 and nextexecutiontimestamp <=");
+            sqlBuilder.append(" WHEN status = 0");
+            sqlBuilder.append("  AND nextexecutiontimestamp <=");
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
             this.appendBreakdownThenClause(sqlBuilder);
         }
@@ -166,26 +138,12 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
-            sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(" busytask where busytask.connectiontask = ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and comport is not null)");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".comserver is null) ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".status = 0 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".currentretrycount = 0 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.instant()));
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".lastsuccessfulcommunicationend is null");
+            sqlBuilder.append("and (   not exists (select * from busytask where busytask.connectiontask = ").append(connectionTaskTableName).append(".id and comport is not null)");
+            sqlBuilder.append("     or ").append(connectionTaskTableName).append(".comserver is null) ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".status = 0 ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".currentretrycount = 0 ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".nextexecutiontimestamp >").addLong(this.asSeconds(clock.instant()));
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".lastsuccessfulcommunicationend is null");
         }
 
         @Override
@@ -216,23 +174,11 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
-            sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(" busytask where busytask.connectiontask = ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and comport is not null)");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".comserver is null) ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".status = 0 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".currentretrycount > 0 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.instant()));
+            sqlBuilder.append("and (    not exists (select * from busytask where busytask.connectiontask = ").append(connectionTaskTableName).append(".id and comport is not null)");
+            sqlBuilder.append("     and ").append(connectionTaskTableName).append(".comserver is null) ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".status = 0 ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".currentretrycount > 0 ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".nextexecutiontimestamp >").addLong(this.asSeconds(clock.instant()));
         }
 
         @Override
@@ -263,29 +209,13 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
-            sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(" busytask where busytask.connectiontask = ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and comport is not null) ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".comserver is null) ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".status = 0 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".currentretrycount = 0 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".lastExecutionFailed = 1 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.instant()));
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".lastsuccessfulcommunicationend is not null");
+            sqlBuilder.append("and (    not exists (select * from busytask where busytask.connectiontask = ").append(connectionTaskTableName).append(".id and comport is not null) ");
+            sqlBuilder.append("     and ").append(connectionTaskTableName).append(".comserver is null) ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".status = 0 ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".currentretrycount = 0 ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".lastExecutionFailed = 1 ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".nextexecutiontimestamp >").addLong(this.asSeconds(clock.instant()));
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".lastsuccessfulcommunicationend is not null");
         }
 
         @Override
@@ -318,29 +248,13 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
-            sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(" busytask where busytask.connectiontask = ");
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and busytask.comport is not null) ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".comserver is null) ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".status = 0 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".currentretrycount = 0 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".lastExecutionFailed = 0 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(clock.instant()));
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".lastsuccessfulcommunicationend is not null");
+            sqlBuilder.append("and (    not exists (select * from busytask where busytask.connectiontask = ").append(connectionTaskTableName).append(".id and busytask.comport is not null) ");
+            sqlBuilder.append("     and ").append(connectionTaskTableName).append(".comserver is null) ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".status = 0 ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".currentretrycount = 0 ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".lastExecutionFailed = 0 ");
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".nextexecutiontimestamp >").addLong(this.asSeconds(clock.instant()));
+            sqlBuilder.append("and ").append(connectionTaskTableName).append(".lastsuccessfulcommunicationend is not null");
         }
 
         @Override
