@@ -1,9 +1,6 @@
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-
-import org.junit.*;
+import org.junit.Test;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -19,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CompletionCodeTest {
 
     @Test
-    public void testAlwaysUpgradeFromLowestPriority () {
+    public void testAlwaysUpgradeFromLowestPriority() {
         Set<CompletionCode> allButLowestPriority = EnumSet.complementOf(EnumSet.of(CompletionCode.Ok));
         for (CompletionCode notLowestPriority : allButLowestPriority) {
             assertThat(CompletionCode.Ok.upgradeTo(notLowestPriority)).isEqualTo(notLowestPriority);
@@ -27,7 +24,7 @@ public class CompletionCodeTest {
     }
 
     @Test
-    public void testNeverUpgradeFromHighestPriority () {
+    public void testNeverUpgradeFromHighestPriority() {
         Set<CompletionCode> allButHighestPriority = EnumSet.complementOf(EnumSet.of(CompletionCode.ConnectionError));
         for (CompletionCode notHighestPriority : allButHighestPriority) {
             assertThat(CompletionCode.ConnectionError.upgradeTo(notHighestPriority)).isEqualTo(CompletionCode.ConnectionError);
@@ -35,7 +32,7 @@ public class CompletionCodeTest {
     }
 
     @Test
-    public void testUpgradeToSame () {
+    public void testUpgradeToSame() {
         for (CompletionCode completionCode : CompletionCode.values()) {
             assertThat(completionCode.upgradeTo(completionCode)).
                     as("Upgrade to the same CompletionCode " + completionCode + " fails").
@@ -43,4 +40,9 @@ public class CompletionCodeTest {
         }
     }
 
+    @Test
+    public void testDBValues() {
+        assertThat(CompletionCode.Ok).isEqualTo(CompletionCode.fromDBValue(0));
+        assertThat(CompletionCode.ConnectionError).isEqualTo(CompletionCode.fromDBValue(8));
+    }
 }
