@@ -40,6 +40,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
@@ -151,7 +152,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                     bind(Clock.class).toInstance(clock);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
         } catch (Exception e) {
             e.printStackTrace();
         }

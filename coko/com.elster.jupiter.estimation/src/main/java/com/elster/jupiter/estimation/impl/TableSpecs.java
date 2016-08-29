@@ -36,7 +36,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
-            table.column("QUALITY_SYSTEM").number().conversion(NUMBER2ENUM).notNull().map("qualityCodeSystem").add();
+            table.column("QUALITY_SYSTEM").number().conversion(NUMBER2ENUM).notNull().map("qualityCodeSystem").since(version(10, 2)).installValue("2").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
@@ -74,7 +74,7 @@ public enum TableSpecs {
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("ESTUE").varChar(SHORT_DESCRIPTION_LENGTH).map("stringValue").add();
-            table.setJournalTableName("EST_ESTIMATIONRULEPROPSJRNL");
+            table.setJournalTableName("EST_ESTIMATIONRULEPROPSJRNL").since(version(10, 2));
 
             table.addCreateTimeColumn("CREATETIME", "createTime").since(version(10, 2));
             table.addModTimeColumn("MODTIME", "modTime").since(version(10, 2));
@@ -123,7 +123,7 @@ public enum TableSpecs {
             Column relativePeriod = table.column("PERIOD").number().add();
 
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
-            table.column("QUALITY_SYSTEM").number().conversion(NUMBER2ENUM).notNull().map("qualityCodeSystem").add();
+            table.column("QUALITY_SYSTEM").number().conversion(NUMBER2ENUM).notNull().map("qualityCodeSystem").since(version(10, 2)).installValue("2").add();
             table.addAuditColumns();
 
             table.foreignKey("EST_FK_ETSK_RECURRENTTASK")
