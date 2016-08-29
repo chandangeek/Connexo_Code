@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+/**
+ * Copyrights EnergyICT
+ */
 
 public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
 
@@ -58,7 +61,8 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
                     fromDate.setTime(logBookReader.getLastLogBook());
 
                     try {
-                        DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
+                        /*DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());*/
+                        DataContainer dataContainer = profileGeneric.getBuffer();
                         collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
                     } catch (IOException e) {
                         if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries())) {
@@ -75,20 +79,20 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
 
     }
 
-    private List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws ProtocolException {
+    private List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws ProtocolException,IOException {
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(MAIN_LOGBOOK)) {
             meterEvents = new Beacon3100StandardEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
         } else if (logBookObisCode.equals(SECURITY_LOGBOOK)) {
-            meterEvents = new Beacon3100PowerFailureEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new Beacon3100SecurityEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
         } else if (logBookObisCode.equals(COVER_LOGBOOK)) {
-            meterEvents = new Beacon3100DisconnectorControlLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new Beacon3100CoverEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
         } else if (logBookObisCode.equals(COMMUNICATION_LOGBOOK)) {
-            meterEvents = new Beacon3100FraudDetectionLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new Beacon3100CommunicationEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
         } else if (logBookObisCode.equals(VOLTAGE_LOGBOOK)) {
             meterEvents = new Beacon3100VoltageEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
         } else if (logBookObisCode.equals(PROTOCOL_LOGBOOK)) {
-            meterEvents = new Beacon3100ProtocolLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new Beacon3100ProtocolEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
         } else {
             return new ArrayList<>();
         }
