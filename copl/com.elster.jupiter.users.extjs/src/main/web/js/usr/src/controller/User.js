@@ -73,7 +73,7 @@ Ext.define('Usr.controller.User', {
             currentGroups = record.groups().data.items,
             detailsRoles = form.down('[name=roles]');
 
-        page.down('userDetails').setTitle(record.get('name'));
+        page.down('userDetails').setTitle(record.get('authenticationName'));
         form.loadRecord(record);
         for (var i = 0; i < currentGroups.length; i++) {
             roles += Ext.String.htmlEncode(currentGroups[i].data.name) + '<br/>';
