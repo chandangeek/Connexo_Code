@@ -135,17 +135,6 @@ public class JbpmTaskResource {
                                 if (filterProperties.get("status").get(i).toString().contains("ONGOING")) {
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.InProgress));
                                 }
-                                if (filterProperties.get("status").get(i).toString().contains("COMPLETED")) {
-                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Completed));
-                                }
-                                if (filterProperties.get("status").get(i).toString().contains("FAILED")) {
-                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Failed));
-                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Error));
-                                }
-                                if(filterProperties.get("status").get(i).toString().contains("CANCELLED")){
-                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Exited));
-                                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Obsolete));
-                                }
                             }
                         }
                         if (theKey.equals("user")) {
