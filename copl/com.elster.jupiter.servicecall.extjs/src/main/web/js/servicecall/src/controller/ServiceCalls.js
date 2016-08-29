@@ -177,11 +177,17 @@ Ext.define('Scs.controller.ServiceCalls', {
             page = me.getPage(),
             preview = page.down('servicecalls-preview'),
             serviceCallName = record.get('name'),
-            previewForm = preview.down('#servicecall-grid-preview-form');
+            previewForm = preview.down('#servicecall-grid-preview-form'),
+            menu = me.getPreviewActionButton().menu,
+            oneMenuItemVisible = false;
 
-
-        me.getPreviewActionButton().setDisabled(!record.get('canCancel'));
         me.getPreviewActionButton().down('scs-action-menu').record = record;
+        menu.items.each(function(menuItem) {
+            if (menuItem.visible) {
+                oneMenuItemVisible |= menuItem.visible.call(menu);
+            }
+        });
+        oneMenuItemVisible ? me.getPreviewActionButton().show() : me.getPreviewActionButton().hide();
         me.getModel('Scs.model.ServiceCall').load(record.get('id'), {
             success: function (record) {
                 previewForm.updatePreview(record);
