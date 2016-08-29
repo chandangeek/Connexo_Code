@@ -10,6 +10,7 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -18,7 +19,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.Optional;
 
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
@@ -58,7 +58,7 @@ public class KpiServiceImpl implements IKpiService {
                 bind(IKpiService.class).toInstance(KpiServiceImpl.this);
             }
         });
-        upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
         initVaultAndRecordSpec();
     }
 
