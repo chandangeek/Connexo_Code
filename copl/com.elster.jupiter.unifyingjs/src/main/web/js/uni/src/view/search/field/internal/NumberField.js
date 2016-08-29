@@ -4,6 +4,9 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
     width: '455',
     layout: 'fit',
     itemsDefaultConfig: {},
+    requires: [
+        'Number'
+    ],
 
     setValue: function(value) {
         this.down('#filter-input').setValue(value);
@@ -19,6 +22,7 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
     },
 
     onChange: function() {
+        this.down('#filter-input').validate();
         this.fireEvent('change', this, this.getValue());
     },
 
@@ -35,6 +39,9 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
                 xtype: 'numberfield',
                 itemId: 'filter-input',
                 width: 180,
+                maxValue: Number.MAX_SAFE_INTEGER,
+                maxLength: 15,
+                enforceMaxLength: true,
                 margin: '0 5 0 0',
                 listeners: {
                     change:{

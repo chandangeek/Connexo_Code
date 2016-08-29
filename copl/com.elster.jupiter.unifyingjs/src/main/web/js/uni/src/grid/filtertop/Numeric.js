@@ -83,5 +83,5 @@ Ext.define('Uni.grid.filtertop.Numeric', {
         var me = this;
         me.down('#uni-search-criteria-numeric').reset();
         me.down('button[action=chooseValues]').setText(me.text);
-    },
+    }
 });
