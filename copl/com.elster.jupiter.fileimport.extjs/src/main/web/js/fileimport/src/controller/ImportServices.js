@@ -45,6 +45,8 @@ Ext.define('Fim.controller.ImportServices', {
         }
     ],
 
+    triggeredFromGrid: false,
+
     init: function () {
         this.control({
             'fim-import-services-setup fim-import-services-grid': {
@@ -164,6 +166,7 @@ Ext.define('Fim.controller.ImportServices', {
                 me.deactivate(record);
                 break;
             case 'editImportService':
+                me.triggeredFromGrid = !Ext.isEmpty(me.getImportServicesGrid());
                 location.href = '#/administration/importservices/' + record.get('id') + '/edit';
                 break;
             case 'removeImportService':
@@ -323,12 +326,10 @@ Ext.define('Fim.controller.ImportServices', {
 
     showEditImportService: function (importServiceId) {
         var me = this,
-            importServicesGrid = me.getImportServicesGrid(),
-            importServicePreviewContainerPanel = me.getImportServicePreviewContainerPanel(),
             router = me.getController('Uni.controller.history.Router'),
             addImportServiceView, addImportServiceForm, returnLink;
 
-        returnLink = importServicesGrid ? router.getRoute('administration/importservices').buildUrl() : router.getRoute('administration/importservices/importservice').buildUrl({importServiceId: importServiceId});
+        returnLink = me.triggeredFromGrid ? router.getRoute('administration/importservices').buildUrl() : router.getRoute('administration/importservices/importservice').buildUrl({importServiceId: importServiceId});
         addImportServiceView = Ext.create('Fim.view.importservices.AddImportService', {
             edit: true,
             returnLink: returnLink
@@ -339,7 +340,6 @@ Ext.define('Fim.controller.ImportServices', {
             callback: function (records, operation, success) {
                 if (fileImporterCombo.store.getCount() == 0) {
                     fileImporterCombo.allowBlank = true;
-                    //fileImporterCombo.hide();
                     addImportServiceView.down('#no-file-importer').show();
                 }
 
@@ -352,8 +352,6 @@ Ext.define('Fim.controller.ImportServices', {
                         addImportServiceForm = addImportServiceView.down('#frm-add-import-service');
                         addImportServiceForm.setTitle(Ext.String.format(Uni.I18n.translate('importService.edit', 'FIM', 'Edit \'{0}\''), importServiceRecord.get('name')));
 
-                        //fileImporterCombo.setValue(fileImporterCombo.store.getById(importServiceRecord.get('importerName')));
-                        //fileImporterCombo.setValue(importServiceRecord.get('importerName'));
                         addImportServiceForm.loadRecord(importServiceRecord);
 
                         if (importServiceRecord.properties() && importServiceRecord.properties().count()) {
@@ -399,8 +397,7 @@ Ext.define('Fim.controller.ImportServices', {
             importServiceRecord.save({
                 backUrl: me.getAddPage().returnLink,
                 success: function () {
-                    me.getController('Uni.controller.history.Router').getRoute('administration/importservices/importservice').forward({importServiceId: importServiceRecord.getId()});
-
+                    location.href = me.getAddPage().returnLink;
                     if (button.action === 'edit') {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('importService.successMsg.saved', 'FIM', 'Import service saved'));
                     } else {
@@ -427,9 +424,6 @@ Ext.define('Fim.controller.ImportServices', {
 
     showAddImportService: function () {
         var me = this,
-            importServicesGrid = me.getImportServicesGrid(),
-            importServicePreviewContainerPanel = me.getImportServicePreviewContainerPanel(),
-        //importServiceOverview = me.getImportServiceOverview(),
             router = me.getController('Uni.controller.history.Router'),
             addImportServiceView, addImportServiceForm, returnLink;
 
