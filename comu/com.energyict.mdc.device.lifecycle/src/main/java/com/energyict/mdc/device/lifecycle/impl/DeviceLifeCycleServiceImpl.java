@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -39,6 +40,8 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.MeterActivationBuilder;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.MeterActivationBuilderImpl;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
@@ -352,13 +355,10 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         Principal principal = this.threadPrincipalService.getPrincipal();
         if (principal instanceof User) {
             User user = (User) principal;
-            Optional<AuthorizedAction.Level> any = action.getLevels()
+            return action.getLevels()
                     .stream()
-                    .filter(level -> this.isAuthorized(level, user))
-                    .findAny();
-            return any.isPresent();
-        }
-        else {
+                    .anyMatch(level -> this.isAuthorized(level, user));
+        } else {
             return false;
         }
     }
@@ -410,6 +410,14 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void executeMicroActions(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
+        List<ServerMicroAction> serverMicroActions = action.getActions()
+                .stream()
+                .map(this.microActionFactory::from)
+                .collect(Collectors.toList());
+        MeterActivationBuilder meterActivationBuilder = new MeterActivationBuilderImpl(device);
+        serverMicroActions
+                .forEach(microAction -> microAction.buildMeterActivation(meterActivationBuilder, device, effectiveTimestamp, properties));
+        List<MeterActivation> meterActivations = meterActivationBuilder.build();
         action.getActions()
             .stream()
                 .map(this.microActionFactory::from)

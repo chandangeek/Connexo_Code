@@ -33,6 +33,10 @@ public class SetMultiplier extends TranslatableServerMicroAction {
     }
 
     @Override
+    public void buildMeterActivation(MeterActivationBuilder builder, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
+    }
+
+    @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         BigDecimal multiplierValue = DeviceLifeCyclePropertySupport.getMultiplierValue(properties);
         if(multiplierValue != null && multiplierValue.compareTo(BigDecimal.ONE) == 1){

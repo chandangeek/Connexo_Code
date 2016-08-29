@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,6 +14,8 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,10 +55,15 @@ public class LinkToUsagePointTest {
         when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.USAGE_POINT.key());
         when(property.getPropertySpec()).thenReturn(propertySpec);
         when(property.getValue()).thenReturn(usagePoint);
+        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         //Business method
         Instant now = Instant.now();
-        getTestInstance().execute(device, now, Collections.singletonList(property));
+        LinkToUsagePoint microAction = getTestInstance();
+        MeterActivationBuilderImpl meterActivationBuilder = new MeterActivationBuilderImpl(device);
+        microAction.buildMeterActivation(meterActivationBuilder, device, now, Collections.singletonList(property));
+        List<MeterActivation> meterActivations = meterActivationBuilder.build();
+        microAction.execute(device, now, Collections.singletonList(property));
 
         //Asserts
         verify(device).activate(now, usagePoint);
@@ -82,9 +90,14 @@ public class LinkToUsagePointTest {
         Instant now = Instant.now();
         LocalizedException exception = mock(LocalizedException.class);
         when(device.activate(now, usagePoint)).thenThrow(exception);
+        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         //Business method
-        getTestInstance().execute(device, now, Collections.singletonList(property));
+        LinkToUsagePoint microAction = getTestInstance();
+        MeterActivationBuilderImpl meterActivationBuilder = new MeterActivationBuilderImpl(device);
+        microAction.buildMeterActivation(meterActivationBuilder, device, now, Collections.singletonList(property));
+        List<MeterActivation> meterActivations = meterActivationBuilder.build();
+        microAction.execute(device, now, Collections.singletonList(property));
 
         //Asserts
         //expected that exception is thrown

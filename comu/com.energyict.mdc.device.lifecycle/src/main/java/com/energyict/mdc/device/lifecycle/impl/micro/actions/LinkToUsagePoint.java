@@ -35,25 +35,19 @@ public class LinkToUsagePoint extends TranslatableServerMicroAction {
     }
 
     @Override
-    protected MicroAction getMicroAction() {
+    protected final MicroAction getMicroAction() {
         return MicroAction.LINK_TO_USAGE_POINT;
     }
 
     @Override
+    public void buildMeterActivation(MeterActivationBuilder builder, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
+            getUsagePointValue(properties)
+                    .ifPresent(point -> builder.startingAt(effectiveTimestamp).onUsagePoint(point));
+    }
+
+    @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        Optional<UsagePoint> usagePoint = getUsagePointValue(properties);
-        if (usagePoint.isPresent()) {
-            try {
-                device.activate(effectiveTimestamp, usagePoint.get());
-            } catch (LocalizedException e) {
-                throw new DeviceLifeCycleActionViolationException() {
-                    @Override
-                    public String getLocalizedMessage() {
-                        return e.getLocalizedMessage();
-                    }
-                };
-            }
-        }
+        // nothing more to do than what the MeterActivationBuilder already did.
     }
 
     private PropertySpec usagePointPropertySpec(PropertySpecService service) {
