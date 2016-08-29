@@ -41,53 +41,13 @@ class DeliverableValidator implements ConstraintValidator<ValidDeliverable, Read
     @Override
     public boolean isValid(ReadingTypeDeliverable deliverable, ConstraintValidatorContext context) {
         try {
-            Formula formula = deliverable.getFormula();
             ReadingType readingType = deliverable.getReadingType();
             if ((readingType != null)) {
-                if (readingType.isRegular()) {
-                    if (!formula.getExpressionNode().accept(new RegularDeliverableComplexityAnalyzer())) {
-                        throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS);
-                    }
-                    if (formula.getExpressionNode().accept(new NoBulkReadingTypeRequirements())) {
-                        throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.BULK_READINGTYPE_NOT_ALLOWED);
-                    }
-                    if (this.isBulk(readingType) && !formula.getExpressionNode().accept(new OnlyBulkReadingTypeRequirements())) {
-                        throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.BULK_DELIVERABLES_CAN_ONLY_USE_BULK_READINGTYPES);
-                    }
-                } else {
-                    IrregularDeliverableComplexityAnalyzer complexity = new IrregularDeliverableComplexityAnalyzer();
-                    formula.getExpressionNode().accept(complexity);
-                    if (!complexity.isSimple()) {
-                        throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS);
-                    }
-                }
-                if (formula.getMode().equals(Formula.Mode.AUTO)
-                        && !UnitConversionSupport.isValidForAggregation(readingType)) {
-                    throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_UNIT_IN_DELIVERABLE);
+                if (!this.isValid(deliverable, readingType, context)) {
+                    return false;
                 }
             }
-            if ((readingType != null) && formula.getMode().equals(Formula.Mode.AUTO) && !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
-                throw InvalidNodeException.deliverableReadingTypeIsNotCompatibleWithFormula(metrologyConfigurationService.getThesaurus(), readingType, deliverable);
-            }
-            if (readingType != null) {
-                IntervalLength intervalLengthOfReadingType = IntervalLength.from(readingType);
-                IntervalLength intervalLengthOfFormula = ((ServerFormula) formula).getIntervalLength();
-                //if no wildcards on interval in the requirements of the formula
-                if (!intervalLengthOfFormula.equals(IntervalLength.NOT_SUPPORTED)) {
-                    if (intervalLengthOfReadingType.ordinal() < intervalLengthOfFormula.ordinal()) {
-                        throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS);
-                    }
-                    List<IntervalLength> lengths = ((ServerFormula) formula).getIntervalLengths();
-                    for (IntervalLength length : lengths) {
-                        if (!UnitConversionSupport.isAssignable(intervalLengthOfReadingType, length)) {
-                            throw InvalidNodeException.incompatibleIntervalLengths(
-                                    metrologyConfigurationService.getThesaurus(),
-                                    length,
-                                    intervalLengthOfReadingType);
-                        }
-                    }
-                }
-            }
+            Formula formula = deliverable.getFormula();
             for (ReadingTypeDeliverable del : deliverable.getMetrologyConfiguration().getDeliverables()) {
                 if (!del.equals(deliverable)) {
                     if (formula.getMode().equals(Formula.Mode.AUTO) &&
@@ -97,6 +57,62 @@ class DeliverableValidator implements ConstraintValidator<ValidDeliverable, Read
                 }
             }
             this.validateConsistentAggregationLevels(formula.getExpressionNode());
+            return true;
+        } catch (InvalidNodeException e) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(e.getMessage()).addConstraintViolation();
+            return false;
+        }
+    }
+
+    private boolean isValid(ReadingTypeDeliverable deliverable, ReadingType readingType, ConstraintValidatorContext context) {
+        try {
+            Formula formula = deliverable.getFormula();
+            if (readingType.isRegular()) {
+                if (!formula.getExpressionNode().accept(new RegularDeliverableComplexityAnalyzer())) {
+                    throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS);
+                }
+                if (this.isBulk(readingType)) {
+                    if (!formula.getExpressionNode().accept(new OnlyBulkReadingTypeRequirements())) {
+                        throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.BULK_DELIVERABLES_CAN_ONLY_USE_BULK_READINGTYPES);
+                    }
+                } else {
+                    if (formula.getExpressionNode().accept(new NoBulkReadingTypeRequirements())) {
+                        throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.BULK_READINGTYPE_NOT_ALLOWED);
+                    }
+                }
+            } else {
+                IrregularDeliverableComplexityAnalyzer complexity = new IrregularDeliverableComplexityAnalyzer();
+                formula.getExpressionNode().accept(complexity);
+                if (!complexity.isSimple()) {
+                    throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS);
+                }
+            }
+            if (formula.getMode().equals(Formula.Mode.AUTO)) {
+                if (!UnitConversionSupport.isValidForAggregation(readingType)) {
+                    throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_UNIT_IN_DELIVERABLE);
+                }
+                if (!UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
+                    throw InvalidNodeException.deliverableReadingTypeIsNotCompatibleWithFormula(metrologyConfigurationService.getThesaurus(), readingType, deliverable);
+                }
+            }
+            IntervalLength intervalLengthOfReadingType = IntervalLength.from(readingType);
+            IntervalLength intervalLengthOfFormula = ((ServerFormula) formula).getIntervalLength();
+            // if no wildcards on interval in the requirements of the formula
+            if (!intervalLengthOfFormula.equals(IntervalLength.NOT_SUPPORTED)) {
+                if (intervalLengthOfReadingType.ordinal() < intervalLengthOfFormula.ordinal()) {
+                    throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS);
+                }
+                List<IntervalLength> lengths = ((ServerFormula) formula).getIntervalLengths();
+                for (IntervalLength length : lengths) {
+                    if (!UnitConversionSupport.isAssignable(intervalLengthOfReadingType, length)) {
+                        throw InvalidNodeException.incompatibleIntervalLengths(
+                                metrologyConfigurationService.getThesaurus(),
+                                length,
+                                intervalLengthOfReadingType);
+                    }
+                }
+            }
             return true;
         } catch (InvalidNodeException e) {
             context.disableDefaultConstraintViolation();

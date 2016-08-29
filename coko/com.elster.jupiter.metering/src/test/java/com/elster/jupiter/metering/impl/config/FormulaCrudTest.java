@@ -1537,6 +1537,31 @@ public class FormulaCrudTest {
 
     @Test
     @Transactional
+    // formula = Requirement
+    public void testBulkReadingTypeInRequirementAllowedForRegularBulkDeliverable() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config2", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config).isNotNull();
+        ReadingType bulkRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "Bulk");
+        assertThat(bulkRT).isNotNull();
+
+        FullySpecifiedReadingTypeRequirement bulkRequirement = config.newReadingTypeRequirement("Bulk").withReadingType(bulkRT);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", bulkRT, Formula.Mode.AUTO);
+
+        // Business method
+        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.requirement(bulkRequirement));
+
+        // Asserts
+        assertThat(readingTypeDeliverable).isNotNull();
+        assertThat(readingTypeDeliverable.getReadingType()).isEqualTo(bulkRT);
+    }
+
+    @Test
+    @Transactional
     // formula = max(10, 0) function call + constants
     public void testMinusUsingParser() {
         Formula.Mode myMode = Formula.Mode.AUTO;
@@ -1813,7 +1838,7 @@ public class FormulaCrudTest {
     @Test
     @Transactional
     // formula = Requirement
-    public void testUpdateReadingTypeOfDeliverableThatIsusedinAnotherDeliverable2() {
+    public void testUpdateReadingTypeOfDeliverableThatIsUsedInAnotherDeliverable2() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
@@ -1874,7 +1899,7 @@ public class FormulaCrudTest {
     @Test
     @Transactional
     // formula = Requirement
-    public void testUpdateReadingTypeOfDeliverableThatIsusedinAnotherDeliverable3() {
+    public void testUpdateReadingTypeOfDeliverableThatIsUsedInAnotherDeliverable3() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
@@ -1937,7 +1962,7 @@ public class FormulaCrudTest {
     @Test(expected = ReadingTypeAlreadyUsedOnMetrologyConfiguration.class)
     @Transactional
     // formula = Requirement
-    public void testMultipleDeliverableWithSamereadingTypeOnSameMetrologyConfig() {
+    public void testMultipleDeliverableWithSameReadingTypeOnSameMetrologyConfig() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
