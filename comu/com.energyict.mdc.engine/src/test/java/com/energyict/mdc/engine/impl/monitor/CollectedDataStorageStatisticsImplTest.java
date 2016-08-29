@@ -1,14 +1,16 @@
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.config.ComServer;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 
 import javax.management.openmbean.CompositeData;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -45,6 +47,7 @@ public class CollectedDataStorageStatisticsImplTest {
         when(this.runningComServer.getCurrentCollectedDataStorageLoadPercentage()).thenReturn(LOAD_PERCENTAGE);
         when(this.runningComServer.getNumberOfCollectedDataStorageThreads()).thenReturn(NUMBER_OF_THREADS);
         when(this.runningComServer.getCollectedDataStorageThreadPriority()).thenReturn(THREAD_PRIORITY);
+        when(this.runningComServer.getAcquiredTokenThreadNames()).thenReturn(Thread.currentThread().getName());
     }
 
     @Test
@@ -60,6 +63,7 @@ public class CollectedDataStorageStatisticsImplTest {
         assertThat(compositeData.getCompositeType().getType(CollectedDataStorageStatisticsImpl.LOAD_ITEM_PERCENTAGE_NAME)).isNotNull();
         assertThat(compositeData.getCompositeType().getType(CollectedDataStorageStatisticsImpl.NUMBER_OF_THREADS_ITEM_NAME)).isNotNull();
         assertThat(compositeData.getCompositeType().getType(CollectedDataStorageStatisticsImpl.THREAD_PRIORITY_ITEM_NAME)).isNotNull();
+        assertThat(compositeData.getCompositeType().getType(CollectedDataStorageStatisticsImpl.THREAD_NAMES_ITEM_NAME)).isNotNull();
     }
 
     @Test
@@ -75,7 +79,7 @@ public class CollectedDataStorageStatisticsImplTest {
         assertThat(compositeData.get(CollectedDataStorageStatisticsImpl.LOAD_ITEM_PERCENTAGE_NAME)).isEqualTo(LOAD_PERCENTAGE);
         assertThat(compositeData.get(CollectedDataStorageStatisticsImpl.NUMBER_OF_THREADS_ITEM_NAME)).isEqualTo(NUMBER_OF_THREADS);
         assertThat(compositeData.get(CollectedDataStorageStatisticsImpl.THREAD_PRIORITY_ITEM_NAME)).isEqualTo(THREAD_PRIORITY);
+        assertThat(compositeData.get(CollectedDataStorageStatisticsImpl.THREAD_NAMES_ITEM_NAME)).isNotNull();
     }
-
 
 }

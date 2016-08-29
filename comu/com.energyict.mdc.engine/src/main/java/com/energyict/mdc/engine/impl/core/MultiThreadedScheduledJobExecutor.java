@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  * Date: 9/17/13
  * Time: 11:12 AM
  */
-public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor implements Runnable {
+class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(MultiThreadedScheduledJobExecutor.class.getName());
 
@@ -31,7 +31,7 @@ public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor impl
     private final ThreadPrincipalService threadPrincipalService;
     private final UserService userService;
 
-    public MultiThreadedScheduledJobExecutor(OutboundComPort comPort, BlockingQueue<ScheduledJob> jobBlockingQueue, DeviceCommandExecutor deviceCommandExecutor, TransactionService transactionExecutor, ThreadPrincipalService threadPrincipalService, UserService userService) {
+    MultiThreadedScheduledJobExecutor(OutboundComPort comPort, BlockingQueue<ScheduledJob> jobBlockingQueue, DeviceCommandExecutor deviceCommandExecutor, TransactionService transactionExecutor, ThreadPrincipalService threadPrincipalService, UserService userService) {
         super(transactionExecutor, comPort.getComServer().getCommunicationLogLevel(), deviceCommandExecutor);
         this.comPort = comPort;
         this.jobBlockingQueue = jobBlockingQueue;

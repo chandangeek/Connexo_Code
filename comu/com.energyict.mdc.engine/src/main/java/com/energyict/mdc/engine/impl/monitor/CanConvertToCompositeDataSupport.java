@@ -11,22 +11,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides code reuse opportunities for componets that
+ * Provides code reuse opportunities for components that
  * need to convert themselves to CompositeDataSupport.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-03 (16:59)
  */
-public abstract class CanConvertToCompositeDataSupport {
+abstract class CanConvertToCompositeDataSupport {
 
     private List<CompositeDataItemAccessor> accessors;
     private String[] accessorNames;
 
-    protected interface ValueProvider {
-        public Object getValue ();
+    interface ValueProvider {
+        Object getValue();
     }
 
-    public CanConvertToCompositeDataSupport () {
+    CanConvertToCompositeDataSupport() {
         super();
     }
 
@@ -37,7 +37,7 @@ public abstract class CanConvertToCompositeDataSupport {
      *
      * @return The CompositeData
      */
-    public CompositeData toCompositeData () {
+    CompositeData toCompositeData() {
         this.ensureAccessors();
         try {
             return new CompositeDataSupport(
@@ -80,17 +80,17 @@ public abstract class CanConvertToCompositeDataSupport {
 
     protected abstract void initializeAccessors (List<CompositeDataItemAccessor> accessors);
 
-    protected class CompositeDataItemAccessor implements ValueProvider {
+    class CompositeDataItemAccessor implements ValueProvider {
         private String itemName;
         private ValueProvider valueProvider;
 
-        public CompositeDataItemAccessor (String itemName, ValueProvider valueProvider) {
+        CompositeDataItemAccessor(String itemName, ValueProvider valueProvider) {
             super();
             this.itemName = itemName;
             this.valueProvider = valueProvider;
         }
 
-        public String getItemName () {
+        String getItemName() {
             return itemName;
         }
 

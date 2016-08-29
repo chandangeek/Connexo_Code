@@ -48,13 +48,13 @@ import java.util.List;
  * Date: 3/06/13
  * Time: 11:09
  */
-public class RescheduleBehaviorForMinimizeConnections extends AbstractRescheduleBehavior implements RescheduleBehavior {
+class RescheduleBehaviorForMinimizeConnections extends AbstractRescheduleBehavior implements RescheduleBehavior {
 
     private List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
     private int maxConnectionTryAttempts = -1;
 
-    protected RescheduleBehaviorForMinimizeConnections(ComServerDAO comServerDAO, List<ComTaskExecution> successfulComTaskExecutions, List<ComTaskExecution> failedComTaskExecutions, List<ComTaskExecution> notExecutedComTaskExecutions, ConnectionTask connectionTask) {
+    RescheduleBehaviorForMinimizeConnections(ComServerDAO comServerDAO, List<ComTaskExecution> successfulComTaskExecutions, List<ComTaskExecution> failedComTaskExecutions, List<ComTaskExecution> notExecutedComTaskExecutions, ConnectionTask connectionTask) {
         super(comServerDAO, successfulComTaskExecutions, failedComTaskExecutions, notExecutedComTaskExecutions, connectionTask);
         this.allComTaskExecutions.addAll(successfulComTaskExecutions);
         this.allComTaskExecutions.addAll(failedComTaskExecutions);

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.engine.impl.core.ServerProcess;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ServerProcess;
 
 import java.util.List;
 import java.util.concurrent.Future;
@@ -32,7 +32,7 @@ public interface DeviceCommandExecutor extends ServerProcess {
      *
      * @return The LogLevel
      */
-    public ComServer.LogLevel getLogLevel ();
+    ComServer.LogLevel getLogLevel();
 
     /**
      * Prepares the execution of the specified number of {@link DeviceCommand}s
@@ -48,7 +48,7 @@ public interface DeviceCommandExecutor extends ServerProcess {
      * @return Returns {@link DeviceCommandExecutionToken}s for every DeviceCommand,
      *         i.e. the size of the List will be equal to the numberOfCommands parameter value
      */
-    public List<DeviceCommandExecutionToken> tryAcquireTokens (int numberOfCommands);
+    List<DeviceCommandExecutionToken> tryAcquireTokens(int numberOfCommands);
 
     /**
      * Prepares the execution of the specified number of {@link DeviceCommand}s
@@ -65,7 +65,7 @@ public interface DeviceCommandExecutor extends ServerProcess {
      *         i.e. the size of the List will be equal to the numberOfCommands parameter value
      * @throws InterruptedException if the current thread is interrupted
      */
-    public List<DeviceCommandExecutionToken> acquireTokens (int numberOfCommands) throws InterruptedException;
+    List<DeviceCommandExecutionToken> acquireTokens(int numberOfCommands) throws InterruptedException;
 
     /**
      * Executes the {@link DeviceCommand} or delays its execution.
@@ -85,7 +85,7 @@ public interface DeviceCommandExecutor extends ServerProcess {
      * @see #tryAcquireTokens(int)
      * @see #acquireTokens(int)
      */
-    public Future<Boolean> execute (DeviceCommand command, DeviceCommandExecutionToken token);
+    Future<Boolean> execute(DeviceCommand command, DeviceCommandExecutionToken token);
 
     /**
      * Returns a previously created {@link DeviceCommandExecutionToken}
@@ -102,16 +102,18 @@ public interface DeviceCommandExecutor extends ServerProcess {
      * @throws NoResourcesAcquiredException Indicates that the specified DeviceCommandExecutionToken
      *                                      was not returned by this DeviceCommandExecutor
      */
-    public void free (DeviceCommandExecutionToken unusedToken);
+    void free(DeviceCommandExecutionToken unusedToken);
 
-    public int getCapacity ();
+    int getCapacity();
 
-    public int getCurrentSize ();
+    int getCurrentSize();
 
-    public int getCurrentLoadPercentage ();
+    int getCurrentLoadPercentage();
 
-    public int getNumberOfThreads ();
+    int getNumberOfThreads();
 
-    public int getThreadPriority ();
+    int getThreadPriority();
+
+    String getAcquiredTokenThreadNames();
 
 }

@@ -564,7 +564,7 @@ public class ScheduledJobImplTest {
         private DeviceCommandExecutor actualExecutor;
         private CountDownLatch executeLatch;
 
-        protected LatchDrivenDeviceCommandExecutor(DeviceCommandExecutor actualExecutor, CountDownLatch executeLatch) {
+        LatchDrivenDeviceCommandExecutor(DeviceCommandExecutor actualExecutor, CountDownLatch executeLatch) {
             super();
             this.actualExecutor = actualExecutor;
             this.executeLatch = executeLatch;
@@ -639,6 +639,11 @@ public class ScheduledJobImplTest {
         @Override
         public int getThreadPriority() {
             return 0;
+        }
+
+        @Override
+        public String getAcquiredTokenThreadNames() {
+            return "";
         }
     }
 

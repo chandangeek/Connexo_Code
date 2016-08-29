@@ -24,6 +24,8 @@ public interface RunningComServer extends ServerProcess {
 
     int getCollectedDataStorageThreadPriority();
 
+    String getAcquiredTokenThreadNames();
+
     void eventClientRegistered();
 
     void eventClientUnregistered();

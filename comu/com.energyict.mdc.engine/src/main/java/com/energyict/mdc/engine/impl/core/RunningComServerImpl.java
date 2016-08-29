@@ -145,7 +145,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     private ComServerMonitor operationalMonitor;
     private LoggerHolder loggerHolder;
 
-    protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
+    RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
@@ -172,7 +172,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return nlsService.getThesaurus(EngineService.COMPONENTNAME, Layer.DOMAIN);
     }
 
-    protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
+    RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
@@ -186,7 +186,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
 
-    protected RunningComServerImpl(RemoteComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
+    RunningComServerImpl(RemoteComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
@@ -209,7 +209,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
 
-    protected RunningComServerImpl(RemoteComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
+    RunningComServerImpl(RemoteComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
@@ -941,6 +941,11 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return this.deviceCommandExecutor.getThreadPriority();
     }
 
+    @Override
+    public String getAcquiredTokenThreadNames() {
+        return this.deviceCommandExecutor.getAcquiredTokenThreadNames();
+    }
+
     protected ServiceProvider getServiceProvider() {
         return serviceProvider;
     }
@@ -967,7 +972,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         return this.loggerHolder.get();
     }
 
-    protected ComServerMonitor getOperationalMonitor() {
+    ComServerMonitor getOperationalMonitor() {
         return this.operationalMonitor;
     }
 

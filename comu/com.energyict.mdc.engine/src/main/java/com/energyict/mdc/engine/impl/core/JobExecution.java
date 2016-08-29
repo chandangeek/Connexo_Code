@@ -67,6 +67,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,6 +86,8 @@ import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessio
  * Time: 16:27
  */
 public abstract class JobExecution implements ScheduledJob {
+
+    private static final Logger LOGGER = Logger.getLogger(JobExecution.class.getName());
 
     public interface ServiceProvider extends ExecutionContext.ServiceProvider {
 
@@ -154,7 +158,7 @@ public abstract class JobExecution implements ScheduledJob {
 
     public abstract List<ComTaskExecution> getSuccessfulComTaskExecutions();
 
-    public String getThreadName() {
+    String getThreadName() {
         return Thread.currentThread().getName();
     }
 
@@ -190,15 +194,24 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private void addCompletionEvent() {
-        if (!this.getExecutionContext().connectionFailed()) {
-            this.getExecutionContext().getStoreCommand().add(
-                    new PublishConnectionCompletionEvent(
-                            this.getConnectionTask(),
-                            this.getComPort(),
-                            this.getSuccessfulComTaskExecutions(),
-                            this.getFailedComTaskExecutions(),
-                            this.getNotExecutedComTaskExecutions(),
-                            this.executionContext.getDeviceCommandServiceProvider()));
+        ExecutionContext executionContext = this.getExecutionContext();
+        if (executionContext != null) {
+            if (!executionContext.connectionFailed()) {
+                executionContext.getStoreCommand().add(
+                        new PublishConnectionCompletionEvent(
+                                this.getConnectionTask(),
+                                this.getComPort(),
+                                this.getSuccessfulComTaskExecutions(),
+                                this.getFailedComTaskExecutions(),
+                                this.getNotExecutedComTaskExecutions(),
+                                this.executionContext.getDeviceCommandServiceProvider()));
+            }
+        } else {
+            // Failure was in the preparation that creates the ExecutionContext
+            LOGGER.log(
+                    Level.FINE,
+                    "Attempt to publish an event that a ConnectionTask has completed without an ExecutionContext!",
+                    new Exception("For diagnostic purposes only"));
         }
     }
 
@@ -207,14 +220,23 @@ public abstract class JobExecution implements ScheduledJob {
         this.token = deviceCommandExecutionToken;
     }
 
-    protected void completeFailedComSession(Throwable t, ExecutionFailureReason reason) {
-        this.getExecutionContext().fail(t, this.getFailureIndicatorFor(reason.toRescheduleReason()));
-        this.getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this, t, reason));
-        this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
-        doExecuteStoreCommand();
+    private void completeFailedComSession(Throwable t, ExecutionFailureReason reason) {
+        ExecutionContext executionContext = this.getExecutionContext();
+        if (executionContext != null) {
+            executionContext.fail(t, this.getFailureIndicatorFor(reason.toRescheduleReason()));
+            executionContext.getStoreCommand().add(new RescheduleFailedExecution(this, t, reason));
+            executionContext.getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
+            doExecuteStoreCommand();
+        } else {
+            /* Failure was in the preparation that creates the ExecutionContext.
+             * We need to release the token here because we are not actually
+             * going to execute any DeviceCommand that would release it. */
+            this.releaseToken();
+            LOGGER.log(Level.SEVERE, t.getMessage(), t);
+        }
     }
 
-    protected void completeSuccessfulComSession() {
+    void completeSuccessfulComSession() {
         this.getExecutionContext().complete();
         this.getExecutionContext().getStoreCommand().add(new RescheduleSuccessfulExecution(this));
         this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
@@ -228,7 +250,7 @@ public abstract class JobExecution implements ScheduledJob {
         return this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
     }
 
-    protected final void doReschedule(ComServerDAO comServerDAO, RescheduleBehavior.RescheduleReason rescheduleReason) {
+    final void doReschedule(ComServerDAO comServerDAO, RescheduleBehavior.RescheduleReason rescheduleReason) {
         this.getRescheduleBehavior(comServerDAO).performRescheduling(rescheduleReason);
     }
 
@@ -238,7 +260,7 @@ public abstract class JobExecution implements ScheduledJob {
      *
      * @param preparedComTaskExecution the comTask to execute
      */
-    protected void executeAndUpdateSuccessRate(PreparedComTaskExecution preparedComTaskExecution) {
+    private void executeAndUpdateSuccessRate(PreparedComTaskExecution preparedComTaskExecution) {
         boolean success = false;
         try {
             success = execute(preparedComTaskExecution);
@@ -294,7 +316,7 @@ public abstract class JobExecution implements ScheduledJob {
      * @param preparedComTaskExecution The PreparedComTaskExecution
      * @param nextOneIsPhysicalSlave indicates if we can still execute the next comtask in case of communication problems with the current comtask.
      */
-    protected void performPreparedComTaskExecution(PreparedComTaskExecution preparedComTaskExecution, boolean nextOneIsPhysicalSlave) {
+    void performPreparedComTaskExecution(PreparedComTaskExecution preparedComTaskExecution, boolean nextOneIsPhysicalSlave) {
         try {
             /* No need to attempt to lock the ScheduledComTask
              * as we are locking on the ConnectionTask. */
@@ -313,7 +335,7 @@ public abstract class JobExecution implements ScheduledJob {
         return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(comTaskExecutions));
     }
 
-    protected PreparedComTaskExecution prepareOne(final ComTaskExecution comTaskExecution) {
+    PreparedComTaskExecution prepareOne(final ComTaskExecution comTaskExecution) {
         return this.serviceProvider.transactionService().execute(new PrepareTransaction(comTaskExecution));
     }
 
@@ -328,7 +350,7 @@ public abstract class JobExecution implements ScheduledJob {
             CommandRoot commandRoot = preparedComTaskExecution.getCommandRoot();
             this.executionContext.setCommandRoot(commandRoot);
             commandRoot.executeFor(preparedComTaskExecution, this.executionContext);
-            boolean noProblems = executionContext.getCommandRoot().getProblems().isEmpty();
+            boolean noProblems = this.executionContext.getCommandRoot().getProblems().isEmpty();
             if (noProblems) {
                 successIndicator = Success;
             }
@@ -451,7 +473,7 @@ public abstract class JobExecution implements ScheduledJob {
         return comTaskExecution instanceof SingleComTaskComTaskExecution;
     }
 
-    static TypedProperties getProtocolDialectTypedProperties(ScheduledComTaskExecution comTaskExecution) {
+    private static TypedProperties getProtocolDialectTypedProperties(ScheduledComTaskExecution comTaskExecution) {
         Optional<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = getProtocolDialectConfigurationProperties(comTaskExecution);
         if (protocolDialectConfigurationProperties.isPresent()) {
             Device device = comTaskExecution.getDevice();
@@ -495,7 +517,7 @@ public abstract class JobExecution implements ScheduledJob {
         return Optional.empty();
     }
 
-    protected RescheduleBehavior getRescheduleBehavior(ComServerDAO comServerDAO) {
+    RescheduleBehavior getRescheduleBehavior(ComServerDAO comServerDAO) {
         if (!InboundConnectionTask.class.isAssignableFrom(getConnectionTask().getClass())) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) getConnectionTask();
             if (scheduledConnectionTask.getConnectionStrategy().equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
@@ -538,18 +560,18 @@ public abstract class JobExecution implements ScheduledJob {
     /**
      * True if the comtask starts with a daisy chained logon (meaning it is a physical slave, not a logical slave!)
      */
-    protected boolean isOtherPhysicalSlave(PreparedComTaskExecution preparedComTaskExecution) {
+    boolean isOtherPhysicalSlave(PreparedComTaskExecution preparedComTaskExecution) {
         return preparedComTaskExecution.getCommandRoot().containsDaisyChainedLogOnCommandFor(preparedComTaskExecution.getComTaskExecution());
     }
 
-    protected void resetBasicCheckFailedFlagOfExecutionContext() {
+    void resetBasicCheckFailedFlagOfExecutionContext() {
         this.executionContext.setBasicCheckFailed(false);
     }
 
     /**
      * True if the next comtask is for a different device and starts with a daisy chained logon (meaning it is a physical slave, not a logical slave!)
      */
-    protected boolean nextOneIsOtherPhysicalSlave(List<PreparedComTaskExecution> preparedComTaskExecutions, int i) {
+    boolean nextOneIsOtherPhysicalSlave(List<PreparedComTaskExecution> preparedComTaskExecutions, int i) {
         int nextIndex = i + 1;
         if (nextIndex < preparedComTaskExecutions.size()) {
             PreparedComTaskExecution currentComTaskExecution = preparedComTaskExecutions.get(i);
@@ -562,7 +584,7 @@ public abstract class JobExecution implements ScheduledJob {
         return false;
     }
 
-    enum BasicCheckTasks implements Comparator<ProtocolTask> {
+    private enum BasicCheckTasks implements Comparator<ProtocolTask> {
         FIRST;
 
         @Override
@@ -578,11 +600,11 @@ public abstract class JobExecution implements ScheduledJob {
      * Provides context information to the process
      * that prepares {@link ComTaskExecution}s for execution.
      */
-    protected static class PreparationContext {
+    private static class PreparationContext {
 
         private ComChannelPlaceHolder comChannelPlaceHolder = ComChannelPlaceHolder.empty();
 
-        public ComChannelPlaceHolder getComChannelPlaceHolder() {
+        ComChannelPlaceHolder getComChannelPlaceHolder() {
             return comChannelPlaceHolder;
         }
 
@@ -665,7 +687,7 @@ public abstract class JobExecution implements ScheduledJob {
      * Provides relevant information used for preparing a ComTaskExecution.
      * This information is reusable for different ComTaskExecutions of the same device.
      */
-    public class ComTaskPreparationContext {
+    class ComTaskPreparationContext {
 
         private DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution;
         private OfflineDevice offlineDevice;
@@ -673,11 +695,11 @@ public abstract class JobExecution implements ScheduledJob {
         private DeviceProtocol deviceProtocol;
         private CommandCreator commandCreator;
 
-        public ComTaskPreparationContext(DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution) {
+        ComTaskPreparationContext(DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution) {
             this.deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecution;
         }
 
-        public CommandCreator getCommandCreator() {
+        CommandCreator getCommandCreator() {
             return commandCreator;
         }
 
@@ -693,7 +715,7 @@ public abstract class JobExecution implements ScheduledJob {
             return root;
         }
 
-        public ComTaskPreparationContext invoke() {
+        ComTaskPreparationContext invoke() {
             this.takeDeviceOffline();
             root = new CommandRootImpl(offlineDevice, getExecutionContext(), getComCommandServiceProvider());
             DeviceProtocolPluggableClass protocolPluggableClass = offlineDevice.getDeviceProtocolPluggableClass();

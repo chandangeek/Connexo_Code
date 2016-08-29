@@ -95,16 +95,20 @@ public abstract class ScheduledJobImpl extends JobExecution {
 
     @Override
     public void outsideComWindow () {
-        this.createExecutionContext(false);
+        ExecutionContext executionContext = this.createExecutionContext(false);
         int numberOfPlannedButNotExecutedTasks = (int)
                 this.getComTaskExecutions()
                         .stream()
                         .flatMap(each -> each.getComTasks().stream())
                         .count();
-        this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
-        this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
-        this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService()));
-        this.completeSuccessfulComSession();
+        if (executionContext != null) {
+            executionContext.getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
+            executionContext.createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
+            executionContext.getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService()));
+            this.completeSuccessfulComSession();
+        } else {
+            this.releaseToken();
+        }
     }
 
     @Override
@@ -164,19 +168,21 @@ public abstract class ScheduledJobImpl extends JobExecution {
         return connected;
     }
 
-    public void createExecutionContext () {
-        this.createExecutionContext(true);
+    public ExecutionContext createExecutionContext () {
+        return this.createExecutionContext(true);
     }
 
-    void createExecutionContext (boolean logConnectionProperties) {
-        this.createExecutionContext(this.getComPort(), logConnectionProperties);
+    private ExecutionContext createExecutionContext(boolean logConnectionProperties) {
+        return this.createExecutionContext(this.getComPort(), logConnectionProperties);
     }
 
-    private void createExecutionContext (ComPort comPort, boolean logConnectionProperties) {
-        this.setExecutionContext(this.newExecutionContext(this.getConnectionTask(), comPort, logConnectionProperties));
+    private ExecutionContext createExecutionContext (ComPort comPort, boolean logConnectionProperties) {
+        ExecutionContext executionContext = this.newExecutionContext(this.getConnectionTask(), comPort, logConnectionProperties);
+        this.setExecutionContext(executionContext);
+        return executionContext;
     }
 
-    protected void completeConnection () throws ConnectionException{
+    void completeConnection() throws ConnectionException{
         if (getExecutionContext() != null) {
             this.getConnectionTask().disconnect(getExecutionContext().getComPortRelatedComChannel());
         }
