@@ -82,6 +82,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -292,7 +293,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setInstallationTime(Instant installationTime) {
-        this.installationTime = installationTime;
+        this.installationTime = installationTime !=null ? installationTime.truncatedTo(ChronoUnit.MINUTES) : null;
     }
 
     @Override
