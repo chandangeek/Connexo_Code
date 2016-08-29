@@ -15,13 +15,14 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
 
     APS_APPSERVER {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<AppServer> table = dataModel.addTable(name(), AppServer.class);
+            Table<AppServer> table = dataModel.addTable(name(), AppServer.class);
             table.map(AppServerImpl.class);
             Column idColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
@@ -35,7 +36,7 @@ public enum TableSpecs {
     APS_SUBSCRIBEREXECUTIONSPEC {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<SubscriberExecutionSpecImpl> table = dataModel.addTable(name(), SubscriberExecutionSpecImpl.class);
+            Table<SubscriberExecutionSpecImpl> table = dataModel.addTable(name(), SubscriberExecutionSpecImpl.class);
             table.map(SubscriberExecutionSpecImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("THREADCOUNT").number().notNull().conversion(NUMBER2INT).map("threadCount").add();
@@ -50,7 +51,7 @@ public enum TableSpecs {
     APS_IMPORTSCHEDULEONSERVER {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<ImportScheduleOnAppServer> table = dataModel.addTable(name(), ImportScheduleOnAppServer.class);
+            Table<ImportScheduleOnAppServer> table = dataModel.addTable(name(), ImportScheduleOnAppServer.class);
             table.map(ImportScheduleOnAppServerImpl.class);
             Column appServerColumn = table.column("APPSERVER").varChar(NAME_LENGTH).notNull().map("appServerName").add();
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").number().notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
@@ -74,6 +75,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<WebServiceForAppServer> table = dataModel.addTable(name(), WebServiceForAppServer.class);
             table.map(EndPointForAppServerImpl.class);
+            table.since(version(10, 2));
             Column appServer = table.column("APPSERVER")
                     .varChar(NAME_LENGTH)
                     .notNull()

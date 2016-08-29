@@ -37,6 +37,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
@@ -178,7 +179,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
                 }
             });
 
-            upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
 
             tryActivate(context);
 
