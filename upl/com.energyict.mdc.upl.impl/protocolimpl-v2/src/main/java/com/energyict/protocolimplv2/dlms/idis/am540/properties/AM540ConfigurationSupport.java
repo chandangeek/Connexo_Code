@@ -29,6 +29,9 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String TRANSP_CONNECT_TIME = "TransparentConnectTime";
     public static final String PASSWORD = "Password";
     public static final String METER_SECURITY_LEVEL = "SecurityLevel";
+    public static final String REQUEST_AUTHENTICATED_FRAME_COUNTER = "RequestAuthenticatedFrameCounter";
+    public static final String USE_CACHED_FRAME_COUNTER = "UseCachedFrameCounter";
+    public static final String VALIDATE_CACHED_FRAMECOUNTER = "ValidateCachedFrameCounterAndFallback";
 
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
@@ -64,8 +67,23 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.useMeterInTransparentMode(),
                 this.transparentConnectTime(),
                 this.transparentSecurityLevel(),
-                this.transparentPassword()
+                this.transparentPassword(),
+                this.requestAuthenticatedFrameCounter(),
+                this.useCachedFrameCounter(),
+                this.validateCachedFrameCounter()
         );
+    }
+
+    private PropertySpec validateCachedFrameCounter() {
+        return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER);
+    }
+
+    private PropertySpec useCachedFrameCounter() {
+        return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER);
+    }
+
+    private PropertySpec requestAuthenticatedFrameCounter() {
+        return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER);
     }
 
     private PropertySpec lastSeenDatePropertySpec() {

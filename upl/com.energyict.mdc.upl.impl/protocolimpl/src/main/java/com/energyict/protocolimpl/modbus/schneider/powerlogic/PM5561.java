@@ -25,7 +25,7 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     private static final String APPLY_CTRATIO = "ApplyCTRatio";
     private ProfileBuilder profileBuilder;
     private boolean applyCtRatio;
-    private String timeZone = "GWT";
+    private String timeZone = "UTC";
 
     @Override
     public String getSerialNumber() {
@@ -39,7 +39,7 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     @Override
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         applyCtRatio = Integer.parseInt(properties.getProperty(APPLY_CTRATIO, "0").trim()) == 1;
-        setTimeZone(properties.getProperty(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, "GMT+2"));
+        setTimeZone(properties.getProperty(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, "UTC"));
     }
 
     private void setTimeZone(String timeZone) {
@@ -59,7 +59,10 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
             Object value = register.value();
             if (value instanceof BigDecimal) {
                 return new RegisterValue(obisCode, new Quantity((BigDecimal) value, register.getUnit()));
-            } else if (value instanceof String) {
+            } else if (value instanceof Double){
+                return new RegisterValue(obisCode, new Quantity((Double) value, register.getUnit()));
+            }
+            else if (value instanceof String) {
                 return new RegisterValue(obisCode, (String) value);
             }  else if (value instanceof ReadStatuses) {
                 ReadStatuses readStatuses = (ReadStatuses) value;
@@ -83,6 +86,11 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     @Override
     public int getProfileInterval() throws IOException {
         return getProfileBuilder().getProfileInterval();
+    }
+
+    @Override
+    public ProfileData getProfileData(boolean includeEvents) throws IOException {
+        return super.getProfileData(includeEvents);
     }
 
     @Override
@@ -158,7 +166,7 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
         ReadHoldingRegistersRequest registersRequest = fcf.getReadHoldingRegistersRequest(getCommandSemaphoreRegister().getReg(), 1);
         int result[] = registersRequest.getRegisters();
         String sResult = Integer.toString(result[0], 16);
-        byte[] rawDate = getBytesFromDate(instTime.getTime(), sResult);
+        byte[] rawDate = getBytesFromDate(instTime.getTime(), sResult, gettimeZone());
         fcf.getWriteMultipleRegisters(getChangeDateTimeRegister().getReg(), 9, rawDate);
         ReadHoldingRegistersRequest commandParameterRequest = fcf.getReadHoldingRegistersRequest(getCommandParameterRegister().getReg(), 1);
         commandParameterRequest.getRegisters();
@@ -170,15 +178,20 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     }
 
 
-    public static byte[] getBytesFromDate(Date date, String commandCode) {
-        Calendar calendar = Calendar.getInstance();
+    public static byte[] getBytesFromDate(Date date, String commandCode, TimeZone timezone) {
+        Calendar calendar = Calendar.getInstance(timezone);
         calendar.setTime(date);
         byte[] returnValue = new byte[18];
         int index = 0;
         returnValue[index++] = 0x03;
         returnValue[index++] = (byte) 0xeb;
-        returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(0, 2), 16);
-        returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(2, 4), 16);
+        if(commandCode.length() == 4) {
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(0, 2), 16);
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(2, 4), 16);
+        }else{
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(0, 2), 16);
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(2, 3), 16);
+        }
         String year = Integer.toString(calendar.get(Calendar.YEAR), 16);
         returnValue[index++] = (byte) Integer.parseInt(year.substring(0,1), 16);
         returnValue[index++] = (byte) Integer.parseInt(year.substring(1,3), 16);

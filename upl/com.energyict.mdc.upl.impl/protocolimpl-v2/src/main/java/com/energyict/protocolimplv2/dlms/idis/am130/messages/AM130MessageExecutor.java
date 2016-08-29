@@ -33,13 +33,13 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public class AM130MessageExecutor extends IDISMessageExecutor {
 
-    private static final ObisCode ALARM_BITS_OBISCODE_1 = ObisCode.fromString("0.0.97.98.0.255");
-    private static final ObisCode ALARM_FILTER_OBISCODE_1 = ObisCode.fromString("0.0.97.98.10.255");
-    private static final ObisCode ALARM_DESCRIPTOR_OBISCODE_1 = ObisCode.fromString("0.0.97.98.20.255");
+    protected static final ObisCode ALARM_BITS_OBISCODE_1 = ObisCode.fromString("0.0.97.98.0.255");
+    protected static final ObisCode ALARM_FILTER_OBISCODE_1 = ObisCode.fromString("0.0.97.98.10.255");
+    protected static final ObisCode ALARM_DESCRIPTOR_OBISCODE_1 = ObisCode.fromString("0.0.97.98.20.255");
 
-    private static final ObisCode ALARM_BITS_OBISCODE_2 = ObisCode.fromString("0.0.97.98.1.255");
-    private static final ObisCode ALARM_FILTER_OBISCODE_2 = ObisCode.fromString("0.0.97.98.11.255");
-    private static final ObisCode ALARM_DESCRIPTOR_OBISCODE_2 = ObisCode.fromString("0.0.97.98.21.255");
+    protected static final ObisCode ALARM_BITS_OBISCODE_2 = ObisCode.fromString("0.0.97.98.1.255");
+    protected static final ObisCode ALARM_FILTER_OBISCODE_2 = ObisCode.fromString("0.0.97.98.11.255");
+    protected static final ObisCode ALARM_DESCRIPTOR_OBISCODE_2 = ObisCode.fromString("0.0.97.98.21.255");
     private static final int MAX_MBUS_SLAVES = 6;
 
     public AM130MessageExecutor(AbstractDlmsProtocol protocol) {
@@ -119,9 +119,9 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
 
         String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getDeviceMessageAttributeValue();
-        List<EventPushNotificationConfig.ObjectDefinition> objectDefinitions;
+        List<ObjectDefinition> objectDefinitions;
         try {
-            objectDefinitions = composePushSetupObjectDefinitions(pushSetupObisCode, eventPushNotificationConfig, objectDefinitionsAttributeValue);
+            objectDefinitions = composePushSetupObjectDefinitions(pushSetupObisCode, objectDefinitionsAttributeValue);
         } catch (Throwable e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String msg = "The object definition attribute has a wrong format: " + e.getMessage();
@@ -141,9 +141,9 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
 
         String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getDeviceMessageAttributeValue();
-        List<EventPushNotificationConfig.ObjectDefinition> objectDefinitions;
+        List<ObjectDefinition> objectDefinitions;
         try {
-            objectDefinitions = composePushSetupObjectDefinitions(pushSetupObisCode, eventPushNotificationConfig, objectDefinitionsAttributeValue);
+            objectDefinitions = composePushSetupObjectDefinitions(pushSetupObisCode, objectDefinitionsAttributeValue);
         } catch (Throwable e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String msg = "The object definition attribute has a wrong format: " + e.getMessage();
@@ -165,23 +165,23 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         return collectedMessage;
     }
 
-    private List<EventPushNotificationConfig.ObjectDefinition> composePushSetupObjectDefinitions(ObisCode pushSetupObisCode, EventPushNotificationConfig eventPushNotificationConfig, String objectDefinitionsAttributeValue) throws ProtocolException {
-        List<EventPushNotificationConfig.ObjectDefinition> objectDefinitions = new ArrayList<>();
-        addObjectDefinitionsToConfig(eventPushNotificationConfig, objectDefinitions, pushSetupObisCode, DLMSClassId.PUSH_EVENT_NOTIFICATION_SETUP.getClassId(), 1);
+    protected List<ObjectDefinition> composePushSetupObjectDefinitions(ObisCode pushSetupObisCode, String objectDefinitionsAttributeValue) throws ProtocolException {
+        List<ObjectDefinition> objectDefinitions = new ArrayList<>();
+        addObjectDefinitionsToConfig(objectDefinitions, pushSetupObisCode, DLMSClassId.PUSH_EVENT_NOTIFICATION_SETUP.getClassId(), 1);
         for (String definition : objectDefinitionsAttributeValue.split(";")) {
             ObisCode obisCode = ObisCode.fromString(definition);
             int classId = getCosemObjectFactory().getProtocolLink().getMeterConfig().getClassId(obisCode);
             switch (classId) {
                 case 1:
-                    addObjectDefinitionsToConfig(eventPushNotificationConfig, objectDefinitions, obisCode, classId, 1, 2); // Logical name, value
+                    addObjectDefinitionsToConfig(objectDefinitions, obisCode, classId, 1, 2); // Logical name, value
                     break;
                 case 3:
-                    addObjectDefinitionsToConfig(eventPushNotificationConfig, objectDefinitions, obisCode, classId, 1, 2, 3); // Logical name, valua, scaler_unit
+                    addObjectDefinitionsToConfig(objectDefinitions, obisCode, classId, 1, 2, 3); // Logical name, valua, scaler_unit
                     break;
                 case 4:
-                    addObjectDefinitionsToConfig(eventPushNotificationConfig, objectDefinitions, obisCode, classId, 1, 2, 3, 5); // Logical name, value, scaler_unit, capture_time
+                    addObjectDefinitionsToConfig(objectDefinitions, obisCode, classId, 1, 2, 3, 5); // Logical name, value, scaler_unit, capture_time
                 case 5:
-                    addObjectDefinitionsToConfig(eventPushNotificationConfig, objectDefinitions, obisCode, classId, 1, 2, 4, 6); // Logical name, value, scaler_unit, capture_time
+                    addObjectDefinitionsToConfig(objectDefinitions, obisCode, classId, 1, 2, 4, 6); // Logical name, value, scaler_unit, capture_time
                     break;
                 default:
                     throw new ProtocolException("Object " + obisCode + " is of class " + classId + ", only objects of classes 1, 3, 4 and 5 are supported.");
@@ -190,9 +190,9 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         return objectDefinitions;
     }
 
-    private void addObjectDefinitionsToConfig(EventPushNotificationConfig eventPushNotificationConfig, List<EventPushNotificationConfig.ObjectDefinition> objectDefinitions, ObisCode obisCode, int classId, int... attributes) {
+    protected void addObjectDefinitionsToConfig(List<ObjectDefinition> objectDefinitions, ObisCode obisCode, int classId, int... attributes) {
         for (int attribute : attributes) {
-            objectDefinitions.add(eventPushNotificationConfig.new ObjectDefinition(classId, obisCode, attribute, 0));
+            objectDefinitions.add(new ObjectDefinition(classId, obisCode, attribute, 0));
         }
     }
 

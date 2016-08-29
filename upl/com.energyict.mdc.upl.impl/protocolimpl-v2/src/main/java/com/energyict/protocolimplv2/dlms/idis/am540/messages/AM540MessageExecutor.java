@@ -59,7 +59,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         return collectedMessage;
     }
 
-    private CollectedMessage verifyAndActivateFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    protected CollectedMessage verifyAndActivateFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
 
         ImageTransferStatus imageTransferStatus = imageTransfer.readImageTransferStatus();
@@ -110,7 +110,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         return plcConfigurationDeviceMessageExecutor;
     }
 
-    private boolean isTemporaryFailure(Throwable e) {
+    protected boolean isTemporaryFailure(Throwable e) {
          if (e == null) {
              return false;
          } else if (e instanceof DataAccessResultException) {

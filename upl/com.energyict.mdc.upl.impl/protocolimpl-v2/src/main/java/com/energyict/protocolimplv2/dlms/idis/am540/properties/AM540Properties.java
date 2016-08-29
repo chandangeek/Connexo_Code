@@ -148,4 +148,14 @@ public class AM540Properties extends IDISProperties {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.METER_SECURITY_LEVEL, "1:0");
     }
 
+    public boolean getRequestAuthenticatedFrameCounter() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false);
+    }
+
+    public boolean useCachedFrameCounter() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false);
+    }
+    public boolean validateCachedFrameCounter() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, true);
+    }
 }

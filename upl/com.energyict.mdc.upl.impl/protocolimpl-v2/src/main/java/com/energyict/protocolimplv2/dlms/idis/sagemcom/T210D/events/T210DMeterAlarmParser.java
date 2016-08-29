@@ -186,20 +186,6 @@ public class T210DMeterAlarmParser {
             }
         }
 
-        if (ProtocolTools.isBitSet(meterAlarmCode, 12)) {
-            switch (alarmRegister){
-                case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.WATCHDOG_ERROR, 15, "Watchdog error"));
-                    break;
-                case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 52, "Unexpected Consumption"));
-                    break;
-                case 3:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 222, "Temporary error M-Bus ch3"));
-                    break;
-            }
-        }
-
         if (ProtocolTools.isBitSet(meterAlarmCode, 13)) {
             switch (alarmRegister){
                 case 1:
@@ -431,7 +417,7 @@ public class T210DMeterAlarmParser {
             }
         }
 
-        if (ProtocolTools.isBitSet(meterAlarmCode, 30)) {
+        if (ProtocolTools.isBitSet(meterAlarmCode, 31)) {
             switch (alarmRegister){
                 case 1:
                     meterEvents.add(new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, 132, "Battery low on M-bus ch4"));

@@ -1,8 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.NullData;
-import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -16,6 +14,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class MulticastKey {
+    private static final int DLMS_KEY_TYPE_VOID = 0;
+    private static final int DLMS_KEY_TYPE_PLAIN_TEXT = 1;
+    private static final int DLMS_KEY_TYPE_AESWRAP_WITHOUT_PADDING = 2;
+
 
     /* 24-byte value (AES key wrapped with DlmsMeterKEK) */
     String wrappedKey;
@@ -32,7 +34,10 @@ public class MulticastKey {
         if (getWrappedKey() == null || getWrappedKey().isEmpty()) {
             return new NullData();
         } else {
-            return OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getWrappedKey(), ""));
+            final Structure result = new Structure();
+            result.addDataType(new TypeEnum(DLMS_KEY_TYPE_AESWRAP_WITHOUT_PADDING));
+            result.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getWrappedKey(), "")));
+            return result;
         }
     }
 

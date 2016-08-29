@@ -694,4 +694,16 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public final ConcentratorSetup getConcentratorSetup() {
     	return new ConcentratorSetup(this.protocolLink, ConcentratorSetup.DEFAULT_OBIS_CODE);
     }
+
+    public final GeneralLocalPortReadout getGeneralLocalPortReadout() throws NotInObjectListException {
+        return new GeneralLocalPortReadout(this.protocolLink, this.getObjectReference(GeneralLocalPortReadout.getDefaultObisCode()));
+    }
+
+    public final FrameCounterProvider getFrameCounterProvider() throws NotInObjectListException{
+        return new FrameCounterProvider(this.protocolLink, this.getObjectReference(FrameCounterProvider.getDefaultObisCode()));
+    }
+
+    public final FrameCounterProvider getFrameCounterProvider(final ObisCode obisCode) throws NotInObjectListException{
+        return new FrameCounterProvider(this.protocolLink, this.getObjectReference(obisCode));
+    }
 }
