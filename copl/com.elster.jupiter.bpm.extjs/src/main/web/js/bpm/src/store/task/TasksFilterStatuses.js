@@ -17,18 +17,6 @@ Ext.define('Bpm.store.task.TasksFilterStatuses', {
                 {
                     value: 'ONGOING',
                     display: Uni.I18n.translate('bpm.filter.ongoingStatus', 'BPM', 'Ongoing')
-                },
-                {
-                    value: 'COMPLETED',
-                    display: Uni.I18n.translate('bpm.filter.completed', 'BPM', 'Completed')
-                },
-                {
-                    value: 'FAILED',
-                    display: Uni.I18n.translate('bpm.filter.failed', 'BPM', 'Failed')
-                },
-                {
-                    value: 'CANCELLED',
-                    display: Uni.I18n.translate('bpm.filter.cancelled', 'BPM', 'Cancelled')
                 }
             ],
             fields: [
