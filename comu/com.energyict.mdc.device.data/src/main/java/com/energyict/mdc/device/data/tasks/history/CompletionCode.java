@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.tasks.history;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -14,31 +15,38 @@ import java.util.Set;
  * be given priority when processing.
  * The {@link #hasPriorityOver(CompletionCode)} and {@link #upgradeTo(CompletionCode)} methods will support that.
  * <p>
+ * Note that the ordinal of the entries below is used for that.
+ * <p>
  * User: sva
  * Date: 23/04/12
  * Time: 14:30
  */
 public enum CompletionCode {
-    Ok(EnumSet.of(ResultType.Supported)),
-    ConfigurationWarning(EnumSet.of(ResultType.NotSupported, ResultType.ConfigurationMisMatch)),
-    NotExecuted(EnumSet.noneOf(ResultType.class)),
-    ProtocolError(EnumSet.of(ResultType.DataIncomplete, ResultType.InCompatible)),
-    ConfigurationError(EnumSet.of(ResultType.ConfigurationError)),
-    IOError(EnumSet.noneOf(ResultType.class)),
-    UnexpectedError(EnumSet.of(ResultType.Other)),
-    TimeError(EnumSet.noneOf(ResultType.class)),
-    InitError(EnumSet.noneOf(ResultType.class)),
-    TimeoutError(EnumSet.noneOf(ResultType.class)),
-    ConnectionError(EnumSet.noneOf(ResultType.class));
+    Ok(EnumSet.of(ResultType.Supported), 0),
+    ConfigurationWarning(EnumSet.of(ResultType.NotSupported, ResultType.ConfigurationMisMatch), 2),
+    NotExecuted(EnumSet.noneOf(ResultType.class), 1),
+    ProtocolError(EnumSet.of(ResultType.DataIncomplete, ResultType.InCompatible), 3),
+    ConfigurationError(EnumSet.of(ResultType.ConfigurationError), 5),
+    IOError(EnumSet.noneOf(ResultType.class), 6),
+    UnexpectedError(EnumSet.of(ResultType.Other), 7),
+    TimeError(EnumSet.noneOf(ResultType.class), 4),
+    InitError(EnumSet.noneOf(ResultType.class), 9),
+    TimeoutError(EnumSet.noneOf(ResultType.class), 10),
+    ConnectionError(EnumSet.noneOf(ResultType.class), 8);
 
+    private final int databaseValue;
     private Set<ResultType> relatedResultTypes;
 
-    CompletionCode(Set<ResultType> relatedResultTypes) {
+    CompletionCode(Set<ResultType> relatedResultTypes, int databaseValue) {
         this.relatedResultTypes = relatedResultTypes;
+        this.databaseValue = databaseValue;
     }
 
-    public static CompletionCode fromOrdinal(int ordinal) {
-        return values()[ordinal];
+    public static CompletionCode fromDBValue(int dbValue) {
+        return Arrays.stream(values())
+                .filter(completionCode -> completionCode.dbValue() == dbValue)
+                .findAny()
+                .orElseThrow(() -> new ApplicationException("No matching CompletionCode for DB value: " + dbValue));
     }
 
     /**
@@ -57,7 +65,7 @@ public enum CompletionCode {
     }
 
     public int dbValue() {
-        return this.ordinal();
+        return databaseValue;
     }
 
     private boolean relatesTo(ResultType resultType) {
