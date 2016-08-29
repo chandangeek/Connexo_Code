@@ -18,6 +18,7 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableList;
@@ -31,7 +32,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
 import java.time.Clock;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,7 +83,7 @@ public class PartyServiceImpl implements PartyService {
     public void activate() {
         dataModel.register(getModule());
 
-        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
     }
 
     @Override
