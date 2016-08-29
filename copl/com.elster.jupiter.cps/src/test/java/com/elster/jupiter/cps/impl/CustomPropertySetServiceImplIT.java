@@ -192,6 +192,7 @@ public class CustomPropertySetServiceImplIT {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
         }
 
         List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
@@ -211,6 +212,7 @@ public class CustomPropertySetServiceImplIT {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
         }
         this.testInstance.addCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
         List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
@@ -233,6 +235,7 @@ public class CustomPropertySetServiceImplIT {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
         }
 
         List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
@@ -272,6 +275,7 @@ public class CustomPropertySetServiceImplIT {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
         }
 
         List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
@@ -291,6 +295,7 @@ public class CustomPropertySetServiceImplIT {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
         }
         this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
         List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
@@ -313,6 +318,7 @@ public class CustomPropertySetServiceImplIT {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
         }
 
         this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
@@ -335,6 +341,7 @@ public class CustomPropertySetServiceImplIT {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
         }
 
         List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
@@ -354,11 +361,12 @@ public class CustomPropertySetServiceImplIT {
         assertThat(primaryKeyColumnNames).contains(VersionedDomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.databaseName());
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 10000)
     public void addCustomPropertySetsWhileActivating() throws InterruptedException {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
         }
         List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
         CustomPropertySetServiceImpl service = new CustomPropertySetServiceImpl();
@@ -398,6 +406,7 @@ public class CustomPropertySetServiceImplIT {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
         }
 
         List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
@@ -405,6 +414,7 @@ public class CustomPropertySetServiceImplIT {
         // Business method
         try (TransactionContext ctx = transactionService.getContext()) {
             this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
 
             // Asserts
             List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
@@ -418,6 +428,7 @@ public class CustomPropertySetServiceImplIT {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
         }
 
         try (TransactionContext ctx = transactionService.getContext()) {
@@ -516,6 +527,7 @@ public class CustomPropertySetServiceImplIT {
         try (TransactionContext ctx = transactionService.getContext()) {
             // Business method
             this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
 
             // Asserts: not expecting any exceptions
         }
@@ -557,6 +569,7 @@ public class CustomPropertySetServiceImplIT {
         try (TransactionContext ctx = transactionService.getContext()) {
             // Business method
             this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
 
             // Asserts: not expecting any exceptions
         }
@@ -595,6 +608,7 @@ public class CustomPropertySetServiceImplIT {
         try (TransactionContext ctx = transactionService.getContext()) {
             // Business method
             this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+            ctx.commit();   // Above will have done a DDL which is auto commit but just making the intention clear
 
             // Asserts: not expecting any exceptions
         }
@@ -1263,7 +1277,7 @@ public class CustomPropertySetServiceImplIT {
         private final CountDownLatch startLatch;
         private final CountDownLatch stopLatch;
 
-        protected LatchDrivenRunnable(TransactionService transactionService, ThreadPrincipalService threadPrincipalService, Principal principal, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
+        LatchDrivenRunnable(TransactionService transactionService, ThreadPrincipalService threadPrincipalService, Principal principal, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
             super();
             this.transactionService = transactionService;
             this.threadPrincipalService = threadPrincipalService;
@@ -1308,7 +1322,7 @@ public class CustomPropertySetServiceImplIT {
 
     private class AddCustomPropertySet extends LatchDrivenRunnable {
 
-        protected AddCustomPropertySet(TransactionService transactionService, ThreadPrincipalService threadPrincipalService, Principal principal, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
+        AddCustomPropertySet(TransactionService transactionService, ThreadPrincipalService threadPrincipalService, Principal principal, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
             super(transactionService, threadPrincipalService, principal, service, startLatch, stopLatch);
         }
 
@@ -1322,7 +1336,7 @@ public class CustomPropertySetServiceImplIT {
 
     private class AddVersionedCustomPropertySet extends LatchDrivenRunnable {
 
-        protected AddVersionedCustomPropertySet(TransactionService transactionService, ThreadPrincipalService threadPrincipalService, Principal principal, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
+        AddVersionedCustomPropertySet(TransactionService transactionService, ThreadPrincipalService threadPrincipalService, Principal principal, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
             super(transactionService, threadPrincipalService, principal, service, startLatch, stopLatch);
         }
 
