@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -30,6 +31,7 @@ abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     private static final Duration WAIT_AFTER_COMMUNICATION_TIMEOUT = Duration.ofMinutes(1);
 
+    private final RunningComServer runningComServer;
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private final InboundCommunicationHandler.ServiceProvider serviceProvider;
     private InboundComPortMonitor operationalMonitor;
@@ -52,12 +54,13 @@ abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     protected abstract void setThreadPrinciple();
 
-    ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
-        this(comPort, clock, comServerDAO, Executors.defaultThreadFactory(), deviceCommandExecutor, serviceProvider);
+    ComPortListenerImpl(RunningComServer runningComServer, InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
+        this(runningComServer, comPort, clock, comServerDAO, Executors.defaultThreadFactory(), deviceCommandExecutor, serviceProvider);
     }
 
-    ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
+    ComPortListenerImpl(RunningComServer runningComServer, InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
+        this.runningComServer = runningComServer;
         this.loggerHolder = new LoggerHolder(comPort);
         this.doSetComPort(comPort);
         this.threadName = "Inbound ComPort listener for " + comPort.getName();
@@ -164,14 +167,21 @@ abstract class ComPortListenerImpl implements ComPortListener, Runnable {
     @Override
     public void run () {
         setThreadPrinciple();
+
+        this.comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
+
         while (this.continueRunning.get() && !Thread.currentThread().isInterrupted()) {
             try {
                 this.doRun();
             } catch (CommunicationException e) {
                 logUnexpectedError(e);
                 waitAfterCommunicationTimeOut();
-            } catch (Exception throwable) {
+            } catch (Throwable throwable) {
                 logUnexpectedError(throwable);
+                if (throwable instanceof PersistenceException) {
+                    this.runningComServer.refresh(getComPort());
+                    this.continueRunning.set(false);
+                }
             }
         }
         this.status = ServerProcessStatus.SHUTDOWN;

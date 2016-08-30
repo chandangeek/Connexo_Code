@@ -5,8 +5,8 @@ import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
+import com.energyict.mdc.tasks.TopologyTask;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,19 +29,26 @@ import java.util.stream.Collectors;
  */
 public class TopologyCommandImpl extends SimpleComCommand implements TopologyCommand {
 
+    private final OfflineDevice offlineDevice;
+    private final ComTaskExecution comTaskExecution;
     /**
      * The {@link TopologyAction} that must be taken when executing the command.
      */
-    private final TopologyAction topologyAction;
-    private final OfflineDevice offlineDevice;
-    private final ComTaskExecution comTaskExecution;
+    private TopologyAction topologyAction;
     private CollectedTopology deviceTopology;
 
-    public TopologyCommandImpl(final CommandRoot commandRoot, TopologyAction topologyAction, OfflineDevice offlineDevice, ComTaskExecution comTaskExecution) {
-        super(commandRoot);
+    public TopologyCommandImpl(final GroupedDeviceCommand groupedDeviceCommand, TopologyAction topologyAction, ComTaskExecution comTaskExecution) {
+        super(groupedDeviceCommand);
         this.topologyAction = topologyAction;
-        this.offlineDevice = offlineDevice;
+        this.offlineDevice = groupedDeviceCommand.getOfflineDevice();
         this.comTaskExecution = comTaskExecution;
+    }
+
+    @Override
+    public void updateAccordingTo(TopologyTask topologyTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        if (!this.topologyAction.equals(topologyTask.getTopologyAction()) && topologyTask.getTopologyAction().equals(TopologyAction.UPDATE)) {
+            this.topologyAction = topologyTask.getTopologyAction(); // 'Verify' action is overruled by 'Update' action
+        }
     }
 
     @Override
@@ -71,7 +79,7 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
     }
 
     @Override
-    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
+    protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         builder.addProperty("topologyAction").append(this.topologyAction.name());
         if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
@@ -81,14 +89,15 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
         }
     }
 
-    private void appendTopology (DescriptionBuilder builder) {
-        StringBuilder topologyActionResultBuilder = builder.addProperty("topologyActionResult");
+    private void appendTopology(DescriptionBuilder builder) {
+        StringBuilder topologyActionResultBuilder;
         switch (this.deviceTopology.getTopologyAction()) {
             case UPDATE: {
                 topologyActionResultBuilder = builder.addProperty("updatedTopologyMaster");
                 break;
             }
-            case VERIFY: {
+            case VERIFY:
+            default: {
                 topologyActionResultBuilder = builder.addProperty("verifiedTopologyMaster");
                 break;
             }
@@ -104,8 +113,7 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
     private void appendSlaves(PropertyDescriptionBuilder builder, List<DeviceIdentifier> slaveDeviceIdentifiers) {
         if (slaveDeviceIdentifiers.isEmpty()) {
             builder.append("None").next();
-        }
-        else {
+        } else {
             for (DeviceIdentifier slaveDeviceIdentifier : slaveDeviceIdentifiers) {
                 builder = builder.append(slaveDeviceIdentifier).next();
             }

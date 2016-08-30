@@ -1,8 +1,7 @@
 package com.energyict.mdc.engine.impl;
 
-import com.energyict.mdc.engine.EngineService;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.engine.EngineService;
 
 import java.util.logging.Level;
 

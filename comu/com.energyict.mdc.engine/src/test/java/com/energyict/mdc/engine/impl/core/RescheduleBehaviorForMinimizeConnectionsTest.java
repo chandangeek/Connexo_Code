@@ -1,34 +1,34 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.tasks.ComTask;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.joda.time.DateTime;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.time.ZoneId;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.RescheduleBehaviorForMinimizeConnections} component
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 5/06/13
  * Time: 10:20
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RescheduleBehaviorForMinimizeConnectionsTest {
+public class RescheduleBehaviorForMinimizeConnectionsTest extends AbstractRescheduleBehaviorTest {
 
     private static final long COMPORT_POOL_ID = 1;
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
@@ -36,11 +36,7 @@ public class RescheduleBehaviorForMinimizeConnectionsTest {
     private static final int MAX_NUMBER_OF_TRIES = 3;
 
     @Mock
-    private ComServerDAO comServerDAO;
-    @Mock
-    private ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup;
-    @Mock
-    private ScheduledConnectionTask connectionTask;
+    private ComTaskExecutionGroup comTaskExecutionGroup;
     @Mock
     private ComTask comTask;
 
@@ -51,102 +47,107 @@ public class RescheduleBehaviorForMinimizeConnectionsTest {
 
     @Test
     public void rescheduleSingleSuccessTest() {
-        ComTaskExecution successfulComTaskExecution = createMockedComTaskExecution();
+        SimpleComCommand successfulComCommand = mockSuccessfulComCommand();
+        CommandRootImpl mockedCommandRoot = createMockedCommandRootWithCommands(successfulComCommand);
 
-        RescheduleBehaviorForMinimizeConnections rescheduleBehavior = new RescheduleBehaviorForMinimizeConnections(
-                comServerDAO, Arrays.<ComTaskExecution>asList(successfulComTaskExecution),
-                Collections.<ComTaskExecution>emptyList(), Collections.<ComTaskExecution>emptyList(),
-                connectionTask);
+        mockedCommandRoot.execute(true);
+        RescheduleBehaviorForMinimizeConnections rescheduleBehavior = new RescheduleBehaviorForMinimizeConnections(comServerDAO, connectionTask, mock(Clock.class));
 
-        rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.COMTASKS);
+        rescheduleBehavior.reschedule(mockedCommandRoot);
 
         // asserts
-        verify(comServerDAO, times(1)).executionCompleted(Arrays.asList(successfulComTaskExecution));
+        verify(comServerDAO, times(1)).executionCompleted(comTaskExecution);
         verify(comServerDAO, never()).executionFailed(any(ComTaskExecution.class));
         verify(comServerDAO, never()).executionFailed(any(ConnectionTask.class));
     }
 
     @Test
     public void rescheduleSuccessFulConnectionTaskTest() {
-        ComTaskExecution successfulComTaskExecution = createMockedComTaskExecution();
+        SimpleComCommand successfulComCommand = mockSuccessfulComCommand();
+        CommandRootImpl mockedCommandRoot = createMockedCommandRootWithCommands(successfulComCommand);
 
-        RescheduleBehaviorForMinimizeConnections rescheduleBehavior = new RescheduleBehaviorForMinimizeConnections(
-                comServerDAO, Arrays.<ComTaskExecution>asList(successfulComTaskExecution),
-                Collections.<ComTaskExecution>emptyList(), Collections.<ComTaskExecution>emptyList(),
-                connectionTask);
+        mockedCommandRoot.execute(true);
+        RescheduleBehaviorForMinimizeConnections rescheduleBehavior = new RescheduleBehaviorForMinimizeConnections(comServerDAO, connectionTask, mock(Clock.class));
 
-        rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.COMTASKS);
+        rescheduleBehavior.reschedule(mockedCommandRoot);
 
         // asserts
         verify(comServerDAO, never()).executionFailed(any(ConnectionTask.class));
         verify(comServerDAO, times(1)).executionCompleted(any(ConnectionTask.class));
     }
 
-    private ComTaskExecution createMockedComTaskExecution() {
-        final ComTaskExecution mock = mock(ComTaskExecution.class);
-        when(mock.getComTasks()).thenReturn(Arrays.asList(comTask));
-        return mock;
-    }
-
     @Test
     public void rescheduleSingleFailedComTaskTest() {
-        ComTaskExecution failedComTaskExecution = createMockedComTaskExecution();
+        CommandRootImpl mockedCommandRoot = createMockedCommandRootWithCommands();
+        GroupedDeviceCommand groupedDeviceCommand = mockedCommandRoot.getOrCreateGroupedDeviceCommand(offlineDevice, deviceProtocol, deviceProtocolSecurityPropertySet);
+        mockFailureComCommand(groupedDeviceCommand, comTaskExecution);
 
-        RescheduleBehaviorForMinimizeConnections rescheduleBehavior = new RescheduleBehaviorForMinimizeConnections(
-                comServerDAO, Collections.<ComTaskExecution>emptyList(),
-                Arrays.<ComTaskExecution>asList(failedComTaskExecution), Collections.<ComTaskExecution>emptyList(),
-                connectionTask);
+        mockedCommandRoot.execute(true);
+        RescheduleBehaviorForMinimizeConnections rescheduleBehavior = new RescheduleBehaviorForMinimizeConnections(comServerDAO, connectionTask, mock(Clock.class));
 
-        rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.COMTASKS);
+        rescheduleBehavior.reschedule(mockedCommandRoot);
 
         // asserts
         verify(comServerDAO, never()).executionCompleted(any(ComTaskExecution.class));
-        verify(comServerDAO, times(1)).executionFailed(Arrays.asList(failedComTaskExecution));
+        verify(comServerDAO, times(1)).executionFailed(comTaskExecution);
         verify(comServerDAO, times(1)).executionFailed(any(ConnectionTask.class));
         verify(comServerDAO, never()).executionCompleted(any(ConnectionTask.class));
     }
 
     @Test
     public void rescheduleDueToConnectionSetupErrorTest() {
-        ComTaskExecution notExecutedComTaskExecution = createMockedComTaskExecution();
+        SimpleComCommand notExecutedComCommand = mockNotExecutedComCommand();
+        CommandRootImpl mockedCommandRoot = createMockedCommandRootWithCommands(notExecutedComCommand);
 
-        RescheduleBehaviorForMinimizeConnections rescheduleBehavior = new RescheduleBehaviorForMinimizeConnections(
-                comServerDAO,
-                Collections.<ComTaskExecution>emptyList(),
-                Collections.<ComTaskExecution>emptyList(),
-                Arrays.<ComTaskExecution>asList(notExecutedComTaskExecution),
-                connectionTask);
+        mockedCommandRoot.execute(false);
 
-        rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.CONNECTION_SETUP);
+        Clock clock = Clock.fixed(new DateTime(2016, 4, 5, 10, 0, 0, 0).toDate().toInstant(), ZoneId.systemDefault());
+        RescheduleBehaviorForMinimizeConnections rescheduleBehavior = new RescheduleBehaviorForMinimizeConnections(comServerDAO, connectionTask, clock);
+        when(connectionTask.getNextExecutionTimestamp()).thenReturn(clock.instant());
+
+        rescheduleBehavior.reschedule(mockedCommandRoot);
 
         // asserts
         verify(comServerDAO, never()).executionCompleted(any(ComTaskExecution.class));
+        verify(comServerDAO, times(1)).executionRescheduled(comTaskExecution, clock.instant());
         verify(comServerDAO, never()).executionFailed(any(ComTaskExecution.class)); // we DONT want the comTask to be rescheduled in minimize
         verify(comServerDAO, times(1)).executionFailed(connectionTask);
     }
 
     @Test
     public void rescheduleDueToConnectionBrokenDuringExecutionTest() {
-        ComTaskExecution notExecutedComTaskExecution = createMockedComTaskExecution();
-        ComTaskExecution failedComTaskExecution = createMockedComTaskExecution();
-        ComTaskExecution successfulComTaskExecution1 = createMockedComTaskExecution();
-        ComTaskExecution successfulComTaskExecution2 = createMockedComTaskExecution();
-        ComTaskExecution successfulComTaskExecution3 = createMockedComTaskExecution();
+        SimpleComCommand notExecutedComCommand = mockNotExecutedComCommand();
+        SimpleComCommand successfulComCommand1 = mockSuccessfulComCommand();
+        SimpleComCommand successfulComCommand2 = mockSuccessfulComCommand();
+        SimpleComCommand successfulComCommand3 = mockSuccessfulComCommand();
+        ComTaskExecution comTaskExecution1 = mockNewComTaskExecution();
+        ComTaskExecution comTaskExecution2 = mockNewComTaskExecution();
+        ComTaskExecution comTaskExecution3 = mockNewComTaskExecution();
+        ComTaskExecution comTaskExecution4 = mockNewComTaskExecution();
+        ComTaskExecution comTaskExecution5 = mockNewComTaskExecution();
 
-        RescheduleBehaviorForMinimizeConnections rescheduleBehavior = new RescheduleBehaviorForMinimizeConnections(
-                comServerDAO,
-                Arrays.<ComTaskExecution>asList(successfulComTaskExecution1, successfulComTaskExecution2, successfulComTaskExecution3),
-                Arrays.<ComTaskExecution>asList(failedComTaskExecution),
-                Arrays.<ComTaskExecution>asList(notExecutedComTaskExecution),
-                connectionTask);
+        CommandRootImpl mockedCommandRoot = createMockedCommandRootWithPairs(
+                Pair.of(successfulComCommand1, comTaskExecution1),
+                Pair.of(successfulComCommand2, comTaskExecution2),
+                Pair.of(successfulComCommand3, comTaskExecution3));
 
-        rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.CONNECTION_BROKEN);
+        GroupedDeviceCommand groupedDeviceCommand = mockedCommandRoot.getOrCreateGroupedDeviceCommand(offlineDevice, deviceProtocol, deviceProtocolSecurityPropertySet);
+        mockConnectionErrorFailureComCommand(groupedDeviceCommand, comTaskExecution4);
+        groupedDeviceCommand.addCommand(notExecutedComCommand, comTaskExecution5);
+
+        mockedCommandRoot.execute(true);
+        Clock clock = Clock.fixed(new DateTime(2016, 7, 7, 7, 0, 0, 0).toDate().toInstant(), ZoneId.systemDefault());
+        RescheduleBehaviorForMinimizeConnections rescheduleBehavior = new RescheduleBehaviorForMinimizeConnections(comServerDAO, connectionTask, clock);
+        when(connectionTask.getNextExecutionTimestamp()).thenReturn(clock.instant());
+
+        rescheduleBehavior.reschedule(mockedCommandRoot);
 
         // asserts
-        verify(comServerDAO, times(1)).executionCompleted(Arrays.asList(successfulComTaskExecution1, successfulComTaskExecution2, successfulComTaskExecution3));
-        verify(comServerDAO, times(1)).executionFailed(Arrays.asList(failedComTaskExecution));
-        verify(comServerDAO, never()).executionFailed(notExecutedComTaskExecution);     // the notExecutedComTask remains untouched
-        verify(comServerDAO, never()).executionCompleted(notExecutedComTaskExecution);  // the notExecutedComTask remains untouched
+        verify(comServerDAO, times(1)).executionCompleted(comTaskExecution1);
+        verify(comServerDAO, times(1)).executionCompleted(comTaskExecution2);
+        verify(comServerDAO, times(1)).executionCompleted(comTaskExecution3);
+        verify(comServerDAO, times(1)).executionFailed(comTaskExecution4);
+        verify(comServerDAO, times(1)).executionRescheduled(comTaskExecution5, clock.instant());
         verify(comServerDAO, times(1)).executionFailed(connectionTask);
     }
 }

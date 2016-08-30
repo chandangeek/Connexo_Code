@@ -173,6 +173,10 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
         return queryApiPort;
     }
 
+    public void clean() {
+        this.becomeClean();
+    }
+
     @Override
     public void setQueryApiPort(int queryApiPort) {
         this.queryApiPort = queryApiPort;

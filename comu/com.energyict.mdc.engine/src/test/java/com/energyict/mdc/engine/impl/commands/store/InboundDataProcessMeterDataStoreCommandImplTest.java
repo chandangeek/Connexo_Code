@@ -20,6 +20,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
@@ -41,12 +42,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.logging.Logger;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -63,10 +66,10 @@ public class InboundDataProcessMeterDataStoreCommandImplTest {
     private static final long COM_TASK_EXECUTION_ID = DEVICE_ID + 1;
 
     private final String deviceIdentifierString = "MyIdentifier";
-
+    @Mock
+    protected EventPublisherImpl eventPublisher;
     private ExecutionContext executionContext;
     private Clock clock = Clock.systemDefaultZone();
-
     @Mock
     private DeviceCommand.ServiceProvider serviceProvider;
     @Mock
@@ -81,8 +84,6 @@ public class InboundDataProcessMeterDataStoreCommandImplTest {
     private ExecutionContext.ServiceProvider executionContextServiceProvider;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
-    @Mock
-    protected EventPublisherImpl eventPublisher;
     @Mock
     private NlsService nlsService;
     @Mock
@@ -163,15 +164,20 @@ public class InboundDataProcessMeterDataStoreCommandImplTest {
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         when(connectionTask.getDevice()).thenReturn(device);
+        JobExecution jobExecution = mock(JobExecution.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        when(jobExecution.getComServerDAO()).thenReturn(comServerDAO);
         ExecutionContext executionContext =
                 new ExecutionContext(
-                        mock(JobExecution.class),
+                        jobExecution,
                         connectionTask,
                         comPort,
                         true,
                         executionContextServiceProvider);
         executionContext.setLogger(Logger.getAnonymousLogger());
-        executionContext.start(comTaskExecution, comTask);
+        ComTaskExecutionComCommand comTaskExecutionComCommand = mock(ComTaskExecutionComCommand.class);
+        when(comTaskExecutionComCommand.getComTaskExecution()).thenReturn(comTaskExecution);
+        executionContext.start(comTaskExecutionComCommand);
         return executionContext;
     }
 

@@ -18,6 +18,12 @@ public interface ScheduledComPort extends ComPortServerProcess {
      */
     OutboundComPort getComPort();
 
+
+    /**
+     * @return the number of active thread
+     */
+    int getActiveThreadCount();
+
     /**
      * Receives notification from the ComServer that the
      * changes interpoll delay changed.

@@ -1,30 +1,31 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
+import org.junit.Test;
 
 import java.util.logging.Logger;
 
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
  * Tests for the {@link InitializeLoggerCommand} component.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/08/12
  * Time: 15:57
@@ -33,59 +34,66 @@ public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
 
     @Test
     public void commandTypeTest() {
-        OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, this.newTestExecutionContext(), commandRootServiceProvider);
-        InitializeLoggerCommand initializeLoggerCommand = new InitializeLoggerCommand(commandRoot);
+        GroupedDeviceCommand groupedDeviceCommand = getGroupedDeviceCommand();
+        InitializeLoggerCommand initializeLoggerCommand = new InitializeLoggerCommand(groupedDeviceCommand);
 
         assertEquals(ComCommandTypes.INIT_LOGGER_COMMAND, initializeLoggerCommand.getCommandType());
     }
 
     @Test
-    public void validateAdapterCallForMeterProtocol () {
+    public void validateAdapterCallForMeterProtocol() {
         Logger logger = Logger.getLogger("MyTestLogger");
-        OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        ExecutionContext executionContext = this.newTestExecutionContext(logger);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
-        CommandFactory.createLegacyInitLoggerCommand(commandRoot, null);
         MeterProtocolAdapter meterProtocolAdapter = mock(MeterProtocolAdapter.class);
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        ExecutionContext executionContext = newTestExecutionContext(logger);
+
+        executionContext.connecting = new StopWatch();
+        executionContext.executing = new StopWatch(false);  // Do not auto start but start it manually as soon as execution starts.
+        CommandRoot commandRoot = new CommandRootImpl(executionContext, commandRootServiceProvider);
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, meterProtocolAdapter, null);
+        CommandFactory.createLegacyInitLoggerCommand(groupedDeviceCommand, comTaskExecution);
 
         // business method
-        commandRoot.execute(meterProtocolAdapter, executionContext);
+        groupedDeviceCommand.execute(executionContext);
 
         // validate the initializeLogger is called on the DeviceProtocolAdapter class
         verify(meterProtocolAdapter).initializeLogger(any(Logger.class));
     }
 
     @Test
-    public void validateAdapterCallForSmartMeterProtocol () {
+    public void validateAdapterCallForSmartMeterProtocol() {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        ExecutionContext executionContext = this.newTestExecutionContext(logger);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
-        CommandFactory.createLegacyInitLoggerCommand(commandRoot, null);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = mock(SmartMeterProtocolAdapter.class);
+        ExecutionContext executionContext = newTestExecutionContext(logger);
+
+        executionContext.connecting = new StopWatch();
+        executionContext.executing = new StopWatch(false);  // Do not auto start but start it manually as soon as execution starts.
+        CommandRoot commandRoot = new CommandRootImpl(executionContext, commandRootServiceProvider);
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, smartMeterProtocolAdapter, null);
+        CommandFactory.createLegacyInitLoggerCommand(groupedDeviceCommand, comTaskExecution);
 
         // business method
-        commandRoot.execute(smartMeterProtocolAdapter, executionContext);
+        groupedDeviceCommand.execute(executionContext);
 
         // validate the initializeLogger is called on the DeviceProtocolAdapter class
         verify(smartMeterProtocolAdapter).initializeLogger(any(Logger.class));
     }
 
-    @Test
+    @Test(expected = ComCommandException.class)
     public void validateIllegalDeviceProtocolTest() {
         Logger logger = Logger.getLogger("MyTestLogger");
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        ExecutionContext executionContext = this.newTestExecutionContext(logger);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
-        CommandFactory.createLegacyInitLoggerCommand(commandRoot, null);
+        ExecutionContext executionContext = newTestExecutionContext(logger);
+        GroupedDeviceCommand groupedDeviceCommand = getGroupedDeviceCommand();
+        CommandFactory.createLegacyInitLoggerCommand(groupedDeviceCommand, comTaskExecution);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 
         try {
             // business method
-            commandRoot.execute(deviceProtocol, executionContext);
+            groupedDeviceCommand.execute(executionContext);
         } catch (ComCommandException e) {
-            if (!e.getMessageSeed().equals(MessageSeeds.ILLEGAL_COMMAND)) {
+            if (e.getMessageSeed().equals(MessageSeeds.ILLEGAL_COMMAND)) {
                 throw e;
             }
         }

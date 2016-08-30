@@ -6,11 +6,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -78,30 +74,7 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
     }
 
     protected void add(ComTaskExecution comTaskExecution) {
-        // ComTaskExecution was returned by task query that joins it with the ConnectionTask so it cannot be <code>null</code>
-        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) comTaskExecution.getConnectionTask().get();
-        if (this.supportsSimultaneousConnections(connectionTask)) {
-            this.addComTaskJob(comTaskExecution);
-        } else {
-            this.addToGroup(comTaskExecution);
-        }
-    }
-
-    /**
-     * Tests if the {@link com.energyict.mdc.device.data.tasks.ConnectionTask} supports simultaneous connections.
-     *
-     * @param connectionTask The ConnectionTask
-     * @return A flag that indicates if the ComTaskExecution can be run in isolation
-     */
-    private boolean supportsSimultaneousConnections(ScheduledConnectionTask connectionTask) {
-        return ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(connectionTask.getConnectionStrategy())
-                && connectionTask.isSimultaneousConnectionsAllowed()
-                && connectionTask.getConnectionType().allowsSimultaneousConnections();
-
-    }
-
-    protected void addComTaskJob(ComTaskExecution scheduledComTask) {
-        this.jobs.add(new ComTaskExecutionJob(scheduledComTask));
+        this.addToGroup(comTaskExecution);
     }
 
     protected void addToGroup(ComTaskExecution comTaskExecution) {

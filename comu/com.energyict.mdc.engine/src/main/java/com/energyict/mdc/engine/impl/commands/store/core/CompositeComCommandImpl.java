@@ -1,32 +1,18 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.exceptions.ComCommandException;
-import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandKey;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
-import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskExecutionSessionCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.io.ConnectionCommunicationException;
+import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
-import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
-import com.energyict.mdc.protocol.api.exceptions.SerialNumberMismatchException;
-import com.energyict.mdc.protocol.api.exceptions.TimeDifferenceExceededException;
+import com.energyict.mdc.protocol.api.device.data.CollectedData;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -47,184 +33,100 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
      * Contains all necessary commands for this {@link ComCommand}.
      * <b>It is necessary to use a LinkedHashMap because we need the commands in chronological order</b>
      */
-    private Map<ComCommandKey, ComCommand> comCommands = new LinkedHashMap<>();
+    protected Map<ComCommandType, ComCommand> comCommands = new LinkedHashMap<>();
 
-    protected CompositeComCommandImpl(final CommandRoot commandRoot) {
-        super(commandRoot);
+    protected CompositeComCommandImpl(final GroupedDeviceCommand groupedDeviceCommand) {
+        super(groupedDeviceCommand);
     }
 
     @Override
-    public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        ComServerRuntimeException firstException = null;
-        boolean canWeStillDoADisconnect = true;
-        for (Map.Entry<ComCommandKey, ComCommand> comCommandEntry : comCommands.entrySet()) {
-            final ComCommand comCommand = comCommandEntry.getValue();
-            final ComCommandKey commandKey = comCommandEntry.getKey();
-            final ComCommandType commandType = commandKey.getCommandType();
-            if (areWeAllowedToPerformTheCommand(firstException, canWeStillDoADisconnect, commandKey, executionContext.basickCheckHasFailed())) {
-                try {
-                    performTheComCommandIfAllowed(deviceProtocol, executionContext, comCommand);
-                } catch (ComServerRuntimeException e) {
-                    if (firstException == null) {
-                        firstException = e;
-                    }
-                    if (commandType.equals(ComCommandTypes.LOGON) || commandType.equals(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE)) {
-                        executionContext.setErrorOccuredAtLogonOrInit(true);
-                        break;
-                    }
-                    else {
-                        canWeStillDoADisconnect = areWeStillAbleToPerformAProperDisconnect(e);
-                        if (isBasicCheckFailure(e)) {
-                            executionContext.setBasicCheckFailed(true);
-                        }
-                    }
-                }
+    public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+        for (ComCommand comCommand : comCommands.values()) {
+            if (areWeAllowedToPerformTheCommand(comCommand)) {
+                comCommand.execute(deviceProtocol, executionContext);
+            } else {
+                comCommand.setCompletionCode(CompletionCode.NotExecuted);
             }
-        }
-        if (firstException != null) {
-            throw firstException;
         }
     }
 
+    private boolean areWeAllowedToPerformTheCommand(ComCommand comCommand) {
+        return getGroupedDeviceCommand().areWeAllowedToPerformTheCommand(comCommand);
+    }
+
+    @Override
+    public void addCommand(final ComCommand command, ComTaskExecution comTaskExecution) {
+        this.comCommands.put(command.getCommandType(), command);
+    }
+
     /**
-     * We are allowed to perform the command if:
+     * Getter for all the issue which occurred during the execution of this {@link CompositeComCommand};<br></br>
+     * The list will include:
      * <ul>
-     *     <li>We didn't have any exception and the BasicCheckTask hasn't failed</li>
-     *     <li>Or the command is a logOff related command and we didn't get a Connection related exception</li>
+     * <li>issues present in the {@link CollectedData} of this command</li>
+     * <li>issues taken from all child commands</li>
      * </ul>
      *
-     * @param firstException the firstException
-     * @param canWeStillDoADisconnect indication whether the firstException was related to Communication
-     * @param commandKey the type fo the Command
-     * @param hasBasicCheckFailed The flag that indicates if the basic check task has failed before
-     * @return true or false
+     * @return a list of Issues
      */
-    private boolean areWeAllowedToPerformTheCommand(ComServerRuntimeException firstException, boolean canWeStillDoADisconnect, ComCommandKey commandKey, boolean hasBasicCheckFailed) {
-        return (firstException == null && !hasBasicCheckFailed) || areWeStillAllowedToPerformTheCommand(commandKey, canWeStillDoADisconnect);
+    public List<Issue> getIssues() {
+        List<Issue> issues = super.getIssues();
+        for (ComCommand child : this) {
+            issues.addAll(child.getIssues());
+        }
+        return issues;
     }
 
-    protected void performTheComCommandIfAllowed(DeviceProtocol deviceProtocol, ExecutionContext executionContext, ComCommand comCommand) {
-        comCommand.execute(deviceProtocol, executionContext);
+    @Override
+    public List<Warning> getWarnings() {
+        List<Issue> issues = this.getIssues();
+        List<Warning> warnings = new ArrayList<>(issues.size());    // At most all issues are warnings
+        warnings.addAll(issues.stream().filter(Issue::isWarning).map(issue -> (Warning) issue).collect(Collectors.toList()));
+        return warnings;
+    }
+
+    @Override
+    public List<Problem> getProblems() {
+        List<Issue> issues = this.getIssues();
+        List<Problem> problems = new ArrayList<>(issues.size());    // At most all issues are problems
+        problems.addAll(issues.stream().filter(Issue::isProblem).map(issue -> (Problem) issue).collect(Collectors.toList()));
+        return problems;
     }
 
     /**
-     * We are allowed to do logOffs is the exception wasn't caused by a connection error.
-     * The terminate and updateDeviceCache are safe to still perform.
+     * Getter for the issues, which are present in the {@link CollectedData} of this {@link CompositeComCommand};<br></br>
+     * <b>Warning: </b>Issues of child commands will not be taken into account.
      *
-     * @param commandKey the ComCommandKey
-     * @param canWeStillDoADisconnect an indication whether we can still communicate (no connection exceptions)
-     * @return true if we can perform the command of the given commandKey
+     * @return a list of Issues
      */
-    private boolean areWeStillAllowedToPerformTheCommand(ComCommandKey commandKey, boolean canWeStillDoADisconnect) {
-        return (canWeStillDoADisconnect
-                && (ComCommandTypes.DAISY_CHAINED_LOGOFF.equals(commandKey.getCommandType()) || ComCommandTypes.LOGOFF.equals(commandKey.getCommandType())))
-                || ComCommandTypes.DEVICE_PROTOCOL_TERMINATE.equals(commandKey.getCommandType())
-                || ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND.equals(commandKey.getCommandType());
-    }
-
-    private boolean areWeStillAbleToPerformAProperDisconnect(Exception e) {
-        return !ConnectionFailureException.class.isAssignableFrom(e.getClass())
-                && !ConnectionSetupException.class.isAssignableFrom(e.getClass())
-                && !ConnectionCommunicationException.class.isAssignableFrom(e.getClass());
-    }
-
-    private boolean isBasicCheckFailure(ComServerRuntimeException e) {
-        return e instanceof TimeDifferenceExceededException || e instanceof SerialNumberMismatchException;
+    protected List<Issue> getOwnIssuesIgnoringChildren() {
+        return super.getIssues();
     }
 
     @Override
-    public void addUniqueCommand(ComCommand command, ComTaskExecution comTaskExecution) {
-        ComCommandKey key = new ComCommandKey(command.getCommandType(), comTaskExecution, getCommandRoot().getSecuritySetCommandGroupId());
-        if (this.commandAlreadyExists(key)) {
-            throw ComCommandException.uniqueCommandViolation(command, MessageSeeds.COMMAND_NOT_UNIQUE);
+    public CompletionCode getCompletionCode() {
+        CompletionCode completionCode = super.getCompletionCode();
+
+        // Also look at the CompletionCode of all child ComCommands
+        for (Map.Entry<ComCommandType, ComCommand> comCommandEntry : comCommands.entrySet()) {
+            final ComCommand comCommand = comCommandEntry.getValue();
+            completionCode = completionCode.upgradeTo(comCommand.getCompletionCode());
         }
-        else {
-            this.doAddCommand(key, command);
-        }
+
+        return completionCode;
     }
 
-    @Override
-    public void addCommand(CreateComTaskExecutionSessionCommand command, ComTaskExecution comTaskExecution) {
-        ComCommandKey key = new ComCommandKey(command.getCommandType(), comTaskExecution, getCommandRoot().getSecuritySetCommandGroupId());
-        this.doAddCommand(key, command);
-    }
-
-    private void doAddCommand(ComCommandKey key, ComCommand command) {
-        this.comCommands.putIfAbsent(key, command);
-    }
-
-    @Override
-    public boolean contains(ComCommand comCommand) {
-        return this.comCommands.values().contains(comCommand);
-    }
-
-    private boolean commandAlreadyExists(ComCommandKey comCommandKey) {
-        return this.getExistingCommand(comCommandKey).isPresent();
-    }
-
-    @Override
-    public Optional<ComCommand> getExistingCommand(ComCommandKey key) {
-        for (ComCommandKey comCommandTypeAndId : this.comCommands.keySet()) {
-            ComCommand candidate = this.comCommands.get(comCommandTypeAndId);
-            if (key.equalsIgnoreComTaskExecution(comCommandTypeAndId)) {
-                return Optional.of(candidate);
-            }
-            if (candidate instanceof CompositeComCommand) {
-                CompositeComCommand otherComposite = (CompositeComCommand) candidate;
-                Optional<ComCommand> subCommand = otherComposite.getExistingCommand(key);
-                if (subCommand.isPresent()) {
-                    return subCommand;
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public List<ComCommand> getExistingCommandsOfType(ComCommandType type) {
-        List<ComCommand> matchingCommands = new ArrayList<>();
-        for (ComCommandKey key : this.comCommands.keySet()) {
-            ComCommand candidate = this.comCommands.get(key);
-            if (type.equals(key.getCommandType())) {
-                matchingCommands.add(candidate);
-            }
-            if (candidate instanceof CompositeComCommand) {
-                CompositeComCommand otherComposite = (CompositeComCommand) candidate;
-                matchingCommands.addAll(otherComposite.getExistingCommandsOfType(type));
-            }
-        }
-        return matchingCommands;
-    }
-
-    @Override
-    public List<ComCommandType> getCommandTypes() {
-        return this.comCommands
-                .keySet()
-                .stream()
-                .map(ComCommandKey::getCommandType)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ComCommand> getCommands() {
-        return new ArrayList<>(this.comCommands.values());
+    /**
+     * Get the List of ComCommands
+     *
+     * @return the requested list of ComCommands
+     */
+    public Map<ComCommandType, ComCommand> getCommands() {
+        return this.comCommands;
     }
 
     @Override
     public Iterator<ComCommand> iterator() {
         return this.comCommands.values().iterator();
-    }
-
-    protected void removeCommandOfType(ComCommandType type) {
-        Set<ComCommandKey> keys = new HashSet<>(this.comCommands.keySet());
-        keys
-            .stream()
-            .filter(key -> key.getCommandType().equals(type))
-            .forEach(this.comCommands::remove);
-    }
-
-    protected static void copyComCommands(CompositeComCommandImpl source, CompositeComCommandImpl target, Set<ComCommandTypes> unneccesary) {
-        target.comCommands.putAll(source.comCommands);
-        unneccesary.stream().forEach(target::removeCommandOfType);
     }
 }

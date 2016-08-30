@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 
 /**
@@ -31,5 +32,7 @@ public interface RunningComServer extends ServerProcess {
     void eventClientUnregistered();
 
     void eventWasPublished();
+
+    public void refresh(ComPort comPort);
 
 }

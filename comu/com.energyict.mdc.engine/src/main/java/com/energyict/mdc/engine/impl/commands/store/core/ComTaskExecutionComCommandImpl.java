@@ -2,6 +2,8 @@ package com.energyict.mdc.engine.impl.commands.store.core;
 
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -10,13 +12,16 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
+import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.tasks.ComTask;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ComTaskExecutionComCommand} interface.
@@ -28,18 +33,61 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
 
     private ComTaskExecution comTaskExecution;
 
-    public ComTaskExecutionComCommandImpl(CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
-        super(commandRoot);
+    ComTaskExecutionComCommandImpl(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        super(groupedDeviceCommand);
         this.comTaskExecution = comTaskExecution;
     }
 
     @Override
-    public String getDescriptionTitle() {
-        return "Build up the command execution context";
+    public void execute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+        doExecute(deviceProtocol, executionContext);
     }
 
     @Override
-    public List<CollectedData> getCollectedData () {
+    public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+        try {
+            for (ComCommand comCommand : this.getCommands().values()) {
+                if (areWeAllowedToPerformTheCommand(comCommand)) {
+                    try {
+                        comCommand.execute(deviceProtocol, executionContext);
+                    } catch (Throwable throwable) {
+                        // nothing should get through here, or there must be something seriously wrong ...
+                        CommandRoot.ServiceProvider serviceProvider = getGroupedDeviceCommand().getCommandRoot().getServiceProvider();
+                        Problem problem = serviceProvider.issueService().newProblem(this, MessageSeeds.SOMETHING_UNEXPECTED_HAPPENED);
+                        addIssue(problem, CompletionCode.UnexpectedError);
+                        setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
+                        executionContext.connectionLogger.taskExecutionFailed(throwable, Thread.currentThread().getName(), getComTasksDescription(executionContext));
+                        throw throwable;
+                    }
+                } else {
+                    comCommand.setCompletionCode(CompletionCode.NotExecuted);
+                }
+            }
+        } finally {
+            if (getProblems().size() > 0) { // if one of my commands failed with an error
+                setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
+                delegateToJournalistIfAny(executionContext);
+            } else {
+                setExecutionState(BasicComCommandBehavior.ExecutionState.SUCCESSFULLY_EXECUTED);
+            }
+        }
+    }
+
+    private String getComTasksDescription(ExecutionContext executionContext) {
+        StringBuilder result = new StringBuilder();
+        List<ComTask> comTasks = executionContext.getComTaskExecution().getComTasks();
+        for (ComTask comTask : comTasks) {
+            if (result.length() > 0) {
+                result.append(", ");
+            }
+            result.append(comTask.getName());
+        }
+        return result.toString();
+    }
+
+
+    @Override
+    public List<CollectedData> getCollectedData() {
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(
                 new ComTaskExecutionCollectedData(
@@ -51,17 +99,23 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
         return collectedData;
     }
 
-    public List<ServerCollectedData> getNestedCollectedData () {
+    public List<ServerCollectedData> getNestedCollectedData() {
         Set<ServerCollectedData> collectedData = new HashSet<>();
-        for (ComCommand command : this) {
-            command.getCollectedData().stream().map(ServerCollectedData.class::cast).forEach(collectedData::add);
+        for (ComCommand command : this.getCommands().values()) {
+            List<CollectedData> nestedCollectedData = command.getCollectedData();
+            collectedData.addAll(nestedCollectedData.stream().map(data -> (ServerCollectedData) data).collect(Collectors.toList()));
         }
         return new ArrayList<>(collectedData);
     }
 
     @Override
-    public ComCommandType getCommandType () {
+    public ComCommandType getCommandType() {
         return ComCommandTypes.COM_TASK_ROOT;
+    }
+
+    @Override
+    public boolean contains(ComCommand comCommand) {
+        return this.getCommands().values().contains(comCommand);
     }
 
     @Override
@@ -69,16 +123,11 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
         return comTaskExecution;
     }
 
-    @Override
-    public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        /* All contained ComCommands are in fact also contained in the root
-         * and will be executed as part of the execution of the root.
-         * My only purpose in life is to group them
-         */
+    private boolean areWeAllowedToPerformTheCommand(ComCommand comCommand) {
+        return getGroupedDeviceCommand().areWeAllowedToPerformTheCommand(comCommand);
     }
 
-    protected LogLevel defaultJournalingLogLevel () {
+    protected LogLevel defaultJournalingLogLevel() {
         return LogLevel.DEBUG;
     }
-
 }

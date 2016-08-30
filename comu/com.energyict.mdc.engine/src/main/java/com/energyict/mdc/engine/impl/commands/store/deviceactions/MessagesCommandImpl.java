@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -8,20 +7,18 @@ import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.MessagesCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessage;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.tasks.MessagesTask;
 
@@ -40,13 +37,6 @@ import static com.energyict.mdc.engine.impl.commands.MessageSeeds.MESSAGE_NO_LON
  */
 public class MessagesCommandImpl extends SimpleComCommand implements MessagesCommand {
 
-    /**
-     * The task used for modeling this command
-     */
-    private final MessagesTask messagesTask;
-    private final OfflineDevice device;
-    private final IssueService issueService;
-    private final Thesaurus thesaurus;
     private List<OfflineDeviceMessage> pendingMessages;
     private List<OfflineDeviceMessage> pendingInvalidMessages;
     private List<OfflineDeviceMessage> sentMessages;
@@ -55,27 +45,26 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     private List<CollectedMessageList> messagesCollectedData = new ArrayList<>(2);
     private ComTaskExecution comTaskExecution;
 
-    public MessagesCommandImpl(final MessagesTask messagesTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution, IssueService issueService, Thesaurus thesaurus) {
-        super(commandRoot);
+    public MessagesCommandImpl(GroupedDeviceCommand groupedDeviceCommand, MessagesTask messagesTask, ComTaskExecution comTaskExecution) {
+        super(groupedDeviceCommand);
         this.comTaskExecution = comTaskExecution;
-        this.thesaurus = thesaurus;
         if (messagesTask == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "messagesTask", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
-        if (device == null) {
+        if (groupedDeviceCommand.getOfflineDevice() == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "device", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
-        }
-        if (commandRoot == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (comTaskExecution == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "comTaskExecution", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
-        this.messagesTask = messagesTask;
-        this.device = device;
-        createAllowedCategoryPrimaryKeyList();
+        updateAllowedCategoryPrimaryKeyList(messagesTask);
         updateMessageLists(comTaskExecution);
-        this.issueService = issueService;
+    }
+
+    @Override
+    public void updateAccordingTo(MessagesTask messagesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        updateAllowedCategoryPrimaryKeyList(messagesTask);
+        updateMessageLists(comTaskExecution);
     }
 
     @Override
@@ -84,7 +73,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     }
 
     @Override
-    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
+    protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         toSuperJournalMessageDescription(builder, serverLogLevel);
 
         if (isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
@@ -103,7 +92,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         super.toJournalMessageDescription(builder, serverLogLevel);
     }
 
-    private void appendPendingMessages (DescriptionBuilder sb) {
+    private void appendPendingMessages(DescriptionBuilder sb) {
         this.appendMessagesInfo(sb, this.pendingMessages, "There are no pending messages", "pendingMessages");
     }
 
@@ -111,15 +100,14 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         this.appendMessagesInfo(sb, this.pendingInvalidMessages, "There are no invalid pending messages", "pendingInvalidMessages");
     }
 
-    private void appendSentMessages (DescriptionBuilder sb) {
+    private void appendSentMessages(DescriptionBuilder sb) {
         this.appendMessagesInfo(sb, this.sentMessages, "There are no messages to update from previous sessions", "messagesFromPreviousSession");
     }
 
     private void appendMessagesInfo(DescriptionBuilder builder, List<OfflineDeviceMessage> messages, String noMessagesDescription, String description) {
         if (messages.isEmpty()) {
             builder.addLabel(noMessagesDescription);
-        }
-        else {
+        } else {
             PropertyDescriptionBuilder descriptionBuilder = builder.addListProperty(description);
             for (OfflineDeviceMessage message : messages) {
                 descriptionBuilder.append("(");
@@ -134,7 +122,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         }
     }
 
-    private void appendMessagesExecutionStatus (DescriptionBuilder sb) {
+    private void appendMessagesExecutionStatus(DescriptionBuilder sb) {
         this.appendMessagesExecutionStatus(sb, this.messagesCollectedData, "Updated messageStatus");
     }
 
@@ -159,7 +147,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         this.pendingInvalidMessages = new ArrayList<>();
         this.sentMessages = new ArrayList<>();
 
-        this.device.getAllPendingDeviceMessages().stream()
+        this.getGroupedDeviceCommand().getOfflineDevice().getAllPendingDeviceMessages().stream()
                 .sorted(getDeviceMessageComparatorBasedOnReleaseDate())
                 .forEach(offlineDeviceMessage -> {
                     //Only add the messages of the master or the slave, not both
@@ -167,7 +155,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
                         this.updatePendingDeviceMessage(offlineDeviceMessage);
                     }
                 });
-        this.device.getAllInvalidPendingDeviceMessages().stream()
+        this.getGroupedDeviceCommand().getOfflineDevice().getAllInvalidPendingDeviceMessages().stream()
                 .sorted(getDeviceMessageComparatorBasedOnReleaseDate())
                 .forEach(offlineDeviceMessage -> {
                     //Only add the messages of the master or the slave, not both
@@ -175,7 +163,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
                         this.updateInvalidPendingDeviceMessage(offlineDeviceMessage);
                     }
                 });
-        this.device.getAllSentDeviceMessages().stream()
+        this.getGroupedDeviceCommand().getOfflineDevice().getAllSentDeviceMessages().stream()
                 .sorted(getDeviceMessageComparatorBasedOnReleaseDate())
                 .forEach(offlineDeviceMessage -> {
                     //Only add the messages of the master or the slave, not both
@@ -217,13 +205,11 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         }
     }
 
-    private void createAllowedCategoryPrimaryKeyList() {
-        this.allowedCategories = this.messagesTask.getDeviceMessageCategories().stream().map(DeviceMessageCategory::getId).collect(Collectors.toList());
-    }
-
-    @Override
-    public MessagesTask getMessagesTask() {
-        return this.messagesTask;
+    private void updateAllowedCategoryPrimaryKeyList(MessagesTask messagesTask) {
+        if (allowedCategories == null) {
+            allowedCategories = new ArrayList<>();
+        }
+        this.allowedCategories.addAll(messagesTask.getDeviceMessageCategories().stream().map(DeviceMessageCategory::getId).collect(Collectors.toList()));
     }
 
     @Override
@@ -254,8 +240,8 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         DeviceProtocolMessage message = new DeviceProtocolMessage(offlineMessage.getIdentifier());
         message.setFailureInformation(
                 ResultType.ConfigurationMisMatch,
-                this.issueService.newProblem(
-                        this.device,
+                getCommandRoot().getServiceProvider().issueService().newProblem(
+                        this.getGroupedDeviceCommand().getOfflineDevice(),
                         MESSAGE_NO_LONGER_VALID));
         message.setDeviceProtocolInformation(offlineMessage.getProtocolInfo());
         return message;
@@ -264,6 +250,14 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     @Override
     public ComCommandType getCommandType() {
         return ComCommandTypes.MESSAGES_COMMAND;
+    }
+
+    protected List<OfflineDeviceMessage> getPendingMessages() {
+        return pendingMessages;
+    }
+
+    protected List<OfflineDeviceMessage> getSentMessages() {
+        return sentMessages;
     }
 
 }

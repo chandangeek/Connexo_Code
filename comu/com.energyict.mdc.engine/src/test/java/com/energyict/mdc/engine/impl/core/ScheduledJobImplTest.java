@@ -7,74 +7,44 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CreateComSessionDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionEvent;
-import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.*;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-
 import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,17 +54,21 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.anyCollectionOf;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link ScheduledJobImpl} component.
@@ -112,13 +86,12 @@ public class ScheduledJobImplTest {
     private static final long CONNECTION_TASK_ID = COM_PORT_ID + 1;
     private static final long DEVICE_ID = CONNECTION_TASK_ID + 1;
     private static final long COM_TASK_EXECUTION_ID = DEVICE_ID + 1;
-
+    @Mock
+    public DeviceProtocolDialect deviceProtocolDialect;
     @Mock
     private OutboundComPortPool comPortPool;
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    @Mock
-    public DeviceProtocolDialect deviceProtocolDialect;
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;
     @Mock
@@ -202,147 +175,211 @@ public class ScheduledJobImplTest {
         when(this.securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void prepareDeviceProtocolTest() {
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        DeviceProtocol deviceProtocol = mock(MeterProtocolAdapter.class);
+        when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Collections.<DeviceProtocolDialect>emptyList());
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        createMockOfflineDevice();
+        OfflineDevice offlineDevice = createMockOfflineDevice();
         Device device = createMockDevice();
         OnlineComServer comServer = createMockOnlineComServer();
         OutboundComPort comPort = createMockOutBoundComPort(comServer);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        OutboundConnectionTask connectionTask = createMockScheduledConnectionTask();
+        when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ScheduledConnectionTask connectionTask = createMockOutboundConnectionTask();
         ComTask comTask = createMockComTask();
-        when(this.comTaskEnablement.getComTask()).thenReturn(comTask);
         ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties = createMockProtocolDialectConfigurationProperties();
 
-        ComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
+        ServerComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
 
-        ScheduledComTaskExecutionJob scheduledComTaskExecutionJob = new ScheduledComTaskExecutionJob(comPort, comServerDAO, this.deviceCommandExecutor, scheduledComTask, this.serviceProvider);
-        scheduledComTaskExecutionJob.createExecutionContext();
-        scheduledComTaskExecutionJob.establishConnection();
-        JobExecution.PreparedComTaskExecution preparedComTaskExecution = scheduledComTaskExecutionJob.prepareOne(scheduledComTask);
+        ScheduledComTaskExecutionGroup comTaskExecutionGroup = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, serviceProvider);
+        comTaskExecutionGroup.establishConnectionFor(comPort);
+        CommandRoot commandRoot = comTaskExecutionGroup.prepareAll(Collections.singletonList(scheduledComTask));
 
         // asserts
-        assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
-        assertThat(commandTypes).isNotNull();
-        assertThat(commandTypes).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        assertThat(commandTypes).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandTypes).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        Map<ComCommandType, ComCommand> commandMap = commandRoot.getCommands();
+        assertThat(commandMap).hasSize(11);
+        assertThat(commandMap.keySet()).containsSequence(
+                ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND,
+                ComCommandTypes.INIT_LOGGER_COMMAND,
+                ComCommandTypes.ADD_PROPERTIES_COMMAND,
+                ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE,
+                ComCommandTypes.HAND_HELD_UNIT_ENABLER,
+                ComCommandTypes.LOGON,
+                ComCommandTypes.BASIC_CHECK_COMMAND,
+                ComCommandTypes.STATUS_INFORMATION_COMMAND,
+                ComCommandTypes.LOGOFF,
+                ComCommandTypes.DEVICE_PROTOCOL_TERMINATE,
+                ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void prepareWithMultipleTasks() {
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        DeviceProtocol deviceProtocol = mock(MeterProtocolAdapter.class);
+        when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Collections.<DeviceProtocolDialect>emptyList());
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        createMockOfflineDevice();
+        OfflineDevice offlineDevice = createMockOfflineDevice();
         Device device = createMockDevice();
         OnlineComServer comServer = createMockOnlineComServer();
         OutboundComPort comPort = createMockOutBoundComPort(comServer);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        ScheduledConnectionTask connectionTask = createMockScheduledConnectionTask();
+        when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ScheduledConnectionTask connectionTask = createMockOutboundConnectionTask();
         ComTask comTask = createMockComTask();
-        when(this.comTaskEnablement.getComTask()).thenReturn(comTask);
         ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties = createMockProtocolDialectConfigurationProperties();
 
-        ComTaskExecution comTask1 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
-        ComTaskExecution comTask2 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
-        ComTaskExecution comTask3 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
+        ServerComTaskExecution comTask1 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
+        ServerComTaskExecution comTask2 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
+        ServerComTaskExecution comTask3 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
 
-        ScheduledComTaskExecutionGroup group = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, this.serviceProvider);
-        group.createExecutionContext();
-        group.establishConnection();
+        ScheduledComTaskExecutionGroup group = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, serviceProvider);
+        group.establishConnectionFor(comPort);
         group.add(comTask1);
         group.add(comTask2);
         group.add(comTask3);
 
-        JobExecution.PreparedComTaskExecution preparedComTaskExecution = group.prepareOne(comTask1);
+        CommandRoot commandRoot = group.prepareAll(Collections.singletonList(comTask1));
 
-        // asserts
-        assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        List<ComCommandType> commandTypes = preparedComTaskExecution.getCommandRoot().getCommandTypes();
-        assertThat(commandTypes).isNotNull();
-        assertThat(commandTypes).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        assertThat(commandTypes).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandTypes).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        assertThat(commandTypes).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+
+        Map<ComCommandType, ComCommand> commandMap = commandRoot.getCommands();
+        assertThat(commandMap).hasSize(11);
+        assertThat(commandMap.keySet()).containsSequence(
+                ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND,
+                ComCommandTypes.INIT_LOGGER_COMMAND,
+                ComCommandTypes.ADD_PROPERTIES_COMMAND,
+                ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE,
+                ComCommandTypes.HAND_HELD_UNIT_ENABLER,
+                ComCommandTypes.LOGON,
+                ComCommandTypes.BASIC_CHECK_COMMAND,
+                ComCommandTypes.STATUS_INFORMATION_COMMAND,
+                ComCommandTypes.LOGOFF,
+                ComCommandTypes.DEVICE_PROTOCOL_TERMINATE,
+                ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
 
         // creating the commands for the middle comtask
-        JobExecution.PreparedComTaskExecution preparedComTaskExecution2 = group.prepareOne(comTask2);
+        CommandRoot commandRoot1 = group.prepareAll(Collections.singletonList(comTask2));
 
-        // asserts
-        assertThat(preparedComTaskExecution2.getCommandRoot()).isNotNull();
-        List<ComCommandType> commandTypes2 = preparedComTaskExecution2.getCommandRoot().getCommandTypes();
-        assertThat(commandTypes2).isNotNull();
-        assertThat(commandTypes2).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        assertThat(commandTypes2).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        assertThat(commandTypes2).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandTypes2).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandTypes2).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        assertThat(commandTypes2).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        assertThat(commandTypes2).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        commandMap = commandRoot1.getCommands();
+        assertThat(commandMap).hasSize(11);
+        assertThat(commandMap.keySet()).containsSequence(
+                ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND,
+                ComCommandTypes.INIT_LOGGER_COMMAND,
+                ComCommandTypes.ADD_PROPERTIES_COMMAND,
+                ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE,
+                ComCommandTypes.HAND_HELD_UNIT_ENABLER,
+                ComCommandTypes.LOGON,
+                ComCommandTypes.BASIC_CHECK_COMMAND,
+                ComCommandTypes.STATUS_INFORMATION_COMMAND,
+                ComCommandTypes.LOGOFF,
+                ComCommandTypes.DEVICE_PROTOCOL_TERMINATE,
+                ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+
 
         // creating the commands for the last comtask
-        JobExecution.PreparedComTaskExecution preparedComTaskExecution3 = group.prepareOne(comTask3);
+        CommandRoot commandRoot2 = group.prepareAll(Collections.singletonList(comTask3));
 
-        assertThat(preparedComTaskExecution3.getCommandRoot()).isNotNull();
-        List<ComCommandType> commandTypes3 = preparedComTaskExecution3.getCommandRoot().getCommandTypes();
-        assertThat(commandTypes3).isNotNull();
-        assertThat(commandTypes3).contains(ComCommandTypes.BASIC_CHECK_COMMAND);
-        assertThat(commandTypes3).contains(ComCommandTypes.STATUS_INFORMATION_COMMAND);
-        assertThat(commandTypes3).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandTypes3).contains(ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE);
-        assertThat(commandTypes3).contains(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        assertThat(commandTypes3).contains(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND);
-        assertThat(commandTypes3).contains(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        commandMap = commandRoot2.getCommands();
+        assertThat(commandMap).hasSize(11);
+        assertThat(commandMap.keySet()).containsSequence(
+                ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND,
+                ComCommandTypes.INIT_LOGGER_COMMAND,
+                ComCommandTypes.ADD_PROPERTIES_COMMAND,
+                ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE,
+                ComCommandTypes.HAND_HELD_UNIT_ENABLER,
+                ComCommandTypes.LOGON,
+                ComCommandTypes.BASIC_CHECK_COMMAND,
+                ComCommandTypes.STATUS_INFORMATION_COMMAND,
+                ComCommandTypes.LOGOFF,
+                ComCommandTypes.DEVICE_PROTOCOL_TERMINATE,
+                ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+
+        // creating the commands for the two tasks at once
+        CommandRoot commandRoot3 = group.prepareAll(Arrays.asList(comTask2, comTask3));
+
+        commandMap = commandRoot3.getCommands();
+        assertThat(commandMap).hasSize(12);
+        assertThat(commandMap.keySet()).containsSequence(
+                ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND,
+                ComCommandTypes.INIT_LOGGER_COMMAND,
+                ComCommandTypes.ADD_PROPERTIES_COMMAND,
+                ComCommandTypes.DEVICE_PROTOCOL_INITIALIZE,
+                ComCommandTypes.HAND_HELD_UNIT_ENABLER,
+                ComCommandTypes.LOGON,
+                ComCommandTypes.BASIC_CHECK_COMMAND,
+                ComCommandTypes.STATUS_INFORMATION_COMMAND,
+                ComCommandTypes.ALREADY_EXECUTED,
+                ComCommandTypes.LOGOFF,
+                ComCommandTypes.DEVICE_PROTOCOL_TERMINATE,
+                ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+
     }
 
-    @Test
-    public void testThatThreadInterruptSetsAppropriateSuccessIndicator() throws ConnectionException, InterruptedException {
+    @Test(timeout = 5000)
+    public void testThatThreadInterruptSetsAppropriateSuccessIndicator()
+            throws
+            SQLException,
+            ConnectionException, InterruptedException {
         OnlineComServer comServer = this.createMockOnlineComServer();
-        when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
-        when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
-        OutboundComPort comPort = this.createMockOutBoundComPort(comServer);
-        when(comPort.getComServer()).thenReturn(comServer);
+        final OutboundComPort comPort = this.createMockOutBoundComPort(comServer);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        OfflineDevice offlineDevice = this.createMockOfflineDevice();
         Device device = this.createMockDevice();
         when(connectionTask.getDevice()).thenReturn(device);
-        when(connectionTask.connect(eq(comPort), anyList())).thenReturn(mock(ComChannel.class));
+        when(connectionTask.connect(comPort)).thenReturn(new VoidTestComChannel());
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
-        ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
+
+        final ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
+        when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
+        when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenReturn(mock(ComSession.class));
         when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
-        when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
-        final ScheduledComTaskExecutionJob job = new ScheduledComTaskExecutionJob(comPort, comServerDAO, deviceCommandExecutor, scheduledComTask, this.serviceProvider);
-        BlockingQueue<ScheduledJob> blockingQueue = mock(BlockingQueue.class);
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, this.deviceCommandExecutor, this.transactionService, this.threadprincipalService, userService);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        final ScheduledComTaskExecutionGroup job = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, serviceProvider);
+        job.add(scheduledComTask);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
         when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
+        when(((ServerCollectedData) collectedFirmwareVersion).toDeviceCommand(any(MeterDataStoreCommand.class), any(DeviceCommand.ServiceProvider.class))).thenReturn(mock(DeviceCommand.class));
         when(deviceProtocol.getFirmwareVersions()).thenReturn(collectedFirmwareVersion);
+        CollectedBreakerStatus collectedBreakerStatus = mock(CollectedBreakerStatus.class, withSettings().extraInterfaces(ServerCollectedData.class));
+        when(((ServerCollectedData) collectedBreakerStatus).toDeviceCommand(any(MeterDataStoreCommand.class), any(DeviceCommand.ServiceProvider.class))).thenReturn(mock(DeviceCommand.class));
+        when(collectedBreakerStatus.getResultType()).thenReturn(ResultType.NotSupported);
+        when(deviceProtocol.getBreakerStatus()).thenReturn(collectedBreakerStatus);
+        CollectedCalendar collectedCalendar = mock(CollectedCalendar.class, withSettings().extraInterfaces(ServerCollectedData.class));
+        when(((ServerCollectedData) collectedCalendar).toDeviceCommand(any(MeterDataStoreCommand.class), any(DeviceCommand.ServiceProvider.class))).thenReturn(mock(DeviceCommand.class));
+        when(collectedCalendar.getResultType()).thenReturn(ResultType.NotSupported);
+        when(deviceProtocol.getCollectedCalendar()).thenReturn(collectedCalendar);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
+
+        when(this.deviceCommandExecutor.execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class))).thenAnswer(
+                invocationOnMock -> {
+                    DeviceCommand deviceCommand = (DeviceCommand) invocationOnMock.getArguments()[0];
+                    deviceCommand.execute(comServerDAO);
+                    return null;
+                }
+        );
+
         Runnable jobRunnable = () -> {
-            jobExecutor.execute(job);
             startLatch.countDown();
+            jobExecutor.execute(job);
         };
         Thread jobThread = new Thread(jobRunnable);
         jobThread.setName("ScheduledComTaskExecution for testThatThreadInterruptSetsAppropriateSuccessIndicator");
@@ -369,6 +406,7 @@ public class ScheduledJobImplTest {
 
         assertThat(createComSession).isNotNull();
         assertThat(createComSession.getComSessionBuilder()).isNotNull();
+        verify(comServerDAO).createComSession(eq(createComSession.getComSessionBuilder()), any(Instant.class), eq(ComSession.SuccessIndicator.Broken));
     }
 
     @Test
@@ -391,12 +429,13 @@ public class ScheduledJobImplTest {
         ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
+        when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
         when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
-        when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
-        final ScheduledComTaskExecutionJob job = new ScheduledComTaskExecutionJob(comPort, comServerDAO, deviceCommandExecutor, scheduledComTask, this.serviceProvider);
-        BlockingQueue<ScheduledJob> blockingQueue = mock(BlockingQueue.class);
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, this.deviceCommandExecutor, this.transactionService, this.threadprincipalService, userService);
+        when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
+        final ScheduledComTaskExecutionGroup job = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, serviceProvider);
+
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
@@ -434,7 +473,7 @@ public class ScheduledJobImplTest {
         });
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void testThatConnectionFailurePublishesEventForIssueModule() throws ConnectionException, InterruptedException {
         OnlineComServer comServer = this.createMockOnlineComServer();
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
@@ -447,19 +486,19 @@ public class ScheduledJobImplTest {
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         Device device = this.createMockDevice();
         when(connectionTask.getDevice()).thenReturn(device);
-        doThrow(ConnectionException.class).when(connectionTask).connect(eq(comPort), anyList());
+        doThrow(ConnectionException.class).when(connectionTask).connect(eq(comPort), anyList());    //Simulate a connection failure
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
         ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
+        when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
         when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
-        when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
-        final AlwaysFailComTaskExecutionJob job = new AlwaysFailComTaskExecutionJob(comPort, comServerDAO, deviceCommandExecutor, scheduledComTask, this.serviceProvider);
-        BlockingQueue<ScheduledJob> blockingQueue = mock(BlockingQueue.class);
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, this.deviceCommandExecutor, this.transactionService, this.threadprincipalService, userService);
+        when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
+        final AlwaysFailComTaskExecutionJob job = new AlwaysFailComTaskExecutionJob(comPort, comServerDAO, deviceCommandExecutor, connectionTask, this.serviceProvider);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
@@ -497,20 +536,19 @@ public class ScheduledJobImplTest {
         });
     }
 
-    private ComTaskExecution createMockServerScheduledComTask(Device device, ConnectionTask connectionTask, ComTask comTask, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-        ManuallyScheduledComTaskExecution scheduledComTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ComTaskExecution.class));
-        when(scheduledComTask.getId()).thenReturn(COM_TASK_EXECUTION_ID);
+
+    private ServerComTaskExecution createMockServerScheduledComTask(Device device, OutboundConnectionTask connectionTask, ComTask comTask, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        ServerComTaskExecution scheduledComTask = mock(ServerComTaskExecution.class);
         when(scheduledComTask.getDevice()).thenReturn(device);
         when(scheduledComTask.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
-        List<ProtocolTask> protocolTasks = comTask.getProtocolTasks();
-        when(scheduledComTask.getProtocolTasks()).thenReturn(protocolTasks);
-        when(scheduledComTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         return scheduledComTask;
     }
 
     private ProtocolDialectConfigurationProperties createMockProtocolDialectConfigurationProperties() {
-        return mock(ProtocolDialectConfigurationProperties.class);
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(protocolDialectConfigurationProperties.getDeviceProtocolDialectName()).thenReturn("MyDialect");
+        return protocolDialectConfigurationProperties;
     }
 
     private ComTask createMockComTask() {
@@ -519,7 +557,7 @@ public class ScheduledJobImplTest {
         return comTask;
     }
 
-    private ScheduledConnectionTask createMockScheduledConnectionTask() {
+    private ScheduledConnectionTask createMockOutboundConnectionTask() {
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
@@ -596,7 +634,7 @@ public class ScheduledJobImplTest {
 
         @Override
         public ComServer.LogLevel getLogLevel() {
-            return ComServer.LogLevel.ERROR;
+            return null;
         }
 
         @Override
@@ -647,16 +685,9 @@ public class ScheduledJobImplTest {
         }
     }
 
-    private class AlwaysFailComTaskExecutionJob extends ScheduledComTaskExecutionJob {
-        private AlwaysFailComTaskExecutionJob(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
-            super(comPort, comServerDAO, deviceCommandExecutor, comTaskExecution, serviceProvider);
+    private class AlwaysFailComTaskExecutionJob extends ScheduledComTaskExecutionGroup {
+        private AlwaysFailComTaskExecutionJob(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledConnectionTask scheduledConnectionTask, ServiceProvider serviceProvider) {
+            super(comPort, comServerDAO, deviceCommandExecutor, scheduledConnectionTask, serviceProvider);
         }
-
-        @Override
-        boolean execute(PreparedComTaskExecution preparedComTaskExecution) {
-            throw new RuntimeException("For unit testing purposes only");
-        }
-
     }
-
 }

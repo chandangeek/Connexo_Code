@@ -4,13 +4,12 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,34 +24,25 @@ import java.util.logging.Logger;
 class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(MultiThreadedScheduledJobExecutor.class.getName());
-
-    private final OutboundComPort comPort;
-    private BlockingQueue<ScheduledJob> jobBlockingQueue;
     private final ThreadPrincipalService threadPrincipalService;
     private final UserService userService;
+    private final ScheduledJob scheduledJob;
 
-    MultiThreadedScheduledJobExecutor(OutboundComPort comPort, BlockingQueue<ScheduledJob> jobBlockingQueue, DeviceCommandExecutor deviceCommandExecutor, TransactionService transactionExecutor, ThreadPrincipalService threadPrincipalService, UserService userService) {
-        super(transactionExecutor, comPort.getComServer().getCommunicationLogLevel(), deviceCommandExecutor);
-        this.comPort = comPort;
-        this.jobBlockingQueue = jobBlockingQueue;
+    MultiThreadedScheduledJobExecutor(ScheduledJob scheduledJob, TransactionService transactionExecutor, ComServer.LogLevel communicationLogLevel, DeviceCommandExecutor deviceCommandExecutor, ThreadPrincipalService threadPrincipalService, UserService userService) {
+        super(transactionExecutor, communicationLogLevel, deviceCommandExecutor);
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
+        this.scheduledJob = scheduledJob;
     }
 
     @Override
     public void run() {
         this.setThreadPrinciple();
-        while (!Thread.currentThread().isInterrupted()) {
-            try {
-                ScheduledJob scheduledJob = jobBlockingQueue.take();
-                acquireTokenAndPerformSingleJob(scheduledJob);
-            }
-            catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e, () -> MultiThreadedScheduledJobExecutor.class.getName() + " for comport(" + this.comPort.getId() + ") encountered and ignored an unexpected problem");
-                e.printStackTrace(System.err);
-            }
+        try {
+            acquireTokenAndPerformSingleJob(scheduledJob);
+        } catch (Throwable t) {
+            LOGGER.log(Level.SEVERE, MultiThreadedScheduledJobExecutor.class.getName() + " encountered and ignored an unexpected problem", t);
+            t.printStackTrace(System.err);
         }
     }
 
@@ -60,5 +50,4 @@ class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor implements 
         Optional<User> user = userService.findUser(EngineServiceImpl.COMSERVER_USER);
         user.ifPresent(u -> threadPrincipalService.set(u, "MultiThreadedComPort", "Executing", u.getLocale().orElse(Locale.ENGLISH)));
     }
-
 }

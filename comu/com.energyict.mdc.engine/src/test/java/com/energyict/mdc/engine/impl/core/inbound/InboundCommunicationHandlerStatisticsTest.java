@@ -16,12 +16,7 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ConfigurableReadComChannel;
-import com.energyict.mdc.engine.impl.core.JobExecution;
-import com.energyict.mdc.engine.impl.core.ScheduledComTaskExecutionJob;
-import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
-import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
+import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -100,7 +95,7 @@ public class InboundCommunicationHandlerStatisticsTest {
     @Test
     public void testComSessionStatisticsUpdatedWhenConnectionIsBeingClosed() throws ConnectionException, SQLException {
         OutboundComPort comPort = mock(OutboundComPort.class);
-        OutboundConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
         when(connectionTask.connect(eq(comPort), anyList())).thenReturn(new SystemOutComChannel());
         ComTaskExecution comTask = mock(ComTaskExecution.class);
@@ -109,7 +104,7 @@ public class InboundCommunicationHandlerStatisticsTest {
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comPort.getComServer()).thenReturn(comServer);
-        ScheduledJobImpl scheduledJob = new ScheduledComTaskExecutionJob(comPort, mock(ComServerDAO.class), this.deviceCommandExecutor, comTask, serviceProvider);
+        ScheduledJobImpl scheduledJob = new ScheduledComTaskExecutionGroup(comPort, mock(ComServerDAO.class), this.deviceCommandExecutor, connectionTask, serviceProvider);
         try {
             scheduledJob.createExecutionContext();
             if (scheduledJob.getExecutionContext().connect()) {
@@ -130,7 +125,7 @@ public class InboundCommunicationHandlerStatisticsTest {
     @Test
     public void testComSessionStatisticsCounterValues() throws ConnectionException, SQLException {
         OutboundComPort comPort = mock(OutboundComPort.class);
-        OutboundConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
         ConfigurableReadComChannel comChannel = new ConfigurableReadComChannel();
         byte[] helloWorldBytes = "Hello world".getBytes();
@@ -143,7 +138,7 @@ public class InboundCommunicationHandlerStatisticsTest {
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comPort.getComServer()).thenReturn(comServer);
-        ScheduledJobImpl scheduledJob = new ScheduledComTaskExecutionJob(comPort, mock(ComServerDAO.class), this.deviceCommandExecutor, comTask, this.serviceProvider);
+        ScheduledJobImpl scheduledJob = new ScheduledComTaskExecutionGroup(comPort, mock(ComServerDAO.class), this.deviceCommandExecutor, connectionTask, this.serviceProvider);
         int numberOfBytesRead = 0;
         byte[] readBuffer = new byte[replyBytes.length];
         try {

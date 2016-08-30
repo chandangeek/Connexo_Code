@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.tasks.ClockTask;
 
 import java.util.Optional;
@@ -28,7 +30,7 @@ public interface ClockCommand extends CompositeComCommand {
     /**
      * @return the used {@link ClockTask} for this command
      */
-    public ClockTask getClockTask();
+    public ClockTaskOptions getClockTaskOptions();
 
     /**
      * Get the TimeDifference of the ClockCommand. If the timeDifference is not read,
@@ -37,5 +39,7 @@ public interface ClockCommand extends CompositeComCommand {
      * @return the timeDifference
      */
     public Optional<TimeDuration> getTimeDifference();
+
+    void updateAccordingTo(ClockTask clockTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution);
 
 }

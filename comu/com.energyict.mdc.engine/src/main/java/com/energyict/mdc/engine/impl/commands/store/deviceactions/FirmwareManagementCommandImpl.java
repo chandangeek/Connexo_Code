@@ -5,8 +5,8 @@ import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.FirmwareManagementCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
  */
 public class FirmwareManagementCommandImpl extends SimpleComCommand implements FirmwareManagementCommand {
 
-    private final CommandRoot commandRoot;
     private final FirmwareManagementTask firmwareManagementTask;
     private final ComTaskExecution comTaskExecution;
     private final OfflineDevice device;
@@ -38,9 +37,8 @@ public class FirmwareManagementCommandImpl extends SimpleComCommand implements F
     private List<OfflineDeviceMessage> firmwareDeviceMessages;
     private List<CollectedMessageList> messagesCollectedData = new ArrayList<>();
 
-    public FirmwareManagementCommandImpl(CommandRoot commandRoot, FirmwareManagementTask firmwareManagementTask, ComTaskExecution comTaskExecution, OfflineDevice device) {
-        super(commandRoot);
-        this.commandRoot = commandRoot;
+    public FirmwareManagementCommandImpl(GroupedDeviceCommand groupedDeviceCommand, FirmwareManagementTask firmwareManagementTask, ComTaskExecution comTaskExecution, OfflineDevice device) {
+        super(groupedDeviceCommand);
         this.firmwareManagementTask = firmwareManagementTask;
         this.comTaskExecution = comTaskExecution;
         this.device = device;

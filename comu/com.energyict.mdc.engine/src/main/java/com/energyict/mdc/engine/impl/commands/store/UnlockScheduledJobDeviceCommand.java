@@ -3,9 +3,10 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ScheduledJob;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ScheduledJob;
 
 /**
  * Models the {@link DeviceCommand} that will unlock a
@@ -18,9 +19,9 @@ public class UnlockScheduledJobDeviceCommand extends DeviceCommandImpl {
 
     private final static String DESCRIPTION_TITLE = "Unlock task";
 
-    private final ScheduledJob scheduledJob;
+    private final JobExecution scheduledJob;
 
-    public UnlockScheduledJobDeviceCommand(ScheduledJob scheduledJob, ServiceProvider serviceProvider) {
+    public UnlockScheduledJobDeviceCommand(JobExecution scheduledJob, ServiceProvider serviceProvider) {
         super(scheduledJob.getComTaskExecutions().stream().findFirst().orElse(null), serviceProvider);
         this.scheduledJob = scheduledJob;
     }

@@ -4,34 +4,30 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ClockTaskOptions;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ClockTask;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -42,33 +38,34 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
 
+    @Mock
+    private OfflineDevice offlineDevice;
+
     @Test
     public void getCorrectCommandTypeTest() {
+        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
         ClockCommand clockCommand = mock(ClockCommand.class);
+        when(clockCommand.getCommandRoot()).thenReturn(groupedDeviceCommand.getCommandRoot());
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        SynchronizeClockCommandImpl synchronizeClockCommand = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), comTaskExecution);
-        assertThat(synchronizeClockCommand.getCommandType()).isEqualTo(ComCommandTypes.SYNCHRONIZE_CLOCK_COMMAND);
+        SynchronizeClockCommandImpl synchronizeClockCommand = new SynchronizeClockCommandImpl(groupedDeviceCommand, clockCommand, comTaskExecution);
+        assertEquals(ComCommandTypes.SYNCHRONIZE_CLOCK_COMMAND, synchronizeClockCommand.getCommandType());
     }
 
     @Test
-    public void testToJournalMessageDescription () {
+    public void testToJournalMessageDescription() {
         ClockCommand clockCommand = mock(ClockCommand.class);
         ClockTask clockTask = mock(ClockTask.class);
-        when(clockTask.getMinimumClockDifference()).thenReturn(Optional.empty());
-        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.empty());
+        when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(new TimeDuration(5)));
+        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(new TimeDuration(600)));
         when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(new TimeDuration(111)));
-        when(clockCommand.getClockTask()).thenReturn(clockTask);
-        when(clockCommand.getTimeDifference()).thenReturn(Optional.empty());
-        CommandRoot commandRoot = mock(CommandRoot.class);
-        CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        IssueService issueService = executionContextServiceProvider.issueService();
-        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
-        Clock clock = executionContextServiceProvider.clock();
-        when(commandRootServiceProvider.clock()).thenReturn(clock);
-        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
-        assertThat(command.toJournalMessageDescription(LogLevel.DEBUG)).contains("maximumClockShift: 111 seconds");
+        ClockTaskOptions clockTaskOptions = new ClockTaskOptions(clockTask);
+        when(clockCommand.getClockTaskOptions()).thenReturn(clockTaskOptions);
+        when(clockCommand.getTimeDifference()).thenReturn(Optional.of(new TimeDuration(45)));
+        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(groupedDeviceCommand, clockCommand, comTaskExecution);
+        String journalMessage = command.toJournalMessageDescription(LogLevel.DEBUG);
+
+        assertEquals(ComCommandDescriptionTitle.SynchronizeClockCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; minimumDifference: 5 seconds; maximumDifference: 600 seconds; maximumClockShift: 111 seconds; timeDifference: 45 seconds}", journalMessage);
     }
 
     @Test
@@ -78,22 +75,15 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         ClockCommand clockCommand = mock(ClockCommand.class);
         ClockTask clockTask = mock(ClockTask.class);
-        when(clockTask.getMaximumClockShift()).thenReturn(Optional.empty());
         when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(maxClockDifference));
-        when(clockCommand.getClockTask()).thenReturn(clockTask);
+        ClockTaskOptions clockTaskOptions = new ClockTaskOptions(clockTask);
+        when(clockCommand.getClockTaskOptions()).thenReturn(clockTaskOptions);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
-        CommandRoot commandRoot = mock(CommandRoot.class);
-        CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        IssueService issueService = executionContextServiceProvider.issueService();
-        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
-        Clock clock = executionContextServiceProvider.clock();
-        when(commandRootServiceProvider.clock()).thenReturn(clock);
-        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
+        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(groupedDeviceCommand, clockCommand, comTaskExecution);
 
         // business method
-        command.execute(deviceProtocol, this.newTestExecutionContext());
+        command.execute(deviceProtocol, newTestExecutionContext());
 
         assertThat(command.getIssues()).hasSize(1);
         assertThat(command.getWarnings()).hasSize(1);
@@ -117,9 +107,11 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(maxClockShift));
         when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(minClockDifference));
 
-        when(clockCommand.getClockTask()).thenReturn(clockTask);
+        ClockTaskOptions clockTaskOptions = new ClockTaskOptions(clockTask);
+        when(clockCommand.getClockTaskOptions()).thenReturn(clockTaskOptions);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
+        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(groupedDeviceCommand, clockCommand, comTaskExecution);
 
         // business method
         command.execute(deviceProtocol, this.newTestExecutionContext());
@@ -146,9 +138,11 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(maxClockShift));
         when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(minClockDifference));
 
-        when(clockCommand.getClockTask()).thenReturn(clockTask);
+        ClockTaskOptions clockTaskOptions = new ClockTaskOptions(clockTask);
+        when(clockCommand.getClockTaskOptions()).thenReturn(clockTaskOptions);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
+        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(groupedDeviceCommand, clockCommand, comTaskExecution);
 
         // business method
         command.execute(deviceProtocol, this.newTestExecutionContext());
@@ -175,12 +169,14 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(maxClockShift));
         when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(minClockDifference));
 
-        when(clockCommand.getClockTask()).thenReturn(clockTask);
+        ClockTaskOptions clockTaskOptions = new ClockTaskOptions(clockTask);
+        when(clockCommand.getClockTaskOptions()).thenReturn(clockTaskOptions);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
+        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(groupedDeviceCommand, clockCommand, comTaskExecution);
 
         // business method
-        command.execute(deviceProtocol, this.newTestExecutionContext());
+        command.execute(deviceProtocol, newTestExecutionContext());
 
         assertThat(command.getIssues()).isEmpty();
         assertThat(command.getProblems()).isEmpty();
@@ -203,17 +199,11 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(maxClockShift));
         when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(minClockDifference));
 
-        when(clockCommand.getClockTask()).thenReturn(clockTask);
+        ClockTaskOptions clockTaskOptions = new ClockTaskOptions(clockTask);
+        when(clockCommand.getClockTaskOptions()).thenReturn(clockTaskOptions);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
-        CommandRoot commandRoot = mock(CommandRoot.class);
-        CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        IssueService issueService = executionContextServiceProvider.issueService();
-        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
-        Clock clock = executionContextServiceProvider.clock();
-        when(commandRootServiceProvider.clock()).thenReturn(clock);
-        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
+        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(groupedDeviceCommand, clockCommand, comTaskExecution);
 
         // business method
         command.execute(deviceProtocol, this.newTestExecutionContext());
@@ -237,17 +227,11 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(maxClockShift));
         when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(minClockDifference));
 
-        when(clockCommand.getClockTask()).thenReturn(clockTask);
+        ClockTaskOptions clockTaskOptions = new ClockTaskOptions(clockTask);
+        when(clockCommand.getClockTaskOptions()).thenReturn(clockTaskOptions);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
-        CommandRoot commandRoot = mock(CommandRoot.class);
-        CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        IssueService issueService = executionContextServiceProvider.issueService();
-        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
-        Clock clock = executionContextServiceProvider.clock();
-        when(commandRootServiceProvider.clock()).thenReturn(clock);
-        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        when(commandRoot.findOrCreateTimeDifferenceCommand(clockCommand, null)).thenReturn(mock(TimeDifferenceCommand.class));
-        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(clockCommand, createCommandRoot(), null);
+        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
+        SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(groupedDeviceCommand, clockCommand, comTaskExecution);
 
         // business method
         command.execute(deviceProtocol, this.newTestExecutionContext());
@@ -256,5 +240,4 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         assertThat(command.getIssues().get(0).getDescription()).isEqualTo(MessageSeeds.TIME_DIFFERENCE_BELOW_THAN_MIN_DEFINED.getKey());
         verify(deviceProtocol, never()).setTime(any(Date.class));
     }
-
 }

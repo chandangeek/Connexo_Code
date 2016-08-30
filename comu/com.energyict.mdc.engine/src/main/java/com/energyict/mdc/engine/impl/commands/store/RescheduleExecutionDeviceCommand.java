@@ -3,9 +3,10 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ScheduledJob;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ScheduledJob;
 
 /**
  * Provides code reuse opportunities for components that implement
@@ -17,9 +18,9 @@ import com.energyict.mdc.engine.config.ComServer;
  */
 public abstract class RescheduleExecutionDeviceCommand extends DeviceCommandImpl {
 
-    private final ScheduledJob scheduledJob;
+    private final JobExecution scheduledJob;
 
-    public RescheduleExecutionDeviceCommand(ScheduledJob scheduledJob) {
+    public RescheduleExecutionDeviceCommand(JobExecution scheduledJob) {
         super(scheduledJob.getComTaskExecutions().stream().findFirst().orElse(null), new NoDeviceCommandServices());
         this.scheduledJob = scheduledJob;
     }
@@ -34,7 +35,7 @@ public abstract class RescheduleExecutionDeviceCommand extends DeviceCommandImpl
         this.doExecute(comServerDAO, this.scheduledJob);
     }
 
-    protected abstract void doExecute(ComServerDAO comServerDAO, ScheduledJob scheduledJob);
+    protected abstract void doExecute(ComServerDAO comServerDAO, JobExecution scheduledJob);
 
     @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, ComServer.LogLevel serverLogLevel) {
@@ -44,5 +45,4 @@ public abstract class RescheduleExecutionDeviceCommand extends DeviceCommandImpl
                 .mapToLong(ComTaskExecution::getId)
                 .forEach(comTasksBuilder::append);
     }
-
 }

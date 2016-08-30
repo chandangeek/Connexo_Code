@@ -34,8 +34,8 @@ public abstract class ComChannelBasedComPortListenerImpl extends ComPortListener
 
     private final InboundComPortConnector inboundComPortConnector;
 
-    ComChannelBasedComPortListenerImpl(InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        super(comPort, serviceProvider.clock(), serviceProvider.comServerDAO(), serviceProvider.threadFactory(), deviceCommandExecutor, serviceProvider);
+    ComChannelBasedComPortListenerImpl(RunningComServer runningComServer, InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        super(runningComServer, comPort, serviceProvider.clock(), serviceProvider.comServerDAO(), serviceProvider.threadFactory(), deviceCommandExecutor, serviceProvider);
         this.inboundComPortConnector = serviceProvider.inboundComPortConnectorFactory().connectorFor(comPort);
     }
 

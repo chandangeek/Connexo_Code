@@ -90,6 +90,19 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     ComServer refreshComServer(ComServer comServer);
 
     /**
+     * Refreshes the specified {@link ComPort}, i.e. checks for updates
+     * to the object and returns a new version if there were any changes.
+     * Returns exactly the same object if there are no changes.
+     * Returns <code>null</code> if the ComPort no longer exists because it was deleted or made obsolete
+     *
+     * @param comPort The ComPort
+     * @return The new version of the ComPort,
+     * <code>null</code> if the ComPort was deleted or made obsolete or
+     * exactly the same Comport if no changes were found
+     */
+    public ComPort refreshComPort(ComPort comPort);
+
+    /**
      * Finds and returns all the ComJobs that are ready
      * to be executed by the specified OutboundComPort.
      *
@@ -140,14 +153,6 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer);
 
     boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer);
-
-    /**
-     * Unlocks the ScheduledConnectionTask, basically undoing the effect
-     * of the attemptLock method providing that was successful.
-     *
-     * @param connectionTask The OutboundConnectionTask
-     */
-    void unlock(ScheduledConnectionTask connectionTask);
 
     /**
      * Unlocks the OutboundConnectionTask, basically undoing the effect
@@ -278,6 +283,12 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      */
     TimeDuration releaseTimedOutTasks(ComServer comServer);
 
+    /**
+     * Release the ComTasks and the ConnectionTasks which are locked by the given ComPort
+     *
+     * @param comPort the comport for which the tasks should be unlocked
+     */
+    void releaseTasksFor(ComPort comPort);
 
     /**
      * Creates a new ComSession from the specifications laid out
@@ -286,7 +297,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param builder The ComSessionShadow
      * @return The newly created ComSession
      */
-    ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator);
+    ComSession createComSession(ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator);
 
     /**
      * Stores the given list of Reading readings on the Meter.

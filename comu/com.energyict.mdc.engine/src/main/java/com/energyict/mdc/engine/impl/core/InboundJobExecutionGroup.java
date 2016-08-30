@@ -4,16 +4,13 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,30 +20,25 @@ import java.util.List;
  * A logical <i>connect</i> can be skipped as the
  * {@link ComChannel ComChannl}
  * will already be created by the ComPortListener
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 25/10/12
  * Time: 16:06
  */
 public class InboundJobExecutionGroup extends JobExecution {
 
-    protected final InboundCommunicationHandler inboundCommunicationHandler;
-    private final InboundDiscoveryContextImpl inboundDiscoveryContext;
+    private final InboundDiscoveryContext inboundDiscoveryContext;
     private InboundConnectionTask connectionTask;
     private List<ComTaskExecution> comTaskExecutions;
-    private List<ComTaskExecution> notExecutedComTaskExecutions = new ArrayList<>();
-    private List<ComTaskExecution> failedComTaskExecutions = new ArrayList<>();
-    private List<ComTaskExecution> successfulComTaskExecutions = new ArrayList<>();
 
-    public InboundJobExecutionGroup(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, ServiceProvider serviceProvider, InboundCommunicationHandler inboundCommunicationHandler) {
+    public InboundJobExecutionGroup(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContext inboundDiscoveryContext, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.inboundDiscoveryContext = inboundDiscoveryContext;
-        this.inboundCommunicationHandler = inboundCommunicationHandler;
     }
 
     @Override
     protected ComPortRelatedComChannel findOrCreateComChannel(ConnectionTaskPropertyProvider connectionTaskPropertyProvider) throws ConnectionException {
-        return this.inboundDiscoveryContext.getComChannel();
+        return (ComPortRelatedComChannel) this.inboundDiscoveryContext.getComChannel();
     }
 
     @Override
@@ -57,7 +49,7 @@ public class InboundJobExecutionGroup extends JobExecution {
     }
 
     @Override
-    protected boolean isConnected() {
+    public boolean isConnected() {
         return isBinaryConnected() || isServletConnected();
     }
 
@@ -71,37 +63,16 @@ public class InboundJobExecutionGroup extends JobExecution {
 
     public void executeDeviceProtocol(List<ComTaskExecution> inboundComTaskExecutions) {
         this.comTaskExecutions = inboundComTaskExecutions;
-        this.notExecutedComTaskExecutions.addAll(inboundComTaskExecutions);
         /*
         The InboundJobExecutor already has a token from the InboundCommunicationHandler. We are sure nobody else
         will pick up this task, as it is the ComPort which received the trigger to start.
          */
         InboundScheduledJobExecutor jobExecutor =
-            new InboundScheduledJobExecutor(
-                getServiceProvider().transactionService(),
-                this.getComPort().getComServer().getCommunicationLogLevel(),
-                getDeviceCommandExecutor());
+                new InboundScheduledJobExecutor(
+                        getServiceProvider().transactionService(),
+                        this.getComPort().getComServer().getCommunicationLogLevel(),
+                        getDeviceCommandExecutor());
         jobExecutor.execute(this);
-    }
-
-    @Override
-    public void completed() {
-        this.inboundCommunicationHandler.complete();
-        super.completed();
-    }
-
-    @Override
-    public void failed(Throwable t, ExecutionFailureReason reason) {
-        this.inboundCommunicationHandler.complete();
-        super.failed(t, reason);
-    }
-
-    @Override
-    protected ComSession.SuccessIndicator getFailureIndicatorFor(RescheduleBehavior.RescheduleReason rescheduleReason) {
-        if (this.inboundCommunicationHandler.getResponseType().equals(InboundDeviceProtocol.DiscoverResponseType.SUCCESS)) {
-            return super.getFailureIndicatorFor(rescheduleReason);
-        }
-        return this.inboundCommunicationHandler.getFailureIndicator();
     }
 
     @Override
@@ -125,57 +96,27 @@ public class InboundJobExecutionGroup extends JobExecution {
 
     @Override
     public void execute() {
-        this.executeAllTasks();
-    }
-
-    void executeAllTasks() {
         try {
-            this.setExecutionContext(this.newExecutionContext(this.connectionTask, this.getComPort(), true));
-            List<PreparedComTaskExecution> preparedComTaskExecutions = this.prepareAll(this.comTaskExecutions);
-            if (this.getExecutionContext().connect()) {
-                for (int i = 0; i < preparedComTaskExecutions.size(); i++) {
-                    PreparedComTaskExecution preparedComTaskExecution = preparedComTaskExecutions.get(i);
-                    performPreparedComTaskExecution(preparedComTaskExecution, nextOneIsOtherPhysicalSlave(preparedComTaskExecutions, i));
-                }
+            boolean connectionEstablished = false;
+            this.setExecutionContext(this.newExecutionContext(this.connectionTask, this.getComPort()));
+            commandRoot = this.prepareAll(this.comTaskExecutions);
+            if (!commandRoot.hasGeneralSetupErrorOccurred()) {
+                connectionEstablished = this.getExecutionContext().connect();
             }
+            commandRoot.execute(connectionEstablished);
         } finally {
             this.closeConnection();
         }
     }
 
     @Override
-    public boolean isWithinComWindow () {
+    public boolean isWithinComWindow() {
         return true;    // ComWindow does not apply to inbound communication
     }
 
     @Override
-    public void outsideComWindow() {
-        // scheduling is done in the device for inbound communication so I can't fix this here
-    }
-
-    @Override
-    public void rescheduleToNextComWindow (ComServerDAO comServerDAO) {
+    public void rescheduleToNextComWindow() {
         // rescheduling is done in the device for inbound communication
-    }
-
-    @Override
-    public void rescheduleToNextComWindow(ComServerDAO comServerDAO, Instant startingPoint) {
-        // rescheduling is done in the device for inbound communication
-    }
-
-    @Override
-    public List<ComTaskExecution> getNotExecutedComTaskExecutions() {
-        return this.notExecutedComTaskExecutions;
-    }
-
-    @Override
-    public List<ComTaskExecution> getFailedComTaskExecutions() {
-        return this.failedComTaskExecutions;
-    }
-
-    @Override
-    public List<ComTaskExecution> getSuccessfulComTaskExecutions() {
-        return this.successfulComTaskExecutions;
     }
 
     @Override
@@ -188,6 +129,6 @@ public class InboundJobExecutionGroup extends JobExecution {
     }
 
     protected InboundDiscoveryContextImpl getInboundDiscoveryContext() {
-        return this.inboundDiscoveryContext;
+        return (InboundDiscoveryContextImpl) inboundDiscoveryContext;
     }
 }

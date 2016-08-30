@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ScheduledJob;
 
 /**
@@ -14,18 +15,17 @@ public class RescheduleSuccessfulExecution extends RescheduleExecutionDeviceComm
 
     private final static String DESCRIPTION_TITLE = "Reschedule task";
 
-    public RescheduleSuccessfulExecution(ScheduledJob scheduledJob) {
+    public RescheduleSuccessfulExecution(JobExecution scheduledJob) {
         super(scheduledJob);
     }
 
     @Override
-    protected void doExecute(ComServerDAO comServerDAO, ScheduledJob scheduledJob) {
-        scheduledJob.reschedule(comServerDAO);
+    protected void doExecute(ComServerDAO comServerDAO, JobExecution scheduledJob) {
+        scheduledJob.doReschedule();
     }
 
     @Override
     public String getDescriptionTitle() {
         return DESCRIPTION_TITLE;
     }
-
 }

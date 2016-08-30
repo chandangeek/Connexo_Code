@@ -1,29 +1,27 @@
 package com.energyict.mdc.engine.impl.commands.store.access;
 
-import java.time.Clock;
-
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
-
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Clock;
+
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link LogOffCommand} component
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/08/12
  * Time: 16:34
@@ -39,24 +37,26 @@ public class LogOffCommandTest extends AbstractComCommandExecuteTest {
     }
 
     @Test
-    public void commandTypeTest(){
+    public void commandTypeTest() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, this.newTestExecutionContext(), this.commandRootServiceProvider);
-        LogOffCommand logOffCommand = new LogOffCommand(commandRoot);
+        CommandRoot commandRoot = createCommandRoot();
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
+        LogOffCommand logOffCommand = new LogOffCommand(groupedDeviceCommand);
 
         assertEquals(ComCommandTypes.LOGOFF, logOffCommand.getCommandType());
     }
 
     @Test
-    public void validateAdapterCallForMeterProtocol () {
+    public void validateAdapterCallForMeterProtocol() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        ExecutionContext executionContext = this.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, this.commandRootServiceProvider);
-        CommandFactory.createLogOffCommand(commandRoot, null);
+        ExecutionContext executionContext = newTestExecutionContext();
+        CommandRoot commandRoot = new CommandRootImpl(executionContext, commandRootServiceProvider);
         MeterProtocolAdapter meterProtocolAdapter = mock(MeterProtocolAdapter.class);
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, meterProtocolAdapter, null);
+        CommandFactory.createLogOffCommand(groupedDeviceCommand, comTaskExecution);
 
         // business method
-        commandRoot.execute(meterProtocolAdapter, executionContext);
+        groupedDeviceCommand.execute(executionContext);
 
         // validate that the connect on the adapter is called
         verify(meterProtocolAdapter).logOff();
@@ -64,19 +64,19 @@ public class LogOffCommandTest extends AbstractComCommandExecuteTest {
     }
 
     @Test
-    public void validateAdapterCallForSmartMeterProtocol () {
+    public void validateAdapterCallForSmartMeterProtocol() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
 
-        ExecutionContext executionContext = this.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, this.commandRootServiceProvider);
-        CommandFactory.createLogOffCommand(commandRoot, null);
+        ExecutionContext executionContext = newTestExecutionContext();
+        CommandRoot commandRoot = new CommandRootImpl(executionContext, commandRootServiceProvider);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = mock(SmartMeterProtocolAdapter.class);
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, smartMeterProtocolAdapter, null);
+        CommandFactory.createLogOffCommand(groupedDeviceCommand, comTaskExecution);
 
         // business method
-        commandRoot.execute(smartMeterProtocolAdapter, executionContext);
+        groupedDeviceCommand.execute(executionContext);
 
         // validate that the connect on the adapter is called
         verify(smartMeterProtocolAdapter).logOff();
     }
-
 }

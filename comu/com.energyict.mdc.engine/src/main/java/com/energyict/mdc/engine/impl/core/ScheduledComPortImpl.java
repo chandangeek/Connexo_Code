@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserService;
@@ -18,7 +19,6 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ServerScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
-
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
@@ -58,6 +58,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     private final ServiceProvider serviceProvider;
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
+    private final RunningComServer runningComServer;
     private OutboundComPort comPort;
     private ComServerDAO comServerDAO;
     private ThreadFactory threadFactory;
@@ -71,21 +72,22 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private ExceptionLogger exceptionLogger = new ExceptionLogger();
     private Instant lastActivityTimestamp;
 
-    ScheduledComPortImpl(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        this(comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
+    ScheduledComPortImpl(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        this(runningComServer, comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
     }
 
-    ScheduledComPortImpl(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+    ScheduledComPortImpl(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
         assert comPort != null : "Scheduling a ComPort requires at least the ComPort to be scheduled instead of null!";
-        this.comPort = comPort;
+        this.runningComServer = runningComServer;
         this.comServerDAO = comServerDAO;
         this.threadFactory = threadFactory;
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.schedulingInterpollDelay = comPort.getComServer().getSchedulingInterPollDelay();
         this.loggerHolder = new LoggerHolder(comPort);
         this.lastActivityTimestamp = this.serviceProvider.clock().instant();
+        setComPort(comPort);
     }
 
     protected abstract void setThreadPrinciple();
@@ -201,19 +203,29 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     @Override
     public void run () {
         setThreadPrinciple();
+
+        this.comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
+
         while (this.continueRunning.get() && !Thread.currentThread().isInterrupted()) {
             try {
                 this.doRun();
-            } catch (Exception t) {
+            } catch (Throwable t) {
                 this.exceptionLogger.unexpectedError(t);
-                // Give the infrastructure some time to recover from e.g. unexpected SQL errors
-                this.reschedule();
+                if (t instanceof PersistenceException) {
+                    this.runningComServer.refresh(getComPort());
+                    this.continueRunning.set(false);
+                } else {
+                    // Give the infrastructure some time to recover from e.g. unexpected SQL errors
+                    this.reschedule();
+                }
             }
         }
         this.status = ServerProcessStatus.SHUTDOWN;
     }
 
-    protected abstract void doRun ();
+    private void doRun () {
+        this.executeTasks();
+    }
 
     protected void reschedule () {
         try {
@@ -249,10 +261,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     protected abstract JobScheduler getJobScheduler ();
 
-    protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTaskExecution) {
-        return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTaskExecution, this.serviceProvider);
-    }
-
     protected ScheduledComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
         return new ScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, this.serviceProvider);
     }
@@ -269,7 +277,9 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     interface JobScheduler {
-        void scheduleAll(List<ComJob> jobs);
+        int scheduleAll(List<ComJob> jobs);
+
+        int getConnectionCount();
     }
 
     private class ExceptionLogger {

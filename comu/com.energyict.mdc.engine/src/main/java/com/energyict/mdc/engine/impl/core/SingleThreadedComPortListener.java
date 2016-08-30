@@ -23,17 +23,23 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
 
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
-    public SingleThreadedComPortListener(InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        this(comPort, deviceCommandExecutor, serviceProvider, new InboundComPortExecutorFactoryImpl(serviceProvider));
+    public SingleThreadedComPortListener(RunningComServer runningComServer, InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        this(runningComServer, comPort, deviceCommandExecutor, serviceProvider, new InboundComPortExecutorFactoryImpl(serviceProvider));
     }
 
     public SingleThreadedComPortListener(
-                InboundComPort comPort,
-                DeviceCommandExecutor deviceCommandExecutor,
-                ServiceProvider serviceProvider,
-                InboundComPortExecutorFactory inboundComPortExecutorFactory) {
-        super(comPort, deviceCommandExecutor, serviceProvider);
+            RunningComServer runningComServer,
+            InboundComPort comPort,
+            DeviceCommandExecutor deviceCommandExecutor,
+            ServiceProvider serviceProvider,
+            InboundComPortExecutorFactory inboundComPortExecutorFactory) {
+        super(runningComServer, comPort, deviceCommandExecutor, serviceProvider);
         this.inboundComPortExecutorFactory = inboundComPortExecutorFactory;
+    }
+
+    @Override
+    public int getThreadCount() {
+        return 1;
     }
 
     @Override
@@ -45,9 +51,11 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
     @Override
     protected void doRun() {
         ComPortRelatedComChannel comChannel = listen();
-        handleInboundDeviceProtocol(comChannel);
+        if (comChannel != null) {
+            handleInboundDeviceProtocol(comChannel);
+        }
         /*
-       Else no accept within the configured TimeOut, but this allows us to check for any changes
+            Else no accept within the configured TimeOut, but this allows us to check for any changes
         */
     }
 

@@ -25,14 +25,19 @@ public class ServletInboundComPortListener extends ServletBasedComPortListenerIm
     private EmbeddedWebServer embeddedWebServer;
     private long sleepTime;
 
-    public ServletInboundComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
-        super(comPort, serviceProvider.clock(), comServerDAO, deviceCommandExecutor, serviceProvider);
+    public ServletInboundComPortListener(RunningComServer runningComServer, InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
+        super(runningComServer, comPort, serviceProvider.clock(), comServerDAO, deviceCommandExecutor, serviceProvider);
         this.embeddedWebServer = serviceProvider.embeddedWebServerFactory().findOrCreateFor(getServletBasedInboundComPort(), comServerDAO, deviceCommandExecutor, serviceProvider);
         this.sleepTime = getComPort().getComServer().getChangesInterPollDelay().getMilliSeconds();
     }
 
     private ServletBasedInboundComPort getServletBasedInboundComPort() {
         return (ServletBasedInboundComPort) getComPort();
+    }
+
+    @Override
+    public int getThreadCount() {
+        return 1;
     }
 
     @Override

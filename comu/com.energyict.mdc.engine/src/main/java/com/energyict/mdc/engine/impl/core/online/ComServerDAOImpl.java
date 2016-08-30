@@ -13,76 +13,31 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
-import com.energyict.mdc.device.topology.Modulation;
-import com.energyict.mdc.device.topology.ModulationScheme;
-import com.energyict.mdc.device.topology.PhaseInfo;
-import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.*;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
-import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceMessageImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
-import com.energyict.mdc.engine.impl.core.ComJob;
-import com.energyict.mdc.engine.impl.core.ComJobFactory;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
-import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
+import com.energyict.mdc.engine.impl.commands.offline.*;
+import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
-import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.identifiers.*;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.device.offline.*;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -90,11 +45,7 @@ import com.google.common.collect.TreeRangeSet;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 /**
@@ -106,36 +57,8 @@ import java.util.Optional;
  */
 public class ComServerDAOImpl implements ComServerDAO {
 
-    public interface ServiceProvider {
-
-        Clock clock();
-
-        Thesaurus thesaurus();
-
-        EngineConfigurationService engineConfigurationService();
-
-        ConnectionTaskService connectionTaskService();
-
-        CommunicationTaskService communicationTaskService();
-
-        DeviceService deviceService();
-
-        TopologyService topologyService();
-
-        EngineService engineService();
-
-        TransactionService transactionService();
-
-        EventService eventService();
-
-        IdentificationService identificationService();
-
-        FirmwareService firmwareService();
-    }
-
     private final ServiceProvider serviceProvider;
     private ServerProcessStatus status = ServerProcessStatus.STARTING;
-
     public ComServerDAOImpl(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
     }
@@ -194,30 +117,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         return this.getEngineModelService().findComServer(systemName).orElse(null);
     }
 
-    private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
-
-        @Override
-        public Thesaurus thesaurus() {
-            return serviceProvider.thesaurus();
-        }
-
-        @Override
-        public TopologyService topologyService() {
-            return serviceProvider.topologyService();
-        }
-
-        @Override
-        public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
-            return serviceProvider.engineService().findDeviceCacheByDevice(device);
-        }
-
-        @Override
-        public IdentificationService identificationService() {
-            return serviceProvider.identificationService();
-        }
-
-    }
-
     @Override
     public ComServer refreshComServer(ComServer comServer) {
         Optional<ComServer> reloaded = getEngineModelService().findComServer(comServer.getId());
@@ -231,6 +130,18 @@ public class ComServerDAOImpl implements ComServerDAO {
             }
         } else {
             return null;
+        }
+    }
+
+    @Override
+    public ComPort refreshComPort(ComPort comPort) {
+        Optional<? extends ComPort> reloaded = getEngineModelService().findComPort(comPort.getId());
+        if (!reloaded.isPresent() || reloaded.get().isObsolete()) {
+            return null;
+        } else if (reloaded.get().getModificationDate().isAfter(comPort.getModificationDate())) {
+            return reloaded.get();
+        } else {
+            return comPort;
         }
     }
 
@@ -296,14 +207,6 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void unlock(ScheduledConnectionTask connectionTask) {
-        Optional reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            getConnectionTaskService().unlockConnectionTask((ScheduledConnectionTask) reloaded.get());
-        }
-    }
-
-    @Override
     public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier) {
         return findOfflineDevice(identifier, DeviceOffline.needsEverything);
     }
@@ -365,7 +268,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         deviceById.save();
     }
 
-
     @Override
     public void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
         Device device = (Device) deviceIdentifier.findDevice();
@@ -397,7 +299,10 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     public void unlock(final OutboundConnectionTask connectionTask) {
-        getConnectionTaskService().unlockConnectionTask(connectionTask);
+        Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+        if (reloaded.isPresent()) {
+            getConnectionTaskService().unlockConnectionTask(reloaded.get());
+        }
     }
 
     @Override
@@ -501,9 +406,63 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ComSession createComSession(final ComSessionBuilder builder, final ComSession.SuccessIndicator successIndicator) {
+    public void releaseTasksFor(final ComPort comPort) {
+        this.executeTransaction(() -> {
+            List<ComTaskExecution> comTaskExecutionsWhichAreExecuting = getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(comPort);
+            Set<ConnectionTask> lockedConnectionTasks = new HashSet<>();
+
+            if (comTaskExecutionsWhichAreExecuting.isEmpty()) {
+                // There are no ComTaskExec locked for this com port,
+                // so we might be in the case where only the connection task is locked
+
+                lockedConnectionTasks.addAll(getLockedByComServer(comPort.getComServer()));
+
+                for (ComPort otherComPort : comPort.getComServer().getComPorts()) {
+                    unlockAllTasksByComPort(otherComPort);
+                }
+            } else {
+                for (ComTaskExecution comTaskExecution : comTaskExecutionsWhichAreExecuting) {
+                    if (comTaskExecution.getConnectionTask().isPresent()) {
+                        lockedConnectionTasks.add(comTaskExecution.getConnectionTask().get());
+                        getCommunicationTaskService().unlockComTaskExecution(comTaskExecution);
+                    }
+                }
+            }
+
+            // unlock the connection tasks (after all affected ComTaskExecs are unlocked)
+            for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
+                if (lockedConnectionTask instanceof OutboundConnectionTask) {
+                    unlock((OutboundConnectionTask) lockedConnectionTask);
+                }
+            }
+            return null;
+        });
+    }
+
+    /**
+     * Find and release any ComTaskExec executed by a ComPort
+     * <p>
+     * Those tasks will not appear busy anymore, but the ComServer will still continue with these tasks until they are actually finished
+     * Normally no other port will pick it up until the nextExecutionTimeStamp has passed,
+     * but we update that nextExecutionTimestamp to the next according to his schedule in the beginning of the session (from Govanni)
+     */
+    private void unlockAllTasksByComPort(ComPort otherComPort) {
+        for (ComTaskExecution otherComTaskExec : getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(otherComPort)) {
+            getCommunicationTaskService().unlockComTaskExecution(otherComTaskExec);
+        }
+    }
+
+    /**
+     * Find connections locked by a comServer
+     */
+    private List<ConnectionTask> getLockedByComServer(ComServer comServer) {
+        return getConnectionTaskService().findLockedByComServer(comServer);
+    }
+
+    @Override
+    public ComSession createComSession(final ComSessionBuilder builder, Instant stopDate, final ComSession.SuccessIndicator successIndicator) {
         /* We should already be in a transaction so don't wrap it again */
-        return builder.endSession(now(), successIndicator).create();
+        return builder.endSession(stopDate, successIndicator).create();
     }
 
     @Override
@@ -614,7 +573,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device The Device
+     * @param device         The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */
@@ -825,42 +784,42 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<Pair<OfflineLoadProfile,Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID , Range<Instant> dataPeriod) {
+    public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
         final Device dataLogger = (Device) offlineLoadProfile.getDeviceIdentifier().findDevice();
-        if (dataLogger != null){
-            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
+        if (dataLogger != null) {
+            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
                 Optional<Channel> dataLoggerChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
-                if (dataLoggerChannel.isPresent()){
+                if (dataLoggerChannel.isPresent()) {
                     List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.serviceProvider.topologyService().findDataLoggerChannelUsagesForChannels(dataLoggerChannel.get(), dataPeriod);
-                    List<Pair<OfflineLoadProfile,Range<Instant>>> linkedOffLineLoadProfiles = new ArrayList<>();
+                    List<Pair<OfflineLoadProfile, Range<Instant>>> linkedOffLineLoadProfiles = new ArrayList<>();
                     // 'linked' periods
-                    if (!dataLoggerChannelUsages.isEmpty()){
+                    if (!dataLoggerChannelUsages.isEmpty()) {
                         dataLoggerChannelUsages.forEach(usage -> {
                             Device slave = usage.getDataLoggerReference().getOrigin();
                             List<? extends ReadingType> slaveChannelReadingTypes = usage.getSlaveChannel().getReadingTypes();
                             Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> slaveChannelReadingTypes.contains(c.getReadingType())).findFirst();
                             if (slaveChannel.isPresent()) {
-                               OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get().getLoadProfile(), this.serviceProvider.topologyService(),this.serviceProvider.identificationService()){
-                                   protected void goOffline() {
-                                       super.goOffline();
-                                       // To avoid to have to retrieve the involved slave channels again
-                                       setAllLoadProfileChannels(convertToOfflineChannels(Collections.singletonList(slaveChannel.get())));
-                                   }
+                                OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get().getLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService()) {
+                                    protected void goOffline() {
+                                        super.goOffline();
+                                        // To avoid to have to retrieve the involved slave channels again
+                                        setAllLoadProfileChannels(convertToOfflineChannels(Collections.singletonList(slaveChannel.get())));
+                                    }
 
-                                   @Override
-                                   public boolean isDataLoggerSlaveLoadProfile() {
-                                       return true;
-                                   }
-                               };
+                                    @Override
+                                    public boolean isDataLoggerSlaveLoadProfile() {
+                                        return true;
+                                    }
+                                };
 
-                               linkedOffLineLoadProfiles.add(Pair.of(dataLoggerSlaveOfflineLoadProfile, usage.getRange().intersection(dataPeriod)));
+                                linkedOffLineLoadProfiles.add(Pair.of(dataLoggerSlaveOfflineLoadProfile, usage.getRange().intersection(dataPeriod)));
                             }
                         });
                     }
                     //'unlinked periods'
                     if (linkedOffLineLoadProfiles.isEmpty()) {
                         linkedOffLineLoadProfiles.add(Pair.of(offlineLoadProfile, dataPeriod));   //All data is stored on the data logger channel
-                    }else{
+                    } else {
                         RangeSet<Instant> unlinkedPeriods = TreeRangeSet.create();
                         unlinkedPeriods.add(dataPeriod);
                         linkedOffLineLoadProfiles
@@ -877,15 +836,15 @@ public class ComServerDAOImpl implements ComServerDAO {
                 }
             }
         }
-        return Collections.singletonList(Pair.of(offlineLoadProfile,dataPeriod));
+        return Collections.singletonList(Pair.of(offlineLoadProfile, dataPeriod));
     }
 
     private Register getStorageRegister(Register register, Instant readingDate) {
         final Device dataLogger = register.getDevice();
-        if (dataLogger != null){
-            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
-                Optional<Register> slaveRegister  =  this.serviceProvider.topologyService().getSlaveRegister(register, readingDate);
-                if (slaveRegister.isPresent()){
+        if (dataLogger != null) {
+            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
+                Optional<Register> slaveRegister = this.serviceProvider.topologyService().getSlaveRegister(register, readingDate);
+                if (slaveRegister.isPresent()) {
                     return slaveRegister.get();
                 }
             }
@@ -920,6 +879,57 @@ public class ComServerDAOImpl implements ComServerDAO {
         };
 
         public abstract void applyTo(DeviceMessage message);
+
+    }
+
+    public interface ServiceProvider {
+
+        Clock clock();
+
+        Thesaurus thesaurus();
+
+        EngineConfigurationService engineConfigurationService();
+
+        ConnectionTaskService connectionTaskService();
+
+        CommunicationTaskService communicationTaskService();
+
+        DeviceService deviceService();
+
+        TopologyService topologyService();
+
+        EngineService engineService();
+
+        TransactionService transactionService();
+
+        EventService eventService();
+
+        IdentificationService identificationService();
+
+        FirmwareService firmwareService();
+    }
+
+    private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
+
+        @Override
+        public Thesaurus thesaurus() {
+            return serviceProvider.thesaurus();
+        }
+
+        @Override
+        public TopologyService topologyService() {
+            return serviceProvider.topologyService();
+        }
+
+        @Override
+        public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
+            return serviceProvider.engineService().findDeviceCacheByDevice(device);
+        }
+
+        @Override
+        public IdentificationService identificationService() {
+            return serviceProvider.identificationService();
+        }
 
     }
 

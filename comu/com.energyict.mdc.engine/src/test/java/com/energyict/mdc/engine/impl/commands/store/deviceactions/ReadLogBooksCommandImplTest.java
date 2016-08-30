@@ -9,16 +9,24 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
-import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -26,14 +34,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,11 +55,10 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
 
     @Test
     public void commandTypeTest() {
-        CommandRoot commandRoot = mock(CommandRoot.class, Mockito.RETURNS_DEEP_STUBS);
-        ReadLogBooksCommand readLogBooksCommand = new ReadLogBooksCommandImpl(mock(LogBooksCommand.class), commandRoot);
+        ReadLogBooksCommand readLogBooksCommand = new ReadLogBooksCommandImpl(getGroupedDeviceCommand(), mock(LogBooksCommand.class));
 
         // asserts
-        assertThat(readLogBooksCommand.getCommandType()).isEqualTo(ComCommandTypes.READ_LOGBOOKS_COMMAND);
+        assertEquals(ComCommandTypes.READ_LOGBOOKS_COMMAND, readLogBooksCommand.getCommandType());
     }
 
     @Test
@@ -67,23 +68,25 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         when(comTaskExecution.getDevice()).thenReturn(device);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
-        ExecutionContext executionContext = this.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
-        LogBooksCommand logBooksCommand = commandRoot.findOrCreateLogBooksCommand(logBooksTask, commandRoot, comTaskExecution);
-        ReadLogBooksCommand readLogBooksCommand = commandRoot.findorCreateReadLogBooksCommand(logBooksCommand, comTaskExecution);
+        ExecutionContext executionContext = newTestExecutionContext();
+        GroupedDeviceCommand groupedDeviceCommand = getGroupedDeviceCommand();
+        LogBooksCommand logBooksCommand = groupedDeviceCommand.getLogBooksCommand(logBooksTask, groupedDeviceCommand, comTaskExecution);
+        ReadLogBooksCommand readLogBooksCommand = groupedDeviceCommand.getReadLogBooksCommand(logBooksCommand, comTaskExecution);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class);
         when(deviceProtocol.getLogBookData(Matchers.<List<LogBookReader>>any())).thenReturn(Arrays.asList(collectedLogBook));
 
         readLogBooksCommand.execute(deviceProtocol, executionContext);
+        String journalMessage = readLogBooksCommand.toJournalMessageDescription(LogLevel.DEBUG);
 
         // asserts
-        assertThat(logBooksCommand.getCollectedData()).isNotNull();
-        assertThat(logBooksCommand.getCollectedData()).hasSize(1);
-        assertThat(readLogBooksCommand.getIssues()).isNotNull();
-        assertThat(logBooksCommand.getIssues()).isEmpty();
-        assertThat(logBooksCommand.getProblems()).isEmpty();
-        assertThat(logBooksCommand.getWarnings()).isEmpty();
+        assertNotNull(logBooksCommand.getCollectedData());
+        assertEquals("Should have one collectedLogBook", 1, logBooksCommand.getCollectedData().size());
+        assertNotNull(readLogBooksCommand.getIssues());
+        assertEquals("Should have no issues", 0, logBooksCommand.getIssues().size());
+        assertEquals("Should have no problems", 0, logBooksCommand.getProblems().size());
+        assertEquals("Should have no warnings", 0, logBooksCommand.getWarnings().size());
+        assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {No log books to read}", journalMessage);
     }
 
     @Test
@@ -101,14 +104,17 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         LogBookIdentifier logBookIdentifier1 = mock(LogBookIdentifier.class);
         BaseLogBook logBook1 = mock(BaseLogBook.class);
         when((logBookIdentifier1).getLogBook()).thenReturn(logBook1);
+        when((logBookIdentifier1).getLogBookObisCode()).thenReturn(logBookObisCode1);
         when(logBook1.getId()).thenReturn(10L);
         LogBookIdentifier logBookIdentifier2 = mock(LogBookIdentifier.class);
         BaseLogBook logBook2 = mock(BaseLogBook.class);
         when((logBookIdentifier2).getLogBook()).thenReturn(logBook2);
+        when((logBookIdentifier2).getLogBookObisCode()).thenReturn(logBookObisCode2);
         when(logBook2.getId()).thenReturn(20L);
         LogBookIdentifier logBookIdentifier3 = mock(LogBookIdentifier.class);
         BaseLogBook logBook3 = mock(BaseLogBook.class);
         when((logBookIdentifier3).getLogBook()).thenReturn(logBook3);
+        when((logBookIdentifier3).getLogBookObisCode()).thenReturn(logBookObisCode3);
         when(logBook3.getId()).thenReturn(30L);
 
         LogBookReader logBookReader1 = new LogBookReader(this.clock, logBookObisCode1, Optional.of(lastLogBookDate1), logBookIdentifier1, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
@@ -116,12 +122,26 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         LogBookReader logBookReader3 = new LogBookReader(this.clock, logBookObisCode3, Optional.of(lastLogBookDate3), logBookIdentifier3, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
 
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(device, this.newTestExecutionContext(), commandRootServiceProvider);
-        ReadLogBooksCommand readLogBooksCommand = commandRoot.findorCreateReadLogBooksCommand(mock(LogBooksCommand.class), comTaskExecution);
-        readLogBooksCommand.addLogBooks(Arrays.asList(logBookReader1, logBookReader2, logBookReader3, logBookReader1, logBookReader2));
+        CommandRoot commandRoot = createCommandRoot();
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null);
+        LogBooksCommand logBooksCommand = mock(LogBooksCommand.class);
+        when(logBooksCommand.getCommandRoot()).thenReturn(commandRoot);
+        when(logBooksCommand.getLogBookReaders()).thenReturn(Arrays.asList(logBookReader1, logBookReader2, logBookReader3));
+        ReadLogBooksCommand readLogBooksCommand = groupedDeviceCommand.getReadLogBooksCommand(logBooksCommand, comTaskExecution);
 
-        assertThat(((ReadLogBooksCommandImpl) readLogBooksCommand).getLogBooksToCollect()).hasSize(3);
-        assertThat(readLogBooksCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{logbookObisCodes: 1.0.1.8.1.255, 1.0.1.8.2.255, 1.0.1.8.3.255}");
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        CollectedLogBook collectedLogBook1 = new DeviceLogBook(logBookIdentifier1);
+        collectedLogBook1.setMeterEvents(Arrays.asList(mock(MeterProtocolEvent.class)));
+        CollectedLogBook collectedLogBook2 = new DeviceLogBook(logBookIdentifier2);
+        CollectedLogBook collectedLogBook3 = new DeviceLogBook(logBookIdentifier3);
+        when(deviceProtocol.getLogBookData(Matchers.<List<LogBookReader>>any())).thenReturn(Arrays.asList(collectedLogBook1, collectedLogBook2, collectedLogBook3));
+
+        readLogBooksCommand.execute(deviceProtocol, newTestExecutionContext());
+        String infoJournalMessage = readLogBooksCommand.toJournalMessageDescription(LogLevel.INFO);
+        String debugJournalMessage = readLogBooksCommand.toJournalMessageDescription(LogLevel.DEBUG);
+
+        assertEquals("Expected only the three unique LogBookReaders", 3, ((ReadLogBooksCommandImpl) readLogBooksCommand).getLogBooksToCollect().size());
+        assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {nrOfLogbooksToRead: 3}", infoJournalMessage);
+        assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {logbooks: (1.0.1.8.1.255 - Supported - nrOfEvents: 1), (1.0.1.8.2.255 - Supported - nrOfEvents: 0), (1.0.1.8.3.255 - Supported - nrOfEvents: 0)}", debugJournalMessage);
     }
-
 }

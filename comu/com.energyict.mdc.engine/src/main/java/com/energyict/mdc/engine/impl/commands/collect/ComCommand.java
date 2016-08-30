@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
@@ -8,6 +9,7 @@ import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
 import java.util.List;
 
@@ -30,6 +32,18 @@ public interface ComCommand {
      * @return the {@link CommandRoot}
      */
     CommandRoot getCommandRoot();
+
+    /**
+     * Get the grouped device command which serves as a parent for unique ComCommands
+     *
+     * @return the {@link GroupedDeviceCommand}
+     */
+    GroupedDeviceCommand getGroupedDeviceCommand();
+
+    /**
+     * @return the OfflineDevice for which this command needs to be performed
+     */
+    OfflineDevice getOfflineDevice();
 
     /**
      * Get all the issue which occurred during the execution of this {@link ComCommand}.
@@ -68,7 +82,7 @@ public interface ComCommand {
     /**
      * Perform the actions which are owned by this {@link ComCommand}.
      *
-     * @param deviceProtocol the {@link DeviceProtocol} which will perform the actions
+     * @param deviceProtocol   the {@link DeviceProtocol} which will perform the actions
      * @param executionContext The ExecutionContext
      */
     void execute(DeviceProtocol deviceProtocol, ExecutionContext executionContext);
@@ -94,6 +108,8 @@ public interface ComCommand {
      */
     CompletionCode getCompletionCode();
 
+    void setCompletionCode(CompletionCode completionCode);
+
     /**
      * Gets the minimum LogLevel that needs to be activated
      * before this ComCommand must be logged.
@@ -111,8 +127,8 @@ public interface ComCommand {
      * as the human readable description for the
      * ComCommandJournalEntryShadow.
      *
-     * @return The human readable description of this ComCommand
      * @param serverLogLevel The LogLevel set on the ComServer
+     * @return The human readable description of this ComCommand
      */
     String toJournalMessageDescription(LogLevel serverLogLevel);
 

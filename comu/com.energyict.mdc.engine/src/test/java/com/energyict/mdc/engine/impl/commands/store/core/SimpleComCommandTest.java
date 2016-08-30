@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -9,14 +10,14 @@ import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.List;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -33,9 +34,18 @@ public class SimpleComCommandTest {
 
     @Mock
     private CommandRoot commandRoot;
+    @Mock
+    private GroupedDeviceCommand groupedDeviceCommand;
+
+    @Before
+    public void doBefore() {
+        CommandRoot.ServiceProvider serviceProvider = mock(CommandRoot.ServiceProvider.class);
+        when(commandRoot.getServiceProvider()).thenReturn(serviceProvider);
+        when(groupedDeviceCommand.getCommandRoot()).thenReturn(commandRoot);
+    }
 
     @Test
-    public void testGetIssuesWhenNoneExist () {
+    public void testGetIssuesWhenNoneExist() {
         SimpleComCommandForTestingPurposes command = this.newTestCommand();
 
         // Business method
@@ -46,7 +56,7 @@ public class SimpleComCommandTest {
     }
 
     @Test
-    public void testGetIssuess () {
+    public void testGetIssuess() {
         SimpleComCommandForTestingPurposes command =
                 this.newTestCommand(
                         this.mockProblem("testGetIssuess-Problem1"),
@@ -65,7 +75,7 @@ public class SimpleComCommandTest {
     }
 
     @Test
-    public void testGetIssuesFromCollectedData () {
+    public void testGetIssuesFromCollectedData() {
         SimpleComCommandForTestingPurposes command =
                 this.newTestCommand(
                         this.mockCollectedDataWithWarning("testGetIssuesFromCollectedData-Warning1"),
@@ -84,14 +94,14 @@ public class SimpleComCommandTest {
     }
 
     @Test
-    public void testGetIssuesFromCollectedDataAndOthers () {
+    public void testGetIssuesFromCollectedDataAndOthers() {
         SimpleComCommandForTestingPurposes command =
                 this.newTestCommand(
                         this.mockCollectedDataWithWarning("testGetIssuesFromCollectedDataAndOthers-Collected-Warning1"),
                         this.mockCollectedDataWithWarning("testGetIssuesFromCollectedDataAndOthers-Collected-Warning2"),
                         this.mockCollectedDataWithProblem("testGetIssuesFromCollectedDataAndOthers-Collected-Problem"));
-        command.addIssue(this.mockProblem("testGetIssuesFromCollectedDataAndOthers-Problem"));
-        command.addIssue(this.mockWarning("testGetIssuesFromCollectedDataAndOthers-Warning"));
+        command.addIssue(this.mockProblem("testGetIssuesFromCollectedDataAndOthers-Problem"), CompletionCode.UnexpectedError);
+        command.addIssue(this.mockWarning("testGetIssuesFromCollectedDataAndOthers-Warning"), CompletionCode.UnexpectedError);
 
         // Business method
         List<Issue> issues = command.getIssues();
@@ -104,19 +114,19 @@ public class SimpleComCommandTest {
         assertThat(warnings).hasSize(3);
     }
 
-    private SimpleComCommandForTestingPurposes newTestCommand () {
-        return new SimpleComCommandForTestingPurposes(this.commandRoot);
+    private SimpleComCommandForTestingPurposes newTestCommand() {
+        return new SimpleComCommandForTestingPurposes(this.groupedDeviceCommand);
     }
 
-    private SimpleComCommandForTestingPurposes newTestCommand (Issue... issues) {
+    private SimpleComCommandForTestingPurposes newTestCommand(Issue... issues) {
         SimpleComCommandForTestingPurposes comCommand = newTestCommand();
         for (Issue issue : issues) {
-            comCommand.addIssue(issue);
+            comCommand.addIssue(issue, CompletionCode.UnexpectedError);
         }
         return comCommand;
     }
 
-    private SimpleComCommandForTestingPurposes newTestCommand (CollectedData... collectedDatas) {
+    private SimpleComCommandForTestingPurposes newTestCommand(CollectedData... collectedDatas) {
         SimpleComCommandForTestingPurposes comCommand = newTestCommand();
         for (CollectedData collectedData : collectedDatas) {
             comCommand.addCollectedDataItem(collectedData);
@@ -124,7 +134,7 @@ public class SimpleComCommandTest {
         return comCommand;
     }
 
-    private Warning mockWarning (String description) {
+    private Warning mockWarning(String description) {
         Warning warning = mock(Warning.class);
         when(warning.isWarning()).thenReturn(true);
         when(warning.isProblem()).thenReturn(false);
@@ -132,7 +142,7 @@ public class SimpleComCommandTest {
         return warning;
     }
 
-    private Problem mockProblem (String description) {
+    private Problem mockProblem(String description) {
         Problem problem = mock(Problem.class);
         when(problem.isWarning()).thenReturn(false);
         when(problem.isProblem()).thenReturn(true);
@@ -140,14 +150,14 @@ public class SimpleComCommandTest {
         return problem;
     }
 
-    private CollectedData mockCollectedDataWithWarning (String description) {
+    private CollectedData mockCollectedDataWithWarning(String description) {
         CollectedData collectedData = mock(CollectedData.class);
         Issue warning = this.mockWarning(description);
         when(collectedData.getIssues()).thenReturn(Collections.singletonList(warning));
         return collectedData;
     }
 
-    private CollectedData mockCollectedDataWithProblem (String description) {
+    private CollectedData mockCollectedDataWithProblem(String description) {
         CollectedData collectedData = mock(CollectedData.class);
         Issue problem = this.mockProblem(description);
         when(collectedData.getIssues()).thenReturn(Collections.singletonList(problem));
@@ -156,17 +166,17 @@ public class SimpleComCommandTest {
 
     private class SimpleComCommandForTestingPurposes extends SimpleComCommand {
 
-        private SimpleComCommandForTestingPurposes (CommandRoot commandRoot) {
-            super(commandRoot);
+        private SimpleComCommandForTestingPurposes(GroupedDeviceCommand groupedDeviceCommand) {
+            super(groupedDeviceCommand);
         }
 
         @Override
-        public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+        public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
             // Remember: for testing purposes only
         }
 
         @Override
-        public ComCommandType getCommandType () {
+        public ComCommandType getCommandType() {
             return ComCommandTypes.UNKNOWN;
         }
 

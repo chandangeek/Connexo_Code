@@ -90,7 +90,7 @@ public class MockComServerDAO implements ComServerDAO {
         comServer.setServerLogLevel(ComServer.LogLevel.INFO);
         comServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
         comServer.setChangesInterPollDelay(new TimeDuration(CHANGES_DELAY_SECONDS, TimeDuration.TimeUnit.SECONDS));
-        comServer.setSchedulingInterPollDelay(new TimeDuration(2, TimeDuration.TimeUnit.HOURS));
+        comServer.setSchedulingInterPollDelay(new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS));
     }
 
     public MockOnlineComServer addComServer (int activeOutboundComPorts, int activeInboundComPorts) throws SQLException {
@@ -207,6 +207,24 @@ public class MockComServerDAO implements ComServerDAO {
         return this.doRefresh(comServer);
     }
 
+    @Override
+    public ComPort refreshComPort (ComPort comPort) {
+        MockComPort mockComPort = (MockComPort) comPort;
+        if (mockComPort.isDirty()) {
+            mockComPort.setDirty(false);
+            try {
+                return (ComPort) mockComPort.clone();
+            }
+            catch (CloneNotSupportedException e) {
+                // Silly bugger, the class implements Cloneable
+                return comPort;
+            }
+        }
+        else {
+            return comPort;
+        }
+    }
+
     private ComServer doRefresh (ComServer comServer) {
         MockOnlineComServer mockComserver = (MockOnlineComServer) comServer;
         if (mockComserver.isDirty()) {
@@ -296,11 +314,6 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void unlock (ScheduledConnectionTask connectionTask) {
-        this.connectionTaskLocking.remove(connectionTask);
-    }
-
-    @Override
     public void unlock (OutboundConnectionTask connectionTask) {
         this.connectionTaskLocking.remove(connectionTask);
     }
@@ -382,13 +395,18 @@ public class MockComServerDAO implements ComServerDAO {
         return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     }
 
+    @Override
+    public void releaseTasksFor(ComPort comPort) {
+        this.comTaskExecutionLocking.clear();
+    }
+
 //    private EndDeviceCache createOrUpdateDeviceCache(int deviceId, DeviceCacheShadow shadow) {
 //        // Not creating or updating device caches in mock mode
 //        return null;
 //    }
 
     @Override
-    public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
+    public ComSession createComSession(ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator) {
 //        // Not creating com sessions in mock mode
         return null;
     }

@@ -4,8 +4,8 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -23,9 +23,9 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
 
     private final OfflineDevice offlineDevice;
 
-    public VerifySerialNumberCommandImpl(final OfflineDevice offlineDevice, final CommandRoot commandRoot) {
-        super(commandRoot);
-        this.offlineDevice = offlineDevice;
+    public VerifySerialNumberCommandImpl(final GroupedDeviceCommand groupedDeviceCommand) {
+        super(groupedDeviceCommand);
+        this.offlineDevice = groupedDeviceCommand.getOfflineDevice();
     }
 
     /**
@@ -36,20 +36,20 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
      * If the serialNumbers don't match, then a {@link DeviceConfigurationException} will be thrown.
      * </p>
      *
-     * @param deviceProtocol the {@link DeviceProtocol} which will perform the actions
+     * @param deviceProtocol   the {@link DeviceProtocol} which will perform the actions
      * @param executionContext The ExecutionContext
      */
     @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if (!(MeterProtocolAdapter.class.isAssignableFrom(deviceProtocol.getClass()))) {
             String meterSerialNumber = deviceProtocol.getSerialNumber();
-            if (!meterSerialNumber.equals(offlineDevice.getSerialNumber())) {
+            if (meterSerialNumber == null) {
+                addIssue(getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, offlineDevice.getSerialNumber(), deviceProtocol.getClass().getSimpleName()), CompletionCode.ConfigurationWarning);
+            } else if (!meterSerialNumber.equals(offlineDevice.getSerialNumber())) {
                 addIssue(getIssueService().newProblem(getCommandType(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH, meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
-                throw DeviceConfigurationException.serialNumberMisMatch(meterSerialNumber, offlineDevice.getSerialNumber(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH);
             }
-        }
-        else {
-            addIssue(getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, deviceProtocol.getSerialNumber(), deviceProtocol.getClass().getSimpleName()));
+        } else {
+            addIssue(getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, offlineDevice.getSerialNumber(), deviceProtocol.getClass().getSimpleName()), CompletionCode.ConfigurationWarning);
         }
     }
 

@@ -14,41 +14,33 @@ import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCom
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOnCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOnCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.AddPropertiesCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolInitializeCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolSetCacheCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolTerminateCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolUpdateCacheCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.*;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComTaskExecutionConnectionSteps;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.logging.Logger;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.logging.Logger;
+
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the DeviceProtocolCommandCreator
@@ -63,7 +55,8 @@ public class DeviceProtocolCommandCreatorTest {
     private static final long COMPORT_POOL_ID = 1;
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
-
+    @Mock
+    private DeviceProtocol deviceProtocol;
     @Mock
     private CommandRoot.ServiceProvider commandRootServiceProvider;
     @Mock
@@ -78,7 +71,7 @@ public class DeviceProtocolCommandCreatorTest {
     private Clock clock = Clock.systemDefaultZone();
 
     private ComTaskExecutionConnectionSteps createSingleDeviceComTaskExecutionSteps() {
-        return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.SIGNON, ComTaskExecutionConnectionSteps.SIGNOFF);
+        return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.FIRST_OF_CONNECTION_SERIES, ComTaskExecutionConnectionSteps.LAST_OF_CONNECTION_SERIES);
     }
 
     private ComTaskExecutionConnectionSteps createMiddleDeviceComTaskExecutionSteps() {
@@ -86,7 +79,7 @@ public class DeviceProtocolCommandCreatorTest {
     }
 
     private ComTaskExecutionConnectionSteps createLastDeviceComTaskExecutionSteps() {
-        return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.SIGNOFF);
+        return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.LAST_OF_CONNECTION_SERIES);
     }
 
     @Before
@@ -101,7 +94,8 @@ public class DeviceProtocolCommandCreatorTest {
     @Test
     public void testCommandCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), this.commandRootServiceProvider));
+        CommandRootImpl commandRoot = new CommandRootImpl(this.newTestExecutionContext(), commandRootServiceProvider);
+        GroupedDeviceCommand groupedDeviceCommand = spy(new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
@@ -110,27 +104,27 @@ public class DeviceProtocolCommandCreatorTest {
 
         DeviceProtocolCommandCreator commandCreator = new DeviceProtocolCommandCreator();
         commandCreator.createCommands(
-                root,
+                groupedDeviceCommand,
                 TypedProperties.empty(),
                 ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                device,
                 Collections.<ProtocolTask>emptyList(),
                 null, comTaskExecutionConnectionStep, null, issueService);
 
-        InOrder order = Mockito.inOrder(root);
-        order.verify(root).addUniqueCommand(isA(AddPropertiesCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(isA(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(isA(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(isA(LogOnCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(isA(LogOffCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(isA(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(isA(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
+        InOrder order = Mockito.inOrder(groupedDeviceCommand);
+        order.verify(groupedDeviceCommand).addCommand(isA(AddPropertiesCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(isA(LogOnCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(isA(LogOffCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
     }
 
     @Test
     public void testMiddleStateCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), this.commandRootServiceProvider));
+        CommandRootImpl commandRoot = new CommandRootImpl(this.newTestExecutionContext(), commandRootServiceProvider);
+        GroupedDeviceCommand groupedDeviceCommand = spy(new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
@@ -139,29 +133,29 @@ public class DeviceProtocolCommandCreatorTest {
 
         DeviceProtocolCommandCreator commandCreator = new DeviceProtocolCommandCreator();
         commandCreator.createCommands(
-                root,
+                groupedDeviceCommand,
                 TypedProperties.empty(),
                 ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                device,
                 Collections.<ProtocolTask>emptyList(),
                 null, comTaskExecutionConnectionStep, null, issueService);
 
         // none of the 'connection' related commands should be called ...
-        verify(root, times(0)).addUniqueCommand(isA(LogOffCommand.class), any(ComTaskExecution.class));
-        verify(root, times(0)).addUniqueCommand(isA(LogOnCommand.class), any(ComTaskExecution.class));
-        verify(root, times(0)).addUniqueCommand(isA(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
-        verify(root, times(0)).addUniqueCommand(isA(AddPropertiesCommand.class), any(ComTaskExecution.class));
-        verify(root, times(0)).addUniqueCommand(isA(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
-        verify(root, times(0)).addUniqueCommand(isA(DaisyChainedLogOnCommand.class), any(ComTaskExecution.class));
-        verify(root, times(0)).addUniqueCommand(isA(DaisyChainedLogOffCommand.class), any(ComTaskExecution.class));
-        verify(root, times(0)).addUniqueCommand(isA(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
-        verify(root, times(0)).addUniqueCommand(isA(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
+        verify(groupedDeviceCommand, times(0)).addCommand(isA(LogOffCommand.class), any(ComTaskExecution.class));
+        verify(groupedDeviceCommand, times(0)).addCommand(isA(LogOnCommand.class), any(ComTaskExecution.class));
+        verify(groupedDeviceCommand, times(0)).addCommand(isA(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
+        verify(groupedDeviceCommand, times(0)).addCommand(isA(AddPropertiesCommand.class), any(ComTaskExecution.class));
+        verify(groupedDeviceCommand, times(0)).addCommand(isA(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
+        verify(groupedDeviceCommand, times(0)).addCommand(isA(DaisyChainedLogOnCommand.class), any(ComTaskExecution.class));
+        verify(groupedDeviceCommand, times(0)).addCommand(isA(DaisyChainedLogOffCommand.class), any(ComTaskExecution.class));
+        verify(groupedDeviceCommand, times(0)).addCommand(isA(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
+        verify(groupedDeviceCommand, times(0)).addCommand(isA(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
     }
 
     @Test
     public void testLastStateCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), this.commandRootServiceProvider));
+        CommandRootImpl commandRoot = new CommandRootImpl(this.newTestExecutionContext(), commandRootServiceProvider);
+        GroupedDeviceCommand groupedDeviceCommand = spy(new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
@@ -170,20 +164,19 @@ public class DeviceProtocolCommandCreatorTest {
 
         DeviceProtocolCommandCreator commandCreator = new DeviceProtocolCommandCreator();
         commandCreator.createCommands(
-                root,
+                groupedDeviceCommand,
                 TypedProperties.empty(),
                 ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                device,
                 Collections.<ProtocolTask>emptyList(),
                 null, comTaskExecutionConnectionStep, null, issueService);
 
-        InOrder order = Mockito.inOrder(root);
-        order.verify(root).addUniqueCommand(isA(LogOffCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(isA(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(isA(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
+        InOrder order = Mockito.inOrder(groupedDeviceCommand);
+        order.verify(groupedDeviceCommand).addCommand(isA(LogOffCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
 
         // the normal LogOn should never be called
-        verify(root, times(0)).addUniqueCommand(isA(LogOnCommand.class), any(ComTaskExecution.class));
+        verify(groupedDeviceCommand, times(0)).addCommand(isA(LogOnCommand.class), any(ComTaskExecution.class));
     }
 
     private ExecutionContext newTestExecutionContext() {
@@ -207,9 +200,8 @@ public class DeviceProtocolCommandCreatorTest {
                         connectionTask,
                         comPort,
                         true,
-                        this.executionContextServiceProvider);
+                        executionContextServiceProvider);
         executionContext.setLogger(logger);
         return executionContext;
     }
-
 }

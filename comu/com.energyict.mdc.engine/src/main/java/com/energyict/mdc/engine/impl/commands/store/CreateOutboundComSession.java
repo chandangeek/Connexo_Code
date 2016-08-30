@@ -1,19 +1,19 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import java.time.Clock;
-import java.time.Duration;
-
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 
-import com.elster.jupiter.util.time.StopWatch;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -29,12 +29,14 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
 
     private final ScheduledConnectionTask connectionTask;
     private final ComSessionBuilder builder;
+    private final Instant stopDate;
     private ComSession.SuccessIndicator successIndicator;
     private ComSession outboundComSession;
     private StopWatch stopWatch;
 
-    public CreateOutboundComSession(ComServer.LogLevel communicationLogLevel, ScheduledConnectionTask connectionTask, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator, Clock clock) {
+    public CreateOutboundComSession(Instant stopDate, ComServer.LogLevel communicationLogLevel, ScheduledConnectionTask connectionTask, ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator, Clock clock) {
         super(communicationLogLevel, clock);
+        this.stopDate = stopDate;
         this.connectionTask = connectionTask;
         this.builder = builder;
         this.successIndicator = successIndicator;
@@ -61,13 +63,12 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
     }
 
     @Override
-    public void execute (ComServerDAO comServerDAO) {
+    public void execute(ComServerDAO comServerDAO) {
         try {
             this.stopWatch.stop();
             this.builder.storeDuration(Duration.ofNanos(this.stopWatch.getElapsed()));
-            this.outboundComSession = comServerDAO.createComSession(this.builder, successIndicator);
-        }
-        catch (RuntimeException e) {
+            this.outboundComSession = comServerDAO.createComSession(builder, stopDate, successIndicator);
+        } catch (RuntimeException e) {
             LoggerFactory.getLoggerFor(DeviceCommandLogger.class).outboundComSessionCreationFailed(e, this.connectionTask);
             throw e;
         }
@@ -79,17 +80,17 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
     }
 
     @Override
-    public void executeDuringShutdown (ComServerDAO comServerDAO) {
+    public void executeDuringShutdown(ComServerDAO comServerDAO) {
         this.execute(comServerDAO);
     }
 
     @Override
-    public ComServer.LogLevel getJournalingLogLevel () {
+    public ComServer.LogLevel getJournalingLogLevel() {
         return ComServer.LogLevel.TRACE;
     }
 
     @Override
-    public void logExecutionWith (ExecutionLogger logger) {
+    public void logExecutionWith(ExecutionLogger logger) {
         // I am the ExecutionLogger so ignore this
     }
 
@@ -102,8 +103,7 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
     public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
         if (this.outboundComSession == null) {
             return "";
-        }
-        else {
+        } else {
             DescriptionBuilder builder = new DescriptionBuilderImpl(this);
             if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {
                 builder.addProperty("indicator").append(this.outboundComSession.getSuccessIndicator());

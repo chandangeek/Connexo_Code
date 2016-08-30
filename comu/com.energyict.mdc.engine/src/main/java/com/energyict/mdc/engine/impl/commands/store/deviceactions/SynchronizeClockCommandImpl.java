@@ -8,8 +8,8 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.SynchronizeClockCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -30,10 +30,10 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
     private ClockCommand clockCommand;
     private Date timeSet;
 
-    public SynchronizeClockCommandImpl(final ClockCommand clockCommand, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
-        super(commandRoot);
+    public SynchronizeClockCommandImpl(final GroupedDeviceCommand groupedDeviceCommand, final ClockCommand clockCommand, ComTaskExecution comTaskExecution) {
+        super(groupedDeviceCommand);
         this.clockCommand = clockCommand;
-        this.clockCommand.setTimeDifferenceCommand(getCommandRoot().findOrCreateTimeDifferenceCommand(clockCommand, comTaskExecution));
+        this.clockCommand.setTimeDifferenceCommand(getGroupedDeviceCommand().getTimeDifferenceCommand(clockCommand, comTaskExecution));
     }
 
     /**
@@ -49,39 +49,9 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
         return "Synchronize the device time";
     }
 
-    @Override
-    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
-        super.toJournalMessageDescription(builder, serverLogLevel);
-        if (isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
-            this.getMinimumClockDifference().ifPresent(cd -> builder.addProperty("minimumDifference").append(cd));
-            this.getMaximumClockDifference().ifPresent(cd -> builder.addProperty("maximumDifference").append(cd));
-            this.getMaximumClockShift().ifPresent(cs -> builder.addProperty("maximumClockShift").append(cs));
-            this.getTimeDifference().ifPresent(td -> builder.addProperty("timeDifference").append(td));
-        }
-        if (this.timeSet != null && this.isJournalingLevelEnabled(serverLogLevel, LogLevel.INFO)) {
-            builder.addLabel(MessageFormat.format("Time was forcefully set to {0,date,yyyy-MM-dd HH:mm:ss}", this.timeSet));
-        }
-    }
-
-    private Optional<TimeDuration> getMinimumClockDifference() {
-        return clockCommand.getClockTask().getMinimumClockDifference();
-    }
-
-    private Optional<TimeDuration> getMaximumClockDifference() {
-        return clockCommand.getClockTask().getMaximumClockDifference();
-    }
-
-    private Optional<TimeDuration> getMaximumClockShift() {
-        return clockCommand.getClockTask().getMaximumClockShift();
-    }
-
-    private Optional<TimeDuration> getTimeDifference() {
-        return clockCommand.getTimeDifference();
-    }
-
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        long timeDifference = clockCommand.getTimeDifference().orElse(TimeDuration.TimeUnit.MILLISECONDS.during(0)).getMilliSeconds();
-        if (Math.abs(timeDifference) <= clockCommand.getClockTask().getMaximumClockDifference().map(TimeDuration::getMilliSeconds).orElse(0L)){
+        long timeDifference = getTimeDifference().orElse(TimeDuration.TimeUnit.MILLISECONDS.during(0)).getMilliSeconds();
+        if (Math.abs(timeDifference) <= getMaximumClockDifference().map(TimeDuration::getMilliSeconds).orElse(0L)) {
             long timeShift = getTimeShift(timeDifference);
             if (timeShift != 0) {
                 long currentDeviceTime = getCommandRoot().getServiceProvider().clock().millis() - timeDifference;
@@ -104,14 +74,51 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
      * @return the calculated clockShift in MilliSeconds
      */
     private long getTimeShift(final long timeDifference) {
-        Long maxClockShiftMillis = clockCommand.getClockTask().getMaximumClockShift().map(TimeDuration::getMilliSeconds).orElse(0L);
+        Long maxClockShiftMillis = getMaximumClockShift().map(TimeDuration::getMilliSeconds).orElse(0L);
         if (maxClockShiftMillis <= Math.abs(timeDifference)) {
             return (long) (maxClockShiftMillis * Math.signum(timeDifference));
-        } else if (clockCommand.getClockTask().getMinimumClockDifference().map(TimeDuration::getMilliSeconds).orElse(0L) <= Math.abs(timeDifference)) {
+        } else if (getMinimumClockDifference().map(TimeDuration::getMilliSeconds).orElse(0L) <= Math.abs(timeDifference)) {
             return timeDifference;
         } else {
             return 0L;
         }
     }
 
+    private Optional<TimeDuration> getMinimumClockDifference() {
+        return clockCommand.getClockTaskOptions().getMinimumClockDifference();
+    }
+
+    private Optional<TimeDuration> getMaximumClockDifference() {
+        return clockCommand.getClockTaskOptions().getMaximumClockDifference();
+    }
+
+    private Optional<TimeDuration> getMaximumClockShift() {
+        return clockCommand.getClockTaskOptions().getMaximumClockShift();
+    }
+
+    private Optional<TimeDuration> getTimeDifference() {
+        return clockCommand.getTimeDifference();
+    }
+
+    @Override
+    protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
+        super.toJournalMessageDescription(builder, serverLogLevel);
+        if (isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
+            if (getMinimumClockDifference().isPresent()) {
+                builder.addProperty("minimumDifference").append(getMinimumClockDifference().get());
+            }
+            if (getMaximumClockDifference().isPresent()) {
+                builder.addProperty("maximumDifference").append(getMaximumClockDifference().get());
+            }
+            if (getMaximumClockShift().isPresent()) {
+                builder.addProperty("maximumClockShift").append(getMaximumClockShift().get());
+            }
+            if (getTimeDifference().isPresent()) {
+                builder.addProperty("timeDifference").append(getTimeDifference().get());
+            }
+        }
+        if (this.timeSet != null) {
+            builder.addLabel(MessageFormat.format("Time was successfully set to {0}", this.timeSet));
+        }
+    }
 }

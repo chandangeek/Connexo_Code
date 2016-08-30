@@ -18,12 +18,12 @@ import java.util.concurrent.Executors;
 public class RunningRemoteComServerImpl extends RunningComServerImpl {
 
     public RunningRemoteComServerImpl(RemoteComServer comServer, RemoteComServerDAOImpl comServerDAO, ServiceProvider serviceProvider) {
-        super(comServer, comServerDAO, null, null, Executors.defaultThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        super(comServer, comServerDAO, null, null, Executors.defaultThreadFactory(), serviceProvider);
         comServerDAO.setComServer(this);
     }
 
     public RunningRemoteComServerImpl(RemoteComServer comServer, RemoteComServerDAOImpl comServerDAO, EmbeddedWebServerFactory embeddedWebServerFactory, ServiceProvider serviceProvider) {
-        super(comServer, comServerDAO, null, null, Executors.defaultThreadFactory(), embeddedWebServerFactory, new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        super(comServer, comServerDAO, null, null, Executors.defaultThreadFactory(), embeddedWebServerFactory, serviceProvider);
         comServerDAO.setComServer(this);
     }
 

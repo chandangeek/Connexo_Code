@@ -21,13 +21,6 @@ import java.util.List;
 public interface ComJob {
 
     /**
-     * Tests if this ComJob represents a group of {@link ComTaskExecution}s.
-     *
-     * @return A flag that indicates if this ComJob contains more than one ScheduledComTask
-     */
-    boolean isGroup();
-
-    /**
      * Gets the {@link ScheduledConnectionTask} to which all this
      * ComJob's ComTaskExecution relate.
      *

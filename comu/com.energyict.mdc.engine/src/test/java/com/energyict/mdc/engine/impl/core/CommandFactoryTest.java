@@ -2,20 +2,16 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.tasks.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -28,11 +24,11 @@ import static org.mockito.Mockito.verify;
 public class CommandFactoryTest extends CommonCommandImplTests {
 
     @Mock
-    private CommandRootImpl commandRoot;
-    @Mock
     private ComTaskExecution scheduledComTask;
     @Mock
     private ComTask comTask;
+    @Mock
+    private OfflineDevice offlineDevice;
 
     @Test
     public void createLegacyCommandsFromTaskTest() throws Exception {
@@ -45,11 +41,12 @@ public class CommandFactoryTest extends CommonCommandImplTests {
         protocolTasks.add(loadProfilesTask);
         protocolTasks.add(logBooksTask);
 
+        GroupedDeviceCommand groupedDeviceCommand = mock(GroupedDeviceCommand.class);
         // Business methods
-        CommandFactory.createLegacyCommandsFromTask(commandRoot, scheduledComTask, protocolTasks);
+        CommandFactory.createLegacyCommandsFromTask(groupedDeviceCommand, scheduledComTask, protocolTasks);
 
         // Asserts
-        verify(commandRoot).findOrCreateLegacyLoadProfileLogBooksCommand(loadProfilesTask, logBooksTask, commandRoot, scheduledComTask);
+        verify(groupedDeviceCommand).getLegacyLoadProfileLogBooksCommand(loadProfilesTask, logBooksTask, groupedDeviceCommand, scheduledComTask);
     }
 
     @Test
@@ -61,11 +58,13 @@ public class CommandFactoryTest extends CommonCommandImplTests {
         protocolTasks.add(registersTask);
         protocolTasks.add(loadProfilesTask);
 
+        GroupedDeviceCommand groupedDeviceCommand = mock(GroupedDeviceCommand.class);
+
         // Business methods
-        CommandFactory.createLegacyCommandsFromTask(commandRoot, scheduledComTask, protocolTasks);
+        CommandFactory.createLegacyCommandsFromTask(groupedDeviceCommand, scheduledComTask, protocolTasks);
 
         // Asserts
-        verify(commandRoot).findOrCreateLegacyLoadProfileLogBooksCommand(loadProfilesTask, null, commandRoot, scheduledComTask);
+        verify(groupedDeviceCommand).getLegacyLoadProfileLogBooksCommand(loadProfilesTask, null, groupedDeviceCommand, scheduledComTask);
     }
 
     @Test
@@ -77,10 +76,12 @@ public class CommandFactoryTest extends CommonCommandImplTests {
         protocolTasks.add(registersTask);
         protocolTasks.add(logBooksTask);
 
+        GroupedDeviceCommand groupedDeviceCommand = mock(GroupedDeviceCommand.class);
+
         // Business methods
-        CommandFactory.createLegacyCommandsFromTask(commandRoot, scheduledComTask, protocolTasks);
+        CommandFactory.createLegacyCommandsFromTask(groupedDeviceCommand, scheduledComTask, protocolTasks);
 
         // Asserts
-        verify(commandRoot).findOrCreateLegacyLoadProfileLogBooksCommand(null, logBooksTask, commandRoot, scheduledComTask);
+        verify(groupedDeviceCommand).getLegacyLoadProfileLogBooksCommand(null, logBooksTask, groupedDeviceCommand, scheduledComTask);
     }
 }

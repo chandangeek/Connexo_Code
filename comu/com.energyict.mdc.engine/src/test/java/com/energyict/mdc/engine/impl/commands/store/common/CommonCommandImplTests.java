@@ -20,11 +20,11 @@ import static org.mockito.Mockito.mock;
 public abstract class CommonCommandImplTests extends AbstractComCommandExecuteTest {
 
     public CommandRoot createCommandRoot() {
-        return new CommandRootImpl(mock(OfflineDevice.class), this.newTestExecutionContext(), this.commandRootServiceProvider);
+        return new CommandRootImpl(this.newTestExecutionContext(), this.commandRootServiceProvider);
     }
 
     public CommandRoot createCommandRoot(final OfflineDevice offlineDevice){
-        return new CommandRootImpl(offlineDevice, this.newTestExecutionContext(), this.commandRootServiceProvider);
+        return new CommandRootImpl(this.newTestExecutionContext(), this.commandRootServiceProvider);
     }
 
 }

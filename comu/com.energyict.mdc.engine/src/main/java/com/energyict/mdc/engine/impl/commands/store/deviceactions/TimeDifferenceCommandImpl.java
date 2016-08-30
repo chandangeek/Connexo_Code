@@ -4,14 +4,13 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 
-import java.text.MessageFormat;
 import java.time.Clock;
 import java.util.Date;
 import java.util.Optional;
@@ -29,8 +28,8 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
      */
     private TimeDuration timeDifference;
 
-    public TimeDifferenceCommandImpl(final CommandRoot commandRoot) {
-        super(commandRoot);
+    public TimeDifferenceCommandImpl(final GroupedDeviceCommand groupedDeviceCommand) {
+        super(groupedDeviceCommand);
     }
 
     @Override
@@ -43,7 +42,10 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
         long halfRoundTrip = roundTripTimer.getRoundTrip();
         halfRoundTrip = halfRoundTrip / 2;
         long differenceInMillis = clock.millis() - (meterTime.getTime() - halfRoundTrip);
-        this.timeDifference = new TimeDuration((int) differenceInMillis, TimeDuration.TimeUnit.MILLISECONDS);
+        this.timeDifference =
+                (differenceInMillis > Integer.MAX_VALUE)
+                        ? new TimeDuration((int) (differenceInMillis / 1000), TimeDuration.TimeUnit.SECONDS)
+                        : new TimeDuration((int) differenceInMillis, TimeDuration.TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -66,9 +68,10 @@ public class TimeDifferenceCommandImpl extends SimpleComCommand implements TimeD
     @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
-        if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.INFO)) {
-            builder.addLabel(MessageFormat.format("Time difference is {0}", this.timeDifference));
-        }
+        builder.addProperty("timeDifference").append(
+                getTimeDifference().isPresent() ?
+                        getTimeDifference().get() :
+                        "not read"
+        );
     }
-
 }

@@ -1,17 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.core.CreateComTaskExecutionSessionTask;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.FirmwareManagementTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
+import com.energyict.mdc.tasks.*;
 
 import java.util.List;
 
@@ -25,8 +16,10 @@ import java.util.List;
 public enum ComCommandTypes implements ComCommandType {
 
     UNKNOWN,
+    ALREADY_EXECUTED,
     ROOT,
     COM_TASK_ROOT,
+    GROUPED_DEVICE,
 
     DEVICE_PROTOCOL_INITIALIZE,
     DEVICE_PROTOCOL_TERMINATE,
@@ -43,13 +36,13 @@ public enum ComCommandTypes implements ComCommandType {
 
     CLOCK_COMMAND(ClockTask.class) {
         @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateClockCommand((ClockTask) protocolTask, root, comTaskExecution);
+        public void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getClockCommand((ClockTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
 
         @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateClockCommand((ClockTask) protocolTask, root, comTaskExecution);
+        public void createCommandsFromTask(GroupedDeviceCommand groupedDeviceCommand, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getClockCommand((ClockTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
     },
     SET_CLOCK_COMMAND,
@@ -61,26 +54,26 @@ public enum ComCommandTypes implements ComCommandType {
 
     TOPOLOGY_COMMAND(TopologyTask.class) {
         @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateTopologyCommand((TopologyTask) protocolTask, root, comTaskExecution);
+        public void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getTopologyCommand((TopologyTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
 
         @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateTopologyCommand((TopologyTask) protocolTask, root, comTaskExecution);
+        public void createCommandsFromTask(GroupedDeviceCommand groupedDeviceCommand, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getTopologyCommand((TopologyTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
     },
 
     LOAD_PROFILE_COMMAND(LoadProfilesTask.class) {
         @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateLoadProfileCommand((LoadProfilesTask) protocolTask, root, comTaskExecution);
+        public void createCommandsFromTask(GroupedDeviceCommand groupedDeviceCommand, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getLoadProfileCommand((LoadProfilesTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
 
         @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+        public void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
             LogBooksTask logBooksTask = checkGetLogBooksTask(protocolTasks);
-            root.findOrCreateLegacyLoadProfileLogBooksCommand((LoadProfilesTask) protocolTask, logBooksTask, root, comTaskExecution);
+            groupedDeviceCommand.getLegacyLoadProfileLogBooksCommand((LoadProfilesTask) protocolTask, logBooksTask, groupedDeviceCommand, comTaskExecution);
         }
 
         /**
@@ -88,12 +81,12 @@ public enum ComCommandTypes implements ComCommandType {
          * If the set doesn't contain a {@link LogBooksTask}, then null will be returned.
          *
          * @param protocolTasks The List of ProtocolTasks
-         * @return  the {@link LogBooksTask}
+         * @return the {@link LogBooksTask}
          *          null, if no {@link LogBooksTask} was found
          */
-        private LogBooksTask checkGetLogBooksTask(List<? extends ProtocolTask> protocolTasks) {
+        private LogBooksTask checkGetLogBooksTask(List<ProtocolTask> protocolTasks) {
             for (ProtocolTask protocolTask : protocolTasks) {
-                if (ComCommandTypes.forProtocolTask(protocolTask).equals(ComCommandTypes.LOGBOOKS_COMMAND)) {
+                if (ComCommandTypes.forProtocolTask(protocolTask.getClass()).equals(ComCommandTypes.LOGBOOKS_COMMAND)) {
                     return (LogBooksTask) protocolTask;
                 }
             }
@@ -108,66 +101,66 @@ public enum ComCommandTypes implements ComCommandType {
 
     BASIC_CHECK_COMMAND(BasicCheckTask.class) {
         @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateBasicCheckCommand((BasicCheckTask) protocolTask, root, comTaskExecution);
+        public void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getBasicCheckCommand((BasicCheckTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
 
         @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateBasicCheckCommand((BasicCheckTask) protocolTask, root, comTaskExecution);
+        public void createCommandsFromTask(GroupedDeviceCommand groupedDeviceCommand, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getBasicCheckCommand((BasicCheckTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
     },
     VERIFY_SERIAL_NUMBER_COMMAND,
 
     REGISTERS_COMMAND(RegistersTask.class) {
         @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateRegisterCommand((RegistersTask) protocolTask, root, comTaskExecution);
+        public void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getRegisterCommand((RegistersTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
 
         @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateRegisterCommand((RegistersTask) protocolTask, root, comTaskExecution);
+        public void createCommandsFromTask(GroupedDeviceCommand groupedDeviceCommand, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getRegisterCommand((RegistersTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
     },
     READ_REGISTERS_COMMAND,
 
     STATUS_INFORMATION_COMMAND(StatusInformationTask.class) {
         @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateStatusInformationCommand(root, comTaskExecution);
+        public void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getStatusInformationCommand(groupedDeviceCommand, comTaskExecution);
         }
 
         @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateStatusInformationCommand(root, comTaskExecution);
+        public void createCommandsFromTask(GroupedDeviceCommand groupedDeviceCommand, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getStatusInformationCommand(groupedDeviceCommand, comTaskExecution);
         }
     },
 
     MESSAGES_COMMAND(MessagesTask.class) {
         @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateMessagesCommand((MessagesTask) protocolTask, root, comTaskExecution);
+        public void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getMessagesCommand((MessagesTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
 
         @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateMessagesCommand((MessagesTask) protocolTask, root, comTaskExecution);
+        public void createCommandsFromTask(GroupedDeviceCommand groupedDeviceCommand, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getMessagesCommand((MessagesTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
     },
 
     LOGBOOKS_COMMAND(LogBooksTask.class) {
         @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateLogBooksCommand((LogBooksTask) protocolTask, root, comTaskExecution);
+        public void createCommandsFromTask(GroupedDeviceCommand groupedDeviceCommand, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getLogBooksCommand((LogBooksTask) protocolTask, groupedDeviceCommand, comTaskExecution);
         }
 
         @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+        public void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
             LoadProfilesTask loadProfilesTask = checkGetLoadProfilesTask(protocolTasks);
             // Only need action when there is no load profiles task
             if (loadProfilesTask == null) {
-                root.findOrCreateLegacyLoadProfileLogBooksCommand(null, (LogBooksTask) protocolTask, root, comTaskExecution);
+                groupedDeviceCommand.getLegacyLoadProfileLogBooksCommand(null, (LogBooksTask) protocolTask, groupedDeviceCommand, comTaskExecution);
             }
         }
 
@@ -176,12 +169,12 @@ public enum ComCommandTypes implements ComCommandType {
          * If the set doesn't contain a {@link LoadProfilesTask}, then null will be returned.
          *
          * @param protocolTasks The List of ProtoclTasks
-         * @return  the {@link LoadProfilesTask}
+         * @return the {@link LoadProfilesTask}
          *          null, if no {@link LoadProfilesTask} was found
          */
-        private LoadProfilesTask checkGetLoadProfilesTask(List<? extends ProtocolTask> protocolTasks) {
+        private LoadProfilesTask checkGetLoadProfilesTask(List<ProtocolTask> protocolTasks) {
             for (ProtocolTask protocolTask : protocolTasks) {
-                if (ComCommandTypes.forProtocolTask(protocolTask).equals(ComCommandTypes.LOAD_PROFILE_COMMAND)) {
+                if (ComCommandTypes.forProtocolTask(protocolTask.getClass()).equals(ComCommandTypes.LOAD_PROFILE_COMMAND)) {
                     return (LoadProfilesTask) protocolTask;
                 }
             }
@@ -194,76 +187,52 @@ public enum ComCommandTypes implements ComCommandType {
     LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND,
     READ_LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND,
 
-    CREATE_COM_TASK_SESSION_COMMAND(CreateComTaskExecutionSessionTask.class){
+    FIRMWARE_COMMAND(FirmwareManagementTask.class) {
         @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.createComTaskSessionTask((CreateComTaskExecutionSessionTask) protocolTask, root, comTaskExecution);
+        public void createCommandsFromTask(GroupedDeviceCommand groupedDeviceCommand, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getFirmwareCommand(groupedDeviceCommand, (FirmwareManagementTask) protocolTask, comTaskExecution);
         }
 
         @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.createComTaskSessionTask((CreateComTaskExecutionSessionTask) protocolTask, root, comTaskExecution);
-        }
-    },
-    FIRMWARE_COMMAND(FirmwareManagementTask.class){
-        @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateFirmwareCommand((FirmwareManagementTask) protocolTask, root, comTaskExecution);
-        }
-
-        @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.findOrCreateFirmwareCommand((FirmwareManagementTask) protocolTask, root, comTaskExecution);
+        public void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            groupedDeviceCommand.getFirmwareCommand(groupedDeviceCommand, (FirmwareManagementTask) protocolTask, comTaskExecution);
         }
     };
 
     /**
      * The protocolTask that can model a {@link ComCommand} from this type.
      */
-    private Class<? extends ProtocolTask> protocolTaskClass;
+    private Class protocolTaskClass;
 
-    ComCommandTypes(Class<? extends ProtocolTask> protocolTaskClass) {
+    private ComCommandTypes(Class<? extends ProtocolTask> protocolTaskClass) {
         this.protocolTaskClass = protocolTaskClass;
     }
 
-    ComCommandTypes() {
+    private ComCommandTypes() {
     }
 
     /**
-     * Get the CommandType for the given {@link ProtocolTask}.
+     * Get the commandType based on the given {@link ProtocolTask}
      *
-     * @param protocolTask The ProtocolTask
+     * @param protocolTaskClass the class of the ProtocolTask
      * @return the corresponding ComCommandType
      */
-    public static ComCommandType forProtocolTask(ProtocolTask protocolTask) {
-        if (protocolTask instanceof CreateComTaskExecutionSessionTask) {
-            CreateComTaskExecutionSessionTask createComTaskExecutionSessionTask = (CreateComTaskExecutionSessionTask) protocolTask;
-            return new CreateComTaskExecutionSessionCommandType(createComTaskExecutionSessionTask.getComTask(), createComTaskExecutionSessionTask.getComTaskExecution());
-        }
-        else {
-            for (ComCommandTypes comCommandTypes : values()) {
-                if (comCommandTypes.appliesTo(protocolTask)) {
-                    return comCommandTypes;
-                }
+    public static ComCommandTypes forProtocolTask(final Class<? extends ProtocolTask> protocolTaskClass) {
+        for (ComCommandTypes comCommandTypes : values()) {
+            if (comCommandTypes.protocolTaskClass != null && comCommandTypes.protocolTaskClass.isAssignableFrom(protocolTaskClass)) {
+                return comCommandTypes;
             }
-            return UNKNOWN;
         }
+        return UNKNOWN;
     }
 
-    public boolean appliesTo(ProtocolTask protocolTask) {
-        Class<? extends ProtocolTask> protocolTaskClass = protocolTask.getClass();
-        return this.protocolTaskClass != null && this.protocolTaskClass.isAssignableFrom(protocolTaskClass);
-    }
-
-    @Override
-    public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+    public void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
         /* Default behavior is to create nothing
          * enum values that need to create something will override this method.
          * Consider logging the fact that this is being ignored. */
     }
 
-    @Override
-    public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+    public void createCommandsFromTask(GroupedDeviceCommand groupedDeviceCommand, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
         /* Default behavior is to create nothing
          * enum values that need to create something will override this method.
          * Consider logging the fact that this is being ignored. */

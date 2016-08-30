@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import java.time.Clock;
+import java.time.Instant;
+
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComPort;
@@ -32,7 +34,7 @@ public class CreateOutboundComSessionTest {
         ComSessionBuilder comSessionShadow = mock(ComSessionBuilder.class);
 
         // Business method
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, mock(ScheduledConnectionTask.class), comSessionShadow, ComSession.SuccessIndicator.Success, clock);
+        CreateOutboundComSession command = new CreateOutboundComSession(Instant.now(), ComServer.LogLevel.INFO, mock(ScheduledConnectionTask.class), comSessionShadow, ComSession.SuccessIndicator.Success, clock);
 
         // Asserts
         assertThat(command.getComSessionBuilder()).isEqualTo(comSessionShadow);
@@ -42,7 +44,8 @@ public class CreateOutboundComSessionTest {
     public void testExecuteDelegatesToComServerDAO() {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        Instant now = Instant.now();
+        CreateOutboundComSession command = new CreateOutboundComSession(now, ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
         command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
@@ -50,14 +53,15 @@ public class CreateOutboundComSessionTest {
         command.execute(comServerDAO);
 
         // Asserts
-        verify(comServerDAO).createComSession(comSessionBuilder, ComSession.SuccessIndicator.Success);
+        verify(comServerDAO).createComSession(comSessionBuilder, now, ComSession.SuccessIndicator.Success);
     }
 
     @Test
     public void testExecuteDuringShutdownDelegatesToComServerDAO() {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        Instant now = Instant.now();
+        CreateOutboundComSession command = new CreateOutboundComSession(now, ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
         command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
@@ -65,17 +69,17 @@ public class CreateOutboundComSessionTest {
         command.executeDuringShutdown(comServerDAO);
 
         // Asserts
-        verify(comServerDAO).createComSession(comSessionBuilder, ComSession.SuccessIndicator.Success);
+        verify(comServerDAO).createComSession(comSessionBuilder, now,ComSession.SuccessIndicator.Success);
     }
 
     @Test(expected = MockedComServerDAOFailure.class)
     public void testExecuteWithFailureRethrowsFailure() {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        CreateOutboundComSession command = new CreateOutboundComSession(Instant.now(), ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
         command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class));
+        doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class));
 
         // Business method
         command.execute(comServerDAO);
@@ -87,10 +91,10 @@ public class CreateOutboundComSessionTest {
     public void testExecuteDuringShutdownWithFailureRethrowsFailure() {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        CreateOutboundComSession command = new CreateOutboundComSession(Instant.now(), ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
         command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class));
+        doThrow(MockedComServerDAOFailure.class).when(comServerDAO).createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class));
 
         // Business method
         command.executeDuringShutdown(comServerDAO);
@@ -110,8 +114,8 @@ public class CreateOutboundComSessionTest {
         ComPort comPort = mock(ComPort.class);
         when(comSession.getComPort()).thenReturn(comPort);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        when(comServerDAO.createComSession(comSessionBuilder, successIndicator)).thenReturn(comSession);
-        CreateOutboundComSession command = new CreateOutboundComSession(ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, successIndicator, clock);
+        when(comServerDAO.createComSession(comSessionBuilder, Instant.now(), successIndicator)).thenReturn(comSession);
+        CreateOutboundComSession command = new CreateOutboundComSession(Instant.now(), ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, successIndicator, clock);
         command.setStopWatch(new StopWatch());
         command.execute(comServerDAO);
 

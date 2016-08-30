@@ -6,6 +6,8 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,16 +35,28 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
      * The purpose of this blockingQueue is that the scheduler will block if no space is left on the queue.
      * From the moment a worker takes a task from the queue, the scheduler will produce more work (if available)
      */
-    private BlockingQueue<ScheduledJob> jobQueue;
+    private BlockingQueue<ScheduledJobImpl> jobQueue;
+    private int threadPoolSize;
 
-    MultiThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
-        this.jobQueue = new ArrayBlockingQueue<>(comPort.getNumberOfSimultaneousConnections());
+    MultiThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
-    public MultiThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
-        super(comPort, comServerDAO, deviceCommandExecutor, new ComPortThreadFactory(comPort, threadFactory), serviceProvider);
-        this.jobQueue = new ArrayBlockingQueue<>(comPort.getNumberOfSimultaneousConnections());
+    public MultiThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+        super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, new ComPortThreadFactory(comPort, threadFactory), serviceProvider);
+    }
+
+    protected void setComPort(OutboundComPort comPort) {
+        if (comPort != getComPort()) {
+            if (this.jobScheduler != null) {
+                this.jobScheduler.shutdown();
+            }
+            super.setComPort(comPort);
+            this.jobQueue = new ArrayBlockingQueue<>(threadPoolSize = comPort.getNumberOfSimultaneousConnections());
+            if (this.jobScheduler != null) {
+                this.jobScheduler = new MultiThreadedJobScheduler(threadPoolSize, this.getThreadFactory());
+            }
+        }
     }
 
     @Override
@@ -52,39 +66,47 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     }
 
     @Override
-    protected void doStart () {
+    public int getThreadCount() {
+        return threadPoolSize;
+    }
+
+    @Override
+    public int getActiveThreadCount() {
+        if (getStatus() == ServerProcessStatus.STARTED) {
+            return jobScheduler.getActiveJobCount();
+        }
+        return 0;
+    }
+
+    @Override
+    protected void doStart() {
         this.createJobScheduler();
         super.doStart();
     }
 
-    private void createJobScheduler () {
-        int threadPoolSize = this.getComPort().getNumberOfSimultaneousConnections();
+    private void createJobScheduler() {
         this.jobScheduler = new MultiThreadedJobScheduler(threadPoolSize, this.getThreadFactory());
     }
 
     @Override
-    public void shutdown () {
+    public void shutdown() {
         this.shutdownJobScheduler();
         super.shutdown();
     }
 
     @Override
-    public void shutdownImmediate () {
+    public void shutdownImmediate() {
         this.shutdownJobScheduler();
         super.shutdownImmediate();
     }
 
-    private void shutdownJobScheduler () {
-        this.jobScheduler.shutdown();
+    private void shutdownJobScheduler() {
+        if (this.jobScheduler != null)
+            this.jobScheduler.shutdown();
     }
 
     @Override
-    protected void doRun () {
-        this.executeTasks();
-    }
-
-    @Override
-    protected JobScheduler getJobScheduler () {
+    protected JobScheduler getJobScheduler() {
         return this.jobScheduler;
     }
 
@@ -99,88 +121,62 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     }
 
     private final class MultiThreadedJobScheduler implements JobScheduler {
+        // the ExecutorService that deals with the ConsumerJobProducer
         private ExecutorService executorService;
 
-        private MultiThreadedJobScheduler (int threadPoolSize, ThreadFactory threadFactory) {
-            super();
-            this.executorService = Executors.newFixedThreadPool(threadPoolSize, threadFactory);
-            for (int i = 0; i < threadPoolSize; i++) {
-                executorService.submit(
-                        new MultiThreadedScheduledJobExecutor(
-                                getComPort(),
-                                jobQueue,
-                                getDeviceCommandExecutor(), getServiceProvider().transactionService(),
-                                getServiceProvider().threadPrincipalService(),
-                                getServiceProvider().userService()));
-            }
-        }
+        //TODO what is the purpose of this object?
+        private List<Future<?>> jobCompletions = new ArrayList<>();
 
-        private void shutdown () {
-            this.executorService.shutdownNow(); // Not interested in the jobs that have not been picked up
+        private MultiThreadedJobScheduler(int threadPoolSize, ThreadFactory threadFactory) {
+            this.executorService = Executors.newFixedThreadPool(1);
+            executorService.submit(new MultiThreadedJobCreator(jobQueue, MultiThreadedScheduledComPort.this.getComPort(), getServiceProvider().transactionService(), getDeviceCommandExecutor(), threadPoolSize, threadFactory, getServiceProvider().threadPrincipalService(), getServiceProvider().userService(), getServiceProvider()));
         }
 
         @Override
-        public void scheduleAll(List<ComJob> jobs) {
-            List<ScheduledComTaskExecutionGroup> groups = new ArrayList<>(jobs.size());   // At most all jobs will be groups
-            for (ComJob job : jobs) {
-                if (job.isGroup()) {
-                    groups.add(newComTaskGroup(job));
-                }
-                else {
-                    List<ComTaskExecution> scheduledComTasks = job.getComTaskExecutions();
-                    ComTaskExecution onlyOne = scheduledComTasks.get(0);
-                    this.scheduleNow(onlyOne);
+        public int getConnectionCount() {
+            int count = 0;
+            for (ScheduledJob job : jobQueue) {
+                if (((JobExecution) job).isConnected()) {
+                    count++;
                 }
             }
+            return count;
+        }
+
+        public int getActiveJobCount() {
+            int active = jobCompletions.size();
+            for (Future<?> jobCompletion : jobCompletions) {
+                if (jobCompletion.isCancelled() || jobCompletion.isDone()) {
+                    active -= 1;
+                }
+            }
+            return active;
+        }
+
+        private void shutdown() {
+            this.executorService.shutdownNow(); // This will set the interrupted flag on the ConsumerJobProducer
+        }
+
+        @Override
+        public int scheduleAll(List<ComJob> jobs) {
+            List<ScheduledComTaskExecutionGroup> groups = new ArrayList<>(jobs.size());   // At most all jobs will be groups
+            for (ComJob job : jobs) {
+                groups.add(newComTaskGroup(job));
+            }
             this.scheduleGroups(groups);
-            this.giveTheConsumersSomeSpace();
+            giveTheConsumersSomeSpace();
+            return -1;
         }
 
         /**
          * After we populate the queue, it is recommended to wait a couple of seconds for the workers to fetch and lock the tasks.
          * This way the first tasks aren't fetched again and only non busy tasks are put on the queue.
-         * This is necessary even if the queue's put method is blocking because:
-         * <ul>
-         * <li>In the situation where just enough tasks were queried to fill the queue (i.e. the next put call would block),
-         *     the task query will run again and return exactly the same tasks, putting them on the queue but blocking
-         *     until one of the threads has picked up a task.
-         *     In that case, we are putting a task on the queue that is no longer pending.</li>
-         * </ul>
-         * <li>In the situation where tasks are actually grouped because the connection task does not support
-         *     simultaneous connections, there is likely space left on the queue that will be filled by
-         *     subsequent call(s) to the task query but all tasks will be the same.</li>
-         * Both situation above are wasting database resources by executing the task query.
          */
         private void giveTheConsumersSomeSpace() {
             try {
-                Thread.sleep(100);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            }
-        }
-
-        /**
-         * Schedules the {@link ComTaskExecution} with the CompletionService now,
-         * i.e. adds it to the list of available {@link ScheduledJob}s
-         * so that it can be picked up by one of the delegates.
-         * Ignores the ScheduledComTask if it is in fact already scheduled.
-         * The latter is possible if the execution of ScheduledComTasks
-         * is slower than the {@link com.energyict.mdc.engine.config.ComServer}'s
-         * scheduling interpoll delay.
-         *
-         * @param comTaskExecution The ComTaskExecution
-         */
-        private void scheduleNow(ComTaskExecution comTaskExecution) {
-            try {
-                ScheduledComTaskExecutionJob job = newComTaskJob(comTaskExecution);
-                try {
-                    jobQueue.put(job);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().isInterrupted();
-                }
-            }
-            catch (RejectedExecutionException e) {
-                MultiThreadedScheduledComPort.this.cannotSchedule(comTaskExecution);
             }
         }
 

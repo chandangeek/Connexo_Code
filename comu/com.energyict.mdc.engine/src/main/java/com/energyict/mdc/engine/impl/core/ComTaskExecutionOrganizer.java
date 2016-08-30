@@ -14,15 +14,7 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * This class will try to group and organize the ComTaskExecutions for a specific connection.
@@ -47,7 +39,7 @@ public final class ComTaskExecutionOrganizer {
         this.topologyService = topologyService;
     }
 
-    public List<DeviceOrganizedComTaskExecution> defineComTaskExecutionOrders(List<? extends ComTaskExecution> comTaskExecutions) {
+    public List<DeviceOrganizedComTaskExecution> defineComTaskExecutionOrders(List<ComTaskExecution> comTaskExecutions) {
         Map<Device, DeviceOrganizedComTaskExecution> result = new LinkedHashMap<>();
         Map<DeviceKey, List<ComTaskExecution>> tasksPerDevice = groupComTaskExecutionsByDevice(comTaskExecutions);
         makeSureBasicCheckIsInBeginningOfExecutions(tasksPerDevice);
@@ -119,8 +111,7 @@ public final class ComTaskExecutionOrganizer {
             Optional<Device> gateway = this.topologyService.getPhysicalGateway(device);
             if (gateway.isPresent()) {
                 return getMasterDeviceIfAvailable(gateway.get());
-            }
-            else {
+            } else {
                 return device;
             }
         } else {
@@ -131,15 +122,15 @@ public final class ComTaskExecutionOrganizer {
     private Optional<SecurityPropertySet> getProperSecurityPropertySet(ComTaskEnablement comTaskEnablement, Device masterDevice, ComTaskExecution comTaskExecution) {
         if (comTaskEnablement != null) {
             final SecurityPropertySet securityPropertySet = comTaskEnablement.getSecurityPropertySet();
-            if (masterDevice.getId()== comTaskExecution.getDevice().getId()) {
+            if (masterDevice.getId() == comTaskExecution.getDevice().getId()) {
                 return Optional.of(securityPropertySet);
             } else {
                 /* In the exception case where the masterDevice is different then the device on the ComTaskExecution
                  * then we need to search for the corresponding securitySet on the master */
                 final List<SecurityPropertySet> securityPropertySets = masterDevice.getDeviceConfiguration().getSecurityPropertySets();
                 for (SecurityPropertySet masterPropertySet : securityPropertySets) {
-                    if (   masterPropertySet.getAuthenticationDeviceAccessLevel().getId() == securityPropertySet.getAuthenticationDeviceAccessLevel().getId()
-                        && masterPropertySet.getEncryptionDeviceAccessLevel().getId() == securityPropertySet.getEncryptionDeviceAccessLevel().getId()) {
+                    if (masterPropertySet.getAuthenticationDeviceAccessLevel().getId() == securityPropertySet.getAuthenticationDeviceAccessLevel().getId()
+                            && masterPropertySet.getEncryptionDeviceAccessLevel().getId() == securityPropertySet.getEncryptionDeviceAccessLevel().getId()) {
                         return Optional.of(masterPropertySet);
                     }
                 }
@@ -193,11 +184,11 @@ public final class ComTaskExecutionOrganizer {
         Optional<ComTaskEnablement> foundComTaskEnablement = device.getDeviceConfiguration().getComTaskEnablementFor(comTask);
         SecurityPropertySet securityPropertySet =
                 foundComTaskEnablement
-                    .flatMap(cte -> this.getProperSecurityPropertySet(cte, device, comTaskExecution))
-                    .orElseThrow(() -> new DeviceConfigurationException(
-                            MessageSeeds.COMTASK_NOT_ENABLED_ON_CONFIGURATION,
-                            comTask.getName(),
-                            device.getDeviceConfiguration().getName()));
+                        .flatMap(cte -> this.getProperSecurityPropertySet(cte, device, comTaskExecution))
+                        .orElseThrow(() -> new DeviceConfigurationException(
+                                MessageSeeds.COMTASK_NOT_ENABLED_ON_CONFIGURATION,
+                                comTask.getName(),
+                                device.getDeviceConfiguration().getName()));
         return Key.of(device, securityPropertySet);
     }
 
@@ -261,6 +252,11 @@ public final class ComTaskExecutionOrganizer {
         private final Device device;
         private final SecurityPropertySet securityPropertySet;
 
+        private Key(Device device, SecurityPropertySet securityPropertySet) {
+            this.device = device;
+            this.securityPropertySet = securityPropertySet;
+        }
+
         public static Key of(Device device, SecurityPropertySet securityPropertySet) {
             return new Key(device, securityPropertySet);
         }
@@ -292,11 +288,6 @@ public final class ComTaskExecutionOrganizer {
             long result = device.getId();
             result = 31 * result + securityPropertySet.getId();
             return (int) result;
-        }
-
-        private Key(Device device, SecurityPropertySet securityPropertySet) {
-            this.device = device;
-            this.securityPropertySet = securityPropertySet;
         }
 
         private boolean isSameDevice(Key that) {

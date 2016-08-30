@@ -4,37 +4,32 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -53,44 +48,50 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     private static final int ProfileIntervalInSeconds = 900;
     private static final boolean FailIfConfigurationMisMatch = true;
 
+    @Mock
+    private OfflineDevice offlineDevice;
+
     @Test
     public void getCorrectCommandTypeTest() {
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mockCommandRoot());
-        assertThat(verifyLoadProfilesCommand.getCommandType()).isEqualTo(ComCommandTypes.VERIFY_LOAD_PROFILE_COMMAND);
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
+        assertEquals(ComCommandTypes.VERIFY_LOAD_PROFILE_COMMAND, verifyLoadProfilesCommand.getCommandType());
     }
 
     @Test
     public void verifyNumberOfChannelsEqualsTest() {
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mockCommandRoot());
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getNumberOfChannels()).thenReturn(2);
         List<ChannelInfo> listOfChannelInfos = createSimpleChannelInfoList();
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
         when(loadProfileReader.getChannelInfos()).thenReturn(listOfChannelInfos);
-        verifyLoadProfilesCommand.verifyNumberOfChannels(loadProfileReader, loadProfileConfiguration);
+        List<Issue> issueList = verifyLoadProfilesCommand.verifyNumberOfChannels(loadProfileReader, loadProfileConfiguration);
 
         // asserts
-        assertThat(verifyLoadProfilesCommand.getIssues()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getProblems()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getWarnings()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove()).isEmpty();
+        assertEquals("There should be no issues logged", 0, issueList.size());
+        assertEquals("There should be no problems logged", 0, getProblems(issueList).size());
+        assertEquals("There should be no warnings logged", 0, getWarnings(issueList).size());
+        assertEquals("The list of readers-to-be-removed should be empty", 0, verifyLoadProfilesCommand.getReadersToRemove().size());
     }
 
     @Test
     public void verifyNumberOfChannelsNotEqualsTest() {
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mockCommandRoot());
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getNumberOfChannels()).thenReturn(3);
         List<ChannelInfo> listOfChannelInfos = createSimpleChannelInfoList();
@@ -99,11 +100,11 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         List<Issue> issues = verifyLoadProfilesCommand.verifyNumberOfChannels(loadProfileReader, loadProfileConfiguration);
 
         // asserts
-        assertThat(issues).hasSize(1);
-        assertThat(getProblems(issues)).hasSize(1);
-        assertThat(getWarnings(issues)).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove()).hasSize(1);
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove().get(0)).isEqualTo(loadProfileReader);
+        assertEquals("There should be one issues logged", 1, issues.size());
+        assertEquals("There should be one problems logged", 1, getProblems(issues).size());
+        assertEquals("There should be no warnings logged", 0, getWarnings(issues).size());
+        assertEquals("The list of readers-to-be-removed should contain 1 element", 1, verifyLoadProfilesCommand.getReadersToRemove().size());
+        assertEquals("The mock reader should be in the remove-list", loadProfileReader, verifyLoadProfilesCommand.getReadersToRemove().get(0));
     }
 
     @Test
@@ -112,34 +113,35 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         when(loadProfilesTask.failIfLoadProfileConfigurationMisMatch()).thenReturn(false);
 
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, mockCommandRoot());
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getNumberOfChannels()).thenReturn(3);
         List<ChannelInfo> listOfChannelInfos = createSimpleChannelInfoList();
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
         when(loadProfileReader.getChannelInfos()).thenReturn(listOfChannelInfos);
-        verifyLoadProfilesCommand.verifyNumberOfChannels(loadProfileReader, loadProfileConfiguration);
+        List<Issue> issues = verifyLoadProfilesCommand.verifyNumberOfChannels(loadProfileReader, loadProfileConfiguration);
 
         // asserts
-        assertThat(verifyLoadProfilesCommand.getIssues()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getProblems()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getWarnings()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove()).isEmpty();
+        assertEquals("No issues should be logged, cause set to NOT fail if load profile configuration mismatch", 0, issues.size());
+        assertEquals("There should be no problems logged", 0, getProblems(issues).size());
+        assertEquals("There should be no warnings logged", 0, getWarnings(issues).size());
+        assertEquals("The list of readers-to-be-removed should contain NO elements", 0, verifyLoadProfilesCommand.getReadersToRemove().size());
     }
 
     @Test
     public void getLoadProfileReaderForGivenLoadProfileConfigurationNullTest() {
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
         when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Collections.<LoadProfileReader>emptyList());
-        CommandRoot commandRoot = mockCommandRoot();
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, commandRoot);
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
 
         //asserts
-        assertThat(verifyLoadProfilesCommand.getLoadProfileReaderForGivenLoadProfileConfiguration(null)).isNull();
+        assertNull(verifyLoadProfilesCommand.getLoadProfileReaderForGivenLoadProfileConfiguration(null));
     }
 
     @Test
@@ -152,17 +154,17 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         when(loadProfileReader2.getProfileObisCode()).thenReturn(LoadProfileObisCode);
         when(loadProfileReader2.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
 
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
         when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Arrays.asList(loadProfileReader, loadProfileReader2));
-        CommandRoot commandRoot = this.mockCommandRoot();
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, commandRoot);
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
         when(loadProfileConfiguration.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
 
         //asserts
-        assertThat(verifyLoadProfilesCommand.getLoadProfileReaderForGivenLoadProfileConfiguration(loadProfileConfiguration)).isNotNull();
+        assertNotNull(verifyLoadProfilesCommand.getLoadProfileReaderForGivenLoadProfileConfiguration(loadProfileConfiguration));
     }
 
     @Test
@@ -171,35 +173,11 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
 
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
         when(loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(Matchers.<LoadProfileReader>any())).thenReturn(ProfileIntervalInSeconds);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
-
-        DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
-        when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
-        when(loadProfileConfiguration.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
-        when(loadProfileConfiguration.getProfileInterval()).thenReturn(ProfileIntervalInSeconds);
-
-        verifyLoadProfilesCommand.verifyProfileInterval(loadProfileReader, loadProfileConfiguration);
-
-        // asserts
-        assertThat(verifyLoadProfilesCommand.getIssues()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getProblems()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getWarnings()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove()).isEmpty();
-    }
-
-    @Test
-    public void verifyProfileIntervalIncorrectTest() {
-        LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
-
-        LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
-        LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
-        when(loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(Matchers.<LoadProfileReader>any())).thenReturn(1);
-
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
@@ -209,11 +187,37 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         List<Issue> issues = verifyLoadProfilesCommand.verifyProfileInterval(loadProfileReader, loadProfileConfiguration);
 
         // asserts
-        assertThat(issues).hasSize(1);
-        assertThat(getProblems(issues)).hasSize(1);
-        assertThat(getWarnings(issues)).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove()).hasSize(1);
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove().get(0)).isEqualTo(loadProfileReader);
+        assertEquals("There should be no issues logged", 0, issues.size());
+        assertEquals("There should be no problems logged", 0, getProblems(issues).size());
+        assertEquals("There should be no warnings logged", 0, getWarnings(issues).size());
+        assertEquals("The list of readers-to-be-removed should be empty", 0, verifyLoadProfilesCommand.getReadersToRemove().size());
+    }
+
+    @Test
+    public void verifyProfileIntervalIncorrectTest() {
+        LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
+
+        LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
+        LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
+        when(loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(Matchers.<LoadProfileReader>any())).thenReturn(1);
+
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
+
+        DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
+        when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
+        when(loadProfileConfiguration.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
+        when(loadProfileConfiguration.getProfileInterval()).thenReturn(ProfileIntervalInSeconds);
+
+        List<Issue> issues = verifyLoadProfilesCommand.verifyProfileInterval(loadProfileReader, loadProfileConfiguration);
+
+        // asserts
+        assertEquals("There should be one issues logged", 1, issues.size());
+        assertEquals("There should be one problem logged", 1, getProblems(issues).size());
+        assertEquals("There should be no warnings logged", 0, getWarnings(issues).size());
+        assertEquals("The list of readers-to-be-removed should contain 1 element", 1, verifyLoadProfilesCommand.getReadersToRemove().size());
+        assertEquals("The mock reader should be in the remove-list", loadProfileReader, verifyLoadProfilesCommand.getReadersToRemove().get(0));
     }
 
     @Test(expected = GeneralParseException.class)
@@ -233,9 +237,10 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
         verifyLoadProfilesCommand.verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
 
         // should get a nice exception because the name of the ChannelInfo is not an ObisCode
@@ -254,16 +259,17 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
-        verifyLoadProfilesCommand.verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
+        List<Issue> issues = verifyLoadProfilesCommand.verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
 
         // asserts
-        assertThat(verifyLoadProfilesCommand.getIssues()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getProblems()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getWarnings()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove()).isEmpty();
+        assertEquals("There should be no issues logged", 0, issues.size());
+        assertEquals("There should be no problems logged", 0, getProblems(issues).size());
+        assertEquals("There should be no warnings logged", 0, getWarnings(issues).size());
+        assertEquals("The list of readers-to-be-removed should be empty", 0, verifyLoadProfilesCommand.getReadersToRemove().size());
     }
 
     @Test
@@ -283,16 +289,17 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
-        verifyLoadProfilesCommand.verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
+        List<Issue> issues = verifyLoadProfilesCommand.verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
 
         // asserts
-        assertThat(verifyLoadProfilesCommand.getIssues()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getProblems()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getWarnings()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove()).isEmpty();
+        assertEquals("There should be no issues logged", 0, issues.size());
+        assertEquals("There should be no problems logged", 0, getProblems(issues).size());
+        assertEquals("There should be no warnings logged", 0, getWarnings(issues).size());
+        assertEquals("The list of readers-to-be-removed should be empty", 0, verifyLoadProfilesCommand.getReadersToRemove().size());
     }
 
     @Test
@@ -304,6 +311,36 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         List<ChannelInfo> secondListOfChannelInfos = new ArrayList<ChannelInfo>();
         secondListOfChannelInfos.add(new ChannelInfo(0, ChannelInfoObisCode1.toString(), Unit.get("Wh")));
+        secondListOfChannelInfos.add(new ChannelInfo(1, ChannelInfoObisCode2.toString(), Unit.get("kvar")));    // we replaced the Wh channelInfo with a kvar channelInfo
+        DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
+        when(loadProfileConfiguration.getChannelInfos()).thenReturn(secondListOfChannelInfos);
+        when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
+
+        LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
+        LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
+
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
+        List<Issue> issues = verifyLoadProfilesCommand.verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
+
+        // asserts
+        assertEquals("There should be one issues logged", 1, issues.size());
+        assertEquals("There should be one problem logged", 1, getProblems(issues).size());
+        assertEquals("There should be no warnings logged", 0, getWarnings(issues).size());
+        assertEquals("The list of readers-to-be-removed should contain 1 element", 1, verifyLoadProfilesCommand.getReadersToRemove().size());
+        assertEquals("The mock reader should be in the remove-list", loadProfileReader, verifyLoadProfilesCommand.getReadersToRemove().get(0));
+    }
+
+    @Test
+    public void verifyChannelInfoWithExceptionBecauseMultipleDifferentUnitsTest() {
+        List<ChannelInfo> listOfChannelInfos = createSimpleChannelInfoList();
+
+        LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
+        when(loadProfileReader.getChannelInfos()).thenReturn(listOfChannelInfos);
+
+        List<ChannelInfo> secondListOfChannelInfos = new ArrayList<ChannelInfo>();
+        secondListOfChannelInfos.add(new ChannelInfo(0, ChannelInfoObisCode1.toString(), Unit.get("kvar")));      // we replaced the Wh channelInfo with a kvar channelInfo
         ChannelInfo channelInfoMock3 = new ChannelInfo(1, ChannelInfoObisCode2.toString(), Unit.get("kvar"));    // we replaced the Wh channelInfo with a kvar channelInfo
         secondListOfChannelInfos.add(channelInfoMock3);
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
@@ -312,17 +349,18 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot());
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand);
         List<Issue> issues = verifyLoadProfilesCommand.verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
 
         // asserts
-        assertThat(issues).hasSize(1);
-        assertThat(getProblems(issues)).hasSize(1);
-        assertThat(getWarnings(issues)).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove()).hasSize(1);
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove().get(0)).isEqualTo(loadProfileReader);
+        assertEquals("There should be two issues logged", 2, issues.size());
+        assertEquals("There should be two problem logged", 2, getProblems(issues).size());
+        assertEquals("There should be no warnings logged", 0, getWarnings(issues).size());
+        assertEquals("The list of readers-to-be-removed should contain 1 element", 1, verifyLoadProfilesCommand.getReadersToRemove().size());
+        assertEquals("The mock reader should be in the remove-list", loadProfileReader, verifyLoadProfilesCommand.getReadersToRemove().get(0));
     }
 
     @Test
@@ -340,24 +378,25 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         when(loadProfileReader.getChannelInfos()).thenReturn(listOfChannelInfos);
 
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
         when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Arrays.asList(loadProfileReader));
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot()));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand));
         verifyLoadProfilesCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        assertThat(verifyLoadProfilesCommand.getIssues()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getProblems()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getWarnings()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove()).isEmpty();
+        assertEquals("There should be no issues logged", 0, verifyLoadProfilesCommand.getIssues().size());
+        assertEquals("There should be no problems logged", 0, verifyLoadProfilesCommand.getProblems().size());
+        assertEquals("There should be no warnings logged", 0, verifyLoadProfilesCommand.getWarnings().size());
+        assertEquals("The list of readers-to-be-removed should be empty", 0, verifyLoadProfilesCommand.getReadersToRemove().size());
         verify(verifyLoadProfilesCommand).verifyNumberOfChannels(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
         verify(verifyLoadProfilesCommand).verifyProfileInterval(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
         verify(verifyLoadProfilesCommand).verifyChannelConfiguration(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
     }
 
     @Test
-    public void executeNotSupportedByTheMeter(){
+    public void executeNotSupportedByTheMeter() {
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(MeterSerialNumber), false);
 
@@ -368,36 +407,59 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
 
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
         when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Arrays.asList(loadProfileReader));
 
-        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(loadProfileCommand, this.mockCommandRoot()));
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand));
         verifyLoadProfilesCommand.execute(deviceProtocol, newTestExecutionContext());
 
         // asserts
-        assertThat(verifyLoadProfilesCommand.getIssues()).hasSize(1);
-        assertThat(verifyLoadProfilesCommand.getWarnings()).isEmpty();
-        assertThat(verifyLoadProfilesCommand.getProblems()).hasSize(1);
-        assertThat(verifyLoadProfilesCommand.getReadersToRemove()).hasSize(1);
+        assertEquals("There should be one issue logged", 1, verifyLoadProfilesCommand.getIssues().size());
+        assertEquals("There should be no warnings logged", 0, verifyLoadProfilesCommand.getWarnings().size());
+        assertEquals("There should be one problem logged", 1, verifyLoadProfilesCommand.getProblems().size());
+        assertEquals("The list of readers-to-be-removed should contain 1 element", 1, verifyLoadProfilesCommand.getReadersToRemove().size());
         verify(verifyLoadProfilesCommand, times(0)).verifyNumberOfChannels(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
         verify(verifyLoadProfilesCommand, times(0)).verifyProfileInterval(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
         verify(verifyLoadProfilesCommand, times(0)).verifyChannelConfiguration(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
     }
 
-    private CommandRoot mockCommandRoot() {
-        IssueService issueService = executionContextServiceProvider.issueService();
-        Clock clock = executionContextServiceProvider.clock();
-        CommandRoot commandRoot = mock(CommandRoot.class);
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
-        Thesaurus thesaurus = mock(Thesaurus.class);
-        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
-        when(commandRootServiceProvider.thesaurus()).thenReturn(thesaurus);
-        when(commandRootServiceProvider.issueService()).thenReturn(issueService);
-        when(commandRootServiceProvider.clock()).thenReturn(clock);
-        when(commandRoot.getServiceProvider()).thenReturn(commandRootServiceProvider);
-        return commandRoot;
+    @Test
+    public void executeWithMultipleIssues() {
+        List<ChannelInfo> listOfChannelInfos = createSimpleChannelInfoList();
+
+        List<ChannelInfo> secondListOfChannelInfos = new ArrayList<ChannelInfo>();
+        secondListOfChannelInfos.add(new ChannelInfo(0, ChannelInfoObisCode1.toString(), Unit.get("kvar")));    // we replaced the Wh channelInfo with a kvar channelInfo
+        secondListOfChannelInfos.add(new ChannelInfo(1, ChannelInfoObisCode2.toString(), Unit.get("kvar")));    // we replaced the Wh channelInfo with a kvar channelInfo
+
+        DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(MeterSerialNumber), true);
+        loadProfileConfiguration.setProfileInterval(300);
+        loadProfileConfiguration.setChannelInfos(secondListOfChannelInfos);
+
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Arrays.<CollectedLoadProfileConfiguration>asList(loadProfileConfiguration));
+
+        LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
+        LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
+        when(loadProfileReader.getChannelInfos()).thenReturn(listOfChannelInfos);
+
+        LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
+        when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Arrays.asList(loadProfileReader));
+        when(loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(loadProfileReader)).thenReturn(900);
+
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand));
+        verifyLoadProfilesCommand.execute(deviceProtocol, newTestExecutionContext());
+
+        // asserts
+        assertEquals("There should be three issues logged", 3, verifyLoadProfilesCommand.getIssues().size());
+        assertEquals("There should be three problems logged", 3, verifyLoadProfilesCommand.getProblems().size());
+        assertEquals("There should be no warnings logged", 0, verifyLoadProfilesCommand.getWarnings().size());
+        assertEquals("The list of readers-to-be-removed should contain 1 element", 1, verifyLoadProfilesCommand.getReadersToRemove().size());
+        verify(verifyLoadProfilesCommand).verifyNumberOfChannels(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
+        verify(verifyLoadProfilesCommand).verifyProfileInterval(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
+        verify(verifyLoadProfilesCommand).verifyChannelConfiguration(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
     }
 
     private List<ChannelInfo> createSimpleChannelInfoList() {

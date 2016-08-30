@@ -5,10 +5,11 @@ import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
@@ -20,6 +21,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation for the {@link RegisterCommand}
@@ -28,11 +30,6 @@ import java.util.List;
  * @since 12/06/12 - 11:00
  */
 public class RegisterCommandImpl extends CompositeComCommandImpl implements RegisterCommand {
-
-    /**
-     * The task used for modeling this command
-     */
-    private final RegistersTask registersTask;
 
     /**
      * A List containing all the {@link CollectedRegister} which is collected during the execution of this {@link RegisterCommand}
@@ -44,37 +41,45 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
      */
     private List<CollectedData> collectedDataList = new ArrayList<>();
 
-    public RegisterCommandImpl(RegistersTask registersTask, OfflineDevice device, CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
-        super(commandRoot);
+    private ReadRegistersCommand readRegistersCommand;
+
+    public RegisterCommandImpl(final GroupedDeviceCommand groupedDeviceCommand, final RegistersTask registersTask, ComTaskExecution comTaskExecution) {
+        super(groupedDeviceCommand);
+        if (groupedDeviceCommand == null) {
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "groupedDeviceCommand", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
+        }
+        if (groupedDeviceCommand.getOfflineDevice() == null) {
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "offlineDevice", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
+        }
         if (registersTask == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "registersTask", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
-        if (device == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "device", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
+        if (comTaskExecution == null) {
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "comTaskExecution", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
-        if (commandRoot == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
-        }
-        this.registersTask = registersTask;
 
-        List<OfflineRegister> registers;
-        if (!this.registersTask.getRegisterGroups().isEmpty()){
-            registers = device.getRegistersForRegisterGroupAndMRID(this.getRegisterGroupIds(), comTaskExecution.getDevice().getmRID());
-        } else {
-            registers = device.getAllRegistersForMRID(comTaskExecution.getDevice().getmRID());
-        }
-        ReadRegistersCommand readRegistersCommand = getCommandRoot().findOrCreateReadRegistersCommand(this, comTaskExecution);
-        readRegistersCommand.addRegisters(registers);
-        deviceRegisterList = new DeviceRegisterList(device.getDeviceIdentifier());
+        readRegistersCommand = getGroupedDeviceCommand().getReadRegistersCommand(this, comTaskExecution);
+        readRegistersCommand.addRegisters(createOfflineRegisters(registersTask, groupedDeviceCommand.getOfflineDevice(), comTaskExecution));
+        deviceRegisterList = new DeviceRegisterList(groupedDeviceCommand.getOfflineDevice().getDeviceIdentifier());
     }
 
-    private List<Long> getRegisterGroupIds () {
-        List<RegisterGroup> registerGroups = this.registersTask.getRegisterGroups();
-        List<Long> registerGroupIds = new ArrayList<>(registerGroups.size());
-        for (RegisterGroup registerGroup : registerGroups) {
-            registerGroupIds.add(registerGroup.getId());
+    private List<OfflineRegister> createOfflineRegisters(RegistersTask registersTask, OfflineDevice offlineDevice, ComTaskExecution comTaskExecution) {
+        List<OfflineRegister> registers = new ArrayList<>();
+        if (registersTask.getRegisterGroups().size() > 0) {
+            //Only add the registers of the master or the slave, not both
+            List<Long> ids = registersTask.getRegisterGroups().stream().map(RegisterGroup::getId).collect(Collectors.toList());
+            registers.addAll(offlineDevice.getRegistersForRegisterGroupAndMRID(ids, comTaskExecution.getDevice().getmRID()));
+        } else {
+            List<OfflineRegister> allRegisters = offlineDevice.getAllRegisters();
+            //Only add the registers of the master or the slave, not both
+            registers.addAll(allRegisters.stream().filter(register -> comTaskExecution.getDevice().getmRID().equals(register.getDeviceMRID())).collect(Collectors.toList()));
         }
-        return registerGroupIds;
+        return registers;
+    }
+
+    @Override
+    public void addAdditionalRegisterGroups(RegistersTask registersTask, OfflineDevice offlineDevice, ComTaskExecution comTaskExecution) {
+        readRegistersCommand.addRegisters(createOfflineRegisters(registersTask, offlineDevice, comTaskExecution));
     }
 
     @Override
@@ -105,22 +110,14 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
         return dataList;
     }
 
-    /**
-     * The RegistersTask which is used for modeling this command
-     *
-     * @return the RegistersTask
-     */
-    @Override
-    public RegistersTask getRegistersTask() {
-        return this.registersTask;
-    }
-
-    /**
-     * @return the ComCommandTypes  of this command
-     */
     @Override
     public ComCommandType getCommandType() {
         return ComCommandTypes.REGISTERS_COMMAND;
+    }
+
+    @Override
+    protected LogLevel defaultJournalingLogLevel() {
+        return LogLevel.DEBUG;
     }
 
     @Override

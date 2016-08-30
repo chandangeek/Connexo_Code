@@ -21,34 +21,28 @@ public class ComTaskExecutionGroup implements ComJob {
     private List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
 
     // For xml serialization purposes only
-    public ComTaskExecutionGroup () {
+    public ComTaskExecutionGroup() {
         super();
     }
 
-    public ComTaskExecutionGroup (OutboundConnectionTask<?> connectionTask) {
+    public ComTaskExecutionGroup(OutboundConnectionTask<?> connectionTask) {
         this();
         this.connectionTask = connectionTask;
     }
 
     @Override
-    public boolean isGroup () {
-        return true;
-    }
-
-    @Override
-    public ScheduledConnectionTask getConnectionTask () {
+    public ScheduledConnectionTask getConnectionTask() {
         return (ScheduledConnectionTask) this.connectionTask;
     }
 
-    public void add (ComTaskExecution comTask) {
+    public void add(ComTaskExecution comTask) {
         this.comTaskExecutions.add(comTask);
     }
 
     @Override
-    public List<ComTaskExecution> getComTaskExecutions () {
+    public List<ComTaskExecution> getComTaskExecutions() {
         List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
         comTaskExecutions.addAll(this.comTaskExecutions);
         return comTaskExecutions;
     }
-
 }

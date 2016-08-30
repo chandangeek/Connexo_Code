@@ -2,10 +2,11 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ProtocolTask;
 
@@ -13,7 +14,7 @@ import java.util.List;
 
 /**
  * Responsible for creating ComCommands
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 7/08/12
  * Time: 16:26
@@ -35,11 +36,10 @@ public interface CommandCreator {
      * @param issueService The {@link IssueService}
      */
     void createCommands(
-            CommandRoot root,
+            GroupedDeviceCommand groupedDeviceCommand,
             TypedProperties protocolDialectProperties,
             ComChannelPlaceHolder comChannel,
-            OfflineDevice offlineDevice,
-            List<? extends ProtocolTask> protocolTasks,
+            List<ProtocolTask> protocolTasks,
             DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet,
             ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep,
             ComTaskExecution comTaskExecution,

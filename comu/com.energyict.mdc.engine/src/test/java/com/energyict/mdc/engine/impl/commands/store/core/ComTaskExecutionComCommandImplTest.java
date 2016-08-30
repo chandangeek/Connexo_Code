@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -15,25 +16,25 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.transaction.TransactionService;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ComTaskExecutionComCommandImpl} component.
@@ -53,6 +54,12 @@ public class ComTaskExecutionComCommandImplTest {
     private ComTaskExecution comTaskExecution;
     @Mock
     private CommandRoot commandRoot;
+    @Mock
+    private OfflineDevice offlineDevice;
+    @Mock
+    private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
+    @Mock
+    private DeviceProtocol deviceProtocol;
     private Clock clock = Clock.systemDefaultZone();
     @Mock
     private DeviceService deviceService;
@@ -62,6 +69,7 @@ public class ComTaskExecutionComCommandImplTest {
     private ExecutionContext.ServiceProvider serviceProvider;
     @Mock
     private TransactionService transactionService;
+    private GroupedDeviceCommand groupedDeviceCommand;
 
     @Before
     public void initializeMocks() {
@@ -81,6 +89,8 @@ public class ComTaskExecutionComCommandImplTest {
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         ExecutionContext executionContext = new ExecutionContext(mock(JobExecution.class), connectionTask, comPort, true, this.serviceProvider);
         when(this.commandRoot.getExecutionContext()).thenReturn(executionContext);
+        when(this.commandRoot.getServiceProvider()).thenReturn(mock(CommandRoot.ServiceProvider.class));
+        groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, deviceProtocolSecurityPropertySet);
     }
 
     @After
@@ -91,7 +101,7 @@ public class ComTaskExecutionComCommandImplTest {
 
     @Test
     public void testGetCollectedDataWhenNone() {
-        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
+        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(groupedDeviceCommand, comTaskExecution);
 
         // Business method
         List<CollectedData> collectedDataList = command.getCollectedData();
@@ -110,10 +120,10 @@ public class ComTaskExecutionComCommandImplTest {
         when(comCommand2.getCommandType()).thenReturn(ComCommandTypes.CLOCK_COMMAND);
         ComCommand comCommand3 = mock(ComCommand.class);
         when(comCommand3.getCommandType()).thenReturn(ComCommandTypes.READ_LOGBOOKS_COMMAND);
-        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
-        command.addUniqueCommand(comCommand1, this.comTaskExecution);
-        command.addUniqueCommand(comCommand2, this.comTaskExecution);
-        command.addUniqueCommand(comCommand3, this.comTaskExecution);
+        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(groupedDeviceCommand, this.comTaskExecution);
+        command.addCommand(comCommand1, this.comTaskExecution);
+        command.addCommand(comCommand2, this.comTaskExecution);
+        command.addCommand(comCommand3, this.comTaskExecution);
 
         // Business method
         List<CollectedData> collectedDataList = command.getCollectedData();
@@ -141,10 +151,10 @@ public class ComTaskExecutionComCommandImplTest {
         when(comCommand3.getCommandType()).thenReturn(ComCommandTypes.READ_LOGBOOKS_COMMAND);
         ServerCollectedData collectedData3 = mock(ServerCollectedData.class);
         when(comCommand3.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(collectedData3));
-        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
-        command.addUniqueCommand(comCommand1, this.comTaskExecution);
-        command.addUniqueCommand(comCommand2, this.comTaskExecution);
-        command.addUniqueCommand(comCommand3, this.comTaskExecution);
+        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(groupedDeviceCommand, this.comTaskExecution);
+        command.addCommand(comCommand1, this.comTaskExecution);
+        command.addCommand(comCommand2, this.comTaskExecution);
+        command.addCommand(comCommand3, this.comTaskExecution);
 
         // Business method
         List<CollectedData> collectedDataList = command.getCollectedData();
@@ -166,9 +176,9 @@ public class ComTaskExecutionComCommandImplTest {
         when(comCommand2.getCommandType()).thenReturn(ComCommandTypes.CLOCK_COMMAND);
         ComCommand comCommand3 = mock(ComCommand.class);
         when(comCommand3.getCommandType()).thenReturn(ComCommandTypes.READ_LOGBOOKS_COMMAND);
-        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(this.commandRoot, this.comTaskExecution);
-        command.addUniqueCommand(comCommand1, this.comTaskExecution);
-        command.addUniqueCommand(comCommand3, this.comTaskExecution);
+        ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(groupedDeviceCommand, this.comTaskExecution);
+        command.addCommand(comCommand1, this.comTaskExecution);
+        command.addCommand(comCommand3, this.comTaskExecution);
 
         // Business method
         boolean contains1 = command.contains(comCommand1);

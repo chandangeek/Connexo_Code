@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.tasks.BasicCheckTask;
 
 import java.util.Optional;
@@ -16,7 +18,7 @@ public interface BasicCheckCommand extends CompositeComCommand {
     /**
      * @return the {@link BasicCheckTask}
      */
-    public BasicCheckTask getBasicCheckTask();
+    public Optional<TimeDuration> getMaximumClockDifference();
 
     /**
      * @return the {@link TimeDifferenceCommand}
@@ -40,4 +42,7 @@ public interface BasicCheckCommand extends CompositeComCommand {
      * @return the timeDifference
      */
     public Optional<TimeDuration> getTimeDifference();
+
+    public void updateAccordingTo(BasicCheckTask basicCheckTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution);
+
 }

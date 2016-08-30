@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -38,7 +39,7 @@ public class LogBookIdentifierByIdImplTest {
         when(this.logBookService.findById(LOGBOOK_ID)).thenReturn(Optional.empty());
 
         // Business method
-        new LogBookIdentifierById(LOGBOOK_ID, this.logBookService).getLogBook();
+        new LogBookIdentifierById(LOGBOOK_ID, this.logBookService, ObisCode.fromString("1.1.1.1.1.1")).getLogBook();
 
         // Expected a NotFoundException
     }
@@ -49,7 +50,7 @@ public class LogBookIdentifierByIdImplTest {
         when(this.logBookService.findById(LOGBOOK_ID)).thenReturn(Optional.of(logBook));
 
         // Business method
-        BaseLogBook returnedLogBook = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService).getLogBook();
+        BaseLogBook returnedLogBook = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService, ObisCode.fromString("1.1.1.1.1.1")).getLogBook();
 
         // Asserts
         assertThat(logBook).isEqualTo(returnedLogBook);
@@ -57,8 +58,8 @@ public class LogBookIdentifierByIdImplTest {
 
     @Test
     public void testEquals() {
-        LogBookIdentifier identifier_A = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService);
-        LogBookIdentifier identifier_B = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService);
+        LogBookIdentifier identifier_A = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService, ObisCode.fromString("1.1.1.1.1.1"));
+        LogBookIdentifier identifier_B = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService, ObisCode.fromString("1.1.1.1.1.1"));
 
         // Asserts
         assertThat(identifier_A).isEqualTo(identifier_B);
@@ -66,8 +67,8 @@ public class LogBookIdentifierByIdImplTest {
 
     @Test
     public void testNotEquals() {
-        LogBookIdentifier identifier_A = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService);
-        LogBookIdentifier identifier_B = new LogBookIdentifierById(LOGBOOK_2_ID, this.logBookService);
+        LogBookIdentifier identifier_A = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService, ObisCode.fromString("1.1.1.1.1.1"));
+        LogBookIdentifier identifier_B = new LogBookIdentifierById(LOGBOOK_2_ID, this.logBookService, ObisCode.fromString("1.1.1.1.1.1"));
 
         // Asserts
         assertThat(identifier_A).isNotEqualTo(identifier_B);
@@ -75,7 +76,7 @@ public class LogBookIdentifierByIdImplTest {
 
     @Test
     public void testNotEqualsToString() {
-        LogBookIdentifier identifier_A = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService);
+        LogBookIdentifier identifier_A = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService, ObisCode.fromString("1.1.1.1.1.1"));
 
         // Asserts
         assertThat(identifier_A).isNotEqualTo("identifier_B");
@@ -83,7 +84,7 @@ public class LogBookIdentifierByIdImplTest {
 
     @Test
     public void testNotEqualsToLong() {
-        LogBookIdentifier identifier_A = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService);
+        LogBookIdentifier identifier_A = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService, ObisCode.fromString("1.1.1.1.1.1"));
 
         // Asserts
         assertThat(identifier_A).isNotEqualTo(Long.valueOf(LOGBOOK_2_ID));
@@ -91,7 +92,7 @@ public class LogBookIdentifierByIdImplTest {
 
     @Test
     public void testNotEqualsToNull() {
-        LogBookIdentifier identifier_A = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService);
+        LogBookIdentifier identifier_A = new LogBookIdentifierById(LOGBOOK_ID, this.logBookService, ObisCode.fromString("1.1.1.1.1.1"));
 
         // Asserts
         assertThat(identifier_A).isNotEqualTo(null);

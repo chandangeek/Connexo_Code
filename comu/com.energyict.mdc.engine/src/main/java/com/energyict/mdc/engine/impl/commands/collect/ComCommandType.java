@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.tasks.ProtocolTask;
 
 import java.util.List;
@@ -13,8 +14,8 @@ import java.util.List;
  */
 public interface ComCommandType {
 
-    void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution);
+    void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution);
 
-    void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution);
+    void createCommandsFromTask(GroupedDeviceCommand groupedDeviceCommand, ProtocolTask protocolTask, ComTaskExecution comTaskExecution);
 
 }

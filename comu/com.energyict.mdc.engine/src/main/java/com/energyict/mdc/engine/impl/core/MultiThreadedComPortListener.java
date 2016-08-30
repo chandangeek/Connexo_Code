@@ -5,6 +5,7 @@ import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 
@@ -12,7 +13,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,16 +31,21 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     private int numberOfThreads;
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
-    public MultiThreadedComPortListener(InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
-        this(comPort, deviceCommandExecutor, serviceProvider, new InboundComPortExecutorFactoryImpl(serviceProvider));
+    public MultiThreadedComPortListener(RunningComServer runningComServer, InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
+        this(runningComServer, comPort, deviceCommandExecutor, serviceProvider, new InboundComPortExecutorFactoryImpl(serviceProvider));
     }
 
-    protected MultiThreadedComPortListener(InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, InboundComPortExecutorFactory inboundComPortExecutorFactory) {
-        super(comPort, deviceCommandExecutor, serviceProvider);
+    protected MultiThreadedComPortListener(RunningComServer runningComServer, InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, InboundComPortExecutorFactory inboundComPortExecutorFactory) {
+        super(runningComServer, comPort, deviceCommandExecutor, serviceProvider);
         this.setThreadName("MultiThreaded listener for inbound ComPort " + comPort.getName());
         this.numberOfThreads = getComPort().getNumberOfSimultaneousConnections();
         this.resourceManager = new ResourceManager(getComPort().getNumberOfSimultaneousConnections());
         this.inboundComPortExecutorFactory = inboundComPortExecutorFactory;
+    }
+
+    @Override
+    public int getThreadCount() {
+        return numberOfThreads;
     }
 
     @Override
@@ -121,6 +126,32 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     }
 
     /**
+     * Notification sent by Worker that the execution
+     * of a {@link InboundComPortExecutor} completed.
+     */
+    protected synchronized void workerCompleted() {
+        this.commandCompleted();
+    }
+
+    private void commandCompleted() {
+        this.resourceManager.executionCompleted();
+    }
+
+    /**
+     * Notification sent by Worker that the execution
+     * of a {@link InboundComPortExecutor} failed.
+     *
+     * @param t The Throwable that caused the failure
+     */
+    protected synchronized void workerFailed(Throwable t) {
+        this.commandFailed(t);
+    }
+
+    private void commandFailed(Throwable t) {
+        this.resourceManager.executionFailed();
+    }
+
+    /**
      * Does the actual work of executing a {@link InboundComPortExecutor}.
      * A Worker is only created or activated
      * when a InboundComPortExecutor is ready to be executed.
@@ -145,7 +176,10 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
             Throwable causeOfFailure = null;
             try {
                 this.inboundComPortExecutor.execute(this.comChannel);
-            } catch (Exception t) {
+            } catch (Throwable t) {
+                /* Use Throwable rather than Exception
+                 * to make sure that the Semaphore#release method is called
+                 * even in the worst of situations. */
                 causeOfFailure = t;
             } finally {
                 // in both cases the semaphore is released
@@ -160,44 +194,17 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     }
 
     /**
-     * Notification sent by Worker that the execution
-     * of a {@link InboundComPortExecutor} completed.
-     */
-    protected synchronized void workerCompleted() {
-        this.commandCompleted();
-    }
-
-    private void commandCompleted() {
-        this.resourceManager.executionCompleted();
-    }
-
-
-    /**
-     * Notification sent by Worker that the execution
-     * of a {@link InboundComPortExecutor} failed.
-     *
-     * @param t The Throwable that caused the failure
-     */
-    protected synchronized void workerFailed(Throwable t) {
-        this.commandFailed(t);
-    }
-
-    private void commandFailed(Throwable t) {
-        this.resourceManager.executionFailed();
-    }
-
-    /**
      * Manages the capacity of this multiThreaded object.
      */
-    class ResourceManager {
+    protected class ResourceManager {
 
+        private final ResizeableSemaphore semaphore;
         private int capacity;
-        private final Semaphore semaphore;
 
         public ResourceManager(int capacity) {
             super();
             this.capacity = capacity;
-            this.semaphore = new Semaphore(capacity, true);
+            this.semaphore = new ResizeableSemaphore(capacity, true);
         }
 
         public boolean prepareExecution() {
@@ -222,5 +229,21 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
             return capacity;
         }
 
+        public void changeCapacity(int newCapacity) {
+            if (this.reducingCapacity(newCapacity)) {
+                this.semaphore.reducePermits(this.capacity - newCapacity);
+            } else if (this.extendingCapacity(newCapacity)) {
+                this.semaphore.release(newCapacity - this.capacity);
+            }
+            this.capacity = newCapacity;
+        }
+
+        private boolean reducingCapacity(int newCapacity) {
+            return this.capacity > newCapacity;
+        }
+
+        private boolean extendingCapacity(int newCapacity) {
+            return this.capacity < newCapacity;
+        }
     }
 }

@@ -8,9 +8,9 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -33,8 +33,8 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
     private LoadProfileCommand loadProfileCommand;
     private List<DeviceLoadProfile> badTimeLoadProfiles = new ArrayList<>();
 
-    public MarkIntervalsAsBadTimeCommandImpl(final LoadProfileCommand loadProfileCommand, final CommandRoot commandRoot) {
-        super(commandRoot);
+    public MarkIntervalsAsBadTimeCommandImpl(final GroupedDeviceCommand groupedDeviceCommand, final LoadProfileCommand loadProfileCommand) {
+        super(groupedDeviceCommand);
         this.loadProfileCommand = loadProfileCommand;
     }
 
@@ -50,7 +50,7 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
                     .map(TimeDuration::getSeconds)
                     .map(TimeDuration::seconds)
                     .orElse(TimeDuration.seconds(0));
-            TimeDuration maxDiffInSeconds = loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime()
+            TimeDuration maxDiffInSeconds = loadProfileCommand.getLoadProfilesTaskOptions().getMinClockDiffBeforeBadTime()
                     .map(TimeDuration::getSeconds)
                     .map(TimeDuration::seconds)
                     .orElse(TimeDuration.seconds(0));
@@ -71,14 +71,14 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
     private boolean hasLargerOrEqualDuration() {
         return TimeDurations.hasLargerOrEqualDurationThen(
                 loadProfileCommand.getTimeDifferenceCommand().getTimeDifference().orElse(TimeDuration.seconds(0)).abs(),
-                loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime().orElse(TimeDuration.seconds(0)), true);
+                loadProfileCommand.getLoadProfilesTaskOptions().getMinClockDiffBeforeBadTime().orElse(TimeDuration.seconds(0)), true);
     }
 
     @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
-            builder.addProperty("minimumClockDifference").append(loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime().orElse(TimeDuration.seconds(0)));
+            builder.addProperty("minimumClockDifference").append(loadProfileCommand.getLoadProfilesTaskOptions().getMinClockDiffBeforeBadTime().orElse(TimeDuration.seconds(0)));
         }
         this.appendBadTimeLoadProfiles(builder);
     }

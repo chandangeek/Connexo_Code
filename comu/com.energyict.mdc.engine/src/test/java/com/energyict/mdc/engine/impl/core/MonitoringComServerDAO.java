@@ -73,6 +73,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     private Counter getThisComServer = new Counter();
     private Counter getComServer = new Counter();
     private Counter refreshComServer = new Counter();
+    private Counter refreshComPort = new Counter();
     private Counter findExecutableComTasks = new Counter();
     private Counter connectionTaskExecutionStarted = new Counter();
     private Counter connectionTaskExecutionCompleted = new Counter();
@@ -109,6 +110,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public ComPort refreshComPort(ComPort comPort) {
+        this.refreshComPort.increment();
+        return this.actual.refreshComPort(comPort);
+    }
+
+    @Override
     public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort) {
         this.findExecutableComTasks.increment();
         return this.actual.findExecutableOutboundComTasks(comPort);
@@ -126,7 +133,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
     @Override
     public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
-        return Optional.empty();
+        return actual.findOfflineDevice(identifier, offlineDeviceContext);
     }
 
     @Override
@@ -162,11 +169,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
     @Override
     public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
         return this.actual.attemptLock(connectionTask, comServer);
-    }
-
-    @Override
-    public void unlock (ScheduledConnectionTask connectionTask) {
-        this.actual.unlock(connectionTask);
     }
 
     @Override
@@ -305,8 +307,8 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
-        return this.actual.createComSession(builder, successIndicator);
+    public ComSession createComSession(ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator) {
+        return this.actual.createComSession(builder, stopDate, successIndicator);
     }
 
     private class VerifyingComServerDAO implements ComServerDAO {
@@ -332,6 +334,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public ComServer refreshComServer (ComServer comServer) {
             this.verifier.verify(refreshComServer);
+            return null;
+        }
+
+        @Override
+        public ComPort refreshComPort(ComPort comPort) {
+            this.verifier.verify(refreshComPort);
             return null;
         }
 
@@ -413,7 +421,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
-            return Optional.empty();
+            return actual.findOfflineDevice(identifier, offlineDeviceContext);
         }
 
         @Override
@@ -449,11 +457,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
             return true;
-        }
-
-        @Override
-        public void unlock (ScheduledConnectionTask connectionTask) {
-            // No implementation required so far
         }
 
         @Override
@@ -525,6 +528,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         public TimeDuration releaseTimedOutTasks (ComServer comServer) {
             // No implementation required
             return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+        }
+
+        @Override
+        public void releaseTasksFor(ComPort comPort) {
+            // No implementation required
         }
 
         @Override
@@ -615,7 +623,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
+        public ComSession createComSession(ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator) {
             return null;
         }
 
@@ -634,6 +642,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     public TimeDuration releaseTimedOutTasks (ComServer comServer) {
         // No need to release when in monitoring mode
         return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+    }
+
+    @Override
+    public void releaseTasksFor(ComPort comPort) {
+        // No implementation required
     }
 
     @Override

@@ -1,45 +1,40 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.common.StackTracePrinter;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
-import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.core.ComCommandJournalist;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.engine.impl.tools.StackTracePrinter;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
+import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-
-import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.exceptions.*;
+import com.energyict.mdc.tasks.ComTask;
 
 import java.io.IOException;
-import java.time.Clock;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.energyict.mdc.device.data.tasks.history.CompletionCode.ConnectionError;
-import static com.energyict.mdc.device.data.tasks.history.CompletionCode.Ok;
-import static com.energyict.mdc.device.data.tasks.history.CompletionCode.ProtocolError;
-import static com.energyict.mdc.device.data.tasks.history.CompletionCode.UnexpectedError;
-import static com.energyict.mdc.device.data.tasks.history.CompletionCode.forResultType;
 
 /**
  * Provides an implementation for the {@link ComCommand} interface.
@@ -50,94 +45,169 @@ import static com.energyict.mdc.device.data.tasks.history.CompletionCode.forResu
 
 public abstract class SimpleComCommand implements ComCommand, CanProvideDescriptionTitle {
 
-    private final CommandRoot commandRoot;
-    private CompletionCode completionCode = Ok;
+    private final GroupedDeviceCommand groupedDeviceCommand;
+
+    private final BasicComCommandBehavior basicComCommandBehavior;
 
     /**
-     * All the issue that have occurred during the execution of this {@link ComCommand}.
-     */
-    private List<Issue> issueList = new ArrayList<>();
-
-    /**
-     * All the {@link CollectedData} that have been collected during the execution of this {@link ComCommand}.
+     * A List containing all the {@link CollectedData} which is collected during the execution of this {@link ComCommand}
      */
     private List<CollectedData> collectedDataList = new ArrayList<>();
 
     /**
-     * The state of the command execution.
+     * A List containing all the issue which occurred during the execution of this {@link ComCommand}
      */
-    public enum ExecutionState {
-        /**
-         * Command is not yet executed.
-         */
-        NOT_EXECUTED,
-        /**
-         * Command is successfully executed.
-         */
-        SUCCESSFULLY_EXECUTED,
-        /**
-         * Command is executed but failed.
-         */
-        FAILED
+    private List<Issue> issueList = new ArrayList<>();
+
+    protected SimpleComCommand(final GroupedDeviceCommand groupedDeviceCommand) {
+        if (groupedDeviceCommand == null) {
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "groupedDeviceCommand", com.energyict.mdc.engine.impl.MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
+        }
+
+        this.groupedDeviceCommand = groupedDeviceCommand;
+        this.basicComCommandBehavior = new BasicComCommandBehavior(this, ComCommandDescriptionTitle.getComCommandDescriptionTitleFor(this.getClass()).getDescription(), getServiceProvider().clock());
     }
 
-    /**
-     * Keeps track of the executionState of this command.
-     */
-    private ExecutionState executionState = ExecutionState.NOT_EXECUTED;
+    private CommandRoot.ServiceProvider getServiceProvider() {
+        return getCommandRoot().getServiceProvider();
+    }
 
-    /**
-     * Perform the actions represented by this ComCommand.<br/>
-     * <b>Note:</b> this action will only perform once.
-     *
-     * @param deviceProtocol the {@link DeviceProtocol} which will perform the actions
-     * @param executionContext The ExecutionContext
-     */
-    public abstract void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext);
+    public abstract void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext);
 
-    protected SimpleComCommand(final CommandRoot commandRoot) {
-        this.commandRoot = commandRoot;
+    @Override
+    public void execute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+        try {
+        /* Regular code */
+            this.validateArguments(deviceProtocol, executionContext);
+            if (!hasExecuted()) {
+                this.setCompletionCode(CompletionCode.Ok);  // First optimistic
+                boolean success = false;    // then pessimistic, does that make me manic
+                try {
+                    doExecute(deviceProtocol, executionContext);
+                    success = true;
+                } catch (CommunicationException e) {
+                    if (e instanceof ConnectionCommunicationException) {
+
+                        if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.NUMBER_OF_RETRIES_REACHED_CONNECTION_STILL_INTACT) {
+                            //A special case applicable for physical slaves that have the same gateway (and thus connection task)
+                            //It is a common timeout (we did not receive the response of the slave device in time), but the connection is still intact. Other physical slaves can still use it.
+                            addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.TimeoutError);
+                            getGroupedDeviceCommand().skipOtherComTaskExecutions();
+                        } else if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.UNEXPECTED_PROTOCOL_ERROR
+                                || e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.CIPHERING_EXCEPTION) {
+                            //Problem in the application layer of the protocol, specific for the current physical slave. The next physical slaves can still be read out.
+                            //For example: invalid frame counter, decryption failure, empty object list, etc.
+                            addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.UnexpectedError);
+                            getGroupedDeviceCommand().skipOtherComTaskExecutions();
+                        } else {
+                            //Any other ConnectionCommunicationException means that the connection is broken/closed and can no longer be used.
+                            //The next comtasks for this connection will be set to 'not executed'.
+                            connectionErrorOccurred(deviceProtocol, e);
+                        }
+
+                    } else if (e instanceof ConnectionSetupException || e instanceof ModemException) {
+                        connectionErrorOccurred(deviceProtocol, e);
+                    } else {
+                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ProtocolError);
+                    }
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
+
+                } catch (DataParseException e) {
+                    addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ProtocolError);
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
+                } catch (DeviceConfigurationException | CanNotFindForIdentifier | DuplicateException e) {
+                    addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ConfigurationError);
+                    executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
+
+                } catch (LegacyProtocolException e) {
+                    if (isExceptionCausedByALegacyTimeout(e)) {
+                        connectionErrorOccurred(deviceProtocol, e);
+                    } else {
+                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e, getCommunicationLogLevel(executionContext))), CompletionCode.UnexpectedError);
+                    }
+                    getGroupedDeviceCommand().skipOtherComTaskExecutions();
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
+                } finally {
+                    if (success) {
+                        this.basicComCommandBehavior.setExecutionState(BasicComCommandBehavior.ExecutionState.SUCCESSFULLY_EXECUTED);
+                    } else {
+                        this.basicComCommandBehavior.setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
+                    }
+                }
+            }
+        } finally {
+            if (executionContext != null) {
+            /* AspectJ - ComCommandJournaling - ComCommandLogging */
+                this.delegateToJournalistIfAny(executionContext);
+
+            /* AspectJ - ComCommandJournaling - ComCommandJournalEventPublisher */
+                executionContext.eventPublisher().publish(basicComCommandBehavior.toEvent(executionContext));
+            }
+        }
+    }
+
+
+    private String getComTasksDescription(ExecutionContext executionContext) {
+        StringBuilder result = new StringBuilder();
+        List<ComTask> comTasks = executionContext.getComTaskExecution().getComTasks();
+        for (ComTask comTask : comTasks) {
+            if (result.length() > 0) {
+                result.append(", ");
+            }
+            result.append(comTask.getName());
+        }
+        return result.toString();
+    }
+
+    private void connectionErrorOccurred(DeviceProtocol deviceProtocol, Throwable e) {
+        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.COMMAND_FAILED_DUE_TO_CONNECTION_RELATED_ISSUE, e.getLocalizedMessage()), CompletionCode.ConnectionError);
+        groupedDeviceCommand.connectionErrorOccurred();
     }
 
     @Override
-    public CompletionCode getCompletionCode () {
-        return this.getHighestCompletionCode();
+    public OfflineDevice getOfflineDevice() {
+        return this.groupedDeviceCommand.getOfflineDevice();
     }
 
-    protected CompletionCode getMyCompletionCode () {
-        return this.completionCode;
+    @Override
+    public CompletionCode getCompletionCode() {
+        return this.basicComCommandBehavior.getHighestCompletionCode();
+    }
+
+    @Override
+    public void setCompletionCode(CompletionCode completionCode) {
+        this.basicComCommandBehavior.setCompletionCode(completionCode);
     }
 
     /**
-     * Search for the most important completionCode. This can be the
-     * completionCode from the ComCommand itself, but it can also be
-     * a CompletionCode subtracted from the resultType of a CollectedData object.
+     * Add the given {@link Issue} to the {@link #issueList} and upgrade the {@link CompletionCode} to the given one.
      *
-     * @return the highest CompletionCode
+     * @param issue          the {@link Issue} to add
+     * @param completionCode the {@link CompletionCode} to upgrade to
      */
-    private CompletionCode getHighestCompletionCode() {
-        CompletionCode completionCode = this.completionCode;
-        for (CollectedData collectedData : getCollectedData()) {
-            CompletionCode collectedDataCompletionCode = forResultType(collectedData.getResultType());
-            if (collectedDataCompletionCode.hasPriorityOver(completionCode)) {
-                completionCode = collectedDataCompletionCode;
-            }
-        }
-        return completionCode;
-    }
-
-    protected void setCompletionCode (CompletionCode completionCode) {
-        this.completionCode = completionCode;
+    public void addIssue(Issue issue, CompletionCode completionCode) {
+        this.issueList.add(issue);
+        this.setCompletionCode(basicComCommandBehavior.getCompletionCode().upgradeTo(completionCode));
     }
 
     @Override
     public CommandRoot getCommandRoot() {
-        return this.commandRoot;
+        return this.groupedDeviceCommand.getCommandRoot();
     }
 
-    protected Thesaurus getThesaurus() {
-        return this.getCommandRoot().getServiceProvider().thesaurus();
+    @Override
+    public GroupedDeviceCommand getGroupedDeviceCommand() {
+        return this.groupedDeviceCommand;
     }
+
+    public void addCollectedDataItem(CollectedData collectedData) {
+        this.collectedDataList.add(collectedData);
+    }
+
+    public void addListOfCollectedDataItems(List<? extends CollectedData> collectedDataList) {
+        this.collectedDataList.addAll(collectedDataList);
+    }
+
 
     @Override
     public List<Issue> getIssues() {
@@ -149,21 +219,27 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     @Override
-    public List<Problem> getProblems () {
-        return this.getIssues()
-                .stream()
-                .filter(Issue::isProblem)
-                .map(Problem.class::cast)
-                .collect(Collectors.toList());
+    public List<Problem> getProblems() {
+        List<Issue> issues = this.getIssues();
+        List<Problem> problems = new ArrayList<>(issues.size());    // At most all issues are problems
+        for (Issue issue : issues) {
+            if (issue.isProblem()) {
+                problems.add((Problem) issue);
+            }
+        }
+        return problems;
     }
 
     @Override
-    public List<Warning> getWarnings () {
-        return this.getIssues()
-                .stream()
-                .filter(Issue::isWarning)
-                .map(Warning.class::cast)
-                .collect(Collectors.toList());
+    public List<Warning> getWarnings() {
+        List<Issue> issues = this.getIssues();
+        List<Warning> warnings = new ArrayList<>(issues.size());    // At most all issues are warnings
+        for (Issue issue : issues) {
+            if (issue.isWarning()) {
+                warnings.add((Warning) issue);
+            }
+        }
+        return warnings;
     }
 
     @Override
@@ -171,93 +247,15 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         return new ArrayList<>(collectedDataList);
     }
 
-    /**
-     * Add the given {@link Issue} to the {@link #issueList}.
-     *
-     * @param issue the {@link Issue} to add
-     */
-    public void addIssue(Issue issue) {
-        this.issueList.add(issue);
-    }
-
-    public void addIssue (Issue issue, CompletionCode completionCode) {
-        this.addIssue(issue);
-        this.setCompletionCode(this.completionCode.upgradeTo(completionCode));
-    }
-
-    @Override
-    public void addCollectedDataItem(final CollectedData collectedData) {
-        this.collectedDataList.add(collectedData);
-    }
-
-    @Override
-    public void addListOfCollectedDataItems(final List<? extends CollectedData> collectedDataList) {
-        this.collectedDataList.addAll(collectedDataList);
-    }
-
-    @Override
-    public void execute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        this.validateArguments(deviceProtocol, executionContext);
-        if (!hasExecuted()) {
-            this.setCompletionCode(Ok);  // First optimistic
-            boolean success = false;    // then pessimistic, does that make me manic
-            try {
-                doExecute(deviceProtocol, executionContext);
-                success = true;
-            } catch (ConnectionCommunicationException e) {
-                setCompletionCode(ConnectionError);
-                throw e;
-            } catch (CommunicationException e) {
-                setCompletionCode(ProtocolError);
-                addIssue(getIssueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, StackTracePrinter.print(e)), ProtocolError);
-                throw new ConnectionCommunicationException(MessageSeeds.COMMUNICATION_FAILURE, e);
-            } catch (LegacyProtocolException e) {
-                if (isExceptionCausedByALegacyTimeout(e)) {
-                    setCompletionCode(ConnectionError);
-                    throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, (IOException) e.getCause());
-                } else {
-                    addIssue(getIssueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e)), UnexpectedError);
-                }
-            } finally {
-                if (success) {
-                    this.executionState = ExecutionState.SUCCESSFULLY_EXECUTED;
-                } else {
-                    this.executionState = ExecutionState.FAILED;
-                }
-                this.journalExecutionCompleted(executionContext);
-                this.publishExecutionCompletedEvent(executionContext);
-            }
-        }
-    }
-
-    private void journalExecutionCompleted(ExecutionContext executionContext) {
-        ComCommandJournalist journalist = executionContext.getJournalist();
-        if (journalist != null) {
-            journalist.executionCompleted(this, this.getServerLogLevel(executionContext));
-        }
-    }
-
-    private void publishExecutionCompletedEvent(ExecutionContext executionContext) {
-        new ComCommandJournalEventPublisher(executionContext.eventPublisher()).executionCompleted(this, executionContext);
-    }
-
-    private LogLevel getServerLogLevel (ExecutionContext executionContext) {
-        return this.getServerLogLevel(executionContext.getComPort());
-    }
-
-    private LogLevel getServerLogLevel (ComPort comPort) {
-        return this.getServerLogLevel(comPort.getComServer());
-    }
-
-    private LogLevel getServerLogLevel (ComServer comServer) {
-        return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getCommunicationLogLevel());
+    void delegateToJournalistIfAny(ExecutionContext executionContext) {
+        this.basicComCommandBehavior.delegateToJournalistIfAny(executionContext);
     }
 
     private boolean isExceptionCausedByALegacyTimeout(LegacyProtocolException e) {
         return e.getMessage().toLowerCase().contains("timeout") && IOException.class.isAssignableFrom(e.getCause().getClass());
     }
 
-    private void validateArguments (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+    private void validateArguments(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if (deviceProtocol == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "execute", "deviceProtocol", com.energyict.mdc.engine.impl.MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
@@ -266,47 +264,32 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         }
     }
 
-    /**
-     * @return the {@link #executionState}
-     */
-    public ExecutionState getExecutionState() {
-        return this.executionState;
+    public LogLevel getCommunicationLogLevel(ExecutionContext executionContext) {
+        try {
+            return LogLevelMapper.forComServerLogLevel().toLogLevel(executionContext.getComPort().getComServer().getCommunicationLogLevel());
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 
     /**
-     * Indication whether this command has been executed
-     *
-     * @return true if the command has executed (successful or failed), false if the command hasn't executed
+     * @return the executionState
      */
+    public BasicComCommandBehavior.ExecutionState getExecutionState() {
+        return this.basicComCommandBehavior.getExecutionState();
+    }
+
+    public void setExecutionState(BasicComCommandBehavior.ExecutionState state) {
+        this.basicComCommandBehavior.setExecutionState(state);
+    }
+
     public boolean hasExecuted() {
-        return this.executionState != ExecutionState.NOT_EXECUTED;
+        return this.basicComCommandBehavior.hasExecuted();
     }
 
     @Override
-    public LogLevel getJournalingLogLevel () {
-        switch (this.getCompletionCode()) {
-            case Ok: {
-                return this.defaultJournalingLogLevel();
-            }
-            case ConfigurationWarning: {
-                return LogLevel.WARN;
-            }
-            case ProtocolError:
-                // Intentional fall-through
-            case TimeError:
-                // Intentional fall-through
-            case ConfigurationError:
-                // Intentional fall-through
-            case IOError:
-                // Intentional fall-through
-            case UnexpectedError:
-                // Intentional fall-through
-            case ConnectionError:
-                return LogLevel.ERROR;
-            default: {
-                throw CodingException.unrecognizedEnumValue(LogLevel.class, this.completionCode.ordinal(), com.energyict.mdc.engine.impl.MessageSeeds.UNRECOGNIZED_ENUM_VALUE);
-            }
-        }
+    public LogLevel getJournalingLogLevel() {
+        return this.basicComCommandBehavior.getJournalingLogLevel();
     }
 
     @Override
@@ -314,67 +297,28 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         return getClass().getSimpleName();
     }
 
-    /**
-     * Gets the default LogLevel that the ComServer as a minimum
-     * must be set to before this ComCommand will be logged
-     * if the CompletionCode is Ok.
-     *
-     * @return The default log level
-     */
-    protected LogLevel defaultJournalingLogLevel () {
-        return LogLevel.INFO;
+    protected LogLevel defaultJournalingLogLevel() {
+        return this.basicComCommandBehavior.defaultJournalingLogLevel();
     }
 
     @Override
-    public final String toJournalMessageDescription (LogLevel serverLogLevel) {
+    public String getDescriptionTitle() {
+        return this.basicComCommandBehavior.getDescriptionTitle();
+    }
+
+    @Override
+    public String toJournalMessageDescription(LogLevel serverLogLevel) {
         DescriptionBuilder builder = new DescriptionBuilderImpl(this);
         this.toJournalMessageDescription(builder, serverLogLevel);
         return builder.toString();
     }
 
-    @Override
-    public final String issuesToJournalMessageDescription() {
-        if (getIssues().isEmpty()) {
-            return "";
-        }
-        else {
-            DescriptionBuilder builder = new DescriptionBuilderImpl(() -> "Issues");
-            this.buildErrorDescription(builder);
-            return builder.toString();
-        }
+    protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
+        this.basicComCommandBehavior.toJournalMessageDescription(builder, serverLogLevel);
     }
 
-    private void buildErrorDescription(DescriptionBuilder builder) {
-        this.buildErrorDescription(builder, "Problems", this.getProblems());
-        this.buildErrorDescription(builder, "Warnings", this.getWarnings());
-    }
-
-    private <T extends Issue> void buildErrorDescription(DescriptionBuilder builder, String heading, List<T> issues) {
-        if (!issues.isEmpty()) {
-            DateTimeFormatter dateFormat = DateTimeFormatter.ISO_INSTANT;
-            PropertyDescriptionBuilder listBuilder = builder.addListProperty(heading);
-            for (T issue : issues) {
-                listBuilder.append(issue.getDescription());
-                appendIssueTimestamp(listBuilder, dateFormat, issue);
-                listBuilder.next();
-            }
-        }
-    }
-
-    private <T extends Issue> void appendIssueTimestamp(PropertyDescriptionBuilder builder, DateTimeFormatter dateFormat, T issue) {
-        builder.append(" (").append(dateFormat.format(issue.getTimestamp())).append(")");
-    }
-
-    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
-        if (   this.isJournalingLevelEnabled(serverLogLevel, LogLevel.INFO)
-            && this.notSuccessFullyExecuted()) {
-            builder.addProperty("executionState").append(this.executionState.name());
-            builder.addProperty("completionCode").append(this.completionCode.name());
-        }
-        if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
-            builder.addProperty("nrOfWarnings").append(this.countWarnings());
-            builder.addProperty("nrOfProblems").append(this.countProblems());
-        }
+    public String issuesToJournalMessageDescription() {
+        return this.basicComCommandBehavior.issuesToJournalMessageDescription();
     }
 
     /**
@@ -382,31 +326,95 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
      * minimum level to be shown in journal messages.
      *
      * @param serverLogLevel The server LogLevel
-     * @param minimumLevel The minimum level that is required for a message to show up in journaling
+     * @param minimumLevel   The minimum level that is required for a message to show up in journaling
      * @return A flag that indicates if message details of the minimum level should show up in journaling
      */
-    protected boolean isJournalingLevelEnabled (LogLevel serverLogLevel, LogLevel minimumLevel) {
-        return serverLogLevel.compareTo(minimumLevel) >= 0;
+    protected boolean isJournalingLevelEnabled(LogLevel serverLogLevel, LogLevel minimumLevel) {
+        return this.basicComCommandBehavior.isJournalingLevelEnabled(serverLogLevel, minimumLevel);
     }
 
-    private boolean notSuccessFullyExecuted () {
-        return !ExecutionState.SUCCESSFULLY_EXECUTED.equals(this.executionState);
+    /**
+     * Used by the load profile commands to remove any channel intervals (and channel infos) from the collected LP that were not requested by the LP reader.
+     * This can be the case for protocols that do not have selective access yet based for channels.
+     */
+    protected void removeUnwantedChannels(List<LoadProfileReader> loadProfileReaders, List<CollectedData> collectedDatas) {
+        for (LoadProfileReader loadProfileReader : loadProfileReaders) {
+            for (CollectedData collectedData : collectedDatas) {
+                if (collectedData instanceof CollectedLoadProfile) {
+                    CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) collectedData;
+
+                    if (collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
+
+                        //Only remove unwanted channels if the protocol generated more channel infos than the number of channels configured in EIServer
+                        if (collectedLoadProfile.getChannelInfo().size() > loadProfileReader.getChannelInfos().size()) {
+
+                            int index = 0;
+                            Iterator<ChannelInfo> channelInfoIterator = collectedLoadProfile.getChannelInfo().iterator();
+                            while (channelInfoIterator.hasNext()) {
+                                ChannelInfo readChannel = channelInfoIterator.next();
+                                if (!channelIsConfigured(loadProfileReader, readChannel)) {
+                                    //Remove channel data that was not requested
+                                    channelInfoIterator.remove();
+                                    for (IntervalData intervalData : collectedLoadProfile.getCollectedIntervalData()) {
+                                        intervalData.getIntervalValues().remove(index);
+                                    }
+                                } else {
+                                    index++;
+                                }
+                            }
+
+                            for (int channelIndex = 0; channelIndex < collectedLoadProfile.getChannelInfo().size(); channelIndex++) {
+                                collectedLoadProfile.getChannelInfo().get(channelIndex).setId(channelIndex);
+                                collectedLoadProfile.getChannelInfo().get(channelIndex).setChannelId(channelIndex);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    private long countWarnings () {
-        return this.getWarnings().size();
+    /**
+     * Return true if the read out channel (identified by obiscode, unit, serial number) is also configured in EIServer.
+     * Otherwise, interval data for this channel cannot be stored in EIServer. It will be filtered out.
+     * <p>
+     * Note that there's a special case here: if the read out channel has the same obiscode and serial number,
+     * but a flow unit instead of a configured volume unit (e.g. meter channel is kWh instead of configured kW),
+     * the collected interval data for that channel should still be stored, after it has been converted.
+     * This conversion is done in the EIServer storer class.
+     * The other direction (meter channel kW and configured in EIServer as kWh) is also supported.
+     */
+    private boolean channelIsConfigured(LoadProfileReader loadProfileReader, ChannelInfo readChannel) {
+
+        //Clone the argument
+        ChannelInfo clone = new ChannelInfo(readChannel.getId(), readChannel.getName(), readChannel.getUnit(), readChannel.getMeterIdentifier(), readChannel.isCumulative(), readChannel.getReadingType());
+
+        //We found an exact match, cool.
+        if (loadProfileReader.getChannelInfos().contains(clone)) {
+            return true;
+        }
+
+        //Check if we find a match if we change the received flow unit to its volume unit counter part.
+        if (clone.getUnit().isFlowUnit() && clone.getUnit().getVolumeUnit() != null) {
+            clone.setUnit(clone.getUnit().getVolumeUnit());
+            return loadProfileReader.getChannelInfos().contains(clone);
+        }
+
+        //Check if we find a match if we change the received volume unit to its flow unit counter part.
+        if (clone.getUnit().isVolumeUnit() && clone.getUnit().getFlowUnit() != null) {
+            clone.setUnit(clone.getUnit().getFlowUnit());
+            return loadProfileReader.getChannelInfos().contains(clone);
+        }
+
+        return false;
     }
 
-    private long countProblems () {
-        return this.getProblems().size();
+    protected IssueService getIssueService() {
+        return getServiceProvider().issueService();
     }
 
-    public IssueService getIssueService() {
-        return getCommandRoot().getServiceProvider().issueService();
+    protected Thesaurus getThesaurus() {
+        return getServiceProvider().thesaurus();
     }
-
-    public Clock getClock() {
-        return getCommandRoot().getServiceProvider().clock();
-    }
-
 }

@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands;
 
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.engine.EngineService;
 
@@ -69,6 +68,14 @@ public enum MessageSeeds implements MessageSeed {
     LOADPROFILE_NOT_SUPPORTED(5051, "loadProfileXnotsupported", "Load profile with OBIS code '{0}' is not supported by the device"),
     MESSAGE_NO_LONGER_VALID(5052, "messageNoLongerValid", "The message is no longer valid (see message below):"),
     CALENDAR_NO_LONGER_ALLOWED(5053, "calendarNoLongerAllowed", "The calendar(s) ''{0}'' is or are no longer allowed by device type ''{1}''"),
+    NOT_EXECUTED_DUE_TO_CONNECTION_ERROR(5056, "notExecutedDueToConnectionError", "Communication task will be rescheduled due to connection errors in previous task"),
+    NOT_EXECUTED_DUE_TO_INIT_ERROR(5057, "notExecutedDueToInitError", "Communication task will be rescheduled due to an initialization error"),
+    NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR(5058, "notExecutedDueToOtherComTaskExecutionError", "Communication task will be rescheduled due to an error in the previous communication task"),
+    NOT_EXECUTED_DUE_TO_CONNECTION_SETUP_ERROR(5059, "notExecutedDueToConnectionSetupError", "Communication task will be rescheduled due to a connection setup failure"),
+    NOT_EXECUTED_DUE_TO_GENERAL_SETUP_ERROR(5060, "notExecutedDueToGeneralSetupError", "Communication task will be rescheduled due to a general error during the setup of the tasks. No connection to the device was made."),
+    SOMETHING_UNEXPECTED_HAPPENED(5061, "somethingUnexpectedHappened", "Some unexpected error occurred"),
+    COMMAND_FAILED_DUE_TO_CONNECTION_RELATED_ISSUE(5062, "commandFailedDueToConnectionRelatedIssue", "Communication task failed due to connection related error: {0}"),
+    NOT_EXECUTED_DUE_TO_BASIC_CHECK_FAILURE(5063, "notExecutedDueToBasicCheckFailure", "Communication task will be rescheduled due to the failure of the BasicCheck task"),
     ;
 
     private final int number;

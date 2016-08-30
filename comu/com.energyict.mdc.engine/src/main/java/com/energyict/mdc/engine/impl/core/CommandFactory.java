@@ -2,20 +2,14 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOnCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOnCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.AddPropertiesCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolInitializeCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolSetCacheCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolTerminateCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolUpdateCacheCommand;
-import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.commands.store.common.*;
 import com.energyict.mdc.engine.impl.commands.store.core.DeviceProtocolCommandCreator;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.LegacyMeterProtocolCommandCreator;
 import com.energyict.mdc.engine.impl.commands.store.core.LegacySmartMeterProtocolCommandCreator;
 import com.energyict.mdc.engine.impl.commands.store.legacy.HandHeldUnitEnablerCommand;
@@ -34,7 +28,7 @@ import java.util.List;
 
 /**
  * Provides proper functionality to create ComCommands based on relevant information
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 27/06/12
  * Time: 16:25
@@ -42,15 +36,23 @@ import java.util.List;
 public final class CommandFactory {
 
     /**
+     * Hide utility class constructor.
+     */
+    private CommandFactory() {
+        super();
+    }
+
+    /**
      * Create commands based on the {@link ProtocolTask}s
      * in the {@link com.energyict.mdc.tasks.ComTask}.
      *
-     * @param commandRoot      the root to add the created commands to
-     * @param protocolTasks the used ProtocolTasks for modeling the commands
+     * @param groupedDeviceCommand the root to add the created commands to
+     * @param protocolTasks        the used ProtocolTasks for modeling the commands
      */
-    public static void createCommandsFromTask(final CommandRoot commandRoot, ComTaskExecution comTaskExecution, final List<? extends ProtocolTask> protocolTasks) {
+    public static void createCommandsFromTask(final GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution, final List<ProtocolTask> protocolTasks) {
         for (ProtocolTask protocolTask : protocolTasks) {
-            ComCommandTypes.forProtocolTask(protocolTask).createCommandsFromTask(commandRoot, protocolTask, comTaskExecution);
+            ComCommandTypes comCommandType = ComCommandTypes.forProtocolTask(protocolTask.getClass());
+            comCommandType.createCommandsFromTask(groupedDeviceCommand, protocolTask, comTaskExecution);
         }
     }
 
@@ -58,88 +60,86 @@ public final class CommandFactory {
      * Create commands - specif for usage with legacy protocols ({@link MeterProtocol}) - based on the {@link ProtocolTask ProtoclTasks}
      * in the {@link com.energyict.mdc.tasks.ComTask}.
      *
-     * @param commandRoot      the root to add the created commands to
-     * @param protocolTasks the used ProtocolTasks for modeling the commands
+     * @param groupedDeviceCommand the root to add the created commands to
+     * @param protocolTasks        the used ProtocolTasks for modeling the commands
      */
-    public static void createLegacyCommandsFromTask(final CommandRoot commandRoot, ComTaskExecution comTaskExecution, final List<? extends ProtocolTask> protocolTasks) {
-        CommandRootImpl root = (CommandRootImpl) commandRoot;
+    public static void createLegacyCommandsFromTask(final GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution, final List<ProtocolTask> protocolTasks) {
         for (ProtocolTask protocolTask : protocolTasks) {
-            createLegacyCommandsFromProtocolTask(root, comTaskExecution, protocolTasks, protocolTask);
+            createLegacyCommandsFromProtocolTask(groupedDeviceCommand, comTaskExecution, protocolTasks, protocolTask);
         }
     }
 
-    private static void createLegacyCommandsFromProtocolTask (CommandRoot root, ComTaskExecution comTaskExecution, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask) {
-        ComCommandType comCommandType = ComCommandTypes.forProtocolTask(protocolTask);
-        comCommandType.createLegacyCommandsFromProtocolTask(root, protocolTasks, protocolTask, comTaskExecution);
+    private static void createLegacyCommandsFromProtocolTask(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution, List<ProtocolTask> protocolTasks, ProtocolTask protocolTask) {
+        ComCommandTypes comCommandType = ComCommandTypes.forProtocolTask(protocolTask.getClass());
+        comCommandType.createLegacyCommandsFromProtocolTask(groupedDeviceCommand, protocolTasks, protocolTask, comTaskExecution);
     }
 
     /**
      * Create a simple AddPropertiesCommand
      *
-     * @param root                      the root to add the created commands to
-     * @param deviceProperties          the properties which are defined on the Device level (Device)
-     * @param protocolDialectProperties the properties defined on the ComTask level
-     * @param deviceProtocolSecurityPropertySet
-     *                                  the securityProperty set for this command
+     * @param groupedDeviceCommand              the root to add the created commands to
+     * @param deviceProperties                  the properties which are defined on the Device level (Device)
+     * @param protocolDialectProperties         the properties defined on the ComTask level
+     * @param deviceProtocolSecurityPropertySet the securityProperty set for this command
      */
-    public static void createAddProperties(CommandRoot root, ComTaskExecution comTaskExecution, TypedProperties deviceProperties, TypedProperties protocolDialectProperties, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        root.addUniqueCommand(new AddPropertiesCommand(root, deviceProperties, protocolDialectProperties, deviceProtocolSecurityPropertySet), comTaskExecution);
+    public static void createAddProperties(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution, TypedProperties deviceProperties, TypedProperties protocolDialectProperties, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        groupedDeviceCommand.addCommand(new AddPropertiesCommand(groupedDeviceCommand, deviceProperties, protocolDialectProperties, deviceProtocolSecurityPropertySet), comTaskExecution);
     }
 
     /**
      * Create a simple DeviceProtocolInitializeCommand
      *
-     * @param root The root to add the created commands to
-     * @param offlineDevice The offlineDevice used for modeling the command
+     * @param groupedDeviceCommand  The root to add the created commands to
+     * @param offlineDevice         The offlineDevice used for modeling the command
      * @param comChannelPlaceHolder The place holder for the ComChannel where all read/write actions are going to be performed
      */
-    public static void createDeviceProtocolInitialization(CommandRoot root, ComTaskExecution comTaskExecution, OfflineDevice offlineDevice, ComChannelPlaceHolder comChannelPlaceHolder) {
-        root.addUniqueCommand(new DeviceProtocolInitializeCommand(root, offlineDevice, comChannelPlaceHolder), comTaskExecution);
+    public static void createDeviceProtocolInitialization(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution, OfflineDevice offlineDevice, ComChannelPlaceHolder comChannelPlaceHolder) {
+        groupedDeviceCommand.addCommand(new DeviceProtocolInitializeCommand(groupedDeviceCommand, comChannelPlaceHolder), comTaskExecution);
     }
 
     /**
      * Create a simple DeviceProtocolTerminateCommand
      *
-     * @param root the root to add the created commands to
+     * @param groupedDeviceCommand the root to add the created commands to
      */
-    public static void createDeviceProtocolTerminate(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addUniqueCommand(new DeviceProtocolTerminateCommand(root), comTaskExecution);
+    public static void createDeviceProtocolTerminate(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        groupedDeviceCommand.addCommand(new DeviceProtocolTerminateCommand(groupedDeviceCommand), comTaskExecution);
     }
 
     /**
      * Create a simple LogOnCommand.
      *
-     * @param root the root to add the created commands to
+     * @param groupedDeviceCommand the root to add the created commands to
      */
-    public static void createLogOnCommand(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addUniqueCommand(new LogOnCommand(root), comTaskExecution);
+    public static void createLogOnCommand(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        groupedDeviceCommand.addCommand(new LogOnCommand(groupedDeviceCommand), comTaskExecution);
     }
 
     /**
      * Create a simple {@link DaisyChainedLogOnCommand}
      *
-     * @param root the root to add the created commands to
+     * @param groupedDeviceCommand the root to add the created commands to
      */
-    public static void createDaisyChainedLogOnCommand(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addUniqueCommand(new DaisyChainedLogOnCommand(root), comTaskExecution);
+    public static void createDaisyChainedLogOnCommand(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        groupedDeviceCommand.addCommand(new DaisyChainedLogOnCommand(groupedDeviceCommand), comTaskExecution);
     }
 
     /**
      * Create a simple LogOffCommand.
      *
-     * @param root the root to add the created commands to
+     * @param groupedDeviceCommand the root to add the created commands to
      */
-    public static void createLogOffCommand(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addUniqueCommand(new LogOffCommand(root), comTaskExecution);
+    public static void createLogOffCommand(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        groupedDeviceCommand.addCommand(new LogOffCommand(groupedDeviceCommand), comTaskExecution);
     }
 
     /**
      * Create a simple {@link DaisyChainedLogOffCommand}
      *
-     * @param root the root to add the created commands to
+     * @param groupedDeviceCommand the root to add the created commands to
      */
-    public static void createDaisyChainedLogOffCommand(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addUniqueCommand(new DaisyChainedLogOffCommand(root), comTaskExecution);
+    public static void createDaisyChainedLogOffCommand(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        groupedDeviceCommand.addCommand(new DaisyChainedLogOffCommand(groupedDeviceCommand), comTaskExecution);
     }
 
     /**
@@ -147,10 +147,10 @@ public final class CommandFactory {
      * <br/>
      * Note: this command should only be used in adapter classes
      *
-     * @param root the root to add the created commands to
+     * @param groupedDeviceCommand the root to add the created commands to
      */
-    public static void createLegacyInitLoggerCommand(CommandRoot root, ComTaskExecution comTaskExecution) {
-        root.addUniqueCommand(new InitializeLoggerCommand(root), comTaskExecution);
+    public static void createLegacyInitLoggerCommand(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        groupedDeviceCommand.addCommand(new InitializeLoggerCommand(groupedDeviceCommand), comTaskExecution);
     }
 
     /**
@@ -173,48 +173,31 @@ public final class CommandFactory {
     /**
      * Create a simple {@link HandHeldUnitEnablerCommand}
      *
-     * @param root The root to add the created commands to
+     * @param groupedDeviceCommand  The root to add the created commands to
      * @param comChannelPlaceHolder The communication channel which will be used to talk to the device
      */
-    public static void createHandHeldUnitEnabler(CommandRoot root, ComTaskExecution comTaskExecution, ComChannelPlaceHolder comChannelPlaceHolder) {
-        root.addUniqueCommand(new HandHeldUnitEnablerCommand(root, comChannelPlaceHolder), comTaskExecution);
+    public static void createHandHeldUnitEnabler(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution, ComChannelPlaceHolder comChannelPlaceHolder) {
+        groupedDeviceCommand.addCommand(new HandHeldUnitEnablerCommand(groupedDeviceCommand, comChannelPlaceHolder), comTaskExecution);
     }
 
     /**
      * Create a simple {@link DeviceProtocolSetCacheCommand}
      *
-     * @param root       the root to add the created commands to
-     * @param offlineDevice the offlineDevice used for modeling the command
+     * @param groupedDeviceCommand the root to add the created commands to
+     * @param offlineDevice        the offlineDevice used for modeling the command
      */
-    public static void createSetDeviceCacheCommand(CommandRoot root, ComTaskExecution comTaskExecution, OfflineDevice offlineDevice) {
-        root.addUniqueCommand(new DeviceProtocolSetCacheCommand(offlineDevice, root), comTaskExecution);
+    public static void createSetDeviceCacheCommand(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution, OfflineDevice offlineDevice) {
+        groupedDeviceCommand.addCommand(new DeviceProtocolSetCacheCommand(groupedDeviceCommand), comTaskExecution);
     }
 
     /**
      * Create a simple {@link DeviceProtocolUpdateCacheCommand}
      *
-     * @param root       the root to add the created commands to
-     * @param offlineDevice the offlineDevice used for modeling the command
+     * @param groupedDeviceCommand the root to add the created commands to
+     * @param offlineDevice        the offlineDevice used for modeling the command
      */
-    public static void createUpdateDeviceCacheCommand(CommandRoot root, ComTaskExecution comTaskExecution, OfflineDevice offlineDevice) {
-        root.addUniqueCommand(new DeviceProtocolUpdateCacheCommand(offlineDevice, root), comTaskExecution);
-    }
-
-    /**
-     * Instructs the CommandRoot to use the next security group for commands.
-     *
-     * @param root the CommandRoot
-     * @see CommandRoot#nextSecurityCommandGroup()
-     */
-    public static void initializeCommandRootForNextSecurityGroupOfCommands(CommandRoot root) {
-        root.nextSecurityCommandGroup();
-    }
-
-    /**
-     * Hide utility class constructor.
-     */
-    private CommandFactory() {
-        super();
+    public static void createUpdateDeviceCacheCommand(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution, OfflineDevice offlineDevice) {
+        groupedDeviceCommand.addCommand(new DeviceProtocolUpdateCacheCommand(groupedDeviceCommand), comTaskExecution);
     }
 
 }
