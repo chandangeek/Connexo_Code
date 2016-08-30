@@ -10,7 +10,8 @@ Ext.define('Dxp.view.tasks.Add', {
         'Uni.util.FormErrorMessage',
         'Uni.grid.column.ReadingType',
         'Uni.grid.column.EventType',
-        'Dxp.view.tasks.DestinationsGrid'
+        'Dxp.view.tasks.DestinationsGrid',
+        'Uni.grid.column.RemoveAction'
     ],
 
     edit: false,
@@ -285,6 +286,11 @@ Ext.define('Dxp.view.tasks.Add', {
                                 hideHeaders: true,
                                 padding: 0,
                                 hidden: true,
+                                scroll: 'vertical',
+                                viewConfig: {
+                                    disableSelection: true,
+                                    enableTextSelection: true
+                                },
                                 columns: [
                                     {
                                         xtype: 'reading-type-column',
@@ -292,19 +298,14 @@ Ext.define('Dxp.view.tasks.Add', {
                                         flex: 1
                                     },
                                     {
-                                        xtype: 'actioncolumn',
+                                        xtype: 'uni-actioncolumn-remove',
                                         align: 'right',
-                                        items: [
-                                            {
-                                                iconCls: 'uni-icon-delete',
-                                                handler: function (grid, rowIndex) {
-                                                    grid.getStore().removeAt(rowIndex);
-                                                    if (grid.getStore().count() === 0) {
-                                                        me.updateReadingTypesGrid();
-                                                    }
-                                                }
+                                        handler: function (grid, rowIndex) {
+                                            grid.getStore().removeAt(rowIndex);
+                                            if (grid.getStore().count() === 0) {
+                                                me.updateReadingTypesGrid();
                                             }
-                                        ]
+                                        }
                                     }
                                 ],
                                 width: 800,
@@ -346,7 +347,8 @@ Ext.define('Dxp.view.tasks.Add', {
                                 padding: 0,
                                 scroll: 'vertical',
                                 viewConfig: {
-                                    disableSelection: true
+                                    disableSelection: true,
+                                    enableTextSelection: true
                                 },
                                 hidden: true,
                                 columns: [
@@ -356,19 +358,14 @@ Ext.define('Dxp.view.tasks.Add', {
                                         flex: 1
                                     },
                                     {
-                                        xtype: 'actioncolumn',
+                                        xtype: 'uni-actioncolumn-remove',
                                         align: 'right',
-                                        items: [
-                                            {
-                                                iconCls: 'uni-icon-delete',
-                                                handler: function (grid, rowIndex) {
-                                                    grid.getStore().removeAt(rowIndex);
-                                                    if (grid.getStore().count() === 0) {
-                                                        me.updateEventTypesGrid();
-                                                    }
-                                                }
+                                        handler: function (grid, rowIndex) {
+                                            grid.getStore().removeAt(rowIndex);
+                                            if (grid.getStore().count() === 0) {
+                                                me.updateEventTypesGrid();
                                             }
-                                        ]
+                                        }
                                     }
                                 ],
                                 width: 800,
