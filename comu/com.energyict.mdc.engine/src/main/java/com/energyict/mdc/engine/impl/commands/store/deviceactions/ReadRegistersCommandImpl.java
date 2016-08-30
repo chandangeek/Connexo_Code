@@ -3,20 +3,17 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
+import com.energyict.mdc.engine.impl.commands.collect.*;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTextRegister;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 import java.util.ArrayList;
@@ -98,8 +95,7 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     private Function<CollectedRegister, Stream<CollectedRegister>> toCollectedRegister(List<OfflineRegister> offlineRegisters) {
         return collectedRegister ->
                 offlineRegisters.stream().
-                        filter(offlineRegister -> ResultType.Supported.equals(collectedRegister.getResultType())).
-                        filter(offlineRegister -> collectedRegister.getReadingType().equals(offlineRegister.getReadingType())).
+                        filter(offlineRegister -> offlineRegister.getReadingType().equals(collectedRegister.getReadingType())).
                         map(offlineRegister -> this.toCollectedRegister(offlineRegister, collectedRegister));
     }
 
@@ -118,6 +114,11 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
             register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime());
             register.setCollectedData(collectedRegister.getText());
         }
+
+        for (Issue issue : collectedRegister.getIssues()) {
+            register.setFailureInformation(collectedRegister.getResultType(), issue);
+        }
+
         return register;
     }
 

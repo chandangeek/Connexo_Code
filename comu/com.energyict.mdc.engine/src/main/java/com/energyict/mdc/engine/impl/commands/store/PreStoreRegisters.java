@@ -7,17 +7,13 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -48,21 +44,22 @@ public class PreStoreRegisters {
         this.unknownRegisters = new ArrayList<>();
         Map<DeviceIdentifier, List<Reading>> processedReadings = new HashMap<>();
         for (CollectedRegister collectedRegister : collectedRegisterList.getCollectedRegisters()) {
-            Optional<OfflineRegister> offlineRegister = this.comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadTime());
-            DeviceIdentifier deviceIdentifier = offlineRegister.get().getDeviceIdentifier();
-            if (offlineRegister.isPresent()) {
-                Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister);
-                if (!collectedRegister.isTextRegister() && collectedRegister.getCollectedQuantity() != null) {
-                    Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(collectedRegister.getReadingType().getMRID());
-                    int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnit);
-                    Reading scaledReading = getScaledReading(scaler, reading);
-                    addProcessedReadingFor(processedReadings, deviceIdentifier, scaledReading);
+            if (collectedRegister.getResultType().equals(ResultType.Supported)) {
+                Optional<OfflineRegister> offlineRegister = this.comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadTime());
+                DeviceIdentifier deviceIdentifier = offlineRegister.get().getDeviceIdentifier();
+                if (offlineRegister.isPresent()) {
+                    Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister);
+                    if (!collectedRegister.isTextRegister() && collectedRegister.getCollectedQuantity() != null) {
+                        Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(collectedRegister.getReadingType().getMRID());
+                        int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnit);
+                        Reading scaledReading = getScaledReading(scaler, reading);
+                        addProcessedReadingFor(processedReadings, deviceIdentifier, scaledReading);
+                    } else {
+                        addProcessedReadingFor(processedReadings, deviceIdentifier, reading);
+                    }
                 } else {
-                    addProcessedReadingFor(processedReadings, deviceIdentifier, reading);
+                    this.unknownRegisters.add(collectedRegister.getRegisterIdentifier());
                 }
-            }
-            else {
-                this.unknownRegisters.add(collectedRegister.getRegisterIdentifier());
             }
         }
         return processedReadings;
