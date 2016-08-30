@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 
 import java.util.ArrayList;
 import java.util.List;

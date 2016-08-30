@@ -1,11 +1,11 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
-import com.energyict.mdc.common.TypedProperties;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.device.data.Device;

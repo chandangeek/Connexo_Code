@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
