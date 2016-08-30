@@ -222,14 +222,12 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         iconCls: 'icon-spinner11'
                     },
                     {
-                        xtype: 'button',
+                        xtype: 'uni-button-action',
                         itemId: 'device-landing-actions-btn',
                         hidden: true,
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                         style: {
                             'background-color': '#71adc7'
                         },
-                        iconCls: 'x-uni-action-iconD',
                         menu: {
                             xtype: 'device-action-menu',
                             itemId: 'deviceActionMenu',

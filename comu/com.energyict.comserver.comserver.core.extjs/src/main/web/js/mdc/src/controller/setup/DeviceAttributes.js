@@ -41,7 +41,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 click: this.saveAttributes
             },
             '#device-attributes-edit #deviceAttributesCancelBtn': {
-                click: this.goToAttributesLanding
+                click: this.cancelClick
             },
             '#device-custom-attributes-edit-id #device-custom-attributes-cancel-btn': {
                 click: this.goToAttributesLandingFromCas
@@ -107,7 +107,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
             backUrl: me.getLandingUrl(),
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved'));
-                me.goToAttributesLanding(record.get('mrid').displayValue);
+                me.goToAttributesLanding(encodeURIComponent(record.get('mrid').displayValue));
             },
             failure: function (record, operation) {
                 if (operation && operation.response && operation.response.status === 400) {
@@ -160,12 +160,14 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         }
     },
 
-    goToAttributesLanding: function () {
-        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward({mRID:this.getDeviceAttributesEditPage().device.get('mRID')});
+    cancelClick: function (cancelBtn) {
+        this.goToAttributesLanding(cancelBtn.up('#device-attributes-edit').device.get('mRID'));
     },
 
     goToAttributesLanding: function(mRID) {
-        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward(Ext.isString(mRID) ? {mRID: mRID} : undefined);
+        var router = this.getController('Uni.controller.history.Router'),
+            route = router.previousRoute ? router.previousRoute : 'devices/device/attributes';
+        router.getRoute(route).forward(Ext.isString(mRID) ? {mRID: mRID} : undefined);
     },
 
     goToAttributesLandingFromCas: function () {

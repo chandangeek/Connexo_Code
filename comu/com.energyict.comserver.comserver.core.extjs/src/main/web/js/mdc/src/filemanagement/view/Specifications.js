@@ -16,10 +16,8 @@ Ext.define('Mdc.filemanagement.view.Specifications', {
         }
         me.tools = [
             {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                xtype: 'uni-button-action',
                 privileges: Mdc.privileges.DeviceType.admin,
-                iconCls: 'x-uni-action-iconD',
                 itemId: 'fileSpecificationsButton',
                 menu: {
                     xtype: 'files-spec-action-menu'

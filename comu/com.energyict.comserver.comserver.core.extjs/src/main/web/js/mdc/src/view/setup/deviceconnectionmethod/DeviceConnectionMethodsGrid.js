@@ -75,11 +75,12 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
                 emptyMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbartop.emptyMsg', 'MDC', 'There are no connection methods to display'),
                 items: [
                     {
-                        xtype: 'button',
+                        xtype: 'uni-button-action',
+                        itemId: 'mdc-device-add-connection-method-btn',
                         text: Uni.I18n.translate('deviceconnectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
                         privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                        iconCls: 'x-uni-action-iconD',
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions,
+                        hidden: true,
                         menu: {
                             plain: true,
                             items: [
@@ -96,6 +97,22 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
                             ]
 
                         }
+                    },
+                    {
+                        xtype: 'button',
+                        hidden: true,
+                        privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions,
+                        text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
+                        itemId: 'createDeviceOutboundConnectionButtonGrid'
+                    },
+                    {
+                        xtype: 'button',
+                        hidden: true,
+                        privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions,
+                        text: Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
+                        itemId: 'createDeviceInboundConnectionButtonGrid'
                     }
                 ]
             },
