@@ -2,7 +2,7 @@ Ext.define('Mtr.readingtypes.view.EditAliasWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.edit-alias-window',
     itemId: 'edit-alias-window',
-    height: 160,
+    height: 170,
     width: 450,
     layout: 'fit',
     items: [
@@ -17,6 +17,7 @@ Ext.define('Mtr.readingtypes.view.EditAliasWindow', {
                     margin: '16 0 0 0',
                     fieldLabel: Uni.I18n.translate('general.alias', 'MTR', 'Alias'),
                     itemId: 'edit-alias-window-textfield',
+                    width: 370,
                     maxWidth: 400,
                     maxLength: 80,
                     enforceMaxLength: true,
