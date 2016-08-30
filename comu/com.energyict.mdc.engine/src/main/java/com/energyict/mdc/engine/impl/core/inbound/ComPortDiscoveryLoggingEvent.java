@@ -10,9 +10,9 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
  * Date: 15/01/2016
  * Time: 15:03
  */
-public class ComPortDiscoveryLoggingEvent extends CommunicationLoggingEvent {
+class ComPortDiscoveryLoggingEvent extends CommunicationLoggingEvent {
 
-    public ComPortDiscoveryLoggingEvent(ServiceProvider serviceProvider, ConnectionTask connectionTask, ComPort comPort, LogLevel logLevel, String logMessage) {
+    ComPortDiscoveryLoggingEvent(ServiceProvider serviceProvider, ConnectionTask connectionTask, ComPort comPort, LogLevel logLevel, String logMessage) {
         super(serviceProvider, connectionTask, comPort, logLevel, logMessage);
     }
 

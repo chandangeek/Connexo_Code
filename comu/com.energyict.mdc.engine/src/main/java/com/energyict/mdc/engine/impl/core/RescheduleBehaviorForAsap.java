@@ -49,9 +49,9 @@ import java.util.Set;
  * Date: 3/06/13
  * Time: 13:12
  */
-public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements RescheduleBehavior {
+class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements RescheduleBehavior {
 
-    protected RescheduleBehaviorForAsap(ComServerDAO comServerDAO,
+    RescheduleBehaviorForAsap(ComServerDAO comServerDAO,
                                         ConnectionTask connectionTask, Clock clock) {
         super(comServerDAO, connectionTask, clock);
     }
@@ -97,7 +97,7 @@ public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implem
         }
     }
 
-    protected void rescheduleForConnectionError(CommandRoot commandRoot) {
+    private void rescheduleForConnectionError(CommandRoot commandRoot) {
         retryConnectionTask();
         for (GroupedDeviceCommand groupedDeviceCommand : commandRoot) {
             Instant connectionTaskRetryNextExecution = null;

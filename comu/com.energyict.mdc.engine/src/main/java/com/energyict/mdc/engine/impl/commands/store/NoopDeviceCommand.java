@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.NoopCollectedDataEvent;
 import com.energyict.mdc.issues.Issue;
 
-import java.util.*;
+import java.util.Optional;
 
 /**
  * Represents a no-operation {@link DeviceCommand},
@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class NoopDeviceCommand extends DeviceCommandImpl<NoopCollectedDataEvent> {
 
-    public final static String DESCRIPTION_TITLE = "No operations device command";
+    public static final String DESCRIPTION_TITLE = "No operations device command";
 
     public NoopDeviceCommand() {
         /* Not passing the ComTaskExecution because current implementation

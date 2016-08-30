@@ -72,10 +72,13 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
 
@@ -287,7 +290,9 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values()));
+        return keys;
     }
 
     @Override

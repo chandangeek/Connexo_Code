@@ -26,13 +26,13 @@ public interface ComJob {
      *
      * @return The ConnectionTask
      */
-    public ScheduledConnectionTask getConnectionTask();
+    ScheduledConnectionTask getConnectionTask();
 
     /**
      * Gets the {@link ComTaskExecution}s that need to be executed as part of this ComJob.
      *
      * @return The OutboundComTaskExecutions
      */
-    public List<ComTaskExecution> getComTaskExecutions();
+    List<ComTaskExecution> getComTaskExecutions();
 
 }

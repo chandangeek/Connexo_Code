@@ -49,6 +49,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -101,7 +103,7 @@ public abstract class JobExecution implements ScheduledJob {
         return comTaskExecution instanceof SingleComTaskComTaskExecution;
     }
 
-    static TypedProperties getProtocolDialectTypedProperties(ScheduledComTaskExecution comTaskExecution) {
+    private static TypedProperties getProtocolDialectTypedProperties(ScheduledComTaskExecution comTaskExecution) {
         Optional<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = getProtocolDialectConfigurationProperties(comTaskExecution);
         if (protocolDialectConfigurationProperties.isPresent()) {
             Device device = comTaskExecution.getDevice();
@@ -414,7 +416,7 @@ public abstract class JobExecution implements ScheduledJob {
         return new ComCommandServiceProvider();
     }
 
-    enum BasicCheckTasks implements Comparator<ProtocolTask> {
+    private enum BasicCheckTasks implements Comparator<ProtocolTask> {
         FIRST;
 
         @Override
@@ -460,11 +462,11 @@ public abstract class JobExecution implements ScheduledJob {
      * Provides context information to the process
      * that prepares {@link ComTaskExecution}s for execution.
      */
-    protected static class PreparationContext {
+    private static class PreparationContext {
 
         private ComChannelPlaceHolder comChannelPlaceHolder = ComChannelPlaceHolder.empty();
 
-        public ComChannelPlaceHolder getComChannelPlaceHolder() {
+        ComChannelPlaceHolder getComChannelPlaceHolder() {
             return comChannelPlaceHolder;
         }
 

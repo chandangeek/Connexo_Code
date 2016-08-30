@@ -123,6 +123,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
         when(deviceProtocol.updateSentMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
         when(deviceProtocol.executePendingMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
         when(this.issueService.newProblem(any(), any(Thesaurus.class), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
+        when(this.issueService.newProblem(any(), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
 
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
         MessagesCommandImpl messagesCommand = new MessagesCommandImpl(groupedDeviceCommand, messageTask, comTaskExecution);
@@ -132,7 +133,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
 
         // Asserts
         verify(this.offlineDevice).getAllInvalidPendingDeviceMessages();
-        verify(this.issueService).newProblem(this.offlineDevice, this.thesaurus, MessageSeeds.MESSAGE_NO_LONGER_VALID);
+        verify(this.issueService).newProblem(this.offlineDevice, MessageSeeds.MESSAGE_NO_LONGER_VALID);
     }
 
     private OfflineDeviceMessage getNewOfflineDeviceMessage(Instant releaseDate) {

@@ -117,7 +117,6 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                             addIssue(
                                     getIssueService().newProblem(
                                             loadProfileConfiguration.getObisCode(),
-                                            this.getThesaurus(),
                                             MessageSeeds.UNSUPPORTED_LOAD_PROFILE,
                                             loadProfileConfiguration.getObisCode()),
                                     CompletionCode.ConfigurationWarning);
@@ -143,7 +142,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     }
 
     private Issue loadProfileNotSupportedIssue(ObisCode profileObisCode) {
-        return getIssueService().newProblem(profileObisCode, getThesaurus(), MessageSeeds.LOADPROFILE_NOT_SUPPORTED, profileObisCode, CompletionCode.ConfigurationWarning);
+        return getIssueService().newProblem(profileObisCode, MessageSeeds.LOADPROFILE_NOT_SUPPORTED, profileObisCode, CompletionCode.ConfigurationWarning);
     }
 
     private void createAndAddFailedCollectedLoadProfile(LoadProfileReader loadProfileReader, ResultType resultType, Issue issue) {
@@ -199,7 +198,6 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                     incorrectChannelUnitProblem = Optional.of(
                             getIssueService().newProblem(
                                     loadProfileConfigurationObisCode,
-                                    this.getThesaurus(),
                                     MessageSeeds.CHANNEL_UNIT_MISMATCH,
                                     loadProfileConfigurationObisCode,
                                     meterChannelInfo.getChannelObisCode(),
@@ -233,7 +231,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
         if (allDevicesMatchingChannel.isEmpty()) {
             return getIssueService().newProblem(
                     loadProfileConfigurationObisCode,
-                    "loadprofileobiscodeXmissingchannel",
+                    MessageSeeds.LOAD_PROFILE_CHANNEL_MISSING,
                     loadProfileConfigurationObisCode,
                     localChannelInfo.getName(),
                     localChannelInfo.getMeterIdentifier()
@@ -241,7 +239,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
         } else {
             return getIssueService().newProblem(
                     loadProfileConfigurationObisCode,
-                    "loadprofileobiscodeXmissingchannelOtherMatch",
+                    MessageSeeds.LOAD_PROFILE_NO_CHANNEL_MATCH,
                     loadProfileConfigurationObisCode,
                     localChannelInfo.getName(),
                     localChannelInfo.getMeterIdentifier(),
@@ -286,7 +284,6 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
             issues.add(
                     getIssueService().newProblem(
                             loadProfileConfiguration.getObisCode(),
-                            this.getThesaurus(),
                             MessageSeeds.LOAD_PROFILE_INTERVAL_MISMATCH,
                             loadProfileConfiguration.getObisCode(),
                             loadProfileConfiguration.getProfileInterval(),
@@ -310,7 +307,6 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                 issues.add(
                         getIssueService().newProblem(
                                 loadProfileConfiguration.getObisCode(),
-                                this.getThesaurus(),
                                 MessageSeeds.LOAD_PROFILE_NUMBER_OF_CHANNELS_MISMATCH,
                                 loadProfileConfiguration.getObisCode(),
                                 loadProfileReader.getChannelInfos().size(),

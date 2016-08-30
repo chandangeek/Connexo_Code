@@ -21,14 +21,14 @@ import java.util.logging.Logger;
  * Date: 9/17/13
  * Time: 11:12 AM
  */
-public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor implements Runnable {
+class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(MultiThreadedScheduledJobExecutor.class.getName());
     private final ThreadPrincipalService threadPrincipalService;
     private final UserService userService;
     private final ScheduledJob scheduledJob;
 
-    public MultiThreadedScheduledJobExecutor(ScheduledJob scheduledJob, TransactionService transactionExecutor, ComServer.LogLevel communicationLogLevel, DeviceCommandExecutor deviceCommandExecutor, ThreadPrincipalService threadPrincipalService, UserService userService) {
+    MultiThreadedScheduledJobExecutor(ScheduledJob scheduledJob, TransactionService transactionExecutor, ComServer.LogLevel communicationLogLevel, DeviceCommandExecutor deviceCommandExecutor, ThreadPrincipalService threadPrincipalService, UserService userService) {
         super(transactionExecutor, communicationLogLevel, deviceCommandExecutor);
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
@@ -48,6 +48,6 @@ public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor impl
 
     private void setThreadPrinciple() {
         Optional<User> user = userService.findUser(EngineServiceImpl.COMSERVER_USER);
-        user.ifPresent(u -> threadPrincipalService.set(u, "MultiThreadedComPort", "Executing", Locale.ENGLISH));
+        user.ifPresent(u -> threadPrincipalService.set(u, "MultiThreadedComPort", "Executing", u.getLocale().orElse(Locale.ENGLISH)));
     }
 }

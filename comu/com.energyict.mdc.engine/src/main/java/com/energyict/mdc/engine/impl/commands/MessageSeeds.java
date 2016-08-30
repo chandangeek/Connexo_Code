@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.engine.EngineService;
 
@@ -16,6 +17,8 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_UNIT_MISMATCH(5001, "channel.unit.mismatch", "Channel unit mismatch: load profile in the meter with OBIS code ''{0}'' has a channel ({1}) with the unit ''{2}'', whilst the configured unit for that channel is ''{3}''"),
     LOAD_PROFILE_INTERVAL_MISMATCH(5002, "loadprofile.interval.mismatch", "Load profile interval mismatch; load profile with OBIS code ''{0}'' has a {1} second(s) interval on the device, while {2} second(s) is configured"),
     LOAD_PROFILE_NUMBER_OF_CHANNELS_MISMATCH(5003, "loadprofile.nbrOfChannels.mismatch", "Number of channels mismatch; load profile with OBIS code ''{0}'' has {1} channel(s) on the device, while there are {2} channel(s) configured"),
+    LOAD_PROFILE_CHANNEL_MISSING(5054, "loadprofileobiscodeXmissingchannel", "Channel with OBIS code ''{0}'' not found for load profile ({1})"),
+    LOAD_PROFILE_NO_CHANNEL_MATCH(5055, "loadprofileobiscodeXmissingchannelOtherMatch", "No channel match for Load profile with OBIS code ''{0}'' "),
     COLLECTED_DEVICE_TOPOLOGY_FOR_UN_KNOWN_DEVICE(5004, "collectedDeviceTopologyForUnKnownDevice", "The collected topology is for an unknown device ''{0}''"),
     COLLECTED_DEVICE_CACHE_FOR_UNKNOWN_DEVICE(5005, "collectedDeviceCacheForUnknownDevice", "Could not store the collected device cache: device '{0}'  does not exist!"),
     SERIALS_REMOVED_FROM_TOPOLOGY(5006, "serialsRemovedFromTopology", "The following devices are removed from the topology: {0}"),

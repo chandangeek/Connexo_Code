@@ -215,7 +215,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      *
      * @param comTaskExecution The ComTaskExecution
      * @param comPort The ComPort that has started the execution of the ComTaskExecution
-     * @param executeInTransaction
+     * @param executeInTransaction A flag that indicates if a transaction is needed or not
      */
     void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction);
 
@@ -230,7 +230,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Notifies that the execution of the specified ComTaskExecution was postponed and needs to be rescheduled
      *
      * @param comTaskExecution the ComTaskExecution
-     * @param rescheduleDate
+     * @param rescheduleDate The timestamp on which the task should be rescheduled for execution
      */
     void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate);
 

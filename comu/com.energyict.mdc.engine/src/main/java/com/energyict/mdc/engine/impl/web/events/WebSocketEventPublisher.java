@@ -3,6 +3,8 @@ package com.energyict.mdc.engine.impl.web.events;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
@@ -11,8 +13,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.web.events.commands.Request;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParseException;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
 
 import org.eclipse.jetty.websocket.WebSocket;
 
@@ -27,14 +27,14 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-02 (17:17)
  */
-public class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocket.OnTextMessage {
+class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocket.OnTextMessage {
 
     private final WebSocketCloseEventListener closeEventListener;
     private EventPublisher eventPublisher;
     private Connection connection;
     private RequestParser parser;
 
-    public WebSocketEventPublisher(RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, WebSocketCloseEventListener closeEventListener) {
+    WebSocketEventPublisher(RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, WebSocketCloseEventListener closeEventListener) {
         super();
         this.closeEventListener = closeEventListener;
         this.eventPublisher = eventPublisher;
@@ -44,6 +44,10 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     @Override
     public void receive (ComServerEvent event) {
         this.publish(event);
+    }
+
+    public void answerPing(){
+        this.sendMessage(RequestParser.PONG_MESSAGE);
     }
 
     @Override
@@ -82,7 +86,7 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
         try {
             Request request = this.parser.parse(message);
             request.applyTo(this);
-            this.sendMessage("Copy " + message);
+            this.sendMessage("Copy " + message);  //No sense to send the message back  - just to debug
         }
         catch (RequestParseException e) {
             this.sendMessage("Message not understood:" + e.getMessage());

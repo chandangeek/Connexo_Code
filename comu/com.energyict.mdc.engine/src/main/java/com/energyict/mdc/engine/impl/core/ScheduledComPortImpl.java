@@ -72,11 +72,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private ExceptionLogger exceptionLogger = new ExceptionLogger();
     private Instant lastActivityTimestamp;
 
-    public ScheduledComPortImpl(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    ScheduledComPortImpl(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this(runningComServer, comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
     }
 
-    public ScheduledComPortImpl(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+    ScheduledComPortImpl(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
         assert comPort != null : "Scheduling a ComPort requires at least the ComPort to be scheduled instead of null!";
@@ -116,7 +116,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         return threadName;
     }
 
-    protected String initializeThreadName () {
+    private String initializeThreadName() {
         return "ComPort schedule for " + this.getComPort().getName();
     }
 
@@ -172,7 +172,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         this.serviceProvider.managementBeanFactory().removeIfExistsFor(this);
     }
 
-    protected ScheduledComPortMonitor getOperationalMonitor() {
+    private ScheduledComPortMonitor getOperationalMonitor() {
         return this.operationalMonitor;
     }
 
@@ -237,7 +237,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         }
     }
 
-    protected final void executeTasks () {
+    final void executeTasks() {
         this.getLogger().lookingForWork(this.getThreadName());
         List<ComJob> jobs = this.getComServerDAO().findExecutableOutboundComTasks(this.getComPort());
         this.queriedForTasks();
@@ -265,7 +265,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         return new ScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, this.serviceProvider);
     }
 
-    protected ScheduledComTaskExecutionGroup newComTaskGroup (ComJob groupComJob) {
+    ScheduledComTaskExecutionGroup newComTaskGroup(ComJob groupComJob) {
         ScheduledConnectionTask connectionTask = groupComJob.getConnectionTask();
         ScheduledComTaskExecutionGroup group = newComTaskGroup(connectionTask);
         groupComJob.getComTaskExecutions().forEach(group::add);
@@ -276,7 +276,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         return serviceProvider;
     }
 
-    protected interface JobScheduler {
+    interface JobScheduler {
         int scheduleAll(List<ComJob> jobs);
 
         int getConnectionCount();
@@ -285,7 +285,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private class ExceptionLogger {
         private Optional<Throwable> previous = Optional.empty();
 
-        public void unexpectedError(Throwable current) {
+        void unexpectedError(Throwable current) {
             if (this.sameAsPrevious(current)) {
                 getLogger().unexpectedError(getThreadName(), current.toString());
             }

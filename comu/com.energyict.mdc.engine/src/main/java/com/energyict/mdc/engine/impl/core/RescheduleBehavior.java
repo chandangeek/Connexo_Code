@@ -16,11 +16,11 @@ import java.util.List;
  */
 public interface RescheduleBehavior {
 
-    public void reschedule(CommandRoot commandRoot);
+    void reschedule(CommandRoot commandRoot);
 
-    public void rescheduleOutsideComWindow(List<ComTaskExecution> comTaskExecutions, Instant startingPoint);
+    void rescheduleOutsideComWindow(List<ComTaskExecution> comTaskExecutions, Instant startingPoint);
 
-    public enum RescheduleReason {
+    enum RescheduleReason {
         /**
          * Handle the retry logic for the scenario where the
          * connection could not be correctly set up.

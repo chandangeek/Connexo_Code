@@ -29,6 +29,13 @@ import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.tasks.ComTask;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.logging.Logger;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -112,7 +119,7 @@ public class InboundDataProcessMeterDataStoreCommandImplTest {
 
     @Test
     public void comSessionLoggingIsUpdatedWhenDataStorageFailedTest() {
-        doThrow(new RuntimeException("It's oké, the exception is just for my test purposes")).when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
+        doThrow(new RuntimeException("It's ok, the exception is just for test purposes")).when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
         ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = mock(ComTaskExecutionSessionBuilder.class);
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         CreateComSessionDeviceCommand createComSessionDeviceCommand = mock(CreateComSessionDeviceCommand.class);
@@ -130,7 +137,10 @@ public class InboundDataProcessMeterDataStoreCommandImplTest {
     }
 
     private InboundDataProcessMeterDataStoreCommandImpl getTestInstance() {
-        return new InboundDataProcessMeterDataStoreCommandImpl(serviceProvider, executionContext);
+        DeviceCommand.ExecutionLogger logger = mock(DeviceCommand.ExecutionLogger.class);
+        InboundDataProcessMeterDataStoreCommandImpl command = new InboundDataProcessMeterDataStoreCommandImpl(serviceProvider, executionContext);
+        command.logExecutionWith(logger);
+        return command;
     }
 
     private ExecutionContext newTestExecutionContext() {

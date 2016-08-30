@@ -27,8 +27,10 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -44,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Provides a default implementation for the {@link DeviceCommandExecutor} interface
@@ -173,12 +176,13 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public synchronized List<DeviceCommandExecutionToken> tryAcquireTokens(int numberOfCommands) {
         if (this.isRunning()) {
-            List<DeviceCommandExecutionToken> acquiredTokens = this.workQueue.tryAcquire(numberOfCommands);
+            List<? extends DeviceCommandExecutionToken> acquiredTokens = this.workQueue.tryAcquire(numberOfCommands);
             this.logTryAcquiredTokensResult(numberOfCommands, acquiredTokens);
-            return acquiredTokens;
+            return (List<DeviceCommandExecutionToken>) acquiredTokens;
         } else {
             IllegalStateException illegalStateException = this.shouldBeRunning();
             this.logger.cannotPrepareWhenNotRunning(illegalStateException, this);
@@ -186,7 +190,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         }
     }
 
-    private void logTryAcquiredTokensResult(int numberOfCommands, List<DeviceCommandExecutionToken> acquiredTokens) {
+    private void logTryAcquiredTokensResult(int numberOfCommands, List<? extends DeviceCommandExecutionToken> acquiredTokens) {
         if (acquiredTokens.isEmpty()) {
             this.logger.preparationFailed(this, numberOfCommands);
         }
@@ -196,6 +200,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         this.logCurrentQueueSize();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<DeviceCommandExecutionToken> acquireTokens(int numberOfCommands) throws InterruptedException {
         if (this.isRunning()) {
@@ -203,7 +208,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             if (this.getCurrentSize() == this.getCapacity()) {
                 this.logger.preparationFailed(this, numberOfCommands);
             }
-            return this.workQueue.acquire(numberOfCommands);
+            return (List<DeviceCommandExecutionToken>) this.workQueue.acquire(numberOfCommands);
         } else {
             IllegalStateException illegalStateException = this.shouldBeRunning();
             this.logger.cannotPrepareWhenNotRunning(illegalStateException, this);
@@ -295,13 +300,19 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     }
 
     private void commandFailed(DeviceCommand command, Throwable t) {
-        this.logger.commandFailed(t, this, command);
         this.workQueue.commandFailed(command);
+        this.logger.commandFailed(t, this, command);
         this.logCurrentQueueSize();
     }
 
+    @Override
     public int getThreadPriority() {
         return this.threadFactory.getPriority();
+    }
+
+    @Override
+    public String getAcquiredTokenThreadNames() {
+        return this.workQueue.getAcquiredTokenThreadNames();
     }
 
     @Override
@@ -312,7 +323,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         this.threadFactory.setPriority(newPriority);
     }
 
-    public int getQueueCapacity() {
+    private int getQueueCapacity() {
         return this.workQueue.getCapacity();
     }
 
@@ -374,13 +385,13 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
      */
     private class ExtendedThreadPoolExecutor extends ThreadPoolExecutor {
 
-        public ExtendedThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
+        ExtendedThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
             super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
         }
 
         @Override
         protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
-            return new ExtendedFutureTask<T>(callable);
+            return new ExtendedFutureTask<>(callable);
         }
     }
 
@@ -391,12 +402,12 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
         private Callable callable = null;
 
-        public ExtendedFutureTask(Callable<V> callable) {
+        ExtendedFutureTask(Callable<V> callable) {
             super(callable);
             this.callable = callable;
         }
 
-        public Callable getCallable() {
+        Callable getCallable() {
             return callable;
         }
     }
@@ -464,9 +475,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
          */
         private void assignThreadUser() {
             Optional<User> user = userService.findUser(EngineServiceImpl.COMSERVER_USER);
-            if (user.isPresent()) {
-                threadPrincipalService.set(user.get(), "ComServer", "Store", Locale.ENGLISH);
-            }
+            user.ifPresent(u -> threadPrincipalService.set(u, "ComServer", "Store", u.getLocale().orElse(Locale.ENGLISH)));
         }
 
         @Override
@@ -474,7 +483,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             return this.doCall(false);
         }
 
-        public Boolean runDuringShutdown() {
+        Boolean runDuringShutdown() {
             return this.doCall(true);
         }
 
@@ -482,20 +491,20 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
          * Execute the command, return true if it succeeded, or false if it failed for any reason.
          */
         private Boolean doCall(boolean duringShutdown) {
-            assignThreadUser();
             Throwable causeOfFailure = null;
             try {
+                this.assignThreadUser();
                 return comServerDAO.executeTransaction(() -> {
                     if (duringShutdown) {
                         this.command.executeDuringShutdown(this.comServerDAO);
                     } else {
                         this.command.execute(this.comServerDAO);
                     }
-                    return true;
+                    return Boolean.TRUE;
                 });
             } catch (Exception t) {
                 causeOfFailure = t;
-                return false;
+                return Boolean.FALSE;
             } finally {
                 // in both cases the semaphore is released
                 if (causeOfFailure == null) {
@@ -510,10 +519,16 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
     private final class DeviceCommandExecutionTokenImpl implements DeviceCommandExecutionToken {
         private int id;
+        private String threadName;  // For debugging purposes
 
         private DeviceCommandExecutionTokenImpl(int id) {
             super();
             this.id = id;
+            this.threadName = Thread.currentThread().getName();
+        }
+
+        private String getThreadName() {
+            return threadName;
         }
 
         @Override
@@ -535,9 +550,53 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
     }
 
+    private class ThreadNameAndCount {
+        private final String threadName;
+        private int count = 1;
+
+        private ThreadNameAndCount(String threadName) {
+            this.threadName = threadName;
+        }
+
+        private ThreadNameAndCount increment() {
+            ThreadNameAndCount incremented = new ThreadNameAndCount(this.threadName);
+            incremented.count = this.count + 1;
+            return incremented;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append(this.threadName);
+            if (this.count > 1) {
+                builder
+                    .append(" (")
+                    .append(this.count)
+                    .append(")");
+            }
+            return builder.toString();
+        }
+    }
+
+    private class ThreadNames {
+        private Map<String, ThreadNameAndCount> threadNames = new HashMap<>();
+        private void add(String threadName) {
+            this.threadNames.compute(
+                    threadName,
+                    (k, v) -> v == null ? new ThreadNameAndCount(k) : v.increment());
+        }
+        public String toString() {
+            return this.threadNames
+                    .values()
+                    .stream()
+                    .map(ThreadNameAndCount::toString)
+                    .collect(Collectors.joining(", "));
+        }
+    }
+
     private final class TokenList {
         private AtomicInteger nextTokenId = new AtomicInteger(1);
-        private Set<DeviceCommandExecutionToken> tokens;
+        private Set<DeviceCommandExecutionTokenImpl> tokens;
 
         private TokenList() {
             super();
@@ -548,8 +607,8 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             return this.tokens.remove(token);
         }
 
-        public List<DeviceCommandExecutionToken> addNew(int numberOfTokens) {
-            List<DeviceCommandExecutionToken> newTokens = new ArrayList<>(numberOfTokens);
+        List<? extends DeviceCommandExecutionToken> addNew(int numberOfTokens) {
+            List<DeviceCommandExecutionTokenImpl> newTokens = new ArrayList<>(numberOfTokens);
             for (int i = 0; i < numberOfTokens; i++) {
                 int id = this.nextTokenId.incrementAndGet();
                 newTokens.add(new DeviceCommandExecutionTokenImpl(id));
@@ -558,6 +617,19 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             return newTokens;
         }
 
+        private int size() {
+            return this.tokens.size();
+        }
+
+        private String getAcquiredTokenThreadNames() {
+            ThreadNames threadNames = new ThreadNames();
+            List<DeviceCommandExecutionTokenImpl> tokens = new ArrayList<>(this.tokens);
+            tokens
+                .stream()
+                .map(DeviceCommandExecutionTokenImpl::getThreadName)
+                .forEach(threadNames::add);
+            return threadNames.toString();
+        }
     }
 
     private final class WorkQueue {
@@ -572,7 +644,11 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             this.semaphore = new ResizeableSemaphore(capacity, true);
         }
 
-        public List<DeviceCommandExecutionToken> tryAcquire(int numberOfCommands) {
+        private String getAcquiredTokenThreadNames() {
+            return this.expected.getAcquiredTokenThreadNames();
+        }
+
+        List<? extends DeviceCommandExecutionToken> tryAcquire(int numberOfCommands) {
             if (this.canAcceptWork(numberOfCommands)) {
                 return this.expected.addNew(numberOfCommands);
             } else {
@@ -580,7 +656,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             }
         }
 
-        public List<DeviceCommandExecutionToken> acquire(int numberOfCommands) throws InterruptedException {
+        List<? extends DeviceCommandExecutionToken> acquire(int numberOfCommands) throws InterruptedException {
             this.semaphore.acquire(numberOfCommands);
             return this.expected.addNew(numberOfCommands);
         }
@@ -594,7 +670,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
          *
          * @param command The DeviceCommand
          */
-        public void commandCompleted(DeviceCommand command) {
+        void commandCompleted(DeviceCommand command) {
             this.semaphore.release();
         }
 
@@ -603,7 +679,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
          *
          * @param command The DeviceCommand
          */
-        public void commandFailed(DeviceCommand command) {
+        void commandFailed(DeviceCommand command) {
             this.semaphore.release();
         }
 
@@ -624,7 +700,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             return this.capacity - this.semaphore.availablePermits();
         }
 
-        public void changeCapacity(int newCapacity) {
+        void changeCapacity(int newCapacity) {
             if (this.reducingCapacity(newCapacity)) {
                 this.semaphore.reducePermits(this.capacity - newCapacity);
             } else if (this.extendingCapacity(newCapacity)) {

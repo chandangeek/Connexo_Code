@@ -25,7 +25,7 @@ public interface ConnectionEvent extends ComServerEvent, DeviceRelatedEvent, Con
      *
      * @return <code>true</code> iff the physical connection was established
      */
-    public boolean isEstablishing ();
+    boolean isEstablishing();
 
     /**
      * Returns <code>true</code> iff this event was
@@ -34,7 +34,7 @@ public interface ConnectionEvent extends ComServerEvent, DeviceRelatedEvent, Con
      *
      * @return <code>true</code> iff this event indicates a failure to establish a connection
      */
-    public boolean isFailure ();
+    boolean isFailure();
 
     /**
      * Returns a message that describes the failure to connect
@@ -44,7 +44,7 @@ public interface ConnectionEvent extends ComServerEvent, DeviceRelatedEvent, Con
      *
      * @return The message that describes the failure
      */
-    public String getFailureMessage ();
+    String getFailureMessage();
 
     /**
      * Returns <code>true</code> iff this events was
@@ -53,6 +53,6 @@ public interface ConnectionEvent extends ComServerEvent, DeviceRelatedEvent, Con
      *
      * @return <code>true</code> iff the physical connection was closed
      */
-    public boolean isClosed ();
+    boolean isClosed();
 
 }

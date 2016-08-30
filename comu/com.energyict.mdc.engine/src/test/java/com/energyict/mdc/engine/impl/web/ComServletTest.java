@@ -52,6 +52,7 @@ public class ComServletTest {
     private static final long COMSERVER_ID = 1;
     private static final long COMPORT_POOL_ID = COMSERVER_ID + 1;
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
+
     @Mock
     private InboundComPortOperationalStatisticsImpl inboundComPortOperationalStatistics;
     @Mock
@@ -81,6 +82,7 @@ public class ComServletTest {
         when(serviceProvider.userService()).thenReturn(this.userService);
         when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
         when(userService.findUser(any(String.class))).thenReturn(Optional.of(user));
+        when(user.getLocale()).thenReturn(Optional.empty());
         when(protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
         when(managementBeanFactory.findFor(any(InboundComPort.class))).thenReturn(Optional.of(inboundComPortMonitor));
         when(inboundComPortMonitor.getOperationalStatistics()).thenReturn(inboundComPortOperationalStatistics);

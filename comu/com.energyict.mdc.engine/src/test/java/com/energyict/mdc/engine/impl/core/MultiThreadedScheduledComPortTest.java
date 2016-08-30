@@ -232,6 +232,7 @@ public class MultiThreadedScheduledComPortTest {
         when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(mock(Warning.class));
         when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(mock(Warning.class));
         when(this.serviceProvider.userService()).thenReturn(this.userService);
+        when(this.userService.findUser(anyString())).thenReturn(Optional.empty());
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);

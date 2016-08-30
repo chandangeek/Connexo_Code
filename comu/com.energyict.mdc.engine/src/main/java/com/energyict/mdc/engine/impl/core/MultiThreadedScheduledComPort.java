@@ -4,11 +4,21 @@ import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.EngineServiceImpl;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Provides an implementation for the {@link ScheduledComPort} interface
@@ -28,7 +38,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     private BlockingQueue<ScheduledJobImpl> jobQueue;
     private int threadPoolSize;
 
-    public MultiThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    MultiThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
@@ -52,9 +62,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     @Override
     protected void setThreadPrinciple() {
         Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        if (user.isPresent()) {
-            getServiceProvider().threadPrincipalService().set(user.get(), "MultiThreadedComPortRunner", "Executing", Locale.ENGLISH);
-        }
+        user.ifPresent(u -> getServiceProvider().threadPrincipalService().set(u, "MultiThreadedComPortRunner", "Executing", u.getLocale().orElse(Locale.ENGLISH)));
     }
 
     @Override
@@ -108,7 +116,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
      *
      * @param comTaskExecution The ComTaskExecution
      */
-    protected void cannotSchedule(ComTaskExecution comTaskExecution) {
+    private void cannotSchedule(ComTaskExecution comTaskExecution) {
         this.getLogger().cannotSchedule(this.getThreadName(), comTaskExecution);
     }
 

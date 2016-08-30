@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-03 (11:26)
  */
-public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
+abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     private static final Duration WAIT_AFTER_COMMUNICATION_TIMEOUT = Duration.ofMinutes(1);
 
@@ -54,11 +54,11 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     protected abstract void setThreadPrinciple();
 
-    protected ComPortListenerImpl(RunningComServer runningComServer, InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
+    ComPortListenerImpl(RunningComServer runningComServer, InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         this(runningComServer, comPort, clock, comServerDAO, Executors.defaultThreadFactory(), deviceCommandExecutor, serviceProvider);
     }
 
-    protected ComPortListenerImpl(RunningComServer runningComServer, InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
+    ComPortListenerImpl(RunningComServer runningComServer, InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
         this.runningComServer = runningComServer;
         this.loggerHolder = new LoggerHolder(comPort);
@@ -81,7 +81,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         return comPort;
     }
 
-    protected InboundComPort getServerInboundComPort(){
+    InboundComPort getServerInboundComPort(){
         return getComPort();
     }
 
@@ -98,7 +98,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         return threadName;
     }
 
-    public void setThreadName (String threadName) {
+    void setThreadName(String threadName) {
         this.threadName = threadName;
     }
 
@@ -107,7 +107,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         return this.lastActivityTimestamp;
     }
 
-    protected void registerActivity() {
+    void registerActivity() {
         this.lastActivityTimestamp = this.clock.instant();
     }
 

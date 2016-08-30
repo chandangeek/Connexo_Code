@@ -57,7 +57,7 @@ import java.util.Set;
  * Date: 3/06/13
  * Time: 11:09
  */
-public class RescheduleBehaviorForMinimizeConnections extends AbstractRescheduleBehavior implements RescheduleBehavior {
+class RescheduleBehaviorForMinimizeConnections extends AbstractRescheduleBehavior implements RescheduleBehavior {
 
     RescheduleBehaviorForMinimizeConnections(ComServerDAO comServerDAO, ConnectionTask connectionTask, Clock clock) {
         super(comServerDAO, connectionTask, clock);

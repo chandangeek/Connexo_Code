@@ -15,20 +15,20 @@ import java.time.Duration;
  */
 public interface ComPortRelatedComChannel extends ComChannel, SerialComChannel {
 
-    public ComPort getComPort ();
+    ComPort getComPort();
 
-    public void setComPort (ComPort comPort);
+    void setComPort(ComPort comPort);
 
-    public ComChannel getActualComChannel();
+    ComChannel getActualComChannel();
 
-    public void setJournalEntryFactory (JournalEntryFactory journalEntryFactory);
+    void setJournalEntryFactory(JournalEntryFactory journalEntryFactory);
 
-    public void logRemainingBytes();
+    void logRemainingBytes();
 
-    public Duration talkTime ();
+    Duration talkTime();
 
-    public Counters getSessionCounters();
+    Counters getSessionCounters();
 
-    public Counters getTaskSessionCounters();
+    Counters getTaskSessionCounters();
 
 }

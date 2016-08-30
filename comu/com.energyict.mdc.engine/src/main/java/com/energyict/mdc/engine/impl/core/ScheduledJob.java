@@ -17,13 +17,13 @@ public interface ScheduledJob {
      *
      * @return <code>true</code> iff the lock succeeds
      */
-    public boolean attemptLock();
+    boolean attemptLock();
 
     /**
      * Unlocks this job, basically undoing the effect
      * of the attemptLock method providing that that was successful.
      */
-    public void unlock();
+    void unlock();
 
     /**
      * Tests if this ScheduledJob is still {@link com.energyict.mdc.device.data.tasks.TaskStatus#Pending}.
@@ -35,7 +35,7 @@ public interface ScheduledJob {
      *
      * @return A flag that indicates if this ScheduledJob is still pending
      */
-    public boolean isStillPending();
+    boolean isStillPending();
 
     /**
      * Tests if the current system timestamp is within the {@link com.energyict.mdc.common.ComWindow}
@@ -44,7 +44,7 @@ public interface ScheduledJob {
      *
      * @return A flag that indicates if the current system timestamp is within the ConnectionTask's ComWindow
      */
-    public boolean isWithinComWindow();
+    boolean isWithinComWindow();
 
     /**
      * Executes this ScheduledJob on the precondition that
@@ -52,7 +52,7 @@ public interface ScheduledJob {
      *
      * @see #attemptLock()
      */
-    public void execute();
+    void execute();
 
     /**
      * Releases the {@link DeviceCommandExecutionToken}
@@ -60,7 +60,7 @@ public interface ScheduledJob {
      * by a {@link com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor}
      * to execute this ScheduledJob.
      */
-    public void releaseToken();
+    void releaseToken();
 
     /**
      * Returns the {@link DeviceCommandExecutionToken}
@@ -70,25 +70,25 @@ public interface ScheduledJob {
      *
      * @return The DeviceCommandExecutionToken
      */
-    public DeviceCommandExecutionToken getToken();
+    DeviceCommandExecutionToken getToken();
 
     /**
      * Adds the token for this ScheduledJob.
      *
      * @param deviceCommandExecutionToken The token
      */
-    public void setToken(DeviceCommandExecutionToken deviceCommandExecutionToken);
+    void completed();
 
     /**
      * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s
      * after the execution of this Job.
      */
-    public void reschedule();
+    void reschedule();
 
     /**
      * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s of this Job
      * to the next occurrence of the {@link com.energyict.mdc.common.ComWindow}
      * because the current system timestamp is not or no longer within that window.
      */
-    public void rescheduleToNextComWindow();
+    void rescheduleToNextComWindow();
 }

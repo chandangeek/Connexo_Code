@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.access;
 
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
@@ -9,7 +10,9 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 /**
  * A LogOn command performs a logical signOn with the device.
@@ -28,6 +31,8 @@ public class LogOnCommand extends SimpleComCommand {
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         try {
             deviceProtocol.logOn();
+        } catch(IllegalArgumentException e){
+            throw new ConnectionSetupException(MessageSeeds.LOG_ON_FAILED, new ConnectionException(e));
         } catch (Throwable e) {
             if (e instanceof ConnectionCommunicationException) {
                 throw e;

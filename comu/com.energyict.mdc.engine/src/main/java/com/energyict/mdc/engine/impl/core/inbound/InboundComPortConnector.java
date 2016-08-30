@@ -23,6 +23,6 @@ public interface InboundComPortConnector extends AutoCloseable {
      *
      * @return a ComChannel based on the received call.
      */
-    public ComPortRelatedComChannel accept();
+    ComPortRelatedComChannel accept();
 
 }

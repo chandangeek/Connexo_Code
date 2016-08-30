@@ -101,6 +101,34 @@ public abstract class ScheduledJobImpl extends JobExecution {
         this.completeOutsideComWindow();
     }
 
+    @Override
+    public void outsideComWindow () {
+        ExecutionContext executionContext = this.createExecutionContext(false);
+        int numberOfPlannedButNotExecutedTasks = (int)
+                this.getComTaskExecutions()
+                        .stream()
+                        .flatMap(each -> each.getComTasks().stream())
+                        .count();
+        if (executionContext != null) {
+            executionContext.getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
+            executionContext.createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
+            executionContext.getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService()));
+            this.completeSuccessfulComSession();
+        } else {
+            this.releaseToken();
+        }
+    }
+
+    @Override
+    public void rescheduleToNextComWindow (ComServerDAO comServerDAO) {
+        this.doReschedule(comServerDAO, RescheduleBehavior.RescheduleReason.OUTSIDE_COM_WINDOW);
+    }
+
+    @Override
+    public void rescheduleToNextComWindow(ComServerDAO comServerDAO, Instant startingPoint) {
+        this.getRescheduleBehavior(comServerDAO).rescheduleOutsideWindow(startingPoint);
+    }
+
     /**
      * Attempts to lock the specified {@link ComTaskExecution}
      * and returns <code>true</code> if the lock succeeded.

@@ -13,21 +13,21 @@ import java.time.Instant;
  * Date: 26/10/12
  * Time: 12:07
  */
-public interface ComPortServerProcess extends ServerProcess {
+interface ComPortServerProcess extends ServerProcess {
 
     /**
      * Gets the used ComPort.
      *
      * @return The ComPort
      */
-    public ComPort getComPort();
+    ComPort getComPort();
 
     /**
      * The name of the <i>Thread</i> this process is running in.
      *
      * @return The name of the process' thread
      */
-    public String getThreadName();
+    String getThreadName();
 
     /**
      * @return the number of threads used by the process.
@@ -39,6 +39,6 @@ public interface ComPortServerProcess extends ServerProcess {
      *
      * @return The instant in time
      */
-    public Instant getLastActivityTimestamp();
+    Instant getLastActivityTimestamp();
 
 }

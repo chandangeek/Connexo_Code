@@ -24,7 +24,7 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
 
     private JobScheduler jobScheduler;
 
-    public SingleThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    SingleThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
@@ -35,9 +35,7 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
     @Override
     protected void setThreadPrinciple() {
         Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        if (user.isPresent()) {
-            getServiceProvider().threadPrincipalService().set(user.get(), "SingleThreadedComPort", "Executing", Locale.ENGLISH);
-        }
+        user.ifPresent(u -> getServiceProvider().threadPrincipalService().set(u, "SingleThreadedComPort", "Executing", u.getLocale().orElse(Locale.ENGLISH)));
     }
 
     @Override

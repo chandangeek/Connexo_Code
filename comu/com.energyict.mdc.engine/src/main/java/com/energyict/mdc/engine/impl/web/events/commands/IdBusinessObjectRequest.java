@@ -11,11 +11,11 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:58)
  */
-public abstract class IdBusinessObjectRequest implements Request {
+abstract class IdBusinessObjectRequest implements Request {
 
     private Set<Long> businessObjectIds;
 
-    public IdBusinessObjectRequest (Set<Long> businessObjectIds) {
+    IdBusinessObjectRequest(Set<Long> businessObjectIds) {
         super();
         this.businessObjectIds = businessObjectIds;
     }

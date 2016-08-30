@@ -22,7 +22,7 @@ import java.util.Optional;
  * Date: 4/06/13
  * Time: 16:44
  */
-public abstract class AbstractRescheduleBehavior {
+abstract class AbstractRescheduleBehavior {
 
     protected final Clock clock;
     private final ComServerDAO comServerDAO;

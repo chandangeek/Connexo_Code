@@ -45,9 +45,7 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
     @Override
     protected void setThreadPrinciple() {
         Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        if (user.isPresent()) {
-            getServiceProvider().threadPrincipalService().set(user.get(), "SingleThreadedComPortListener", "Executing", Locale.ENGLISH);
-        }
+        user.ifPresent(u -> getServiceProvider().threadPrincipalService().set(u, "SingleThreadedComPortListener", "Executing", u.getLocale().orElse(Locale.ENGLISH)));
     }
 
     @Override

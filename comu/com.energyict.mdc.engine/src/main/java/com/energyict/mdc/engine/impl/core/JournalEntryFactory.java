@@ -16,8 +16,8 @@ import java.time.Instant;
  */
 public interface JournalEntryFactory {
 
-    public void createJournalEntry(ComServer.LogLevel logLevel, String message);
+    void createJournalEntry(ComServer.LogLevel logLevel, String message);
 
-    public void createComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String errorDesciption, String commandDescription);
+    void createComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String errorDesciption, String commandDescription);
 
 }

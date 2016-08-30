@@ -21,19 +21,22 @@ public class RequestParser {
 
     public interface ServiceProvider {
 
-        public ConnectionTaskService connectionTaskService();
+        ConnectionTaskService connectionTaskService();
 
-        public CommunicationTaskService communicationTaskService();
+        CommunicationTaskService communicationTaskService();
 
-        public DeviceService deviceService();
+        DeviceService deviceService();
 
-        public EngineConfigurationService engineConfigurationService();
+        EngineConfigurationService engineConfigurationService();
 
-        public IdentificationService identificationService();
+        IdentificationService identificationService();
 
     }
 
     private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)register request (?:for events )?for (.*):\\s*(.*)");
+    static final String PING_MESSAGE = "ping";
+    public static final String PONG_MESSAGE = "pong";
+
     private List<RequestType> requestTypes;
     private final ServiceProvider serviceProvider;
 
@@ -42,14 +45,21 @@ public class RequestParser {
     }
 
     public Request parse(String message) throws RequestParseException {
-        Matcher matcher = COMMAND_PATTERN.matcher(message);
-        if (matcher.matches()) {
-            String narrowType = matcher.group(1);
-            String narrowSpecs = matcher.group(2);
-            RequestType requestType = this.parseRequestType(narrowType, matcher.start(1));
-            return requestType.parse(narrowSpecs);
-        } else {
-            throw new UnexpectedRequestFormatException(COMMAND_PATTERN.toString());
+        switch(message){
+        case PING_MESSAGE:
+            return new PingRequest();
+        case PONG_MESSAGE:
+            return new PongRequest();
+        default:
+            Matcher matcher = COMMAND_PATTERN.matcher(message);
+            if (matcher.matches()) {
+                String narrowType = matcher.group(1);
+                String narrowSpecs = matcher.group(2);
+                RequestType requestType = this.parseRequestType(narrowType, matcher.start(1));
+                return requestType.parse(narrowSpecs);
+            } else {
+                throw new UnexpectedRequestFormatException(COMMAND_PATTERN.toString());
+            }
         }
     }
 

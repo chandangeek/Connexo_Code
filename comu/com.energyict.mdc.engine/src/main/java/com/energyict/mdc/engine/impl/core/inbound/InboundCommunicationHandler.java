@@ -171,7 +171,7 @@ public class InboundCommunicationHandler {
             List<? extends BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister>> allDevices = getAllPossiblyRelatedDevices(inboundDeviceProtocol);
             if (allDevices.size() > 1) {
                 this.responseType = InboundDeviceProtocol.DiscoverResponseType.DUPLICATE_DEVICE;
-            } else if (allDevices.size() == 0) {
+            } else if (allDevices.isEmpty()) {
                 this.responseType = InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND;
             }
             allDevices.stream().filter(device -> deviceIsReadyForInboundCommunicationOnThisPort(new OfflineDeviceImpl((Device) device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider()))).forEach(device -> {

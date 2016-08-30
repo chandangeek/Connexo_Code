@@ -184,6 +184,7 @@ public class SingleThreadedScheduledComPortTest {
         when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
         when(this.serviceProvider.issueService()).thenReturn(this.issueService);
         when(this.serviceProvider.userService()).thenReturn(this.userService);
+        when(userService.findUser(anyString())).thenReturn(Optional.empty());
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
@@ -749,7 +750,7 @@ public class SingleThreadedScheduledComPortTest {
         private DeviceCommandExecutor actualExecutor;
         private CountDownLatch executeLatch;
 
-        protected LatchDrivenDeviceCommandExecutor(DeviceCommandExecutor actualExecutor, CountDownLatch executeLatch) {
+        LatchDrivenDeviceCommandExecutor(DeviceCommandExecutor actualExecutor, CountDownLatch executeLatch) {
             super();
             this.actualExecutor = actualExecutor;
             this.executeLatch = executeLatch;
@@ -822,6 +823,11 @@ public class SingleThreadedScheduledComPortTest {
         @Override
         public int getThreadPriority() {
             return 0;
+        }
+
+        @Override
+        public String getAcquiredTokenThreadNames() {
+            return "";
         }
     }
 

@@ -10,5 +10,5 @@ package com.energyict.mdc.engine.impl.core;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-03 (14:33)
  */
-public interface TimeOutMonitor extends ServerProcess {
+interface TimeOutMonitor extends ServerProcess {
 }
