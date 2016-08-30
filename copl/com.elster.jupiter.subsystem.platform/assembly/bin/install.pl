@@ -15,7 +15,7 @@ use Archive::Zip;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20160704";
+my $INSTALL_VERSION="v20160830";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -356,6 +356,7 @@ sub install_connexo {
 				chmod 0755,"$CONNEXO_DIR/bin/start-connexo.sh";
 				replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
 				replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\${JAVA_HOME}',"$JAVA_HOME");
+				chmod 0755,"$CONNEXO_DIR/bin/stop-connexo.sh";
 			}
 		}
 	}
@@ -650,7 +651,7 @@ sub activate_sso {
             print $FH "   ProxyPass /facts/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts/\n";
             print $FH "   ProxyPassReverse /facts/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts/\n";
             print $FH "   ProxyPassReverse /facts/ http://\${HOSTNAME}/facts/\n";
-	    print $FH "\n";
+            print $FH "\n";
             print $FH "   ProxyPassReverse / http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/\n";
             print $FH "   DirectoryIndex index.html\n";
             print $FH "\n";
