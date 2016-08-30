@@ -1,9 +1,9 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.validation.ValidationAction;
 
 import java.util.ArrayList;
