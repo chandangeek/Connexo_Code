@@ -5,7 +5,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -36,8 +36,14 @@ import java.util.stream.Collectors;
 public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
 
     private Thesaurus thesaurus;
-    private final PropertyValueInfoService propertyValueInfoService;
+    private PropertyValueInfoService propertyValueInfoService;
     private ReferenceResolver referenceResolver;
+
+    //osgi
+    @SuppressWarnings("unused")
+    public ServiceCallInfoFactoryImpl() {
+
+    }
 
     @Inject
     public ServiceCallInfoFactoryImpl(Thesaurus thesaurus, PropertyValueInfoService propertyValueInfoService, ReferenceResolver referenceResolver) {

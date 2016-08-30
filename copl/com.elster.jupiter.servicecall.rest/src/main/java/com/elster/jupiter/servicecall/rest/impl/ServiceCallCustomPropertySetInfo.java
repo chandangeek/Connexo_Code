@@ -1,7 +1,7 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 
 import java.util.List;
 

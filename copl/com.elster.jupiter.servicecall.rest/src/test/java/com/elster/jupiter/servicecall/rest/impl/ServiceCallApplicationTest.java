@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.whiteboard.ReferenceResolver;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
@@ -30,6 +31,8 @@ public abstract class ServiceCallApplicationTest extends FelixRestApplicationJer
     @Mock
     CustomPropertySetService customPropertySetService;
     @Mock
+    PropertyValueInfoService propertyValueInfoService;
+    @Mock
     public ReferenceResolver referenceResolver;
 
     @Override
@@ -40,6 +43,7 @@ public abstract class ServiceCallApplicationTest extends FelixRestApplicationJer
         serviceCallApplication.setTransactionService(transactionService);
         serviceCallApplication.setReferenceResolver(referenceResolver);
         serviceCallApplication.setCustomPropertySetService(customPropertySetService);
+        serviceCallApplication.setPropertyValueInfoService(propertyValueInfoService);
         return serviceCallApplication;
     }
 
