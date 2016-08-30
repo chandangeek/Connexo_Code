@@ -518,8 +518,8 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     }
 
     private final class DeviceCommandExecutionTokenImpl implements DeviceCommandExecutionToken {
-        private int id;
-        private String threadName;  // For debugging purposes
+        private final int id;
+        private final String threadName;  // For debugging purposes
 
         private DeviceCommandExecutionTokenImpl(int id) {
             super();
