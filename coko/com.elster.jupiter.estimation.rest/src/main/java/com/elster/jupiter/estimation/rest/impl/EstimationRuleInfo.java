@@ -3,8 +3,8 @@ package com.elster.jupiter.estimation.rest.impl;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.properties.PropertyValueInfoService;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
 import java.util.ArrayList;
 import java.util.List;

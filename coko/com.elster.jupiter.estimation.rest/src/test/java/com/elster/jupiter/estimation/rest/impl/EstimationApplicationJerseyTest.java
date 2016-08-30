@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
@@ -27,6 +28,8 @@ public class EstimationApplicationJerseyTest extends FelixRestApplicationJerseyT
     MeteringGroupsService meteringGroupsService;
     @Mock
     RestQueryService restQueryService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
     @Override
     protected Application getApplication() {
@@ -37,6 +40,7 @@ public class EstimationApplicationJerseyTest extends FelixRestApplicationJerseyT
         estimationApplication.setNlsService(nlsService);
         estimationApplication.setTimeService(timeService);
         estimationApplication.setMeteringGroupsService(meteringGroupsService);
+        estimationApplication.setPropertyValueInfoService(propertyValueInfoService);
         return estimationApplication;
     }
 

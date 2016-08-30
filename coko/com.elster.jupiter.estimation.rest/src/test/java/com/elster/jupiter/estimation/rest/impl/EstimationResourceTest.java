@@ -26,15 +26,18 @@ import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
-import com.elster.jupiter.properties.SimplePropertyType;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PredefinedPropertyValuesInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.conditions.Order;
 
 import com.jayway.jsonpath.JsonModel;
@@ -62,6 +65,7 @@ import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.mock;
@@ -280,7 +284,26 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         EstimationRule rule = mockEstimationRuleInRuleSet(RULE_ID, ruleSet);
         EstimationRuleBuilder estimationRuleBuilder = FakeBuilder.initBuilderStub(rule, EstimationRuleBuilder.class, EstimationRuleBuilder.PropertyBuilder.class);
         when(ruleSet.addRule(Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(estimationRuleBuilder);
-
+        estimationService.getEstimator(info.implementation).get().getPropertySpecs()
+                .forEach(propertySpec -> {
+                    switch (propertySpec.getName()) {
+                        case "number":
+                            when(propertyValueInfoService.findPropertyValue(eq(propertySpec), any())).thenReturn(BigDecimal.valueOf(10.0));
+                            break;
+                        case "nullableboolean":
+                            when(propertyValueInfoService.findPropertyValue(eq(propertySpec), any())).thenReturn(false);
+                            break;
+                        case "boolean":
+                            when(propertyValueInfoService.findPropertyValue(eq(propertySpec), any())).thenReturn(true);
+                            break;
+                        case "text":
+                            when(propertyValueInfoService.findPropertyValue(eq(propertySpec), any())).thenReturn("string");
+                            break;
+                        case "listvalue":
+                            when(propertyValueInfoService.findPropertyValue(eq(propertySpec), any())).thenReturn(Collections.singletonList(rule));
+                            break;
+                    }
+                });
         Response response = target("/estimation/" + RULE_SET_ID + "/rules").request().post(entity);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -533,6 +556,15 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         listValue.add(Finder.bean2);
         props.put("listvalue", listValue);
         when(rule.getProps()).thenReturn(props);
+
+        PropertyInfo numberPropertyInfo = new PropertyInfo("number", "number", new PropertyValueInfo<>(13, null), null, true);
+        PropertyInfo nullableBooleanPropertyInfo = new PropertyInfo("nullableboolean", "nullableboolean", new PropertyValueInfo<>(true, null), null, true);
+        PropertyInfo booleanPropertyInfo = new PropertyInfo("boolean", "boolean", new PropertyValueInfo<>(false, null), null, true);
+        PropertyInfo textPropertyInfo = new PropertyInfo("text", "text", new PropertyValueInfo<>("string", null), null, true);
+        PropertyInfo listValuePropertyInfo = new PropertyInfo("listvalue", "listvalue", new PropertyValueInfo<>(Arrays.asList("1", "2"), null), null, true);
+        List<PropertyInfo> propertyInfoList = Arrays.asList(numberPropertyInfo, nullableBooleanPropertyInfo, booleanPropertyInfo, textPropertyInfo, listValuePropertyInfo);
+        when(propertyValueInfoService.getPropertyInfos(propertySpes, props)).thenReturn(propertyInfoList);
+
         List helper = new ArrayList();
         helper.add(rule);
         ruleSet.getRules().addAll(helper);
@@ -622,7 +654,30 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         when(estimator.getDisplayName()).thenReturn(displayName);
         List<PropertySpec> propertySpecs = Collections.singletonList(mockListValueBeanPropertySpec("listvalue", false));
         when(estimator.getPropertySpecs()).thenReturn(propertySpecs);
+        when(propertyValueInfoService.getPropertyInfos(propertySpecs)).thenReturn(getPropertyInfos());
         return estimator;
+    }
+
+    private List<PropertyInfo> getPropertyInfos() {
+        PredefinedPropertyValuesInfo predefinedPropertyValuesInfo = new PredefinedPropertyValuesInfo();
+        predefinedPropertyValuesInfo.selectionMode = PropertySelectionMode.LIST;
+        IdWithNameInfo[] arr = new IdWithNameInfo[2];
+        IdWithNameInfo firstPossibleValue = new IdWithNameInfo();
+        firstPossibleValue.id = "1";
+        firstPossibleValue.name = "first";
+        IdWithNameInfo secondPossibleValue = new IdWithNameInfo();
+        secondPossibleValue.id = "2";
+        secondPossibleValue.name = "second";
+        arr[0] = firstPossibleValue;
+        arr[1] = secondPossibleValue;
+        predefinedPropertyValuesInfo.possibleValues = arr;
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
+        propertyTypeInfo.predefinedPropertyValuesInfo = predefinedPropertyValuesInfo;
+        PropertyInfo propertyInfo = new PropertyInfo();
+        propertyInfo.key = "listvalue";
+        propertyInfo.required = false;
+        propertyInfo.propertyTypeInfo = propertyTypeInfo;
+        return Collections.singletonList(propertyInfo);
     }
 
     private static class ListValueBean extends HasIdAndName {

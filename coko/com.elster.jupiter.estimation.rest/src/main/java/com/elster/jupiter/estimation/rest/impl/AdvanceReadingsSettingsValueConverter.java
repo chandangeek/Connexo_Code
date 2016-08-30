@@ -6,8 +6,8 @@ import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertyValueConverter;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 
 import java.util.HashMap;
 import java.util.Map;
