@@ -1,11 +1,12 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.Instant;
