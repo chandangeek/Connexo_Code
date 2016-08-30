@@ -5,7 +5,7 @@ import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo.DueInInfo;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
-import com.elster.jupiter.properties.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

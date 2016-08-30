@@ -16,7 +16,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleA
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;

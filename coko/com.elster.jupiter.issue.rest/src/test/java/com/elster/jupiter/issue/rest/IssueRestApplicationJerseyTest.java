@@ -30,6 +30,10 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -79,6 +83,8 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     static SecurityContext securityContext;
     @Mock
     IssueInfoFactoryService issueInfoFactoryService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
 
     @Provider
@@ -115,6 +121,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         application.setRestQueryService(restQueryService);
         application.setUserService(userService);
         application.setIssueInfoFactoryService(issueInfoFactoryService);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 
@@ -240,6 +247,12 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(template.getDescription()).thenReturn(description);
         when(template.getIssueType()).thenReturn(issueType);
         when(template.getPropertySpecs()).thenReturn(properties);
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
+        propertyTypeInfo.simplePropertyType = SimplePropertyType.TEXTAREA;
+        PropertyInfo propertyInfo = new PropertyInfo("property", "property", null, propertyTypeInfo, false);
+        if (properties != null && !properties.isEmpty()) {
+            when(propertyValueInfoService.getPropertyInfos(template.getPropertySpecs())).thenReturn(Collections.singletonList(propertyInfo));
+        }
         return template;
     }
 

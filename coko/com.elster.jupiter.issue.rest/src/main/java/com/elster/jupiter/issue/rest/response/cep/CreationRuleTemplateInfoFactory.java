@@ -1,7 +1,7 @@
 package com.elster.jupiter.issue.rest.response.cep;
 
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
-import com.elster.jupiter.properties.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
 import javax.inject.Inject;
 

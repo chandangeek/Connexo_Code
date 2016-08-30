@@ -25,7 +25,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;

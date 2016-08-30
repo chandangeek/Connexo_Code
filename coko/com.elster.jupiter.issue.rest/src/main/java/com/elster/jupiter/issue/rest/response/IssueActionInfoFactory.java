@@ -3,7 +3,7 @@ package com.elster.jupiter.issue.rest.response;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.properties.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
 import javax.inject.Inject;
 

@@ -3,7 +3,9 @@ package com.elster.jupiter.issue.rest;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.util.conditions.Condition;
+
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.core.Response;
@@ -12,11 +14,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Test;
 import org.mockito.Matchers;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -100,7 +103,8 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
         when(issueService.findIssueType(issueType.getKey())).thenReturn(Optional.of(issueType));
         when(issueService.findReason(null)).thenReturn(Optional.empty());
-
+        PropertyInfo propertyInfo = new PropertyInfo("property", "property", null, null, false);
+        when(propertyValueInfoService.getPropertyInfos(any())).thenReturn(Collections.singletonList(propertyInfo));
         String response = target("/actions").queryParam(ISSUE_TYPE, issueType.getKey()).request().get(String.class);
 
         JsonModel json = JsonModel.model(response);

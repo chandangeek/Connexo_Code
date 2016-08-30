@@ -1,10 +1,11 @@
 package com.elster.jupiter.issue.rest.response.cep;
 
-import java.util.List;
-
 import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IssueActionTypeInfo {

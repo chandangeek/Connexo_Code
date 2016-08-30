@@ -22,14 +22,13 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -43,10 +42,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.Test;
+import org.mockito.Matchers;
+
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
@@ -136,7 +140,11 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         when(rule.getCreateTime()).thenReturn(instant);
         when(rule.getVersion()).thenReturn(2L);
         when(issueCreationService.findCreationRuleById(1)).thenReturn(Optional.of(rule));
-
+        PropertyInfo propertyInfo = new PropertyInfo("property", "property", new PropertyValueInfo<>("value_for_rule", null), null, false);
+        PropertyInfo propertyInfo2 = new PropertyInfo("property", "property", new PropertyValueInfo<>("value_for_action", null), null, false);
+        when(propertyValueInfoService.getPropertyInfos(rule.getPropertySpecs(), rule.getProperties())).thenReturn(Collections.singletonList(propertyInfo));
+        when(propertyValueInfoService.getPropertyInfos(template.getPropertySpecs())).thenReturn(Collections.singletonList(propertyInfo));
+        when(propertyValueInfoService.getPropertyInfos(action.getPropertySpecs(), action.getProperties())).thenReturn(Collections.singletonList(propertyInfo2));
         String response = target("/creationrules/1").request().get(String.class);
 
         JsonModel json = JsonModel.model(response);
