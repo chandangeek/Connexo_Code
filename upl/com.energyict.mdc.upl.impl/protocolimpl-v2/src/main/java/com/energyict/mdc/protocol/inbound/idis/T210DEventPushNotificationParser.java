@@ -83,8 +83,6 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         super(comChannel, context);
     }
 
-
-    @Override
     public void parseInboundFrame() {
         ByteBuffer inboundFrame = readInboundFrame();
 //        ByteBuffer inboundFrame = ByteBuffer.wrap(readFrames(true));

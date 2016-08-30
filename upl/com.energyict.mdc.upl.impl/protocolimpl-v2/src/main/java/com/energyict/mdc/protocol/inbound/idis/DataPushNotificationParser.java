@@ -64,9 +64,23 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
         return new AM130Properties();
     }
 
-    @Override
     protected byte getCosemNotificationAPDUTag() {
         return DLMSCOSEMGlobals.COSEM_DATA_NOTIFICATION;
+    }
+
+    public void parseInboundFrame() {
+        ByteBuffer inboundFrame = readInboundFrame();
+        byte[] header = new byte[8];
+        inboundFrame.get(header);
+        byte tag = inboundFrame.get();
+        if (tag == getCosemNotificationAPDUTag()) {
+            parseAPDU(inboundFrame);
+        } else if (tag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING) {
+            parseEncryptedFrame(inboundFrame);
+        } else {
+            //TODO support general ciphering & general signing (suite 0, 1 and 2)
+            throw DataParseException.ioException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" + getCosemNotificationAPDUTag() + "' or '" + DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "'"));
+        }
     }
 
     @Override
