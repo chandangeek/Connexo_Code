@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -122,8 +121,8 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
         when(offlineDevice.getAllSentDeviceMessages()).thenReturn(Collections.emptyList());
         when(deviceProtocol.updateSentMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
         when(deviceProtocol.executePendingMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
-        when(this.issueService.newProblem(any(), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
-        when(this.issueService.newProblem(any(), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
+        doReturn(mock(Problem.class)).when(this.issueService).newProblem(any(), any(MessageSeed.class), anyVararg());
+        doReturn(mock(Problem.class)).when(this.issueService).newProblem(any(), any(MessageSeed.class), anyVararg());
 
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
         MessagesCommandImpl messagesCommand = new MessagesCommandImpl(groupedDeviceCommand, messageTask, comTaskExecution);
