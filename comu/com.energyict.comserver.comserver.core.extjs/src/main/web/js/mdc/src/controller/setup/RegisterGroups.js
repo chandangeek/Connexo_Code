@@ -116,7 +116,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         var registerTypes = this.getRegisterTypeGrid().getSelectionModel().getSelection();
         if (registerTypes.length == 1) {
             this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
-            this.getRegisterTypePreview().setTitle(registerTypes[0].get('name'));
+            this.getRegisterTypePreview().setTitle(Ext.String.htmlEncode(registerTypes[0].get('name')));
         }
     },
 
