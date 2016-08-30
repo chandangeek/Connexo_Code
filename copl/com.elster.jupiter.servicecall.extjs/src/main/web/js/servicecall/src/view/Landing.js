@@ -27,7 +27,7 @@ Ext.define('Scs.view.Landing', {
                     xtype: 'uni-button-action',
                     privileges: Scs.privileges.ServiceCall.admin,
                     disabled: !me.record.get('canCancel'),
-                    itemId: 'scsAtionButton',
+                    itemId: 'scsActionButton',
                     margin: '0 20 0 0',
                     menu: {
                         xtype: 'scs-action-menu',
