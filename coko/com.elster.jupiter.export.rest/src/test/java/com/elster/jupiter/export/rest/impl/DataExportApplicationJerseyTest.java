@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.RelativeDate;
@@ -22,9 +23,6 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.time.Never;
-import org.junit.Before;
-import org.mockito.Answers;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.lang.reflect.InvocationHandler;
@@ -33,6 +31,10 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import org.junit.Before;
+import org.mockito.Answers;
+import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
@@ -69,6 +71,8 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     @Mock
     protected QueryExecutor<DataExportOccurrence> queryExecutor;
     @Mock
+    protected PropertyValueInfoService propertyValueInfoService;
+    @Mock
     protected AppService appService;
     protected DataExportTaskBuilder builder = initBuilderStub();
 
@@ -104,7 +108,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         application.setMeteringGroupsService(meteringGroupsService);
         application.setTimeService(timeService);
         application.setAppService(appService);
-
+        application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 

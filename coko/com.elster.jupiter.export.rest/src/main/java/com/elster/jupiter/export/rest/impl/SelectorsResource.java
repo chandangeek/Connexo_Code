@@ -4,7 +4,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

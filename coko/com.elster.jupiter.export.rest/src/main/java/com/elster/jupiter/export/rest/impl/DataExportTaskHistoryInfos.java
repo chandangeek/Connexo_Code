@@ -4,7 +4,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
-import com.elster.jupiter.properties.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.TimeService;
 
 import java.util.ArrayList;

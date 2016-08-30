@@ -1,7 +1,7 @@
 package com.elster.jupiter.export.rest.impl;
 
 
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;

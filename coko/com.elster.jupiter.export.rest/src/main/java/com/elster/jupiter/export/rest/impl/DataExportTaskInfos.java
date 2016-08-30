@@ -2,7 +2,7 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.TimeService;
 
 import javax.xml.bind.annotation.XmlRootElement;
