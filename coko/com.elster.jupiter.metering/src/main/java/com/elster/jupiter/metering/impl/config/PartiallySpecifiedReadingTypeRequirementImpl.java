@@ -298,12 +298,13 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
     }
 
     @Override
-    public ReadingTypeUnit getUnit() {
+    public Set<ReadingTypeUnit> getUnits() {
         ReadingTypeTemplateAttribute unitAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE);
+        Set<ReadingTypeUnit> readingTypeUnits = unitAttribute.getPossibleValues().stream().map(ReadingTypeUnit::get).collect(Collectors.toSet());
         if (unitAttribute.getCode().isPresent()) {
-            return ReadingTypeUnit.get(unitAttribute.getCode().get());
+            readingTypeUnits.add(ReadingTypeUnit.get(unitAttribute.getCode().get()));
         }
-        return ReadingTypeUnit.NOTAPPLICABLE;
+        return readingTypeUnits;
     }
 
     @Override

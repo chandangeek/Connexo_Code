@@ -3,12 +3,12 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.util.units.Dimension;
 import com.elster.jupiter.util.units.Unit;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Provides support for unit conversion as part of data aggregation.
@@ -151,7 +151,11 @@ public class UnitConversionSupport {
         return isValidForAggregation(readingType.getUnit());
     }
 
-    public static boolean isValidForAggregation(ReadingTypeUnit unit) {
+    public static boolean isValidForAggregation(Set<ReadingTypeUnit> readingTypeUnits) {
+        return readingTypeUnits.stream().allMatch(UnitConversionSupport::isValidForAggregation);
+    }
+
+    private static boolean isValidForAggregation(ReadingTypeUnit unit) {
         return (!unit.equals(ReadingTypeUnit.BOOLEAN)) &&
                 (!unit.equals(ReadingTypeUnit.BOOLEANARRAY)) &&
                 (!unit.equals(ReadingTypeUnit.ENCODEDVALUE)) &&
@@ -163,10 +167,6 @@ public class UnitConversionSupport {
 
     public static boolean isAssignable(IntervalLength deliverableIntervalLength, IntervalLength formulaIntervalLength) {
         return deliverableIntervalLength.isMultipleOf(formulaIntervalLength);
-    }
-
-    public static boolean isValidForAggregation(PartiallySpecifiedReadingTypeRequirement readingType) {
-        return isValidForAggregation(readingType.getUnit());
     }
 
     static boolean isVolumeRelated(Dimension dim) {
