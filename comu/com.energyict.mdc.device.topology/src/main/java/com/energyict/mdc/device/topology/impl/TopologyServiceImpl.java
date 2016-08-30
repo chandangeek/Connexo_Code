@@ -456,7 +456,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public Optional<Channel> getSlaveChannel(Channel dataLoggerChannel, Instant when) {
-        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerChannel), when)
+        return getMeteringChannel(dataLoggerChannel)
+                .flatMap(meteringChannel -> findDataLoggerChannelUsage(meteringChannel, when))
                 .map((dataLoggerChannelUsage) -> getChannel(dataLoggerChannelUsage.getDataLoggerReference().getOrigin(), dataLoggerChannelUsage.getSlaveChannel()).get());
     }
 
@@ -466,7 +467,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public Optional<Register> getSlaveRegister(Register dataLoggerRegister, Instant when) {
-        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerRegister), when)
+        return getMeteringChannel(dataLoggerRegister)
+                .flatMap(meteringChannel -> findDataLoggerChannelUsage(meteringChannel, when))
                 .map((dataLoggerChannelUsage) -> getRegister(dataLoggerChannelUsage.getDataLoggerReference().getOrigin(), dataLoggerChannelUsage.getSlaveChannel()).get());
     }
 
@@ -476,12 +478,16 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public boolean isReferenced(Channel dataLoggerChannel) {
-        return this.isReferenced(getMeteringChannel(dataLoggerChannel));
+        return this.getMeteringChannel(dataLoggerChannel)
+                .map(this::isReferenced)
+                .orElse(false);
     }
 
     @Override
     public boolean isReferenced(Register dataLoggerRegister) {
-        return this.isReferenced(getMeteringChannel(dataLoggerRegister));
+        return this.getMeteringChannel(dataLoggerRegister)
+                .map(this::isReferenced)
+                .orElse(false);
     }
 
     @Override
@@ -614,22 +620,32 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public List<DataLoggerChannelUsage> findDataLoggerChannelUsagesForChannels(Channel dataLoggerChannel, Range<Instant> referencePeriod) {
-        return findDataLoggerChannelUsages(getMeteringChannel(dataLoggerChannel), referencePeriod);
+        Optional<com.elster.jupiter.metering.Channel> meteringChannel = getMeteringChannel(dataLoggerChannel);
+        if (meteringChannel.isPresent()) {
+            return findDataLoggerChannelUsages(meteringChannel.get(), referencePeriod);
+        }
+        return Collections.emptyList();
     }
 
     @Override
     public List<DataLoggerChannelUsage> findDataLoggerChannelUsagesForRegisters(Register<?, ?> dataLoggerRegister, Range<Instant> referencePeriod) {
-        return findDataLoggerChannelUsages(getMeteringChannel(dataLoggerRegister), referencePeriod);
+        Optional<com.elster.jupiter.metering.Channel> meteringChannel = getMeteringChannel(dataLoggerRegister);
+        if (meteringChannel.isPresent()) {
+            return findDataLoggerChannelUsages(meteringChannel.get(), referencePeriod);
+        }
+        return Collections.emptyList();
     }
 
     @Override
     public Optional<Instant> availabilityDate(Channel dataLoggerChannel) {
-        return availabilityDate(getMeteringChannel(dataLoggerChannel), dataLoggerChannel.getDevice().getLifecycleDates().getReceivedDate());
+        return getMeteringChannel(dataLoggerChannel).flatMap(meteringChannel ->
+                availabilityDate(meteringChannel, dataLoggerChannel.getDevice().getLifecycleDates().getReceivedDate()));
     }
 
     @Override
     public Optional<Instant> availabilityDate(Register dataLoggerRegister) {
-        return availabilityDate(getMeteringChannel(dataLoggerRegister), dataLoggerRegister.getDevice().getLifecycleDates().getReceivedDate());
+        return getMeteringChannel(dataLoggerRegister).flatMap(meteringChannel ->
+                availabilityDate(meteringChannel, dataLoggerRegister.getDevice().getLifecycleDates().getReceivedDate()));
     }
 
     private Optional<Instant> availabilityDate(com.elster.jupiter.metering.Channel dataLoggerChannel, Optional<Instant> atLeast) {
@@ -706,18 +722,20 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         dataLoggerReference.addDataLoggerChannelUsage(channelForSlave, channelForDataLogger);
     }
 
-    com.elster.jupiter.metering.Channel getMeteringChannel(final com.energyict.mdc.device.data.Channel channel) {
-        return getMeteringChannel(channel, channel.getDevice().getCurrentMeterActivation().get());
+    Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final com.energyict.mdc.device.data.Channel channel) {
+        return channel.getDevice().getCurrentMeterActivation().map(meterActivation -> getMeteringChannel(channel, meterActivation));
     }
 
     com.elster.jupiter.metering.Channel getMeteringChannel(final com.energyict.mdc.device.data.Channel channel, final MeterActivation meterActivation) {
-        return meterActivation.getChannelsContainer().getChannels().stream().filter((x) -> x.getReadingTypes().contains(channel.getReadingType()))
+        return meterActivation.getChannelsContainer().getChannels()
+                .stream()
+                .filter((x) -> x.getReadingTypes().contains(channel.getReadingType()))
                 .findFirst()
                 .orElseThrow(() -> DataLoggerLinkException.noPhysicalChannelForReadingType(this.thesaurus, channel.getReadingType()));
     }
 
-    com.elster.jupiter.metering.Channel getMeteringChannel(final Register register) {
-        return getMeteringChannel(register, register.getDevice().getCurrentMeterActivation().get());
+    Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final Register register) {
+        return register.getDevice().getCurrentMeterActivation().map(meterActivation -> getMeteringChannel(register, meterActivation));
     }
 
     com.elster.jupiter.metering.Channel getMeteringChannel(final Register register, final MeterActivation meterActivation) {
