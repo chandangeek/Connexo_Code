@@ -9,8 +9,9 @@ import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -57,7 +58,7 @@ public class DeviceProtocolTopologyAdapterTest {
 
     @Before
     public void initializeIssueService () {
-        when(this.issueService.newProblem(anyString(), anyString(), anyVararg())).thenReturn(mock(Problem.class));
+        when(this.issueService.newProblem(anyString(), any(), anyVararg())).thenReturn(mock(Problem.class));
     }
 
     @Test
@@ -70,7 +71,7 @@ public class DeviceProtocolTopologyAdapterTest {
 
         // Asserts
         verify(this.collectedTopology).setFailureInformation(eq(ResultType.NotSupported), any(Issue.class));
-        verify(this.issueService).newWarning(anyString(), anyString(), anyVararg());
+        verify(this.issueService).newWarning(anyString(), any(), anyVararg());
     }
 
     private DeviceIdentifier getDeviceIdentifier(){

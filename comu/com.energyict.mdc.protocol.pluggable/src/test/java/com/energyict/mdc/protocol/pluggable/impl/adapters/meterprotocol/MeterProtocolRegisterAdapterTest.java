@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.Issue;
@@ -17,16 +18,15 @@ import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks.MockCollectedRegister;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 
-import com.elster.jupiter.metering.ReadingType;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -62,7 +62,7 @@ public class MeterProtocolRegisterAdapterTest {
 
     @Before
     public void initializeIssueService () {
-        when(this.issueService.newProblem(anyString(), anyString(), anyVararg())).thenReturn(mock(Problem.class));
+        when(this.issueService.newProblem(anyString(), any(), anyVararg())).thenReturn(mock(Problem.class));
     }
 
     @Before
@@ -119,7 +119,7 @@ public class MeterProtocolRegisterAdapterTest {
 
     @Test
     public void deviceDoesNotSupportRegisterRequests() {
-        when(this.issueService.newProblem(any(ObisCode.class), eq(MessageSeeds.REGISTER_NOT_SUPPORTED.getKey()), anyVararg())).thenAnswer(invocation -> {
+        when(this.issueService.newProblem(any(ObisCode.class), eq(MessageSeeds.REGISTER_NOT_SUPPORTED), anyVararg())).thenAnswer(invocation -> {
             Problem registerXnotsupportedProblem = mock(Problem.class);
             when(registerXnotsupportedProblem.getDescription()).thenReturn("registerXnotsupported");
             when(registerXnotsupportedProblem.getSource()).thenReturn((invocation.getArguments()[0]));

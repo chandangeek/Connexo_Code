@@ -165,7 +165,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     }
 
     private Issue getIssue(Object source, MessageSeed description, Object... arguments){
-        return this.issueService.newProblem(source, description.getKey(), arguments);
+        return this.issueService.newProblem(source, description, arguments);
     }
 
     private CollectedMessage delegatePendingMessageToProtocol(MessageEntry messageEntry, OfflineDeviceMessage offlineDeviceMessage) {

@@ -206,7 +206,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
     }
 
     private Issue getIssue(Object source, MessageSeed messageSeed, Object... arguments) {
-        return this.issueService.newProblem(source, messageSeed.getKey(), arguments);
+        return this.issueService.newProblem(source, messageSeed, arguments);
     }
 
 }

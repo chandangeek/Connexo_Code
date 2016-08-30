@@ -367,11 +367,11 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
     }
 
     private Issue getProblem(Object source, MessageSeed messageSeed, Object... arguments) {
-        return this.issueService.newProblem(source, messageSeed.getKey(), arguments);
+        return this.issueService.newProblem(source, messageSeed, arguments);
     }
 
     private Issue getWarning(Object source, MessageSeed messageSeed, Object... arguments) {
-        return this.issueService.newWarning(source, messageSeed.getKey(), arguments);
+        return this.issueService.newWarning(source, messageSeed, arguments);
     }
 
 }
