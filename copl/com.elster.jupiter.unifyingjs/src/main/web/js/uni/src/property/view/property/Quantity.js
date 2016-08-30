@@ -111,7 +111,7 @@ Ext.define('Uni.property.view.property.Quantity', {
                     return possibleValue.id === value.replace(unitRegExp, '0$1')
                 });
 
-            return val + ' ' + unit ? unit.displayValue : '';
+            return unit ? val + ' ' + unit.displayValue : val;
         } else {
             return '-';
         }
