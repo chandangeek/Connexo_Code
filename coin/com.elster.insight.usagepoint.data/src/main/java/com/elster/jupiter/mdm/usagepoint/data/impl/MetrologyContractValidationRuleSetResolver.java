@@ -11,6 +11,7 @@ import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +33,7 @@ public class MetrologyContractValidationRuleSetResolver implements ValidationRul
             return this.usagePointConfigurationService.getValidationRuleSets(validationContext.getMetrologyContract().get());
         }
         if (validationContext.getChannelsContainer().getUsagePoint().isPresent()) {
-            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = validationContext.getChannelsContainer().getUsagePoint().get().getEffectiveMetrologyConfiguration(Instant.now())
+            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = validationContext.getChannelsContainer().getUsagePoint().get().getCurrentEffectiveMetrologyConfiguration()
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
             if (metrologyConfiguration.isPresent()){
                 return DecoratedStream.decorate(metrologyConfiguration.get().getContracts().stream())
