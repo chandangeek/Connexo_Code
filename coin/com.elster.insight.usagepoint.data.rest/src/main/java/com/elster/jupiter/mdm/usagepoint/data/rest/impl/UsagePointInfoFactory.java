@@ -29,10 +29,11 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -71,6 +72,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private volatile LicenseService licenseService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     public UsagePointInfoFactory() {
     }
@@ -85,7 +87,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                  ThreadPrincipalService threadPrincipalService,
                                  LocationService locationService,
                                  LicenseService licenseService,
-                                 ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
+                                 ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
+                                 PropertyValueInfoService propertyValueInfoService) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
@@ -97,12 +100,13 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.setIssueService(issueService);
         this.setLicenseService(licenseService);
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
+        this.propertyValueInfoService = propertyValueInfoService;
         activate();
     }
 
     @Activate
     public void activate() {
-        customPropertySetInfoFactory = new CustomPropertySetInfoFactory(thesaurus, clock);
+        customPropertySetInfoFactory = new CustomPropertySetInfoFactory(thesaurus, clock, propertyValueInfoService);
     }
 
     @Reference
