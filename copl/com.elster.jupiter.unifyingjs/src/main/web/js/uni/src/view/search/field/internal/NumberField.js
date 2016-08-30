@@ -4,9 +4,6 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
     width: '455',
     layout: 'fit',
     itemsDefaultConfig: {},
-    requires: [
-        'Number'
-    ],
 
     setValue: function(value) {
         this.down('#filter-input').setValue(value);
