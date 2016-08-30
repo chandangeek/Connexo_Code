@@ -1,6 +1,6 @@
 package com.elster.jupiter.bpm.rest;
 
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 
 import java.util.Collections;
 import java.util.List;

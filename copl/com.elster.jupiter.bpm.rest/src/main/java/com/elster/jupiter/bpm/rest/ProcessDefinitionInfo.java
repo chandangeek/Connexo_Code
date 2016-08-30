@@ -2,7 +2,7 @@ package com.elster.jupiter.bpm.rest;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.security.Privileges;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.users.Group;
 
 import org.json.JSONException;
