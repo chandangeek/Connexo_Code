@@ -64,6 +64,11 @@ class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTaskExecut
         this.appendDeviceInGroupSql();
     }
 
+    @Override
+    protected void appendStatusWhereClauses(ServerComTaskStatus taskStatus) {
+        taskStatus.completeFindBySqlBuilder(this.getActualBuilder(), this.getClock());
+    }
+
     private void appendGroupByClause() {
         this.append(" group by ctincs.comschedule");
     }

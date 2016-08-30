@@ -3,15 +3,12 @@ package com.energyict.mdc.device.data.impl.tasks.report;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
-import com.energyict.mdc.device.data.impl.TableSpecs;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -107,37 +104,20 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
                 }
 
-    private <T> void appendNotInClause(String columnName, Collection<T> objects, Function<T, ? extends CharSequence> objectMapper) {
-        if (objects.size() == 1) {
-            this.append(columnName);
-            this.append(" <> ");
-            this.append(objectMapper.apply(objects.iterator().next()));
-        } else {
-            this.append(DecoratedStream.decorate(objects.stream())
-                    .partitionPer(MAX_ELEMENTS_FOR_IN_CLAUSE)
-                    .map(chunk -> chunk.stream().filter(Objects::nonNull).map(objectMapper).collect(Collectors.joining(", ")))
-                    .collect(Collectors.joining(") AND " + columnName + " NOT IN (" , columnName + " NOT IN (", ") ")));
-        }
-    }
-
     protected <T extends HasId> void appendInClause(String columnName, Set<T> idBusinessObjects) {
         this.appendInClause(columnName, idBusinessObjects, obj -> String.valueOf(obj.getId()));
     }
 
-    protected void appendDeviceTypeSql(String targetTableName, Set<DeviceType> deviceTypes) {
+    protected void appendDeviceTypeSql(Set<DeviceType> deviceTypes) {
         if (!deviceTypes.isEmpty()) {
             this.appendWhereOrAnd();
-            this.append(" (");
-            this.append(targetTableName);
-            this.append(".device in (select id from ");
-            this.append(TableSpecs.DDC_DEVICE.name());
-            this.append(" where ");
+            this.append(" (dev.");
             this.appendInClause("devicetype", deviceTypes);
-            this.append("))");
+            this.append(")");
         }
     }
 
-    protected void appendDeviceInGroupSql(List<EndDeviceGroup> deviceGroups, QueryExecutor<Device> queryExecutor, String baseEntityAliasName) {
+    protected void appendDeviceInGroupSql(List<EndDeviceGroup> deviceGroups, String baseEntityAliasName) {
         if (!deviceGroups.isEmpty()) {
             this.appendWhereOrAnd();
             this.append("(");

@@ -108,6 +108,11 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     @Override
+    protected void appendStatusWhereClauses(ServerComTaskStatus taskStatus) {
+        taskStatus.completeFindBySqlBuilder(this.getActualBuilder(), this.getClock());
+    }
+
+    @Override
     protected void appendNonStatusWhereClauses() {
         super.appendNonStatusWhereClauses();
         this.appendCompletionCodeClause();

@@ -51,4 +51,9 @@ class ComTaskExecutionFilterMatchCounterSqlBuilder extends AbstractComTaskExecut
         this.appendDeviceInGroupSql();
     }
 
+    @Override
+    protected void appendStatusWhereClauses(ServerComTaskStatus taskStatus) {
+        taskStatus.completeCountSqlBuilder(this.getActualBuilder(), this.getClock().instant());
+    }
+
 }

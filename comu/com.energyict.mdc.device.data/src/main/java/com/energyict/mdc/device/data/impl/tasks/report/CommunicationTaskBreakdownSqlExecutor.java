@@ -40,7 +40,7 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
                     "    FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " cte" +
                     "    JOIN " + TableSpecs.DDC_DEVICE.name() + " dev ON cte.device = dev.id" +
                     "    LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct ON cte.connectiontask = ct.id" +
-                    "                                         AND ct.comserver is not null" +
+                    "                                                                   AND ct.comserver is not null" +
                     "   WHERE cte.obsolete_date is null";
 
     static CommunicationTaskBreakdownSqlExecutor systemWide(DataModel dataModel) {

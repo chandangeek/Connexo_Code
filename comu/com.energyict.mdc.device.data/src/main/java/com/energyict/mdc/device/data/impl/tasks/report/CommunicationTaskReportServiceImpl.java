@@ -101,7 +101,6 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
                                         DefaultState.fromKeys(filter.restrictedDeviceStates),
                                         this.deviceDataModelService.clock().instant());
                 WithClauses.COMTASK_EXECUTION_WITH_DEVICE_STATE.appendTo(sqlBuilder, "ctes");
-                WithClauses.BUSY_CONNECTION_TASK.appendTo(sqlBuilder, BUSY_ALIAS_NAME);
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
             } else {
                 sqlBuilder.unionAll();

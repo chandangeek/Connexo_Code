@@ -112,11 +112,11 @@ abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilter
     }
 
     private void appendDeviceTypeSql() {
-        this.appendDeviceTypeSql(this.connectionTaskAliasName(), this.deviceTypes);
+        this.appendDeviceTypeSql(this.deviceTypes);
     }
 
     void appendDeviceInGroupSql() {
-        this.appendDeviceInGroupSql(this.deviceGroups, this.queryExecutor, "ct");
+        this.appendDeviceInGroupSql(this.deviceGroups, "ct");
     }
 
     protected boolean requiresLastComSessionClause() {
