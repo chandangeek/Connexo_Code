@@ -18,8 +18,8 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -98,6 +98,7 @@ public class CollectedRegisterListDeviceCommandTest {
         when(this.collectedRegister.getToTime()).thenReturn(Instant.ofEpochMilli(1358758800000L));    // 21 januari 2013 10:00:00
         when(this.collectedRegister.getReadTime()).thenReturn(Instant.ofEpochMilli(1358758920000L));  // 21 januari 2013 10:02:00
         when(this.collectedRegister.getText()).thenReturn("CollectedRegister text");
+        when(this.collectedRegister.getResultType()).thenReturn(ResultType.Supported);
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.3.72.0");
         when(this.collectedRegister.getReadingType()).thenReturn(readingType);
