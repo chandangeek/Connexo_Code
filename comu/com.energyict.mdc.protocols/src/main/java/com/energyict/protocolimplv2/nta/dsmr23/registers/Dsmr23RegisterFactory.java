@@ -391,7 +391,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     public CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
         CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register),
-                this.readingTypeUtilService.getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
+                register.getReadingType());
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(
                     ResultType.InCompatible,
