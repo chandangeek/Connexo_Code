@@ -18,6 +18,7 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -58,6 +59,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     private volatile NlsService nlsService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile LicenseService licenseService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -106,6 +108,11 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     @Reference
     public void setLicenseService(LicenseService licenseService) {
         this.licenseService = licenseService;
+    }
+
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     @Reference
@@ -191,6 +198,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(licenseService).to(LicenseService.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
         }
     }
 }

@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
@@ -55,6 +56,8 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
     @Mock
+    PropertyValueInfoService propertyValueInfoService;
+    @Mock
     LicenseService licenseService;
 
     @Provider
@@ -86,6 +89,7 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
         app.setServiceCallService(serviceCallService);
         app.setMetrologyConfigurationService(metrologyConfigurationService);
         app.setLicenseService(licenseService);
+        app.setPropertyValueInfoService(propertyValueInfoService);
         return app;
     }
 

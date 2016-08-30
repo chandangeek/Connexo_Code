@@ -12,6 +12,8 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 
 import com.google.common.collect.Sets;
 import com.jayway.jsonpath.JsonModel;
@@ -20,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.junit.Test;
 
@@ -114,6 +117,11 @@ public class ServiceCategoryResourceTest extends MeteringApplicationJerseyTest {
         when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_2));
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        PropertyInfo propertyInfo = mock(PropertyInfo.class);
+        propertyInfo.key = "customAttribute";
+        propertyInfo.required = true;
+        propertyInfo.propertyTypeInfo = mock(PropertyTypeInfo.class);
+        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenReturn(propertyInfo);
         return registeredCustomPropertySet;
     }
 
