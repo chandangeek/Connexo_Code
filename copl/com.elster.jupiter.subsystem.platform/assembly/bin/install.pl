@@ -65,6 +65,14 @@ sub check_root {
         print "Please run this script as administrator\n";
         exit (0);
     }
+    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+        if (mkdir 'c:/windows/admintest/') {
+            rmdir 'c:/windows/admintest/'
+        } else {
+            print "Please run this script as administrator\n";
+            exit (0);
+        }
+    }
 }
 
 sub check_java8 {
