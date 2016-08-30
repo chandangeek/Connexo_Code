@@ -53,7 +53,8 @@ import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED
  * @since 2012-12-14 (11:09)
  */
 @LevelMustBeProvidedIfSupportedByDevice(groups = {Save.Create.class, Save.Update.class})
-class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements ServerSecurityPropertySet, PersistenceAware {
+//Do not remove the public access modifier: CXO-2786
+public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements ServerSecurityPropertySet, PersistenceAware {
 
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -77,7 +78,7 @@ class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet>
     private Instant modTime;
 
     @Inject
-    SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus,
+    public SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus,
                                    ThreadPrincipalService threadPrincipalService) {
         super(SecurityPropertySet.class, dataModel, eventService, thesaurus);
         this.threadPrincipalService = threadPrincipalService;
