@@ -131,7 +131,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             record = menu.record,
             comTaskId = record.get('preferredComTask').id,
             mRID = menu.mRID;
-        me.showTriggerConfirmation(mRID, comTaskId)
+        me.showTriggerConfirmation(mRID, comTaskId, menu.device)
     },
 
     showTriggerConfirmation: function (mRID, comTaskId, device) {
