@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Channel;
@@ -34,6 +35,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Represents the link between a Data Logger and its gateway
@@ -116,8 +118,9 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
             }
             FilteredMeterReading meterReading = new FilteredMeterReading(dataloggerChannel.deleteReadings(getInterval().toOpenClosedRange()),
                     block -> block.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
-                    reading -> reading.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()) && !isTouchedReading(reading),
-                    rq -> rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false),
+                    reading -> reading.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
+                    // do copy reading qualities of ENDDEVICE system AND reading quality indicating of EDITED category
+                    rq -> (rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false) || rq.getType().category().map(QualityCodeCategory.EDITED::equals).orElse(false)),
                     ImmutableMap.of(dataLoggerCollectedReadingType, slaveCollectedReadingType)
             );
             if (!meterReading.isEmpty()) {
@@ -127,11 +130,6 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
                 }
             }
         }
-    }
-    // Edited or estimated readings shouldn't be involved in the transfer from data logger to slave and vice versa
-    // Some protocols set the QualityCodeCategory.EDITED for 'modified' status bits => additional filter on QualityType with QualityCodeSystem != QualitySystemCode.EndDevice
-    private boolean isTouchedReading(BaseReading reading){
-        return reading.getReadingQualities().stream().map(ReadingQuality::getType).anyMatch(qt -> qt.getSystemCode() != QualityCodeSystem.ENDDEVICE.ordinal() && (qt.hasEditCategory() || qt.hasEstimatedCategory()));
     }
 
     private void updateLastReadingIfApplicable(TopologyServiceImpl topologyService, Channel channel) {
@@ -163,12 +161,22 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
             }
             FilteredMeterReading meterReading = new FilteredMeterReading(slaveChannel.deleteReadings(Range.atLeast(start)),
                     block -> block.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
-                    reading -> reading.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()) && !isTouchedReading(reading),
+                    reading -> reading.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
                     rq -> rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false),
                     ImmutableMap.of(slaveCollectedReadingType, dataLoggerCollectedReadingType)
             );
             if (!meterReading.isEmpty()) {
-                this.getGateway().store(meterReading);
+                List<BaseReading> readings;
+                if (dataLoggerCollectedReadingType.isRegular()) {
+                    readings = meterReading.getIntervalBlocks()
+                            .stream()
+                            .filter(ib -> dataLoggerCollectedReadingType.getmRID().equals(ib.getReadingTypeCode()))
+                            .flatMap(ib -> ib.getIntervals().stream())
+                            .collect(Collectors.toList());
+                } else {
+                    readings = meterReading.getReadings().stream().filter(reading -> dataLoggerCollectedReadingType.getmRID().equals(reading.getReadingTypeCode())).collect(Collectors.toList());
+                }
+                dataloggerChannel.getCimChannel(dataLoggerCollectedReadingType).orElseThrow(IllegalArgumentException::new).editReadings(QualityCodeSystem.MDC, readings);
             }
         }
     }
@@ -206,7 +214,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
                     .filter(readingFilter)
                     .map(reading -> new FilteredReading(reading, readingQualityPredicate, readingTypeMap.get(reading.getReadingTypeCode())))
                     .map(Reading.class::cast)
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
 
         @Override
@@ -216,7 +224,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
                     .filter(intervalBlockFilter)
                     .map(block -> new FilteredIntervalBlock(block, readingQualityPredicate, readingTypeMap.get(block.getReadingTypeCode())))
                     .map(IntervalBlock.class::cast)
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
 
         @Override
@@ -239,7 +247,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
 
         @Override
         public List<IntervalReading> getIntervals() {
-            return decorated.getIntervals().stream().filter(reading -> !isTouchedReading(reading)).map(ir -> new FilteredIntervalReading(ir, readingQualityPredicate)).map(IntervalReading.class::cast).collect(Collectors.toList());
+            return decorated.getIntervals().stream().map(ir -> new FilteredIntervalReading(ir, readingQualityPredicate)).map(IntervalReading.class::cast).collect(toList());
         }
 
         @Override
