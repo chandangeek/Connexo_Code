@@ -28,6 +28,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.streams.Predicates.not;
+
 public class GoingOnResource {
 
     private final ServiceCallService serviceCallService;
@@ -74,7 +76,7 @@ public class GoingOnResource {
     }
 
     private String filterFor(UsagePoint usagePoint) {
-            return "?variableid=usagePointId&variablevalue=" + usagePoint.getMRID();
+            return "?variableid=usagePointId&variablevalue=" + usagePoint.getId();
     }
 
     private final class GoingOnInfoFactory {
@@ -106,11 +108,30 @@ public class GoingOnResource {
             goingOnInfo.id = userTaskInfo.map(info -> Long.parseLong(info.id)).orElse(0L);
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
-            goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);
+            goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).filter(not(String::isEmpty)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);
             goingOnInfo.severity = severity(goingOnInfo.dueDate);
-            goingOnInfo.assignee = userTaskInfo.flatMap(info -> Optional.ofNullable(info.actualOwner)).orElse(null);
+            goingOnInfo.assignee = processInstanceInfo.startedBy;
             goingOnInfo.assigneeIsCurrentUser = userTaskInfo.flatMap(info -> Optional.ofNullable(info.isAssignedToCurrentUser)).orElse(false);
-            goingOnInfo.status = userTaskInfo.flatMap(info -> Optional.ofNullable(info.status)).orElse(null);
+            goingOnInfo.status = processInstanceInfo.status;
+            if(goingOnInfo.status != null) {
+                switch (goingOnInfo.status) {
+                    case "0":
+                        goingOnInfo.status = MessageSeeds.PROCESS_STATUS_PENDING.getDefaultFormat();
+                        break;
+                    case "1":
+                        goingOnInfo.status = MessageSeeds.PROCESS_STATUS_ACTIVE.getDefaultFormat();
+                        break;
+                    case "2":
+                        goingOnInfo.status = MessageSeeds.PROCESS_STATUS_COMPLETED.getDefaultFormat();
+                        break;
+                    case "3":
+                        goingOnInfo.status = MessageSeeds.PROCESS_STATUS_ABORTED.getDefaultFormat();
+                        break;
+                    case "4":
+                        goingOnInfo.status = MessageSeeds.PROCESS_STATUS_SUSPENDED.getDefaultFormat();
+                        break;
+                }
+            }
             return goingOnInfo;
         }
 
