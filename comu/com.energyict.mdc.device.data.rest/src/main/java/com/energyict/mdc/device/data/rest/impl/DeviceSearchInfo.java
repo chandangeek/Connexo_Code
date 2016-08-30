@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
@@ -15,7 +16,9 @@ public class DeviceSearchInfo {
     public long id;
     public String mRID;
     public String serialNumber;
+    public long deviceTypeId;
     public String deviceTypeName;
+    public long deviceConfigurationId;
     public String deviceConfigurationName;
     public String state;
     public String batch;
@@ -40,7 +43,9 @@ public class DeviceSearchInfo {
         searchInfo.id = device.getId();
         searchInfo.mRID = device.getmRID();
         searchInfo.serialNumber = device.getSerialNumber();
+        searchInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
         searchInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
+        searchInfo.deviceTypeId = device.getDeviceType().getId();
         searchInfo.deviceTypeName = device.getDeviceType().getName();
         searchInfo.state = getStateName(device.getState(), thesaurus);
         searchInfo.batch = device.getBatch().map(Batch::getName).orElse(null);
@@ -63,9 +68,8 @@ public class DeviceSearchInfo {
         searchInfo.decommissionDate = lifecycleDates.getRetiredDate().orElse(null);
         searchInfo.validationActive = getStatus(deviceValidationRetriever.isValidationActive(device), thesaurus);
         searchInfo.hasOpenDataValidationIssues = issueService.hasOpenDataValidationIssues(device);
-        searchInfo.location = device.getLocation().map(Location::toString).
-                orElse(device.getSpatialCoordinates()
-                        .map(coordinates -> coordinates.toString()).orElse(""));
+        searchInfo.location = device.getLocation().map(Location::toString)
+                .orElse(device.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(""));
         return searchInfo;
     }
 
