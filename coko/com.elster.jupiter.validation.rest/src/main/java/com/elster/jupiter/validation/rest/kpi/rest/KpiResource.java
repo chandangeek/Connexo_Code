@@ -46,7 +46,7 @@ public class KpiResource {
 
     @Inject
     public KpiResource(DataValidationKpiService dataValidationKpiService, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService,
-                       DataValidationKpiInfoFactory dataValidationKpiInfoFactory, ConcurrentModificationExceptionFactory conflictFactory){
+                       DataValidationKpiInfoFactory dataValidationKpiInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
         this.dataValidationKpiService = dataValidationKpiService;
         this.exceptionFactory = exceptionFactory;
         this.meteringGroupsService = meteringGroupsService;
@@ -102,6 +102,24 @@ public class KpiResource {
                 .map(gr -> new LongIdWithNameInfo(gr.getId(), gr.getName())).collect(Collectors.toList()), queryParameters)).build();
     }
 
+    @GET
+    @Transactional
+    @Path("/kpigroups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION})
+    public Response getDeviceGroupsWithValidationKpi(@BeanParam JsonQueryParameters queryParameters) {
+        List<EndDeviceGroup> usedGroups = dataValidationKpiService.findAllDataValidationKpis()
+                .stream()
+                .filter(kpi -> kpi.getLatestCalculation().isPresent())
+                .map(kpi -> kpi.getDeviceGroup().getId())
+                .map(meteringGroupsService::findEndDeviceGroup)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+        return Response.ok(PagedInfoList.fromPagedList("deviceGroups", usedGroups.stream()
+                .map(gr -> new LongIdWithNameInfo(gr.getId(), gr.getName())).collect(Collectors.toList()), queryParameters)).build();
+    }
+
     @DELETE
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
@@ -127,7 +145,8 @@ public class KpiResource {
 
         EndDeviceGroup endDeviceGroup = null;
         if (kpiInfo.deviceGroup != null && kpiInfo.deviceGroup.id != null) {
-            endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.deviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
+            endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.deviceGroup.id)
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
         }
         DataValidationKpiService.DataValidationKpiBuilder dataValidationKpiBuilder = dataValidationKpiService.newDataValidationKpi(endDeviceGroup);
         if (kpiInfo.frequency != null && kpiInfo.frequency.every != null && kpiInfo.frequency.every.asTimeDuration() != null) {
