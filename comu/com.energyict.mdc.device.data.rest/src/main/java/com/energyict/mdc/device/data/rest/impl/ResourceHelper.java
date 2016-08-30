@@ -616,6 +616,29 @@ public class ResourceHelper {
                 customPropertySetValues.getEffectiveRange());
     }
 
+    @SuppressWarnings("unchecked")
+    public CustomPropertySetInfo getDeviceCustomPropertySetInfoWithDefaultValues(Device device, long cpsId) {
+        RegisteredCustomPropertySet registeredCustomPropertySet = device.getDeviceType().getCustomPropertySets()
+                .stream()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(cps -> cps.getCustomPropertySet().isVersioned())
+                .filter(cps -> cps.getId() == cpsId)
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+
+        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
+        return new CustomPropertySetInfo(
+                registeredCustomPropertySet,
+                mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                        registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
+                        getCustomProperties(customPropertySetValues)),
+                device.getId(),
+                device.getVersion(),
+                device.getDeviceType().getId(),
+                device.getDeviceType().getVersion(),
+                customPropertySetValues.getEffectiveRange());
+    }
+
     public List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(Device device, long cpsId) {
         return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, Optional.empty(), device.getDeviceType()
                 .getId(), device.getDeviceType().getVersion());
