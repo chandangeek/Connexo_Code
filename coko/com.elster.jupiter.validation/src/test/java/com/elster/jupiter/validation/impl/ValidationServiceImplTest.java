@@ -244,9 +244,7 @@ public class ValidationServiceImplTest {
         when(queueTableSpec.createDestinationSpec(any(String.class), any(Integer.class))).thenReturn(destinationSpec);
         doNothing().when(destinationSpec).save();
         doNothing().when(destinationSpec).activate();
-        DestinationSpec.SubscriberSpecBuilder subscriberSpecBuilder = mock(DestinationSpec.SubscriberSpecBuilder.class);
-        when(subscriberSpecBuilder.create()).thenReturn(subscriberSpec);
-        when(destinationSpec.subscribe(any(String.class))).thenReturn(subscriberSpecBuilder);
+        when(destinationSpec.subscribe(any(String.class))).thenReturn(subscriberSpec);
         doReturn(Optional.of(cimChannel1)).when(channel1).getCimChannel(any());
         doReturn(Optional.of(cimChannel2)).when(channel2).getCimChannel(any());
         doReturn(channel1).when(cimChannel1).getChannel();

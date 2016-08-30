@@ -114,12 +114,12 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
         if (!destinationSpecOptional.isPresent()) {
             DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
             queue.activate();
-            queue.subscribe(subscriberName).create();
+            queue.subscribe(subscriberName);
         } else {
             boolean notSubscribedYet = !destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName));
             if (notSubscribedYet) {
                 destinationSpecOptional.get().activate();
-                destinationSpecOptional.get().subscribe(subscriberName).create();
+                destinationSpecOptional.get().subscribe(subscriberName);
             }
         }
     }
