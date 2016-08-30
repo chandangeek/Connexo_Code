@@ -596,21 +596,21 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.WATER_VOLUME))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, 42);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Monthly consumption m³", readingTypeMonthlyConsumption, Formula.Mode.EXPERT);
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Monthly consumption m³", readingTypeMonthlyConsumption, Formula.Mode.AUTO);
         contractBilling.addDeliverable(builder.build(builder.plus(builder.requirement(requiremenPeakConsumption), builder
                 .requirement(requirementOffPeakConsumption))));
 
     }
 
     private ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.EXPERT);
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
         return builder.build(builder.requirement(requirement));
     }
 
     private ReadingTypeDeliverable buildFormulaRequirementMax(UsagePointMetrologyConfiguration config, ReadingType readingType,
                                                               ReadingTypeRequirement requirementPlus, ReadingTypeRequirement requirementMinus, String name) {
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.EXPERT);
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
         return builder.build(builder.maximum(builder.minus(builder.requirement(requirementPlus), builder.requirement(requirementMinus)), builder
                 .constant(0)));
     }
