@@ -42,7 +42,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
             return propertySpecService
-                    .encryptedStringSpec()
+                    .encryptedHexStringSpec()
                     .named(SecurityPropertySpecName.ENCRYPTION_KEY)
                     .fromThesaurus(thesaurus)
                     .markRequired()
@@ -61,7 +61,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
             return propertySpecService
-                    .encryptedStringSpec()
+                    .encryptedHexStringSpec()
                     .named(SecurityPropertySpecName.AUTHENTICATION_KEY)
                     .fromThesaurus(thesaurus)
                     .markRequired()
@@ -196,7 +196,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
             return propertySpecService
-                    .encryptedStringSpec()
+                    .encryptedHexStringSpec()
                     .named(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER)
                     .fromThesaurus(thesaurus)
                     .finish();
@@ -215,7 +215,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
             return propertySpecService
-                    .encryptedStringSpec()
+                    .encryptedHexStringSpec()
                     .named(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER)
                     .fromThesaurus(thesaurus)
                     .finish();

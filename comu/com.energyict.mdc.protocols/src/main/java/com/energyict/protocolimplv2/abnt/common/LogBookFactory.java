@@ -142,19 +142,19 @@ public class LogBookFactory implements DeviceLogBookSupport {
     private void logBookNotSupported(CollectedLogBook deviceLogBook, ObisCode logBookObisCode) {
         deviceLogBook.setFailureInformation(
                 ResultType.NotSupported,
-                this.issueService.newWarning(deviceLogBook, MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(), logBookObisCode));
+                this.issueService.newWarning(deviceLogBook, MessageSeeds.LOGBOOK_NOT_SUPPORTED, logBookObisCode));
     }
 
     private void endDeviceEventTypeNotSupported(CollectedLogBook deviceLogBook, String endDeviceEventTypeMRID) {
         deviceLogBook.setFailureInformation(
                 ResultType.NotSupported,
-                this.issueService.newWarning(deviceLogBook, MessageSeeds.END_DEVICE_EVENT_TYPE_NOT_SUPPORTED.getKey(), endDeviceEventTypeMRID));
+                this.issueService.newWarning(deviceLogBook, MessageSeeds.END_DEVICE_EVENT_TYPE_NOT_SUPPORTED, endDeviceEventTypeMRID));
     }
 
     private void logBookParsingException(CollectedLogBook deviceLogBook) {
         deviceLogBook.setFailureInformation(
                 ResultType.InCompatible,
-                this.issueService.newProblem(deviceLogBook, MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA.getKey()));
+                this.issueService.newProblem(deviceLogBook, MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA));
     }
 
     public AbstractAbntProtocol getMeterProtocol() {

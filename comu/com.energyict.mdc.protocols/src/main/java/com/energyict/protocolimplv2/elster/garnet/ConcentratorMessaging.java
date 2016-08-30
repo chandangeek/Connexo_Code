@@ -129,19 +129,19 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
                 collectedMessage.setFailureInformation(
                         ResultType.NotSupported,
-                        this.issueService.newProblem(pendingMessage, MessageSeeds.OPERATION_NOT_SUPPORTED.getKey()));
+                        this.issueService.newProblem(pendingMessage, MessageSeeds.OPERATION_NOT_SUPPORTED));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
                 collectedMessage.setFailureInformation(
                         ResultType.ConfigurationMisMatch,
                         this.issueService.newProblem(
                                 pendingMessage,
-                                MessageSeeds.TOPOLOGY_MISMATCH.getKey(),
+                                MessageSeeds.TOPOLOGY_MISMATCH,
                                 deviceProtocol.getSerialNumber()));
             } else {
-                collectedMessage.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(pendingMessage, MessageSeeds.COULD_NOT_PARSE_MESSAGE_DATA.getKey()));
+                collectedMessage.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(pendingMessage, MessageSeeds.COULD_NOT_PARSE_MESSAGE_DATA));
             }
         } catch (GarnetException e) {
-            collectedMessage.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(pendingMessage, MessageSeeds.COULD_NOT_PARSE_MESSAGE_DATA.getKey()));
+            collectedMessage.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(pendingMessage, MessageSeeds.COULD_NOT_PARSE_MESSAGE_DATA));
         }
         return collectedMessage;
     }
@@ -202,7 +202,7 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
         return this.issueService.newWarning(
                 pendingMessage,
-                MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED.getKey(),
+                MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED,
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
@@ -211,7 +211,7 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
         return this.issueService.newWarning(
                 pendingMessage,
-                MessageSeeds.DEVICEMESSAGE_FAILED.getKey(),
+                MessageSeeds.DEVICEMESSAGE_FAILED,
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),

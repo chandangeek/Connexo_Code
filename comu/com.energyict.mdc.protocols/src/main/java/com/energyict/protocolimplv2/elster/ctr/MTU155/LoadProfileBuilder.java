@@ -193,7 +193,7 @@ public class LoadProfileBuilder {
                     } catch (IOException e) {   // A non-blocking issue occurred during readout of this loadProfile, but it is still possible to read out the other loadProfiles.
                         collectedLoadProfile.setFailureInformation(
                                 ResultType.InCompatible,
-                                this.issueService.newProblem(lpr, com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_CHANNEL_ISSUE.getKey(), lpr.getProfileObisCode(), e));
+                                this.issueService.newProblem(lpr, com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_CHANNEL_ISSUE, lpr.getProfileObisCode(), e));
                         collectedIntervalData.clear();
                         break;
                     }
@@ -203,7 +203,7 @@ public class LoadProfileBuilder {
                 collectedLoadProfileList.add(collectedLoadProfile);
             } else {
                 CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(lpr.getLoadProfileIdentifier());
-                Issue problem = this.issueService.newWarning(lpr, com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_NOT_SUPPORTED.getKey(), lpr.getProfileObisCode());
+                Issue problem = this.issueService.newWarning(lpr, com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_NOT_SUPPORTED, lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
                 collectedLoadProfileList.add(collectedLoadProfile);
             }

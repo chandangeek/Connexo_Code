@@ -68,7 +68,7 @@ public class G3GatewayEvents {
                                 ResultType.NotSupported,
                                 this.issueService.newWarning(
                                         logBook,
-                                        MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                        MessageSeeds.LOGBOOK_NOT_SUPPORTED,
                                         logBook.getLogBookObisCode().toString()));
                     }
                 }
@@ -77,7 +77,7 @@ public class G3GatewayEvents {
                         ResultType.NotSupported,
                         this.issueService.newWarning(
                                 logBook,
-                                MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                MessageSeeds.LOGBOOK_NOT_SUPPORTED,
                                 logBook.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);

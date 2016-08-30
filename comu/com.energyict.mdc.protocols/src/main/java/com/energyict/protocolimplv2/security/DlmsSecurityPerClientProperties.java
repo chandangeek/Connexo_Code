@@ -280,7 +280,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
             return propertySpecService
-                    .encryptedStringSpec()
+                    .encryptedHexStringSpec()
                     .named(this.propertySpecName)
                     .fromThesaurus(thesaurus)
                     .markRequired()

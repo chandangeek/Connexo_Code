@@ -120,7 +120,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
         } catch (ParsingException e) {
             collectedRegister.setFailureInformation(
                     ResultType.InCompatible,
-                    this.issueService.newProblem(collectedRegister, com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_REGISTER_DATA.getKey()));
+                    this.issueService.newProblem(collectedRegister, com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_REGISTER_DATA));
         }
     }
 
@@ -357,7 +357,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 ResultType.NotSupported,
                 this.issueService.newWarning(
                         register,
-                        com.energyict.mdc.protocol.api.MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(),
+                        com.energyict.mdc.protocol.api.MessageSeeds.REGISTER_NOT_SUPPORTED,
                         register.getObisCode()));
     }
 

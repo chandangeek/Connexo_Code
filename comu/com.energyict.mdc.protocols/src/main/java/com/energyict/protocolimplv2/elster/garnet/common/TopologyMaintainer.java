@@ -53,20 +53,20 @@ public class TopologyMaintainer implements DeviceTopologySupport {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
                 collectedTopology.setFailureInformation(
                         ResultType.NotSupported,
-                        this.issueService.newWarning(getMasterDevice(), MessageSeeds.COMMAND_NOT_SUPPORTED.getKey()));
+                        this.issueService.newWarning(getMasterDevice(), MessageSeeds.COMMAND_NOT_SUPPORTED));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
                 collectedTopology.setFailureInformation(
                         ResultType.ConfigurationMisMatch,
-                        this.issueService.newWarning(getMasterDevice(), MessageSeeds.TOPOLOGY_MISMATCH.getKey()));
+                        this.issueService.newWarning(getMasterDevice(), MessageSeeds.TOPOLOGY_MISMATCH));
             } else {
                 collectedTopology.setFailureInformation(
                         ResultType.InCompatible,
-                        this.issueService.newProblem(getMasterDevice(), MessageSeeds.COULD_NOT_PARSE_TOPOLOGY_DATA.getKey()));
+                        this.issueService.newProblem(getMasterDevice(), MessageSeeds.COULD_NOT_PARSE_TOPOLOGY_DATA));
             }
         } catch (GarnetException e) {
             collectedTopology.setFailureInformation(
                     ResultType.InCompatible,
-                    this.issueService.newProblem(getMasterDevice(), MessageSeeds.COULD_NOT_PARSE_TOPOLOGY_DATA.getKey()));
+                    this.issueService.newProblem(getMasterDevice(), MessageSeeds.COULD_NOT_PARSE_TOPOLOGY_DATA));
         }
         return collectedTopology;
     }

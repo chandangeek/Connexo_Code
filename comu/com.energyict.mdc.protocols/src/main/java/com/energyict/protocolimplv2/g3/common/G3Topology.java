@@ -59,7 +59,7 @@ public abstract class G3Topology {
                     ((BigDecimal) g3Properties.getProperties().getProperty(G3Properties.G3_SHORT_ADDRESS_PROP_NAME)).intValue(),
                     ((BigDecimal) g3Properties.getProperties().getProperty(G3Properties.G3_LOGICAL_DEVICE_ID_PROP_NAME)).intValue());
         } catch (IOException e) {
-            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(MessageSeeds.FAILED_IPv6_SETUP.getKey(), e.getMessage()));
+            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(deviceTopology, MessageSeeds.FAILED_IPv6_SETUP, e.getMessage()));
         }
     }
 
@@ -99,7 +99,7 @@ public abstract class G3Topology {
                 }
             }
         } catch (IOException e) {
-            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(MessageSeeds.FAILED_PLC_OFDM_TYPE2MAC_SETUP.getKey(), e.getMessage()));
+            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(deviceTopology, MessageSeeds.FAILED_PLC_OFDM_TYPE2MAC_SETUP, e.getMessage()));
         }
     }
 
@@ -126,7 +126,7 @@ public abstract class G3Topology {
                 }
             }
         } catch (IOException e) {
-            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(MessageSeeds.FAILED_SIX_LOW_PAN_ADAPTATION_LAYER_SETUP.getKey(), e.getMessage()));
+            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(deviceTopology, MessageSeeds.FAILED_SIX_LOW_PAN_ADAPTATION_LAYER_SETUP, e.getMessage()));
         }
     }
 
@@ -144,7 +144,7 @@ public abstract class G3Topology {
                 }
             }
         } catch (IOException e) {
-            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(MessageSeeds.FAILED_G3_NETWORK_MANAGEMENT.getKey(), e.getMessage()));
+            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(deviceTopology, MessageSeeds.FAILED_G3_NETWORK_MANAGEMENT, e.getMessage()));
         }
     }
 
@@ -153,7 +153,7 @@ public abstract class G3Topology {
         try {
             sapAssignmentList = this.getDlmsSession().getCosemObjectFactory().getSAPAssignment().getSapAssignmentList();
         } catch (IOException e) {
-            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(MessageSeeds.FAILED_SAP_ASSIGNMENT.getKey(), e.getMessage()));
+            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(deviceTopology, MessageSeeds.FAILED_SAP_ASSIGNMENT, e.getMessage()));
         }
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
             if (!isGatewayNode(sapAssignmentItem)) {
@@ -228,7 +228,7 @@ public abstract class G3Topology {
             }
 
         } catch (IOException e) {
-            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(MessageSeeds.FAILED_G3_NETWORK_MANAGEMENT.getKey(), e.getMessage()));
+            deviceTopology.setFailureInformation(ResultType.Supported, issueService.newWarning(deviceTopology, MessageSeeds.FAILED_G3_NETWORK_MANAGEMENT, e.getMessage()));
         }
         return deviceTopology;
     }

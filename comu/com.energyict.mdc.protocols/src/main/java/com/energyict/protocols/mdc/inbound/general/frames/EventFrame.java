@@ -73,7 +73,7 @@ public class EventFrame extends AbstractInboundFrame {
                                 ResultType.NotSupported,
                                 this.getIssueService().newWarning(
                                         deviceLogBook,
-                                        MessageSeeds.END_DEVICE_EVENT_TYPE_NOT_SUPPORTED.getKey(),
+                                        MessageSeeds.END_DEVICE_EVENT_TYPE_NOT_SUPPORTED,
                                         EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID()));
                     }
                 }

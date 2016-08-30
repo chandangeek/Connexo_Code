@@ -83,6 +83,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     private final IssueService issueService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final CollectedDataFactory collectedDataFactory;
+    private final boolean isIgnoreDSTStatusCode;
 
     /**
      * Keeps track of the link between a {@link LoadProfileReader} and a {@link ComposedProfileConfig}
@@ -128,11 +129,16 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     private final boolean supportsBulkRequests;
 
     public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, boolean supportsBulkRequests) {
+        this(meterProtocol, issueService, readingTypeUtilService, collectedDataFactory, supportsBulkRequests, false);
+    }
+
+    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, boolean supportsBulkRequests, boolean isIgnoreDSTStatusCode) {
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.collectedDataFactory = collectedDataFactory;
         this.supportsBulkRequests = supportsBulkRequests;
+        this.isIgnoreDSTStatusCode = isIgnoreDSTStatusCode;
     }
 
     /**
@@ -487,7 +493,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     toCalendar.setTimeInMillis(lpr.getEndReadingTime().toEpochMilli());
 
                     DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask,
-                            this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), new DSMRProfileIntervalStatusBits());
+                            this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), new DSMRProfileIntervalStatusBits(isIgnoreDSTStatusCode));
                     List<IntervalData> collectedIntervalData = intervals.parseIntervals(lpc.getProfileInterval());
 
                     collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);

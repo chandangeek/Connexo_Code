@@ -306,7 +306,6 @@ public class MTU155 implements DeviceProtocol {
                 ResultType.NotSupported,
                 getIssueService().newWarning(
                         getOfflineDevice(),
-                        this.thesaurus,
                         com.energyict.mdc.protocol.api.MessageSeeds.DEVICETOPOLOGY_NOT_SUPPORTED));
         return deviceTopology;
     }
@@ -410,7 +409,6 @@ public class MTU155 implements DeviceProtocol {
                             ResultType.InCompatible,
                             getIssueService().newProblem(
                                     logBook,
-                                    this.thesaurus,
                                     com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_ISSUE,
                                     logBook.getLogBookObisCode(), e));
                 }
@@ -421,7 +419,6 @@ public class MTU155 implements DeviceProtocol {
                         ResultType.NotSupported,
                         getIssueService().newWarning(
                                 logBook,
-                                this.thesaurus,
                                 com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED,
                                 logBook.getLogBookObisCode()));
                 collectedLogBooks.add(collectedLogBook);

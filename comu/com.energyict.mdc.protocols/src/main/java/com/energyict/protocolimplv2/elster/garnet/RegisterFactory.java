@@ -337,19 +337,19 @@ public class RegisterFactory implements DeviceRegisterSupport {
 
     private CollectedRegister createNotSupportedCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register, MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(), register.getObisCode()));
+        failedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register, MessageSeeds.REGISTER_NOT_SUPPORTED, register.getObisCode()));
         return failedRegister;
     }
 
     private CollectedRegister createTopologyMisMatchCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, this.issueService.newWarning(register, MessageSeeds.TOPOLOGY_MISMATCH.getKey()));
+        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, this.issueService.newWarning(register, MessageSeeds.TOPOLOGY_MISMATCH));
         return failedRegister;
     }
 
     private CollectedRegister createCouldNotParseCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(register, MessageSeeds.COULD_NOT_PARSE_REGISTER_DATA.getKey()));
+        failedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(register, MessageSeeds.COULD_NOT_PARSE_REGISTER_DATA));
         return failedRegister;
     }
 

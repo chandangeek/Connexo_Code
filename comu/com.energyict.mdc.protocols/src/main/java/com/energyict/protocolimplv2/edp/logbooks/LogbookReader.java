@@ -85,7 +85,7 @@ public class LogbookReader implements DeviceLogBookSupport {
                                 ResultType.NotSupported,
                                 this.issueService.newWarning(
                                         logBookReader,
-                                        com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                        com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED,
                                         logBookReader.getLogBookObisCode().toString()));
                     }
                 }
@@ -94,7 +94,7 @@ public class LogbookReader implements DeviceLogBookSupport {
                         ResultType.NotSupported,
                         this.issueService.newWarning(
                                 logBookReader,
-                                com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED,
                                 logBookReader.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
