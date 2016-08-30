@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.configuration.rest;
 
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.energyict.mdc.device.configuration.rest.impl.DeviceConfigurationInfo;
 
 import java.util.List;

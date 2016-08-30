@@ -1,10 +1,23 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.calendar.rest.impl.CalendarInfoFactoryImpl;
-import com.elster.jupiter.cbo.*;
-import com.elster.jupiter.cps.*;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.kpi.KpiService;
@@ -14,6 +27,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
@@ -27,15 +41,16 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
-
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -78,6 +93,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     CustomPropertySetService customPropertySetService;
     @Mock
     CalendarService calendarService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
     @Before
     public void setup() {
@@ -114,6 +131,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setCustomPropertySetService(customPropertySetService);
         application.setCalendarInfoFactory(new CalendarInfoFactoryImpl(thesaurus));
         application.setCalendarService(calendarService);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 
