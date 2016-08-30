@@ -41,7 +41,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -244,11 +243,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final MeteringService meteringService;
-    private final MetrologyConfigurationService metrologyConfigurationService;
     private final ValidationService validationService;
     private final SecurityPropertyService securityPropertyService;
     private final MeteringGroupsService meteringGroupsService;
     private final CustomPropertySetService customPropertySetService;
+    private final ServerDeviceService deviceService;
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -337,7 +336,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Thesaurus thesaurus,
             Clock clock,
             MeteringService meteringService,
-            MetrologyConfigurationService metrologyConfigurationService,
             ValidationService validationService,
             SecurityPropertyService securityPropertyService,
             Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
@@ -351,14 +349,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             MdcReadingTypeUtilService readingTypeUtilService,
             ThreadPrincipalService threadPrincipalService,
             UserPreferencesService userPreferencesService,
-            DeviceConfigurationService deviceConfigurationService) {
+            DeviceConfigurationService deviceConfigurationService, ServerDeviceService deviceService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.meteringService = meteringService;
-        this.metrologyConfigurationService = metrologyConfigurationService;
         this.validationService = validationService;
         this.securityPropertyService = securityPropertyService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
@@ -373,8 +370,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.threadPrincipalService = threadPrincipalService;
         this.userPreferencesService = userPreferencesService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceService = deviceService;
         // Helper to get activation info... from 'Kore'
-        this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.meteringService, this.readingTypeUtilService, clock, this.eventService);
+        this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.deviceService, this.readingTypeUtilService, clock, this.eventService);
         this.koreHelper.syncWithKore(this);
     }
 
@@ -464,7 +462,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
 
             //All actions to take to sync with Kore once a Device is created
-            syncsWithKore.add(new SynchNewDeviceWithKore(this, koreHelper.getInitialMeterActivationStartDate(), meteringService, readingTypeUtilService, clock, eventService));
+            syncsWithKore.add(new SynchNewDeviceWithKore(this, koreHelper.getInitialMeterActivationStartDate(), deviceService, readingTypeUtilService, clock, eventService));
 
             this.saveNewDialectProperties();
             this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
@@ -502,7 +500,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void setLocation(Location location) {
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
-        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, meteringService, readingTypeUtilService, eventService);
+        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, deviceService, readingTypeUtilService, eventService);
         if (!currentKoreUpdater.isPresent()) {
             syncsWithKore.add(koreUpdater);
         } else {
@@ -523,7 +521,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
-        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, meteringService, readingTypeUtilService, eventService);
+        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, deviceService, readingTypeUtilService, eventService);
         if (!currentKoreUpdater.isPresent()) {
             syncsWithKore.add(koreUpdater);
         } else {
@@ -602,7 +600,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private void saveDialectProperties(List<ProtocolDialectPropertiesImpl> dialectProperties) {
-        dialectProperties.stream().forEach(ProtocolDialectPropertiesImpl::save);
+        dialectProperties.forEach(ProtocolDialectPropertiesImpl::save);
     }
 
     private void notifyUpdated() {
@@ -643,7 +641,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         deleteDeviceMessages();
         deleteSecuritySettings();
         removeDeviceFromStaticGroups();
-        new SyncDeviceWithKoreForRemoval(this, meteringService, readingTypeUtilService, clock, eventService).syncWithKore(this);
+        new SyncDeviceWithKoreForRemoval(this, deviceService, readingTypeUtilService, clock, eventService).syncWithKore(this);
         koreHelper.deactivateMeter(clock.instant());
         this.clearPassiveCalendar();
         this.readingTypeObisCodeUsages.clear();
@@ -684,7 +682,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private void removeDeviceFromStaticGroups() {
         if (this.meter.isPresent()) {
             if (findMdcAmrSystem().isPresent()) {
-                this.meteringGroupsService.findEnumeratedEndDeviceGroupsContaining(this.meter.get()).stream()
+                this.meteringGroupsService
+                        .findEnumeratedEndDeviceGroupsContaining(this.meter.get())
                         .forEach(enumeratedEndDeviceGroup -> removeDeviceFromGroup(enumeratedEndDeviceGroup, this.meter.get()));
             }
         }
@@ -703,13 +702,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.issueService
                 .findStatus(IssueStatus.WONT_FIX)
                 .ifPresent(this::wontFixOpenIssues);
-        getListMeterAspect(this::getAllHistoricalIssuesForMeter).stream().forEach(Issue::delete);
+        getListMeterAspect(this::getAllHistoricalIssuesForMeter).forEach(Issue::delete);
     }
 
     private void wontFixOpenIssues(IssueStatus issueStatus) {
-        this.getOpenIssues()
-                .stream()
-                .forEach(openIssue -> openIssue.close(issueStatus));
+        this.getOpenIssues().forEach(openIssue -> openIssue.close(issueStatus));
     }
 
     private void deleteSecuritySettings() {
@@ -726,7 +723,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private void deleteDeviceMessages() {
-        getMessages().stream().forEach(DeviceMessage::delete);
+        getMessages().forEach(DeviceMessage::delete);
     }
 
     private void deleteLogBooks() {
@@ -865,8 +862,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Instant now = clock.instant();
             Optional<Instant> startDateMultiplier = from == null ? Optional.of(now) : Optional.of(from);
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
-            SynchDeviceWithKoreForMultiplierChange multiplierChange = new SynchDeviceWithKoreForMultiplierChange(this, startDateMultiplier
-                    .get(), multiplier, meteringService, readingTypeUtilService, eventService);
+            SynchDeviceWithKoreForMultiplierChange multiplierChange =
+                    new SynchDeviceWithKoreForMultiplierChange(
+                            this,
+                            startDateMultiplier.get(),
+                            multiplier,
+                            deviceService, readingTypeUtilService, eventService);
             //All actions to take to sync with Kore once a Device is created
             syncsWithKore.add(multiplierChange);
         }
@@ -991,15 +992,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
-
-        protected LogBookUpdaterForDevice(LogBookImpl logBook) {
+        LogBookUpdaterForDevice(LogBookImpl logBook) {
             super(logBook);
         }
     }
 
     class LoadProfileUpdaterForDevice extends LoadProfileImpl.LoadProfileUpdater {
 
-        protected LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
+        LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
             super(loadProfile);
         }
 
@@ -1035,7 +1035,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.getCurrentMeterActivation()
                 .ifPresent(meterActivation -> meterActivation.getUsagePoint()
                         .ifPresent(usagePoint -> {
-                            Map unsatisfiedRequirements = getUnsatisfiedRequirements(usagePoint, clock.instant(), destinationDeviceConfiguration);
+                            Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = getUnsatisfiedRequirements(usagePoint, clock.instant(), destinationDeviceConfiguration);
                             if (!unsatisfiedRequirements.isEmpty()) {
                                 throw DeviceConfigurationChangeException.unsatisfiedRequirements(thesaurus, this, destinationDeviceConfiguration, unsatisfiedRequirements);
                             }
@@ -1059,7 +1059,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void setNewDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         this.deviceConfiguration.set(deviceConfiguration);
-        SynchDeviceWithKoreForConfigurationChange multiplierChange = new SynchDeviceWithKoreForConfigurationChange(this, meteringService, readingTypeUtilService, clock, eventService);
+        SynchDeviceWithKoreForConfigurationChange multiplierChange = new SynchDeviceWithKoreForConfigurationChange(this, deviceService, readingTypeUtilService, clock, eventService);
         //All actions to take to sync with Kore once a Device is created
         syncsWithKore.add(multiplierChange);
     }
@@ -1105,7 +1105,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).deleteSecurityPropertiesFor(this, securityPropertySet);
     }
 
-    public Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
+    Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
         Optional<MeterConfiguration> configuration = Optional.empty();
         if (this.meter.isPresent()) {
             configuration = this.meter.get().getConfiguration(timeStamp);
@@ -1125,7 +1125,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return Optional.empty();
     }
 
-    public Optional<MeterReadingTypeConfiguration> getMeterReadingTypeConfigurationFor(ReadingType readingType) {
+    Optional<MeterReadingTypeConfiguration> getMeterReadingTypeConfigurationFor(ReadingType readingType) {
         if (this.meter.isPresent()) {
             Optional<MeterConfiguration> configuration = this.meter.get().getConfiguration(clock.instant());
             if (configuration.isPresent()) {
@@ -1709,7 +1709,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public MeterActivation activate(Instant start, UsagePoint usagePoint) {
-        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(this, start, usagePoint, meteringService, readingTypeUtilService, deviceConfigurationService, thesaurus, userPreferencesService, threadPrincipalService, eventService);
+        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(this, start, usagePoint, deviceService, readingTypeUtilService, thesaurus, userPreferencesService, threadPrincipalService, eventService);
         //All actions to take to sync with Kore once a Device is created
         usagePointChange.syncWithKore(this);
         return getCurrentMeterActivation().get();
@@ -1878,7 +1878,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    public DataMapper<DeviceImpl> getDataMapper() {
+    private DataMapper<DeviceImpl> getDataMapper() {
         return this.dataModel.mapper(DeviceImpl.class);
     }
 
@@ -2698,12 +2698,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public Channel.ChannelUpdater getChannelUpdaterFor(Channel channel) {
-        return new ChannelUpdaterImpl(this.meteringService, this.readingTypeUtilService, this.clock, channel, eventService);
+        return new ChannelUpdaterImpl(this.deviceService, this.readingTypeUtilService, this.clock, channel, eventService);
     }
 
     @Override
     public Register.RegisterUpdater getRegisterUpdaterFor(Register register) {
-        return new RegisterUpdaterImpl(this.meteringService, this.readingTypeUtilService, this.clock, eventService, register);
+        return new RegisterUpdaterImpl(this.deviceService, this.readingTypeUtilService, this.clock, eventService, register);
     }
 
     private class CIMLifecycleDatesImpl implements CIMLifecycleDates {

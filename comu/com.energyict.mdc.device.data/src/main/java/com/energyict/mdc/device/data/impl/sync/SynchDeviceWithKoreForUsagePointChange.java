@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.sync;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -11,12 +10,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.exceptions.MeterActivationTimestampNotAfterLastActivationException;
 import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
 import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.ServerDevice;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.time.Instant;
@@ -33,19 +32,17 @@ public class SynchDeviceWithKoreForUsagePointChange extends AbstractSyncDeviceWi
 
     private ServerDevice device;
     private UsagePoint usagePoint;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final Thesaurus thesaurus;
     private final UserPreferencesService userPreferencesService;
     private final ThreadPrincipalService threadPrincipalService;
 
-    public SynchDeviceWithKoreForUsagePointChange(ServerDevice device, Instant start, UsagePoint usagePoint, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, UserPreferencesService userPreferencesService, ThreadPrincipalService threadPrincipalService, EventService eventService) {
-        super(meteringService, readingTypeUtilService, eventService, (start == null ? device.getKoreHelper()
+    public SynchDeviceWithKoreForUsagePointChange(ServerDevice device, Instant start, UsagePoint usagePoint, ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, UserPreferencesService userPreferencesService, ThreadPrincipalService threadPrincipalService, EventService eventService) {
+        super(deviceService, readingTypeUtilService, eventService, (start == null ? device.getKoreHelper()
                 .getCurrentMeterActivation()
                 .get()
                 .getStart() : start));
         this.device = device;
         this.usagePoint = usagePoint;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
         this.userPreferencesService = userPreferencesService;
         this.threadPrincipalService = threadPrincipalService;

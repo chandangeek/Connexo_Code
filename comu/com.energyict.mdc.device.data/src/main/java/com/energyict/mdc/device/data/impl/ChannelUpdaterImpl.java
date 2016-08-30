@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Channel;
@@ -10,6 +9,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -20,7 +20,7 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
 
     private final Channel channel;
     private final EventService eventService;
-    private final MeteringService meteringService;
+    private final ServerDeviceService deviceService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final Clock clock;
 
@@ -28,8 +28,8 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
     private BigDecimal overruledOverflowValue;
     private ObisCode overruledObisCode;
 
-    ChannelUpdaterImpl(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, Channel channel, EventService eventService) {
-        this.meteringService = meteringService;
+    ChannelUpdaterImpl(ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, Channel channel, EventService eventService) {
+        this.deviceService = deviceService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.clock = clock;
         this.channel = channel;
@@ -73,15 +73,29 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
     @Override
     public void update() {
         DeviceImpl device = (DeviceImpl) channel.getDevice();
-        if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null) {
-            device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock, eventService)
+        if (numberOfFractionDigitsHasChanged() || overflowValueHasChanged()) {
+            device.syncWithKore(new KoreMeterConfigurationUpdater(this.deviceService, this.readingTypeUtilService, this.clock, eventService)
                     .withChannelUpdater(this));
             device.executeSyncs();
         }
-        if (this.overruledObisCode != null) {
+        if (obisCodeHasChanged()) {
             new DeviceObisCodeUsageUpdater().update(device, getReadingType(), overruledObisCode);
         }
         device.validateForUpdate();
         device.postSave();
+    }
+
+    private boolean numberOfFractionDigitsHasChanged() {
+        return this.overruledNbrOfFractionDigits != null
+                && this.channel.getNrOfFractionDigits() != this.overruledNbrOfFractionDigits;
+    }
+
+    private boolean overflowValueHasChanged() {
+        return this.overruledOverflowValue != null
+                && !this.channel.getOverflow().equals(Optional.ofNullable(this.overruledOverflowValue));
+    }
+
+    private boolean obisCodeHasChanged() {
+        return !this.channel.getObisCode().equals(this.overruledObisCode);
     }
 }

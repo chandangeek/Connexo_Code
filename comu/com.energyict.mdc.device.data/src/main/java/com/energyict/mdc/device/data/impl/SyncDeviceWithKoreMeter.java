@@ -26,5 +26,4 @@ public interface SyncDeviceWithKoreMeter {
      */
     boolean canUpdateCurrentMeterActivation();
 
-
 }

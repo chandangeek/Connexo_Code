@@ -2,9 +2,9 @@ package com.energyict.mdc.device.data.impl.sync;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.ServerDevice;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.math.BigDecimal;
@@ -19,8 +19,8 @@ public class SynchDeviceWithKoreForMultiplierChange extends AbstractSyncDeviceWi
     private ServerDevice device;
     private BigDecimal multiplier;
 
-    public SynchDeviceWithKoreForMultiplierChange(ServerDevice device, Instant start, BigDecimal multiplier, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService) {
-        super(meteringService, readingTypeUtilService, eventService, start);
+    public SynchDeviceWithKoreForMultiplierChange(ServerDevice device, Instant start, BigDecimal multiplier, ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService) {
+        super(deviceService, readingTypeUtilService, eventService, start);
         this.device = device;
         this.multiplier = multiplier;
     }
