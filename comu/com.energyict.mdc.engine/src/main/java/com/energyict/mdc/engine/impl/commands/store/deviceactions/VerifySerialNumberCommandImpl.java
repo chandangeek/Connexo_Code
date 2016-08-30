@@ -44,12 +44,12 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
         if (!(MeterProtocolAdapter.class.isAssignableFrom(deviceProtocol.getClass()))) {
             String meterSerialNumber = deviceProtocol.getSerialNumber();
             if (meterSerialNumber == null) {
-                addIssue(getIssueService().newWarning(deviceProtocol, getCommandRoot().getServiceProvider().thesaurus(), MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, offlineDevice.getSerialNumber(), deviceProtocol.getClass().getSimpleName()), CompletionCode.ConfigurationWarning);
+                addIssue(getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, offlineDevice.getSerialNumber(), deviceProtocol.getClass().getSimpleName()), CompletionCode.ConfigurationWarning);
             } else if (!meterSerialNumber.equals(offlineDevice.getSerialNumber())) {
-                addIssue(getIssueService().newProblem(getCommandType(), getCommandRoot().getServiceProvider().thesaurus(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH, meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
+                addIssue(getIssueService().newProblem(getCommandType(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH, meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
             }
         } else {
-            addIssue(getIssueService().newWarning(deviceProtocol, getCommandRoot().getServiceProvider().thesaurus(), MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, offlineDevice.getSerialNumber(), deviceProtocol.getClass().getSimpleName()), CompletionCode.ConfigurationWarning);
+            addIssue(getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, offlineDevice.getSerialNumber(), deviceProtocol.getClass().getSimpleName()), CompletionCode.ConfigurationWarning);
         }
     }
 

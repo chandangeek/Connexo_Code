@@ -91,13 +91,13 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                         if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.NUMBER_OF_RETRIES_REACHED_CONNECTION_STILL_INTACT) {
                             //A special case applicable for physical slaves that have the same gateway (and thus connection task)
                             //It is a common timeout (we did not receive the response of the slave device in time), but the connection is still intact. Other physical slaves can still use it.
-                            addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, getServiceProvider().thesaurus(), MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.TimeoutError);
+                            addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.TimeoutError);
                             getGroupedDeviceCommand().skipOtherComTaskExecutions();
                         } else if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.UNEXPECTED_PROTOCOL_ERROR
                                 || e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.CIPHERING_EXCEPTION) {
                             //Problem in the application layer of the protocol, specific for the current physical slave. The next physical slaves can still be read out.
                             //For example: invalid frame counter, decryption failure, empty object list, etc.
-                            addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, getServiceProvider().thesaurus(), MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.UnexpectedError);
+                            addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.UnexpectedError);
                             getGroupedDeviceCommand().skipOtherComTaskExecutions();
                         } else {
                             //Any other ConnectionCommunicationException means that the connection is broken/closed and can no longer be used.
@@ -108,22 +108,22 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                     } else if (e instanceof ConnectionSetupException || e instanceof ModemException) {
                         connectionErrorOccurred(deviceProtocol, e);
                     } else {
-                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, getServiceProvider().thesaurus(), MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ProtocolError);
+                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ProtocolError);
                     }
                     executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
 
                 } catch (DataParseException e) {
-                    addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, getServiceProvider().thesaurus(), MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ProtocolError);
+                    addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ProtocolError);
                     executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
                 } catch (DeviceConfigurationException | CanNotFindForIdentifier | DuplicateException e) {
-                    addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, getServiceProvider().thesaurus(), MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ConfigurationError);
+                    addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage()), CompletionCode.ConfigurationError);
                     executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
 
                 } catch (LegacyProtocolException e) {
                     if (isExceptionCausedByALegacyTimeout(e)) {
                         connectionErrorOccurred(deviceProtocol, e);
                     } else {
-                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, getServiceProvider().thesaurus(), MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e, getCommunicationLogLevel(executionContext))), CompletionCode.UnexpectedError);
+                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e, getCommunicationLogLevel(executionContext))), CompletionCode.UnexpectedError);
                     }
                     getGroupedDeviceCommand().skipOtherComTaskExecutions();
                     executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getmRID());
@@ -160,7 +160,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     private void connectionErrorOccurred(DeviceProtocol deviceProtocol, Throwable e) {
-        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, getServiceProvider().thesaurus(), MessageSeeds.COMMAND_FAILED_DUE_TO_CONNECTION_RELATED_ISSUE, e.getLocalizedMessage()), CompletionCode.ConnectionError);
+        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.COMMAND_FAILED_DUE_TO_CONNECTION_RELATED_ISSUE, e.getLocalizedMessage()), CompletionCode.ConnectionError);
         groupedDeviceCommand.connectionErrorOccurred();
     }
 

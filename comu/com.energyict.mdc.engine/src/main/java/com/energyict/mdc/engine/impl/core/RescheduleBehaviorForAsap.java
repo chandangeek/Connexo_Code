@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -52,7 +51,7 @@ import java.util.Set;
 class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements RescheduleBehavior {
 
     RescheduleBehaviorForAsap(ComServerDAO comServerDAO,
-                                        ConnectionTask connectionTask, Clock clock) {
+                              ConnectionTask connectionTask, Clock clock) {
         super(comServerDAO, connectionTask, clock);
     }
 
@@ -97,7 +96,7 @@ class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements Re
         }
     }
 
-    private void rescheduleForConnectionError(CommandRoot commandRoot) {
+    protected void rescheduleForConnectionError(CommandRoot commandRoot) {
         retryConnectionTask();
         for (GroupedDeviceCommand groupedDeviceCommand : commandRoot) {
             Instant connectionTaskRetryNextExecution = null;

@@ -57,36 +57,8 @@ import java.util.*;
  */
 public class ComServerDAOImpl implements ComServerDAO {
 
-    public interface ServiceProvider {
-
-        Clock clock();
-
-        Thesaurus thesaurus();
-
-        EngineConfigurationService engineConfigurationService();
-
-        ConnectionTaskService connectionTaskService();
-
-        CommunicationTaskService communicationTaskService();
-
-        DeviceService deviceService();
-
-        TopologyService topologyService();
-
-        EngineService engineService();
-
-        TransactionService transactionService();
-
-        EventService eventService();
-
-        IdentificationService identificationService();
-
-        FirmwareService firmwareService();
-    }
-
     private final ServiceProvider serviceProvider;
     private ServerProcessStatus status = ServerProcessStatus.STARTING;
-
     public ComServerDAOImpl(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
     }
@@ -143,30 +115,6 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ComServer getComServer(String systemName) {
         return this.getEngineModelService().findComServer(systemName).orElse(null);
-    }
-
-    private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
-
-        @Override
-        public Thesaurus thesaurus() {
-            return serviceProvider.thesaurus();
-        }
-
-        @Override
-        public TopologyService topologyService() {
-            return serviceProvider.topologyService();
-        }
-
-        @Override
-        public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
-            return serviceProvider.engineService().findDeviceCacheByDevice(device);
-        }
-
-        @Override
-        public IdentificationService identificationService() {
-            return serviceProvider.identificationService();
-        }
-
     }
 
     @Override
@@ -319,7 +267,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         deviceById.setProtocolProperty(propertyName, propertyValue);
         deviceById.save();
     }
-
 
     @Override
     public void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
@@ -626,7 +573,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device The Device
+     * @param device         The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */
@@ -837,42 +784,42 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<Pair<OfflineLoadProfile,Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID , Range<Instant> dataPeriod) {
+    public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
         final Device dataLogger = (Device) offlineLoadProfile.getDeviceIdentifier().findDevice();
-        if (dataLogger != null){
-            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
+        if (dataLogger != null) {
+            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
                 Optional<Channel> dataLoggerChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
-                if (dataLoggerChannel.isPresent()){
+                if (dataLoggerChannel.isPresent()) {
                     List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.serviceProvider.topologyService().findDataLoggerChannelUsagesForChannels(dataLoggerChannel.get(), dataPeriod);
-                    List<Pair<OfflineLoadProfile,Range<Instant>>> linkedOffLineLoadProfiles = new ArrayList<>();
+                    List<Pair<OfflineLoadProfile, Range<Instant>>> linkedOffLineLoadProfiles = new ArrayList<>();
                     // 'linked' periods
-                    if (!dataLoggerChannelUsages.isEmpty()){
+                    if (!dataLoggerChannelUsages.isEmpty()) {
                         dataLoggerChannelUsages.forEach(usage -> {
                             Device slave = usage.getDataLoggerReference().getOrigin();
                             List<? extends ReadingType> slaveChannelReadingTypes = usage.getSlaveChannel().getReadingTypes();
                             Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> slaveChannelReadingTypes.contains(c.getReadingType())).findFirst();
                             if (slaveChannel.isPresent()) {
-                               OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get().getLoadProfile(), this.serviceProvider.topologyService(),this.serviceProvider.identificationService()){
-                                   protected void goOffline() {
-                                       super.goOffline();
-                                       // To avoid to have to retrieve the involved slave channels again
-                                       setAllLoadProfileChannels(convertToOfflineChannels(Collections.singletonList(slaveChannel.get())));
-                                   }
+                                OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get().getLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService()) {
+                                    protected void goOffline() {
+                                        super.goOffline();
+                                        // To avoid to have to retrieve the involved slave channels again
+                                        setAllLoadProfileChannels(convertToOfflineChannels(Collections.singletonList(slaveChannel.get())));
+                                    }
 
-                                   @Override
-                                   public boolean isDataLoggerSlaveLoadProfile() {
-                                       return true;
-                                   }
-                               };
+                                    @Override
+                                    public boolean isDataLoggerSlaveLoadProfile() {
+                                        return true;
+                                    }
+                                };
 
-                               linkedOffLineLoadProfiles.add(Pair.of(dataLoggerSlaveOfflineLoadProfile, usage.getRange().intersection(dataPeriod)));
+                                linkedOffLineLoadProfiles.add(Pair.of(dataLoggerSlaveOfflineLoadProfile, usage.getRange().intersection(dataPeriod)));
                             }
                         });
                     }
                     //'unlinked periods'
                     if (linkedOffLineLoadProfiles.isEmpty()) {
                         linkedOffLineLoadProfiles.add(Pair.of(offlineLoadProfile, dataPeriod));   //All data is stored on the data logger channel
-                    }else{
+                    } else {
                         RangeSet<Instant> unlinkedPeriods = TreeRangeSet.create();
                         unlinkedPeriods.add(dataPeriod);
                         linkedOffLineLoadProfiles
@@ -889,15 +836,15 @@ public class ComServerDAOImpl implements ComServerDAO {
                 }
             }
         }
-        return Collections.singletonList(Pair.of(offlineLoadProfile,dataPeriod));
+        return Collections.singletonList(Pair.of(offlineLoadProfile, dataPeriod));
     }
 
     private Register getStorageRegister(Register register, Instant readingDate) {
         final Device dataLogger = register.getDevice();
-        if (dataLogger != null){
-            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
-                Optional<Register> slaveRegister  =  this.serviceProvider.topologyService().getSlaveRegister(register, readingDate);
-                if (slaveRegister.isPresent()){
+        if (dataLogger != null) {
+            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
+                Optional<Register> slaveRegister = this.serviceProvider.topologyService().getSlaveRegister(register, readingDate);
+                if (slaveRegister.isPresent()) {
                     return slaveRegister.get();
                 }
             }
@@ -932,6 +879,57 @@ public class ComServerDAOImpl implements ComServerDAO {
         };
 
         public abstract void applyTo(DeviceMessage message);
+
+    }
+
+    public interface ServiceProvider {
+
+        Clock clock();
+
+        Thesaurus thesaurus();
+
+        EngineConfigurationService engineConfigurationService();
+
+        ConnectionTaskService connectionTaskService();
+
+        CommunicationTaskService communicationTaskService();
+
+        DeviceService deviceService();
+
+        TopologyService topologyService();
+
+        EngineService engineService();
+
+        TransactionService transactionService();
+
+        EventService eventService();
+
+        IdentificationService identificationService();
+
+        FirmwareService firmwareService();
+    }
+
+    private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
+
+        @Override
+        public Thesaurus thesaurus() {
+            return serviceProvider.thesaurus();
+        }
+
+        @Override
+        public TopologyService topologyService() {
+            return serviceProvider.topologyService();
+        }
+
+        @Override
+        public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
+            return serviceProvider.engineService().findDeviceCacheByDevice(device);
+        }
+
+        @Override
+        public IdentificationService identificationService() {
+            return serviceProvider.identificationService();
+        }
 
     }
 

@@ -81,8 +81,6 @@ public abstract class AbstractComCommandExecuteTest {
     @Mock
     protected ComTaskExecution comTaskExecution;
     @Mock
-    protected ExecutionContext.ServiceProvider executionContextServiceProvider;
-    @Mock
     protected EventPublisherImpl eventPublisher;
     @Mock
     protected NlsService nlsService;

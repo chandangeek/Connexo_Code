@@ -38,12 +38,10 @@ public class ComPortListenerFactoryImpl implements ComPortListenerFactory {
                         return new MultiThreadedComPortListener(runningComServer, comPort, this.deviceCommandExecutor, this.serviceProvider);
                     }
                 }
-            }
-            else {
+            } else {
                 return new ServletInboundComPortListener(runningComServer, comPort, this.comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
             }
-        }
-        else {
+        } else {
             return null;
         }
     }

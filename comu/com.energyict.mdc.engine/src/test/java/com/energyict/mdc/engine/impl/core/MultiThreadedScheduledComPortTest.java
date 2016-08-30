@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
@@ -223,14 +222,14 @@ public class MultiThreadedScheduledComPortTest {
         when(this.serviceProvider.eventService()).thenReturn(this.eventService);
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
         when(this.serviceProvider.issueService()).thenReturn(this.issueService);
-        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class))).thenReturn(mock(Problem.class));
-        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class))).thenReturn(mock(Problem.class));
-        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(mock(Problem.class));
-        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(mock(Problem.class));
-        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class))).thenReturn(mock(Warning.class));
-        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class))).thenReturn(mock(Warning.class));
-        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(mock(Warning.class));
-        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(mock(Warning.class));
+        when(issueService.newProblem(any(Object.class), any(MessageSeed.class))).thenReturn(mock(Problem.class));
+        when(issueService.newProblem(any(Object.class), any(MessageSeed.class), any(Object.class))).thenReturn(mock(Problem.class));
+        when(issueService.newProblem(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(mock(Problem.class));
+        when(issueService.newProblem(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(mock(Problem.class));
+        when(issueService.newWarning(any(Object.class), any(MessageSeed.class))).thenReturn(mock(Warning.class));
+        when(issueService.newWarning(any(Object.class), any(MessageSeed.class), any(Object.class))).thenReturn(mock(Warning.class));
+        when(issueService.newWarning(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(mock(Warning.class));
+        when(issueService.newWarning(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(mock(Warning.class));
         when(this.serviceProvider.userService()).thenReturn(this.userService);
         when(this.userService.findUser(anyString())).thenReturn(Optional.empty());
         when(this.serviceProvider.clock()).thenReturn(this.clock);

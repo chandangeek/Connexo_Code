@@ -64,56 +64,24 @@ import java.util.stream.Collectors;
  */
 public class RunningComServerImpl implements RunningComServer, Runnable {
 
-    public interface ServiceProvider extends ComServerDAOImpl.ServiceProvider {
-
-        DeviceConfigurationService deviceConfigurationService();
-
-        MdcReadingTypeUtilService mdcReadingTypeUtilService();
-
-        IssueService issueService();
-
-        ManagementBeanFactory managementBeanFactory();
-
-        ThreadPrincipalService threadPrincipalService();
-
-        UserService userService();
-
-        NlsService nlsService();
-
-        ProtocolPluggableService protocolPluggableService();
-
-        SocketService socketService();
-
-        HexService hexService();
-
-        SerialComponentService serialAtComponentService();
-
-        MeteringService meteringService();
-
-        FirmwareService firmwareService();
-
-    }
-
     /**
      * The default queue size of the DeviceCommandExecutor
      * that is used for non {@link OnlineComServer}s.
      */
     private static final int DEFAULT_STORE_TASK_QUEUE_SIZE = 50;
-
     /**
      * The default number of threads of the DeviceCommandExecutor
      * that is used for non {@link OnlineComServer}s.
      */
     private static final int DEFAULT_NUMBER_OF_THREADS = 1;
-
     /**
      * The number of milliseconds that this server will wait for nested
      * {@link ServerProcess}es to complete the shutdown process.
      */
     private static final long SHUTDOWN_WAIT_TIME = 100;
-
     private final ServiceProvider serviceProvider;
     private final Thesaurus thesaurus;
+    private final BlockingQueue<ComPort> forceRefreshQueue = new LinkedBlockingQueue<>();
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
 
     private AtomicBoolean continueRunning;
@@ -131,8 +99,6 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     private ComServerCleanupProcess cleanupProcess;
     private ComServerMonitor operationalMonitor;
     private LoggerHolder loggerHolder;
-    private final BlockingQueue<ComPort> forceRefreshQueue = new LinkedBlockingQueue<>();
-
     RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
@@ -154,10 +120,6 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.initializeCleanupProcess(comServer);
         this.addOutboundComPorts(comServer.getOutboundComPorts());
         this.addInboundComPorts(comServer.getInboundComPorts());
-    }
-
-    private Thesaurus getThesaurus(NlsService nlsService) {
-        return nlsService.getThesaurus(EngineService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, ServiceProvider serviceProvider) {
@@ -211,6 +173,10 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
 
+    private Thesaurus getThesaurus(NlsService nlsService) {
+        return nlsService.getThesaurus(EngineService.COMPONENTNAME, Layer.DOMAIN);
+    }
+
     private void initialize(ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory) {
         this.loggerHolder = new LoggerHolder(comServer);
         this.comServerDAO = comServerDAO;
@@ -248,8 +214,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         ScheduledComPort scheduledComPort = this.getScheduledComPortFactory().newFor(this, comPort);
         if (scheduledComPort == null) {
             return Optional.empty();
-        }
-        else {
+        } else {
             this.add(scheduledComPort);
             return Optional.of(scheduledComPort);
         }
@@ -290,8 +255,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         ComPortListener comPortListener = getComPortListenerFactory().newFor(this, comPort);
         if (comPortListener == null) {
             return Optional.empty();
-        }
-        else {
+        } else {
             this.add(comPortListener);
             return Optional.of(comPortListener);
         }
@@ -387,7 +351,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private void startOutboundComPorts() {
-        this.scheduledComPorts.forEach(ScheduledComPort:: start);
+        this.scheduledComPorts.forEach(ScheduledComPort::start);
     }
 
     private void startInboundComPorts() {
@@ -633,29 +597,31 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private void monitorChanges() {
-        this.getLogger().monitoringChanges(this.getComServer());
-        ComServer newVersion = this.comServerDAO.refreshComServer(this.comServer);
-        this.operationalMonitor.getOperationalStatistics().setLastCheckForChangesTimestamp(Date.from(this.serviceProvider.clock().instant()));
-        if (newVersion == null) {
-            // ComServer was deleted or made obsolete, shutdown
-            this.shutdown();
-        } else if (newVersion == this.comServer) {
-            // No changes found
-        } else {
-            if (!newVersion.isActive()) {
-                // ComServer is no longer active, shutdown
+        try {
+            this.getLogger().monitoringChanges(this.getComServer());
+            ComServer newVersion = this.comServerDAO.refreshComServer(this.comServer);
+            this.operationalMonitor.getOperationalStatistics().setLastCheckForChangesTimestamp(Date.from(this.serviceProvider.clock().instant()));
+            if (newVersion == null) {
+                // ComServer was deleted or made obsolete, shutdown
                 this.shutdown();
+            } else if (newVersion == this.comServer) {
+                // No changes found
             } else {
-                this.resetLoggerHolder(newVersion);
-                this.applyChanges((InboundCapable) newVersion);
-                this.applyChanges((OutboundCapable) newVersion);
-                this.applyDelayChanges(newVersion);
-                this.notifyChangesApplied();
-                String oldComServerName = this.comServer.getName();
-                this.comServer = newVersion;
-                if (!oldComServerName.equals(newVersion.getName())) {
-                    // Name changed, notify the ManagementBeanFactory
-                    this.serviceProvider.managementBeanFactory().renamed(oldComServerName, this);
+                if (!newVersion.isActive()) {
+                    // ComServer is no longer active, shutdown
+                    this.shutdown();
+                } else {
+                    this.resetLoggerHolder(newVersion);
+                    this.applyChanges((InboundCapable) newVersion);
+                    this.applyChanges((OutboundCapable) newVersion);
+                    this.applyDelayChanges(newVersion);
+                    this.notifyChangesApplied();
+                    String oldComServerName = this.comServer.getName();
+                    this.comServer = newVersion;
+                    if (!oldComServerName.equals(newVersion.getName())) {
+                        // Name changed, notify the ManagementBeanFactory
+                        this.serviceProvider.managementBeanFactory().renamed(oldComServerName, this);
+                    }
                 }
             }
         } catch (UnderlyingSQLFailedException e) {
@@ -741,8 +707,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
             Optional<ComPortListener> comPortListener = this.add(comPort);
             if (comPortListener.isPresent()) {
                 comPortListener.get().start();
-            }
-            else {
+            } else {
                 this.ignored(comPort);
             }
         }
@@ -768,14 +733,14 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private boolean hasChanged(InboundComPort existingComPort, InboundComPort newVersion) {
-        return (existingComPort instanceof  ModemBasedInboundComPort)
+        return (existingComPort instanceof ModemBasedInboundComPort)
                 || this.hasChanged((IPBasedInboundComPort) existingComPort, (IPBasedInboundComPort) newVersion);
     }
 
     private boolean hasChanged(IPBasedInboundComPort existingComPort, IPBasedInboundComPort newVersion) {
         return existingComPort.getPortNumber() != newVersion.getPortNumber()
-            || existingComPort.getNumberOfSimultaneousConnections() != newVersion.getNumberOfSimultaneousConnections()
-            || !existingComPort.getName().equals(newVersion.getName());
+                || existingComPort.getNumberOfSimultaneousConnections() != newVersion.getNumberOfSimultaneousConnections()
+                || !existingComPort.getName().equals(newVersion.getName());
     }
 
     /**
@@ -861,8 +826,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
             Optional<ScheduledComPort> scheduledComPort = this.add(comPort);
             if (scheduledComPort.isPresent()) {
                 scheduledComPort.get().start();
-            }
-            else {
+            } else {
                 this.ignored(comPort);
             }
         }
@@ -889,7 +853,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private boolean hasChanged(OutboundComPort existingComPort, OutboundComPort newVersion) {
         return existingComPort.getNumberOfSimultaneousConnections() != newVersion.getNumberOfSimultaneousConnections()
-            || !existingComPort.getName().equals(newVersion.getName());
+                || !existingComPort.getName().equals(newVersion.getName());
     }
 
     /**
@@ -915,9 +879,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         }
         List<Long> actualComPortIds =
                 newVersion.getOutboundComPorts()
-                    .stream()
-                    .map(OutboundComPort::getId)
-                    .collect(Collectors.toList());
+                        .stream()
+                        .map(OutboundComPort::getId)
+                        .collect(Collectors.toList());
         Iterator<ScheduledComPort> scheduledComPortIterator = this.scheduledComPorts.iterator();
         while (scheduledComPortIterator.hasNext()) {
             ScheduledComPort scheduledComPort = scheduledComPortIterator.next();
@@ -1039,12 +1003,52 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         ((ServerEventAPIStatistics) monitor.getEventApiStatistics()).eventWasPublished();
     }
 
-    private ComServerLogger getLogger () {
+    private ComServerLogger getLogger() {
         return this.loggerHolder.get();
     }
 
     ComServerMonitor getOperationalMonitor() {
         return this.operationalMonitor;
+    }
+
+    @Override
+    public void refresh(ComPort comPort) {
+        if (comPort != null) {
+            getLogger().comPortScheduledForRefresh(comPort.getName());
+        } else {
+            getLogger().comPortScheduledForRefresh("null");
+        }
+        this.forceRefreshQueue.add(comPort);
+    }
+
+    public interface ServiceProvider extends ComServerDAOImpl.ServiceProvider {
+
+        DeviceConfigurationService deviceConfigurationService();
+
+        MdcReadingTypeUtilService mdcReadingTypeUtilService();
+
+        IssueService issueService();
+
+        ManagementBeanFactory managementBeanFactory();
+
+        ThreadPrincipalService threadPrincipalService();
+
+        UserService userService();
+
+        NlsService nlsService();
+
+        ProtocolPluggableService protocolPluggableService();
+
+        SocketService socketService();
+
+        HexService hexService();
+
+        SerialComponentService serialAtComponentService();
+
+        MeteringService meteringService();
+
+        FirmwareService firmwareService();
+
     }
 
     private class EventMechanism {
@@ -1108,11 +1112,11 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
             return !this.lastLogLevel.equals(this.getServerLogLevel(this.comServer));
         }
 
-        private ComServerLogger newLogger (LogLevel logLevel) {
+        private ComServerLogger newLogger(LogLevel logLevel) {
             return LoggerFactory.getLoggerFor(ComServerLogger.class, logLevel);
         }
 
-        private LogLevel getServerLogLevel (ComServer comServer) {
+        private LogLevel getServerLogLevel(ComServer comServer) {
             return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
         }
 
@@ -1257,7 +1261,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         }
 
         @Override
-        public FirmwareService firmwareService() { return serviceProvider.firmwareService();}
+        public FirmwareService firmwareService() {
+            return serviceProvider.firmwareService();
+        }
     }
 
     private class ScheduledComPortFactoryServiceProvider implements ScheduledComPortImpl.ServiceProvider {
@@ -1356,17 +1362,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
             return eventMechanism.getEventPublisher();
         }
 
-        public FirmwareService firmwareService() { return serviceProvider.firmwareService();}
-
-    }
-
-    @Override
-    public void refresh(ComPort comPort) {
-        if (comPort != null) {
-            getLogger().comPortScheduledForRefresh(comPort.getName());
-        } else {
-            getLogger().comPortScheduledForRefresh("null");
+        public FirmwareService firmwareService() {
+            return serviceProvider.firmwareService();
         }
-        this.forceRefreshQueue.add(comPort);
+
     }
 }

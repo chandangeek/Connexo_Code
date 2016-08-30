@@ -53,7 +53,7 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
                     } catch (Throwable throwable) {
                         // nothing should get through here, or there must be something seriously wrong ...
                         CommandRoot.ServiceProvider serviceProvider = getGroupedDeviceCommand().getCommandRoot().getServiceProvider();
-                        Problem problem = serviceProvider.issueService().newProblem(this, serviceProvider.thesaurus(), MessageSeeds.SOMETHING_UNEXPECTED_HAPPENED);
+                        Problem problem = serviceProvider.issueService().newProblem(this, MessageSeeds.SOMETHING_UNEXPECTED_HAPPENED);
                         addIssue(problem, CompletionCode.UnexpectedError);
                         setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
                         executionContext.connectionLogger.taskExecutionFailed(throwable, Thread.currentThread().getName(), getComTasksDescription(executionContext));

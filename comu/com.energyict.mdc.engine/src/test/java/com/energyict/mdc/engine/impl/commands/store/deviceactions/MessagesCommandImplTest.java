@@ -122,7 +122,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
         when(offlineDevice.getAllSentDeviceMessages()).thenReturn(Collections.emptyList());
         when(deviceProtocol.updateSentMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
         when(deviceProtocol.executePendingMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
-        when(this.issueService.newProblem(any(), any(Thesaurus.class), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
+        when(this.issueService.newProblem(any(), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
         when(this.issueService.newProblem(any(), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
 
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);

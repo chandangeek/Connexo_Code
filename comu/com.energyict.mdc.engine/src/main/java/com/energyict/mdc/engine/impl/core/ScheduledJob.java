@@ -77,7 +77,7 @@ public interface ScheduledJob {
      *
      * @param deviceCommandExecutionToken The token
      */
-    void completed();
+    void setToken(DeviceCommandExecutionToken deviceCommandExecutionToken);
 
     /**
      * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s

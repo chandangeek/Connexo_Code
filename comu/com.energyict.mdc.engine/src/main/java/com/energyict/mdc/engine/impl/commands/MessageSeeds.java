@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands;
 
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.engine.EngineService;
 
@@ -76,8 +75,7 @@ public enum MessageSeeds implements MessageSeed {
     NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR(5058, "notExecutedDueToOtherComTaskExecutionError", "Communication task will be rescheduled due to an error in the previous communication task"),
     NOT_EXECUTED_DUE_TO_CONNECTION_SETUP_ERROR(5059, "notExecutedDueToConnectionSetupError", "Communication task will be rescheduled due to a connection setup failure"),
     NOT_EXECUTED_DUE_TO_GENERAL_SETUP_ERROR(5060, "notExecutedDueToGeneralSetupError", "Communication task will be rescheduled due to a general error during the setup of the tasks. No connection to the device was made."),
-    SOMETHING_UNEXPECTED_HAPPENED(5061, "somethingUnexpectedHappened", "Some unexpected error occurred"),
-    ;
+    SOMETHING_UNEXPECTED_HAPPENED(5061, "somethingUnexpectedHappened", "Some unexpected error occurred"),;
 
     private final int number;
     private final String key;

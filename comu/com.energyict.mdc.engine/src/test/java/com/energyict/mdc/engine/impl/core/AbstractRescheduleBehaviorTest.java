@@ -107,17 +107,17 @@ public abstract class AbstractRescheduleBehaviorTest {
         Problem problem = mock(Problem.class);
         when(problem.isProblem()).thenReturn(true);
         when(problem.getTimestamp()).thenReturn(Instant.now());
-        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class))).thenReturn(problem);
-        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class))).thenReturn(problem);
-        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(problem);
-        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(problem);
+        when(issueService.newProblem(any(Object.class), any(MessageSeed.class))).thenReturn(problem);
+        when(issueService.newProblem(any(Object.class), any(MessageSeed.class), any(Object.class))).thenReturn(problem);
+        when(issueService.newProblem(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(problem);
+        when(issueService.newProblem(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(problem);
         Warning warning = mock(Warning.class);
         when(warning.isWarning()).thenReturn(true);
         when(warning.getTimestamp()).thenReturn(Instant.now());
-        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class))).thenReturn(warning);
-        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class))).thenReturn(warning);
-        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(warning);
-        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(warning);
+        when(issueService.newWarning(any(Object.class), any(MessageSeed.class))).thenReturn(warning);
+        when(issueService.newWarning(any(Object.class), any(MessageSeed.class), any(Object.class))).thenReturn(warning);
+        when(issueService.newWarning(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(warning);
+        when(issueService.newWarning(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(warning);
 
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
         when(this.serviceProvider.issueService()).thenReturn(this.issueService);

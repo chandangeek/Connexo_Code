@@ -83,7 +83,7 @@ public interface ComServerLogger {
      * @param comServer The ComServer
      */
     @Configuration(format = "Monitoring changes to ComServer {0} failed (see exception below)", logLevel = LogLevel.ERROR)
-    public void monitorChangesFailed (ComServer comServer, Throwable e);
+    public void monitorChangesFailed(ComServer comServer, Throwable e);
 
     /**
      * Logs that an OutboundComPort
@@ -184,6 +184,7 @@ public interface ComServerLogger {
 
     /**
      * Logs the fact ComServer execution was interrupted.
+     *
      * @param comServer
      * @param message
      */
@@ -192,6 +193,7 @@ public interface ComServerLogger {
 
     /**
      * Logs any other exception which interrupted the comserver.
+     *
      * @param comServer
      * @param message
      */
@@ -200,6 +202,7 @@ public interface ComServerLogger {
 
     /**
      * Logs the need to refresh all inbound and outbound ports of a comserver
+     *
      * @param comServer
      */
     @Configuration(format = "Refreshing all OutBound and InBound ports from ComServer {0}", logLevel = LogLevel.WARN)
@@ -207,6 +210,7 @@ public interface ComServerLogger {
 
     /**
      * Indicates that a com port was scheduled for refresh
+     *
      * @param comPortName
      */
     @Configuration(format = "ComPort {0} will be refreshed asap", logLevel = LogLevel.INFO)

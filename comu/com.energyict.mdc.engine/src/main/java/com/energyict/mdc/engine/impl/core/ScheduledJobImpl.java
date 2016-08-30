@@ -95,38 +95,15 @@ public abstract class ScheduledJobImpl extends JobExecution {
                         .stream()
                         .flatMap(each -> each.getComTasks().stream())
                         .count();
-        this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
-        this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
-        this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService()));
-        this.completeOutsideComWindow();
-    }
 
-    @Override
-    public void outsideComWindow () {
-        ExecutionContext executionContext = this.createExecutionContext(false);
-        int numberOfPlannedButNotExecutedTasks = (int)
-                this.getComTaskExecutions()
-                        .stream()
-                        .flatMap(each -> each.getComTasks().stream())
-                        .count();
-        if (executionContext != null) {
-            executionContext.getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
-            executionContext.createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
-            executionContext.getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService()));
-            this.completeSuccessfulComSession();
+        if (getExecutionContext() != null) {
+            this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
+            this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
+            this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService()));
+            this.completeOutsideComWindow();
         } else {
             this.releaseToken();
         }
-    }
-
-    @Override
-    public void rescheduleToNextComWindow (ComServerDAO comServerDAO) {
-        this.doReschedule(comServerDAO, RescheduleBehavior.RescheduleReason.OUTSIDE_COM_WINDOW);
-    }
-
-    @Override
-    public void rescheduleToNextComWindow(ComServerDAO comServerDAO, Instant startingPoint) {
-        this.getRescheduleBehavior(comServerDAO).rescheduleOutsideWindow(startingPoint);
     }
 
     /**

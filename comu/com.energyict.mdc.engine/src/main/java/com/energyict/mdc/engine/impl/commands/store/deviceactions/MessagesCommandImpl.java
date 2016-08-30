@@ -242,7 +242,6 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
                 ResultType.ConfigurationMisMatch,
                 getCommandRoot().getServiceProvider().issueService().newProblem(
                         this.getGroupedDeviceCommand().getOfflineDevice(),
-                        this.getCommandRoot().getServiceProvider().thesaurus(),
                         MESSAGE_NO_LONGER_VALID));
         message.setDeviceProtocolInformation(offlineMessage.getProtocolInfo());
         return message;

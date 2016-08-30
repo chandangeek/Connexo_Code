@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
 import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 
 /**
  * Provides factory services for {@link ComPortListener}s,
@@ -21,8 +21,8 @@ public interface ComPortListenerFactory {
      * or it if has no simultaneous connections.
      *
      * @return The ComPortListener or <code>null</code> if it was not necessary to schedule
-     *         the InboundComPort
+     * the InboundComPort
      */
-    ComPortListener newFor(InboundComPort comPort);
+    ComPortListener newFor(RunningComServer runningComServer, InboundComPort comPort);
 
 }

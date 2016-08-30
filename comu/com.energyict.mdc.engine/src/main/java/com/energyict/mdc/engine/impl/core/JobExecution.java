@@ -65,6 +65,8 @@ import java.util.stream.Stream;
  */
 public abstract class JobExecution implements ScheduledJob {
 
+    private static final Logger LOGGER = Logger.getLogger(JobExecution.class.getName());
+
     private final ComPort comPort;
     private final ComServerDAO comServerDAO;
     private final DeviceCommandExecutor deviceCommandExecutor;
@@ -304,24 +306,40 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected void completeFailedComSession(ComSession.SuccessIndicator reason) {
-        this.addCompletionEvent();
-        this.getExecutionContext().completeFailure(reason);
-
-        this.getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this));
-        this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
-        doExecuteStoreCommand();
+        ExecutionContext executionContext = this.getExecutionContext();
+        if (executionContext != null) {
+            this.addCompletionEvent();
+            this.getExecutionContext().completeFailure(reason);
+            this.getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this));
+            this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
+            doExecuteStoreCommand();
+        } else {
+            /* Failure was in the preparation that creates the ExecutionContext.
+             * We need to release the token here because we are not actually
+             * going to execute any DeviceCommand that would release it. */
+            this.releaseToken();
+        }
     }
 
     private void addCompletionEvent() {
-        if (!this.getExecutionContext().connectionFailed()) {
-            this.getExecutionContext().getStoreCommand().add(
-                    new PublishConnectionCompletionEvent(
-                            this.getConnectionTask(),
-                            this.getComPort(),
-                            this.getSuccessfulComTaskExecutions(),
-                            this.getFailedComTaskExecutions(),
-                            this.getNotExecutedComTaskExecutions(),
-                            this.executionContext.getDeviceCommandServiceProvider()));
+        ExecutionContext executionContext = this.getExecutionContext();
+        if (executionContext != null) {
+            if (!executionContext.connectionFailed()) {
+                executionContext.getStoreCommand().add(
+                        new PublishConnectionCompletionEvent(
+                                this.getConnectionTask(),
+                                this.getComPort(),
+                                this.getSuccessfulComTaskExecutions(),
+                                this.getFailedComTaskExecutions(),
+                                this.getNotExecutedComTaskExecutions(),
+                                this.executionContext.getDeviceCommandServiceProvider()));
+            }
+        } else {
+            // Failure was in the preparation that creates the ExecutionContext
+            LOGGER.log(
+                    Level.FINE,
+                    "Attempt to publish an event that a ConnectionTask has completed without an ExecutionContext!",
+                    new Exception("For diagnostic purposes only"));
         }
     }
 
@@ -416,7 +434,7 @@ public abstract class JobExecution implements ScheduledJob {
         return new ComCommandServiceProvider();
     }
 
-    private enum BasicCheckTasks implements Comparator<ProtocolTask> {
+    protected enum BasicCheckTasks implements Comparator<ProtocolTask> {
         FIRST;
 
         @Override
@@ -462,7 +480,7 @@ public abstract class JobExecution implements ScheduledJob {
      * Provides context information to the process
      * that prepares {@link ComTaskExecution}s for execution.
      */
-    private static class PreparationContext {
+    protected static class PreparationContext {
 
         private ComChannelPlaceHolder comChannelPlaceHolder = ComChannelPlaceHolder.empty();
 

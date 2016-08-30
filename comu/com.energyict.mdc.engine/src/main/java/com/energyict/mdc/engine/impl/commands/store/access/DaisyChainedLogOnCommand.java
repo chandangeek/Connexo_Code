@@ -32,7 +32,7 @@ public class DaisyChainedLogOnCommand extends SimpleComCommand {
             if (e instanceof ConnectionCommunicationException) {
                 throw e;
             } else {
-                Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, getThesaurus(), MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage());
+                Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage());
                 addIssue(problem, CompletionCode.InitError);
             }
         }

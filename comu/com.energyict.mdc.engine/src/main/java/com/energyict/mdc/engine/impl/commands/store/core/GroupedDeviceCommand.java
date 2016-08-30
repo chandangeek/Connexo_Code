@@ -72,16 +72,16 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
             try {
                 executionContext.start(comTaskExecutionComCommand);
                 if (hasBasicCheckFailedForThisGroupedDeviceCommand()) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, getServiceProvider().thesaurus(), MessageSeeds.NOT_EXECUTED_DUE_TO_BASIC_CHECK_FAILURE);
+                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_BASIC_CHECK_FAILURE);
                     comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
                 } else if (commandRoot.hasConnectionErrorOccurred()) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, getServiceProvider().thesaurus(), MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_ERROR);
+                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_ERROR);
                     comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
                 } else if (getCompletionCode().equals(CompletionCode.InitError)) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, getServiceProvider().thesaurus(), MessageSeeds.NOT_EXECUTED_DUE_TO_INIT_ERROR);
+                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_INIT_ERROR);
                     comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
                 } else if (skipOtherComTaskExecutions) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, getServiceProvider().thesaurus(), MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR);
+                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR);
                     comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
                 }
                 comTaskExecutionComCommand.execute(deviceProtocol, executionContext);
@@ -177,7 +177,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
         for (ComTaskExecutionComCommandImpl comTaskExecutionComCommand : comTaskExecutionComCommands.values()) {
             try {
                 executionContext.start(comTaskExecutionComCommand);
-                Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, getServiceProvider().thesaurus(), messageSeed);
+                Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, messageSeed);
                 comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
                 comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
                 comTaskExecutionComCommand.delegateToJournalistIfAny(executionContext);
@@ -193,7 +193,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
             ComTaskExecutionComCommandImpl comTaskExecutionComCommand = getComTaskRoot(scheduledButNotPreparedComTaskExecution);
             try {
                 executionContext.start(comTaskExecutionComCommand);
-                Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, getServiceProvider().thesaurus(), MessageSeeds.NOT_EXECUTED_DUE_TO_GENERAL_SETUP_ERROR);
+                Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_GENERAL_SETUP_ERROR);
                 comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
                 comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
                 comTaskExecutionComCommand.delegateToJournalistIfAny(executionContext);

@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.access;
 
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -31,13 +30,13 @@ public class LogOnCommand extends SimpleComCommand {
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         try {
             deviceProtocol.logOn();
-        } catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new ConnectionSetupException(MessageSeeds.LOG_ON_FAILED, new ConnectionException(e));
         } catch (Throwable e) {
             if (e instanceof ConnectionCommunicationException) {
                 throw e;
             } else {
-                Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, getThesaurus(), MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage());
+                Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, com.energyict.mdc.engine.impl.commands.MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage());
                 addIssue(problem, CompletionCode.InitError);
             }
         }
