@@ -56,7 +56,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.deviceType', 'FWC', 'Device type'),
                         name: 'deviceType',
                         renderer: function (value) {
-                            return value ? '<a href="' + me.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl({deviceTypeId: value.id}) + '">' + value.localizedValue + '</a>' : '-'
+                            return value ? '<a href="' + me.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl({deviceTypeId: value.id}) + '">' + Ext.String.htmlEncode(value.localizedValue) + '</a>' : '-'
                         }
                     },
                     {

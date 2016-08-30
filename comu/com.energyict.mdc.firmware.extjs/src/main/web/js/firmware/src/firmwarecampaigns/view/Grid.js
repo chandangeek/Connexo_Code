@@ -28,7 +28,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 dataIndex: 'deviceType',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? value.localizedValue : '';
+                    return value ? Ext.String.htmlEncode(value.localizedValue) : '';
                 }
             },
             {
