@@ -268,6 +268,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>properties.rest</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>pubsub</artifactId>
                 <version>1.2.0-SNAPSHOT</version>
                 <scope>provided</scope>
