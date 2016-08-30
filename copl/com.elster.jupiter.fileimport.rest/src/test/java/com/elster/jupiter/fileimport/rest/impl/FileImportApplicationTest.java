@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 
@@ -29,6 +30,8 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
     protected AppService appService;
     @Mock
     static FileSystem fileSystem;
+    @Mock
+    protected PropertyValueInfoService propertyValueInfoService;
 
     @Override
     protected Application getApplication() {
@@ -39,6 +42,7 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
         application.setRestQueryService(restQueryService);
         application.setTransactionService(transactionService);
         application.setCronExpressionParser(cronExpressionParser);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         application.setNlsService(nlsService);
         application.setFileSystem(fileSystem);
         application.setAppService(appService);

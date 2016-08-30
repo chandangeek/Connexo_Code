@@ -1,7 +1,7 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.fileimport.FileImporterFactory;
-import com.elster.jupiter.properties.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
 import javax.inject.Inject;
 

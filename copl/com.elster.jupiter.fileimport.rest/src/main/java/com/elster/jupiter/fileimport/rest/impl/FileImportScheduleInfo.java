@@ -1,6 +1,6 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 
 import java.util.ArrayList;

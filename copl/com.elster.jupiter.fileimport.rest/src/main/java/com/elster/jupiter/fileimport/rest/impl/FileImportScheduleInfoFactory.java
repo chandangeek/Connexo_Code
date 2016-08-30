@@ -3,7 +3,7 @@ package com.elster.jupiter.fileimport.rest.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.properties.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
