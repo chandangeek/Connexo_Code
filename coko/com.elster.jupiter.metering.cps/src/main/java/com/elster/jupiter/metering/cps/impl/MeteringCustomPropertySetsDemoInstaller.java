@@ -214,7 +214,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .orElseThrow(() -> new NoSuchElementException("Antenna custom property set not found"));
         config.addCustomPropertySet(registeredAntennaCPS);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.EXPERT);
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.AUTO);
         CustomPropertySet antennaCPS = registeredAntennaCPS.getCustomPropertySet();
         List<PropertySpec> propertySpecs = antennaCPS.getPropertySpecs();
         FormulaBuilder antennaPower = builder.property(antennaCPS, propertySpecs.stream()
@@ -286,7 +286,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
     }
 
     private ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.EXPERT);
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
         return builder.build(builder.requirement(requirement));
     }
 }
