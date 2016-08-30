@@ -7,6 +7,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 
+import javax.inject.Inject;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +16,7 @@ public class DataValidationKpiServiceImpl implements DataValidationKpiService {
 
     private final ValidationService validationService;
 
+    @Inject
     public DataValidationKpiServiceImpl(ValidationService validationService) {
         this.validationService = validationService;
     }
