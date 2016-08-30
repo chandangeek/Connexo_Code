@@ -1,9 +1,22 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.energyict.mdc.common.TypedProperties;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.FilterFactory;
 import com.energyict.mdc.device.data.QueueMessage;
@@ -27,19 +40,6 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Interval;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
