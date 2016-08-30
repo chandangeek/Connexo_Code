@@ -53,10 +53,25 @@ import java.util.List;
  * The AM540 is a PLC E-meter designed according to IDIS package 2 specifications <br/>
  * The protocol is an extension of the AM130 protocol (which is the GPRS variant designed according to IDIS P2)
  *
+ * The protocol supports also EVN Netz-NO Companion standard specification (security-related).
+ *
  * @author sva
  * @since 11/08/2015 - 14:04
  */
 public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCache {
+    protected static final ObisCode EVN_FRAMECOUNTER_INSTALLATION   = ObisCode.fromString("0.0.43.4.0.255");
+    protected static final ObisCode EVN_FRAMECOUNTER_MAINTENANCE    = ObisCode.fromString("0.0.43.5.0.255");
+    protected static final ObisCode EVN_FRAMECOUNTER_CERTIFICATION  = ObisCode.fromString("0.0.43.6.0.255");
+
+    protected static final int EVN_CLIENT_MANAGEMENT        = 001;
+    protected static final int EVN_CLIENT_DATA_READOUT      = 002;
+    protected static final int EVN_CLIENT_FW_UPGRADE        = 003;
+    protected static final int EVN_CLIENT_INSTALLATION      = 005;
+    protected static final int EVN_CLIENT_MAINTENANCE       = 006;
+    protected static final int EVN_CLIENT_CERTIFICATION     = 007;
+    protected static final int EVN_CLIENT_CUSTOMER_INFORMATION_PUSH    = 103;
+
+
 
     private AM540Cache am540Cache;
     private HHUSignOnV2 hhuSignOn;
@@ -267,7 +282,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, publicProperties));    //SecurityLevel 0:0
 
         final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
-        final ObisCode frameCounterObisCode = FRAMECOUNTER_OBISCODE;
+        final ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
         final long frameCounter;
 
         publicDlmsSession.getDlmsV2Connection().connectMAC();
@@ -289,6 +304,20 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
 
+    @Override
+    protected ObisCode getFrameCounterForClient(int clientId){
+        // handle some special frame-counters for EVN
+        switch (clientId){
+            case EVN_CLIENT_INSTALLATION:
+                return EVN_FRAMECOUNTER_INSTALLATION;
+            case EVN_CLIENT_MAINTENANCE:
+                return EVN_FRAMECOUNTER_MAINTENANCE;
+            case EVN_CLIENT_CERTIFICATION:
+                return EVN_FRAMECOUNTER_CERTIFICATION;
+            default:
+        }
+        return super.getFrameCounterForClient(clientId); // get the standard IDIS ones
+    }
 
     /**
      * There's 2 different ways to connect to the public client.
