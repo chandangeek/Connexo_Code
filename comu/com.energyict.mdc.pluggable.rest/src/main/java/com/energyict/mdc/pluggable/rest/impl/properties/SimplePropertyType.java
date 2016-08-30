@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.rest.util.properties.PropertyType;
+import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;

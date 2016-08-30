@@ -1,15 +1,14 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
+import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.ws.rs.core.UriInfo;
 
 /**
  * Copyrights EnergyICT

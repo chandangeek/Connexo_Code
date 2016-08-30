@@ -1,8 +1,7 @@
 package com.energyict.mdc.pluggable.rest;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyType;
-import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
+import com.elster.jupiter.properties.rest.PropertyType;
 
 import java.util.List;
 

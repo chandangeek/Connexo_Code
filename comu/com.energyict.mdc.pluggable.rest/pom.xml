@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>mdc.pluggable.rest</artifactId>
-    <version>2.1.0${revision}</version>
+    <version>3.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.pluggable.rest [init PLR]</name>
     <description>
@@ -70,6 +70,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
