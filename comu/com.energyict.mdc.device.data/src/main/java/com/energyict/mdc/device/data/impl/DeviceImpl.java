@@ -1423,8 +1423,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 loadProfileReading.setChannelData(mdcChannel, meterReading);
                 //Previously collected readingqualities are filtered and added to the loadProfile Reading
-                loadProfileReading.setReadingQualities(mdcChannel, readingQualities.stream().filter(rq -> rq.getTimestamp().equals(meterReading.getTimeStamp()))
-                        .filter(rq -> rq.getReadingType().equals(meterReading.getReadingType(0))).collect(Collectors.toList()));
+                loadProfileReading.setReadingQualities(mdcChannel, readingQualities.stream().filter(rq -> rq.getReadingTimestamp().equals(meterReading.getTimeStamp()))
+                        .filter(rq -> meterReading.getReadingTypes().contains(rq.getReadingType())).collect(Collectors.toList()));
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
 
