@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
-import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
-
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
 
 import javax.ws.rs.core.Application;
 
-import org.junit.*;
+import org.junit.Before;
 import org.mockito.Mock;
 
 public class DeviceDataValidationRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
@@ -26,6 +25,7 @@ public class DeviceDataValidationRestApplicationJerseyTest extends FelixRestAppl
         DeviceDataValidationApplication application = new DeviceDataValidationApplication();
         application.setDeviceDataValidationService(deviceDataValidationService);
         application.setMeteringGroupsService(meteringGroupsService);
+        application.setNlsService(nlsService);
         return application;
     }
 }

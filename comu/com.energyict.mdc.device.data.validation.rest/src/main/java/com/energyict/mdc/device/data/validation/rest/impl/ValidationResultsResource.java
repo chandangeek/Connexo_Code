@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -42,6 +43,7 @@ public class ValidationResultsResource {
 
     private final DeviceDataValidationService deviceDataValidationService;
     private final MeteringGroupsService meteringGroupsService;
+    private final ExceptionFactory exceptionFactory;
 
     private enum Validator {
         THRESHOLDVALIDATOR("thresholdViolation"),
@@ -77,9 +79,10 @@ public class ValidationResultsResource {
     }
 
     @Inject
-    public ValidationResultsResource(DeviceDataValidationService deviceDataValidationService, MeteringGroupsService meteringGroupsService) {
+    public ValidationResultsResource(DeviceDataValidationService deviceDataValidationService, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory) {
         this.deviceDataValidationService = deviceDataValidationService;
         this.meteringGroupsService = meteringGroupsService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -114,13 +117,19 @@ public class ValidationResultsResource {
                     });
                 }
                 if (filters.getJSONObject(i).get("property").equals("amountOfSuspects")) {
-                    JSONObject value = new JSONObject(filters.getJSONObject(i).get("value").toString());
-                    if (value.get("operator").equals("==")) {
-                        amountOfSuspectsList.add(Long.parseLong(value.get("criteria").toString()));
-                    } else if (value.get("operator").equals("BETWEEN")) {
-                        JSONArray interval = new JSONArray(value.get("criteria").toString());
-                        amountOfSuspectsList.add(Long.parseLong(interval.get(0).toString()));
-                        amountOfSuspectsList.add(Long.parseLong(interval.get(1).toString()));
+                    try {
+                        JSONObject value = new JSONObject(filters.getJSONObject(i).get("value").toString());
+                        if (value.get("operator").equals("==")) {
+                            amountOfSuspectsList.add(Long.parseLong(value.get("criteria").toString()));
+                        } else if (value.get("operator").equals("BETWEEN")) {
+                            JSONArray interval = new JSONArray(value.get("criteria").toString());
+                            amountOfSuspectsList.add(Long.parseLong(interval.get(0).toString()));
+                            amountOfSuspectsList.add(Long.parseLong(interval.get(1).toString()));
+                        }
+                    }catch (NumberFormatException e){
+                        throw exceptionFactory.newException(MessageSeeds.NUMBER_FORMAT_INVALID);
+                    } catch (JSONException e){
+                        throw exceptionFactory.newException(MessageSeeds.BETWEEN_VALUES_INVALID);
                     }
                 }
                 if (filters.getJSONObject(i).get("property").equals("validator")) {
