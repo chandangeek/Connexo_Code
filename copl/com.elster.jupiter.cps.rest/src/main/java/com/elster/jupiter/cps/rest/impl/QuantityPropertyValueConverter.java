@@ -1,9 +1,9 @@
 package com.elster.jupiter.cps.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertyValueConverter;
 import com.elster.jupiter.properties.QuantityValueFactory;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.util.Map;

@@ -7,9 +7,9 @@ import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertyValueInfoService;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.RangeInstantBuilder;
 
@@ -114,8 +114,10 @@ public class CustomPropertySetInfoFactory {
             CustomPropertySetAttributeTypeInfo customPropertySetAttributeTypeInfo = new CustomPropertySetAttributeTypeInfo();
             customPropertySetAttributeTypeInfo.type = propertySpec.getValueFactory().getValueType().getName();
             customPropertySetAttributeTypeInfo.typeSimpleName = thesaurus.getString(customPropertySetAttributeTypeInfo.type, customPropertySetAttributeTypeInfo.type);
-            customPropertySetAttributeTypeInfo.simplePropertyType = propertyTypeInfo.simplePropertyType;
-            customPropertySetAttributeTypeInfo.predefinedPropertyValuesInfo = propertyTypeInfo.predefinedPropertyValuesInfo;
+            if (propertyTypeInfo != null) {
+                customPropertySetAttributeTypeInfo.simplePropertyType = propertyTypeInfo.simplePropertyType;
+                customPropertySetAttributeTypeInfo.predefinedPropertyValuesInfo = propertyTypeInfo.predefinedPropertyValuesInfo;
+            }
             info.propertyTypeInfo = customPropertySetAttributeTypeInfo;
             info.propertyValueInfo = propertyInfo.getPropertyValueInfo();
         }

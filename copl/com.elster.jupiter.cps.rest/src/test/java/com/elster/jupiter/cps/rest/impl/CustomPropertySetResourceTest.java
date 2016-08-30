@@ -10,20 +10,25 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -131,6 +136,11 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_2));
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        PropertyInfo propertyInfo = mock(PropertyInfo.class);
+        propertyInfo.key = "customAttribute";
+        propertyInfo.required = true;
+        propertyInfo.propertyTypeInfo = mock(PropertyTypeInfo.class);
+        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenReturn(propertyInfo);
         return registeredCustomPropertySet;
     }
 

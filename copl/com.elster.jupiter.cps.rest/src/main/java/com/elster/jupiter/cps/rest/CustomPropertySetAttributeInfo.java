@@ -1,6 +1,7 @@
 package com.elster.jupiter.cps.rest;
 
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
