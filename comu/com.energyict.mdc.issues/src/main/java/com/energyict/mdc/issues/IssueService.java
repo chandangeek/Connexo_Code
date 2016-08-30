@@ -1,7 +1,6 @@
 package com.energyict.mdc.issues;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
@@ -19,7 +18,7 @@ public interface IssueService {
      *
      * @return The new IssueCollector
      */
-    IssueCollector newIssueCollector ();
+    IssueCollector newIssueCollector();
 
     /**
      * Creates a new {@link IssueCollector} that is ready
@@ -28,26 +27,26 @@ public interface IssueService {
      * @param sourceType The type against which Issues will be created
      * @return The new IssueCollector
      */
-    IssueCollector newIssueCollector (Class sourceType);
+    IssueCollector newIssueCollector(Class sourceType);
 
     /**
      * Creates a new {@link Problem} with the specified description
      * that is caused by the specified source object.
      *
-     * @param source The object that caused the problem
+     * @param source      The object that caused the problem
      * @param description The {@link MessageSeed} holding the translation key and default format to describe the problem
-     * @param arguments Additional arguments to put into the description
+     * @param arguments   Additional arguments to put into the description
      */
-    Problem newProblem (Object source, MessageSeed description, Object... arguments);
+    Problem newProblem(Object source, MessageSeed description, Object... arguments);
 
     /**
      * Creates a new {@link Warning} with the specified description
      * that is caused by the specified source object.
      *
-     * @param source The object that caused the warning
+     * @param source      The object that caused the warning
      * @param description The {@link MessageSeed} holding the translation key and default format to describe the warning message
-     * @param arguments Additional arguments to put into the description
+     * @param arguments   Additional arguments to put into the description
      */
-    Warning newWarning (Object source, MessageSeed description, Object... arguments);
+    Warning newWarning(Object source, MessageSeed description, Object... arguments);
 
 }
