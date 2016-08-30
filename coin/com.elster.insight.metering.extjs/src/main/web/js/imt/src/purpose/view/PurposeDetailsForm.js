@@ -44,7 +44,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                         htmlEncode: false,
                         renderer: function (status, meta, record) {
                             if (!Ext.isEmpty(status)) {
-                                var icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                                var icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
                                     + status.name
                                     + '"></i>';
                                 return status.name + icon
