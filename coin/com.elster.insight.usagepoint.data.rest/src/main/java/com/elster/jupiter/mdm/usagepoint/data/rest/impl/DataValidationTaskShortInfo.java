@@ -1,12 +1,13 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 
 public class DataValidationTaskShortInfo {
 
     public long id;
     public String name;
-    public String trigger;
+    public PeriodicalExpressionInfo schedule;
 
     public DataValidationTaskShortInfo() {
     }
@@ -15,7 +16,7 @@ public class DataValidationTaskShortInfo {
         id = dataValidationTaskInfo.getId();
         name = dataValidationTaskInfo.getName();
         if (dataValidationTaskInfo.lastValidationOccurence != null) {
-            trigger = dataValidationTaskInfo.lastValidationOccurence.trigger;
+            schedule = dataValidationTaskInfo.schedule;
         }
     }
 }
