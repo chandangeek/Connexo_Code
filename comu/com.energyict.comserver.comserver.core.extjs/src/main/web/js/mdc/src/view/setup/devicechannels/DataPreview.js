@@ -33,10 +33,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             me.down('#general-panel').setTitle(title);
             me.down('#values-panel').setTitle(title);
             me.down('#mdc-qualities-panel').setTitle(title);
-            me.down('#general-panel').loadRecord(record);
-            me.down('#values-panel').loadRecord(record);
+            me.down('#general-panel').loadRecord(detailRecord);
+            me.down('#values-panel').loadRecord(detailRecord);
 
-            if (record.get('multiplier')) {
+            if (detailRecord.get('multiplier')) {
                 me.down('#general-panel #mdc-multiplier').show();
                 me.down('#values-panel #mdc-multiplier').show();
             } else {
@@ -51,18 +51,20 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         channelBulkValueField = me.down('#channelBulkValue' + channel.id),
                         containter = me.down("#channelFieldContainer" + channel.id);
 
-                    if (record.get('channelValidationData')[channel.id]) {
-                        mainValidationInfo = record.get('channelValidationData')[channel.id].mainValidationInfo;
-                        bulkValidationInfo = record.get('channelValidationData')[channel.id].bulkValidationInfo;
-                        dataQualities = record.get('channelValidationData')[channel.id].readingQualities;
-                        //containter.down('#mainValidationInfo' + channel.id).setValue(mainValidationInfo);
+                    if (detailRecord.get('channelValidationData')[channel.id]) {
+                        mainValidationInfo = detailRecord.get('channelValidationData')[channel.id].mainValidationInfo;
+                        bulkValidationInfo = detailRecord.get('channelValidationData')[channel.id].bulkValidationInfo;
+                        dataQualities = detailRecord.get('channelValidationData')[channel.id].readingQualities;
+                        if (containter.down('#mainValidationInfo' + channel.id)) {
+                            containter.down('#mainValidationInfo' + channel.id).setValue(mainValidationInfo);
+                        }
                         containter.down('#bulkValidationInfo' + channel.id).setValue(bulkValidationInfo);
 
                         if (me.down('#channelValue' + channel.id)) {
-                            me.down('#channelValue' + channel.id).setValue(record.get('channelData')[channel.id]);
+                            me.down('#channelValue' + channel.id).setValue(detailRecord.get('channelData')[channel.id]);
                         }
                         if (channelBulkValueField) {
-                            channelBulkValueField.setValue(record.get('channelCollectedData')[channel.id]);
+                            channelBulkValueField.setValue(detailRecord.get('channelCollectedData')[channel.id]);
                         }
                         dataQualitiesForChannels |= !Ext.isEmpty(dataQualities);
                         me.setDataQualityForChannel(channel.id, dataQualities);
@@ -79,17 +81,17 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     me.down('#mdc-noReadings-msg').hide();
                 }
                 Ext.Array.findBy(me.channels, function (channel) {
-                    if (record.get('channelValidationData')[channel.id]) {
-                        me.down('#readingDataValidated').setValue(record.get('channelValidationData')[channel.id].dataValidated);
-                        return !record.get('channelValidationData')[channel.id].dataValidated;
+                    if (detailRecord.get('channelValidationData')[channel.id]) {
+                        me.down('#readingDataValidated').setValue(detailRecord.get('channelValidationData')[channel.id].dataValidated);
+                        return !detailRecord.get('channelValidationData')[channel.id].dataValidated;
                     }
                 });
             } else {
                 me.setDataQuality(detailRecord.get('readingQualities'));
-                me.down('#readingDataValidated').setValue(record.get('dataValidated'));
+                me.down('#readingDataValidated').setValue(detailRecord.get('dataValidated'));
                 var dataLoggerSlaveField = me.down('#mdc-channel-data-preview-data-logger-slave');
                 if (dataLoggerSlaveField) {
-                    dataLoggerSlaveField.setValue(record.get('slaveChannel'));
+                    dataLoggerSlaveField.setValue(detailRecord.get('slaveChannel'));
                 }
             }
 
@@ -464,14 +466,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 qualityItems.push(qualityItem);
             });
         } else {
-            var calculatedReadingType = me.channelRecord.get('calculatedReadingType');
             valuesItems.push(
                 {
                     xtype: 'fieldcontainer',
                     labelWidth: 200,
-                    fieldLabel: calculatedReadingType
-                        ? Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value')
-                        : Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                    fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                     layout: 'hbox',
                     items: [
                         {
@@ -492,17 +491,18 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     xtype: 'reading-qualities-field',
                     router: me.router,
                     labelWidth: 200,
-                    itemId: calculatedReadingType ? 'mainValidationInfo' : 'bulkValidationInfo',
-                    name: calculatedReadingType ? 'mainValidationInfo' : 'bulkValidationInfo',
+                    itemId: 'mainValidationInfo',
+                    name: 'mainValidationInfo',
                     htmlEncode: false
                 }
             );
+            var calculatedReadingType = me.channelRecord.get('calculatedReadingType');
             if (calculatedReadingType) {
                 valuesItems.push(
                     {
                         xtype: 'fieldcontainer',
                         labelWidth: 200,
-                        fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                        fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
                         layout: 'hbox',
                         items: [
                             {
