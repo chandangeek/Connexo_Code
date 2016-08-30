@@ -38,14 +38,11 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
     },
 
     showOverview: function () {
-        var me = this,
-            communicationTasksBuffered = me.getStore('Dsh.store.CommunicationTasksBuffered');
+        var me = this;
 
         this.getApplication().fireEvent('changecontentevent', Ext.widget('communications-bulk-browse', {
             router: me.getController('Uni.controller.history.Router')
         }));
-        communicationTasksBuffered.data.clear();
-        communicationTasksBuffered.loadPage(1);
     },
 
     doRequest: function () {
