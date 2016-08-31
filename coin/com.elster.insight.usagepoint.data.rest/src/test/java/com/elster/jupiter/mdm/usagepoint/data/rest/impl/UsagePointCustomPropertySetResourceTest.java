@@ -14,7 +14,10 @@ import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.util.time.Interval;
 
@@ -31,6 +34,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -97,11 +101,22 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         when(usagePointPropertySet.getEditPrivileges()).thenReturn(EnumSet.of(EditPrivilege.LEVEL_1));
         when(usagePointPropertySet.getId()).thenReturn(RCPS_ID);
         when(usagePointPropertySet.getUsagePoint()).thenReturn(usagePoint);
+
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
+        propertyTypeInfo.simplePropertyType = SimplePropertyType.TEXT;
+        PropertyInfo propertyInfo = new PropertyInfo();
+        propertyInfo.key = "testProperty";
+        propertyInfo.required = false;
+        propertyInfo.propertyTypeInfo = propertyTypeInfo;
+        PropertyValueInfo propertyValueInfo = new PropertyValueInfo();
+        propertyValueInfo.value = "version value";
+        propertyInfo.propertyValueInfo = propertyValueInfo;
+        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenReturn(propertyInfo);
     }
 
     private void testAnyCustomPropertySetsResponse(String url) {
         CustomPropertySetValues values = CustomPropertySetValues.empty();
-        values.setProperty(CPS_PROPERTY, "test value");
+        values.setProperty(CPS_PROPERTY, "version value");
         when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
         when(usagePointPropertySet.getValues()).thenReturn(values);
 
@@ -112,7 +127,7 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         assertThat(jsonModel.<String>get("$.customPropertySets[0].customPropertySetId")).isEqualTo(CPS_ID);
         assertThat(jsonModel.<List>get("$.customPropertySets[0].properties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.customPropertySets[0].properties[0].key")).isEqualTo(CPS_PROPERTY);
-        assertThat(jsonModel.<String>get("$.customPropertySets[0].properties[0].propertyValueInfo.value")).isEqualTo("test value");
+        assertThat(jsonModel.<String>get("$.customPropertySets[0].properties[0].propertyValueInfo.value")).isEqualTo("version value");
     }
 
     private void testAnyCustomPropertySetsNoUsagePoint(String url) throws IOException {
@@ -185,7 +200,7 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
     @Test
     public void testGetCustomPropertySetByRegisteredId() throws Exception {
         CustomPropertySetValues values = CustomPropertySetValues.empty();
-        values.setProperty(CPS_PROPERTY, "test value");
+        values.setProperty(CPS_PROPERTY, "version value");
         when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
         when(usagePointExtension.getAllPropertySets()).thenReturn(Collections.singletonList(usagePointPropertySet));
         when(usagePointPropertySet.getValues()).thenReturn(values);
@@ -203,7 +218,7 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         assertThat(jsonModel.<List>get("$.defaultEditPrivileges")).contains("LEVEL_1");
         assertThat(jsonModel.<List>get("$.properties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo(CPS_PROPERTY);
-        assertThat(jsonModel.<String>get("$.properties[0].propertyValueInfo.value")).isEqualTo("test value");
+        assertThat(jsonModel.<String>get("$.properties[0].propertyValueInfo.value")).isEqualTo("version value");
         assertThat(jsonModel.<String>get("$.properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
         assertThat(jsonModel.<Boolean>get("$.properties[0].required")).isEqualTo(false);
     }
@@ -295,17 +310,17 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
     public void testGetAllTimeSlicedCustomPropertySetValues() throws Exception {
         Instant now = Instant.now();
         CustomPropertySetValues version1 = CustomPropertySetValues.emptyDuring(Interval.of(null, now));
-        version1.setProperty(CPS_PROPERTY, "version 1");
+        version1.setProperty(CPS_PROPERTY, "version value");
         CustomPropertySetValues version2 = CustomPropertySetValues.emptyDuring(Interval.of(now, null));
-        version2.setProperty(CPS_PROPERTY, "version 2");
+        version2.setProperty(CPS_PROPERTY, "version value");
         when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
         when(usagePointPropertySet.getAllVersionValues()).thenReturn(Arrays.asList(version1, version2));
 
         String json = target("usagepoints/" + USAGE_POINT_MRID + "/customproperties/" + RCPS_ID + "/versions").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List>get("$.versions")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.versions[0].properties[0].propertyValueInfo.value")).isEqualTo("version 2");
-        assertThat(jsonModel.<String>get("$.versions[1].properties[0].propertyValueInfo.value")).isEqualTo("version 1");
+        assertThat(jsonModel.<String>get("$.versions[0].properties[0].propertyValueInfo.value")).isEqualTo("version value");
+        assertThat(jsonModel.<String>get("$.versions[1].properties[0].propertyValueInfo.value")).isEqualTo("version value");
     }
 
     @Test
