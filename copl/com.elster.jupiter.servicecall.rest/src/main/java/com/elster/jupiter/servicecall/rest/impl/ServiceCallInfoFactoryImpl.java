@@ -62,6 +62,11 @@ public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
         this.referenceResolver = referenceResolver;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     @Override
     public ServiceCallInfo detailed(ServiceCall serviceCall, Map<DefaultState, Long> childrenInformation) {
         ServiceCallInfo serviceCallInfo = summarized(serviceCall);
