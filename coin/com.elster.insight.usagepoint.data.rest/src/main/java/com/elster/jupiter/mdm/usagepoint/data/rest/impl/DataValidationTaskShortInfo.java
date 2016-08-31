@@ -15,8 +15,6 @@ public class DataValidationTaskShortInfo {
     public DataValidationTaskShortInfo(DataValidationTaskInfo dataValidationTaskInfo) {
         id = dataValidationTaskInfo.getId();
         name = dataValidationTaskInfo.getName();
-        if (dataValidationTaskInfo.lastValidationOccurence != null) {
-            schedule = dataValidationTaskInfo.schedule;
-        }
+        schedule = dataValidationTaskInfo.schedule;
     }
 }
