@@ -137,7 +137,7 @@ public class CustomPropertySetInfoFactory {
                     .collect(Collectors.toMap(PropertySpec::getName, Function.identity()));
             for (CustomPropertySetAttributeInfo property : info.properties) {
                 PropertySpec propertySpec = propertySpecMap.get(property.key);
-                if (propertySpec != null && property.propertyValueInfo != null && property.propertyValueInfo.value != null) {
+                if (propertySpec != null && property.propertyValueInfo != null && property.propertyValueInfo.value != null && this.propertyValueInfoService.getConverter(propertySpec) != null) {
                     values.setProperty(property.key, this.propertyValueInfoService.getConverter(propertySpec)
                             .convertInfoToValue(propertySpec, property.propertyValueInfo.value));
                 }

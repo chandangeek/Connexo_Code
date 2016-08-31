@@ -14,7 +14,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -40,11 +39,6 @@ public class CustomPropertySetApplication extends Application implements Message
     private volatile CustomPropertySetService customPropertySetService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile Clock clock;
-
-    @Activate
-    public void activate() {
-        propertyValueInfoService.addPropertyValueInfoConverter(new QuantityPropertyValueConverter());
-    }
 
     @Override
     public Set<Class<?>> getClasses() {
