@@ -71,7 +71,7 @@ Ext.define('Sct.controller.ServiceCallTypes', {
     changeLogLevel: function (record) {
         var me = this,
             store = Ext.getStore('Sct.store.LogLevels'),
-            view = Ext.widget('log-level-window', {
+            changeLogLevelWindow = Ext.widget('log-level-window', {
                 record: record,
                 store: store
             });
@@ -79,9 +79,8 @@ Ext.define('Sct.controller.ServiceCallTypes', {
         me.getPage().setLoading();
         store.load(function(records, operation, success) {
             if(success) {
-                view.show();
+                changeLogLevelWindow.show();
             }
-
             me.getPage().setLoading(false);
         });
     },
@@ -91,9 +90,9 @@ Ext.define('Sct.controller.ServiceCallTypes', {
             window = me.getChangeLogLevelWindow(),
             record = window.record,
             combobox = window.down('#log-level-field'),
-            loglevel;
-        loglevel = combobox.findRecordByDisplay(combobox.getRawValue());
-        record.set('logLevel', loglevel.data);
+            logLevel = combobox.findRecordByDisplay(combobox.getRawValue());
+
+        record.set('logLevel', logLevel.data);
         record.save( {
             success: function (record) {
                 me.getPage().down('#grd-service-call-types').getStore().load();
