@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
@@ -40,9 +41,10 @@ public class UsagePointTestResource {
         Optional<UsagePoint> usagePointOptional = meteringService.findUsagePoint(mRID);
         if (usagePointOptional.isPresent()) {
             UsagePoint usagePoint = usagePointOptional.get();
-            List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
 
             DataModel dataModel = ormService.getDataModel("MTR").get();
+            List<MeterActivation> meterActivations =
+                    dataModel.query(MeterActivation.class).select(Where.where("USAGEPOINTID").isEqualTo(usagePoint.getId()));
 
             try (Connection connection = dataModel.getConnection(true); Statement statement = connection.createStatement()) {
                 long usagePointId = usagePoint.getId();
