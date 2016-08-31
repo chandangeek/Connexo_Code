@@ -143,7 +143,7 @@ Ext.define('Cfg.model.ValidationTask', {
 
         return Ext.isEmpty(schedule)
             ? Uni.I18n.translate('validation.schedule.manual', 'CFG', 'On request')
-            : Uni.I18n.translate('validation.schedule.scheduled', 'CFG', 'Every {0} {1} started on {2}', [
+            : Uni.I18n.translate('validation.schedule.scheduled', 'CFG', 'Every {0} {1}. Next run {2}', [
             schedule.count,
             periodsStore.findRecord('name', schedule.timeUnit).get('displayValue'),
             this.get('nextRun') ? Uni.DateTime.formatDateTimeLong(this.get('nextRun')) : '-'
