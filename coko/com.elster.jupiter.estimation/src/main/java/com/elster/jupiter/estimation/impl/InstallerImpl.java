@@ -104,7 +104,7 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
         destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(SUBSCRIBER_NAME).create();
+        destinationSpec.subscribe(SUBSCRIBER_NAME);
     }
 
     @Override

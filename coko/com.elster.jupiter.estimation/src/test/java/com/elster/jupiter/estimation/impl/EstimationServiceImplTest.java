@@ -160,9 +160,7 @@ public class EstimationServiceImplTest {
         when(queueTableSpec.createDestinationSpec(any(String.class), any(Integer.class))).thenReturn(destinationSpec);
         doNothing().when(destinationSpec).save();
         doNothing().when(destinationSpec).activate();
-        DestinationSpec.SubscriberSpecBuilder subscriberSpecBuilder = mock(DestinationSpec.SubscriberSpecBuilder.class);
-        when(subscriberSpecBuilder.create()).thenReturn(subscriberSpec);
-        when(destinationSpec.subscribe(any(String.class))).thenReturn(subscriberSpecBuilder);
+        when(destinationSpec.subscribe(any(String.class))).thenReturn(subscriberSpec);
 
         when(timeService.findRelativePeriodCategoryByName(any(String.class))).thenReturn(Optional.of(relativePeriodCategory));
         when(timeService.findRelativePeriodByName(any(String.class))).thenReturn(Optional.of(relativePeriod));
@@ -237,7 +235,7 @@ public class EstimationServiceImplTest {
                 builder.addEstimated(block);
                 block.setReadingQualityType(readingQualityType2);
             });
-            estimationBlocks.subList(0, Math.max(0, estimationBlocks.size() - 1)).forEach(builder::addRemaining);
+            estimationBlocks.subList(0, Math.max(0, estimationBlocks.size() - 1)).stream().forEach(builder::addRemaining);
             return builder.build();
         }).when(estimator2).estimate(anyListOf(EstimationBlock.class), eq(QualityCodeSystem.MDC));
 
