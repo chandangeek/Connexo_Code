@@ -1,5 +1,9 @@
 Ext.define('Cfg.model.ValidationTask', {
     extend: 'Uni.model.Version',
+    requires: [
+        'Cfg.store.DaysWeeksMonths'
+    ],
+
     fields: [
 			'id', 'name',
         {
@@ -14,7 +18,9 @@ Ext.define('Cfg.model.ValidationTask', {
             name: 'metrologyContract',
             defaultValue: null
         },
-        'schedule', 'nextRun', 'lastRun',
+        {name: 'schedule', type: 'auto'},
+        {name: 'nextRun', type: 'date', dateFormat: 'time'},
+        {name: 'lastRun', type: 'date', dateFormat: 'time'},
         {
             name: 'schedule',
             defaultValue: null
@@ -130,6 +136,20 @@ Ext.define('Cfg.model.ValidationTask', {
             }
         }
     ],
+
+    getTriggerText: function() {
+        var schedule = this.get('schedule'),
+            periodsStore = Ext.getStore('Cfg.store.DaysWeeksMonths');
+
+        return Ext.isEmpty(schedule)
+            ? Uni.I18n.translate('validation.schedule.manual', 'CFG', 'On request')
+            : Uni.I18n.translate('validation.schedule.scheduled', 'CFG', 'Every {0} {1} started on {2}', [
+            schedule.count,
+            periodsStore.findRecord('name', schedule.timeUnit).get('displayValue'),
+            this.get('nextRun') ? Uni.DateTime.formatDateTimeLong(this.get('nextRun')) : '-'
+        ]);
+    },
+
     proxy: {
         type: 'rest',
          url: '/api/val/validationtasks',
