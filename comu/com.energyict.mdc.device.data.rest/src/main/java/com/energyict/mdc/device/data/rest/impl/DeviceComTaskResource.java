@@ -327,7 +327,7 @@ public class DeviceComTaskResource {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
-        comTaskExecutions.stream().filter(ComTaskExecution::isOnHold).forEach(ComTaskExecution::updateNextExecutionTimestamp);
+        comTaskExecutions.stream().filter(ComTaskExecution::isOnHold).forEach(ComTaskExecution::resume);
     }
 
     @PUT @Transactional

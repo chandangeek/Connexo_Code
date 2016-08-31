@@ -790,8 +790,8 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         info.device = getDeviceInfo();
         Response response = target("/devices/"+DEVICE_MRID+"/comtasks/activate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(comTaskExecution).updateNextExecutionTimestamp();
-        verify(newComTaskExecution).updateNextExecutionTimestamp();
+        verify(comTaskExecution).resume();
+        verify(newComTaskExecution).resume();
         verify(device).newAdHocComTaskExecution(comTaskEnablement2);
     }
 
@@ -825,10 +825,10 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         info.device = getDeviceInfo();
         Response response = target("/devices/"+DEVICE_MRID+"/comtasks/activate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(comTaskExecution).updateNextExecutionTimestamp();
-        verify(newComTaskExecution).updateNextExecutionTimestamp();
+        verify(comTaskExecution).resume();
+        verify(newComTaskExecution).resume();
         verify(device).newAdHocComTaskExecution(comTaskEnablement2);
-        verify(firmwareComTaskExecution, never()).updateNextExecutionTimestamp();
+        verify(firmwareComTaskExecution, never()).resume();
     }
     @Test
     public void deActivateAllWithoutFirmwareComTaskTest() {
