@@ -3,12 +3,12 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.metering.config.ExpressionNode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link ServerExpressionNode.Visitor}
@@ -21,30 +21,30 @@ import java.util.stream.Collectors;
  */
 class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void> {
 
-    private String sourceTableName;
+    private DataSourceTable source;
     private Collection<JoinClause> joinClauses = new ArrayList<>();
     private Set<String> joinTableNames = new HashSet<>();
 
-    JoinClausesForExpressionNode(String sourceTableName) {
+    JoinClausesForExpressionNode(DataSourceTable source) {
         super();
-        this.sourceTableName = sourceTableName;
+        this.source = source;
     }
 
     List<String> joinClauses() {
         return this.joinClauses
                 .stream()
-                .map(each -> each.joinWith(" JOIN ", this.sourceTableName))
+                .map(each -> each.joinWith(this.source))
                 .collect(Collectors.toList());
     }
 
     private void visitTimeSeries(String tableName) {
-        if (!this.sourceTableName.equals(tableName)) {
+        if (!this.source.getName().equals(tableName)) {
             this.add(new TimeSeriesJoinClause(tableName));
         }
     }
 
     private void visitCustomProperty(String tableName) {
-        if (!this.sourceTableName.equals(tableName)) {
+        if (!this.source.getName().equals(tableName)) {
             this.add(new PropertiesJoinClause(tableName));
         }
     }
@@ -102,20 +102,18 @@ class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void>
 
     @Override
     public Void visitOperation(OperationNode operationNode) {
-        this.visitAll(Arrays.asList(
-                operationNode.getLeftOperand(),
-                operationNode.getRightOperand()));
+        this.visitAll(Stream.of(operationNode.getLeftOperand(), operationNode.getRightOperand()));
         return null;
     }
 
     @Override
     public Void visitFunctionCall(FunctionCallNode functionCall) {
-        this.visitAll(functionCall.getArguments());
+        this.visitAll(functionCall.getArguments().stream());
         return null;
     }
 
-    private String visitAll(List<ServerExpressionNode> children) {
-        children.stream().forEach(child -> child.accept(this));
+    private String visitAll(Stream<ServerExpressionNode> children) {
+        children.forEach(child -> child.accept(this));
         return null;
     }
 
@@ -124,18 +122,10 @@ class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void>
         return aggregationNode.getAggregatedExpression().accept(this);
     }
 
-    private String timestampFrom(String tableName) {
-        return this.fullyQualified(tableName, SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName());
-    }
-
-    private String fullyQualified(String tableName, String columnName) {
-        return tableName + "." + columnName;
-    }
-
     private interface JoinClause {
         String tableName();
 
-        String joinWith(String prefix, String joinTableName);
+        String joinWith(DataSourceTable source);
     }
 
     private class TimeSeriesJoinClause implements JoinClause {
@@ -151,8 +141,8 @@ class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void>
         }
 
         @Override
-        public String joinWith(String prefix, String joinTableName) {
-            return prefix + this.tableName + " ON " + timestampFrom(this.tableName) + " = " + timestampFrom(joinTableName);
+        public String joinWith(DataSourceTable source) {
+            return source.timeSeriesJoinClause(this.tableName);
         }
     }
 
@@ -169,9 +159,8 @@ class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void>
         }
 
         @Override
-        public String joinWith(String prefix, String joinTableName) {
-            return prefix + this.tableName + " ON " + fullyQualified(this.tableName, "starttime") + " < " + timestampFrom(joinTableName)
-                    + " AND " + timestampFrom(joinTableName) + " <= " + fullyQualified(this.tableName, "endtime");
+        public String joinWith(DataSourceTable source) {
+            return source.propertiesJoinClause(this.tableName);
         }
     }
 

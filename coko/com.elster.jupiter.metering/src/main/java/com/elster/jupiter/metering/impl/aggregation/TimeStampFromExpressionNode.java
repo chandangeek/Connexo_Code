@@ -30,7 +30,7 @@ class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor<String
     @Override
     public String visitProperty(CustomPropertyNode property) {
         if (property.getCustomPropertySet().isVersioned()) {
-            return property.sqlName() + ".timestamp";
+            return property.sqlName() + ".starttime";
         } else {
             return null;
         }

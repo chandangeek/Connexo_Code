@@ -16,21 +16,23 @@ import java.util.List;
  */
 class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<Void> {
 
-    private final String defaultTableName;
+    private static final String STARTTIMESTART_TIME = "starttime";
+    private static final String END_TIME = "endtime";
+    private final DataSourceTable defaultSourceTable;
     private String propertyTableName;
     private String timeSeriesTableName;
 
-    FromClauseForExpressionNode(String defaultTableName) {
-        this.defaultTableName = defaultTableName;
+    FromClauseForExpressionNode(DataSourceTable defaultSourceTable) {
+        this.defaultSourceTable = defaultSourceTable;
     }
 
-    String getTableName() {
+    DataSourceTable getSource() {
         if (this.timeSeriesTableName != null) {
-            return this.timeSeriesTableName;
+            return new TimeSeriesTable(this.timeSeriesTableName);
         } else if (this.propertyTableName != null) {
-            return this.propertyTableName;
+            return new CustomPropertyTable(this.propertyTableName);
         } else {
-            return this.defaultTableName;
+            return this.defaultSourceTable;
         }
     }
 
@@ -103,6 +105,65 @@ class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<Void> 
     @Override
     public Void visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
         return aggregationNode.getAggregatedExpression().accept(this);
+    }
+
+    private static String timestampFrom(String tableName) {
+        return fullyQualified(tableName, SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName());
+    }
+
+    private static String fullyQualified(String tableName, String columnName) {
+        return tableName + "." + columnName;
+    }
+
+    private static class TimeSeriesTable implements DataSourceTable {
+        private final String name;
+
+        private TimeSeriesTable(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public String propertiesJoinClause(String tableName) {
+            return " JOIN " + tableName + " ON (    " + fullyQualified(tableName, STARTTIMESTART_TIME) + " < " + timestampFrom(this.name) +
+                    "                            AND " + timestampFrom(this.name) + " <= " + fullyQualified(tableName, END_TIME) + ")";
+        }
+
+        @Override
+        public String timeSeriesJoinClause(String tableName) {
+            return " JOIN " + tableName + " ON " + timestampFrom(tableName) + " = " + timestampFrom(this.name);
+        }
+    }
+
+    private static class CustomPropertyTable implements DataSourceTable {
+        private final String name;
+
+        private CustomPropertyTable(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public String timeSeriesJoinClause(String tableName) {
+            return " JOIN " + tableName + " ON (    " + fullyQualified(this.name, STARTTIMESTART_TIME) + " < " + timestampFrom(tableName) +
+                   "                            AND " + timestampFrom(tableName) + " <= " + fullyQualified(this.name, END_TIME) + ")";
+        }
+
+        @Override
+        public String propertiesJoinClause(String tableName) {
+            return " JOIN " + tableName + " ON (   (    " + fullyQualified(this.name, STARTTIMESTART_TIME) + " <= " + fullyQualified(tableName, STARTTIMESTART_TIME) +
+                   "                                AND " + fullyQualified(this.name, END_TIME) + " >= " + fullyQualified(tableName, STARTTIMESTART_TIME) + ")" +
+                   "                            OR (    " + fullyQualified(tableName, STARTTIMESTART_TIME) + " <= " + fullyQualified(this.name, STARTTIMESTART_TIME) +
+                   "                                AND " + fullyQualified(tableName, END_TIME) + " >= " + fullyQualified(this.name, STARTTIMESTART_TIME) + "))";
+        }
     }
 
 }

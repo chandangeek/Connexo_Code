@@ -279,11 +279,20 @@ class CalculatedReadingRecord implements BaseReadingRecord {
 
     @Override
     public Optional<Range<Instant>> getTimePeriod() {
-        MeterActivation meterActivation = this.usagePoint.getMeterActivations(this.getTimeStamp())
+        Optional<MeterActivation> meterActivation = this.usagePoint.getMeterActivations(this.getTimeStamp())
                 .stream()
-                .findFirst()
-                .get();
-        ZoneId zoneId = meterActivation.getChannelsContainer().getZoneId();
+                .findFirst();
+        if (meterActivation.isPresent()) {
+            return this.getTimePeriod(meterActivation.get().getStart(), meterActivation.get().getChannelsContainer().getZoneId());
+        } else {
+            ZoneId zoneId = ZoneId.of("UTC");
+            IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
+            Instant start = truncaterFactory.truncaterFor(this.getReadingType()).truncate(this.getTimeStamp(), intervalLength, zoneId);
+            return this.getTimePeriod(start, zoneId);
+        }
+    }
+
+    private Optional<Range<Instant>> getTimePeriod(Instant start, ZoneId zoneId) {
         IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
         InstantTruncater truncater = truncaterFactory.truncaterFor(this.getReadingType());
         Instant truncatedTimestamp = truncater.truncate(this.getTimeStamp(), intervalLength, zoneId);
@@ -308,7 +317,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             }
         } else {
             // No meter activation, clip TimePeriod to start of meter activation
-            return Optional.of(Range.openClosed(meterActivation.getStart(), endCandidate));
+            return Optional.of(Range.openClosed(start, endCandidate));
         }
     }
 

@@ -7,12 +7,20 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
+import com.elster.jupiter.metering.aggregation.VirtualUsagePointsOnlySupportConstantLikeExpressionsException;
+import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.nls.Thesaurus;
@@ -35,7 +43,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -85,10 +93,26 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
         Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation = new LinkedHashMap<>();
         VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
-        this.getMeterActivationSets(usagePoint, clippedPeriod)
-                .forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation));
+        List<MeterActivationSet> meterActivationSets = this.getMeterActivationSets(usagePoint, clippedPeriod);
+        if (meterActivationSets.isEmpty()) {
+            if (usagePoint.isVirtual()) {
+                /* No meter activations is only supported for unmeasured usage points
+                 * if all formulas of the contract are using only constants
+                 * or expressions that behave as a constant (e.g. custom properties). */
+                if (this.onlyConstantLikeExpressions(contract)) {
+                    MeterActivationSetImpl meterActivationSet = new MeterActivationSetImpl((UsagePointMetrologyConfiguration) contract.getMetrologyConfiguration(), 1, clippedPeriod, clippedPeriod.lowerEndpoint());
+                    this.prepare(usagePoint, meterActivationSet, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
+                } else {
+                    throw new VirtualUsagePointsOnlySupportConstantLikeExpressionsException(this.getThesaurus());
+                }
+            } else {
+                return noData(usagePoint, contract, period);
+            }
+        } else {
+            meterActivationSets.forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation));
+        }
         if (deliverablesPerMeterActivation.isEmpty()) {
-            return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, Collections.emptyMap(), this.truncaterFactory);
+            return noData(usagePoint, contract, period);
         } else {
             try {
                 return this.postProcess(
@@ -104,6 +128,20 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                 throw new UnderlyingSQLFailedException(e);
             }
         }
+    }
+
+    private boolean onlyConstantLikeExpressions(MetrologyContract contract) {
+        ConstantLikeExpression visitor = new ConstantLikeExpression(contract);
+        return contract
+                    .getDeliverables()
+                    .stream()
+                    .map(ReadingTypeDeliverable::getFormula)
+                    .map(Formula::getExpressionNode)
+                    .allMatch(expressionNode -> expressionNode.accept(visitor));
+    }
+
+    private CalculatedMetrologyContractDataImpl noData(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, Collections.emptyMap(), this.truncaterFactory);
     }
 
     private List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationForUsagePointInPeriod(UsagePoint usagePoint, Range<Instant> period) {
@@ -305,6 +343,54 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                     .findAny()
                     .orElseThrow(() -> new UnsupportedOperationException("Forward references to other deliverables is not supported yet"));
         }
+    }
+
+    private static class ConstantLikeExpression implements ExpressionNode.Visitor<Boolean> {
+        private final MetrologyContract contract;
+
+        private ConstantLikeExpression(MetrologyContract contract) {
+            this.contract = contract;
+        }
+
+        @Override
+        public Boolean visitNull(NullNode nullNode) {
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean visitConstant(ConstantNode constant) {
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean visitProperty(CustomPropertyNode property) {
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean visitRequirement(ReadingTypeRequirementNode requirement) {
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean visitDeliverable(ReadingTypeDeliverableNode deliverable) {
+            return this.contract.getDeliverables().contains(deliverable.getReadingTypeDeliverable());
+        }
+
+        @Override
+        public Boolean visitOperation(com.elster.jupiter.metering.config.OperationNode operationNode) {
+            return Stream
+                    .of(operationNode.getLeftOperand(), operationNode.getRightOperand())
+                    .allMatch(each -> each.accept(this));
+        }
+
+        @Override
+        public Boolean visitFunctionCall(com.elster.jupiter.metering.config.FunctionCallNode functionCall) {
+            return functionCall.getChildren()
+                    .stream()
+                    .allMatch(each -> each.accept(this));
+        }
+
     }
 
 }
