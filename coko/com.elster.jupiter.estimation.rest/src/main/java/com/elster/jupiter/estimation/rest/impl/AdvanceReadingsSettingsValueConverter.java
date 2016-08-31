@@ -4,10 +4,8 @@ import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
-import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.elster.jupiter.properties.rest.PropertyValueInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,20 +39,13 @@ public class AdvanceReadingsSettingsValueConverter implements PropertyValueConve
             advanceSettings = ((Map) map.get("readingType")).containsKey("mRID") ?
                     (String)((Map) map.get("readingType")).get("mRID") : (String)((Map) map.get("readingType")).get("mrid");
         }
-        return  propertySpec.getValueFactory().fromStringValue(advanceSettings);
+        return propertySpec.getValueFactory().fromStringValue(advanceSettings);
     }
 
     @Override
-    public PropertyValueInfo convertValueToInfo(PropertySpec propertySpec, Object propertyValue, Object defaultValue) {
-        Map <String, Boolean> defaultValueMap = new HashMap<>();
-        if (defaultValue != null) {
-            defaultValueMap.put(defaultValue.toString(), true);
-        }
-        if (propertyValue != null && !(propertyValue instanceof ReadingTypeAdvanceReadingsSettings)){
-            Map <String, Boolean> propertyValueMap = new HashMap<>();
-            propertyValueMap.put(propertyValue.toString(), true);
-            propertyValue = propertyValueMap;
-        }
-        return new PropertyValueInfo<>(propertyValue, defaultValueMap);
+    public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
+        Map<String, Boolean> valueMap = new HashMap<>();
+        valueMap.put(domainValue.toString(), true);
+        return valueMap;
     }
 }
