@@ -2,14 +2,6 @@ package com.energyict.mdc.issue.issue.datacollection.rest;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
-
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -17,14 +9,22 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
 
 import javax.ws.rs.core.Application;
 import java.time.Instant;
@@ -62,6 +62,8 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
     CommunicationTaskService communicationTaskService;
     @Mock
     BpmService bpmService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
     @Override
     protected Application getApplication() {
@@ -81,6 +83,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         application.setAppService(appService);
         application.setJsonService(jsonService);
         application.setCommunicationTaskService(communicationTaskService);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 

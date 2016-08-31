@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -62,6 +63,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile JsonService jsonService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile BpmService bpmService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     public IssueDataCollectionApplication() {
     }
@@ -141,6 +143,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
         this.deviceService = deviceService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
     public void setLicense(License license) {
     }
@@ -197,6 +204,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
         }
     }
 }
