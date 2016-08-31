@@ -344,7 +344,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
                 break;
             case 'changeconfig':
-                message = Ext.isEmpty(me.devices)
+                finalMessage = Ext.isEmpty(me.devices)
                     ? Uni.I18n.translate('searchItems.bulk.devConfigQueuedTitle.all', 'MDC', 'All devices are queued to change their configuration.')
                     : Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', me.devices.length, 'MDC',
                     'No devices are queued to change their configuration.',
