@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLoggerImpl;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -95,7 +94,7 @@ public class DeviceReadingsImportLogger extends FileImportLoggerImpl<DeviceReadi
         long numberOfFailedReadings = getNumberOfFailedReadings();
         long numberOfSuccessReadings = getNumberOfSuccessReadings();
 
-        if (numberOfSuccessReadings == 0 && numberOfFailedReadings == 0) {
+        if (numberOfSuccessReadings == 0) {
             // No readings were processed (No devices in file)
             fileImportOccurrence.markFailure(this.context.getThesaurus().getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
         } else if (numberOfSuccessReadings != 0 && numberOfFailedReadings == 0 && warnings == 0) {
