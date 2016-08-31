@@ -1,25 +1,38 @@
 Ext.define('Uni.view.search.field.internal.NumberField', {
+    //TODO: replace with Ext.form.field.Number
     extend: 'Ext.panel.Panel',
     xtype: 'uni-search-internal-numberfield',
     width: '455',
     layout: 'fit',
     itemsDefaultConfig: {},
 
+    getField: function() {
+        return this.down('#filter-input')
+    },
+
+    isValid: function() {
+        return this.getField().isValid();
+    },
+
+    validate: function() {
+        return this.getField().validate();
+    },
+
     setValue: function(value) {
-        this.down('#filter-input').setValue(value);
+        this.getField().setValue(value);
     },
 
     getValue: function() {
-        return this.down('#filter-input').getValue();
+        return this.getField().getValue();
     },
 
     reset: function() {
-        this.down('#filter-input').reset();
+        this.getField().reset();
         this.fireEvent('reset', this);
     },
 
     onChange: function() {
-        this.down('#filter-input').validate();
+        this.getField().validate();
         this.fireEvent('change', this, this.getValue());
     },
 
@@ -37,8 +50,12 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
                 itemId: 'filter-input',
                 width: 180,
                 maxValue: Number.MAX_SAFE_INTEGER,
+                minValue: 0,
                 maxLength: 15,
+                allowBlank: true,
+                allowExponential: false,
                 enforceMaxLength: true,
+                validateOnBlur: false,
                 margin: '0 5 0 0',
                 listeners: {
                     change:{

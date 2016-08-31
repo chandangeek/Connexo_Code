@@ -15,7 +15,7 @@ Ext.define('Uni.view.search.field.Numeric', {
 
     onValueChange: function () {
         var value = this.getValue(),
-            clearBtn = this.down('#clearall');
+            clearBtn = this.down('button[action=reset]');
 
         this.callParent(arguments);
 

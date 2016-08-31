@@ -43,9 +43,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
             Ext.suspendLayouts();
 
             me.remove(me.getField());
-            me.field = me.add({
+            me.field = me.add(Ext.apply({
                 xtype: xtype,
-                itemsDefaultConfig: me.itemsDefaultConfig,
                 listeners: {
                     change: function() {
                         me.fireEvent('change', me.getValue())
@@ -54,12 +53,12 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
                         me.fireEvent('reset')
                     }
                 }
-            });
+            }, me.itemsDefaultConfig));
 
             Ext.resumeLayouts(true);
 
             if (me.rendered) {
-                me.fireEvent('change', me.getValue());
+                me.fireEvent('change', null);
             }
         }
     },
@@ -86,6 +85,11 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
             this.reset();
         }
         Ext.resumeLayouts(true);
+    },
+
+    isValid: function() {
+        var field = this.getField();
+        return Ext.isFunction(field.isValid) ? field.isValid() : true;
     },
 
     reset: function() {
