@@ -181,6 +181,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private void createServices(BundleContext bundleContext, boolean createDefaultLocationTemplate) {
         this.meteringService = new MeteringServiceImpl(this, getDataModel(), getThesaurus(), getClock(), this.idsService,
                 this.eventService, this.queryService, this.messageService, this.jsonService, this.upgradeService);
+        this.meteringService.defineSupportedApplicationsUrls(bundleContext);
         this.meteringService.defineLocationTemplates(bundleContext, createDefaultLocationTemplate); // This call has effect on resulting table spec!
         this.truncaterFactory = new InstantTruncaterFactory(this.meteringService);
         if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
