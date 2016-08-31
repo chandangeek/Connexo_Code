@@ -24,10 +24,7 @@ import org.joda.time.DateTimeConstants;
 
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -89,6 +86,7 @@ public class DeviceCommandExecutorImplTest {
             ((Transaction) invocationOnMock.getArguments()[0]).perform();
             return true;
         });
+        when(user.getLocale()).thenReturn(Optional.of(Locale.ENGLISH));
         when(userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
     }
