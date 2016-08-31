@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -179,6 +180,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     CalendarInfoFactory calendarInfoFactory;
     @Mock
     CalendarService calendarService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -257,6 +260,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setCalendarInfoFactory(calendarInfoFactory);
         application.setCalendarService(calendarService);
         application.setLocationService(locationService);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 

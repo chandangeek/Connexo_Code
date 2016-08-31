@@ -353,6 +353,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setCalendarInfoFactory(inMemoryPersistence.getCalendarInfoFactory());
         application.setCalendarService(inMemoryPersistence.getCalendarService());
         application.setThreadPrincipalService(inMemoryPersistence.getThreadPrincipalService());
+        application.setPropertyValueInfoService(inMemoryPersistence.getPropertyValueInfoService());
         return application;
     }
 

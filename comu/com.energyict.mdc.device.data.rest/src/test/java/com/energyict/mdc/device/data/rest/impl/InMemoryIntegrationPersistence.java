@@ -38,6 +38,8 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoServiceModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.rest.whiteboard.impl.RestWhiteboardModule;
 import com.elster.jupiter.search.SearchService;
@@ -190,6 +192,7 @@ public class InMemoryIntegrationPersistence {
     private DataValidationKpiService dataValidationKpiService;
     private FiniteStateMachineService finiteStateMachineService;
     private ServiceCallService serviceCallService;
+    private PropertyValueInfoService propertyValueInfoService;
     private Injector injector;
 
     public InMemoryIntegrationPersistence() {
@@ -272,7 +275,8 @@ public class InMemoryIntegrationPersistence {
                 new ServiceCallModule(),
                 new ServiceCallRestModule(),
                 new CalendarModule(),
-                new CalendarRestModule()
+                new CalendarRestModule(),
+                new PropertyValueInfoServiceModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -325,6 +329,7 @@ public class InMemoryIntegrationPersistence {
             this.dataValidationKpiService = injector.getInstance(DataValidationKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.serviceCallService = injector.getInstance(ServiceCallService.class);
+            this.propertyValueInfoService = injector.getInstance(PropertyValueInfoService.class);
             injector.getInstance(CustomPropertySetService.class);
             initializePrivileges();
             ctx.commit();
@@ -575,6 +580,10 @@ public class InMemoryIntegrationPersistence {
 
     public ThreadPrincipalService getThreadPrincipalService() {
         return threadPrincipalService;
+    }
+
+    public PropertyValueInfoService getPropertyValueInfoService() {
+        return propertyValueInfoService;
     }
 
     public DeviceMessageSpecificationService getDeviceMessageSpecificationService() {
