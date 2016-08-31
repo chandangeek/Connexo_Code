@@ -77,7 +77,7 @@ public class Installer implements FullInstaller {
             DestinationSpec destinationSpec = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
                     .createDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION, DESTINATION_SPEC_RETRY_DELAY);
             destinationSpec.activate();
-            destinationSpec.subscribe(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER).create();
+            destinationSpec.subscribe(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER);
         }
     }
 }
