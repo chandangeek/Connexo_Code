@@ -13,7 +13,6 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -66,9 +65,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -84,8 +81,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class MeteringServiceImpl implements ServerMeteringService {
     private static final String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
     private static final String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
-    private static final String MDC_URL = "com.energyict.mdc.url";
-    private static final String ENERGY_AXIS_URL = "com.elster.jupiter.energyaxis.url";
+
 
     private IdsService idsService;
     private QueryService queryService;
@@ -100,7 +96,6 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     private volatile LocationTemplate locationTemplate;
     private static ImmutableList<TemplateField> locationTemplateMembers;
-    private Map<KnownAmrSystem, String> supportedApplicationsUrls = new HashMap<>();
 
     public MeteringServiceImpl(MeteringDataModelService meteringDataModelService, DataModel dataModel, Thesaurus thesaurus, Clock clock, IdsService idsService,
                                EventService eventService, QueryService queryService, MessageService messageService, JsonService jsonService,
@@ -307,10 +302,6 @@ public class MeteringServiceImpl implements ServerMeteringService {
      * @param createDefaultLocationTemplate true if the default location template should be created
      */
     final void defineLocationTemplates(BundleContext bundleContext, boolean createDefaultLocationTemplate) {
-        if (bundleContext != null) {
-            supportedApplicationsUrls.put(KnownAmrSystem.MDC, bundleContext.getProperty(MDC_URL));
-            supportedApplicationsUrls.put(KnownAmrSystem.ENERGY_AXIS, bundleContext.getProperty(ENERGY_AXIS_URL));
-        }
         if (createDefaultLocationTemplate) {
             if (locationTemplate == null) {
                 createDefaultLocationTemplate();
@@ -638,11 +629,6 @@ public class MeteringServiceImpl implements ServerMeteringService {
         EndDeviceControlTypeImpl endDeviceControlType = dataModel.getInstance(EndDeviceControlTypeImpl.class).init(mRID);
         dataModel.persist(endDeviceControlType);
         return endDeviceControlType;
-    }
-
-    @Override
-    public Map<KnownAmrSystem, String> getSupportedApplicationsUrls() {
-        return Collections.unmodifiableMap(supportedApplicationsUrls);
     }
 
     private void createNewTemplate(BundleContext context) {
