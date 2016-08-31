@@ -118,7 +118,7 @@ public class NextExecutionSpecsWithMinimizeConnectionsStrategyValidator implemen
      * @param connectionTask The OutboundConnectionTaskShadow
      */
     private void validateNoSimultaneousConnections(ScheduledConnectionTaskImpl connectionTask) {
-        if (connectionTask.isSimultaneousConnectionsAllowed()) {
+        if (connectionTask.getNumberOfSimultaneousConnections() > 1) {
             this.addViolation(MessageSeeds.OUTBOUND_CONNECTION_TASK_MINIMIZE_STRATEGY_NOT_COMPATIBLE_WITH_SIMULTANEOUS_CONNECTIONS);
         }
     }

@@ -4,12 +4,14 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.sync.KoreMeterConfigurationUpdater;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -73,17 +75,34 @@ public class RegisterUpdaterImpl implements Register.RegisterUpdater {
     @Override
     public void update() {
         DeviceImpl device = (DeviceImpl) register.getDevice();
-        if (register.getRegisterSpec() instanceof NumericalRegisterSpec) { //textRegisters don't have fraction digits and overflow values
-            if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null) {
+        if (register.getRegisterSpec() instanceof NumericalRegisterSpec) {
+            //textRegisters don't have fraction digits and overflow values
+            if (numberOfFractionDigitsHasChanged() || overflowValueHasChanged()) {
                 device.syncWithKore(new KoreMeterConfigurationUpdater(this.deviceService, this.readingTypeUtilService, this.clock, eventService)
                         .withRegisterUpdater(this));
                 device.executeSyncs();
             }
         }
-        if (this.overruledObisCode != null) {
+        if (obisCodeHasChanged()) {
             new DeviceObisCodeUsageUpdater().update(device, getReadingType(), overruledObisCode);
         }
         device.validateForUpdate();
         device.postSave();
+    }
+
+    private boolean numberOfFractionDigitsHasChanged() {
+        return (this.register instanceof NumericalRegister)
+                && this.overruledNbrOfFractionDigits != null
+                && ((NumericalRegister) this.register).getNumberOfFractionDigits() != this.overruledNbrOfFractionDigits;
+    }
+
+    private boolean overflowValueHasChanged() {
+        return (this.register instanceof NumericalRegister)
+                && this.overruledOverflowValue != null
+                && !((NumericalRegister) this.register).getOverflow().equals(Optional.ofNullable(this.overruledOverflowValue));
+    }
+
+    private boolean obisCodeHasChanged() {
+        return !this.register.getDeviceObisCode().equals(this.overruledObisCode);
     }
 }

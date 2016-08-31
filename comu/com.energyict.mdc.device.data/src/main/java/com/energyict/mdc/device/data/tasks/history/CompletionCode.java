@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.tasks.history;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -13,38 +14,39 @@ import java.util.Set;
  * Some outcomes are more serious then others and should
  * be given priority when processing.
  * The {@link #hasPriorityOver(CompletionCode)} and {@link #upgradeTo(CompletionCode)} methods will support that.
- *
+ * <p>
+ * Note that the ordinal of the entries below is used for that.
+ * <p>
  * User: sva
  * Date: 23/04/12
  * Time: 14:30
  */
 public enum CompletionCode {
-    Ok(EnumSet.of(ResultType.Supported)),
-    Rescheduled(EnumSet.noneOf(ResultType.class)),
-    ConfigurationWarning(EnumSet.of(ResultType.NotSupported, ResultType.ConfigurationMisMatch)),
-    ProtocolError(EnumSet.of(ResultType.DataIncomplete, ResultType.InCompatible)),
-    TimeError(EnumSet.noneOf(ResultType.class)),
-    ConfigurationError(EnumSet.of(ResultType.ConfigurationError)),
-    IOError(EnumSet.noneOf(ResultType.class)),
-    UnexpectedError(EnumSet.of(ResultType.Other)),
-    ConnectionError(EnumSet.noneOf(ResultType.class));
+    Ok(EnumSet.of(ResultType.Supported), 0),
+    ConfigurationWarning(EnumSet.of(ResultType.NotSupported, ResultType.ConfigurationMisMatch), 2),
+    NotExecuted(EnumSet.noneOf(ResultType.class), 1),
+    ProtocolError(EnumSet.of(ResultType.DataIncomplete, ResultType.InCompatible), 3),
+    ConfigurationError(EnumSet.of(ResultType.ConfigurationError), 5),
+    IOError(EnumSet.noneOf(ResultType.class), 6),
+    UnexpectedError(EnumSet.of(ResultType.Other), 7),
+    TimeError(EnumSet.noneOf(ResultType.class), 4),
+    InitError(EnumSet.noneOf(ResultType.class), 9),
+    TimeoutError(EnumSet.noneOf(ResultType.class), 10),
+    ConnectionError(EnumSet.noneOf(ResultType.class), 8);
 
+    private final int databaseValue;
     private Set<ResultType> relatedResultTypes;
 
-    CompletionCode (Set<ResultType> relatedResultTypes) {
+    CompletionCode(Set<ResultType> relatedResultTypes, int databaseValue) {
         this.relatedResultTypes = relatedResultTypes;
+        this.databaseValue = databaseValue;
     }
 
-    public int dbValue() {
-        return this.ordinal();
-    }
-
-    private boolean relatesTo (ResultType resultType) {
-        return this.relatedResultTypes.contains(resultType);
-    }
-
-    public static CompletionCode fromOrdinal(int ordinal) {
-        return values()[ordinal];
+    public static CompletionCode fromDBValue(int dbValue) {
+        return Arrays.stream(values())
+                .filter(completionCode -> completionCode.dbValue() == dbValue)
+                .findAny()
+                .orElseThrow(() -> new ApplicationException("No matching CompletionCode for DB value: " + dbValue));
     }
 
     /**
@@ -53,13 +55,21 @@ public enum CompletionCode {
      * @param resultType The ResultType
      * @return The CompletionCode
      */
-    public static CompletionCode forResultType (ResultType resultType) {
+    public static CompletionCode forResultType(ResultType resultType) {
         for (CompletionCode completionCode : values()) {
             if (completionCode.relatesTo(resultType)) {
                 return completionCode;
             }
         }
         throw new ApplicationException("No matching CompletionCode for ResultType: " + resultType);
+    }
+
+    public int dbValue() {
+        return databaseValue;
+    }
+
+    private boolean relatesTo(ResultType resultType) {
+        return this.relatedResultTypes.contains(resultType);
     }
 
     /**
@@ -81,11 +91,10 @@ public enum CompletionCode {
      * @param other The other CompletionCode
      * @return The most serious CompletionCode
      */
-    public CompletionCode upgradeTo (CompletionCode other) {
+    public CompletionCode upgradeTo(CompletionCode other) {
         if (hasPriorityOver(other)) {
             return this;
-        }
-        else {
+        } else {
             return other;
         }
     }
@@ -96,10 +105,9 @@ public enum CompletionCode {
      *
      * @param other The other CompletionCode
      * @return A flag that indicates if this CompletionCode is more serious than
-     *         the other and is therefore considered have a higher priority
+     * the other and is therefore considered have a higher priority
      */
-    public boolean hasPriorityOver (CompletionCode other) {
-        return other == null ||  this.compareTo(other) > 0;
+    public boolean hasPriorityOver(CompletionCode other) {
+        return other == null || this.compareTo(other) > 0;
     }
-
 }

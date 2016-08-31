@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -25,6 +26,7 @@ public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
     private Long id;
     private LoadProfileService loadProfileService;
+    private final ObisCode profileObisCode;
 
     private LoadProfile loadProfile;
 
@@ -33,12 +35,18 @@ public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
      */
     public LoadProfileIdentifierById() {
         super();
+        this.profileObisCode = null;
     }
 
-    public LoadProfileIdentifierById(Long id, LoadProfileService loadProfileService) {
-        this();
+    public LoadProfileIdentifierById(Long id, LoadProfileService loadProfileService, ObisCode obisCode) {
         this.id = id;
         this.loadProfileService = loadProfileService;
+        this.profileObisCode = obisCode;
+    }
+
+    @Override
+    public ObisCode getProfileObisCode() {
+        return profileObisCode;
     }
 
     @Override

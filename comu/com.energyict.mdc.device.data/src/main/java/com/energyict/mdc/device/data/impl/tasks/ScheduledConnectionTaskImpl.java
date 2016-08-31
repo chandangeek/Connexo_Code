@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,16 +18,7 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
@@ -66,7 +58,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private Instant plannedNextExecutionTimestamp;
     @SuppressWarnings("unused")
     private int priority;
-    private boolean allowSimultaneousConnections;
+    @Range(min = 1, max = 16, message = '{' + MessageSeeds.Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS + '}', groups = {Save.Create.class, Save.Update.class})
+    private int numberOfSimultaneousConnections = 1;
     private Reference<ConnectionInitiationTask> initiationTask = ValueReference.absent();
     private int maxNumberOfTries = -1;
     private UpdateStrategy updateStrategy = new Noop();
@@ -478,13 +471,13 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    public boolean isSimultaneousConnectionsAllowed() {
-        return allowSimultaneousConnections;
+    public int getNumberOfSimultaneousConnections() {
+        return numberOfSimultaneousConnections;
     }
 
     @Override
-    public void setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections) {
-        this.allowSimultaneousConnections = allowSimultaneousConnections;
+    public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
+        this.numberOfSimultaneousConnections = numberOfSimultaneousConnections;
     }
 
     @Override

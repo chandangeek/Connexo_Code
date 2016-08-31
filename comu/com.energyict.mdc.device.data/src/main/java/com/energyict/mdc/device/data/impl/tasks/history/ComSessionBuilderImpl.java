@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -32,10 +33,10 @@ import java.util.Optional;
 public class ComSessionBuilderImpl implements ComSessionBuilder {
     private class UnderConstruction implements ComSessionBuilder {
 
-        private final LongCounter sentBytes = Counters.newStrictLongCounter();
-        private final LongCounter receivedBytes = Counters.newStrictLongCounter();
-        private final LongCounter sentPackets = Counters.newStrictLongCounter();
-        private final LongCounter receivedPackets = Counters.newStrictLongCounter();
+        private LongCounter sentBytes = Counters.newStrictLongCounter();
+        private LongCounter receivedBytes = Counters.newStrictLongCounter();
+        private LongCounter sentPackets = Counters.newStrictLongCounter();
+        private LongCounter receivedPackets = Counters.newStrictLongCounter();
 
         private ComSessionImpl comSession;
 
@@ -49,6 +50,11 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             ComTaskExecutionSessionBuilderImpl builder = new ComTaskExecutionSessionBuilderImpl(parentBuilder(), comTaskExecution, comTask, device, startDate);
             comTaskExecutions.add(builder);
             return builder;
+        }
+
+        @Override
+        public void addComTaskExecutionSession(ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder) {
+            comTaskExecutions.add((ComTaskExecutionSessionBuilderImpl) comTaskExecutionSessionBuilder);
         }
 
         @Override
@@ -78,6 +84,50 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         public ComSessionBuilder addSentPackets(long numberOfPackets) {
             sentPackets.add(numberOfPackets);
             return parentBuilder();
+        }
+
+        @Override
+        public ComSessionBuilder resetReceivedBytes() {
+            receivedBytes = Counters.newStrictLongCounter();
+            return this;
+        }
+
+        @Override
+        public ComSessionBuilder resetReceivedPackets() {
+            receivedPackets = Counters.newStrictLongCounter();
+            return this;
+        }
+
+        @Override
+        public ComSessionBuilder resetSentBytes() {
+            sentBytes = Counters.newStrictLongCounter();
+            return this;
+        }
+
+        @Override
+        public ComSessionBuilder resetSentPackets() {
+            sentPackets = Counters.newStrictLongCounter();
+            return this;
+        }
+
+        @Override
+        public long getSentBytes() {
+            return sentBytes.getValue();
+        }
+
+        @Override
+        public long getReceivedBytes() {
+            return receivedBytes.getValue();
+        }
+
+        @Override
+        public long getSentPackets() {
+            return sentPackets.getValue();
+        }
+
+        @Override
+        public long getReceivedPackets() {
+            return receivedPackets.getValue();
         }
 
         @Override
@@ -168,6 +218,16 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             return parentBuilder();
         }
 
+        @Override
+        public void addJournalEntry(ComSessionJournalEntry entry) {
+            comSession.addJournalEntry(entry);
+        }
+
+        @Override
+        public List<ComSessionJournalEntry> getJournalEntries() {
+            return comSession.getJournalEntries();
+        }
+
         private String extractMessageFrom(Throwable cause) {
             if (Objects.nonNull(cause.getMessage())) {
                 return cause.getMessage();
@@ -199,6 +259,11 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             return Optional.empty();
         }
 
+        @Override
+        public List<? extends ComTaskExecutionSessionBuilder> getComTaskExecutionSessionBuilders() {
+            return comTaskExecutions;
+        }
+
         private UnderConstruction(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
             comSession = ComSessionImpl.from(dataModel, connectionTask, comPortPool, comPort, startTime);
         }
@@ -220,8 +285,18 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     }
 
     @Override
+    public List<? extends ComTaskExecutionSessionBuilder> getComTaskExecutionSessionBuilders() {
+        return state.getComTaskExecutionSessionBuilders();
+    }
+
+    @Override
     public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Instant startDate) {
         return state.addComTaskExecutionSession(comTaskExecution, comTask, device, startDate);
+    }
+
+    @Override
+    public void addComTaskExecutionSession(ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder) {
+        state.addComTaskExecutionSession(comTaskExecutionSessionBuilder);
     }
 
     @Override
@@ -242,6 +317,46 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     @Override
     public ComSessionBuilder addSentPackets(long numberOfPackets) {
         return state.addSentPackets(numberOfPackets);
+    }
+
+    @Override
+    public ComSessionBuilder resetReceivedBytes() {
+        return state.resetReceivedBytes();
+    }
+
+    @Override
+    public ComSessionBuilder resetReceivedPackets() {
+        return state.resetReceivedPackets();
+    }
+
+    @Override
+    public long getSentBytes() {
+        return state.getSentBytes();
+    }
+
+    @Override
+    public long getReceivedBytes() {
+        return state.getReceivedBytes();
+    }
+
+    @Override
+    public long getSentPackets() {
+        return state.getSentPackets();
+    }
+
+    @Override
+    public long getReceivedPackets() {
+        return state.getReceivedPackets();
+    }
+
+    @Override
+    public ComSessionBuilder resetSentBytes() {
+        return state.resetSentBytes();
+    }
+
+    @Override
+    public ComSessionBuilder resetSentPackets() {
+        return state.resetSentPackets();
     }
 
     @Override
@@ -313,4 +428,13 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         return state.findFor(comTaskExecution);
     }
 
+    @Override
+    public void addJournalEntry(ComSessionJournalEntry entry) {
+        state.addJournalEntry(entry);
+    }
+
+    @Override
+    public List<ComSessionJournalEntry> getJournalEntries() {
+        return state.getJournalEntries();
+    }
 }

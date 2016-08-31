@@ -10,8 +10,8 @@ import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
  */
 public enum WithClauses {
 
-    BUSY_COMTASK_EXECUTION("select connectiontask from DDC_COMTASKEXEC where comport is not null and obsolete_date is null"),
-    BUSY_CONNECTION_TASK("select id as connectiontask from DDC_CONNECTIONTASK where comserver is not null");
+    BUSY_COMTASK_EXECUTION("select connectiontask, comport from DDC_COMTASKEXEC where comport is not null and obsolete_date is null"),
+    BUSY_CONNECTION_TASK("select id as connectiontask, lastcommunicationstart, comserver from DDC_CONNECTIONTASK where comserver is not null");
 
     private String withClause;
 

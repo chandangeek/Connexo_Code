@@ -9,14 +9,17 @@ import java.util.stream.Stream;
 public enum CompletionCodeTranslationKeys implements TranslationKey {
 
     OK(CompletionCode.Ok, "Successful"),
-    RESCHEDULED(CompletionCode.Rescheduled, "Rescheduled"),
     CONFIGURATION_WARNING(CompletionCode.ConfigurationWarning, "Configuration warning"),
-    CONFIGURATION_ERROR(CompletionCode.ConfigurationError, "Configuration error"),
+    NOT_EXECUTED(CompletionCode.NotExecuted, "Not executed"),
     PROTOCOL_ERROR(CompletionCode.ProtocolError, "Protocol error"),
-    TIME_ERROR(CompletionCode.TimeError, "Time error"),
-    CONNECTION_ERROR(CompletionCode.ConnectionError, "Connection error"),
+    CONFIGURATION_ERROR(CompletionCode.ConfigurationError, "Configuration error"),
+    IO_ERROR(CompletionCode.IOError, "I/O error"),
     UNEXPECTED_ERROR(CompletionCode.UnexpectedError, "Unexpected error"),
-    IO_ERROR(CompletionCode.IOError, "I/O error");
+    TIME_ERROR(CompletionCode.TimeError, "Time error"),
+    INIT_ERROR(CompletionCode.InitError, "Initialization error"),
+    TIMEOUT_ERROR(CompletionCode.TimeoutError, "Timeout error"),
+    CONNECTION_ERROR(CompletionCode.ConnectionError, "Connection error")
+    ;
 
     private CompletionCode completionCode;
     private String defaultFormat;
