@@ -282,11 +282,10 @@ public class ServiceCallTransitionIT {
 
         SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
                 .get();
-        SubscriberSpec.Receiver receiver = messageQueue.newReceiver();
 
         try (TransactionContext context = transactionService.getContext()) {
             Message message = await().atMost(TIMEOUT_IN_MILLIS, TimeUnit.MILLISECONDS)
-                    .until(receiver::receive, Matchers.any(Message.class));
+                    .until(messageQueue::receive, Matchers.any(Message.class));
 
             ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService, thesaurus);
 
@@ -331,10 +330,10 @@ public class ServiceCallTransitionIT {
 
         SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
                 .get();
-        SubscriberSpec.Receiver receiver = messageQueue.newReceiver();
+
         try (TransactionContext context = transactionService.getContext()) {
             Message message = await().atMost(TIMEOUT_IN_MILLIS, TimeUnit.MILLISECONDS)
-                    .until(receiver::receive, Matchers.any(Message.class));
+                    .until(messageQueue::receive, Matchers.any(Message.class));
 
             ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService, thesaurus);
 
@@ -387,10 +386,10 @@ public class ServiceCallTransitionIT {
 
         SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
                 .get();
-        SubscriberSpec.Receiver receiver = messageQueue.newReceiver();
+
         try (TransactionContext context = transactionService.getContext()) {
             Message message = await().atMost(TIMEOUT_IN_MILLIS, TimeUnit.MILLISECONDS)
-                    .until(receiver::receive, Matchers.any(Message.class));
+                    .until(messageQueue::receive, Matchers.any(Message.class));
 
             ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService, thesaurus);
 
@@ -443,10 +442,10 @@ public class ServiceCallTransitionIT {
 
         SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
                 .get();
-        SubscriberSpec.Receiver receiver = messageQueue.newReceiver();
+
         try (TransactionContext context = transactionService.getContext()) {
             Message message = await().atMost(500, TimeUnit.MILLISECONDS)
-                    .until(receiver::receive, Matchers.any(Message.class));
+                    .until(messageQueue::receive, Matchers.any(Message.class));
 
             ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService, thesaurus);
 
