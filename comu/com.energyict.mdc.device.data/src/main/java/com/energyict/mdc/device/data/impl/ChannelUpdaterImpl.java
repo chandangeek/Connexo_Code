@@ -9,6 +9,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -72,15 +73,29 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
     @Override
     public void update() {
         DeviceImpl device = (DeviceImpl) channel.getDevice();
-        if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null) {
+        if (numberOfFractionDigitsHasChanged() || overflowValueHasChanged()) {
             device.syncWithKore(new KoreMeterConfigurationUpdater(this.deviceService, this.readingTypeUtilService, this.clock, eventService)
                     .withChannelUpdater(this));
             device.executeSyncs();
         }
-        if (this.overruledObisCode != null) {
+        if (obisCodeHasChanged()) {
             new DeviceObisCodeUsageUpdater().update(device, getReadingType(), overruledObisCode);
         }
         device.validateForUpdate();
         device.postSave();
+    }
+
+    private boolean numberOfFractionDigitsHasChanged() {
+        return this.overruledNbrOfFractionDigits != null
+                && this.channel.getNrOfFractionDigits() != this.overruledNbrOfFractionDigits;
+    }
+
+    private boolean overflowValueHasChanged() {
+        return this.overruledOverflowValue != null
+                && !this.channel.getOverflow().equals(Optional.ofNullable(this.overruledOverflowValue));
+    }
+
+    private boolean obisCodeHasChanged() {
+        return !this.channel.getObisCode().equals(this.overruledObisCode);
     }
 }

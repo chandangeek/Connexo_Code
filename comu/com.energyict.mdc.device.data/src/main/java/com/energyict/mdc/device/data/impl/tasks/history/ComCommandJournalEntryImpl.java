@@ -69,7 +69,7 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
 
     private ComServer.LogLevel logLevelFor(CompletionCode completionCode) {
         switch (completionCode) {
-            case Rescheduled:   // Intentional fall-through
+            case NotExecuted:   // Intentional fall-through
             case Ok: {
                 return ComServer.LogLevel.INFO;
             }

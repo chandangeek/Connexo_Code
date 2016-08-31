@@ -20,8 +20,8 @@ public enum WithClauses {
             "  join enddevices kd on dev.meterid = kd.id " +
             "  LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct on ct.id = cte.connectiontask AND ct.comserver IS NOT NULL " +
             " where cte.obsolete_date is null"),
-    BUSY_COMTASK_EXECUTION("select connectiontask from " + TableSpecs.DDC_COMTASKEXEC.name() + " where comport is not null and obsolete_date is null"),
-    BUSY_CONNECTION_TASK("select id as connectiontask from " + TableSpecs.DDC_CONNECTIONTASK.name() + " where comserver is not null");
+    BUSY_COMTASK_EXECUTION("select connectiontask, comport from " + TableSpecs.DDC_COMTASKEXEC.name() + " where comport is not null and obsolete_date is null"),
+    BUSY_CONNECTION_TASK("select id as connectiontask, lastcommunicationstart, comserver from " + TableSpecs.DDC_CONNECTIONTASK.name() + " where comserver is not null");
 
     private String withClause;
 

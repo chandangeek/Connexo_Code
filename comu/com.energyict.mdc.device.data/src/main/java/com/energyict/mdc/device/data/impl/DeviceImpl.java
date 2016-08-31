@@ -2613,8 +2613,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
 
         @Override
-        public ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections) {
-            this.getScheduledConnectionTask().setSimultaneousConnectionsAllowed(allowSimultaneousConnections);
+        public ScheduledConnectionTaskBuilder setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
+            this.getScheduledConnectionTask().setNumberOfSimultaneousConnections(numberOfSimultaneousConnections);
             return this;
         }
 

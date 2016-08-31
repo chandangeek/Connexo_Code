@@ -335,7 +335,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
                 int completionCodeOrdinal = resultSet.getInt(2);
                 long counter = resultSet.getLong(3);
                 Map<CompletionCode, Long> successIndicatorCounters = this.getOrPutCompletionCodeCounters(businessObjectId, counters);
-                successIndicatorCounters.put(CompletionCode.fromOrdinal(completionCodeOrdinal), counter);
+                successIndicatorCounters.put(CompletionCode.fromDBValue(completionCodeOrdinal), counter);
             }
         }
         return counters;
@@ -407,7 +407,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
             while (resultSet.next()) {
                 int completionCodeOrdinal = resultSet.getInt(1);
                 long counter = resultSet.getLong(2);
-                counters.put(CompletionCode.fromOrdinal(completionCodeOrdinal), counter);
+                counters.put(CompletionCode.fromDBValue(completionCodeOrdinal), counter);
             }
         }
     }

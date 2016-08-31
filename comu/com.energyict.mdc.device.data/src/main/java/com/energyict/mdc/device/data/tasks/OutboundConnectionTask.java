@@ -1,17 +1,20 @@
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
-
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+
+import java.time.Instant;
 
 /**
  * Models a {@link ConnectionTask} that take initative to connect to external devices.
  * They are said to support outbound communication, i.e. communication that
  * is directed from inside the platform to the outside world.
  * An OutboundConnectionTask connects to external devices.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 13/09/12
  * Time: 13:25
@@ -39,9 +42,9 @@ public interface OutboundConnectionTask<PCTT extends PartialConnectionTask> exte
      * the execution of this OutboundConnectionTask has been retried.
      *
      * @return The current retry count
-     *         0 = no retries yet
-     *         1 = first retry
-     *         ...
+     * 0 = no retries yet
+     * 1 = first retry
+     * ...
      */
     int getCurrentRetryCount();
 
@@ -60,5 +63,14 @@ public interface OutboundConnectionTask<PCTT extends PartialConnectionTask> exte
      * @return the time to wait before we may retry after a failing sessions
      */
     TimeDuration getRescheduleDelay();
+
+    /**
+     * Applies the {@link ComWindow} to the calculated next execution timestamp
+     * of a {@link ServerComTaskExecution} before it is actually applied.
+     *
+     * @param calculatedNextExecutionTimestamp The calculated next execution timestamp
+     * @return The next execution timestamp
+     */
+    public Instant applyComWindowIfAny(Instant calculatedNextExecutionTimestamp);
 
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -26,17 +27,24 @@ import java.util.List;
 @XmlRootElement
 public class LoadProfileIdentifierFirstOnDevice implements LoadProfileIdentifier<LoadProfile> {
 
+    private final ObisCode profileObisCode;
     private DeviceIdentifier<Device> deviceIdentifier;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
     public LoadProfileIdentifierFirstOnDevice() {
+        profileObisCode = null;
     }
 
-    public LoadProfileIdentifierFirstOnDevice(DeviceIdentifier<Device> deviceIdentifier) {
-        super();
+    public LoadProfileIdentifierFirstOnDevice(DeviceIdentifier<Device> deviceIdentifier, ObisCode profileObisCode) {
         this.deviceIdentifier = deviceIdentifier;
+        this.profileObisCode = profileObisCode;
+    }
+
+    @Override
+    public ObisCode getProfileObisCode() {
+        return profileObisCode;
     }
 
     @Override

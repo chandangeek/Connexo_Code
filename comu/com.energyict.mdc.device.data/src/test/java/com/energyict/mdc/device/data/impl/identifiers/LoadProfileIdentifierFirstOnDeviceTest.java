@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -26,7 +27,7 @@ public class LoadProfileIdentifierFirstOnDeviceTest {
     public void testDeviceDoesNotExist () {
         DeviceIdentifier<Device> deviceIdentifier = mock(DeviceIdentifier.class);
         doThrow(NotFoundException.class).when(deviceIdentifier).findDevice();
-        LoadProfileIdentifier<LoadProfile> loadProfileIdentifier = new LoadProfileIdentifierFirstOnDevice(deviceIdentifier);
+        LoadProfileIdentifier<LoadProfile> loadProfileIdentifier = new LoadProfileIdentifierFirstOnDevice(deviceIdentifier, ObisCode.fromString("1.1.1.1.1.1"));
 
         // Business method
         loadProfileIdentifier.findLoadProfile();
@@ -40,7 +41,7 @@ public class LoadProfileIdentifierFirstOnDeviceTest {
         when(device.getLoadProfiles()).thenReturn(Collections.emptyList());
         DeviceIdentifier<Device> deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        LoadProfileIdentifier<LoadProfile> loadProfileIdentifier = new LoadProfileIdentifierFirstOnDevice(deviceIdentifier);
+        LoadProfileIdentifier<LoadProfile> loadProfileIdentifier = new LoadProfileIdentifierFirstOnDevice(deviceIdentifier, ObisCode.fromString("1.1.1.1.1.1"));
 
         // Business method
         LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
@@ -55,7 +56,7 @@ public class LoadProfileIdentifierFirstOnDeviceTest {
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile));
         DeviceIdentifier<Device> deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        LoadProfileIdentifier<LoadProfile> loadProfileIdentifier = new LoadProfileIdentifierFirstOnDevice(deviceIdentifier);
+        LoadProfileIdentifier<LoadProfile> loadProfileIdentifier = new LoadProfileIdentifierFirstOnDevice(deviceIdentifier, ObisCode.fromString("1.1.1.1.1.1"));
 
         // Business method
         LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
@@ -72,7 +73,7 @@ public class LoadProfileIdentifierFirstOnDeviceTest {
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile, anotherLoadProfile));
         DeviceIdentifier<Device> deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        LoadProfileIdentifier<LoadProfile> loadProfileIdentifier = new LoadProfileIdentifierFirstOnDevice(deviceIdentifier);
+        LoadProfileIdentifier<LoadProfile> loadProfileIdentifier = new LoadProfileIdentifierFirstOnDevice(deviceIdentifier, ObisCode.fromString("1.1.1.1.1.1"));
 
         // Business method
         LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();

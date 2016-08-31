@@ -43,6 +43,8 @@ public interface ComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>
      */
     U forceNextExecutionTimeStampAndPriority(Instant nextExecutionTimestamp, int executionPriority);
 
+    U forceLastExecutionStartTimestamp(Instant lastExecutionStartTimestamp);
+
     /**
      * Updates the actual ComTaskExecution with the objects set in this builder
      *

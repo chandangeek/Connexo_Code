@@ -93,7 +93,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
 
     private void appendBusyComTaskExecutionWithClause() {
         this.sqlBuilder.append(BUSY_TASK_ALIAS_NAME);
-        this.sqlBuilder.append(" as (select connectiontask /*+ NO_MERGE */ from DDC_COMTASKEXEC where comport is not null and obsolete_date is null)");
+        this.sqlBuilder.append(" as (select connectiontask, comport /*+ NO_MERGE */ from DDC_COMTASKEXEC where comport is not null and obsolete_date is null)");
     }
 
     private void appendConnectionTaskWithClause() {
@@ -126,7 +126,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
         this.sqlBuilder.append("      CASE");
         this.taskStatusses.forEach(each -> each.appendBreakdownCaseClause(this.sqlBuilder, clock));
         this.sqlBuilder.append("      END taskStatus");
-        this.sqlBuilder.append("    FROM CT WHERE not exists (SELECT 1 FROM busytask WHERE busytask.connectiontask = id)");
+        this.sqlBuilder.append("    FROM CT WHERE not exists (SELECT 1 FROM busytask WHERE busytask.connectiontask = id and comport is not null)");
         this.sqlBuilder.append("              AND comserver is null)");
     }
 

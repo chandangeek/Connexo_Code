@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -58,6 +59,11 @@ public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<Par
     @Override
     public int getMaxNumberOfTries() {
         return DEFAULT_MAX_NUMBER_OF_TRIES;
+    }
+
+    @Override
+    public Instant applyComWindowIfAny(Instant calculatedNextExecutionTimestamp) {
+        return calculatedNextExecutionTimestamp;    //Return as-is, this class has no comwindow
     }
 
     @Override
