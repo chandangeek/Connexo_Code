@@ -58,7 +58,7 @@ public enum MessageSeeds implements MessageSeed {
     REQUIRED_SECURITY_ATTRIBUTES_MISSED(404, "RequiredSecurityAttributesMissed", "Note for line {0}: Next required attribute(s) is(are) missed: {1}. The state of the security settings is \"Incomplete\".", Level.INFO),
     SECURITY_ATTRIBUTE_INVALID_VALUE(405, "SecurityAttributeInvalidValue", "Can''t process line {0}: Security attribute value ''{1}'' is invalid for attribute ''{2}''", Level.WARNING),
     INCORRECT_LOCATION_FORMAT(406, "IncorrectLocationFormat", "Incorrect location format. Expected : {0}", Level.SEVERE),
-    LINE_MISSING_LOCATION_VALUE(407, "LineMissingLocationValue", "Format error for line {0}: missing value for field ''{1}''.", Level.SEVERE),
+    LINE_MISSING_LOCATION_VALUE(407, "LineMissingLocationValue", "Can''t process line {0}: missing value for field ''{1}''.", Level.SEVERE),
 
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE(501, "UsagePointAlreadyLinkedToAnotherDeviceX", "Can''t process line {0}: Usage point with MRID: {1} is already linked to device with MRID: {2} starting from {3}", Level.WARNING),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(502, "UsagePointAlreadyLinkedToAnotherDeviceXUntil", "Can''t process line {0}: Usage point with MRID: {1} is already linked to device with MRID: {2} starting from {3} until {4}", Level.WARNING),
