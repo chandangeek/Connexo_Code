@@ -5,7 +5,8 @@ Ext.define('Imt.metrologyconfiguration.view.validation.PurposeWithTasksGrid', {
     router: null,
     metrologyConfig: null,
     requires: [
-        'Cfg.store.DaysWeeksMonths'
+        'Cfg.store.DaysWeeksMonths',
+        'Cfg.model.ValidationTask'
     ],
 
     initComponent: function () {
@@ -57,14 +58,8 @@ Ext.define('Imt.metrologyconfiguration.view.validation.PurposeWithTasksGrid', {
                 header: Uni.I18n.translate('validation.schedule', 'IMT', 'Schedule'),
                 dataIndex: 'schedule',
                 renderer: function (value, metaData, record) {
-                    //todo: replace started on?
-                    return Ext.isEmpty(value)
-                        ? Uni.I18n.translate('metrologyConfiguration.validation.schedule.manual', 'IMT', 'On request')
-                        : Uni.I18n.translate('metrologyConfiguration.validation.schedule.manual', 'IMT', 'Every {0} {1} started on {2}', [
-                            value.count,
-                            periodsStore.findRecord('name', value.timeUnit).get('displayValue'),
-                            record.get('nextRun') ? Uni.DateTime.formatDateTimeLong(record.get('nextRun')) : '-'
-                    ]);
+                    var task = new Cfg.model.ValidationTask(record.getData());
+                    return task.getTriggerText();
                 },
                 flex: 1
             }
