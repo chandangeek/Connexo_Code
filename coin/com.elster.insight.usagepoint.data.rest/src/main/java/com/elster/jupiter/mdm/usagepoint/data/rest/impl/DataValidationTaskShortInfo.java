@@ -8,6 +8,7 @@ public class DataValidationTaskShortInfo {
     public long id;
     public String name;
     public PeriodicalExpressionInfo schedule;
+    public Long nextRun;
 
     public DataValidationTaskShortInfo() {
     }
@@ -16,5 +17,7 @@ public class DataValidationTaskShortInfo {
         id = dataValidationTaskInfo.getId();
         name = dataValidationTaskInfo.getName();
         schedule = dataValidationTaskInfo.schedule;
+        nextRun = dataValidationTaskInfo.nextRun;
+
     }
 }
