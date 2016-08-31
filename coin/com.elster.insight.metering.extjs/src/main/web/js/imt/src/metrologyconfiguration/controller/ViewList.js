@@ -101,7 +101,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
 
         Ext.suspendLayouts();
         previewPanel.disableActionsButton(record.get('status').id == "deprecated");
-        previewPanel.setTitle(record.get('name'));
+        previewPanel.setTitle(Ext.htmlEncode(record.get('name')));
         previewPanel.loadRecord(record);
         Ext.resumeLayouts(true);
         if (menu) {
