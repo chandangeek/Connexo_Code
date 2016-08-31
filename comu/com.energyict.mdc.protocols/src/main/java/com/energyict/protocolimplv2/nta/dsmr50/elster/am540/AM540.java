@@ -1,56 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.ComServerRuntimeException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.ComChannelType;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.SerialComChannel;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SocketService;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialect;
-import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
@@ -59,8 +11,28 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.ApplicationServiceObjectV2;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.common.ComServerRuntimeException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.*;
+import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
+import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
+import com.energyict.protocolimplv2.common.MyOwnPrivateRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.g3.common.G3Topology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
@@ -71,19 +43,17 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messag
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles.AM540LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr50.registers.Dsmr50RegisterFactory;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
+import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialect;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -469,7 +439,7 @@ public class AM540 extends AbstractDlmsProtocol {
         }
     }
 
-    private CosemObjectFactory getCosemObjectFactory() {
+    protected CosemObjectFactory getCosemObjectFactory() {
         return this.getDlmsSession().getCosemObjectFactory();
     }
 
@@ -484,76 +454,5 @@ public class AM540 extends AbstractDlmsProtocol {
     @Override
     public boolean supportsCommunicationFirmwareVersion() {
         return true;
-    }
-
-    private static class MyOwnPrivateRegister implements OfflineRegister {
-
-        private final OfflineDevice device;
-        private final ObisCode obisCode;
-
-        private MyOwnPrivateRegister(OfflineDevice device, ObisCode obisCode) {
-            this.device = device;
-            this.obisCode = obisCode;
-        }
-
-        @Override
-        public long getRegisterId() {
-            return 0;
-        }
-
-        @Override
-        public ObisCode getObisCode() {
-            return this.obisCode;
-        }
-
-        @Override
-        public boolean inGroup(long registerGroupId) {
-            return false;
-        }
-
-        @Override
-        public boolean inAtLeastOneGroup(Collection<Long> registerGroupIds) {
-            return false;
-        }
-
-        @Override
-        public Unit getUnit() {
-            return Unit.getUndefined();
-        }
-
-        @Override
-        public String getDeviceMRID() {
-            return null;
-        }
-
-        @Override
-        public String getDeviceSerialNumber() {
-            return this.device.getSerialNumber();
-        }
-
-        @Override
-        public ObisCode getAmrRegisterObisCode() {
-            return obisCode;
-        }
-
-        @Override
-        public DeviceIdentifier<?> getDeviceIdentifier() {
-            return this.device.getDeviceIdentifier();
-        }
-
-        @Override
-        public ReadingType getReadingType() {
-            return null;
-        }
-
-        @Override
-        public BigDecimal getOverFlowValue() {
-            return null;
-        }
-
-        @Override
-        public boolean isText() {
-            return true;
-        }
     }
 }

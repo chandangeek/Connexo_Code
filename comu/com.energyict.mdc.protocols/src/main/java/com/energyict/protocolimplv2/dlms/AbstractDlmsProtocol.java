@@ -3,30 +3,29 @@ package com.energyict.protocolimplv2.dlms;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.*;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -34,15 +33,9 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.common.MyOwnPrivateRegister;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr23LogBookFactory;
@@ -56,9 +49,7 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import javax.inject.Provider;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +58,7 @@ import java.util.logging.Logger;
 
 /**
  * Common functionality that is shared between the smart V2 DLMS protocols.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 18/10/13
  * Time: 13:30
@@ -77,23 +68,9 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
-
-    protected DlmsProperties dlmsProperties;
-    protected LoadProfileBuilder loadProfileBuilder;
-    protected OfflineDevice offlineDevice;
-    protected Dsmr23RegisterFactory registerFactory = null;
-
-    private ComposedMeterInfo meterInfo;
-    private DlmsSession dlmsSession;
-    private DLMSCache dlmsCache;
-    private MeterTopology meterTopology;
-    private Dsmr23LogBookFactory logBookFactory;
-    private Dsmr23Messaging dsmr23Messaging;
-    private DlmsSecuritySupport dlmsSecuritySupport;
-
-    private final Clock clock;
     protected final Thesaurus thesaurus;
     protected final PropertySpecService propertySpecService;
+    private final Clock clock;
     private final SocketService socketService;
     private final SerialComponentService serialComponentService;
     private final IssueService issueService;
@@ -104,6 +81,17 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private final MeteringService meteringService;
     private final LoadProfileFactory loadProfileFactory;
     private final Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider;
+    protected DlmsProperties dlmsProperties;
+    protected LoadProfileBuilder loadProfileBuilder;
+    protected OfflineDevice offlineDevice;
+    protected Dsmr23RegisterFactory registerFactory = null;
+    private ComposedMeterInfo meterInfo;
+    private DlmsSession dlmsSession;
+    private DLMSCache dlmsCache;
+    private MeterTopology meterTopology;
+    private Dsmr23LogBookFactory logBookFactory;
+    private Dsmr23Messaging dsmr23Messaging;
+    private DlmsSecuritySupport dlmsSecuritySupport;
 
     protected AbstractDlmsProtocol(
             Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService,
@@ -194,8 +182,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     /**
      * Security related properties, add them to the DLMS session properties
      *
-     * @param deviceProtocolSecurityPropertySet
-     *         the {@link DeviceProtocolSecurityPropertySet}to set
+     * @param deviceProtocolSecurityPropertySet the {@link DeviceProtocolSecurityPropertySet}to set
      */
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
@@ -261,17 +248,17 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     }
 
     @Override
+    public DeviceProtocolCache getDeviceCache() {
+        return dlmsCache;
+    }
+
+    @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         try {
             this.dlmsCache = (DLMSCache) deviceProtocolCache;
         } catch (ClassCastException e) {
             this.dlmsCache = null;
         }
-    }
-
-    @Override
-    public DeviceProtocolCache getDeviceCache() {
-        return dlmsCache;
     }
 
     /**
@@ -332,12 +319,12 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         }
     }
 
-    protected void setDlmsSession(DlmsSession dlmsSession) {
-        this.dlmsSession = dlmsSession;
-    }
-
     public DlmsSession getDlmsSession() {
         return dlmsSession;
+    }
+
+    protected void setDlmsSession(DlmsSession dlmsSession) {
+        this.dlmsSession = dlmsSession;
     }
 
     /**
@@ -526,83 +513,11 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         }
     }
 
-    private CosemObjectFactory getCosemObjectFactory() {
+    protected CosemObjectFactory getCosemObjectFactory() {
         return this.getDlmsSession().getCosemObjectFactory();
     }
 
     private OfflineRegister getCalendarRegister(ObisCode obisCode) {
         return new MyOwnPrivateRegister(this.getOfflineDevice(), obisCode);
     }
-
-    private static class MyOwnPrivateRegister implements OfflineRegister {
-
-        private final OfflineDevice device;
-        private final ObisCode obisCode;
-
-        private MyOwnPrivateRegister(OfflineDevice device, ObisCode obisCode) {
-            this.device = device;
-            this.obisCode = obisCode;
-        }
-
-        @Override
-        public long getRegisterId() {
-            return 0;
-        }
-
-        @Override
-        public ObisCode getObisCode() {
-            return this.obisCode;
-        }
-
-        @Override
-        public boolean inGroup(long registerGroupId) {
-            return false;
-        }
-
-        @Override
-        public boolean inAtLeastOneGroup(Collection<Long> registerGroupIds) {
-            return false;
-        }
-
-        @Override
-        public Unit getUnit() {
-            return Unit.getUndefined();
-        }
-
-        @Override
-        public String getDeviceMRID() {
-            return null;
-        }
-
-        @Override
-        public String getDeviceSerialNumber() {
-            return this.device.getSerialNumber();
-        }
-
-        @Override
-        public ObisCode getAmrRegisterObisCode() {
-            return obisCode;
-        }
-
-        @Override
-        public DeviceIdentifier<?> getDeviceIdentifier() {
-            return this.device.getDeviceIdentifier();
-        }
-
-        @Override
-        public ReadingType getReadingType() {
-            return null;
-        }
-
-        @Override
-        public BigDecimal getOverFlowValue() {
-            return null;
-        }
-
-        @Override
-        public boolean isText() {
-            return true;
-        }
-    }
-
 }
