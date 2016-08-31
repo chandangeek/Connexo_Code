@@ -59,6 +59,7 @@ import java.util.List;
  * @since 11/08/2015 - 14:04
  */
 public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCache {
+    protected static final ObisCode EVN_FRAMECOUNTER_DATA_READOUT   = ObisCode.fromString("0.0.43.3.0.255");
     protected static final ObisCode EVN_FRAMECOUNTER_INSTALLATION   = ObisCode.fromString("0.0.43.4.0.255");
     protected static final ObisCode EVN_FRAMECOUNTER_MAINTENANCE    = ObisCode.fromString("0.0.43.5.0.255");
     protected static final ObisCode EVN_FRAMECOUNTER_CERTIFICATION  = ObisCode.fromString("0.0.43.6.0.255");
@@ -308,6 +309,8 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     protected ObisCode getFrameCounterForClient(int clientId){
         // handle some special frame-counters for EVN
         switch (clientId){
+            case EVN_CLIENT_DATA_READOUT:
+                return EVN_FRAMECOUNTER_DATA_READOUT;
             case EVN_CLIENT_INSTALLATION:
                 return EVN_FRAMECOUNTER_INSTALLATION;
             case EVN_CLIENT_MAINTENANCE:
