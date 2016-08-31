@@ -206,9 +206,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             devicesMRID = [],
             url = '/api/ddr/devices/schedules',
             request = {},
-            jsonData;
+            jsonData,
+            infoMessage;
 
         finishBtn.disable();
+        statusPage.removeAll();
+        wizard.setLoading(true);
 
         if (me.operation != 'changeconfig') {
             Ext.each(me.schedules, function (item) {
@@ -232,42 +235,29 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 jsonData: jsonData,
                 timeout: 180000,
                 success: function (response) {
-                    var resp = Ext.decode(response.responseText, true);
-                    statusPage.removeAll();
-                    Ext.each(resp ? resp.actions : [], function (item) {
-                        (item.successCount > 0) &&
-                        me.showStatusMsg(me.buildSuccessMessage(item));
-                        (item.failCount > 0) &&
-                        me.showStatusMsg(me.buildFailMessage(item));
-                    });
+                    statusPage.showChangeDeviceConfigSuccess(
+                        me.buildFinalMessage()
+                    );
                     finishBtn.enable();
+                    wizard.setLoading(false);
                 },
 
                 failure: function (response) {
-                    statusPage.removeAll();
                     var resp = Ext.decode(response.responseText, true);
                     if(resp && resp.message) {
                         me.showStatusMsg(me.buildMessage(resp.message));
                     }
                     finishBtn.enable();
+                    wizard.setLoading(false);
                 }
             });
         } else {
-            wizard.setLoading(true);
             var callback = function (success) {
                 statusPage.setLoading(false);
+                wizard.setLoading(false);
                 if (success) {
-                    wizard.setLoading(false);
-                    var infoMessage = Ext.isEmpty(me.devices)
-                            ? Uni.I18n.translate('searchItems.bulk.devConfigQueuedTitle.all', 'MDC', 'All devices are queued to change their configuration.')
-                            : Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', me.devices.length, 'MDC',
-                                'No devices are queued to change their configuration.',
-                                'One device is queued to change its configuration.',
-                                '{0} devices are queued to change their configuration.');
-
                     statusPage.showChangeDeviceConfigSuccess(
-                        Uni.I18n.translate('searchItems.bulk.devicesAddedToQueueTitle', 'MDC', 'This task has been put on the queue successfully'),
-                        infoMessage
+                        me.buildFinalMessage()
                     );
                     finishBtn.enable();
                 }
@@ -308,105 +298,62 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         return messagePanel;
     },
 
-    buildSuccessMessage: function (successful) {
+    buildFinalMessage: function () {
         var me = this,
-            count = parseInt(successful.successCount),
-            messageHeader = '',
-            message = {
-                xtype: 'panel'
-            };
+            message = '',
+            finalMessage = '',
+            scheduleList = '';
 
         switch (me.operation) {
             case 'add':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyAddedCommunicationSchedule', count, 'MDC',
-                    "Successfully added communication schedule '{1}' to {0} devices",
-                    "Successfully added communication schedule '{1}' to {0} device",
-                    "Successfully added communication schedule '{1}' to {0} devices"
+                message = Ext.isEmpty(me.devices)
+                    ? Uni.I18n.translate('searchItems.bulk.successfullyAddedCommunicationSchedule.all1', 'MDC', "to all devices")
+                    : Uni.I18n.translatePlural('searchItems.bulk.successfullyAddedCommunicationSchedule1', me.devices.length, 'MDC',
+                    "to {0} devices",
+                    "to {0} device",
+                    "to {0} devices"
                 );
+                if (me.schedules.length === 1) {
+                    finalMessage = Uni.I18n.translate('searchItems.bulk.addComScheduleToDevices.baseSuccessMsg', 'MDC',
+                        "Successfully added communication schedule '{0}' {1}", [me.schedules[0].get('name'), message]);
+                } else {
+                    Ext.each(me.schedules, function (item, index) {
+                        scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                    });
+                    finalMessage = Uni.I18n.translate('searchItems.bulk.addComSchedulesToDevices.baseSuccessMsg', 'MDC',
+                        "Successfully added communication schedules {0} {1}", [scheduleList, message]);
+                }
                 break;
             case 'remove':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyRemovedCommunicationSchedule', count, 'MDC',
-                    "Successfully removed communication schedule '{1}' from {0} devices",
-                    "Successfully removed communication schedule '{1}' from {0} device",
-                    "Successfully removed communication schedule '{1}' from {0} devices"
+                message = Ext.isEmpty(me.devices)
+                    ? Uni.I18n.translate('searchItems.bulk.successfullyRemovedCommunicationSchedule.all1', 'MDC', "from all devices")
+                    : Uni.I18n.translatePlural('searchItems.bulk.successfullyRemovedCommunicationSchedule1', me.devices.length, 'MDC',
+                    "from {0} devices",
+                    "from {0} device",
+                    "from {0} devices"
                 );
+                if (me.schedules.length === 1) {
+                    finalMessage = Uni.I18n.translate('searchItems.bulk.removeComScheduleToDevices.baseSuccessMsg1', 'MDC',
+                        "Successfully removed communication schedule '{0}' {1}", [me.schedules[0].get('name'), message]);
+                } else {
+                    Ext.each(me.schedules, function (item, index) {
+                        scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                    });
+                    finalMessage = Uni.I18n.translate('searchItems.bulk.removeComSchedulesToDevices.baseSuccessMsg1', 'MDC',
+                        "Successfully removed communication schedules {0} {1}", [scheduleList, message]);
+                }
                 break;
+            case 'changeconfig':
+                message = Ext.isEmpty(me.devices)
+                    ? Uni.I18n.translate('searchItems.bulk.devConfigQueuedTitle.all', 'MDC', 'All devices are queued to change their configuration.')
+                    : Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', me.devices.length, 'MDC',
+                    'No devices are queued to change their configuration.',
+                    'One device is queued to change its configuration.',
+                    '{0} devices are queued to change their configuration.'
+                );
         }
 
-        messageHeader && (messageHeader = Ext.String.format(messageHeader, count, successful.actionTitle));
-
-        message.html = '<h3>' + messageHeader + '</h3>';
-
-        return message;
-    },
-
-    buildFailMessage: function (failure) {
-        var me = this,
-            count = parseInt(failure.failCount),
-            messageHeader = '',
-            messageBody = [],
-            grouping = [],
-            message = {
-                xtype: 'panel'
-            };
-
-        switch (me.operation) {
-            case 'add':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToAddCommunicationSchedule', count, 'MDC',
-                    "Failed to add communication schedule '{1}' to {0} devices",
-                    "Failed to add communication schedule '{1}' to {0} device",
-                    "Failed to add communication schedule '{1}' to {0} devices"
-                );
-                break;
-            case 'remove':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToRemoveCommunicationSchedule', count, 'MDC',
-                    "Failed to remove communication schedule '{1}' from {0} devices",
-                    "Failed to remove communication schedule '{1}' from {0} device",
-                    "Failed to remove communication schedule '{1}' from {0} devices"
-                );
-                break;
-        }
-
-        messageHeader && (messageHeader = Ext.String.format(messageHeader, count, failure.actionTitle));
-
-        Ext.Array.each(failure.fails, function (item) {
-            var sameMessageGroup = Ext.Array.findBy(grouping, function (search) {
-                return search.messageGroup === item.messageGroup;
-            });
-
-            if (sameMessageGroup) {
-                sameMessageGroup.devices.push(item.device);
-            } else {
-                grouping.push({
-                    messageGroup: item.messageGroup,
-                    message: item.message,
-                    devices: [item.device]
-                });
-            }
-        });
-
-        messageBody.push({
-            html: '<h3>' + Ext.String.htmlEncode(messageHeader) + '</h3><br>'
-        });
-
-        Ext.Array.each(grouping, function (group) {
-            messageBody.push({
-                html: Ext.String.htmlEncode(group.message),
-                bbar: [
-                    {
-                        text: Uni.I18n.translate('searchItems.bulk.viewDevices', 'MDC', 'View devices'),
-                        ui: 'link',
-                        action: 'viewDevices',
-                        itemId: 'viewDevicesButton',
-                        viewDevicesData: group
-                    }
-                ]
-            });
-        });
-
-        message.items = messageBody;
-
-        return message;
+        return finalMessage;
     },
 
     navigateToStep: function (index) {
