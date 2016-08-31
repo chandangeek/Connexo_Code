@@ -75,6 +75,7 @@ public class TaskApplication extends Application implements TranslationKeyProvid
             bind(timeService).to(TimeService.class);
             bind(taskService).to(TaskService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(clock).to(Clock.class);
         }
     }
 
