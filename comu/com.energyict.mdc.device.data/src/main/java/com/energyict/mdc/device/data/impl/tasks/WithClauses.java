@@ -13,12 +13,12 @@ public enum WithClauses {
 
     COMTASK_EXECUTION_WITH_DEVICE_STATE("select /* +INLINE */" +
             "       cte.obsolete_date, cte.nextExecutionTimestamp, cte.lastExecutionTimestamp, cte.lastSuccessfulCompletion, cte.currentretrycount, cte.lastExecutionFailed, " +
-            "       cte.comport, " +
+            "       cte.comport, cte.onhold," +
             "       ct.id as thereisabusytask " +
             "  from " + TableSpecs.DDC_COMTASKEXEC.name() + " cte " +
             "  join " + TableSpecs.DDC_DEVICE.name() + " dev on cte.device = dev.id " +
             "  join enddevices kd on dev.meterid = kd.id " +
-            "  LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct on ct.id = cte.connectiontask AND ct.comserver IS NOT NULL " +
+            "  LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct on ct.id = cte.connectiontask AND ct.comserver IS NOT NULL and ct.lastCommunicationStart > cte.nextExecutionTimestamp" +
             " where cte.obsolete_date is null"),
     BUSY_COMTASK_EXECUTION("select connectiontask, comport from " + TableSpecs.DDC_COMTASKEXEC.name() + " where comport is not null and obsolete_date is null"),
     BUSY_CONNECTION_TASK("select id as connectiontask, lastcommunicationstart, comserver from " + TableSpecs.DDC_CONNECTIONTASK.name() + " where comserver is not null");

@@ -181,8 +181,8 @@ public enum ServerComTaskStatus {
         @Override
         public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append("cte.onhold = 0");
-            sqlBuilder.append("cte.nextexecutiontimestamp >");
+            sqlBuilder.append("cte.onhold = 0 ");
+            sqlBuilder.append("and cte.nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(now));
             sqlBuilder.append("and cte.comport is null ");
             sqlBuilder.append("and cte.currentretrycount > 0");  // currentRetryCount is only incremented when task fails. It is reset to 0 when the maxTries is reached
