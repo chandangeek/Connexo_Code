@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -17,7 +16,6 @@ import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -29,7 +27,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     public ScheduledConnectionMethodInfo(ScheduledConnectionTask scheduledConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
         super(scheduledConnectionTask, uriInfo, mdcPropertyUtils);
         this.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
-        this.allowSimultaneousConnections = scheduledConnectionTask.isSimultaneousConnectionsAllowed();
+        this.numberOfSimultaneousConnections = scheduledConnectionTask.getNumberOfSimultaneousConnections();
         this.rescheduleRetryDelay = TimeDurationInfo.of(scheduledConnectionTask.getRescheduleDelay());
         if (scheduledConnectionTask.getCommunicationWindow() != null) {
             this.comWindowStart = scheduledConnectionTask.getCommunicationWindow().getStart().getMillis() / 1000;
@@ -52,7 +50,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     }
 
     private void writeCommonFields(ScheduledConnectionTask scheduledConnectionTask, EngineConfigurationService engineConfigurationService) {
-        scheduledConnectionTask.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
+        scheduledConnectionTask.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
         if (this.comWindowEnd != null && this.comWindowStart != null) {
             scheduledConnectionTask.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         }
@@ -79,7 +77,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         scheduledConnectionTaskBuilder.setConnectionStrategy(getConnectionStrategy());
         scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
         scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(this.status);
-        scheduledConnectionTaskBuilder.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
+        scheduledConnectionTaskBuilder.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
         if (this.comWindowEnd != null && this.comWindowStart != null) {
             scheduledConnectionTaskBuilder.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         }
