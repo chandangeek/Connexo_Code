@@ -253,26 +253,23 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 ]
                             },
                             {
-                                xtype: 'radiogroup',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.allowSimultaneousConnections', 'MDC', 'Allow simultaneous connections'),
-                                itemId: 'allowSimultaneousConnections',
-                                allowBlank: false,
-                                vertical: true,
-                                required: true,
-                                columns: 1,
+                                xtype: 'fieldcontainer',
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.numberOfSimultaneousConnections', 'MDC', 'Number of simultaneous connections'),
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
                                 items: [
                                     {
-                                        boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
-                                        name: 'allowSimultaneousConnections',
-                                        inputValue: true,
-                                        margin: '0 10 5 0'
-                                    },
-                                    {
-                                        boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
-                                        name: 'allowSimultaneousConnections',
-                                        checked: true,
-                                        inputValue: false,
-                                        margin: '0 10 5 0'
+
+                                        xtype: 'numberfield',
+                                        itemId: 'numberOfSimultaneousConnections',
+                                        name: 'numberOfSimultaneousConnections',
+                                        required: true,
+                                        allowDecimals: false,
+                                        minValue: 1,
+                                        value: 1,
+                                        width: 70
                                     }
                                 ]
                             }
@@ -364,7 +361,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'editInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelayFieldContainer').setVisible(false);
-                this.down('#allowSimultaneousConnections').setVisible(false);
+                this.down('#numberOfSimultaneousConnections').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
             }
         } else {
@@ -387,7 +384,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'addInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
                 this.down('#rescheduleRetryDelayFieldContainer').setVisible(false);
-                this.down('#allowSimultaneousConnections').setVisible(false);
+                this.down('#numberOfSimultaneousConnections').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
             }
         }

@@ -64,7 +64,8 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                 {
                     xtype: 'uni-default-column',
                     dataIndex: 'isDefault',
-                    flex: 1
+                    minWidth: 50,
+                    flex: 9
                 },
                 {
                     itemId: 'connectionMethod',
@@ -139,16 +140,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                         return valueText;
                     },
                     header: Uni.I18n.translate('general.lastCommunicationTasks', 'MDC', 'Last communication tasks'),
-                    flex: 20
-                },
-                {
-                    itemId: 'latestStatus',
-                    text: Uni.I18n.translate('device.connections.lastResult', 'MDC', 'Last result'),
-                    dataIndex: 'latestStatus',
-                    flex: 10,
-                    renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
-                    }
+                    flex: 15
                 },
                 {
                     itemId: 'currentState',
