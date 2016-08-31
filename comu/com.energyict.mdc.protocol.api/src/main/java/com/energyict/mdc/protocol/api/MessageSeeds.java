@@ -47,6 +47,7 @@ public enum MessageSeeds implements MessageSeed {
     NUMBER_OF_RETRIES_REACHED_CONNECTION_STILL_INTACT(131, "issue.protocol.timeout.connection.still.intact", "Maximum number of retries ({1}) reached: {0}. The connection is still intact though."),
     CIPHERING_EXCEPTION(132, "issue.protocol.ciphering", "Encountered an exception related to the ciphering of data: {0}"),
     CONNECTION_DISCONNECT_ERROR(133, "connectionDisconnectError", "Disconnect of connection failed: {0}"),
+    COULD_NOT_READ_BREAKER_STATE(134, "issue.protocol.readingOfBreakerStateFailed", "Could not correctly read the breaker state: {0}"),
     //TODO complete this list with the entries of 9.1, will happen when the 9.1 codebase is used
     ;
 
