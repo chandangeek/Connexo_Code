@@ -24,14 +24,17 @@ import org.joda.time.DateTimeConstants;
 
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -160,7 +163,6 @@ public class DeviceCommandExecutorImplTest {
     }
 
     @Test(timeout=60_000)
-    @Ignore
     public void testExecuteWithPreparation() throws InterruptedException {
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
@@ -189,7 +191,6 @@ public class DeviceCommandExecutorImplTest {
     }
 
     @Test(timeout=60_000)
-    @Ignore
     public void testExecuteInReverseOrder() throws InterruptedException {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
@@ -410,7 +411,6 @@ public class DeviceCommandExecutorImplTest {
      * </ul>
      */
     @Test(timeout=60_000)
-    @Ignore
     public void testPrepareExecutionAfterFree() throws InterruptedException {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
@@ -475,7 +475,6 @@ public class DeviceCommandExecutorImplTest {
      * also releases resources so that subsequent preparation calls succeed.
      */
     @Test(timeout=60_000)
-    @Ignore
     public void testPrepareExecutionAfterDataAccessExceptionFailure() throws InterruptedException {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
@@ -516,7 +515,6 @@ public class DeviceCommandExecutorImplTest {
      * also release resources so that subsequent preparation calls succeed.
      */
     @Test(timeout=60_000)
-    @Ignore
     public void testPrepareExecutionAfterApplicationExceptionFailure() throws InterruptedException {
         int numberOfExecutingCommands = CAPACITY - 1;
         CountDownLatch startLatch = new CountDownLatch(1);
@@ -555,7 +553,6 @@ public class DeviceCommandExecutorImplTest {
      * also release resources so that subsequent preparation calls succeed.
      */
     @Test(timeout=60_000)
-    @Ignore
     public void testPrepareExecutionAfterRuntimeExceptionFailure() throws InterruptedException {
         int numberOfExecutingCommands = CAPACITY - 1;
         CountDownLatch startLatch = new CountDownLatch(1);
@@ -629,7 +626,6 @@ public class DeviceCommandExecutorImplTest {
     }
 
     @Test(timeout=60_000)
-    @Ignore
     public void testShutdownWithCommandsOnSingleThread() {
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
@@ -662,7 +658,6 @@ public class DeviceCommandExecutorImplTest {
     }
 
     @Test(timeout=60_000)
-    @Ignore
     public void testShutdownWithCommandsOnMultipleThreads() {
         ComServerThreadFactory realThreadFactory = new ComServerThreadFactory(this.comServer);
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(realThreadFactory);
@@ -716,7 +711,6 @@ public class DeviceCommandExecutorImplTest {
      * @throws InterruptedException Indicates test failure
      */
     @Test(timeout=60_000)
-    @Ignore
     public void testShutdownImmediateOnlyExecutesImmediateCommands() throws InterruptedException {
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
         DeviceCommandExecutorImpl deviceCommandExecutor = null;
