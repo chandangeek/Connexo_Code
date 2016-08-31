@@ -17,6 +17,7 @@ import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
@@ -48,6 +49,8 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
     MeteringService meteringService;
     @Mock
     TimeService timeService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
     @Override
     protected Application getApplication() {
@@ -62,6 +65,7 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
         application.setCustomPropertySetService(customPropertySetService);
         application.setMeteringService(meteringService);
         application.setTimeService(timeService);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 

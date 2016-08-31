@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.time.TimeService;
@@ -48,6 +49,7 @@ public class UsagePointConfigurationApplication extends Application implements T
     private volatile TimeService timeService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -130,6 +132,11 @@ public class UsagePointConfigurationApplication extends Application implements T
         this.timeService = timeService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
@@ -153,6 +160,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(ReadingTypeDeliverableFactory.class).to(ReadingTypeDeliverableFactory.class);
             bind(meteringService).to(MeteringService.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
         }
     }
 }
