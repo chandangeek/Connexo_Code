@@ -32,7 +32,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                                     + me.router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: record.getId()})
                                     + '">';
                             }
-                            result += value;
+                            result += Ext.htmlEncode(value);
                             if (canViewMetrologyConfig) {
                                 result += '</a>';
                             }
