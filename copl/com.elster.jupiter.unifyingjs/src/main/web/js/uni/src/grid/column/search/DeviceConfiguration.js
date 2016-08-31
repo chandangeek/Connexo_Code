@@ -13,7 +13,7 @@ Ext.define('Uni.grid.column.search.DeviceConfiguration', {
             deviceConfigurationId = record.raw.deviceConfigurationId,
             result = me.columnTpl;
 
-        result = result.replace('{value}', value);
+        result = result.replace('{value}', Ext.htmlEncode(value));
         result = result.replace('{deviceTypeId}', deviceTypeId);
         result = result.replace('{deviceConfigurationId}', deviceConfigurationId);
 

@@ -5,7 +5,7 @@ Ext.define('Uni.grid.column.RemoveAction', {
     extend: 'Uni.grid.column.Action',
     alias: 'widget.uni-actioncolumn-remove',
     width: 80,
-    align: 'right',
+    align: 'center',
     iconCls: 'icon-cancel-circle2',
     tooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
 
