@@ -238,27 +238,23 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
 //                                        ]
 //                                    },
                             {
-                                xtype: 'radiogroup',
-                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.allowSimultaneousConnections', 'MDC', 'Allow simultaneous connections'),
-                                itemId: 'allowSimultaneousConnections',
-                                allowBlank: false,
-                                vertical: true,
-                                required: true,
-                                columns: 1,
-                                disabled: true,
+                                xtype: 'fieldcontainer',
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.numberOfSimultaneousConnections', 'MDC', 'Number of simultaneous connections'),
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
                                 items: [
                                     {
-                                        boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
-                                        name: 'allowSimultaneousConnections',
-                                        inputValue: true,
-                                        margin: '0 10 5 0'
-                                    },
-                                    {
-                                        boxLabel:  Uni.I18n.translate('general.no', 'MDC', 'No'),
-                                        name: 'allowSimultaneousConnections',
-                                        checked: true,
-                                        inputValue: false,
-                                        margin: '0 10 5 0'
+
+                                        xtype: 'numberfield',
+                                        itemId: 'numberOfSimultaneousConnections',
+                                        name: 'numberOfSimultaneousConnections',
+                                        required: true,
+                                        allowDecimals: false,
+                                        minValue: 1,
+                                        value: 1,
+                                        width: 70
                                     }
                                 ]
                             },
@@ -374,7 +370,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
             } else if (this.direction === 'Inbound') {
                 this.down('#addEditButton').action = 'editDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
-                this.down('#allowSimultaneousConnections').setVisible(false);
+                this.down('#numberOfSimultaneousConnections').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
             }
         } else {
@@ -395,7 +391,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
             } else if (this.direction === 'Inbound') {
                 this.down('#addEditButton').action = 'addDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
-                this.down('#allowSimultaneousConnections').setVisible(false);
+                this.down('#numberOfSimultaneousConnections').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
             }
         }

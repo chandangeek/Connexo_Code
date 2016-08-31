@@ -28,7 +28,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             itemId: 'txt-load-profile-type-name',
             name: 'name',
             regex: /[a-zA-Z0-9]+/,
-            allowBlank: false,
             required: true,
             fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
             msgTarget: 'under'
@@ -52,7 +51,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             itemId: 'txt-load-profile-type-obis-code',
             fieldLabel: Uni.I18n.translate('loadProfileTypes.obisCode', 'MDC', 'OBIS code'),
             name: 'obisCode',
-            msgTarget: 'under'
+            msgTarget: 'under',
         },
         {
             xtype: 'fieldcontainer',

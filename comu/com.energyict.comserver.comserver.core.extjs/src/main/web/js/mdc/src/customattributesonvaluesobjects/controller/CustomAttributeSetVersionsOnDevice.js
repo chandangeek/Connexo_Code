@@ -25,6 +25,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
             overlapStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ConflictedAttributeSetVersions'),
             widget;
 
+
         versionModel.getProxy().setUrl(mRID, customAttributeSetId);
         overlapStore.getProxy().setDeviceEditUrl(mRID, customAttributeSetId, versionId);
         widget = Ext.widget('custom-attribute-set-version-form', {
@@ -78,6 +79,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         me.loadDeviceModel(mRID);
 
         attributeSetModel.getProxy().setUrl(mRID);
+        attributeSetModel.getProxy().setExtraParam('default', true);
         attributeSetModel.load(customAttributeSetId, {
             success: function(customattributeset) {
                 versionPeriod.load('currentinterval', {

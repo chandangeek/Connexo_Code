@@ -892,7 +892,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             success: function () {
                 Ext.state.Manager.clear('deviceConfigState');
                 router.getRoute('devices/device').forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.changeDeviceConfiguration.changed', 'MDC', 'Device configuration successfully changed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.changeDeviceConfiguration.changed', 'MDC', 'Device configuration changed'));
             },
             failure: function (response, request) {
                 if (response.status == 400) {
