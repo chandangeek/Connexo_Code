@@ -239,7 +239,8 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                         fieldLabel: Uni.I18n.translate('general.label.meters', 'IMT', 'Meters'),
                         value: '-'
                     });
-                    if(me.usagePoint.get('metrologyConfiguration')){
+                    var metrologyConfig = me.usagePoint.get('metrologyConfiguration');
+                    if (metrologyConfig && !Ext.isEmpty(metrologyConfig.meterRoles)) {
                         me.down('#up-metrology-config-meters-empty').show();
                     }
                 }
