@@ -4,7 +4,6 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.messaging.DequeueOptions;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -21,24 +20,27 @@ import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Provider;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.HashSet;
 import java.util.Optional;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -92,26 +94,35 @@ public class DefaultAppServerCreatorTest {
         when(messageService.getQueueTableSpec("MSG_RAWQUEUETABLE")).thenReturn(Optional.of(queueTableSpec));
         when(queueTableSpec.createDestinationSpec(anyString(), anyInt())).thenReturn(newDestination);
         when(messageService.getDestinationSpec(AppService.ALL_SERVERS)).thenReturn(Optional.of(allServersDestination));
-        DestinationSpec.SubscriberSpecBuilder allServersSubscriberSpecBuilder = mockSubscriberSpecBuilder();
-        when(allServersDestination.subscribe(anyString())).thenReturn(allServersSubscriberSpecBuilder);
-        when(messageService.getDestinationSpec("AppServer_" + NAME.toUpperCase())).thenReturn(Optional.empty());
+        when(messageService.getDestinationSpec("AppServer_" + NAME.toUpperCase())).thenReturn(Optional.<DestinationSpec>empty());
         when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, fileImportService, messageService, jsonService, thesaurus, transactionService, threadPrincipalService, webServicesForAppServerProvider, webServicesService, eventService, endPointConfigurationService));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(javaxValidator);
-        when(javaxValidator.validate(any(javax.validation.Validator.class), any(), any())).thenReturn(new HashSet<>());
+        when(javaxValidator.validate(any(javax.validation.Validator.class), any(), any())).thenReturn(new HashSet<ConstraintViolation<Validator>>());
+
 
         setupFakeTransactionService();
+
     }
 
     @SuppressWarnings("unchecked")
 	private void setupFakeTransactionService() {
-        when(transactionService.execute(any())).thenAnswer(invocationOnMock -> ((Transaction<?>) invocationOnMock.getArguments()[0]).perform());
+        when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return ((Transaction<?>) invocationOnMock.getArguments()[0]).perform();
+            }
+        });
+
+    }
+
+    @After
+    public void tearDown() {
     }
 
     @Test
     public void testCreateAppServerSavesAppServerInstance() {
-        DestinationSpec.SubscriberSpecBuilder subscriberSpecBuilder = mockSubscriberSpecBuilder();
-        when(newDestination.subscribe(anyString())).thenReturn(subscriberSpecBuilder);
+
         new DefaultAppServerCreator(dataModel, messageService).createAppServer(NAME, cronExpression);
 
         verify(dataModel).persist(appServerCaptor.capture());
@@ -122,31 +133,20 @@ public class DefaultAppServerCreatorTest {
 
     @Test
     public void testCreateAppServerCreatesDestinationAndSubscribes() {
-        DestinationSpec.SubscriberSpecBuilder subscriberSpecBuilder = mockSubscriberSpecBuilder();
-        when(newDestination.subscribe(anyString())).thenReturn(subscriberSpecBuilder);
+
         new DefaultAppServerCreator(dataModel, messageService).createAppServer(NAME, cronExpression);
 
         verify(queueTableSpec).createDestinationSpec(anyString(), anyInt());
-        verify(subscriberSpecBuilder).systemManaged();
-        verify(subscriberSpecBuilder).create();
+        verify(newDestination).subscribeSystemManaged(anyString());
     }
 
     @Test
     public void testCreateAppServerSubscribesToAllServersDestination() {
-        DestinationSpec.SubscriberSpecBuilder subscriberSpecBuilder = mockSubscriberSpecBuilder();
-        when(newDestination.subscribe(anyString())).thenReturn(subscriberSpecBuilder);
+
         new DefaultAppServerCreator(dataModel, messageService).createAppServer(NAME, cronExpression);
 
-        verify(subscriberSpecBuilder).systemManaged();
-        verify(subscriberSpecBuilder).create();
+        verify(allServersDestination).subscribeSystemManaged(anyString());
     }
 
-    private DestinationSpec.SubscriberSpecBuilder mockSubscriberSpecBuilder() {
-        DestinationSpec.SubscriberSpecBuilder builder = mock(DestinationSpec.SubscriberSpecBuilder.class);
-        when(builder.with(any(DequeueOptions.class))).thenReturn(builder);
-        when(builder.systemManaged()).thenReturn(builder);
-        when(builder.systemManaged(anyBoolean())).thenReturn(builder);
-        return builder;
-    }
 
 }
