@@ -129,9 +129,9 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                         validationService.validate(new ValidationContextImpl(EnumSet.of(task.getQualityCodeSystem()), channelsContainer));
                         transactionContext.commit();
                     }
-                    transactionService.execute(VoidTransaction.of(() -> MessageSeeds.DEVICE_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate()
-                            .get())));
                 }
+                transactionService.execute(VoidTransaction.of(() -> MessageSeeds.DEVICE_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate()
+                        .get())));
             }
         }
     }
