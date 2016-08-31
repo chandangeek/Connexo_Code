@@ -140,12 +140,12 @@ public class ResourceHelper {
         if (deviceConfiguration.isPresent()) {
             return getLockedDevice(info.mRID, info.version)
                     .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
-                            .withActualParent(() -> getCurrentDeviceConfigurationVersion(info.parent.id), info.parent.id)
+                            .withActualParent(() -> getCurrentDeviceConfigurationVersion(info.parent.id), info.parent.version)
                             .withActualVersion(() -> getCurrentDeviceVersion(info.mRID))
                             .supplier());
         }
         throw conflictFactory.contextDependentConflictOn(info.mRID)
-                .withActualParent(() -> getCurrentDeviceConfigurationVersion(info.parent.id), info.parent.id)
+                .withActualParent(() -> getCurrentDeviceConfigurationVersion(info.parent.id), info.parent.version)
                 .withActualVersion(() -> getCurrentDeviceVersion(info.mRID))
                 .build();
     }
@@ -211,12 +211,12 @@ public class ResourceHelper {
         if (device.isPresent()) {
             return getLockedLoadProfile(info.id, info.version)
                     .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                             .withActualVersion(() -> getCurrentLoadProfileVersion(info.id))
                             .supplier());
         }
         throw conflictFactory.contextDependentConflictOn(info.name)
-                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                 .withActualVersion(() -> getCurrentLoadProfileVersion(info.id))
                 .build();
     }
@@ -243,12 +243,12 @@ public class ResourceHelper {
         if (device.isPresent()) {
             return getLockedComTaskExecution(info.id, info.version)
                     .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                             .withActualVersion(() -> getCurrentComTaskExecutionVersion(info.id))
                             .supplier());
         }
         throw conflictFactory.contextDependentConflictOn(info.name)
-                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                 .withActualVersion(() -> getCurrentComTaskExecutionVersion(info.id))
                 .build();
     }
@@ -266,12 +266,12 @@ public class ResourceHelper {
         if (device.isPresent()) {
             return getLockedSecurityPropertySet(info.id, info.version)
                     .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                             .withActualVersion(() -> getCurrentSecurityPropertySetVersion(info.id))
                             .supplier());
         }
         throw conflictFactory.contextDependentConflictOn(info.name)
-                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                 .withActualVersion(() -> getCurrentSecurityPropertySetVersion(info.id))
                 .build();
     }
@@ -292,12 +292,12 @@ public class ResourceHelper {
         if (device.isPresent()) {
             return getLockedConnectionTask(info.id, info.version)
                     .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                             .withActualVersion(() -> getCurrentConnectionTaskVersion(info.id))
                             .supplier());
         }
         throw conflictFactory.contextDependentConflictOn(info.name)
-                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                 .withActualVersion(() -> getCurrentConnectionTaskVersion(info.id))
                 .build();
     }
@@ -320,12 +320,12 @@ public class ResourceHelper {
         if (device.isPresent()) {
             return getLockedDeviceMessage(info.id, info.version)
                     .orElseThrow(conflictFactory.contextDependentConflictOn(info.messageSpecification.name)
-                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                             .withActualVersion(() -> getCurrentDeviceMessageVersion(info.id))
                             .supplier());
         }
         throw conflictFactory.contextDependentConflictOn(info.messageSpecification.name)
-                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                 .withActualVersion(() -> getCurrentDeviceMessageVersion(info.id))
                 .build();
     }
@@ -401,12 +401,12 @@ public class ResourceHelper {
         if (device.isPresent()) {
             return getLockedDeviceProtocolPluggableClass(info.id, info.version)
                     .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                             .withActualVersion(() -> getCurrentDeviceProtocolPluggableClassVersion(info.id))
                             .supplier());
         }
         throw conflictFactory.contextDependentConflictOn(info.name)
-                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                 .withActualVersion(() -> getCurrentDeviceProtocolPluggableClassVersion(info.id))
                 .build();
     }
@@ -447,12 +447,12 @@ public class ResourceHelper {
         if (device.isPresent()) {
             return getLockedEstimationRuleSet(info.id, info.version)
                     .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                             .withActualVersion(() -> getCurrentEstimationRuleSetVersion(info.id))
                             .supplier());
         }
         throw conflictFactory.contextDependentConflictOn(info.name)
-                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.id)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
                 .withActualVersion(() -> getCurrentEstimationRuleSetVersion(info.id))
                 .build();
     }
