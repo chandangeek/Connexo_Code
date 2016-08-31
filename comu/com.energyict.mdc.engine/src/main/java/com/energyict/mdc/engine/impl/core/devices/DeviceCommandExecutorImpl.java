@@ -5,11 +5,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.EngineServiceImpl;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.commands.store.FreeUnusedTokenDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.NoResourcesAcquiredException;
+import com.energyict.mdc.engine.impl.commands.store.*;
 import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
@@ -19,30 +15,12 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
 import java.text.MessageFormat;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,17 +36,16 @@ import java.util.stream.Collectors;
 public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceCommandExecutorConfigurationChangeListener {
 
     private static final int FULL_LOAD_PERCENTAGE = 100;
-
-    private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private final PriorityConfigurableThreadFactory threadFactory;
     private final Clock clock;
     private final UserService userService;
     private final ThreadPrincipalService threadPrincipalService;
     private final EventPublisher eventPublisher;
-    private int numberOfThreads;
     private final WorkQueue workQueue;
-    private ExecutorService executorService;
     private final ComServer.LogLevel logLevel;
+    private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
+    private int numberOfThreads;
+    private ExecutorService executorService;
     private ComServerDAO comServerDAO;
     private String name;
     private CompositeDeviceCommandExecutorLogger logger;
@@ -117,7 +94,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         return LoggerFactory.getLoggerFor(DeviceCommandExecutorLogger.class, this.getAnonymousLogger());
     }
 
-    private Logger getAnonymousLogger () {
+    private Logger getAnonymousLogger() {
         Logger logger = Logger.getAnonymousLogger();
         logger.setLevel(Level.FINEST);
         logger.addHandler(new DeviceCommandExecutorLogHandler(this.eventPublisher, new ComServerEventServiceProvider()));
@@ -193,8 +170,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private void logTryAcquiredTokensResult(int numberOfCommands, List<? extends DeviceCommandExecutionToken> acquiredTokens) {
         if (acquiredTokens.isEmpty()) {
             this.logger.preparationFailed(this, numberOfCommands);
-        }
-        else {
+        } else {
             this.logger.preparationCompleted(this, numberOfCommands);
         }
         this.logCurrentQueueSize();
@@ -280,8 +256,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private void commandCompleted(DeviceCommand command) {
         if (command instanceof FreeUnusedTokenDeviceCommand) {
             this.logger.tokenReleased(this);
-        }
-        else {
+        } else {
             this.logger.commandCompleted(this, command);
         }
         this.workQueue.commandCompleted(command);
@@ -364,16 +339,13 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             if (o1.command instanceof FreeUnusedTokenDeviceCommand) {
                 if (o2.command instanceof FreeUnusedTokenDeviceCommand) {
                     return 0;
-                }
-                else {
+                } else {
                     return -1;
                 }
-            }
-            else {
+            } else {
                 if (o2.command instanceof FreeUnusedTokenDeviceCommand) {
                     return 1;
-                }
-                else {
+                } else {
                     return 0;
                 }
             }
@@ -460,7 +432,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
      * A Worker is only created or activated
      * when a DeviceCommand is ready to be executed.
      */
-    private final class Worker implements Callable<Boolean>  {
+    private final class Worker implements Callable<Boolean> {
         private DeviceCommand command;
         private ComServerDAO comServerDAO;
 
@@ -570,9 +542,9 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             builder.append(this.threadName);
             if (this.count > 1) {
                 builder
-                    .append(" (")
-                    .append(this.count)
-                    .append(")");
+                        .append(" (")
+                        .append(this.count)
+                        .append(")");
             }
             return builder.toString();
         }
@@ -580,11 +552,13 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
     private class ThreadNames {
         private Map<String, ThreadNameAndCount> threadNames = new HashMap<>();
+
         private void add(String threadName) {
             this.threadNames.compute(
                     threadName,
                     (k, v) -> v == null ? new ThreadNameAndCount(k) : v.increment());
         }
+
         public String toString() {
             return this.threadNames
                     .values()
@@ -625,17 +599,17 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             ThreadNames threadNames = new ThreadNames();
             List<DeviceCommandExecutionTokenImpl> tokens = new ArrayList<>(this.tokens);
             tokens
-                .stream()
-                .map(DeviceCommandExecutionTokenImpl::getThreadName)
-                .forEach(threadNames::add);
+                    .stream()
+                    .map(DeviceCommandExecutionTokenImpl::getThreadName)
+                    .forEach(threadNames::add);
             return threadNames.toString();
         }
     }
 
     private final class WorkQueue {
-        private int capacity;
         private final TokenList expected;
         private final ResizeableSemaphore semaphore;
+        private int capacity;
 
         private WorkQueue(int capacity) {
             super();
