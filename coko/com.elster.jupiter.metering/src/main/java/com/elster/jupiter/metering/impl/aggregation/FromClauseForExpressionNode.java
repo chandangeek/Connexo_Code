@@ -16,21 +16,21 @@ import java.util.List;
  */
 class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<Void> {
 
-    private final String defaultTableName;
+    private final DataSourceTable defaultSourceTable;
     private String propertyTableName;
     private String timeSeriesTableName;
 
-    FromClauseForExpressionNode(String defaultTableName) {
-        this.defaultTableName = defaultTableName;
+    FromClauseForExpressionNode(DataSourceTable defaultSourceTable) {
+        this.defaultSourceTable = defaultSourceTable;
     }
 
-    String getTableName() {
+    DataSourceTable getSource() {
         if (this.timeSeriesTableName != null) {
-            return this.timeSeriesTableName;
+            return DataSourceTableFactory.timeSeries(this.timeSeriesTableName);
         } else if (this.propertyTableName != null) {
-            return this.propertyTableName;
+            return DataSourceTableFactory.customProperties(this.propertyTableName);
         } else {
-            return this.defaultTableName;
+            return this.defaultSourceTable;
         }
     }
 
