@@ -16,7 +16,7 @@ import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.RangeInstantComparator;
+import com.elster.jupiter.util.RangeComparatorFactory;
 
 import com.google.common.collect.Range;
 
@@ -313,7 +313,7 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
                     .stream()
                     .map(CustomPropertySetValues::getEffectiveRange)
                     .distinct()
-                    .sorted(new RangeInstantComparator())
+                    .sorted(RangeComparatorFactory.INSTANT_DEFAULT)
                     .collect(Collectors.toList());
             Collections.reverse(versionIntervals);
             return versionIntervals;
