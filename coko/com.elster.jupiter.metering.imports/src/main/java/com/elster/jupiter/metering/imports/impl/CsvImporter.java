@@ -15,7 +15,6 @@ import java.io.InputStreamReader;
 public final class CsvImporter<T extends FileImportRecord> implements FileImporter {
 
     public static final class Builder<T extends FileImportRecord> {
-
         private final CsvImporter<T> importer;
 
         private Builder() {
@@ -70,8 +69,6 @@ public final class CsvImporter<T extends FileImportRecord> implements FileImport
             logger.importFinished();
         } catch (Exception e) {
             logger.importFailed(e);
-        } finally {
-            processor.complete(logger);
         }
     }
 
@@ -81,11 +78,6 @@ public final class CsvImporter<T extends FileImportRecord> implements FileImport
         try {
             processor.process(data, logger);
             logger.importLineFinished(data);
-        } catch (ProcessorException exception) {
-            if (exception.shouldStopImport()) {
-                throw exception;
-            }
-            logger.importLineFailed(data, exception);
         } catch (Exception exception) {
             logger.importLineFailed(data, exception);
         }

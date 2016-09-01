@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.imports.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -26,6 +27,7 @@ public class MeteringDataImporterContext {
     private volatile CustomPropertySetService customPropertySetService;
     private volatile LicenseService licenseService;
     private volatile Clock clock;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     public MeteringDataImporterContext() {
     }
@@ -38,7 +40,8 @@ public class MeteringDataImporterContext {
                                        ThreadPrincipalService threadPrincipalService,
                                        CustomPropertySetService customPropertySetService,
                                        LicenseService licenseService,
-                                       Clock clock) {
+                                       Clock clock,
+                                       MetrologyConfigurationService metrologyConfigurationService) {
         setPropertySpecService(propertySpecService);
         setNlsService(nlsService);
         setMeteringService(meteringService);
@@ -46,6 +49,8 @@ public class MeteringDataImporterContext {
         setThreadPrincipalService(threadPrincipalService);
         setCustomPropertySetService(customPropertySetService);
         setClock(clock);
+        setLicenseService(licenseService);
+        setMetrologyConfigurationService(metrologyConfigurationService);
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -118,5 +123,18 @@ public class MeteringDataImporterContext {
     @Reference
     public final void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    public MetrologyConfigurationService getMetrologyConfigurationService() {
+        return metrologyConfigurationService;
+    }
+
+    public boolean insightInstalled() {
+        return getLicenseService().getLicenseForApplication("INS").isPresent();
     }
 }

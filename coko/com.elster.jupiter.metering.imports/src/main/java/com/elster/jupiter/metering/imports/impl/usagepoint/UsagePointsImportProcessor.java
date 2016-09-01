@@ -20,8 +20,6 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FileImportLogger;
 import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
@@ -41,71 +39,48 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 public class UsagePointsImportProcessor implements FileImportProcessor<UsagePointImportRecord> {
-
     private final MeteringDataImporterContext context;
-    private final MetrologyConfigurationService metrologyConfigurationService;
 
-    UsagePointsImportProcessor(MeteringDataImporterContext context, MetrologyConfigurationService metrologyConfigurationService) {
+    UsagePointsImportProcessor(MeteringDataImporterContext context) {
         this.context = context;
-        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Override
     public void process(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
         try {
             validate(data, logger);
-
             UsagePoint usagePoint = getUsagePoint(data, logger);
-
-            addCustomPropertySetValues(usagePoint, data);
-
             if (usagePoint.getDetail(context.getClock().instant()).isPresent()) {
                 updateDetails(usagePoint, data, logger).create();
             } else {
                 createDetails(usagePoint, data, logger).create();
-                data.getMetrologyConfiguration().ifPresent(mc -> {
-                            try {
-                                usagePoint.apply(findMetrologyConfiguration(mc.longValue(), usagePoint));
-                            } catch (Exception e) {
-                                usagePoint.delete();
-                                throw e;
-                            }
-                        }
-                );
             }
-
             addCustomPropertySetValues(usagePoint, data);
-
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
-                logger.warning(MessageSeeds.IMPORT_USAGEPOINT_CONSTRAINT_VOLATION, data.getLineNumber(), violation.getPropertyPath(), violation
-                        .getMessage());
+                logger.warning(MessageSeeds.IMPORT_USAGEPOINT_CONSTRAINT_VOLATION, data.getLineNumber(),
+                        violation.getPropertyPath(), violation.getMessage());
             }
             throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_INVALIDDATA, data.getLineNumber());
         }
-    }
-
-    @Override
-    public void complete(FileImportLogger logger) {
     }
 
     private void validate(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
         String mRID = data.getmRID()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber()));
         String serviceKindString = data.getServiceKind()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber()));
-        ServiceKind serviceKind =  Arrays.stream(ServiceKind.values()).filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString)).findFirst()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber(), serviceKindString));
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber()));
+        ServiceKind serviceKind = Arrays.stream(ServiceKind.values()).filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString)).findFirst()
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber(), serviceKindString));
         ServiceCategory serviceCategory = context.getMeteringService().getServiceCategory(serviceKind)
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, data.getLineNumber(), serviceKindString));
 
-        Optional<UsagePoint> usagePointOptional = context.getMeteringService().findUsagePoint(mRID);
-        if (usagePointOptional.isPresent()) {
+        Optional<UsagePoint> usagePoint = context.getMeteringService().findUsagePoint(mRID);
+        if (usagePoint.isPresent()) {
             if (data.isAllowUpdate()) {
-                updateDetails(usagePointOptional.get(), data, logger).validate();
-                validateCustomPropertySetValues(usagePointOptional.get(), data);
+                updateDetails(usagePoint.get(), data, logger).validate();
+                validateCustomPropertySetValues(usagePoint.get(), data);
             } else {
                 throw new ProcessorException(MessageSeeds.UPDATE_NOT_ALLOWED, data.getLineNumber());
             }
@@ -113,8 +88,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             if (data.isAllowUpdate()) {
                 throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NOT_FOUND, data.getLineNumber(), data.getmRID().get());
             }
-            UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint(mRID, data.getInstallationTime()
-                    .orElse(context.getClock().instant())).validate();
+            UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint(mRID, data.getInstallationTime().orElse(context.getClock().instant())).validate();
             createDetails(dummyUsagePoint, data, logger).validate();
             validateCustomPropertySetValues(dummyUsagePoint, data);
         }
@@ -125,9 +99,9 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         String mRID = data.getmRID()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber()));
         String serviceKindString = data.getServiceKind()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber()));
-        ServiceKind serviceKind =  Arrays.stream(ServiceKind.values()).filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString)).findFirst()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber(), serviceKindString));
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber()));
+        ServiceKind serviceKind = Arrays.stream(ServiceKind.values()).filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString)).findFirst()
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber(), serviceKindString));
         Optional<UsagePoint> usagePointOptional = context.getMeteringService().findUsagePoint(mRID);
         Optional<ServiceCategory> serviceCategory = context.getMeteringService().getServiceCategory(serviceKind);
 
@@ -138,9 +112,8 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             }
             return updateUsagePoint(usagePoint, data, logger);
         } else {
-            return createUsagePoint(serviceCategory.get()
-                    .newUsagePoint(mRID, data.getInstallationTime()
-                            .orElse(context.getClock().instant())), data, logger);
+            return createUsagePoint(serviceCategory.get().newUsagePoint(mRID,
+                    data.getInstallationTime().orElse(context.getClock().instant())), data, logger);
         }
     }
 
@@ -224,25 +197,17 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             usagePointBuilder.withLocation(builder.create());
             isVirtual = false;
         }
-        if(geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
+        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
             usagePointBuilder.withGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue((geoCoordinatesData.stream().collect(Collectors.joining(":")))));
             isVirtual = false;
         }
         usagePointBuilder.withIsVirtual(isVirtual);
-        usagePointBuilder.withName(data.getName().orElse(null));
-        usagePointBuilder.withOutageRegion(data.getOutageRegion().orElse(null));
-        usagePointBuilder.withReadRoute(data.getReadRoute().orElse(null));
-        usagePointBuilder.withServicePriority(data.getServicePriority().orElse(null));
-        usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark().orElse(null));
+        usagePointBuilder.withName(data.getName());
+        usagePointBuilder.withOutageRegion(data.getOutageRegion());
+        usagePointBuilder.withReadRoute(data.getReadRoute());
+        usagePointBuilder.withServicePriority(data.getServicePriority());
+        usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark());
         return usagePointBuilder.create();
-    }
-
-    private UsagePointMetrologyConfiguration findMetrologyConfiguration(Long id, UsagePoint usagePoint) {
-        return metrologyConfigurationService.findLinkableMetrologyConfigurations(usagePoint)
-                .stream()
-                .filter(mc -> id == mc.getId())
-                .findFirst()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_METROLOGYCONFIG_FOR_ID, id, usagePoint.getMRID()));
     }
 
     private UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
@@ -250,10 +215,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         List<String> geoCoordinatesData = data.getGeoCoordinates();
 
         if (locationData.stream().anyMatch(s -> s != null)) {
-            context.getMeteringService()
-                    .getLocationTemplate()
-                    .getTemplateMembers()
-                    .stream()
+            context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                     .filter(LocationTemplate.TemplateField::isMandatory)
                     .forEach(field -> {
                         if (locationData.get(field.getRanking()) == null) {
@@ -266,8 +228,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                     .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
 
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData
-                    .get(ranking.get("locale")));
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking.get("locale")));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), data, ranking);
             } else {
@@ -275,14 +236,14 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             }
             usagePoint.setLocation(builder.create().getId());
         }
-        if(geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
+        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
             usagePoint.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
-        usagePoint.setName(data.getName().orElse(null));
-        usagePoint.setOutageRegion(data.getOutageRegion().orElse(null));
-        usagePoint.setReadRoute(data.getReadRoute().orElse(null));
-        usagePoint.setServicePriority(data.getServicePriority().orElse(null));
-        usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark().orElse(null));
+        usagePoint.setName(data.getName());
+        usagePoint.setOutageRegion(data.getOutageRegion());
+        usagePoint.setReadRoute(data.getReadRoute());
+        usagePoint.setServicePriority(data.getServicePriority());
+        usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark());
         usagePoint.update();
         return usagePoint;
     }
@@ -476,8 +437,8 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
     }
 
     private Range<Instant> getRangeToCreate(CustomPropertySetRecord customPropertySetRecord) {
-        if (   (!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime().get().equals(Instant.EPOCH))
-            && (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime().get().equals(Instant.EPOCH))) {
+        if ((!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime().get().equals(Instant.EPOCH))
+                && (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime().get().equals(Instant.EPOCH))) {
             return Range.all();
         } else if (!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime().get().equals(Instant.EPOCH)) {
             return Range.lessThan(customPropertySetRecord.getEndTime().get());
@@ -533,5 +494,4 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                 .setLocale(location.get(ranking.get("locale")));
         return builder;
     }
-
 }

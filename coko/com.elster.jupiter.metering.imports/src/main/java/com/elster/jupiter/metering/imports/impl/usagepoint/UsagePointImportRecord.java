@@ -1,8 +1,10 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.metering.BypassStatus;
-import com.elster.jupiter.metering.imports.impl.FileImportRecordWithCustomProperties;
+import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
+import com.elster.jupiter.metering.imports.impl.FileImportRecord;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -11,9 +13,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public class UsagePointImportRecord extends FileImportRecordWithCustomProperties {
+public class UsagePointImportRecord extends FileImportRecord {
     //General
     private String mRID;
     private String serviceKind;
@@ -31,50 +34,31 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     private String elevation;
 
     //Technical
-
     private YesNoAnswer collar;
     private YesNoAnswer grounded;
-
     private Quantity pressure;
-
     private Quantity physicalCapacity;
-
     private YesNoAnswer limiter;
     private String loadLimiterType;
-
     private Quantity loadLimit;
-
     private YesNoAnswer bypass;
     private String bypassStatus;
-
     private YesNoAnswer valve;
     private YesNoAnswer capped;
     private YesNoAnswer clamped;
     private YesNoAnswer interruptible;
-
     private String phaseCode;
-
     private Quantity ratedPower;
-
     private Quantity ratedCurrent;
-
     private Quantity estimatedLoad;
-
     private Quantity nominalVoltage;
-
     private boolean allowUpdate;
 
-    public Number metrologyConfiguration;
+    public String metrologyConfiguration;
+    public Instant metrologyConfigurationApplyTime;
+    private Map<CustomPropertySet, CustomPropertySetRecord> customPropertySets;
 
     public UsagePointImportRecord() {
-    }
-
-    public Optional<Number> getMetrologyConfiguration() {
-        return Optional.ofNullable(metrologyConfiguration);
-    }
-
-    public void setMetrologyConfiguration(Number metrologyConfiguration) {
-        this.metrologyConfiguration = metrologyConfiguration;
     }
 
     public UsagePointImportRecord(long lineNumber) {
@@ -109,55 +93,55 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
         return Arrays.asList(latitude, longitude, elevation);
     }
 
-    public void setLatitude(String latitude){
+    public void setLatitude(String latitude) {
         this.latitude = latitude;
     }
 
-    public void setLongitude(String longitude){
+    public void setLongitude(String longitude) {
         this.longitude = longitude;
     }
 
-    public void setElevation(String elevation){
+    public void setElevation(String elevation) {
         this.elevation = elevation;
     }
 
-    public Optional<String> getName() {
-        return Optional.ofNullable(name);
+    public String getName() {
+        return this.name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public Optional<String> getOutageRegion() {
-        return Optional.ofNullable(outageRegion);
+    public String getOutageRegion() {
+        return outageRegion;
     }
 
-    public void setOutageRegion(String outageregion) {
-        this.outageRegion = outageregion;
+    public void setOutageRegion(String outageRegion) {
+        this.outageRegion = outageRegion;
     }
 
-    public Optional<String> getReadRoute() {
-        return Optional.ofNullable(readRoute);
+    public String getReadRoute() {
+        return readRoute;
     }
 
-    public void setReadRoute(String readroute) {
-        this.readRoute = readroute;
+    public void setReadRoute(String readRoute) {
+        this.readRoute = readRoute;
     }
 
-    public Optional<String> getServicePriority() {
-        return Optional.ofNullable(servicePriority);
+    public String getServicePriority() {
+        return servicePriority;
     }
 
     public void setServicePriority(String servicePriority) {
         this.servicePriority = servicePriority;
     }
 
-    public Optional<String> getServiceDeliveryRemark() {
-        return Optional.ofNullable(serviceDeliveryRemark);
+    public String getServiceDeliveryRemark() {
+        return serviceDeliveryRemark;
     }
 
-    public void setServiceDeliveryRemark(String serviceLocationString) {
+    public void setServiceDeliveryRemark(String serviceDeliveryRemark) {
         this.serviceDeliveryRemark = serviceDeliveryRemark;
     }
 
@@ -190,7 +174,7 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     }
 
     public void setPhaseCode(String phaseCode) {
-        this.phaseCode = phaseCode!=null?phaseCode.toUpperCase():phaseCode;
+        this.phaseCode = phaseCode != null ? phaseCode.toUpperCase() : phaseCode;
     }
 
     public Optional<YesNoAnswer> isLimiterInstalled() {
@@ -337,4 +321,27 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
         return isVirtual;
     }
 
+    public Optional<String> getMetrologyConfiguration() {
+        return Optional.ofNullable(metrologyConfiguration);
+    }
+
+    public void setMetrologyConfiguration(String metrologyConfiguration) {
+        this.metrologyConfiguration = metrologyConfiguration;
+    }
+
+    public Optional<Instant> getMetrologyConfigurationApplyTime() {
+        return Optional.ofNullable(metrologyConfigurationApplyTime);
+    }
+
+    public void setMetrologyConfigurationApplyTime(Instant metrologyConfigurationApplyTime) {
+        this.metrologyConfigurationApplyTime = metrologyConfigurationApplyTime;
+    }
+
+    public Map<CustomPropertySet, CustomPropertySetRecord> getCustomPropertySets() {
+        return customPropertySets;
+    }
+
+    public void setCustomPropertySets(Map<CustomPropertySet, CustomPropertySetRecord> customPropertySets) {
+        this.customPropertySets = customPropertySets;
+    }
 }
