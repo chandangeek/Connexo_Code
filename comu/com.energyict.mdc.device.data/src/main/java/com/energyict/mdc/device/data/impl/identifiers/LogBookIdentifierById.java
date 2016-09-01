@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -22,16 +23,23 @@ public final class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
 
     private final long logBookId;
     private final LogBookService logBookService;
+    private final ObisCode obisCode;
 
-    public LogBookIdentifierById(long logBookId, LogBookService logBookService) {
+    public LogBookIdentifierById(long logBookId, LogBookService logBookService, ObisCode obisCode) {
         super();
         this.logBookId = logBookId;
         this.logBookService = logBookService;
+        this.obisCode = obisCode;
     }
 
     @Override
     public LogBook getLogBook() {
         return this.logBookService.findById(this.logBookId).orElseThrow(() -> CanNotFindForIdentifier.logBook(this, MessageSeeds.CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER));
+    }
+
+    @Override
+    public ObisCode getLogBookObisCode() {
+        return obisCode;
     }
 
     @Override

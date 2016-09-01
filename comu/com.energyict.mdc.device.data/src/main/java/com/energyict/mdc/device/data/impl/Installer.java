@@ -165,7 +165,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private void doSubscriber(DestinationSpec jupiterEvents, Pair<String, Condition> subscriber) {
-        jupiterEvents.subscribe(subscriber.getFirst()).with(subscriber.getLast()).create();
+        jupiterEvents.subscribe(subscriber.getFirst(), subscriber.getLast());
     }
 
     private void createMessageHandlers() {
@@ -195,7 +195,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         if (!destinationSpecOptional.isPresent()) {
             DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
             queue.activate();
-            queue.subscribe(subscriberName).create();
+            queue.subscribe(subscriberName);
         } else {
             boolean notSubscribedYet = !destinationSpecOptional.get()
                     .getSubscribers()
@@ -203,7 +203,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                     .anyMatch(spec -> spec.getName().equals(subscriberName));
             if (notSubscribedYet) {
                 destinationSpecOptional.get().activate();
-                destinationSpecOptional.get().subscribe(subscriberName).create();
+                destinationSpecOptional.get().subscribe(subscriberName);
             }
         }
     }

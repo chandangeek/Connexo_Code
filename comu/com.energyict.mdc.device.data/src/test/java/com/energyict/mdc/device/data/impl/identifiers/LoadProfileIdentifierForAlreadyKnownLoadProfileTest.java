@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
@@ -35,7 +36,7 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfileTest {
     @Ignore //TODO GOVANNI NEEDS TO FIX THEM
     @Test
     public void serialNumberIdentifierShouldBeUsedTest() {
-        LoadProfileIdentifierForAlreadyKnownLoadProfile loadProfileIdentifierForAlreadyKnownLoadProfile = new LoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile);
+        LoadProfileIdentifierForAlreadyKnownLoadProfile loadProfileIdentifierForAlreadyKnownLoadProfile = new LoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile, ObisCode.fromString("1.1.1.1.1.1"));
 
         assertThat(loadProfileIdentifierForAlreadyKnownLoadProfile.getDeviceIdentifier().getDeviceIdentifierType()).isEqualTo(DeviceIdentifierType.SerialNumber);
     }

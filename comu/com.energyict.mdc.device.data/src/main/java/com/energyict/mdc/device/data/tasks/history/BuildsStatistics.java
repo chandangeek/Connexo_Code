@@ -18,4 +18,19 @@ public interface BuildsStatistics<S> {
 
     S addReceivedPackets(long numberOfPackets);
 
+    S resetSentBytes();
+
+    S resetReceivedBytes();
+
+    S resetSentPackets();
+
+    S resetReceivedPackets();
+
+    long getSentBytes();
+
+    long getReceivedBytes();
+
+    long getSentPackets();
+
+    long getReceivedPackets();
 }

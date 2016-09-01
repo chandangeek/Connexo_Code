@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
@@ -18,9 +19,16 @@ import java.util.List;
 public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProfileIdentifier<LoadProfile> {
 
     private final LoadProfile loadProfile;
+    private final ObisCode profileObisCode;
 
-    public LoadProfileIdentifierForAlreadyKnownLoadProfile(LoadProfile loadProfile) {
+    public LoadProfileIdentifierForAlreadyKnownLoadProfile(LoadProfile loadProfile, ObisCode obisCode) {
         this.loadProfile = loadProfile;
+        this.profileObisCode = obisCode;
+    }
+
+    @Override
+    public ObisCode getProfileObisCode() {
+        return profileObisCode;
     }
 
     @Override

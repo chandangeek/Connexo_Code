@@ -600,7 +600,7 @@ public class ComSessionCrudIT {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
                     .addComTaskExecutionSession(comTaskExecution, comTask, device, taskStartTime)
                     .addComCommandJournalEntry(journalEntryTime, CompletionCode.Ok, "AOK", "OpenValve")
-                    .addComCommandJournalEntry(journalEntryTime, CompletionCode.Rescheduled, "Whatever")
+                    .addComCommandJournalEntry(journalEntryTime, CompletionCode.NotExecuted, "Whatever")
                     .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConfigurationWarning, "Just a warning", "ConfigurationWarning")
                     .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConfigurationError, "This is an error", "ConfigurationError")
                     .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)

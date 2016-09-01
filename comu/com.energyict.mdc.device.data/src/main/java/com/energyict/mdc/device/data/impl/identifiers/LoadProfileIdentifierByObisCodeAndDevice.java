@@ -61,6 +61,11 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
         return loadProfile;
     }
 
+    @Override
+    public ObisCode getProfileObisCode() {
+        return loadProfileObisCode;
+    }
+
     @XmlAttribute
     public ObisCode getLoadProfileObisCode() {
         return loadProfileObisCode;

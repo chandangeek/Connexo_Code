@@ -17,7 +17,14 @@ import java.time.Instant;
 public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTaskExecutionSession {
 
     /**
+     * Unlocks this ComTaskExecution, basically undoing the effect
+     * of the attemptLock method providing that that was successful.
+     */
+    public void unlock();
+
+    /**
      * Sets the given Comport as 'lock'
+     *
      * @param comPort the comPort that is about to execute the ComTaskExecution
      */
     void setLockedComPort(ComPort comPort);
@@ -50,6 +57,7 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
 
     /**
      * Notifies this ComTaskExecution that it should be rescheduled based on the given date
+     *
      * @param rescheduleDate the given reschedule date (additional restrictions can be applicable)
      */
     void executionRescheduled(Instant rescheduleDate);

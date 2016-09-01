@@ -10,6 +10,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -46,9 +47,17 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, Throwable cause);
 
+    void addJournalEntry(ComSessionJournalEntry entry);
+
+    List<ComSessionJournalEntry> getJournalEntries();
+
     ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Instant startDate);
 
+    void addComTaskExecutionSession(ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder);
+
     Optional<ComTaskExecutionSessionBuilder> findFor(ComTaskExecution comTaskExecution);
+
+    List<? extends ComTaskExecutionSessionBuilder> getComTaskExecutionSessionBuilders();
 
     EndedComSessionBuilder endSession(Instant stopTime, ComSession.SuccessIndicator successIndicator);
 

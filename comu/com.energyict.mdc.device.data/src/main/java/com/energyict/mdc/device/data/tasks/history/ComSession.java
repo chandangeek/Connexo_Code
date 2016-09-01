@@ -140,6 +140,8 @@ public interface ComSession extends HasId, TaskExecutionSummary {
 
     ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message);
 
+    void addJournalEntry(ComSessionJournalEntry entry);
+
     ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
 
     /**
