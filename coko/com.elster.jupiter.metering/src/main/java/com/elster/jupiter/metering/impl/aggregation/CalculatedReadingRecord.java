@@ -37,7 +37,7 @@ import static com.elster.jupiter.util.streams.Currying.test;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-11 (11:17)
  */
-class CalculatedReadingRecord implements BaseReadingRecord {
+class CalculatedReadingRecord implements BaseReadingRecord, Comparable<CalculatedReadingRecord> {
 
     private static final int SUSPECT = 4;
     private static final int MISSING = 3;
@@ -58,6 +58,11 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     CalculatedReadingRecord(InstantTruncaterFactory truncaterFactory) {
         super();
         this.truncaterFactory = truncaterFactory;
+    }
+
+    @Override
+    public int compareTo(CalculatedReadingRecord other) {
+        return this.getTimeStamp().compareTo(other.getTimeStamp());
     }
 
     static CalculatedReadingRecord merge(CalculatedReadingRecord r1, CalculatedReadingRecord r2, Instant mergedTimestamp, InstantTruncaterFactory truncaterFactory) {

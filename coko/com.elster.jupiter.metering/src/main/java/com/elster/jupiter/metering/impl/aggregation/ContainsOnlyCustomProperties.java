@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ConstantNode;
@@ -11,12 +15,12 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 
 /**
  * Provides an implementation for the {@link ExpressionNode.Visitor} interface
- * that tests if the {@link ExpressionNode}s contains only constants.
+ * that tests if the {@link ExpressionNode}s contains only custom properties.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2016-06-06 (17:21)
+ * @since 2016-09-01 (14:15)
  */
-class ContainsOnlyConstants implements ExpressionNode.Visitor<Boolean> {
+class ContainsOnlyCustomProperties implements ExpressionNode.Visitor<Boolean> {
 
     @Override
     public Boolean visitConstant(ConstantNode constant) {
@@ -35,13 +39,13 @@ class ContainsOnlyConstants implements ExpressionNode.Visitor<Boolean> {
 
     @Override
     public Boolean visitProperty(CustomPropertyNode property) {
-        return Boolean.FALSE;
+        return Boolean.TRUE;
     }
 
     @Override
     public Boolean visitOperation(OperationNode operationNode) {
         return operationNode.getLeftOperand().accept(this)
-            && operationNode.getRightOperand().accept(this);
+            || operationNode.getRightOperand().accept(this);
     }
 
     @Override
