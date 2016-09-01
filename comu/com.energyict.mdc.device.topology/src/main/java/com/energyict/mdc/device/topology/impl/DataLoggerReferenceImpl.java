@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
@@ -33,6 +35,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Represents the link between a Data Logger and its gateway
@@ -116,7 +119,8 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
             FilteredMeterReading meterReading = new FilteredMeterReading(dataloggerChannel.deleteReadings(getInterval().toOpenClosedRange()),
                     block -> block.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
                     reading -> reading.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
-                    rq -> rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false),
+                    // do copy reading qualities of ENDDEVICE system AND reading quality indicating of EDITED category
+                    rq -> (rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false) || rq.getType().category().map(QualityCodeCategory.EDITED::equals).orElse(false)),
                     ImmutableMap.of(dataLoggerCollectedReadingType, slaveCollectedReadingType)
             );
             if (!meterReading.isEmpty()) {
@@ -162,7 +166,17 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
                     ImmutableMap.of(slaveCollectedReadingType, dataLoggerCollectedReadingType)
             );
             if (!meterReading.isEmpty()) {
-                this.getGateway().store(meterReading);
+                List<BaseReading> readings;
+                if (dataLoggerCollectedReadingType.isRegular()) {
+                    readings = meterReading.getIntervalBlocks()
+                            .stream()
+                            .filter(ib -> dataLoggerCollectedReadingType.getmRID().equals(ib.getReadingTypeCode()))
+                            .flatMap(ib -> ib.getIntervals().stream())
+                            .collect(Collectors.toList());
+                } else {
+                    readings = meterReading.getReadings().stream().filter(reading -> dataLoggerCollectedReadingType.getmRID().equals(reading.getReadingTypeCode())).collect(Collectors.toList());
+                }
+                dataloggerChannel.getCimChannel(dataLoggerCollectedReadingType).orElseThrow(IllegalArgumentException::new).editReadings(QualityCodeSystem.MDC, readings);
             }
         }
     }
@@ -198,9 +212,9 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         public List<Reading> getReadings() {
             return decorated.getReadings().stream()
                     .filter(readingFilter)
-                    .map(reading -> new FilteredReading(reading, readingQualityPredicate, readingTypeMap.get(reading.getReadingTypeCode()))
-                    ).map(Reading.class::cast)
-                    .collect(Collectors.toList());
+                    .map(reading -> new FilteredReading(reading, readingQualityPredicate, readingTypeMap.get(reading.getReadingTypeCode())))
+                    .map(Reading.class::cast)
+                    .collect(toList());
         }
 
         @Override
@@ -210,7 +224,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
                     .filter(intervalBlockFilter)
                     .map(block -> new FilteredIntervalBlock(block, readingQualityPredicate, readingTypeMap.get(block.getReadingTypeCode())))
                     .map(IntervalBlock.class::cast)
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
 
         @Override
@@ -233,7 +247,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
 
         @Override
         public List<IntervalReading> getIntervals() {
-            return decorated.getIntervals().stream().map(ir -> new FilteredIntervalReading(ir, readingQualityPredicate)).map(IntervalReading.class::cast).collect(Collectors.toList());
+            return decorated.getIntervals().stream().map(ir -> new FilteredIntervalReading(ir, readingQualityPredicate)).map(IntervalReading.class::cast).collect(toList());
         }
 
         @Override
