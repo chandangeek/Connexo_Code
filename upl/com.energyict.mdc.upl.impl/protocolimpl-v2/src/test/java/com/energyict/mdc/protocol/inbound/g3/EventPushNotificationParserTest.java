@@ -272,7 +272,6 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent.getEiCode(), 0);
         assertEquals(meterProtocolEvent.getProtocolCode(), 2);
         assertEquals(meterProtocolEvent.getMessage(), "Power up");
-
     }*/
 
     @Test
