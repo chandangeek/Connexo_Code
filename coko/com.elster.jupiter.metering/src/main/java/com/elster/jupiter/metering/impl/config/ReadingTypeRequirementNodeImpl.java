@@ -39,7 +39,7 @@ public class ReadingTypeRequirementNodeImpl extends AbstractNode implements Read
     }
 
     public String toString() {
-        return readingTypeRequirement.get().getName();
+        return "R(" + readingTypeRequirement.get().getName() + ")";
     }
 
     @Override
