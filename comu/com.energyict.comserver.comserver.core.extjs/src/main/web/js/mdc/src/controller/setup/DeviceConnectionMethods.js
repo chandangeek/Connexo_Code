@@ -352,13 +352,13 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
         // this.getDeviceConnectionMethodEditView().down('#rescheduleRetryDelay').setDisabled(false);
-        this.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
+        this.getDeviceConnectionMethodEditView().down('#numberOfSimultaneousConnections').setDisabled(false);
         if (connectionMethod.get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
             this.getDeviceConnectionMethodEditView().down('form').down('#scheduleFieldContainer').setVisible(true);
             if (connectionMethod.get('temporalExpression')) {
                 this.getDeviceConnectionMethodEditView().down('#scheduleField').setValue(connectionMethod.get('temporalExpression'));
             }
-            this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(false);
+            this.getDeviceConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(false);
         }
         if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {
             this.getActivateConnWindowRadiogroup().items.items[1].setValue(true);
@@ -385,10 +385,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                     timeUnit: 'seconds'
                 }
             });
-            this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(false);
+            this.getDeviceConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(false);
         } else {
             this.getScheduleFieldContainer().setVisible(false);
-            this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(true);
+            this.getDeviceConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(true);
         }
     },
 
@@ -618,7 +618,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                                 var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[connectionMethod.get('name')]);
                                                 widget.down('#deviceConnectionMethodEditAddTitle').setTitle(title);
                                                 me.getDeviceConnectionMethodEditView().down('#communicationPortPoolComboBox').setDisabled(false);
-                                                me.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
+                                                me.getDeviceConnectionMethodEditView().down('#numberOfSimultaneousConnections').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#connectionStrategyComboBox').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#scheduleFieldContainer').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
@@ -627,7 +627,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                                 me.getDeviceConnectionMethodEditView().down('form').loadRecord(connectionMethod);
                                                 if (connectionMethod.get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
                                                     widget.down('form').down('#scheduleFieldContainer').setVisible(true);
-                                                    me.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setVisible(false);
+                                                    me.getDeviceConnectionMethodEditView().down('#numberOfSimultaneousConnections').setVisible(false);
                                                 }
                                                 if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {
                                                     me.getActivateConnWindowRadiogroup().items.items[1].setValue(true);
