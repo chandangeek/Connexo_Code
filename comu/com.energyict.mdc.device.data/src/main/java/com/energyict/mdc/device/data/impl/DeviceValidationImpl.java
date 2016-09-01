@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.RangeComparatorFactory;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -30,7 +31,6 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,6 +42,8 @@ import static com.elster.jupiter.util.streams.Functions.asStream;
  */
 public class DeviceValidationImpl implements DeviceValidation {
 
+    private static final Comparator<MeterActivation> MOST_RECENT_FIRST =
+            Comparator.comparing(MeterActivation::getRange, RangeComparatorFactory.INSTANT_DEFAULT).reversed();
     private final AmrSystem amrSystem;
     private final ValidationService validationService;
     private final Clock clock;
@@ -94,9 +96,9 @@ public class DeviceValidationImpl implements DeviceValidation {
             if (lastChecked == null) {
                 throw InvalidLastCheckedException.lastCheckedCannotBeNull(this.device, this.thesaurus, MessageSeeds.LAST_CHECKED_CANNOT_BE_NULL);
             }
-            this.getMeterActivationsMostRecentFirst(koreMeter)
-                    .filter(each -> this.isEffectiveOrStartsAfterLastChecked(lastChecked, each))
-                    .forEach(each -> this.applyLastChecked(lastChecked, each));
+            koreMeter.getMeterActivations().stream()
+                    .filter(each -> isEffectiveOrStartsAfterLastChecked(lastChecked, each))
+                    .forEach(each -> applyLastChecked(lastChecked, each));
         }
         this.validationService.activateValidation(koreMeter);
         if (onStorage) {
@@ -231,17 +233,13 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     @Override
     public void setLastChecked(Channel channel, Instant start) {
-        getDevice()
-                .findKoreChannels(channel)
-                .stream()
+        getDevice().findKoreChannels(channel)
                 .forEach(c -> this.validationService.updateLastChecked(c, start));
     }
 
     @Override
     public void setLastChecked(Register<?, ?> register, Instant start) {
-        getDevice()
-                .findKoreChannels(register)
-                .stream()
+        getDevice().findKoreChannels(register)
                 .forEach(c -> this.validationService.updateLastChecked(c, start));
     }
 
@@ -278,41 +276,20 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     private Optional<Instant> getLastChecked(Meter meter) {
-        return getMeterActivationsMostRecentFirst(meter)
+        return meter.getMeterActivations().stream()
+                .sorted(MOST_RECENT_FIRST)
                 .map(MeterActivation::getChannelsContainer)
                 .map(validationService::getLastChecked)  // may be use evaluator to allow caching this
                 .flatMap(asStream())
-                .findAny();
+                .findFirst();
     }
 
     private Optional<Instant> getLastChecked(ReadingType readingType) {
         return getEvaluator().getLastChecked(fetchKoreMeter(), readingType);
     }
 
-    private Stream<MeterActivation> getMeterActivationsMostRecentFirst(Meter meter) {
-        TreeSet<MeterActivation> meterActivations = new TreeSet<>(byInterval());
-        meterActivations.addAll(meter.getMeterActivations());
-        return meterActivations.stream();
-    }
-
-    private Comparator<MeterActivation> byInterval() {
-        return Comparator.comparing(MeterActivation::getRange, byStart());
-    }
-
-    private Comparator<? super Range<Instant>> byStart() {
-        return (o1, o2) -> {
-            if (!o1.hasLowerBound()) {
-                return !o2.hasLowerBound() ? -1 : 0;
-            }
-            if (!o2.hasLowerBound()) {
-                return 1;
-            }
-            return o1.lowerEndpoint().compareTo(o2.lowerEndpoint());
-        };
-    }
-
     private void validate(ReadingType readingType) {
-        fetchKoreMeter().getChannelsContainers().stream()
+        fetchKoreMeter().getChannelsContainers()
                 .forEach(channelContainer -> validationService.validate(EnumSet.of(QualityCodeSystem.MDC), channelContainer, readingType));
     }
 
