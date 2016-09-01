@@ -186,5 +186,8 @@ public class AM540Properties extends IDISProperties {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.valueOf(256)).intValue();
     }
 
+    public String getInitialFrameCounter(){
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER);
+    }
 
 }

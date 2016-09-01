@@ -4,9 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.FrameCounterProvider;
@@ -78,12 +76,14 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
     private AM540Cache am540Cache;
     private HHUSignOnV2 hhuSignOn;
+    private FrameCounterCacheHandler    frameCounterCacheHandler;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         initDlmsSession(comChannel);
+        getLogger().info("Protocol initialization phase ended, executing tasks ...");
     }
 
     private void initDlmsSession(ComChannel comChannel) {
@@ -201,7 +201,14 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         if (securityContext == null) {
             securityContext = getDlmsSession().getAso().getSecurityContext();
         }
-        securityContext.setFrameCounterCache(getDlmsSessionProperties().getClientMacAddress(), getDeviceCache());
+        securityContext.setFrameCounterCache(getDlmsSessionProperties().getClientMacAddress(), getFrameCounterCacheHandler());
+    }
+
+    protected FrameCounterCacheHandler getFrameCounterCacheHandler(){
+        if (frameCounterCacheHandler == null){
+            frameCounterCacheHandler = new FrameCounterCacheHandler(getDlmsSessionProperties());
+        }
+        return frameCounterCacheHandler;
     }
 
     /**
@@ -239,7 +246,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     protected boolean readAndTestCachedFrameCounter(ComChannel comChannel){
         getLogger().info("Will try to use a cached frame counter");
         final int clientId = getDlmsSessionProperties().getClientMacAddress();
-        long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
+        long cachedFrameCounter = getFrameCounterCacheHandler().getTXFrameCounter(clientId);
         if (cachedFrameCounter > 0) {
             getLogger().info(" - cached frame counter: "+cachedFrameCounter);
             this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFrameCounter + 1);

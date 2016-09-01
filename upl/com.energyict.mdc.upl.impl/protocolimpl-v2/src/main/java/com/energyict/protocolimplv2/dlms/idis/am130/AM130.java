@@ -128,17 +128,20 @@ public class AM130 extends AM500 {
 
         long frameCounter;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
+        getLogger().info("Connecting to public client:"+IDIS2_CLIENT_PUBLIC);
         connectToPublicClient(publicDlmsSession, timeout);
         try {
             ObisCode frameCounterObisCode = getFrameCounterForClient(IDIS2_CLIENT_PUBLIC);
-            getLogger().info("Reading framecounter "+frameCounterObisCode.toString()+" with client "+IDIS2_CLIENT_PUBLIC);
+            getLogger().info("Public client connected, reading framecounter "+frameCounterObisCode.toString());
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
+            getLogger().info("Frame counter received: "+frameCounter);
         } catch (DataAccessResultException | ProtocolException e) {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
+        getLogger().info("Disconnecting public client");
         disconnectFromPublicClient(publicDlmsSession);
 
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
