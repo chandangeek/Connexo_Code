@@ -30,6 +30,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.RangeComparatorFactory;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -788,12 +789,11 @@ public class CustomPropertySetServiceImplTest {
         when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond));
         when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
         Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(2L), Instant.ofEpochSecond(5L));
-        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
 
         // Business method
         OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
         List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
-        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+        Collections.sort(conflicts, Comparator.comparing(ValuesRangeConflict::getConflictingRange, RangeComparatorFactory.INSTANT_DEFAULT));
 
         // Asserts
         assertThat(conflicts).isNotNull();
@@ -825,12 +825,11 @@ public class CustomPropertySetServiceImplTest {
         when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Collections.singletonList(extension));
         when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
         Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(2L), Instant.ofEpochSecond(5L));
-        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
 
         // Business method
         OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
         List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
-        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+        Collections.sort(conflicts, Comparator.comparing(ValuesRangeConflict::getConflictingRange, RangeComparatorFactory.INSTANT_DEFAULT));
 
         // Asserts
         assertThat(conflicts).isNotNull();
@@ -860,12 +859,11 @@ public class CustomPropertySetServiceImplTest {
         when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond));
         when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
         Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(2L), Instant.ofEpochSecond(5L));
-        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
 
         // Business method
         OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
         List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
-        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+        Collections.sort(conflicts, Comparator.comparing(ValuesRangeConflict::getConflictingRange, RangeComparatorFactory.INSTANT_DEFAULT));
 
         // Asserts
         assertThat(conflicts).isNotNull();
@@ -901,12 +899,11 @@ public class CustomPropertySetServiceImplTest {
         when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond, extensionThird));
         when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
         Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(5L));
-        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
 
         // Business method
         OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
         List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
-        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getValues().getEffectiveRange(), b.getValues().getEffectiveRange()));
+        Collections.sort(conflicts, Comparator.comparing(conflict -> conflict.getValues().getEffectiveRange(), RangeComparatorFactory.INSTANT_DEFAULT));
 
         // Asserts
         assertThat(conflicts).isNotNull();
@@ -938,12 +935,11 @@ public class CustomPropertySetServiceImplTest {
         when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond, extensionThird));
         when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
         Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(3L), Instant.ofEpochSecond(8L));
-        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
 
         // Business method
         OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
         List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
-        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+        Collections.sort(conflicts, Comparator.comparing(ValuesRangeConflict::getConflictingRange, RangeComparatorFactory.INSTANT_DEFAULT));
 
         // Asserts
         assertThat(conflicts).isNotNull();
@@ -979,12 +975,11 @@ public class CustomPropertySetServiceImplTest {
         when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Arrays.asList(extensionFirst, extensionSecond, extensionThird));
         when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
         Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(4L), Instant.ofEpochSecond(5L));
-        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
 
         // Business method
         OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
         List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
-        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+        Collections.sort(conflicts, Comparator.comparing(ValuesRangeConflict::getConflictingRange, RangeComparatorFactory.INSTANT_DEFAULT));
 
         // Asserts
         assertThat(conflicts).isNotNull();
@@ -1016,12 +1011,11 @@ public class CustomPropertySetServiceImplTest {
         when(dataMapper.select(any(Condition.class), any(Order.class))).thenReturn(Collections.singletonList(extension));
         when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
         Range<Instant> candidateRange = Range.closedOpen(Instant.ofEpochSecond(4L), Instant.ofEpochSecond(5L));
-        Comparator<Range<Instant>> rangeComparator = new RangeComparator();
 
         // Business method
         OverlapCalculatorBuilder builder = service.calculateOverlapsFor(this.versionedCustomPropertySet, testDomain);
         List<ValuesRangeConflict> conflicts = builder.whenCreating(candidateRange);
-        Collections.sort(conflicts, (a, b) -> rangeComparator.compare(a.getConflictingRange(), b.getConflictingRange()));
+        Collections.sort(conflicts, Comparator.comparing(ValuesRangeConflict::getConflictingRange, RangeComparatorFactory.INSTANT_DEFAULT));
 
         // Asserts
         assertThat(conflicts).isNotNull();
