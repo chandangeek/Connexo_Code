@@ -121,7 +121,6 @@ public class FileImportScheduleResource {
         if (info.scanFrequency < 0) {
             info.scanFrequency = 1;
         }
-        info.name = null;
         validate(info, POST.class);
         ImportScheduleBuilder builder = fileImportService.newBuilder()
                 .setName(info.name)
@@ -153,34 +152,6 @@ public class FileImportScheduleResource {
         }
     }
 
-//    private void validateImportScheduleInfoObject(FileImportScheduleInfo info) {
-//        RestValidationBuilder validationBuilder = new RestValidationBuilder();
-//        validationBuilder = validationBuilder.notEmpty(info.name, "name");
-//        if(checkInvalidChars(info.inProcessDirectory, NON_PATH_INVALID)) {
-//            validationBuilder = validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS, "inProcessDirectory"));
-//        }
-//        if(checkInvalidChars(info.failureDirectory, NON_PATH_INVALID)) {
-//           validationBuilder = validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS, "failureDirectory"));
-//        }
-//        if(checkInvalidChars(info.importDirectory, NON_PATH_INVALID)) {
-//           validationBuilder = validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS, "importDirectory"));
-//        }
-//        if(checkInvalidChars(info.successDirectory, NON_PATH_INVALID)) {
-//           validationBuilder = validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS, "successDirectory"));
-//        }
-//        validationBuilder.validate();
-//    }
-
-//    protected boolean checkInvalidChars(String value, String invalidCharacters) {
-//        for (int i = 0; i < invalidCharacters.length(); i++) {
-//            char invalidChar = invalidCharacters.charAt(i);
-//            if (value.indexOf(invalidChar) != -1) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
     @DELETE
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -210,6 +181,7 @@ public class FileImportScheduleResource {
         if (info.scanFrequency < 0) {
             info.scanFrequency = 1;
         }
+        validate(info, PUT.class);
         try (TransactionContext context = transactionService.getContext()) {
             ImportSchedule importSchedule = fetchAndLockImportSchedule(info);
             if (!importSchedule.isImporterAvailable()) {
