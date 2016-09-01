@@ -7,18 +7,23 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+
+import java.time.Clock;
+import java.time.Instant;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.time.Instant;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link CreateInboundComSession} component.
@@ -135,7 +140,7 @@ public class CreateInboundComSessionTest {
         when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
         when(comSession.getComPort()).thenReturn(comPort);
         when(comSession.getConnectionTask()).thenReturn(connectionTask);
-        when(comServerDao.createComSession(comSessionBuilder, Instant.now(), ComSession.SuccessIndicator.Success)).thenReturn(comSession);
+        when(comServerDao.createComSession(eq(comSessionBuilder), any(), eq(ComSession.SuccessIndicator.Success))).thenReturn(comSession);
         CreateInboundComSession command = new CreateInboundComSession(Instant.now(), comPort, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
         command.setStopWatch(new StopWatch());
         command.execute(comServerDao);
