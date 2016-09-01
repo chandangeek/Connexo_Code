@@ -80,6 +80,8 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
             case TimeError:   // Intentional fall-through
             case ConfigurationError:   // Intentional fall-through
             case IOError:   // Intentional fall-through
+            case InitError:   // Intentional fall-through
+            case TimeoutError:   // Intentional fall-through
             case UnexpectedError:   // Intentional fall-through
             case ConnectionError: {
                 return ComServer.LogLevel.ERROR;
