@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.time.format.DateTimeFormatter;
@@ -99,12 +100,20 @@ public class CompositeThesaurus implements IThesaurus {
 
     @Override
     public String interpolate(String messageTemplate, Context context) {
-        return components.stream().findFirst().map(th -> th.interpolate(messageTemplate, context)).orElseThrow(IllegalStateException::new);
+        return components.stream()
+                .map(th -> th.interpolate(messageTemplate, context))
+                .filter(result -> !messageTemplate.contains(result))
+                .findAny()
+                .orElse(messageTemplate);
     }
 
     @Override
     public String interpolate(String messageTemplate, Context context, Locale locale) {
-        return components.stream().findFirst().map(th -> th.interpolate(messageTemplate, context, locale)).orElseThrow(IllegalStateException::new);
+        return components.stream()
+                .map(th -> th.interpolate(messageTemplate, context, locale))
+                .filter(result -> !messageTemplate.contains(result))
+                .findAny()
+                .orElse(messageTemplate);
     }
 
     @Override
