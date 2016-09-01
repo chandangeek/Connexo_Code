@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -26,8 +27,10 @@ import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationOccurrenceLogInfos;
-import com.elster.jupiter.validation.rest.DataValidationTaskHistoryInfos;
+import com.elster.jupiter.validation.rest.DataValidationTaskHistoryInfo;
+import com.elster.jupiter.validation.rest.DataValidationTaskHistoryInfoFactory;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 import com.elster.jupiter.validation.security.Privileges;
 
 import com.google.common.collect.Range;
@@ -66,6 +69,8 @@ public class DataValidationTaskResource {
     private final Thesaurus thesaurus;
     private final TimeService timeService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
+    private final DataValidationTaskHistoryInfoFactory dataValidationTaskHistoryInfoFactory;
 
     @Inject
     public DataValidationTaskResource(RestQueryService queryService,
@@ -75,7 +80,9 @@ public class DataValidationTaskResource {
                                       MetrologyConfigurationService metrologyConfigurationService,
                                       TimeService timeService,
                                       Thesaurus thesaurus,
-                                      ConcurrentModificationExceptionFactory conflictFactory) {
+                                      ConcurrentModificationExceptionFactory conflictFactory,
+                                      DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
+                                      DataValidationTaskHistoryInfoFactory dataValidationTaskHistoryInfoFactory) {
         this.queryService = queryService;
         this.validationService = validationService;
         this.transactionService = transactionService;
@@ -84,6 +91,8 @@ public class DataValidationTaskResource {
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.conflictFactory = conflictFactory;
+        this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
+        this.dataValidationTaskHistoryInfoFactory = dataValidationTaskHistoryInfoFactory;
     }
 
     private QualityCodeSystem getQualityCodeSystemForApplication(String applicationName) {
@@ -111,8 +120,7 @@ public class DataValidationTaskResource {
         }
         DataValidationTask dataValidationTask = builder.create();
 
-        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).build();
-
+        return Response.status(Response.Status.CREATED).entity(dataValidationTaskInfoFactory.asInfoWithHistory(dataValidationTask)).build();
     }
 
     @GET
@@ -124,7 +132,7 @@ public class DataValidationTaskResource {
         List<DataValidationTaskInfo> infos = validationService.findValidationTasks()
                 .stream()
                 .filter(task -> task.getQualityCodeSystem().equals(getQualityCodeSystemForApplication(applicationName)))
-                .map(dataValidationTask -> new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService))
+                .map(dataValidationTaskInfoFactory::asInfoWithHistory)
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("dataValidationTasks", infos, queryParameters);
@@ -151,7 +159,7 @@ public class DataValidationTaskResource {
                                                         @Context SecurityContext securityContext) {
         DataValidationTask task = findValidationTaskForQualitySystem(dataValidationTaskId, getQualityCodeSystemForApplication(applicationName))
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return new DataValidationTaskInfo(task, thesaurus, timeService);
+        return dataValidationTaskInfoFactory.asInfoWithHistory(task);
     }
 
     @PUT
@@ -180,7 +188,7 @@ public class DataValidationTaskResource {
         }
         task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
         task.update();
-        return Response.ok(new DataValidationTaskInfo(task, thesaurus, timeService)).build();
+        return Response.ok(dataValidationTaskInfoFactory.asInfoWithHistory(task)).build();
     }
 
     @PUT
@@ -207,16 +215,15 @@ public class DataValidationTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
-    public DataValidationTaskHistoryInfos getDataValidationTaskHistory(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
-                                                                       @PathParam("id") long id,
-                                                                       @Context SecurityContext securityContext,
-                                                                       @BeanParam JsonQueryFilter filter,
-                                                                       @Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+    public PagedInfoList getDataValidationTaskHistory(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                                            @PathParam("id") long id,
+                                                                            @Context SecurityContext securityContext,
+                                                                            @BeanParam JsonQueryFilter filter,
+                                                                            @BeanParam JsonQueryParameters queryParameters) {
         DataValidationTask task = fetchDataValidationTask(id, applicationName);
         DataValidationOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
-                .setStart(queryParameters.getStartInt())
-                .setLimit(queryParameters.getLimit() + 1);
+                .setStart(queryParameters.getStart().orElse(0))
+                .setLimit(queryParameters.getLimit().orElse(-1) + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
             if (filter.hasProperty("startedOnTo")) {
@@ -238,9 +245,10 @@ public class DataValidationTaskResource {
         }
         List<? extends DataValidationOccurrence> occurrences = occurrencesFinder.find();
 
-        DataValidationTaskHistoryInfos infos = new DataValidationTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus, timeService);
-        infos.total = queryParameters.determineTotal(occurrences.size());
-        return infos;
+        History<DataValidationTask> history = (History<DataValidationTask>) task.getHistory();
+        List<DataValidationTaskHistoryInfo> infos = occurrences.stream().map(occurrence -> dataValidationTaskHistoryInfoFactory.asInfo(history, occurrence))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("data", infos, queryParameters);
     }
 
     @GET

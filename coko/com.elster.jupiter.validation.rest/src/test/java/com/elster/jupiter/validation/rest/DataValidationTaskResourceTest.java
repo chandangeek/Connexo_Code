@@ -79,7 +79,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Test
     public void getCreateTasksTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+        DataValidationTaskInfo info = new DataValidationTaskInfo();//dataValidationTask1, thesaurus, timeService);
         info.deviceGroup = new IdWithDisplayValueInfo();
         info.deviceGroup.id = 1L;
         Entity<DataValidationTaskInfo> json = Entity.json(info);
@@ -91,7 +91,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     
     @Test
     public void getCreateTasksMetrologyContractTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+        DataValidationTaskInfo info = new DataValidationTaskInfo();//dataValidationTask1, thesaurus, timeService);
         info.deviceGroup = null;
         info.metrologyContract = new IdWithDisplayValueInfo();
         info.metrologyConfiguration = new IdWithDisplayValueInfo();
@@ -106,7 +106,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Test
     public void updateTasksTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+        DataValidationTaskInfo info = new DataValidationTaskInfo();//dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = new IdWithDisplayValueInfo();
         info.deviceGroup.id = 1L;
@@ -118,7 +118,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     
     @Test
     public void updateTasksMetrologyContractTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo(mockDataValidationTask(TASK_ID, QualityCodeSystem.MDM), thesaurus, timeService);
+        DataValidationTaskInfo info = new DataValidationTaskInfo();//mockDataValidationTask(TASK_ID, QualityCodeSystem.MDM), thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = null;
         info.metrologyContract = new IdWithDisplayValueInfo();
@@ -133,7 +133,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Test
     public void updateTasksTestBadVersion() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+        DataValidationTaskInfo info = new DataValidationTaskInfo();//dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = new IdWithDisplayValueInfo();
         info.deviceGroup.id = 1L;
@@ -146,7 +146,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     
     @Test
     public void updateTasksTestBadMetrologyContractVersion() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+        DataValidationTaskInfo info = new DataValidationTaskInfo();//dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = null;
         info.metrologyContract = new IdWithDisplayValueInfo();
@@ -162,7 +162,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Test
     public void deleteTasksTestBadVersion() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+        DataValidationTaskInfo info = new DataValidationTaskInfo();//dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = new IdWithDisplayValueInfo();
         info.deviceGroup.id = 1L;

@@ -17,6 +17,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
+import com.elster.jupiter.validation.rest.DataValidationTaskHistoryInfoFactory;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.validation.rest.kpi.rest.DataValidationKpiInfoFactory;
@@ -138,6 +140,8 @@ public class ValidationApplication extends Application implements TranslationKey
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(timeService).to(TimeService.class);
             bind(kpiService).to(KpiService.class);
+            bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
+            bind(DataValidationTaskHistoryInfoFactory.class).to(DataValidationTaskHistoryInfoFactory.class);
         }
     }
 
