@@ -764,23 +764,12 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public List<Long> getDevicesWithSuspects(long endDeviceGroupId) {
-        List<Long> devices = new ArrayList<>();
+    public List<Long> getDevicesIdsList(long endDeviceGroupId) {
         Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
-        if (endDeviceGroup.isPresent()) {
-            Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(endDeviceGroup.get());
-            if (dataValidationKpi.isPresent()) {
-                devices = dataValidationKpi.get()
-                        .getDataValidationKpiChildren()
-                        .stream()
-                        .map(child -> child.getChildKpi().getMembers())
-                        .flatMap(List::stream)
-                        .map(member -> member.getName().substring(member.getName().indexOf("_") + 1))
-                        .map(id -> Long.parseLong(id))
-                        .distinct().sorted().collect(Collectors.toList());
-            }
+        if(endDeviceGroup.isPresent()){
+            return endDeviceGroup.get().getMembers(Instant.now()).stream().map(EndDevice::getId).collect(Collectors.toList());
         }
-        return devices;
+        return new ArrayList<>();
     }
 
 
