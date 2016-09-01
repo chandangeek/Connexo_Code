@@ -105,6 +105,7 @@ public enum MessageSeeds implements MessageSeed {
     UNSUPPORTED_COMMAND(7012, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device with MRID {1}"),
     CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED(7013, Constants.CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED, "Current metrology configuration version can't be removed"),
     START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE(7014, Constants.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "Start date must be greater or equal to Created date of usage point"),
+    USAGE_POINT_DETAILS_NOT_UNIQUE(7015, Constants.UNIQUE_DETAILS, "The usage point already has details for this interval"),
 
     DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0");
 
@@ -238,7 +239,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String BULK_READINGTYPE_NOT_ALLOWED = "bulk.readingtype.not.allowed";
         public static final String START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE = "version.start.should.be.greater.than.up.creation.date";
         public static final String BULK_DELIVERABLES_CAN_ONLY_USE_BULK_READINGTYPES = "bulk.deliverable.can.only.use.other.bulk.reading";
-
+        public static final String UNIQUE_DETAILS = "usage.point.details.not.unique.for.interval";
         public static final String DENOMINATOR_CANNOT_BE_ZERO = "denominator.cannot.be.zero";
     }
 
