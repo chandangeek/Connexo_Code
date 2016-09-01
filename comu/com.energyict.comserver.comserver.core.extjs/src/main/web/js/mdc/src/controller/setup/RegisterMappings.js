@@ -99,7 +99,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             menu = preview.down('menu');
 
         Ext.suspendLayouts();
-        preview.setTitle(record.get('readingType').fullAliasName);
+        preview.setTitle(Ext.htmlEncode(record.get('readingType').fullAliasName));
         preview.down('form').loadRecord(record);
         Ext.resumeLayouts(true);
         if (menu) {
