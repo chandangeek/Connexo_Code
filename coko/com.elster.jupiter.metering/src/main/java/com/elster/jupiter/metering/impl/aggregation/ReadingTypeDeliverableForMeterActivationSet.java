@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.metering.impl.aggregation.DataSourceTableFactory.dual;
+
 /**
  * Redefines a {@link ReadingTypeDeliverable} for a {@link MeterActivationSet}.
  * Maintains a copy of the original expression tree because the target
@@ -214,7 +216,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
     private DataSourceTable appendWithFromClause(SqlBuilder sqlBuilderBuilder) {
         sqlBuilderBuilder.append("  FROM ");
         // Use dual as a default when expression is not backed by a requirement or deliverable that produces a timeline
-        FromClauseForExpressionNode fromClauseForExpressionNode = new FromClauseForExpressionNode(new Dual());
+        FromClauseForExpressionNode fromClauseForExpressionNode = new FromClauseForExpressionNode(dual());
         this.expressionNode.accept(fromClauseForExpressionNode);
         DataSourceTable sourceTable = fromClauseForExpressionNode.getSource();
         sqlBuilderBuilder.append(sourceTable.getName());
@@ -387,27 +389,6 @@ class ReadingTypeDeliverableForMeterActivationSet {
                     .map(TimeBasedAggregationNode::getIntervalLength);
         } else {
             return Optional.empty();
-        }
-    }
-
-    private static class Dual implements DataSourceTable {
-        @Override
-        public String getName() {
-            return "dual";
-        }
-
-        @Override
-        public String propertiesJoinClause(String tableName) {
-            return this.joinClause(tableName);
-        }
-
-        @Override
-        public String timeSeriesJoinClause(String tableName) {
-            return this.joinClause(tableName);
-        }
-
-        private String joinClause(String tableName) {
-            return " JOIN " + tableName;
         }
     }
 

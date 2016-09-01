@@ -35,11 +35,12 @@ import static org.mockito.Mockito.when;
  */
 public class JoinClausesForExpressionNodeTest {
 
-    private static final String SOURCE_TABLE_NAME = "TST_1";
+    private static final String TIMESERIES_SOURCE_TABLE_NAME = "TST_1";
+    private static final String PROPERTIES_SOURCE_TABLE_NAME = "CUST_1";
 
     @Test
     public void numericalConstantNodesDoNotProvideJoinClauseInformation() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
         ServerExpressionNode node = new NumericalConstantNode(BigDecimal.ONE);
 
         // Business method
@@ -50,7 +51,7 @@ public class JoinClausesForExpressionNodeTest {
 
     @Test
     public void stringConstantNodesDoNotProvideJoinClauseInformation() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
         ServerExpressionNode node = new StringConstantNode("stringConstantNodesDoNotProvideJoinClauseInformation");
 
         // Business method
@@ -59,12 +60,12 @@ public class JoinClausesForExpressionNodeTest {
         assertThat(testInstance.joinClauses()).isEmpty();
 
         // Business method + asserts
-        assertThat(node.accept(this.testInstance())).isNull();
+        assertThat(node.accept(this.timeSeriesTestInstance())).isNull();
     }
 
     @Test
     public void sqlFragementNodesDoNotProvideJoinClauseInformation() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
         ServerExpressionNode node = new SqlFragmentNode("sequence.nextval");
 
         // Business method
@@ -75,10 +76,10 @@ public class JoinClausesForExpressionNodeTest {
 
     @Test
     public void deliverableWithSameTableNameIsIgnored() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
         ReadingType readingType = this.mockedReadingType();
         ReadingTypeDeliverableForMeterActivationSet readingTypeDeliverableForMeterActivationSet = mock(ReadingTypeDeliverableForMeterActivationSet.class);
-        when(readingTypeDeliverableForMeterActivationSet.sqlName()).thenReturn(SOURCE_TABLE_NAME);
+        when(readingTypeDeliverableForMeterActivationSet.sqlName()).thenReturn(TIMESERIES_SOURCE_TABLE_NAME);
         when(readingTypeDeliverableForMeterActivationSet.getReadingType()).thenReturn(readingType);
         ServerExpressionNode node = new VirtualDeliverableNode(readingTypeDeliverableForMeterActivationSet);
 
@@ -90,7 +91,7 @@ public class JoinClausesForExpressionNodeTest {
 
     @Test
     public void deliverableWithDifferentTableNameIsNotIgnored() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
         ReadingType readingType = this.mockedReadingType();
         String expectedJoinTableName = "deliverableWithDifferentTableNameIsNotIgnored";
         ReadingTypeDeliverableForMeterActivationSet readingTypeDeliverableForMeterActivationSet = mock(ReadingTypeDeliverableForMeterActivationSet.class);
@@ -103,12 +104,12 @@ public class JoinClausesForExpressionNodeTest {
 
         List<String> joinClauses = testInstance.joinClauses();
         assertThat(joinClauses).hasSize(1);
-        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + SOURCE_TABLE_NAME + ".timestamp");
+        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + TIMESERIES_SOURCE_TABLE_NAME + ".timestamp");
     }
 
     @Test
     public void additionOfSameDeliverable() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
         String expectedJoinTableName = "DEL1";
         ReadingType readingType = this.mockedReadingType();
         ReadingTypeDeliverableForMeterActivationSet readingTypeDeliverableForMeterActivationSet = mock(ReadingTypeDeliverableForMeterActivationSet.class);
@@ -124,12 +125,12 @@ public class JoinClausesForExpressionNodeTest {
 
         List<String> joinClauses = testInstance.joinClauses();
         assertThat(joinClauses).hasSize(1);
-        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + SOURCE_TABLE_NAME + ".timestamp");
+        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + TIMESERIES_SOURCE_TABLE_NAME + ".timestamp");
     }
 
     @Test
     public void functionCallWithSameDeliverable() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
         String expectedJoinTableName = "DEL1";
         ReadingType readingType = this.mockedReadingType();
         ReadingTypeDeliverableForMeterActivationSet readingTypeDeliverableForMeterActivationSet = mock(ReadingTypeDeliverableForMeterActivationSet.class);
@@ -146,12 +147,12 @@ public class JoinClausesForExpressionNodeTest {
 
         List<String> joinClauses = testInstance.joinClauses();
         assertThat(joinClauses).hasSize(1);
-        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + SOURCE_TABLE_NAME + ".timestamp");
+        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + TIMESERIES_SOURCE_TABLE_NAME + ".timestamp");
     }
 
     @Test
     public void requirementWithSameTableNameIsIgnored() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
         ReadingType readingType = this.mockedReadingType();
         FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement.getReadingType()).thenReturn(mock(ReadingType.class));
@@ -159,7 +160,7 @@ public class JoinClausesForExpressionNodeTest {
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         when(deliverable.getReadingType()).thenReturn(readingType);
         VirtualReadingTypeRequirement virtualReadingTypeRequirement = mock(VirtualReadingTypeRequirement.class);
-        when(virtualReadingTypeRequirement.sqlName()).thenReturn(SOURCE_TABLE_NAME);
+        when(virtualReadingTypeRequirement.sqlName()).thenReturn(TIMESERIES_SOURCE_TABLE_NAME);
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(requirement), eq(deliverable), any(VirtualReadingType.class))).thenReturn(virtualReadingTypeRequirement);
         MeterActivationSet meterActivationSet = mock(MeterActivationSet.class);
         when(meterActivationSet.getRange()).thenReturn(Range.all());
@@ -174,7 +175,7 @@ public class JoinClausesForExpressionNodeTest {
 
     @Test
     public void requirementWithDifferentTableNameIsNotIgnored() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
         ReadingType readingType = this.mockedReadingType();
         FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement.getReadingType()).thenReturn(mock(ReadingType.class));
@@ -195,12 +196,12 @@ public class JoinClausesForExpressionNodeTest {
 
         List<String> joinClauses = testInstance.joinClauses();
         assertThat(joinClauses).hasSize(1);
-        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + SOURCE_TABLE_NAME + ".timestamp");
+        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + TIMESERIES_SOURCE_TABLE_NAME + ".timestamp");
     }
 
     @Test
     public void additionOfSameRequirement() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
         ReadingType readingType = this.mockedReadingType();
         FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement.getReadingType()).thenReturn(mock(ReadingType.class));
@@ -224,12 +225,12 @@ public class JoinClausesForExpressionNodeTest {
 
         List<String> joinClauses = testInstance.joinClauses();
         assertThat(joinClauses).hasSize(1);
-        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + SOURCE_TABLE_NAME + ".timestamp");
+        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + TIMESERIES_SOURCE_TABLE_NAME + ".timestamp");
     }
 
     @Test
     public void functionCallWithSameRequirement() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
         ReadingType readingType = this.mockedReadingType();
         FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement.getReadingType()).thenReturn(mock(ReadingType.class));
@@ -255,12 +256,12 @@ public class JoinClausesForExpressionNodeTest {
         // Asserts
         List<String> joinClauses = testInstance.joinClauses();
         assertThat(joinClauses).hasSize(1);
-        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + SOURCE_TABLE_NAME + ".timestamp");
+        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + TIMESERIES_SOURCE_TABLE_NAME + ".timestamp");
     }
 
     @Test
-    public void property() {
-        JoinClausesForExpressionNode testInstance = this.testInstance();
+    public void propertyJoinedWithTimeSeries() {
+        JoinClausesForExpressionNode testInstance = this.timeSeriesTestInstance();
 
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("example");
@@ -277,7 +278,30 @@ public class JoinClausesForExpressionNodeTest {
         // Asserts
         List<String> joinClauses = testInstance.joinClauses();
         assertThat(joinClauses).hasSize(1);
-        assertThat(joinClauses.get(0)).matches(" JOIN " + expectedJoinTableNameMatchPattern + " ON " + expectedJoinTableNameMatchPattern + "\\.starttime < " + SOURCE_TABLE_NAME + "\\.timestamp AND " + SOURCE_TABLE_NAME + "\\.timestamp <= " + expectedJoinTableNameMatchPattern + "\\.endtime");
+        assertThat(joinClauses.get(0)).matches(" JOIN " + expectedJoinTableNameMatchPattern + " ON\\s*\\(\\s*" + expectedJoinTableNameMatchPattern + "\\.starttime < " + TIMESERIES_SOURCE_TABLE_NAME + "\\.timestamp\\s*AND\\s*" + TIMESERIES_SOURCE_TABLE_NAME + "\\.timestamp <= " + expectedJoinTableNameMatchPattern + "\\.endtime\\)");
+    }
+
+    @Test
+    public void propertyJoinedWithOtherProperties() {
+        JoinClausesForExpressionNode testInstance = this.propertiesTestInstance();
+
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("example");
+        RegisteredCustomPropertySet customPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn(97L);
+        MeterActivationSet meterActivation = mock(MeterActivationSet.class);
+        when(meterActivation.sequenceNumber()).thenReturn(101);
+        ServerExpressionNode node = new CustomPropertyNode(mock(CustomPropertySetService.class), propertySpec, customPropertySet, mock(UsagePoint.class), meterActivation);
+        String expectedJoinTableNameMatchPattern = "cps97_.*_101";
+
+        // Business method
+        node.accept(testInstance);
+
+        // Asserts
+        List<String> joinClauses = testInstance.joinClauses();
+        assertThat(joinClauses).hasSize(1);
+        assertThat(joinClauses.get(0)).matches(" JOIN " + expectedJoinTableNameMatchPattern + " ON\\s*\\(\\s*\\(\\s*" + PROPERTIES_SOURCE_TABLE_NAME + "\\.starttime <= " + expectedJoinTableNameMatchPattern + "\\.starttime\\s*AND\\s*" + PROPERTIES_SOURCE_TABLE_NAME + "\\.endtime >= " + expectedJoinTableNameMatchPattern + "\\.starttime\\).*");
+        assertThat(joinClauses.get(0)).matches(".*OR\\s*\\(\\s*" + expectedJoinTableNameMatchPattern + "\\.starttime <= " + PROPERTIES_SOURCE_TABLE_NAME + "\\.starttime\\s*AND\\s*" + expectedJoinTableNameMatchPattern + "\\.endtime >= " + PROPERTIES_SOURCE_TABLE_NAME + "\\.starttime\\)\\)");
     }
 
     private ReadingType mockedReadingType() {
@@ -289,8 +313,12 @@ public class JoinClausesForExpressionNodeTest {
         return readingType;
     }
 
-    private JoinClausesForExpressionNode testInstance() {
-        return new JoinClausesForExpressionNode(SOURCE_TABLE_NAME);
+    private JoinClausesForExpressionNode timeSeriesTestInstance() {
+        return new JoinClausesForExpressionNode(DataSourceTableFactory.timeSeries(TIMESERIES_SOURCE_TABLE_NAME));
+    }
+
+    private JoinClausesForExpressionNode propertiesTestInstance() {
+        return new JoinClausesForExpressionNode(DataSourceTableFactory.customProperties(PROPERTIES_SOURCE_TABLE_NAME));
     }
 
 }
