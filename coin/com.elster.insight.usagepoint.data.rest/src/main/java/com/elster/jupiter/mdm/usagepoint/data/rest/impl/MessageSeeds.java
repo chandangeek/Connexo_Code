@@ -30,7 +30,7 @@ public enum MessageSeeds implements MessageSeed {
     THIS_OUTPUT_IS_REGULAR(29, "ThisOutputIsRegular", "Usage point output with id {0} is regular and provides only interval data."),
     NO_RELATIVEPERIOD_FOR_ID(30, "NoRelativePeriodForId", "Relative period with id {0} is not found."),
     RELATIVEPERIOD_IS_IN_THE_FUTURE(31, "RelativePeriodIsInTheFuture", "Cannot gather validation statistics for relative period with id {0}: it is in the future."),
-    START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE(32, "version.start.should.be.greater.than.up.creation.date", "Start date must be greater or equal to Created date of usage point");
+    START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE(32, "version.start.should.be.greater.than.up.creation.date", "Start date must be greater or equal to creation date of usage point");
 
     private final int number;
     private final String key;
