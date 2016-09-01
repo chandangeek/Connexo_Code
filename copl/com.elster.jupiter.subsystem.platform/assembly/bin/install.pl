@@ -66,9 +66,9 @@ sub check_root {
         exit (0);
     }
     if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-        if (mkdir 'c:/windows/admintest/') {
-            rmdir 'c:/windows/admintest/'
-        } else {
+        my $output=`C:/Windows/system32/net.exe session 2>&1`;
+        my $return_code = $? >> 8;
+        if ($return_code != 0) {
             print "Please run this script as administrator\n";
             exit (0);
         }
