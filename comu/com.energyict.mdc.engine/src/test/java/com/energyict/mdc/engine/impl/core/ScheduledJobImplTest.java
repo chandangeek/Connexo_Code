@@ -7,28 +7,55 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateComSessionDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionEvent;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
@@ -45,6 +72,18 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
+
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
+
 import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,13 +93,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.sql.SQLException;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
@@ -68,7 +100,11 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyCollectionOf;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests for the {@link ScheduledJobImpl} component.
@@ -320,7 +356,7 @@ public class ScheduledJobImplTest {
 
     }
 
-    @Test(timeout = 5000)
+    @Test//(timeout = 5000)
     public void testThatThreadInterruptSetsAppropriateSuccessIndicator()
             throws
             SQLException,
@@ -352,7 +388,7 @@ public class ScheduledJobImplTest {
         final ScheduledComTaskExecutionGroup job = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, serviceProvider);
         job.add(scheduledComTask);
         final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, userService);
-        final CountDownLatch startLatch = new CountDownLatch(2);
+        final CountDownLatch startLatch = new CountDownLatch(1);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
         when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
@@ -379,21 +415,18 @@ public class ScheduledJobImplTest {
 
         Runnable jobRunnable = () -> {
             startLatch.countDown();
+            Thread.currentThread().interrupt();
             jobExecutor.execute(job);
         };
         Thread jobThread = new Thread(jobRunnable);
         jobThread.setName("ScheduledComTaskExecution for testThatThreadInterruptSetsAppropriateSuccessIndicator");
         jobThread.start();
 
-        // Trigger the job
-        startLatch.countDown();
-
         // Wait until the job has prepared the work
         startLatch.await();
         //this.sleep(50);
 
         // Business method
-        jobThread.interrupt();
         deviceCommandExecutionStartedLatch.await();
 
         // Asserts

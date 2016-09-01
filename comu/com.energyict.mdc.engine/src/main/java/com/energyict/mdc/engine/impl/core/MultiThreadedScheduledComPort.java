@@ -6,8 +6,6 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
-import java.util.*;
-import java.util.concurrent.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +15,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 
@@ -186,7 +185,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
                     try {
                         jobQueue.put(group);
                     } catch (InterruptedException e) {
-                        Thread.currentThread().isInterrupted();
+                        Thread.currentThread().interrupt();
                     }
                 } catch (RejectedExecutionException e) {
                     group.getComTaskExecutions().forEach(MultiThreadedScheduledComPort.this::cannotSchedule);
