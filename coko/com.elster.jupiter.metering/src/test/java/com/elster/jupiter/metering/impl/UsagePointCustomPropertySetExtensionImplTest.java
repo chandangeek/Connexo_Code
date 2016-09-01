@@ -62,6 +62,7 @@ public class UsagePointCustomPropertySetExtensionImplTest {
         when(serviceCategory.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getInstallationTime()).thenReturn(now.toInstant());
         Thesaurus thesaurus = mock(Thesaurus.class);
         versionedPropertySet = spy((UsagePointCustomPropertySetExtensionImpl.UsagePointVersionedPropertySetImpl)
                 new UsagePointCustomPropertySetExtensionImpl(clock, customPropertySetService, thesaurus, usagePoint)
@@ -88,7 +89,6 @@ public class UsagePointCustomPropertySetExtensionImplTest {
     public void testGetCurrentIntervalNoVersionsAtAll() {
         mockHasNoActiveVersion();
         mockVersionIntervals(Collections.emptyList());
-        when(usagePoint.getCreateDate()).thenReturn(now.toInstant());
         Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         // infinity
@@ -134,7 +134,6 @@ public class UsagePointCustomPropertySetExtensionImplTest {
         mockHasNoActiveVersion();
         Instant weekAfter = now.plus(1, ChronoUnit.WEEKS).toInstant();
         mockVersionIntervals(Collections.singletonList(Range.atLeast(weekAfter)));
-        when(usagePoint.getCreateDate()).thenReturn(now.toInstant());
         Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         // infinity

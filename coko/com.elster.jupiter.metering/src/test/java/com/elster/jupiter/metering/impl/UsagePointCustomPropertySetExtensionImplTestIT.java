@@ -147,7 +147,7 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
     }
 
     private CustomPropertySetValues getPropertySetValues() {
-        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(getUsagePoint().getCreateDate());
+        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(getUsagePoint().getInstallationTime());
         values.setProperty(CustomPropertySetAttributes.NAME.propertyKey(), "Name");
         values.setProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey(), Boolean.TRUE);
         return values;
