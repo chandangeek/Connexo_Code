@@ -103,7 +103,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
      */
     @Override
     public void logOn() {
-        connectWithRetries(getDlmsSession());
+        connectWithRetries(getDlmsSession(), (int)getDlmsSessionProperties().getTimeout());
         checkCacheObjects();
     }
 
@@ -112,8 +112,9 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
      * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
      *
      * @param dlmsSession
+     * @param timeout the timeout (in mills) to be used in associaont (because different protocols have different parameter name :-[
      */
-    protected void connectWithRetries(DlmsSession dlmsSession) {
+    protected void connectWithRetries(DlmsSession dlmsSession, int timeout) {
         int tries = 0;
         while (true) {
             ProtocolRuntimeException exception;
@@ -121,7 +122,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
                 dlmsSession.getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
                 if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     dlmsSession.getDlmsV2Connection().connectMAC();
-                    dlmsSession.createAssociation();
+                    dlmsSession.createAssociation(timeout);
                 }
                 return;
             } catch (ProtocolRuntimeException e) {
