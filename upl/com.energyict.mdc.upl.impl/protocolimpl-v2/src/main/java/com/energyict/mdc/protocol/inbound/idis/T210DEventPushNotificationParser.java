@@ -553,7 +553,6 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         return this.collectedRegisters;
     }
 
-    @Override
     public CollectedLogBook getCollectedLogBook() {
         if(this.collectedLogBook == null) {
             this.collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
