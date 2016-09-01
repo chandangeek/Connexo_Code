@@ -48,6 +48,8 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -64,7 +66,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -79,6 +80,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     private static final String AMR_SYSTEM = KnownAmrSystem.MDC.getName();
     private static final Logger LOGGER = Logger.getLogger(MultiSenseHeadEndInterface.class.getName());
+    static final String MDC_URL = "com.energyict.mdc.url";
 
     private volatile DeviceService deviceService;
     private volatile MeteringService meteringService;
@@ -89,6 +91,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private volatile EndDeviceCommandFactory endDeviceCommandFactory;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
+    private Optional<String> multiSenseUrl = Optional.empty();
 
     //For OSGI purposes
     public MultiSenseHeadEndInterfaceImpl() {
@@ -148,6 +151,13 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.endDeviceCommandFactory = endDeviceCommandFactory;
     }
 
+    @Activate
+    public void activate(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            multiSenseUrl = Optional.ofNullable(bundleContext.getProperty(MDC_URL));
+        }
+    }
+
     @Override
     public Optional<URL> getURLForEndDevice(EndDevice endDevice) {
         if (!((User) threadPrincipalService.getPrincipal()).hasPrivilege(KnownAmrSystem.MDC.getName(), Privileges.Constants.VIEW_DEVICE)) {
@@ -155,9 +165,12 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         } else {
             if (endDevice.getAmrSystem().is(KnownAmrSystem.MDC)) {
                 Device device = findDeviceForEndDevice(endDevice);
-                Map<KnownAmrSystem, String> urls = meteringService.getSupportedApplicationsUrls();
-                if (urls.containsKey(KnownAmrSystem.MDC)) {
-                    String urlText = urls.get(KnownAmrSystem.MDC).trim() + "/devices/" + device.getmRID();
+                if (multiSenseUrl.isPresent()) {
+                    String urlText = multiSenseUrl.get().trim();
+                    if (!urlText.endsWith("#")) {
+                        urlText = urlText + "#";
+                    }
+                    urlText = urlText + "/devices/" + device.getmRID();
                     try {
                         return Optional.of(new URL(urlText));
                     } catch (MalformedURLException e) {

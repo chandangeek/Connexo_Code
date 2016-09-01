@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
@@ -67,6 +68,8 @@ public interface DeviceDataModelService {
     BatchService batchService();
 
     MessageService messageService();
+
+    DeviceMessageSpecificationService deviceMessageSpecificationService();
 
     ValidationService validationService();
 
