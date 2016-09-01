@@ -46,7 +46,12 @@ import java.util.List;
  */
 public class AM130 extends AM500 {
 
-    protected static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
+    protected static final int IDIS2_CLIENT_MANAGEMENT        = 001;
+    protected static final int IDIS2_CLIENT_PUBLIC            = 016;
+    protected static final int IDIS2_CLIENT_PRE_ESTABLISHED   = 102;
+
+
+    protected static final ObisCode FRAMECOUNTER_OBISCODE_MANAGEMENT = ObisCode.fromString("0.0.43.1.0.255");
 
     protected AM130RegisterFactory registerFactory;
 
@@ -116,7 +121,7 @@ public class AM130 extends AM500 {
      */
     protected void readFrameCounter(ComChannel comChannel) {
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
-        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
+        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(IDIS2_CLIENT_PUBLIC));
         IDISProperties publicClientProperties = getNewInstanceOfProperties();
         publicClientProperties.addProperties(clone);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
@@ -125,7 +130,7 @@ public class AM130 extends AM500 {
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         connectToPublicClient(publicDlmsSession);
         try {
-            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
+            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(getFrameCounterForClient(IDIS2_CLIENT_PUBLIC)).getValueAttr().longValue();
         } catch (DataAccessResultException | ProtocolException e) {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
@@ -136,6 +141,17 @@ public class AM130 extends AM500 {
 
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
+
+    protected ObisCode getFrameCounterForClient(int clientId) {
+        switch (clientId){
+            case IDIS2_CLIENT_MANAGEMENT:
+            case IDIS2_CLIENT_PRE_ESTABLISHED:
+            case IDIS2_CLIENT_PUBLIC:
+            default:
+                return FRAMECOUNTER_OBISCODE_MANAGEMENT;
+        }
+    }
+
 
     /**
      * Actually create an association to the public client, it is not pre-established
