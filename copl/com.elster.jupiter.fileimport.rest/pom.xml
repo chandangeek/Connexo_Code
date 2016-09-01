@@ -99,6 +99,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
 
 
         <!-- TEST -->

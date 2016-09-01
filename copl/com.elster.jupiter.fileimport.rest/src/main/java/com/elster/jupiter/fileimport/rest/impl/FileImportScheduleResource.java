@@ -16,6 +16,8 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -24,6 +26,9 @@ import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -44,11 +49,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.InvalidPathException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/importservices")
 public class FileImportScheduleResource {
 
+    private static final String NON_PATH_INVALID = "\":*?<>|";
     private final FileImportService fileImportService;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
@@ -56,9 +63,10 @@ public class FileImportScheduleResource {
     private final FileSystem fileSystem;
     private final FileImportScheduleInfoFactory fileImportScheduleInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final Validator validator;
 
     @Inject
-    public FileImportScheduleResource(FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, PropertyUtils propertyUtils, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
+    public FileImportScheduleResource(FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, PropertyUtils propertyUtils, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, Validator validator) {
         this.fileImportService = fileImportService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
@@ -66,6 +74,7 @@ public class FileImportScheduleResource {
         this.fileSystem = fileSystem;
         this.fileImportScheduleInfoFactory = fileImportScheduleInfoFactory;
         this.conflictFactory = conflictFactory;
+        this.validator = validator;
     }
 
     @GET
@@ -104,13 +113,16 @@ public class FileImportScheduleResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES})
+    @Transactional
     public Response addImportSchedule(FileImportScheduleInfo info) {
         if (info.scanFrequency < 0) {
             info.scanFrequency = 1;
         }
+        info.name = null;
+        validate(info, POST.class);
         ImportScheduleBuilder builder = fileImportService.newBuilder()
                 .setName(info.name)
                 .setPathMatcher(info.pathMatcher)
@@ -129,12 +141,45 @@ public class FileImportScheduleResource {
                     builder.addProperty(spec.getName()).withValue(value);
                 });
         ImportSchedule importSchedule;
-        try (TransactionContext context = transactionService.getContext()) {
-            importSchedule = builder.create();
-            context.commit();
-        }
+        importSchedule = builder.create();
+
         return Response.status(Response.Status.CREATED).entity(fileImportScheduleInfoFactory.asInfo(importSchedule)).build();
     }
+
+    public void validate(Object info, Class<?> clazz) {
+        Set<ConstraintViolation<Object>> violations = validator.validate(info, clazz);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+    }
+
+//    private void validateImportScheduleInfoObject(FileImportScheduleInfo info) {
+//        RestValidationBuilder validationBuilder = new RestValidationBuilder();
+//        validationBuilder = validationBuilder.notEmpty(info.name, "name");
+//        if(checkInvalidChars(info.inProcessDirectory, NON_PATH_INVALID)) {
+//            validationBuilder = validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS, "inProcessDirectory"));
+//        }
+//        if(checkInvalidChars(info.failureDirectory, NON_PATH_INVALID)) {
+//           validationBuilder = validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS, "failureDirectory"));
+//        }
+//        if(checkInvalidChars(info.importDirectory, NON_PATH_INVALID)) {
+//           validationBuilder = validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS, "importDirectory"));
+//        }
+//        if(checkInvalidChars(info.successDirectory, NON_PATH_INVALID)) {
+//           validationBuilder = validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS, "successDirectory"));
+//        }
+//        validationBuilder.validate();
+//    }
+
+//    protected boolean checkInvalidChars(String value, String invalidCharacters) {
+//        for (int i = 0; i < invalidCharacters.length(); i++) {
+//            char invalidChar = invalidCharacters.charAt(i);
+//            if (value.indexOf(invalidChar) != -1) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     @DELETE
     @Path("/{id}/")

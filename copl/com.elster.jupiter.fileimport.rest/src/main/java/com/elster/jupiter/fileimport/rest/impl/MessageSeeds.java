@@ -9,7 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
-    DELETE_IMPORT_SCHEDULE_SQL_EXCEPTION(1, Keys.DELETE_IMPORT_SCHEDULE_SQL_EXCEPTION, "Import schedule {0} could not be removed. There was a problem accessing the database", Level.SEVERE);
+    DELETE_IMPORT_SCHEDULE_SQL_EXCEPTION(1, Keys.DELETE_IMPORT_SCHEDULE_SQL_EXCEPTION, "Import schedule {0} could not be removed. There was a problem accessing the database", Level.SEVERE),
+    INVALIDCHARS(2, Keys.INVALIDCHARS_EXCEPTION, "This field contains invalid characters", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -25,7 +26,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return FileImportService.COMPONENT_NAME;
+        return FileImportApplication.COMPONENT_NAME;
     }
 
     @Override
@@ -60,6 +61,7 @@ public enum MessageSeeds implements MessageSeed {
 
     public enum Keys {
         ;
+        public static final String INVALIDCHARS_EXCEPTION = "InvalidCharsImporter";
         private static final String KEY_PREFIX = FileImportService.COMPONENT_NAME + '.';
         public static final String DELETE_IMPORT_SCHEDULE_SQL_EXCEPTION = "DeleteImportScheduleSqlException";
     }
