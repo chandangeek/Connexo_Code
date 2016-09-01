@@ -400,7 +400,7 @@ Ext.define('Cfg.controller.Tasks', {
         Ext.Ajax.request({
             url: '/api/val/validationtasks/' + id + '/trigger',
             method: 'PUT',
-            jsonData: record.getRecordData(),
+            jsonData: record.getProxy().getWriter().getRecordData(record),
             isNotEdit: true,
             success: function () {
                 confWindow.destroy();
@@ -417,12 +417,14 @@ Ext.define('Cfg.controller.Tasks', {
                     taskModel.load(id, {
                         success: function (rec) {
                             view = me.getDetailsPage();
-                            view.down('dxp-tasks-action-menu').record = rec;
-                            view.down('dxp-tasks-preview-form').loadRecord(rec);
+                            view.down('cfg-validation-tasks-action-menu').record = rec;
+                            view.down('cfg-tasks-preview-form').loadRecord(rec);
                             if (record.get('status') === 'Busy') {
                                 view.down('#run-task').hide();
                             }
-                            if (rec.properties() && rec.properties().count()) {
+
+                            //deprecated?
+                            if (Ext.isFunction(rec.properties) && rec.properties() && rec.properties().count()) {
                                 view.down('property-form').loadRecord(rec);
                             }
                         }
