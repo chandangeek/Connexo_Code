@@ -1,22 +1,24 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import java.time.Clock;
-import java.time.Instant;
-
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 
-import com.elster.jupiter.util.time.StopWatch;
+import java.time.Clock;
+import java.time.Instant;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link CreateOutboundComSession} component.
@@ -114,8 +116,9 @@ public class CreateOutboundComSessionTest {
         ComPort comPort = mock(ComPort.class);
         when(comSession.getComPort()).thenReturn(comPort);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        when(comServerDAO.createComSession(comSessionBuilder, Instant.now(), successIndicator)).thenReturn(comSession);
-        CreateOutboundComSession command = new CreateOutboundComSession(Instant.now(), ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, successIndicator, clock);
+        Instant now = Instant.now();
+        when(comServerDAO.createComSession(comSessionBuilder, now, successIndicator)).thenReturn(comSession);
+        CreateOutboundComSession command = new CreateOutboundComSession(now, ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, successIndicator, clock);
         command.setStopWatch(new StopWatch());
         command.execute(comServerDAO);
 
