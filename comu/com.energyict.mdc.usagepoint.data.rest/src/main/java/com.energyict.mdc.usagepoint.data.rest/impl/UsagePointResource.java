@@ -169,7 +169,7 @@ public class UsagePointResource {
         Optional<ReadingTypeRequirement> readingTypeRequirement = getReadingTypeRequirement(effectiveMetrologyConfiguration, aggregatedChannel);
         RangeMap<Instant, Instant> rangeMap = TreeRangeMap.create();
         readingTypeRequirement.ifPresent(requirement ->
-                findSourceChannelsOnUsagePoint(requirement, effectiveMetrologyConfiguration.getUsagePoint()).stream()
+                findSourceChannelsOnUsagePoint(requirement, effectiveMetrologyConfiguration.getUsagePoint())
                         .forEach(channel -> rangeMap.put(getRange(channel), getLastChecked(channel)))
         );
         return rangeMap;
@@ -202,6 +202,6 @@ public class UsagePointResource {
 
     private Instant getLastChecked(Channel channel) {
         Meter meter = channel.getChannelsContainer().getMeter().get();
-        return validationService.getEvaluator(meter, Range.all()).getLastChecked(meter, channel.getMainReadingType()).orElse(Instant.MIN);
+        return validationService.getEvaluator(meter).getLastChecked(meter, channel.getMainReadingType()).orElse(Instant.MIN);
     }
 }
