@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 
 import com.energyict.cbo.TimeDuration;
@@ -31,6 +33,23 @@ public class AM540Properties extends IDISProperties {
             securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), DLMSConnectionException.REASON_CONTINUE_INVALID_FRAMECOUNTER);
         }
         return securityProvider;
+    }
+
+    @Override
+    public ConformanceBlock getConformanceBlock() {
+        ConformanceBlock conformanceBlock = super.getConformanceBlock();
+
+        conformanceBlock.setGeneralBlockTransfer(useGeneralBlockTransfer());
+        conformanceBlock.setGeneralProtection(getCipheringType().equals(CipheringType.GENERAL_DEDICATED) || getCipheringType().equals(CipheringType.GENERAL_GLOBAL));
+
+        conformanceBlock.setGeneralProtection(true);
+        conformanceBlock.setAccess(true);
+        conformanceBlock.setDataNotification(true);
+        conformanceBlock.setAction(true);
+        conformanceBlock.setPriorityManagementSupported(false);
+        conformanceBlock.setEventNotification(false);
+
+        return conformanceBlock;
     }
 
     @Override
@@ -158,4 +177,17 @@ public class AM540Properties extends IDISProperties {
     public boolean validateCachedFrameCounter() {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, true);
     }
+
+    public int getFrameCounterRecoveryRetries(){
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100)).intValue();
+    }
+
+    public int getFrameCounterRecoveryStep(){
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE).intValue();
+    }
+
+    public String getInitialFrameCounter(){
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER);
+    }
+
 }

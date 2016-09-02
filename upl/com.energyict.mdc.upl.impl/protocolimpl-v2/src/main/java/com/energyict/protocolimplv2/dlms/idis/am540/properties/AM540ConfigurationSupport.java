@@ -32,6 +32,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String REQUEST_AUTHENTICATED_FRAME_COUNTER = "RequestAuthenticatedFrameCounter";
     public static final String USE_CACHED_FRAME_COUNTER = "UseCachedFrameCounter";
     public static final String VALIDATE_CACHED_FRAMECOUNTER = "ValidateCachedFrameCounterAndFallback";
+    public static final String FRAME_COUNTER_RECOVERY_RETRIES = "FrameCounterRecoveryRetries";
+    public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep";
 
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
@@ -70,8 +72,16 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.transparentPassword(),
                 this.requestAuthenticatedFrameCounter(),
                 this.useCachedFrameCounter(),
-                this.validateCachedFrameCounter()
+                this.validateCachedFrameCounter(),
+                this.frameCounterRecoveryRetries(),
+                this.frameCounterRecoveryStep()
         );
+    }
+    private PropertySpec frameCounterRecoveryRetries() {
+        return PropertySpecFactory.bigDecimalPropertySpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100));
+    }
+    private PropertySpec frameCounterRecoveryStep() {
+        return PropertySpecFactory.bigDecimalPropertySpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE);
     }
 
     private PropertySpec validateCachedFrameCounter() {

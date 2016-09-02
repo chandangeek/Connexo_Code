@@ -125,6 +125,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
                 }
                 return;
             } catch (ProtocolRuntimeException e) {
+                getLogger().log(Level.WARNING, e.getMessage(), e);
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
                 } else if (e instanceof ConnectionCommunicationException) {
