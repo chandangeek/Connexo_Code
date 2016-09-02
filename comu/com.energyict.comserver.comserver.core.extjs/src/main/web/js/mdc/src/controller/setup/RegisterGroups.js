@@ -225,10 +225,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 var message;
 
                 if (me.mode == 'edit') {
-                    message = Uni.I18n.translate('registergroup.saved', 'MDC', 'Register group {0} saved.', record.get('name'), false);
+                    message = Uni.I18n.translate('registergroup.saved', 'MDC', 'Register group saved.');
                 }
                 else {
-                    message = Uni.I18n.translate('registergroup.added', 'MDC', 'Register group {0} added.', record.get('name'), false);
+                    message = Uni.I18n.translate('registergroup.added', 'MDC', 'Register group added.');
                 }
                 me.getApplication().fireEvent('acknowledge', message);
                 location.href = backUrl;
@@ -271,7 +271,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         registerTypeToDelete.destroy({
             success: function () {
                 me.getController('Uni.controller.history.Router').getRoute().forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registergroup.removed', 'MDC', 'Register group {0} removed.', [registerTypeToDelete.get('name')]));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registergroup.removed', 'MDC', 'Register group removed.'));
             }
         });
     },

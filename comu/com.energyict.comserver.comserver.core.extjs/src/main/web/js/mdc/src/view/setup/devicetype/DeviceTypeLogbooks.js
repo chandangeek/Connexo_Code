@@ -11,7 +11,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
         'Mdc.view.setup.deviceconfiguration.ActionMenu',
         'Uni.grid.column.Action',
         'Uni.grid.column.Obis',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.ObisDisplay',
+        'Uni.grid.column.RemoveAction',
+        'Uni.button.Action'
     ],
     content: [
         {
@@ -42,26 +44,21 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                     flex:2
                                 },
                                 {
-                                    xtype: 'actioncolumn',
+                                    xtype: 'uni-actioncolumn-remove',
                                     privileges: Mdc.privileges.DeviceType.admin,
-                                    align: 'center',
-                                    items: [{
-                                        iconCls: 'uni-icon-delete',
-                                        tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                        handler: function (grid, rowIndex, colIndex, item, e, record) {
-                                            var store = grid.getStore(),
-                                                gridPanel = grid.up(),
-                                                emptyMsg = gridPanel.up().down('displayfield');
+                                    handler: function (grid, rowIndex, colIndex, item, e, record) {
+                                        var store = grid.getStore(),
+                                            gridPanel = grid.up(),
+                                            emptyMsg = gridPanel.up().down('displayfield');
 
-                                            this.fireEvent('removeLogbook', record);
-                                            if (!store.getCount()) {
-                                                Ext.suspendLayouts();
-                                                gridPanel.hide();
-                                                emptyMsg.show();
-                                                Ext.resumeLayouts(true);
-                                            }
+                                        this.fireEvent('removeLogbook', record);
+                                        if (!store.getCount()) {
+                                            Ext.suspendLayouts();
+                                            gridPanel.hide();
+                                            emptyMsg.show();
+                                            Ext.resumeLayouts(true);
                                         }
-                                    }]
+                                    }
                                 }
                             ]
                         },
@@ -129,6 +126,40 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                         name: 'details',
                         frame: true,
                         hidden: true,
+                        tools: [
+                            {
+                                xtype: 'uni-button-action',
+                                privileges: Mdc.privileges.DeviceType.admin,
+                                itemId: 'device-type-logbook-action-menu-button',
+                                menu: {
+                                    plain: true,
+                                    border: false,
+                                    itemId: 'device-type-logbook-action-menu',
+                                    shadow: false,
+                                    items: [
+                                        {
+                                            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                                            handler: function () {
+                                                var grid = this.up('device-type-logbooks').down('#device-type-logbook-types-grid'),
+                                                    actionColumn = grid.down('uni-actioncolumn-remove'),
+                                                    store = grid.getStore(),
+                                                    gridPanel = grid.up(),
+                                                    emptyMsg = gridPanel.up().down('displayfield'),
+                                                    record = grid.getSelectionModel().getLastSelected();
+
+                                                actionColumn.fireEvent('removeLogbook', record);
+                                                if (!store.getCount()) {
+                                                    Ext.suspendLayouts();
+                                                    gridPanel.hide();
+                                                    emptyMsg.show();
+                                                    Ext.resumeLayouts(true);
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ],
                         items: [
                             {
                                 xtype: 'form',

@@ -280,7 +280,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('file.remove.msg', 'MDC', 'The file will no longer be available to send to a device. Pending commands will fail to execute.'),
+                msg: Uni.I18n.translate('file.remove.msg', 'MDC', "The file will no longer be available to send to a device. Pending commands using this file won't be executed."),
                 title: Uni.I18n.translate('general.removeX', 'MDC', "Remove '{0}'?", record.get('name')),
                 fn: function (state) {
                     if (state === 'confirm') {
