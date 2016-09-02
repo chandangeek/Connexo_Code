@@ -70,7 +70,7 @@ public class UsagePointCommandHelper {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec("CommandCallback", 20);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe("CommandCallback").create();
+        destinationSpec.subscribe("CommandCallback");
         return destinationSpec;
     }
 
