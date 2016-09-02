@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
@@ -192,6 +193,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         return Stream.of(
                 Stream.of(TranslationKeys.values()),
                 Stream.of(DefaultState.values()),
+                Stream.of(LogLevel.values()),
                 Stream.of(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
