@@ -174,24 +174,22 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
             selectedRecord,
             store = Ext.getStore('Mdc.deviceconfigurationestimationrules.store.EstimationRules');
 
+        Ext.suspendLayouts();
         rulesContainer.removeAll();
         if (selectionModel.getSelection().length === 1) {
 
             selectedRecord = record[0] ? record[0] : record;
 
             store.getProxy().setUrl(selectedRecord.get('id'));
+            rulesContainer.setTitle(Ext.String.htmlEncode(selectedRecord.get('name')));
             rulesContainer.add([
-                {
-                    xtype: 'panel',
-                    title: selectedRecord.get('name')
-                },
                 {
                     xtype: 'device-configuration-estimation-rules-setup',
                     router: me.getController('Uni.controller.history.Router')
                 }
             ]);
         }
-
+        Ext.resumeLayouts(true);
     },
 
     showRulePreview: function (selectionModel, record) {
