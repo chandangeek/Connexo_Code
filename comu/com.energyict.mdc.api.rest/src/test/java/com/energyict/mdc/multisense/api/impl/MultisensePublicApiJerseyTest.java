@@ -343,7 +343,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.isDefault()).thenReturn(true);
         when(mock.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         when(mock.getDevice()).thenReturn(deviceXas);
-        when(mock.isSimultaneousConnectionsAllowed()).thenReturn(true);
+        when(mock.getNumberOfSimultaneousConnections()).thenReturn(2);
         when(mock.getComPortPool()).thenReturn(comPortPool);
         when(mock.getPartialConnectionTask()).thenReturn(partial);
         ConnectionType connectionType = mock(ConnectionType.class);
@@ -431,7 +431,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(connectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(mock.getConnectionType()).thenReturn(connectionType);
         when(mock.getTypedProperties()).thenReturn(TypedProperties.empty());
-        when(mock.isSimultaneousConnectionsAllowed()).thenReturn(true);
+        when(mock.getNumberOfSimultaneousConnections()).thenReturn(2);
         when(mock.getRescheduleDelay()).thenReturn(TimeDuration.minutes(60));
         when(mock.getCommunicationWindow()).thenReturn(new ComWindow(PartialTime.fromHours(2), PartialTime.fromHours(4)));
         when(mock.getVersion()).thenReturn(version);
