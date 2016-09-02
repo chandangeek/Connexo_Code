@@ -114,7 +114,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('metrologyconfiguration.general.remove.msg', 'IMT', 'This metrology configuration will be removed.'),
-            title: Uni.I18n.translate('general.removex', 'IMT', "Remove '{0}'", [record.data.name]),
+            title: Uni.I18n.translate('general.remove', 'IMT', "Remove '{0}'", [record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {

@@ -73,7 +73,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                     {
                         xtype: 'displayfield',
                         itemId: 'up-service-category-displayfield',
-                        fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Metrology configuration'),
+                        fieldLabel: Uni.I18n.translate('general.label.metrologyConfiguration', 'IMT', 'Metrology configuration'),
                         required: true,
                         htmlEncode: false,
                         style: 'font-style: italic',

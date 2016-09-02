@@ -27,7 +27,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
                 dataIndex: 'description'
             },
             {
-                header: Uni.I18n.translate('general.label.description', 'IMT', 'Status'),
+                header: Uni.I18n.translate('general.label.status', 'IMT', 'Status'),
                 flex: 1,
                 dataIndex: 'status',
                 renderer: function (value) {

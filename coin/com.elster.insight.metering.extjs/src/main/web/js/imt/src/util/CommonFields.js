@@ -78,8 +78,6 @@ Ext.define('Imt.util.CommonFields', {
                     if(upCustomPropertySet.get('customPropertySetId') == cps.get('customPropertySet').id){
                         upCustomPropertySet.properties().each(function(property){
                             if(cps.get('key') == property.get('key')){
-                                console.log(property.getPropertyValue().get('displayValue'));
-                                console.log(property.getPropertyValue());
                                 if(property.getPropertyValue().get('value') && property.getPropertyValue().get('value').displayValue){
                                     propertyValue = property.getPropertyValue().get('value').id.replace(valueRegExp, '$1') + ' '
                                         + property.getPropertyValue().get('value').displayValue;
