@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.ip.socket;
 
+import com.energyict.cpo.Environment;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.ServerLoggableComChannel;
@@ -115,7 +116,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
                     enabledCipherSuites.remove(preferredCipherSuite);
                     enabledCipherSuites.add(index, preferredCipherSuite);
                 } else {
-                    throw new ConnectionException("preferredCipherSuiteIsNotSupportedByJavaVersion", preferredCipherSuite);
+                    String pattern = Environment.getDefault().getTranslation("preferredCipherSuiteIsNotSupportedByJavaVersion", "The preferred cipher suite '{0}' is not supported by your current java version.");
+                    throw new ConnectionException(pattern, preferredCipherSuite);
                 }
             }
 
