@@ -59,6 +59,7 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(SchedulingService.class);
         requireBinding(DeviceMessageSpecificationService.class);
         requireBinding(NlsService.class);
+        requireBinding(DeviceMessageService.class);
         requireBinding(ServiceCallService.class);
 
         bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);

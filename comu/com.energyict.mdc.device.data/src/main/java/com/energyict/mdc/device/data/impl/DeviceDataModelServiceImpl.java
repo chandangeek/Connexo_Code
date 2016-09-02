@@ -19,6 +19,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -68,6 +69,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -92,7 +94,6 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -141,6 +142,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile UpgradeService upgradeService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ServiceCallService serviceCallService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -173,7 +175,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
-            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService) {
+            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -207,6 +209,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setUpgradeService(upgradeService);
         setMetrologyConfigurationService(metrologyConfigurationService);
         setServiceCallService(serviceCallService);
+        setThreadPrincipalService(threadPrincipalService);
         activate(bundleContext);
     }
 
@@ -298,6 +301,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -540,6 +548,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(com.energyict.mdc.issues.IssueService.class).toInstance(mdcIssueService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(UserPreferencesService.class).toInstance(userService.getUserPreferencesService());
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
             }
         };
     }
@@ -564,7 +573,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
         this.batchService = new BatchServiceImpl(this);
-        this.deviceMessageService = new DeviceMessageServiceImpl(this);
+        this.deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
