@@ -97,6 +97,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-09-02 14:48:00 +0200 (Mon, 11 Jul 2016)$";
     }
 }
