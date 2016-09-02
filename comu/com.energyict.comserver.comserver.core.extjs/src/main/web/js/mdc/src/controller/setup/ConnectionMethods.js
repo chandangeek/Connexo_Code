@@ -303,10 +303,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     timeUnit: 'seconds'
                 }
             });
-            this.getConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(false);
+            this.getConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(false);
         } else {
             this.getScheduleFieldContainer().setVisible(false);
-            this.getConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(true);
+            this.getConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(true);
         }
     },
 

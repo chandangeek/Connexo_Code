@@ -9,7 +9,7 @@ Ext.define('Mdc.model.DeviceConnectionMethod', {
         {name: 'status', type: 'string'},
         {name: 'direction', type: 'string', useNull: true},
         {name: 'displayDirection', type: 'string', useNull: true},
-        {name: 'allowSimultaneousConnections', type: 'boolean', useNull: true},
+        {name: 'numberOfSimultaneousConnections', type: 'int'},
         {name: 'isDefault', type: 'boolean', useNull: true},
         {name: 'comPortPool', type: 'string', useNull: true},
         {name: 'connectionType', type: 'string', useNull: true},
