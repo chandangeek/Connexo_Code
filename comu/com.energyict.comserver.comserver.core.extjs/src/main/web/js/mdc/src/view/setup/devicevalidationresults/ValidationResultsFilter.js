@@ -16,7 +16,10 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
                 type: 'datetimeselect',
                 value: moment(intervalStart).toDate(),
                 dataIndex: 'intervalStart',
-                name: 'intervalStart'
+                name: 'intervalStart',
+                fireFilterUpdateEvent: function () {
+                    // (CXO-2787) Don't fire, hence the new filter value won't be applied until you press the main "Apply" button
+                }
             }
 
         ];
