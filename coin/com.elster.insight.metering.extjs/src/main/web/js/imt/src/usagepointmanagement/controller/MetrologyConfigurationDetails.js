@@ -62,7 +62,7 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
         var me = this,
             model = Ext.create('Imt.metrologyconfiguration.model.Formula'),
             reader = model.getProxy().getReader(),
-            metrologyContracts = me.usagePoint.get('metrologyConfiguration').metrologyContracts,
+            metrologyContracts = me.usagePoint.get('metrologyConfiguration').purposes,
             resultSet;
 
         Ext.suspendLayouts();

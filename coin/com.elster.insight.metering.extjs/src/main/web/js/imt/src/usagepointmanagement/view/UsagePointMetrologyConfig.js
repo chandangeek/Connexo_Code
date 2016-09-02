@@ -128,7 +128,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                         value: purpose.name,
                         renderer: function(value){
                             var icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
-                                    + (purpose.status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2')
+                                    + (purpose.status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle')
                                     + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
                                     + purpose.status.name
                                     + '"></i>',
