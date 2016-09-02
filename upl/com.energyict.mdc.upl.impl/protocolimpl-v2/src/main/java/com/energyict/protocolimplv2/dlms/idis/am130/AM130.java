@@ -129,7 +129,7 @@ public class AM130 extends AM500 {
         long frameCounter;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         getLogger().info("Connecting to public client:"+IDIS2_CLIENT_PUBLIC);
-        connectToPublicClient(publicDlmsSession, timeout);
+        connectToPublicClient(publicDlmsSession);
         try {
             ObisCode frameCounterObisCode = getFrameCounterForClient(IDIS2_CLIENT_PUBLIC);
             getLogger().info("Public client connected, reading framecounter "+frameCounterObisCode.toString());
@@ -161,8 +161,8 @@ public class AM130 extends AM500 {
     /**
      * Actually create an association to the public client, it is not pre-established
      */
-    protected void connectToPublicClient(DlmsSession publicDlmsSession, int timeout) {
-        connectWithRetries(publicDlmsSession, timeout);
+    protected void connectToPublicClient(DlmsSession publicDlmsSession) {
+        connectWithRetries(publicDlmsSession);
     }
 
     /**

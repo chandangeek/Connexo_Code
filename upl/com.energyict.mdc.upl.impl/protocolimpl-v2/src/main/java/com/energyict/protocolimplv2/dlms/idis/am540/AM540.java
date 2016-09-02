@@ -76,7 +76,6 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
     private AM540Cache am540Cache;
     private HHUSignOnV2 hhuSignOn;
-    private FrameCounterCacheHandler    frameCounterCacheHandler;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -201,14 +200,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         if (securityContext == null) {
             securityContext = getDlmsSession().getAso().getSecurityContext();
         }
-        securityContext.setFrameCounterCache(getDlmsSessionProperties().getClientMacAddress(), getFrameCounterCacheHandler());
-    }
-
-    protected FrameCounterCacheHandler getFrameCounterCacheHandler(){
-        if (frameCounterCacheHandler == null){
-            frameCounterCacheHandler = new FrameCounterCacheHandler(getDlmsSessionProperties());
-        }
-        return frameCounterCacheHandler;
+        securityContext.setFrameCounterCache(getDlmsSessionProperties().getClientMacAddress(), getDeviceCache());
     }
 
     /**
@@ -216,13 +208,13 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
      * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
      */
     protected void readFrameCounter(ComChannel comChannel) {
-        boolean weHaveValidaCachedFrameCounter = false;
+        boolean weHaveValidCachedFrameCounter = false;
 
         if (getDlmsSessionProperties().useCachedFrameCounter()) {
-            weHaveValidaCachedFrameCounter = readAndTestCachedFrameCounter(comChannel);
+            weHaveValidCachedFrameCounter = readAndTestCachedFrameCounter(comChannel);
         }
 
-        if (!weHaveValidaCachedFrameCounter) {
+        if (!weHaveValidCachedFrameCounter) {
             if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
                 readFrameCounterSecure(comChannel);
             } else {
@@ -246,7 +238,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     protected boolean readAndTestCachedFrameCounter(ComChannel comChannel){
         getLogger().info("Will try to use a cached frame counter");
         final int clientId = getDlmsSessionProperties().getClientMacAddress();
-        long cachedFrameCounter = getFrameCounterCacheHandler().getTXFrameCounter(clientId);
+        long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         if (cachedFrameCounter > 0) {
             getLogger().info(" - cached frame counter: "+cachedFrameCounter);
             this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFrameCounter + 1);
@@ -280,7 +272,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         do{
             try {
                 testDlmsSession.getDlmsV2Connection().connectMAC();
-                testDlmsSession.createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
+                testDlmsSession.createAssociation();
                 if (testDlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
                     //testDlmsSession.disconnect();
                     getLogger().info("Cached FrameCounter is valid!");
@@ -365,7 +357,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
             publicDlmsSession.assumeConnected(getDlmsSessionProperties().getMaxRecPDUSize(), getDlmsSessionProperties().getConformanceBlock());
         } else {
-            super.connectToPublicClient(publicDlmsSession, (int)getDlmsSessionProperties().getAARQTimeout());
+            super.connectToPublicClient(publicDlmsSession);
         }
     }
 

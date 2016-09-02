@@ -78,10 +78,10 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
         );
     }
     private PropertySpec frameCounterRecoveryRetries() {
-        return PropertySpecFactory.bigDecimalPropertySpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(10));
+        return PropertySpecFactory.bigDecimalPropertySpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100));
     }
     private PropertySpec frameCounterRecoveryStep() {
-        return PropertySpecFactory.bigDecimalPropertySpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.valueOf(256));
+        return PropertySpecFactory.bigDecimalPropertySpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE);
     }
 
     private PropertySpec validateCachedFrameCounter() {

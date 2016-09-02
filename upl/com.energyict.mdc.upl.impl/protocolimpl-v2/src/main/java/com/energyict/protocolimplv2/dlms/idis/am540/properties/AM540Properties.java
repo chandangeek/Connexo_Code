@@ -41,14 +41,14 @@ public class AM540Properties extends IDISProperties {
 
         conformanceBlock.setGeneralBlockTransfer(useGeneralBlockTransfer());
         conformanceBlock.setGeneralProtection(getCipheringType().equals(CipheringType.GENERAL_DEDICATED) || getCipheringType().equals(CipheringType.GENERAL_GLOBAL));
-        /*
+
         conformanceBlock.setGeneralProtection(true);
         conformanceBlock.setAccess(true);
         conformanceBlock.setDataNotification(true);
         conformanceBlock.setAction(true);
         conformanceBlock.setPriorityManagementSupported(false);
         conformanceBlock.setEventNotification(false);
-        */
+
         return conformanceBlock;
     }
 
@@ -179,11 +179,11 @@ public class AM540Properties extends IDISProperties {
     }
 
     public int getFrameCounterRecoveryRetries(){
-        return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.ZERO).intValue();
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100)).intValue();
     }
 
     public int getFrameCounterRecoveryStep(){
-        return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.valueOf(256)).intValue();
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE).intValue();
     }
 
     public String getInitialFrameCounter(){
