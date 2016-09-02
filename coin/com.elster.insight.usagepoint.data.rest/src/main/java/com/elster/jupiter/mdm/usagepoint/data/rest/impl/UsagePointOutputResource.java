@@ -171,7 +171,9 @@ public class UsagePointOutputResource {
                 List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(effectiveInterval);
                 for (IntervalReadingRecord intervalReadingRecord : intervalReadings) {
                     IntervalReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(intervalReadingRecord.getTimeStamp());
-                    readingWithValidationStatus.setIntervalReadingRecord(intervalReadingRecord);
+                    if (readingWithValidationStatus != null) {
+                        readingWithValidationStatus.setIntervalReadingRecord(intervalReadingRecord);
+                    }
                 }
 
                 // add validation statuses to pre filled channel data map
@@ -179,7 +181,9 @@ public class UsagePointOutputResource {
                         .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, intervalReadings, effectiveInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                     IntervalReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
-                    readingWithValidationStatus.setValidationStatus(dataValidationStatus);
+                    if (readingWithValidationStatus != null) {
+                        readingWithValidationStatus.setValidationStatus(dataValidationStatus);
+                    }
                 }
 
                 outputChannelDataInfoList = preFilledChannelDataMap.entrySet().stream()
