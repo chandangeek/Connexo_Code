@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -37,7 +36,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.reset;
@@ -59,8 +57,6 @@ public class DeviceValidationImplTest {
     private DeviceConfiguration deviceConfiguration;
     @Mock
     private ValidationService validationService;
-    @Mock
-    private AmrSystem amrSystem;
     @Mock
     private Reference<Meter> meterReference;
     @Mock
@@ -114,10 +110,10 @@ public class DeviceValidationImplTest {
         when(clock.instant()).thenReturn(NOW);
         when(channel.getReadingType()).thenReturn(readingType1);
 
-        when(validationService.getEvaluator(eq(meter), any(Range.class))).thenReturn(validationEvaluator);
+        when(validationService.getEvaluator(meter)).thenReturn(validationEvaluator);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
 
-        deviceValidation = new DeviceValidationImpl(amrSystem, validationService, clock, thesaurus, device);
+        deviceValidation = new DeviceValidationImpl(validationService, thesaurus, device);
     }
 
     @After

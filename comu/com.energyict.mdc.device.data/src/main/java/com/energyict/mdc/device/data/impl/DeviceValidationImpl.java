@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -24,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -40,22 +38,18 @@ import static com.elster.jupiter.util.streams.Functions.asStream;
 /**
  * Created by tgr on 9/09/2014.
  */
-public class DeviceValidationImpl implements DeviceValidation {
+class DeviceValidationImpl implements DeviceValidation {
 
     private static final Comparator<MeterActivation> MOST_RECENT_FIRST =
             Comparator.comparing(MeterActivation::getRange, RangeComparatorFactory.INSTANT_DEFAULT).reversed();
-    private final AmrSystem amrSystem;
     private final ValidationService validationService;
-    private final Clock clock;
     private final Thesaurus thesaurus;
     private final DeviceImpl device;
     private transient Meter meter;
     private transient ValidationEvaluator evaluator;
 
-    public DeviceValidationImpl(AmrSystem amrSystem, ValidationService validationService, Clock clock, Thesaurus thesaurus, DeviceImpl device) {
-        this.amrSystem = amrSystem;
+    DeviceValidationImpl(ValidationService validationService, Thesaurus thesaurus, DeviceImpl device) {
         this.validationService = validationService;
-        this.clock = clock;
         this.thesaurus = thesaurus;
         this.device = device;
     }
@@ -90,7 +84,7 @@ public class DeviceValidationImpl implements DeviceValidation {
         activateValidation(lastChecked, false);
     }
 
-    void activateValidation(Instant lastChecked, boolean onStorage) {
+    private void activateValidation(Instant lastChecked, boolean onStorage) {
         Meter koreMeter = this.fetchKoreMeter();
         if (koreMeter.hasData()) {
             if (lastChecked == null) {
@@ -206,8 +200,7 @@ public class DeviceValidationImpl implements DeviceValidation {
                 .map(MeterActivation::getChannelsContainer)
                 .collect(Collectors.toList());
         if (!channelsContainers.isEmpty()) {
-            Range<Instant> range = channelsContainers.get(0).getRange();
-            ValidationEvaluator evaluator = this.validationService.getEvaluator(this.fetchKoreMeter(), range);
+            ValidationEvaluator evaluator = this.validationService.getEvaluator(fetchKoreMeter());
             channelsContainers.forEach(channelsContainer -> {
                 if (!evaluator.isAllDataValidated(channelsContainer)) {
                     this.validationService.validate(EnumSet.of(QualityCodeSystem.MDC), channelsContainer);
@@ -306,7 +299,7 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     private ValidationEvaluator getEvaluator() {
         if (evaluator == null) {
-            evaluator = validationService.getEvaluator(fetchKoreMeter(), Range.atMost(clock.instant()));
+            evaluator = validationService.getEvaluator(fetchKoreMeter());
         }
         return evaluator;
     }
