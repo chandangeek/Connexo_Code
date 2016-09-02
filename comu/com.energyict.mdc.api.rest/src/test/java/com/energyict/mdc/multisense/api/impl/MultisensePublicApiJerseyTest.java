@@ -39,6 +39,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
@@ -160,6 +161,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     MeteringService meteringService;
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
     @Override
     protected Application getApplication() {
@@ -185,6 +188,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setCustomPropertySetService(customPropertySetService);
         application.setMeteringService(meteringService);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 

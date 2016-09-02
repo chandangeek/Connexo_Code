@@ -1,6 +1,9 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -17,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 public class DeviceMessageSpecificationResourceTest extends MultisensePublicApiJerseyTest {
@@ -67,6 +71,8 @@ public class DeviceMessageSpecificationResourceTest extends MultisensePublicApiJ
     public void testGetSingleDeviceMessageSpecificationFull() throws Exception {
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
         when(deviceMessageSpec.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        PropertyInfo propertyInfo = new PropertyInfo("name", "name", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(), false);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("/devicemessagecategories/12/devicemessagespecifications/15001").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());

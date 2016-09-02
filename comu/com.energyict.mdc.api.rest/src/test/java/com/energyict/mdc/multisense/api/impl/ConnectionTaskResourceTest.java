@@ -2,7 +2,9 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -79,7 +81,8 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         when(partial.getConfiguration()).thenReturn(deviceConfiguration);
         ScheduledConnectionTask connectionTask = mockScheduledConnectionTask(41L, "connTask", deviceXas, comPortPool, partial, 3333L);
         when(connectionTaskService.findConnectionTask(41L)).thenReturn(Optional.of(connectionTask));
-
+        PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", new PropertyValueInfo<>("value", "default"), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("devices/XAS/connectiontasks/41").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
@@ -183,7 +186,8 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
 
         ArgumentCaptor<InboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(InboundComPortPool.class);
         doNothing().when(existing).setComPortPool(comPortPoolArgumentCaptor.capture());
-
+        PropertyInfo propertyInfo = new PropertyInfo("name", "name", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(), false);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("devices/XAS/connectiontasks/12345").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(comPortPoolArgumentCaptor.getValue()).isEqualTo(inboundComPortPool);
@@ -222,7 +226,8 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
 
         ArgumentCaptor<InboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(InboundComPortPool.class);
         doNothing().when(existing).setComPortPool(comPortPoolArgumentCaptor.capture());
-
+        PropertyInfo propertyInfo = new PropertyInfo("name", "name", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(), false);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("devices/XAS/connectiontasks/12345").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(comPortPoolArgumentCaptor.getValue()).isEqualTo(inboundComPortPool);
@@ -308,7 +313,8 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         ArgumentCaptor<Object> objectArgumentCaptor = ArgumentCaptor.forClass(Object.class);
         when(builder.setProperty(stringArgumentCaptor.capture(), objectArgumentCaptor.capture())).thenReturn(builder);
         when(builder.add()).thenReturn(scheduledConnectionTask);
-
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(property);
+        when(propertyValueInfoService.findPropertyValue(any(), any())).thenReturn(property.getPropertyValueInfo().getValue());
         // ACTUAL CALL
         Response response = target("devices/XAS/connectiontasks").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -316,7 +322,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(comPortPoolArgumentCaptor.getValue()).isEqualTo(outboundComPortPool);
         assertThat(connectionTaskLifecycleStatusArgumentCaptor.getValue()).isEqualTo(info.status);
         assertThat(stringArgumentCaptor.getValue()).isEqualTo("decimal.property");
-        assertThat(objectArgumentCaptor.getValue()).isEqualTo(BigDecimal.valueOf(8080));
+        assertThat(objectArgumentCaptor.getValue()).isEqualTo(8080);
 
         verify(connectionTaskService).setDefaultConnectionTask(scheduledConnectionTask);
     }
@@ -371,6 +377,9 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         when(pct1.getConfiguration()).thenReturn(deviceConfiguration);
         when(pct2.getConfiguration()).thenReturn(deviceConfiguration);
         // ACTUAL CALL
+        PropertyInfo propertyInfo = new PropertyInfo("decimal.property", "decimal.property", new PropertyValueInfo<>(BigDecimal.valueOf(8080), 8080), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
+        when(propertyValueInfoService.findPropertyValue(any(), any())).thenReturn(propertyInfo.getPropertyValueInfo().getValue());
         Response response = target("devices/XAS/connectiontasks/123456789").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(existing).setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);

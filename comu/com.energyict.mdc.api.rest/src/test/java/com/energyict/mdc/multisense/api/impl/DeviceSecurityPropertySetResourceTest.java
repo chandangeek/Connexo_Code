@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -79,6 +80,8 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
 
     @Test
     public void testAllGetDeviceSecurityPropertySetsPaged() throws Exception {
+        PropertyInfo propertyInfo = new PropertyInfo("name", "name", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(), false);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("/devices/XAS/securitypropertysets").queryParam("start",0).queryParam("limit",10).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
@@ -109,6 +112,8 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
 
     @Test
     public void testGetSingleDeviceSecurityPropertySetAllFields() throws Exception {
+        PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", new PropertyValueInfo<>("Hello world 1", "default"), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("/devices/XAS/securitypropertysets/5").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
@@ -141,7 +146,8 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", valueInfo, propertyTypeInfo, true);
         info.properties = new ArrayList<>();
         info.properties.add(propertyInfo);
-
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
+        when(propertyValueInfoService.findPropertyValue(any(), any())).thenReturn(propertyInfo.getPropertyValueInfo().getValue());
         Response response = target("/devices/XAS/securitypropertysets/5").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -175,7 +181,7 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", valueInfo, propertyTypeInfo, true);
         info.properties = new ArrayList<>();
         info.properties.add(propertyInfo);
-
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("/devices/XAS/securitypropertysets/5").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -199,7 +205,7 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", valueInfo, propertyTypeInfo, true);
         info.properties = new ArrayList<>();
         info.properties.add(propertyInfo);
-
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("/devices/XAS/securitypropertysets/5").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 

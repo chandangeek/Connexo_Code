@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.hypermedia.RestExceptionMapper;
@@ -88,6 +89,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile MeteringService meteringService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -262,6 +264,11 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     private Factory<Validator> getValidatorFactory() {
         return new Factory<Validator>() {
             private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
@@ -312,6 +319,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(meteringService).to(MeteringService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bindFactory(getValidatorFactory()).to(Validator.class);
 
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
