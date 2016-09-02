@@ -23,7 +23,8 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.Step1', {
                     xtype: 'transition-date-field',
                     itemId: 'transitionDateField',
                     fieldLabel: Uni.I18n.translate('devicetransitionexecute.wizard.transitiondate', 'MDC', 'Transition date'),
-                    margin: '0 0 20 0'
+                    margin: '0 0 20 0',
+                    msgTarget: 'under'
                 },
                 {
                     xtype: 'property-form',
