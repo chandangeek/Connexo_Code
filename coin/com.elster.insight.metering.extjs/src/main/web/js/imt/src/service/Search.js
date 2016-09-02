@@ -21,7 +21,7 @@ Ext.define('Imt.service.Search', {
                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
                 }
             } else if (me.searchDomain.getId() === 'com.elster.jupiter.metering.EndDevice') {
-                column.renderer = function(value) {
+                column.renderer = function(value, metaData) {
                     var url = me.router.getRoute('usagepoints/device').buildUrl({deviceMRID: value});
                     metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';
                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));

@@ -13,7 +13,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationPurposes', {
         itemId: 'no-metrology-config-purposes-found-panel',
         title: Uni.I18n.translate('metrologyConfigPurposes.empty.title', 'IMT', 'No purposes found'),
         reasons: [
-            Uni.I18n.translate('serviceCategories.empty.list.item1', 'IMT', 'No purposes have been added yet.')
+            Uni.I18n.translate('purposes.empty.list.item', 'IMT', 'No purposes have been added yet.')
         ]
         // out of scope CXO-633
         //stepItems: [
