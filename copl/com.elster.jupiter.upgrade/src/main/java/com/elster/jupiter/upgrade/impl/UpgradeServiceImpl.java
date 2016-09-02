@@ -33,11 +33,7 @@ import org.osgi.service.event.EventHandler;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,12 +44,11 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Filter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.logging.StreamHandler;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Currying.test;
@@ -104,7 +99,7 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
         String differencesProperty = bundleContext.getProperty("differences");
         this.differences = differencesProperty != null && Boolean.parseBoolean(differencesProperty);
         state = doUpgrade ? new UpgraderState() : new CheckState();
-        state.addHandler();
+        state.addFilter();
         startupFinishedListeners.add(new ReportingFinishedListener());
         if (differences) {
             startupFinishedListeners.add(new StartDiffCheckListener());
@@ -113,7 +108,7 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
 
     @Deactivate
     public void deactivate() {
-        state.removeHandler();
+        state.removeFilter();
         startupFinishedListeners.clear();
     }
 
@@ -326,52 +321,30 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
     private interface State {
         void perform(Flyway flyway, InstallIdentifier installIdentifier);
 
-        void addHandler();
+        void addFilter();
 
-        void removeHandler();
+        void removeFilter();
     }
 
     private class UpgraderState implements State {
-        private Handler handler;
-
-        @Override
-        public void addHandler() {
-            if (handler == null) {
-                try {
-                    Path path = fileSystem.getPath("./logs/upgrade.log");
-                    handler = new FileHandler(path);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                logger.addHandler(handler);
-            }
-        }
-
-        @Override
-        public void removeHandler() {
-            if (handler != null) {
-                logger.removeHandler(handler);
-                handler.close();
-                handler = null;
-            }
-        }
-
         @Override
         public void perform(Flyway flyway, InstallIdentifier installIdentifier) {
             String message = "Upgrading " + installIdentifier.name();
             userInterface.notifyUser(message);
             flyway.migrate();
         }
+
+        @Override
+        public void addFilter() {
+        }
+
+        @Override
+        public void removeFilter() {
+        }
     }
 
     private class CheckState implements State {
-        @Override
-        public void addHandler() {
-        }
-
-        @Override
-        public void removeHandler() {
-        }
+        private final Filter filter = record -> false;
 
         @Override
         public void perform(Flyway flyway, InstallIdentifier installIdentifier) {
@@ -382,6 +355,16 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
                 userInterface.notifyUser(message);
                 System.exit(4);
             }
+        }
+
+        @Override
+        public void addFilter() {
+            logger.setFilter(filter);
+        }
+
+        @Override
+        public void removeFilter() {
+            logger.setFilter(null);
         }
     }
 
@@ -423,13 +406,6 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
 
         @Override
         public void close() throws SecurityException {
-        }
-    }
-
-    private static class FileHandler extends StreamHandler {
-
-        private FileHandler(Path path) throws IOException {
-            super(Files.newOutputStream(path, StandardOpenOption.CREATE), new SimpleFormatter());
         }
     }
 
