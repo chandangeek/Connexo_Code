@@ -391,12 +391,14 @@ Ext.define('Cfg.controller.Tasks', {
     submitRunTask: function (record, confWindow) {
         var me = this,
             id = record.get('id'),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             taskModel = me.getModel('Cfg.model.ValidationTask'),
             grid,
             store,
             index,
             view;
 
+        mainView.setLoading(true);
         Ext.Ajax.request({
             url: '/api/val/validationtasks/' + id + '/trigger',
             method: 'PUT',
@@ -438,6 +440,9 @@ Ext.define('Cfg.controller.Tasks', {
                 var res = Ext.JSON.decode(response.responseText);
                 confWindow.update(res.errors[0].msg);
                 confWindow.setVisible(true);
+            },
+            callback: function() {
+                mainView.setLoading(false);
             }
         });
     },
@@ -445,6 +450,7 @@ Ext.define('Cfg.controller.Tasks', {
     removeTask: function (record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+
         confirmationWindow.show({
             msg: Uni.I18n.translate('validationTasks.general.remove.msg', 'CFG', 'This validation task will no longer be available.'),
             title: Uni.I18n.translate('general.removex', 'CFG', "Remove '{0}'?", [record.data.name]),
@@ -460,8 +466,10 @@ Ext.define('Cfg.controller.Tasks', {
     },
 
     removeOperation: function (record) {
-        var me = this;
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
 
+        mainView.setLoading(true);
         record.destroy({
             success: function () {
                 if (me.getPage()) {
@@ -513,6 +521,9 @@ Ext.define('Cfg.controller.Tasks', {
                         icon: Ext.MessageBox.ERROR
                     })
                 }
+            },
+            callback: function() {
+                mainView.setLoading(false);
             }
         });
     },
@@ -639,6 +650,7 @@ Ext.define('Cfg.controller.Tasks', {
             record.set('schedule', null);
         }
 
+        page.setLoading(true);
         record.endEdit();
         record.save({
             backUrl: button.action === 'editTask' && me.fromDetails
@@ -662,6 +674,9 @@ Ext.define('Cfg.controller.Tasks', {
                     form.getForm().markInvalid(json.errors);
                     formErrorsPanel.show();
                 }
+            },
+            callback: function() {
+                page.setLoading(false);
             }
         })
     },
