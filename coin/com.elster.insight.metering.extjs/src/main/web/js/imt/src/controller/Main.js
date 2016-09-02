@@ -102,7 +102,7 @@ Ext.define('Imt.controller.Main', {
                 portal: 'administration',
                 items: [
                     {
-                        text: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configurations'),
+                        text: Uni.I18n.translate('general.label.metrologyconfigurations', 'IMT', 'Metrology configurations'),
                         href: '#/administration/metrologyconfiguration',
                         itemId: 'overview-metrologyconfiguration'
                     }

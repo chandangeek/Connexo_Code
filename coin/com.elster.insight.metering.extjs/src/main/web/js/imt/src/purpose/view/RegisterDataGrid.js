@@ -32,16 +32,16 @@ Ext.define('Imt.purpose.view.RegisterDataGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('outputs.registers.pagingtoolbartop.displayMsgItems', 'UNI', '{0} - {1} of {2} items'),
-                displayMoreMsg: Uni.I18n.translate('outputs.registers.displayMsgMoreItems', 'UNI', '{0} - {1} of more than {2} items'),
-                emptyMsg: Uni.I18n.translate('outputs.registers.noItemsToDisplay', 'UNI', 'There are no items to display')
+                displayMsg: Uni.I18n.translate('outputs.registers.pagingtoolbartop.displayMsgItems', 'IMT', '{0} - {1} of {2} items'),
+                displayMoreMsg: Uni.I18n.translate('outputs.registers.displayMsgMoreItems', 'IMT', '{0} - {1} of more than {2} items'),
+                emptyMsg: Uni.I18n.translate('outputs.registers.noItemsToDisplay', 'IMT', 'There are no items to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 dock: 'bottom',
                 deferLoading: true,
-                itemsPerPageMsg: Uni.I18n.translate('outputs.registers.pagingtoolbarbottom.itemsPerPage', 'UNI', 'Readings per page')
+                itemsPerPageMsg: Uni.I18n.translate('outputs.registers.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Readings per page')
             }
 
         ];

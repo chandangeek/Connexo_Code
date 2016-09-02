@@ -40,7 +40,7 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                 },
                 items: [
                     {
-                        title: Uni.I18n.translate('deviceloadprofiles.specifications', 'MDC', 'Specifications'),
+                        title: Uni.I18n.translate('deviceloadprofiles.specifications', 'IMT', 'Specifications'),
                         itemId: 'output-specifications',
                         items: {
                             xtype: 'output-specifications-form',
@@ -52,7 +52,7 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                         }
                     },
                     {
-                        title:  Uni.I18n.translate('deviceloadprofiles.readings', 'MDC', 'Readings'),
+                        title:  Uni.I18n.translate('deviceloadprofiles.readings', 'IMT', 'Readings'),
                         itemId: 'output-readings',
                         items: {
                             xtype: 'output-readings',

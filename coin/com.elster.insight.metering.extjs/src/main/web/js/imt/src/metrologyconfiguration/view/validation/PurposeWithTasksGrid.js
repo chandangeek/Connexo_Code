@@ -59,7 +59,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.PurposeWithTasksGrid', {
                 renderer: function (value, metaData, record) {
                     //todo: replace started on?
                     return Ext.isEmpty(value)
-                        ? Uni.I18n.translate('metrologyConfiguration.validation.schedule.manual', 'IMT', 'On request')
+                        ? Uni.I18n.translate('metrologyConfiguration.validation.schedule.onRequest', 'IMT', 'On request')
                         : Uni.I18n.translate('metrologyConfiguration.validation.schedule.manual', 'IMT', 'Every {0} {1} started on {2}', [
                             value.count,
                             periodsStore.findRecord('name', value.timeUnit).get('displayValue'),

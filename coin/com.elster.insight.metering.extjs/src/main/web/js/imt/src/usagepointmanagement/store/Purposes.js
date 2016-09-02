@@ -8,6 +8,7 @@ Ext.define('Imt.usagepointmanagement.store.Purposes', {
             type: 'json',
             root: 'purposes'
         },
+        remoteFilter: false,
         pageParam: false,
         startParam: false,
         limitParam: false

@@ -56,13 +56,13 @@ Ext.define('Imt.processes.view.MetrologyConfigurationOutputs', {
                 }),
                 columns: [
                     {
-                        header: Uni.I18n.translate('general.name', 'UNI', 'Name'),
+                        header: Uni.I18n.translate('general.name', 'IMT', 'Name'),
                         dataIndex: 'name',
                         flex: 1
                     },
                     {
                         xtype: 'reading-type-column',
-                        header: Uni.I18n.translate('general.readingType', 'UNI', 'Reading type'),
+                        header: Uni.I18n.translate('general.readingType', 'IMT', 'Reading type'),
                         dataIndex: 'readingType',
                         flex: 1
                     }
