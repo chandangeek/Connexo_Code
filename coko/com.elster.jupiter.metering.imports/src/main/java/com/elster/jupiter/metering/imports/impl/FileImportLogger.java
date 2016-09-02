@@ -14,6 +14,8 @@ public interface FileImportLogger<T extends FileImportRecord> {
 
     void importLineFailed(T data, Exception exception);
 
+    void importLineFailed(long lineNumber, Exception exception);
+
     void importLineFinished(T data);
 
     void importFailed(Exception exception);

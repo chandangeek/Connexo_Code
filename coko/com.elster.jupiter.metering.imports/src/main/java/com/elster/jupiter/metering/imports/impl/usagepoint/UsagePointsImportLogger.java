@@ -42,7 +42,13 @@ public class UsagePointsImportLogger extends FileImportLoggerImpl<FileImportReco
 
     @Override
     public void importLineFailed(FileImportRecord data, Exception exception) {
-        super.importLineFailed(data, exception);
+        super.importLineFailed(data.getLineNumber(), exception);
+        this.linesWithError++;
+    }
+
+    @Override
+    public void importLineFailed(long lineNumber, Exception exception) {
+        super.importLineFailed(lineNumber, exception);
         this.linesWithError++;
     }
 

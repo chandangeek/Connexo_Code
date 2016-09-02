@@ -325,7 +325,7 @@ public class UsagePointProcessorTest {
     public void testProcessIncorrectInfo() throws IOException {
         FileImporter importer = createUsagePointImporter();
         importer.process(fileImportOccurrenceIncorrect);
-        verify(fileImportOccurrenceIncorrect).markSuccessWithFailures("message");
+        verify(fileImportOccurrenceIncorrect).markFailure("message");
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
