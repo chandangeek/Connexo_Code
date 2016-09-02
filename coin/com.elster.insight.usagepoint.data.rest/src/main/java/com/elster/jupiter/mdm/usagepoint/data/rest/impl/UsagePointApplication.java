@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.elster.insight.udr.rest",
-        service = {Application.class, TranslationKeyProvider.class},
+        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         immediate = true,
         property = {"alias=/udr", "app=INS", "name=" + UsagePointApplication.COMPONENT_NAME})
 public class UsagePointApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
@@ -106,7 +106,10 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST))
-                .join(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(com.elster.jupiter.rest.util.impl.MessageSeeds.COMPONENT_NAME, Layer.REST))
+        ;
     }
 
     @Reference

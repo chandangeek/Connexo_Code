@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointTypeInfo;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -141,7 +142,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(UsagePointApplication.COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(UsagePointApplication.COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -164,7 +166,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().map(mc -> mc.getMetrologyConfiguration().getName()).orElse(null);
         info.displayType = this.getUsagePointDisplayType(usagePoint);
-        info.displayConnectionState = usagePoint.getConnectionState().getName();
+        info.displayConnectionState = usagePoint.getConnectionState().getDisplayName(thesaurus);
         info.geoCoordinates = usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null);
         info.location = usagePoint.getLocation().map(Location::toString).orElse(null);
         return info;
@@ -265,16 +267,16 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     private String getUsagePointDisplayType(UsagePoint usagePoint) {
         if (usagePoint.isSdp() && usagePoint.isVirtual()) {
-            return "Unmeasured SDP";
+            return UsagePointTypeInfo.UsagePointType.UNMEASURED_SDP.getDisplayName(thesaurus);
         }
         if (!usagePoint.isSdp() && usagePoint.isVirtual()) {
-            return "Unmeasured non-SDP";
+            return UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.getDisplayName(thesaurus);
         }
         if (usagePoint.isSdp() && !usagePoint.isVirtual()) {
-            return "Measured SDP";
+            return UsagePointTypeInfo.UsagePointType.MEASURED_SDP.getDisplayName(thesaurus);
         }
         if (!usagePoint.isSdp() && !usagePoint.isVirtual()) {
-            return "Measured non-SDP";
+            return UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.getDisplayName(thesaurus);
         }
         return null;
     }

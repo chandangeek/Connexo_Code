@@ -49,6 +49,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -170,7 +171,9 @@ public class UsagePointOutputResource {
                 List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(effectiveInterval);
                 for (IntervalReadingRecord intervalReadingRecord : intervalReadings) {
                     IntervalReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(intervalReadingRecord.getTimeStamp());
-                    readingWithValidationStatus.setIntervalReadingRecord(intervalReadingRecord);
+                    if (readingWithValidationStatus != null) {
+                        readingWithValidationStatus.setIntervalReadingRecord(intervalReadingRecord);
+                    }
                 }
 
                 // add validation statuses to pre filled channel data map
@@ -178,7 +181,9 @@ public class UsagePointOutputResource {
                         .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, intervalReadings, effectiveInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                     IntervalReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
-                    readingWithValidationStatus.setValidationStatus(dataValidationStatus);
+                    if (readingWithValidationStatus != null) {
+                        readingWithValidationStatus.setValidationStatus(dataValidationStatus);
+                    }
                 }
 
                 outputChannelDataInfoList = preFilledChannelDataMap.entrySet().stream()
@@ -242,6 +247,18 @@ public class UsagePointOutputResource {
         effectiveMC.getChannelsContainer(metrologyContract)
                 .ifPresent(channelsContainer -> validationService.validate(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer)
                         .setMetrologyContract(metrologyContract), purposeInfo.validationInfo.lastChecked));
+
+        effectiveMC.getUsagePoint().getCurrentMeterActivations()
+                .stream()
+                .map(MeterActivation::getChannelsContainer)
+                .forEach(channelsContainer -> {
+                    validationService.validate(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer).setMetrologyContract(metrologyContract), purposeInfo.validationInfo.lastChecked);
+                });
+
         return Response.status(Response.Status.OK).build();
     }
+
+
+
+
 }
