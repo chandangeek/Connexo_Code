@@ -55,10 +55,13 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>config.extjs</artifactId>
         </dependency>
-        
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm.extjs</artifactId>
         </dependency>
     </dependencies>
 
