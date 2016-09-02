@@ -24,6 +24,7 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
@@ -208,7 +209,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(), new InboundIpConnectionType());
+        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(), new InboundIpConnectionType(), new TLSConnectionType());
     }
 
     @Override
