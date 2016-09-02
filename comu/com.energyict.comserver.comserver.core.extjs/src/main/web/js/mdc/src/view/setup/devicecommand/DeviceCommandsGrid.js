@@ -73,10 +73,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                     xtype: 'device-command-action-menu'
                 },
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges,
-                isDisabled: function (view, rowIndex, colIndex, item, record) {
-                    var status = record.get('status').value;
-                    return (status !== 'WAITING' && status !== 'PENDING');
-                }
+                isDisabled: me.fnIsDisabled
             }
         ];
         me.dockedItems = [
@@ -129,6 +126,11 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                     }
                 }
             });
+    },
+
+    fnIsDisabled: function (view, rowIndex, colIndex, item, record) {
+        var status = record.get('status').value;
+        return (status !== 'WAITING' && status !== 'PENDING') || !record.get('userCanAdministrate')
     }
 })
 ;
