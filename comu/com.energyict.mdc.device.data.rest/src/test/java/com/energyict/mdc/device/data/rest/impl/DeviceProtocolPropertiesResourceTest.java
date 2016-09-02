@@ -11,7 +11,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
@@ -30,6 +29,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -87,7 +87,8 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
 
     @Test
     public void testGetDeviceProtocolProperties() {
-
+        PropertyInfo propertyInfo = new PropertyInfo(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), new PropertyValueInfo<>("0x7", null), new PropertyTypeInfo(), false);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         String response = target("/devices/ZABF010000080004/protocols/1").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(17);
@@ -109,13 +110,13 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         propertyInfo.name=DeviceProtocolProperty.CALL_HOME_ID.javaFieldName();
         propertyInfo.propertyValueInfo = new PropertyValueInfo<>("0x99", null, null, true);
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
-        propertyInfo.propertyTypeInfo.simplePropertyType= SimplePropertyType.TEXT;
+        propertyInfo.propertyTypeInfo.simplePropertyType= com.elster.jupiter.properties.rest.SimplePropertyType.TEXT;
 
         DeviceProtocolInfo protocolInfo = new DeviceProtocolInfo();
         protocolInfo.version = 1L;
         protocolInfo.properties = Arrays.asList(propertyInfo);
         protocolInfo.parent = new VersionInfo<>("ZABF010000080004", 1L);
-
+        when(propertyValueInfoService.findPropertyValue(any(), any())).thenReturn(propertyInfo.getPropertyValueInfo().getValue());
         Response response = target("devices/ZABF010000080004/protocols/17").request().put(Entity.json(protocolInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device).setProtocolProperty(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), "0x99");

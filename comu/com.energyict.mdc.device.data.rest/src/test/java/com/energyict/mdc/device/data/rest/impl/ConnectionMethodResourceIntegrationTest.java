@@ -46,7 +46,6 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -431,7 +430,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true));
+        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
         Response response = target("/devices/AGENT010/connectionmethods").request().post(Entity.json(info));
@@ -463,8 +462,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true));
-        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
+        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Response response = target("/devices/AGENT008/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -503,7 +502,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true));
+        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
         Response response = target("/devices/AGENT011/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -545,8 +544,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true));
-        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null),
+                new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
         Response response = target("/devices/AGENT012/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -555,7 +554,6 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
         assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTaskLifecycleStatus.ACTIVE);
-        assertThat(connectionTask.getProperty("port").getValue()).isEqualTo(PORT_FROM_PARTIAL);
         assertThat(connectionTask.getProperty("ipAddress").getValue()).isEqualTo("10.10.10.1");
     }
 
@@ -586,8 +584,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true));
-        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null),
+                new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
         Response response = target("/devices/AGENT013/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -596,7 +594,6 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
         assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTaskLifecycleStatus.ACTIVE);
-        assertThat(connectionTask.getProperty("port").getValue()).isEqualTo(PORT_FROM_PARTIAL);
         assertThat(connectionTask.getProperty("ipAddress").getValue()).isEqualTo("10.10.10.1");
     }
 
@@ -619,7 +616,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, true, null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true));
+        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
         Response response = target("/devices/AGENT014/connectionmethods").request().post(Entity.json(info));
@@ -663,7 +660,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, true, null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true));
+        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
         Response response = target("/devices/AGENT015/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
@@ -705,7 +702,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Response response = target("/devices/AGENT016/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -744,7 +741,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Response response = target("/devices/AGENT017/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -782,8 +779,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, null, null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true));
-        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, null, null), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
+        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Response response = target("/devices/AGENT018/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -821,8 +818,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", null, null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true));
-        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(null, null, null), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
+        info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Response response = target("/devices/AGENT019/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

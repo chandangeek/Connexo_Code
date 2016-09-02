@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -90,6 +91,7 @@ import org.mockito.ArgumentCaptor;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessageResourceTest.Necessity.Required;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -309,7 +311,9 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
-
+        PropertyInfo propertyInfo = new PropertyInfo("ID", "ID", new PropertyValueInfo<>(123, 123),
+                new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.model(response);
 
@@ -318,14 +322,6 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<Integer>get("$.deviceMessages[0].properties[0].propertyValueInfo.value")).isEqualTo(123);
         assertThat(model.<String>get("$.deviceMessages[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("NUMBER");
         assertThat(model.<Boolean>get("$.deviceMessages[0].properties[0].required")).isEqualTo(true);
-        assertThat(model.<String>get("$.deviceMessages[0].properties[1].key")).isEqualTo("Delete");
-        assertThat(model.<Boolean>get("$.deviceMessages[0].properties[1].propertyValueInfo.value")).isEqualTo(true);
-        assertThat(model.<String>get("$.deviceMessages[0].properties[1].propertyTypeInfo.simplePropertyType")).isEqualTo("BOOLEAN");
-        assertThat(model.<Boolean>get("$.deviceMessages[0].properties[1].required")).isEqualTo(true);
-        assertThat(model.<String>get("$.deviceMessages[0].properties[2].key")).isEqualTo("Time");
-        assertThat(model.<Long>get("$.deviceMessages[0].properties[2].propertyValueInfo.value")).isEqualTo(now.getTime());
-        assertThat(model.<String>get("$.deviceMessages[0].properties[2].propertyTypeInfo.simplePropertyType")).isEqualTo("CLOCK");
-        assertThat(model.<Boolean>get("$.deviceMessages[0].properties[2].required")).isEqualTo(true);
     }
 
     private DeviceMessageAttribute mockAttribute(String name, Object value, ValueFactory valueFactory, Necessity necessity) {
@@ -457,7 +453,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
-
+        PropertyValueConverter propertyValueConverter = mock(PropertyValueConverter.class);
+        when(propertyValueInfoService.getConverter(any())).thenReturn(propertyValueConverter);
+        PropertyInfo propertyInfo = new PropertyInfo("ContactorDeviceMessage.digitalOutput", "ContactorDeviceMessage.digitalOutput", new PropertyValueInfo<>(123, 123),
+                new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         // given the above: we expect 2 device messages in the same category
         String response = target("/devices/ZABF010000080004/messagecategories").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
@@ -488,7 +488,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         deviceMessageInfo.messageSpecification=new DeviceMessageSpecInfo();
         deviceMessageInfo.messageSpecification.id="CONTACTOR_OPEN";
         deviceMessageInfo.properties=new ArrayList<>();
-        deviceMessageInfo.properties.add(new PropertyInfo("ID", "ID", new PropertyValueInfo<>(123L, null, null, true), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+        deviceMessageInfo.properties.add(new PropertyInfo("ID", "ID", new PropertyValueInfo<>(123L, null, null, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
         deviceMessageInfo.properties.add(new PropertyInfo("Time","Time",new PropertyValueInfo<>(1414067539213L, null, null, true),new PropertyTypeInfo(SimplePropertyType.CLOCK, null, null, null), true));
         Response response = target("/devices/ZABF010000080004/devicemessages").request().post(Entity.json(deviceMessageInfo));
 

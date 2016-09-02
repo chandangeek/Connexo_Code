@@ -3,6 +3,10 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -10,8 +14,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
@@ -21,11 +25,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.Test;
+
 import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Editability.CAN_EDIT;
 import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Editability.CAN_NOT_EDIT;
 import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Visibility.CAN_NOT_VIEW;
 import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Visibility.CAN_VIEW;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +54,8 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         when(device.getSecurityProperties(sps1)).thenReturn(Collections.singletonList(securityProperty1));
         when(device.securityPropertiesAreValid(sps1)).thenReturn(true);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(sps1));
-
+        PropertyInfo propertyInfo = new PropertyInfo("password", "password", new PropertyValueInfo<>("secret", null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         String response = target("/devices/AX1/securityproperties").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
@@ -88,7 +96,8 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         when(device.securityPropertiesAreValid(sps1)).thenReturn(true);
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
-
+        PropertyInfo propertyInfo = new PropertyInfo("password", "password", new PropertyValueInfo<>("secret", null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         String response = target("/devices/"+devicemRID+"/securityproperties/"+sps1Id).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
@@ -165,7 +174,8 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecurityProperty securityProperty3 = mockSecurityPropertyWithSpec(sps1, "field3", "blabla", new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1, securityProperty2, securityProperty3));
         when(device.securityPropertiesAreValid(sps1)).thenReturn(false);
-
+        PropertyInfo propertyInfo = new PropertyInfo("password", "password", new PropertyValueInfo<>("secret", null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
         String response = target("/devices/AX1/securityproperties").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
@@ -186,7 +196,8 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
         when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
         when(device.securityPropertiesAreValid(sps1)).thenReturn(true);
-
+        PropertyInfo propertyInfo = new PropertyInfo("password", "password", new PropertyValueInfo<>(null, null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         String response = target("/devices/AX1/securityproperties").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
@@ -219,7 +230,8 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
         when(device.securityPropertiesAreValid(sps1)).thenReturn(true);
-
+        PropertyInfo propertyInfo = new PropertyInfo("password", "password", new PropertyValueInfo<>(null, null), new PropertyTypeInfo(), true);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
         String response = target("/devices/AX1/securityproperties").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
