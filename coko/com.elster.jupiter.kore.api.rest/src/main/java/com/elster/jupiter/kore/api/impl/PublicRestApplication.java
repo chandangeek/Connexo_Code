@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.hypermedia.RestExceptionMapper;
@@ -65,6 +66,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile ServiceCallService serviceCallService;
     private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     @Activate
     public void activate() {
@@ -170,6 +172,11 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.upgradeService = upgradeService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     private Factory<Validator> getValidatorFactory() {
         return new Factory<Validator>() {
             private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
@@ -204,6 +211,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(messageService).to(MessageService.class);
             bind(serviceCallService).to(ServiceCallService.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bindFactory(getValidatorFactory()).to(Validator.class);
 
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);

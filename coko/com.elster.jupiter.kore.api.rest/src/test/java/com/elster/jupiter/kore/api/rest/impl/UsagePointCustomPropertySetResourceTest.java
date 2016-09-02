@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
@@ -21,12 +22,14 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +46,8 @@ public class UsagePointCustomPropertySetResourceTest extends PlatformPublicApiJe
         UsagePointPropertySet usagePointPropertySet = mockUsagePointPropertySet(31, cps, usagePoint, extension);
         UsagePointPropertySet usagePointPropertySet2 = mockUsagePointPropertySet(32, cps, usagePoint, extension);
         when(extension.getAllPropertySets()).thenReturn(Arrays.asList(usagePointPropertySet, usagePointPropertySet2));
+        PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", new PropertyValueInfo<>("Hello world 1", "default"), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true);
+        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenReturn(propertyInfo);
     }
 
     @Test
