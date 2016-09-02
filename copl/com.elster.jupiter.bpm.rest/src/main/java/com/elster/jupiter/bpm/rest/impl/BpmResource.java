@@ -577,7 +577,7 @@ public class BpmResource {
                         .withMessageBody(MessageSeeds.EDIT_PROCESS_CONCURRENT_BODY, info.name)
                         .supplier().get();
             }
-            List<BpmProcessPrivilege> oldPrivileges = process.getPrivileges();
+            List<BpmProcessPrivilege> oldPrivileges = new ArrayList<>(process.getPrivileges());
 
             process.setAssociation(info.type.toLowerCase());
             process.setStatus(info.active);
