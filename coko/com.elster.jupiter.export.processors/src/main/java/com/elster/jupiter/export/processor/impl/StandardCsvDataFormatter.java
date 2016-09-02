@@ -29,7 +29,6 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
@@ -44,7 +43,6 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -124,9 +122,14 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         MeterReading data = ((MeterReadingData) exportData).getMeterReading();
         List<Reading> readings = data.getReadings();
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
-        Optional<Instant> latestProcessedTimestamp = readings.stream().map(Reading::getTimeStamp).max(Comparator.naturalOrder());
-        setMeter(latestProcessedTimestamp);
-        Map<Instant, DataValidationStatus> statuses = getDataValidationStatusMap(qualityCodeSystems, latestProcessedTimestamp, readings);
+        Map<Instant, DataValidationStatus> statuses = readings.stream()
+                .map(Reading::getTimeStamp)
+                .max(Comparator.naturalOrder())
+                .map(latestProcessedTimestamp -> {
+                    setMeter(latestProcessedTimestamp);
+                    return getDataValidationStatusMap(qualityCodeSystems, latestProcessedTimestamp, readings);
+                })
+                .orElseGet(Collections::emptyMap);
         Stream<FormattedExportData> readingStream = readings.stream()
                 .map(reading -> writeReading(reading, statuses.get(reading.getTimeStamp())))
                 .flatMap(Functions.asStream())
@@ -134,13 +137,18 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
 
         Stream<FormattedExportData> intervalReadings = Stream.empty();
         if (!intervalBlocks.isEmpty()) {
-            latestProcessedTimestamp = intervalBlocks.stream().flatMap(i -> i.getIntervals().stream()).map(IntervalReading::getTimeStamp).max(Comparator.naturalOrder());
-            setMeter(latestProcessedTimestamp);
-            Optional<Instant> latest = latestProcessedTimestamp;
+            Optional<Instant> latestProcessedTimestampOptional = intervalBlocks.stream()
+                    .map(IntervalBlock::getIntervals)
+                    .flatMap(Collection::stream)
+                    .map(IntervalReading::getTimeStamp)
+                    .max(Comparator.naturalOrder());
+            latestProcessedTimestampOptional.ifPresent(this::setMeter);
             intervalReadings = intervalBlocks.stream()
                     .flatMap(block -> {
                         ReadingType readingType = meteringService.getReadingType(block.getReadingTypeCode()).get();
-                        Map<Instant, DataValidationStatus> intervalStatuses = getDataValidationStatusMap(qualityCodeSystems, latest, block.getIntervals());
+                        Map<Instant, DataValidationStatus> intervalStatuses = latestProcessedTimestampOptional
+                                .map(latestProcessedTimestamp -> getDataValidationStatusMap(qualityCodeSystems, latestProcessedTimestamp, block.getIntervals()))
+                                .orElseGet(Collections::emptyMap);
                         return block.getIntervals().stream()
                                 .map(reading -> Pair.of(new DecoratedIntervalReading(reading, readingType), intervalStatuses.get(reading.getTimeStamp())));
                     })
@@ -205,9 +213,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
                 .orElse(null);
     }
 
-
     private Optional<String> writeReading(BaseReading reading, DataValidationStatus status) {
-
         if (reading.getValue() != null) {
             StringBuilder writer = new StringBuilder();
             ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
@@ -236,43 +242,6 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         return Optional.empty();
     }
 
-    private Optional<String> writeReading(BaseReading reading, DataValidationStatus status, ReadingType readingType) {
-
-        if (reading.getValue() != null) {
-            StringBuilder writer = new StringBuilder();
-            ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
-            writer.append(date.format(DEFAULT_DATE_TIME_FORMAT));
-            writer.append(fieldSeparator);
-            writer.append(meter.getMRID());
-            writer.append(fieldSeparator);
-            writer.append(readingType.getMRID());
-            writer.append(fieldSeparator);
-            writer.append(reading.getValue().toString());
-            writer.append(fieldSeparator);
-            if (status != null) {
-                ValidationResult validationResult;
-                if (readingType.isCumulative()) {
-                    validationResult = status.getBulkValidationResult();
-                } else {
-                    validationResult = status.getValidationResult();
-                }
-                switch (validationResult) {
-                    case VALID:
-                        writer.append(VALID_STRING);
-                        break;
-                    case SUSPECT:
-                        writer.append(INVALID_STRING);
-                        break;
-                }
-            }
-            writer.append(fieldSeparator);
-            writer.append('\n');
-            return Optional.of(writer.toString());
-        }
-        return Optional.empty();
-    }
-
-
     public void endItem(ReadingTypeDataExportItem item) {
         if (!item.getReadingType().getMRID().equals(readingType.getMRID())) {
             throw new IllegalArgumentException("ReadingTypeDataExportItems passed to startItem() and EndItem() methods are different");
@@ -295,15 +264,12 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
     }
 
     private Map<Instant, DataValidationStatus> getDataValidationStatusMap(Set<QualityCodeSystem> qualityCodeSystems,
-                                                                          Optional<Instant> instantRef,
+                                                                          Instant instant,
                                                                           List<? extends BaseReading> readings) {
-        Map<Instant, DataValidationStatus> statuses = new HashMap<>();
-        if (instantRef.isPresent()) {
-            List<DataValidationStatus> dataValidationStatuses = validationService.getEvaluator(meter, Interval.sinceEpoch().toOpenClosedRange())
-                    .getValidationStatus(qualityCodeSystems, forValidation(instantRef.get(), meter), readings);
-            dataValidationStatuses.stream().forEach(s -> statuses.put(s.getReadingTimestamp(), s));
-        }
-        return statuses;
+        return validationService.getEvaluator(meter)
+                .getValidationStatus(qualityCodeSystems, forValidation(instant, meter), readings)
+                .stream()
+                .collect(Collectors.toMap(DataValidationStatus::getReadingTimestamp, Function.identity(), (v1, v2) -> v2));
     }
 
     private Channel forValidation(Instant latestProcessedTimestamp, Meter meter) {
@@ -311,24 +277,16 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         return findChannel(meterActivation).orElseThrow(IllegalArgumentException::new);
     }
 
-    private void setMeter(Optional<Instant> latestProcessedTimestamp) {
-        if (latestProcessedTimestamp.isPresent()) {
-            Optional<Meter> meterOptional = readingContainer.getMeter(latestProcessedTimestamp.get());
-            if (!meterOptional.isPresent()) {
-                throw new DataExportException(new LocalizedException(thesaurus, MessageSeeds.INVALID_READING_CONTAINER, new IllegalArgumentException()) {
-                });
-            }
-            meter = meterOptional.get();
-        }
+    private void setMeter(Instant latestProcessedTimestamp) {
+        meter = readingContainer.getMeter(latestProcessedTimestamp)
+                .orElseThrow(() -> new DataExportException(new LocalizedException(thesaurus, MessageSeeds.INVALID_READING_CONTAINER, new IllegalArgumentException()) {
+                }));
     }
 
     private Optional<Channel> findChannel(MeterActivation meterActivation) {
-        for (Channel channel : meterActivation.getChannelsContainer().getChannels()) {
-            if (channel.getReadingTypes().contains(readingType)) {
-                return Optional.of(channel);
-            }
-        }
-        return Optional.empty();
+        return meterActivation.getChannelsContainer().getChannels().stream()
+                .filter(channel -> channel.getReadingTypes().contains(readingType))
+                .findFirst();
     }
 
     private static class DecoratedIntervalReading implements IntervalReading {

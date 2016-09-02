@@ -27,7 +27,6 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -70,7 +69,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class StandardCsvDataFormatterTest {
 
-    public static final long EPOCH_MILLI = 1416783612449L;
+    private static final long EPOCH_MILLI = 1416783612449L;
     @Rule
     public TestRule timeZone = Using.timeZoneOfMcMurdo();
     @Mock
@@ -122,21 +121,18 @@ public class StandardCsvDataFormatterTest {
     @Mock
     private AppServer appServer;
 
-    private FileSystem fileSystem;
-
-    StandardCsvDataFormatter processor;
-    List<DataExportProperty> properties;
-    private Path tempDirectory;
+    private StandardCsvDataFormatter processor;
+    private List<DataExportProperty> properties;
     private Clock clock = Clock.system(ZoneId.systemDefault());
 
     @Before
     public void setUp() throws IOException {
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
-        fileSystem = Jimfs.newFileSystem(Configuration.windows());
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.windows());
         Path root = fileSystem.getRootDirectories().iterator().next();
-        tempDirectory = Files.createTempDirectory(root, "tmp");
-        when(validationService.getEvaluator(meter, Interval.sinceEpoch().toOpenClosedRange())).thenReturn(validationEvaluator);
-        when(validationService.getEvaluator(meter1, Interval.sinceEpoch().toOpenClosedRange())).thenReturn(validationEvaluator);
+        Files.createTempDirectory(root, "tmp");
+        when(validationService.getEvaluator(meter)).thenReturn(validationEvaluator);
+        when(validationService.getEvaluator(meter1)).thenReturn(validationEvaluator);
         doReturn(Optional.of(meterActivation)).when(meter).getMeterActivation(Instant.ofEpochMilli(EPOCH_MILLI));
         doReturn(Optional.of(meterActivation)).when(meter1).getMeterActivation(Instant.ofEpochMilli(EPOCH_MILLI));
 
@@ -193,8 +189,8 @@ public class StandardCsvDataFormatterTest {
         when(reading2.getTimeStamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
         when(reading2.getValue()).thenReturn(BigDecimal.ZERO);
 
-        when(dataLoadProfile.getReadings()).thenReturn(Arrays.asList());
-        when(dataLoadProfile.getIntervalBlocks()).thenReturn(Arrays.asList(intervalBlock));
+        when(dataLoadProfile.getReadings()).thenReturn(Collections.emptyList());
+        when(dataLoadProfile.getIntervalBlocks()).thenReturn(Collections.singletonList(intervalBlock));
 
         List<IntervalReading> intervals = Collections.unmodifiableList(Arrays.asList(intervalReading, intervalReading1));
         doReturn(intervals).when(intervalBlock).getIntervals();
@@ -214,7 +210,7 @@ public class StandardCsvDataFormatterTest {
         when(readingQuality1.getTypeCode()).thenReturn("2.5.258");
 
         doReturn(list).when(intervalReading).getReadingQualities();
-        doReturn(Arrays.asList()).when(intervalReading1).getReadingQualities();
+        doReturn(Collections.emptyList()).when(intervalReading1).getReadingQualities();
 
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
         when(dataExportService.getExportDirectory(appServer)).thenReturn(Optional.of(fileSystem.getPath("c:\\appserver\\export")));
