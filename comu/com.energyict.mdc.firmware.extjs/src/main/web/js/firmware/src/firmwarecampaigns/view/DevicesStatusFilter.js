@@ -2,14 +2,10 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesStatusFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'fwc-firmwarecampaigns-view-devicesStatusFilter',
     store: 'Fwc.firmwarecampaigns.store.Devices',
-    filters: [
-        {
-            type: 'combobox',
-            dataIndex: 'status',
-            emptyText: Uni.I18n.translate('general.status', 'FWC', 'Status'),
-            itemId: 'status-filter',
-            multiSelect: true,
-            options: [
+
+    initComponent: function () {
+        var me = this,
+            statusOptions = [
                 {
                     display: Uni.I18n.translate('firmwareManagementDeviceStatus.success', 'FWC', 'Success'),
                     value: 'success'
@@ -34,7 +30,21 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesStatusFilter', {
                     display: Uni.I18n.translate('firmwareManagementDeviceStatus.cancelled', 'FWC', 'Cancelled'),
                     value: 'cancelled'
                 }
-            ]
-        }
-    ]
+            ];
+
+        Ext.Array.sort(statusOptions, function(option1, option2) { // Sort them alphabetically by display value
+            return option1.display.localeCompare(option2.display);
+        });
+        me.filters = [
+            {
+                type: 'combobox',
+                dataIndex: 'status',
+                emptyText: Uni.I18n.translate('general.status', 'FWC', 'Status'),
+                itemId: 'status-filter',
+                multiSelect: true,
+                options: statusOptions
+            }
+        ];
+        me.callParent(arguments);
+    }
 });
