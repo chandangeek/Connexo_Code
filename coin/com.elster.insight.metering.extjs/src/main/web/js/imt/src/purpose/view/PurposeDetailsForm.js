@@ -3,7 +3,8 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
     alias: 'widget.purpose-details-form',
     requires: [
         'Imt.purpose.view.PurposeActionsMenu',
-        'Imt.purpose.view.ValidationStatusForm'
+        'Imt.purpose.view.ValidationStatusForm',
+        'Cfg.model.ValidationTask'
     ],
     itemId: 'purpose-details-form',
     layout: 'hbox',
@@ -84,14 +85,14 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                                             var url = me.router.getRoute('administration/validationtasks/validationtask').buildUrl({
                                                 taskId: item.id
                                             });
+                                            var taskModel = new Cfg.model.ValidationTask(item);
+
                                             result += '<tr>';
                                             result += '<td>';
                                             result += '<a href="' + url + '">' + item.name + '</a>';
                                             result += '</td>';
                                             result += '<td>';
-                                            if (item.trigger) {
-                                                result += item.trigger;
-                                            }
+                                            result += taskModel.getTriggerText();
                                             result += '</td>';
                                             result += '</tr>';
                                         });
