@@ -19,8 +19,9 @@ Ext.define('Cfg.model.ValidationTask', {
             defaultValue: null
         },
         {name: 'schedule', type: 'auto'},
-        {name: 'nextRun'},
-        {name: 'lastRun'},
+        {name: 'recurrence', type: 'auto'},
+        {name: 'nextRun', defaultValue: null},
+        {name: 'lastRun', defaultValue: null},
         {
             name: 'schedule',
             defaultValue: null
@@ -34,10 +35,14 @@ Ext.define('Cfg.model.ValidationTask', {
             persist: false,
             mapping: function (data) {
                 var result;
-                if (data.lastRun && (data.lastRun !== 0)) {
-                    result = moment(data.lastRun).format('ddd, DD MMM YYYY HH:mm:ss');
+                var lastRun = data.lastRun;
+                if (lastRun && (lastRun !== 0)) {
+                    var lastRunFormatted = Uni.DateTime.formatDateTimeLong(Ext.isDate(lastRun) ? lastRun : new Date(lastRun));
+                    result = data.lastValidationOccurence && data.lastValidationOccurence.wasScheduled
+                        ? Uni.I18n.translate('validationTasks.general.lastRunBySchedule', 'CFG', '{0} by schedule', [lastRunFormatted], false)
+                        : Uni.I18n.translate('validationTasks.general.lastRunOnRequest', 'CFG', '{0} on request', [lastRunFormatted], false);
                 } else {
-                    result = '-'
+                    result = '-';
                 }
                 return result;
             }
@@ -88,17 +93,6 @@ Ext.define('Cfg.model.ValidationTask', {
                     return data.lastValidationOccurence.reason;
                 } else {
                     return '';
-                }
-            }
-        },
-		{
-            name: 'trigger',
-            persist: false,
-            mapping: function (data) {
-                if (data.lastValidationOccurence && data.lastValidationOccurence.trigger) {
-                    return data.lastValidationOccurence.trigger;
-                } else {
-                    return '-'
                 }
             }
         },
