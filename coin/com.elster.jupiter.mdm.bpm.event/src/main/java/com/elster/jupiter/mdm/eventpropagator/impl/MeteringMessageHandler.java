@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,6 +24,8 @@ public class MeteringMessageHandler implements MessageHandler {
     private final MeteringService meteringService;
     private final BpmService bpmService;
     private final Clock clock;
+
+    private static final Logger LOGGER = Logger.getLogger(MeteringMessageHandler.class.getName());
 
     public MeteringMessageHandler(JsonService jsonService, BpmService bpmService, MeteringService meteringService, Clock clock) {
         this.jsonService = jsonService;
@@ -94,9 +97,13 @@ public class MeteringMessageHandler implements MessageHandler {
         try {
             String jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
             if (!"".equals(jsonContent)) {
-                    return Optional.ofNullable(jsonService.deserialize(jsonContent, ProcessDefinitionInfos.class));
+                return Optional.ofNullable(jsonService.deserialize(jsonContent, ProcessDefinitionInfos.class));
             }
-        } catch (RuntimeException e) {
+        } catch (JsonDeserializeException e){
+            LOGGER.severe("JSON deserialization error");
+            return Optional.empty();
+        }catch (RuntimeException e) {
+            LOGGER.warning("Unable to connect to Flow: " + e.getMessage());
             return Optional.empty();
         }
         return Optional.empty();
