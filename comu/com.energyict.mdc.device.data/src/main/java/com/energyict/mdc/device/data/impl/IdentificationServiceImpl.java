@@ -98,13 +98,13 @@ public class IdentificationServiceImpl implements IdentificationService {
     }
 
     @Override
-    public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id) {
-        return new LoadProfileIdentifierById(id, loadProfileService);
+    public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode) {
+        return new LoadProfileIdentifierById(id, loadProfileService, obisCode);
     }
 
     @Override
-    public LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(BaseLoadProfile loadProfile) {
-        return new LoadProfileIdentifierForAlreadyKnownLoadProfile((LoadProfile) loadProfile);
+    public LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(BaseLoadProfile loadProfile, ObisCode obisCode) {
+        return new LoadProfileIdentifierForAlreadyKnownLoadProfile((LoadProfile) loadProfile, obisCode);
     }
 
     @Override
@@ -113,13 +113,13 @@ public class IdentificationServiceImpl implements IdentificationService {
     }
 
     @Override
-    public LoadProfileIdentifier createLoadProfileIdentifierForFirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier) {
-        return new LoadProfileIdentifierFirstOnDevice(deviceIdentifier);
+    public LoadProfileIdentifier createLoadProfileIdentifierForFirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier, ObisCode obisCode) {
+        return new LoadProfileIdentifierFirstOnDevice(deviceIdentifier, obisCode);
     }
 
     @Override
-    public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id) {
-        return new LogBookIdentifierById(id, logBookService);
+    public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode obisCode) {
+        return new LogBookIdentifierById(id, logBookService, obisCode);
     }
 
     @Override

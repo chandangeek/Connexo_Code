@@ -24,10 +24,10 @@ import java.util.List;
 * Time: 9:59
 */
 class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuilder {
-    private final LongCounter sentBytes = Counters.newStrictLongCounter();
-    private final LongCounter receivedBytes = Counters.newStrictLongCounter();
-    private final LongCounter sentPackets = Counters.newStrictLongCounter();
-    private final LongCounter receivedPackets = Counters.newStrictLongCounter();
+    private LongCounter sentBytes = Counters.newStrictLongCounter();
+    private LongCounter receivedBytes = Counters.newStrictLongCounter();
+    private LongCounter sentPackets = Counters.newStrictLongCounter();
+    private LongCounter receivedPackets = Counters.newStrictLongCounter();
     private final ComTaskExecution comTaskExecution;
     private final ComTask comTask;
     private final Device device;
@@ -76,6 +76,30 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
         return this;
     }
 
+    @Override
+    public ComTaskExecutionSessionBuilder resetReceivedBytes() {
+        receivedBytes = Counters.newStrictLongCounter();
+        return this;
+    }
+
+    @Override
+    public ComTaskExecutionSessionBuilder resetReceivedPackets() {
+        receivedPackets = Counters.newStrictLongCounter();
+        return this;
+    }
+
+    @Override
+    public ComTaskExecutionSessionBuilder resetSentBytes() {
+        sentBytes = Counters.newStrictLongCounter();
+        return this;
+    }
+
+    @Override
+    public ComTaskExecutionSessionBuilder resetSentPackets() {
+        sentPackets = Counters.newStrictLongCounter();
+        return this;
+    }
+
     ComTaskExecutionSessionImpl addTo(ComSessionImpl comSession) {
         ComTaskExecutionSessionImpl comTaskExecutionSession = comSession.createComTaskExecutionSession(comTaskExecution, comTask, comTaskExecution.getDevice(), Range.closed(startDate, stopDate), successIndicator);
         for (JournalEntryBuilder journalEntryBuilder : journalEntryBuilders) {
@@ -108,19 +132,19 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
         this.successIndicator = successIndicator;
     }
 
-    long getReceivedBytes() {
+    public long getReceivedBytes() {
         return receivedBytes.getValue();
     }
 
-    long getSentBytes() {
+    public long getSentBytes() {
         return sentBytes.getValue();
     }
 
-    long getReceivedPackets() {
+    public long getReceivedPackets() {
         return receivedPackets.getValue();
     }
 
-    long getSentPackets() {
+    public long getSentPackets() {
         return sentPackets.getValue();
     }
 

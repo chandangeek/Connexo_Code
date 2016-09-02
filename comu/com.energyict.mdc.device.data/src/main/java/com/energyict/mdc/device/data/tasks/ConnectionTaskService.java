@@ -208,4 +208,9 @@ public interface ConnectionTaskService {
 
     List<ComSession> findComSessions(ComPortPool comPortPool);
 
+    /**
+     * Finds all ConnectionTasks locked by a specific ComServer
+     */
+    public List<ConnectionTask> findLockedByComServer(ComServer comServer);
+
 }

@@ -5,6 +5,7 @@ import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -121,7 +122,7 @@ public enum TableSpecs {
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             Column meterId = table.column("METERID").number().since(version(10, 2)).add();
             Column batchId = table.column("BATCH_ID").number().since(version(10, 2)).add();
-            table.column("ESTIMATION_ACTIVE").bool().map("estimationActive").since(version(10, 2)).add();
+            table.column("ESTIMATION_ACTIVE").bool().map("estimationActive").since(version(10, 2)).installValue("'N'").add();
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                     on(configuration).
                     references(DeviceConfiguration.class).
@@ -252,7 +253,7 @@ public enum TableSpecs {
             table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ConnectionTaskFields.PLANNED_NEXT_EXECUTION_TIMESTAMP.fieldName()).add();
             table.column("CONNECTIONSTRATEGY").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.CONNECTION_STRATEGY.fieldName()).add();
             table.column("PRIORITY").number().conversion(NUMBER2INT).map(ConnectionTaskFields.PRIORITY.fieldName()).add();
-            table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.ALLOW_SIMULTANEOUS_CONNECTIONS.fieldName()).add();
+            table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2INT).map(ConnectionTaskFields.ALLOW_SIMULTANEOUS_CONNECTIONS.fieldName()).add();
             Column initiator = table.column("INITIATOR").number().add();
             // InboundConnectionTaskImpl columns: none at this moment
             // ConnectionInitiationTaskImpl columns: none at this moment
@@ -349,6 +350,7 @@ public enum TableSpecs {
             table.column("EXECUTIONSTART").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.EXECUTIONSTART.fieldName()).add();
             table.column("LASTSUCCESSFULCOMPLETION").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName()).add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName()).add();
+            table.column("ONHOLD").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.ONHOLD.fieldName()).since(version(10, 2)).add();
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add();
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
@@ -628,7 +630,7 @@ public enum TableSpecs {
             table.column("PROTOCOLINFO").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).add();
             table.column("RELEASEDATE").number().map(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("SENTDATE").number().map(DeviceMessageImpl.Fields.SENTDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
-            table.column("CREATEUSERNAME").varChar(80).notNull().map(DeviceMessageImpl.Fields.CREATEDBYUSER.fieldName()).since(version(10, 2)).add();
+            table.column("CREATEUSERNAME").varChar(80).notNull().map(DeviceMessageImpl.Fields.CREATEDBYUSER.fieldName()).since(version(10, 2)).installValue("'install/upgrade'").add();
             table.primaryKey("PK_DDC_DEVICEMESSAGE").on(id).add();
             table.foreignKey("FK_DDC_DEVMESSAGE_DEV")
                     .on(device).references(DDC_DEVICE.name())
@@ -854,6 +856,7 @@ public enum TableSpecs {
                     .references(DDC_PASSIVE_CALENDAR.name())
                     .on(plannedPassiveCalendar)
                     .map("plannedPassiveCalendar")
+                    .since(version(10, 2))
                     .add();
         }
     },
@@ -864,7 +867,6 @@ public enum TableSpecs {
             Table<ActiveEffectiveCalendar> table = dataModel.addTable(name(), ActiveEffectiveCalendar.class);
             table.since(version(10, 2));
             table.map(ActiveEffectiveCalendarImpl.class);
-            table.since(version(10, 2));
 
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName());

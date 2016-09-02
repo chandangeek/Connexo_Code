@@ -43,6 +43,11 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<L
     }
 
     @Override
+    public ObisCode getLogBookObisCode() {
+        return logBookObisCode;
+    }
+
+    @Override
     @XmlElement(name = "type")
     public String getXmlType() {
         return this.getClass().getName();
@@ -67,11 +72,11 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<L
         }
         LogBookIdentifierByDeviceAndObisCode otherIdentifier = (LogBookIdentifierByDeviceAndObisCode) o;
         return (this.deviceIdentifier.toString().equals(otherIdentifier.deviceIdentifier.toString())
-            && this.logBookObisCode.equals(otherIdentifier.logBookObisCode));
+                && this.logBookObisCode.equals(otherIdentifier.logBookObisCode));
     }
 
     @Override
-    public int hashCode () {
+    public int hashCode() {
         int result = this.deviceIdentifier.hashCode();
         result = 31 * result + this.logBookObisCode.hashCode();
         return result;
