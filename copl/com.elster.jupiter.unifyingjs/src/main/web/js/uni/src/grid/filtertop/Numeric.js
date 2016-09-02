@@ -20,7 +20,14 @@ Ext.define('Uni.grid.filtertop.Numeric', {
                     {
                         width: 100,
                         xtype: 'uni-search-criteria-numeric',
-                        itemId: 'uni-search-criteria-numeric'
+                        itemId: 'uni-search-criteria-numeric',
+                        listeners: {
+                            change: function(cmp, value) {
+                                if (value) {
+                                    me.down('button[action=apply]').setDisabled(!cmp.isValid())
+                                }
+                            }
+                        }
                     }
                 ]
             }
@@ -36,8 +43,8 @@ Ext.define('Uni.grid.filtertop.Numeric', {
         });
         me.doLayout();
 
-        applyButton = me.down('button[action=apply]').on('click', me.onApplyValues, me);
-        clearButton = me.down('button[action=reset]').on('click', me.onClearValues, me);
+        me.down('button[action=apply]').on('click', me.onApplyValues, me);
+        me.down('button[action=reset]').on('click', me.onClearValues, me);
     },
 
     getParamValue: function () {
@@ -83,5 +90,5 @@ Ext.define('Uni.grid.filtertop.Numeric', {
         var me = this;
         me.down('#uni-search-criteria-numeric').reset();
         me.down('button[action=chooseValues]').setText(me.text);
-    },
+    }
 });

@@ -17,6 +17,18 @@ Ext.define('Uni.view.search.field.internal.Criteria', {
         this.fireEvent('reset', this);
     },
 
+    isValid: function (){
+        var isValid = true;
+
+        this.items.filterBy(function (item) {
+            return Ext.isFunction(item.isValid);
+        }).each(function (item) {
+            isValid = isValid && item.isValid();
+        });
+
+        return isValid;
+    },
+
     getValue: function () {
         var value = [];
 
