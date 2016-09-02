@@ -27,7 +27,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     public ScheduledConnectionMethodInfo(ScheduledConnectionTask scheduledConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
         super(scheduledConnectionTask, uriInfo, mdcPropertyUtils);
         this.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
-        this.allowSimultaneousConnections = scheduledConnectionTask.isSimultaneousConnectionsAllowed();
+        this.numberOfSimultaneousConnections = scheduledConnectionTask.getNumberOfSimultaneousConnections();
         this.rescheduleRetryDelay = TimeDurationInfo.of(scheduledConnectionTask.getRescheduleDelay());
         if (scheduledConnectionTask.getCommunicationWindow() != null) {
             this.comWindowStart = scheduledConnectionTask.getCommunicationWindow().getStart().getMillis() / 1000;
@@ -50,7 +50,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     }
 
     private void writeCommonFields(ScheduledConnectionTask scheduledConnectionTask, EngineConfigurationService engineConfigurationService) {
-        scheduledConnectionTask.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
+        scheduledConnectionTask.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
         if (this.comWindowEnd != null && this.comWindowStart != null) {
             scheduledConnectionTask.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         }
@@ -77,7 +77,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         scheduledConnectionTaskBuilder.setConnectionStrategy(getConnectionStrategy());
         scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
         scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(this.status);
-        scheduledConnectionTaskBuilder.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
+        scheduledConnectionTaskBuilder.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
         if (this.comWindowEnd != null && this.comWindowStart != null) {
             scheduledConnectionTaskBuilder.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         }

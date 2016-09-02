@@ -96,7 +96,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<Integer>get("$.connectionMethods[0].comWindowStart")).isEqualTo(60);
         assertThat(jsonModel.<Integer>get("$.connectionMethods[0].comWindowEnd")).isEqualTo(120);
         assertThat(jsonModel.<Boolean>get("$.connectionMethods[0].isDefault")).isEqualTo(true);
-        assertThat(jsonModel.<Boolean>get("$.connectionMethods[0].allowSimultaneousConnections")).isEqualTo(false);
+        assertThat(jsonModel.<Integer>get("$.connectionMethods[0].numberOfSimultaneousConnections")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.connectionMethods[0].direction")).isEqualTo("Outbound");
         assertThat(jsonModel.<String>get("$.connectionMethods[0].name")).isEqualTo("it's me");
         assertThat(jsonModel.<String>get("$.connectionMethods[0].status")).isEqualTo("connectionTaskStatusActive");
@@ -289,6 +289,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.getVersion()).thenReturn(1L);
+        when(connectionTask.getNumberOfSimultaneousConnections()).thenReturn(1);
         return connectionTask;
     }
 
