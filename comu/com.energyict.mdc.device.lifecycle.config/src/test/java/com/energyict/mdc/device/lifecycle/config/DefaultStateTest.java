@@ -2,11 +2,14 @@ package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -79,7 +82,48 @@ public class DefaultStateTest {
             assertThat(defaultStateOptional.isPresent()).as(defaultState.name() + " not found by DefaultState#from(State)").isTrue();
             assertThat(defaultStateOptional.get()).isEqualTo(defaultState);
         }
+    }
 
+    @Test
+    public void fromKeyForDefaultStates() {
+        for (DefaultState defaultState : DefaultState.values()) {
+            // Business method
+            Optional<DefaultState> defaultFromKey = DefaultState.fromKey(defaultState.getKey());
+
+            // Asserts
+            assertThat(defaultFromKey.isPresent()).as(defaultState.name() + " not found by DefaultState#fromKey(String)").isTrue();
+            assertThat(defaultFromKey.get()).isEqualTo(defaultState);
+        }
+    }
+
+    @Test
+    public void fromKeyForCustomState() {
+        // Business method
+        Optional<DefaultState> defaultFromKey = DefaultState.fromKey("Custom");
+
+        // Asserts
+        assertThat(defaultFromKey.isPresent()).isFalse();
+    }
+
+    @Test
+    public void fromKeysForAllDefaultStates() {
+        Set<String> keys = Stream.of(DefaultState.values()).map(DefaultState::getKey).collect(Collectors.toSet());
+
+        // Business method
+        Set<DefaultState> defaultStates = DefaultState.fromKeys(keys);
+
+        // Asserts
+        assertThat(defaultStates).hasSize(DefaultState.values().length);
+    }
+
+    @Test
+    public void fromKeysWithSomeCustomStates() {
+        // Business method
+        Set<String> keys = new HashSet<>(Arrays.asList(DefaultState.ACTIVE.getKey(), "Custom"));
+        Set<DefaultState> defaultFromKey = DefaultState.fromKeys(keys);
+
+        // Asserts
+        assertThat(defaultFromKey).hasSize(1);
     }
 
 }
