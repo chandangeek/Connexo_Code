@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -100,10 +101,10 @@ public class MeteringMessageHandler implements MessageHandler {
                 return Optional.ofNullable(jsonService.deserialize(jsonContent, ProcessDefinitionInfos.class));
             }
         } catch (JsonDeserializeException e){
-            LOGGER.severe("JSON deserialization error");
+            LOGGER.log(Level.SEVERE, "JSON deserialization error", e);
             return Optional.empty();
         }catch (RuntimeException e) {
-            LOGGER.warning("Unable to connect to Flow: " + e.getMessage());
+            LOGGER.log(Level.WARNING, "Unable to connect to Flow: " + e.getMessage(), e);
             return Optional.empty();
         }
         return Optional.empty();
