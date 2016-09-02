@@ -16,19 +16,16 @@ Ext.define('Uni.override.DisplayFieldOverride', {
      */
     setTooltip: function (field) {
         if (field.rendered && !field.isHidden()) {
-            Ext.suspendLayouts();
-            //debugger;
-            var
-                inputEl = field.getEl().down('#'+field.id+'-inputEl'),
-                tm = new Ext.util.TextMetrics(inputEl),
-                value = inputEl.dom.innerHTML
-            ;
+            var inputEl = field.getEl().down('#'+field.id+'-inputEl'),
+                tm = Ext.isEmpty(inputEl) ? null : new Ext.util.TextMetrics(inputEl),
+                value = Ext.isEmpty(inputEl) ? null : inputEl.dom.innerHTML;
 
-            if (inputEl.getWidth() < tm.getWidth(value)) {
+            if (inputEl !== null && inputEl.getWidth() < tm.getWidth(value)) {
+                Ext.suspendLayouts();
                 inputEl.set({'data-qtip': value});
+                Ext.resumeLayouts(true);
             }
 
-            Ext.resumeLayouts(true);
         }
     },
 
