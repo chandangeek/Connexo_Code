@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
@@ -116,6 +117,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
     private volatile JsonService jsonService;
     private volatile AppService appService;
     private volatile FirmwareService firmwareService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     private Clock clock = Clock.systemDefaultZone();
 
@@ -262,6 +264,11 @@ public class DashboardApplication extends Application implements MessageSeedProv
         this.firmwareService = firmwareService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     // Only for testing purposes
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -334,6 +341,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
             bind(appService).to(AppService.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(firmwareService).to(FirmwareService.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(FilterFactory.class).to(FilterFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(CommunicationHeatMapInfoFactory.class).to(CommunicationHeatMapInfoFactory.class);

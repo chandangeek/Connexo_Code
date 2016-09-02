@@ -7,6 +7,8 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.TemporalExpression;
@@ -416,7 +418,10 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ConnectionTypePluggableClass connectionTypePluggableClass = mockConnectionType();
 
         when(connectionTaskService.findConnectionTypeByFilter(any())).thenReturn(Arrays.asList(connectionTypePluggableClass));
-
+        PropertyInfo propertyInfo = new PropertyInfo("name", "name", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(), false);
+        PropertyValueConverter propertyValueConverter = mock(PropertyValueConverter.class);
+        when(propertyValueInfoService.getConverter(any())).thenReturn(propertyValueConverter);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("/connections/properties").queryParam("filter",
                 ExtjsFilter.filter()
                         .property("startIntervalFrom", 1407916436000L).property("startIntervalTo", 1407916784000L)
@@ -455,6 +460,8 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ConnectionTypePluggableClass pluggableClass2 = mockPluggableClass("someClassTris");
         ConnectionTypePluggableClass pluggableClass3 = mockPluggableClass("someClass4");
         when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Arrays.asList(pluggableClass, pluggableClass1, pluggableClass3, pluggableClass2));
+        PropertyInfo propertyInfo = new PropertyInfo("name", "name", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(), false);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("/connections/properties").queryParam("connections", "[1,2,3]").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
