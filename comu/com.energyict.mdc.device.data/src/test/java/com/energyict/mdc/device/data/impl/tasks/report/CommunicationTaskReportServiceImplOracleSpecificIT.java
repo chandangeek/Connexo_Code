@@ -31,7 +31,6 @@ import com.google.common.collect.BoundType;
 
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -116,14 +115,14 @@ public class CommunicationTaskReportServiceImplOracleSpecificIT {
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         int anySecurityLevel = 0;
         when(authenticationAccessLevel.getId()).thenReturn(anySecurityLevel);
-        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
+        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
         EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
-        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
+        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
         DeviceType deviceType = oracleIntegrationPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
@@ -305,13 +304,14 @@ public class CommunicationTaskReportServiceImplOracleSpecificIT {
         if (endDeviceGroup.isPresent()) {
             return (QueryEndDeviceGroup)endDeviceGroup.get();
         } else {
-            QueryEndDeviceGroup queryEndDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().createQueryEndDeviceGroup()
+            return oracleIntegrationPersistence
+                    .getMeteringGroupsService()
+                    .createQueryEndDeviceGroup()
                     .setMRID("dynamic")
                     .setSearchDomain(oracleIntegrationPersistence.getDeviceSearchDomain())
                     .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
                     .withConditions(buildSearchablePropertyCondition("deviceType", SearchablePropertyOperator.EQUAL, Collections.singletonList("1")))
                     .create();
-            return queryEndDeviceGroup;
         }
     }
 

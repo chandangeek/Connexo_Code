@@ -1,25 +1,18 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
-import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
-import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +29,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractTaskFilterSqlBuilder {
 
-    protected static final int MAX_ELEMENTS_FOR_IN_CLAUSE = 1000;
+    private static final int MAX_ELEMENTS_FOR_IN_CLAUSE = 1000;
 
     private final Clock clock;
     private ClauseAwareSqlBuilder actualBuilder;
@@ -98,7 +91,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
         return "cte";
     }
 
-    protected <T> void appendInClause(String columnName, Collection<T> objects, Function<T, ? extends CharSequence> objectMapper) {
+    private <T> void appendInClause(String columnName, Collection<T> objects, Function<T, ? extends CharSequence> objectMapper) {
         if (objects.size() == 1) {
             this.append(columnName);
             this.append(" = ");
@@ -111,37 +104,20 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
                 }
 
-    protected <T> void appendNotInClause(String columnName, Collection<T> objects, Function<T, ? extends CharSequence> objectMapper) {
-        if (objects.size() == 1) {
-            this.append(columnName);
-            this.append(" <> ");
-            this.append(objectMapper.apply(objects.iterator().next()));
-        } else {
-            this.append(DecoratedStream.decorate(objects.stream())
-                    .partitionPer(MAX_ELEMENTS_FOR_IN_CLAUSE)
-                    .map(chunk -> chunk.stream().filter(Objects::nonNull).map(objectMapper).collect(Collectors.joining(", ")))
-                    .collect(Collectors.joining(") AND " + columnName + " NOT IN (" , columnName + " NOT IN (", ") ")));
-        }
-    }
-
     protected <T extends HasId> void appendInClause(String columnName, Set<T> idBusinessObjects) {
         this.appendInClause(columnName, idBusinessObjects, obj -> String.valueOf(obj.getId()));
     }
 
-    protected void appendDeviceTypeSql(String targetTableName, Set<DeviceType> deviceTypes) {
+    protected void appendDeviceTypeSql(Set<DeviceType> deviceTypes) {
         if (!deviceTypes.isEmpty()) {
             this.appendWhereOrAnd();
-            this.append(" (");
-            this.append(targetTableName);
-            this.append(".device in (select id from ");
-            this.append(TableSpecs.DDC_DEVICE.name());
-            this.append(" where ");
+            this.append(" (dev.");
             this.appendInClause("devicetype", deviceTypes);
-            this.append("))");
+            this.append(")");
         }
     }
 
-    protected void appendDeviceInGroupSql(List<EndDeviceGroup> deviceGroups, QueryExecutor<Device> queryExecutor, String baseEntityAliasName) {
+    protected void appendDeviceInGroupSql(List<EndDeviceGroup> deviceGroups, String baseEntityAliasName) {
         if (!deviceGroups.isEmpty()) {
             this.appendWhereOrAnd();
             this.append("(");
@@ -161,24 +137,6 @@ public abstract class AbstractTaskFilterSqlBuilder {
                 }
             }
             this.append(")");
-        }
-    }
-
-    protected void appendDeviceNotInStateSql(String targetTableName, Set<String> restrictedDeviceStates) {
-        if (!restrictedDeviceStates.isEmpty()) {
-            long currentTime = this.clock.millis();
-            this.appendWhereOrAnd();
-            this.append(" (");
-            this.append(targetTableName);
-            this.append(".device in");
-            this.append(" (select ED.amrid");
-            this.append(" from MTR_ENDDEVICESTATUS ES, (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and ");
-            this.appendNotInClause("FS.NAME", restrictedDeviceStates, stateName -> "'" + stateName + "'");
-            this.append(") FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
-            this.append(String.valueOf(currentTime));
-            this.append(" and ES.ENDTIME > ");
-            this.append(String.valueOf(currentTime));
-            this.append(" and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID)) ");
         }
     }
 

@@ -16,16 +16,16 @@ import java.time.Instant;
 @ProviderType
 public interface RegisterDataUpdater {
 
-    public RegisterDataUpdater editReading(BaseReading modified);
+    RegisterDataUpdater editReading(BaseReading modified);
 
-    public RegisterDataUpdater confirmReading(BaseReading modified);
+    RegisterDataUpdater confirmReading(BaseReading modified);
 
-    public RegisterDataUpdater removeReading(Instant timestamp);
+    RegisterDataUpdater removeReading(Instant timestamp);
 
     /**
      * Completes the transaction, effectively applying all the changes
      * from previous method calls.
      */
-    public void complete();
+    void complete();
 
 }
