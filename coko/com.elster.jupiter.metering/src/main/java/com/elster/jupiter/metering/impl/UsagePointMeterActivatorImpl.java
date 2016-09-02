@@ -65,7 +65,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         }
         this.meterRoleMapping.put(meterRole, meter);
         updateMeterDefaultLocation(meter);
-        eventService.postEvent(EventType.METER_ACTIVATED.topic(), this.usagePoint);
         return this;
     }
 
@@ -90,6 +89,9 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         // 3 Manage activations
         manageActivations();
+
+        // 4 Post event
+        eventService.postEvent(EventType.METER_ACTIVATED.topic(), this.usagePoint);
     }
 
     @Override

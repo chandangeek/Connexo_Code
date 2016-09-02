@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.UsagePointTypeInfo;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -180,7 +181,6 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private void createServices(BundleContext bundleContext, boolean createDefaultLocationTemplate) {
         this.meteringService = new MeteringServiceImpl(this, getDataModel(), getThesaurus(), getClock(), this.idsService,
                 this.eventService, this.queryService, this.messageService, this.jsonService, this.upgradeService);
-        this.meteringService.defineSupportedApplicationsUrls(bundleContext);
         this.meteringService.defineLocationTemplates(bundleContext, createDefaultLocationTemplate); // This call has effect on resulting table spec!
         this.truncaterFactory = new InstantTruncaterFactory(this.meteringService);
         if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
@@ -318,6 +318,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));
+        translationKeys.addAll(Arrays.asList(UsagePointTypeInfo.UsagePointType.Translation.values()));
         return translationKeys;
     }
 

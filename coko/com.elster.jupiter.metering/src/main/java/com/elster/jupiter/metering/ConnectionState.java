@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.nls.Thesaurus;
+
 public enum ConnectionState {
     UNDER_CONSTRUCTION("underConstruction", "Under construction"),
     CONNECTED("connected", "Connected"),
@@ -21,5 +23,9 @@ public enum ConnectionState {
 
     public String getName(){
         return this.name;
+    }
+
+    public String getDisplayName(Thesaurus thesaurus){
+        return thesaurus.getString("connection.state." + this.getId(), getName());
     }
 }
