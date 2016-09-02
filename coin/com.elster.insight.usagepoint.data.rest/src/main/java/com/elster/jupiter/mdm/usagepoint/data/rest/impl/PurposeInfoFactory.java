@@ -44,8 +44,7 @@ public class PurposeInfoFactory {
             purposeInfo.dataValidationTasks = validationService.findValidationTasksQuery()
                     .select(where("metrologyContract").isEqualTo(metrologyContract))
                     .stream()
-                    .map(dataValidationTaskInfoFactory::asInfo)
-                    .map(DataValidationTaskShortInfo::new)
+                    .map(dataValidationTaskInfoFactory::asMinimalInfo)
                     .sorted(Comparator.comparing(info -> info.name))
                     .collect(Collectors.toList());
         }
