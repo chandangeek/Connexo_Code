@@ -69,7 +69,8 @@ public class UsagePointConfigurationApplication extends Application implements T
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST).join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Override
@@ -158,7 +159,6 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(ReadingTypeDeliverableFactory.class).to(ReadingTypeDeliverableFactory.class);
-            bind(meteringService).to(MeteringService.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
         }
