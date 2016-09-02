@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -150,10 +151,20 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
             return IntervalLength
                         .from(readingType)
                         .toTimeSeries(this.period, this.usagePoint.getZoneId())
-                        .map(timestamp -> recordRangeMap.get(timestamp).atTimeStamp(timestamp))
+                        .map(timestamp -> recordAtTimeStampOrNull(recordRangeMap, timestamp))
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toList());
         } else {
             return calculatedReadingRecords;
+        }
+    }
+
+    private CalculatedReadingRecord recordAtTimeStampOrNull(RangeMap<Instant, CalculatedReadingRecord> recordRangeMap, Instant timestamp) {
+        CalculatedReadingRecord record = recordRangeMap.get(timestamp);
+        if (record != null) {
+            return record.atTimeStamp(timestamp);
+        } else {
+            return null;
         }
     }
 
