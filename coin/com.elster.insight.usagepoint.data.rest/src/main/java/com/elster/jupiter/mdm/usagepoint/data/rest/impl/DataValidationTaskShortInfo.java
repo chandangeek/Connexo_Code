@@ -12,10 +12,10 @@ public class DataValidationTaskShortInfo {
     }
 
     public DataValidationTaskShortInfo(DataValidationTaskInfo dataValidationTaskInfo) {
-        id = dataValidationTaskInfo.getId();
-        name = dataValidationTaskInfo.getName();
+        this.id = dataValidationTaskInfo.id;
+        this.name = dataValidationTaskInfo.name;
         if (dataValidationTaskInfo.lastValidationOccurence != null) {
-            trigger = dataValidationTaskInfo.lastValidationOccurence.trigger;
+//            this.trigger = dataValidationTaskInfo.lastValidationOccurence.trigger;
         }
     }
 }
