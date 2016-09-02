@@ -2,6 +2,7 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -25,6 +26,8 @@ public class PluggableRestApplicationJerseyTest extends FelixRestApplicationJers
     CalendarService calendarService;
     @Mock
     FirmwareService firmwareService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
     @Override
     protected Application getApplication() {
@@ -36,6 +39,7 @@ public class PluggableRestApplicationJerseyTest extends FelixRestApplicationJers
         application.setProtocolPluggableService(protocolPluggableService);
         application.setCalendarService(calendarService);
         application.setFirmwareService(firmwareService);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 
