@@ -9,7 +9,7 @@ public enum MicroCategory {
     ISSUES_AND_ALARMS,
     ISSUES,
     INSTALLATION,
-    DECOMISSION,
+    DECOMMISSION,
     RETENTION,
     MONITORING;
 }
