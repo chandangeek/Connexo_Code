@@ -29,7 +29,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         if (partialConnectionTask.getConnectionStrategy() != null) {
             this.connectionStrategy = partialConnectionTask.getConnectionStrategy().name();
         }
-        this.allowSimultaneousConnections = partialConnectionTask.isSimultaneousConnectionsAllowed();
+        this.numberOfSimultaneousConnections = partialConnectionTask.getNumberOfSimultaneousConnections();
         this.rescheduleRetryDelay = TimeDurationInfo.of(partialConnectionTask.getRescheduleDelay());
         if (partialConnectionTask.getCommunicationWindow()!=null) {
             this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
@@ -46,7 +46,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
     protected void writeTo(PartialScheduledConnectionTask partialConnectionTask, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
         super.writeTo(partialConnectionTask, engineConfigurationService, protocolPluggableService);
         partialConnectionTask.setDefault(this.isDefault);
-        partialConnectionTask.setAllowSimultaneousConnections(this.allowSimultaneousConnections);
+        partialConnectionTask.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
         if (this.comWindowEnd!=null && this.comWindowStart!=null) {
             partialConnectionTask.setComWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         } else {
@@ -76,7 +76,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
                         .newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, getConnectionStrategy())
                         .comPortPool(engineConfigurationService.findOutboundComPortPoolByName(this.comPortPool).orElse(null))
                         .asDefault(this.isDefault)
-                        .allowSimultaneousConnections(this.allowSimultaneousConnections);
+                        .setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
         if (this.temporalExpression !=null) {
             if (this.temporalExpression.offset==null) {
                 scheduledConnectionTaskBuilder

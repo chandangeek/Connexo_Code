@@ -1299,7 +1299,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
                 .containsKey("comWindowStart")
                 .containsKey("comWindowEnd")
                 .containsKey("isDefault")
-                .containsKey("allowSimultaneousConnections")
+                .containsKey("numberOfSimultaneousConnections")
                 .containsKey("rescheduleRetryDelay")
                 .containsKey("connectionStrategy")
                 .containsKey("properties")
@@ -1340,7 +1340,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(partialConnectionTask.getId()).thenReturn(id);
         when(partialConnectionTask.getName()).thenReturn("connection method");
         when(partialConnectionTask.getCommunicationWindow()).thenReturn(new ComWindow(100, 200));
-        when(partialConnectionTask.isSimultaneousConnectionsAllowed()).thenReturn(true);
+        when(partialConnectionTask.getNumberOfSimultaneousConnections()).thenReturn(2);
         when(partialConnectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(partialConnectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(15));
         when(partialConnectionTask.getProperties()).thenReturn(Collections.emptyList());
@@ -1377,7 +1377,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         connectionMethodInfo.comWindowStart = 3600;
         connectionMethodInfo.comWindowEnd = 7200;
         connectionMethodInfo.isDefault = true;
-        connectionMethodInfo.allowSimultaneousConnections = true;
+        connectionMethodInfo.numberOfSimultaneousConnections = 2;
         connectionMethodInfo.connectionTypePluggableClass = "ConnType";
         connectionMethodInfo.version = OK_VERSION;
         connectionMethodInfo.parent = new VersionInfo<>(deviceConfig_id, OK_VERSION);
