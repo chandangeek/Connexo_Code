@@ -467,7 +467,7 @@ Ext.define('Cfg.controller.Tasks', {
 
     removeOperation: function (record) {
         var me = this,
-            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading(true);
         record.destroy({
