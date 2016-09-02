@@ -42,6 +42,22 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>domain.util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>unifyingjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.data.validation.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>comserver.core.extjs</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
