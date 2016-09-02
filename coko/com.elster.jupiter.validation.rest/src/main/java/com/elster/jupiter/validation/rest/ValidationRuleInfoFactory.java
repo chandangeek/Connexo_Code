@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -62,11 +63,19 @@ public class ValidationRuleInfoFactory {
     }
 
     public Set<ValidationRuleInfo> createInfosForDataValidationStatus(DataValidationStatus dataValidationStatus) {
-        return dataValidationStatus.getOffendedRules().stream().map(this::createValidationRuleInfo).collect(Collectors.toCollection(LinkedHashSet::new));
+        return dataValidationStatus.getOffendedRules().stream()
+                .map(this::createValidationRuleInfo)
+                .sorted((a, b) -> a.name.compareTo(b.name))
+                .sorted((a, b) -> Integer.compare(a.action.getId(), b.action.getId()))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Set<ValidationRuleInfo> createInfosForBulkDataValidationStatus(DataValidationStatus dataValidationStatus) {
-        return dataValidationStatus.getBulkOffendedRules().stream().map(this::createValidationRuleInfo).collect(Collectors.toCollection(LinkedHashSet::new));
+        return dataValidationStatus.getBulkOffendedRules().stream()
+                .map(this::createValidationRuleInfo)
+                .sorted((a, b) -> a.name.compareTo(b.name))
+                .sorted((a, b) -> Integer.compare(a.action.getId(), b.action.getId()))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Map<ValidationRuleInfo, Long> createInfosForSuspectReasons(Map<ValidationRule, Long> suspectReasonMap){
