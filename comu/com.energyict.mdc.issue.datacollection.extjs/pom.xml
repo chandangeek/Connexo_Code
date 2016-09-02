@@ -38,6 +38,22 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>unifyingjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>comserver.core.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm.extjs</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
