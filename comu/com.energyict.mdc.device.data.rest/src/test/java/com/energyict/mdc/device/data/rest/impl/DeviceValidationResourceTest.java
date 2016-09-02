@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
@@ -38,6 +39,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -51,8 +53,7 @@ import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -204,7 +205,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     }
 
     private void doModelStubbing() {
-        when(device.getRegisters()).thenReturn(Arrays.asList(register1));
+        when(device.getRegisters()).thenReturn(Collections.singletonList(register1));
         when(register1.getReadingType()).thenReturn(regReadingType);
         doReturn(registerSpec).when(register1).getRegisterSpec();
         when(registerSpec.getReadingType()).thenReturn(regReadingType);
@@ -213,7 +214,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(channelReadingType1.getMRID()).thenReturn("CH1");
         when(channelReadingType2.getMRID()).thenReturn("CH2");
 
-        when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1));
+        when(device.getLoadProfiles()).thenReturn(Collections.singletonList(loadProfile1));
         when(loadProfile1.getChannels()).thenReturn(Arrays.asList(ch1, ch2));
         when(loadProfile1.getId()).thenReturn(1L);
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec1);
@@ -254,39 +255,38 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(channel7.getMainReadingType()).thenReturn(regReadingType);
         when(channel8.getMainReadingType()).thenReturn(channelReadingType1);
         when(channel9.getMainReadingType()).thenReturn(channelReadingType2);
-        doReturn(Arrays.asList(regReadingType)).when(channel1).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType1)).when(channel2).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType2)).when(channel3).getReadingTypes();
-        doReturn(Arrays.asList(regReadingType)).when(channel4).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType1)).when(channel5).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType2)).when(channel6).getReadingTypes();
-        doReturn(Arrays.asList(regReadingType)).when(channel7).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType1)).when(channel8).getReadingTypes();
-        doReturn(Arrays.asList(channelReadingType2)).when(channel9).getReadingTypes();
+        doReturn(Collections.singletonList(regReadingType)).when(channel1).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType1)).when(channel2).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType2)).when(channel3).getReadingTypes();
+        doReturn(Collections.singletonList(regReadingType)).when(channel4).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType1)).when(channel5).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType2)).when(channel6).getReadingTypes();
+        doReturn(Collections.singletonList(regReadingType)).when(channel7).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType1)).when(channel8).getReadingTypes();
+        doReturn(Collections.singletonList(channelReadingType2)).when(channel9).getReadingTypes();
         when(validationService.getEvaluator()).thenReturn(evaluator);
-        when(validationService.getEvaluator(eq(meter), any(Range.class))).thenReturn(evaluator);
+        when(validationService.getEvaluator(meter)).thenReturn(evaluator);
         when(suspect.getTypeCode()).thenReturn("2.5.258");
         when(notSuspect.getTypeCode()).thenReturn("0.0.0");
         when(suspect.getType()).thenReturn(new ReadingQualityType("2.5.258"));
         when(notSuspect.getType()).thenReturn(new ReadingQualityType("0.0.0"));
 
-        Interval regInterval1 = new Interval(Date.from(fromReg.toInstant()), Date.from(to.toInstant()));
         Instant toNow = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant();
         Range<Instant> wholeRegInterval = Range.openClosed(fromReg.toInstant(), toNow);
-        when(deviceValidation.getValidationStatus(eq(register1), anyList(), eq(wholeRegInterval))).thenReturn(Arrays.asList(validationStatus1, validationStatus2, validationStatus3));
+        when(deviceValidation.getValidationStatus(eq(register1), anyListOf(BaseReading.class), eq(wholeRegInterval))).thenReturn(Arrays.asList(validationStatus1, validationStatus2, validationStatus3));
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus1).getReadingQualities();
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus2).getReadingQualities();
         doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus3).getReadingQualities();
 
         ZonedDateTime fromCh = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
-        Range wholeInterval = Range.openClosed(fromCh.toInstant(), toNow);
-        when(deviceValidation.getValidationStatus(eq(ch1), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus4));
-        when(deviceValidation.getValidationStatus(eq(ch2), anyList(), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus5, validationStatus6));
+        Range<Instant> wholeInterval = Range.openClosed(fromCh.toInstant(), toNow);
+        when(deviceValidation.getValidationStatus(eq(ch1), anyListOf(BaseReading.class), eq(wholeInterval))).thenReturn(Collections.singletonList(validationStatus4));
+        when(deviceValidation.getValidationStatus(eq(ch2), anyListOf(BaseReading.class), eq(wholeInterval))).thenReturn(Arrays.asList(validationStatus5, validationStatus6));
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus4).getReadingQualities();
         doReturn(Arrays.asList(suspect, notSuspect)).when(validationStatus5).getReadingQualities();
         doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus6).getReadingQualities();
 
-        when(deviceValidation.getLastChecked()).thenReturn(Optional.<Instant>empty());
+        when(deviceValidation.getLastChecked()).thenReturn(Optional.empty());
 
         ValidationRuleSet ruleSet = mockValidationRuleSet(1,true);
         doReturn(ruleSet.getRules()).when(validationStatus4).getOffendedRules();
@@ -302,12 +302,12 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(ruleSet.getDescription()).thenReturn("MyDescription");
         if (version) {
             ValidationRuleSetVersion ruleSetVersion = mockValidationRuleSetVersion(11, ruleSet);
-            List versions = Arrays.asList(ruleSetVersion);
-            when(ruleSet.getRuleSetVersions()).thenReturn(versions);
+            List<ValidationRuleSetVersion> versions = Collections.singletonList(ruleSetVersion);
+            doReturn(versions).when(ruleSet).getRuleSetVersions();
 
-            List rules = Arrays.asList(mockValidationRuleInRuleSetVersion(20, ruleSet, ruleSetVersion));
-            when(ruleSetVersion.getRules()).thenReturn(rules);
-            when(ruleSet.getRules()).thenReturn(rules);
+            List<ValidationRule> rules = Collections.singletonList(mockValidationRuleInRuleSetVersion(20, ruleSet, ruleSetVersion));
+            doReturn(rules).when(ruleSetVersion).getRules();
+            doReturn(rules).when(ruleSet).getRules();
         }
 
         doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(id);
