@@ -1,5 +1,7 @@
 package com.elster.jupiter.time;
 
+import com.elster.jupiter.nls.TranslationKey;
+
 import java.time.DayOfWeek;
 import java.time.temporal.WeekFields;
 import java.util.List;
@@ -45,6 +47,35 @@ public enum DefaultRelativePeriodDefinition {
 
     private static DayOfWeek getFirstDayOfWeek() {
         return WeekFields.of(Locale.getDefault()).getFirstDayOfWeek();
+    }
+
+    public enum RelativePeriodTranslationKey implements TranslationKey {
+        LAST_7_DAYS("relative.period.lastSevenDays", "Last 7 days"),
+        PREVIOUS_MONTH("relative.period.previouMonth", "Previous month"),
+        THIS_MONTH("relative.period.thisMonth", "This month"),
+        PREVIOUS_WEEK("relative.period.PreviousWeek", "Previous week"),
+        THIS_WEEK("relative.period.thisWeek", "This week"),
+        YESTERDAY("relative.period.yesterday", "Yesterday"),
+        TODAY("relative.period.today", "Today"),
+        THIS_YEAR("relative.period.thisYear", "This year");
+
+        private final String id;
+        private final String defaultFormat;
+
+        RelativePeriodTranslationKey(String id, String defaultFormat) {
+            this.id = id;
+            this.defaultFormat = defaultFormat;
+        }
+
+        @Override
+        public String getKey() {
+            return this.id;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return defaultFormat;
+        }
     }
 
 }

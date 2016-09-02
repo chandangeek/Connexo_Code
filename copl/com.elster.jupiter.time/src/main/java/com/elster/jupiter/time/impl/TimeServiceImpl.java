@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
@@ -246,6 +247,7 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Arrays.stream(Labels.values()),
+                Arrays.stream(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values()),
                 Arrays.stream(TranslationKeys.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
