@@ -37,15 +37,12 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                 },
                 items: [ 
 					{
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.trigger', 'CFG', 'Trigger'),
-                        name: 'trigger'
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.recurrence', 'CFG', 'Recurrence'),
+                        name: 'recurrence'
                     },				
                     {
                         fieldLabel: Uni.I18n.translate('validationTasks.general.lastRun', 'CFG', 'Last run'),
-                        name: 'lastRun',
-                        renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
-                        }
+                        name: 'lastRun_formatted'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.status', 'CFG', 'Status'),
