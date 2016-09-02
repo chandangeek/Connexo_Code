@@ -430,6 +430,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Override
+    public DeviceMessageSpecificationService deviceMessageSpecificationService() {
+        return this.deviceMessageSpecificationService;
+    }
+
+    @Override
     public ValidationService validationService() {
         return this.validationService;
     }
