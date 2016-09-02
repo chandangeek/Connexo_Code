@@ -195,22 +195,26 @@ public class UsagePointOutputResource {
 
     private Range<Instant> getRequestedInterval(UsagePoint usagePoint, JsonQueryFilter filter) {
         Range<Instant> sourceRange = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
+        return getUsagePointAdjustedDataRange(usagePoint, sourceRange).orElse(null);
+    }
+
+    static Optional<Range<Instant>> getUsagePointAdjustedDataRange(UsagePoint usagePoint, Range<Instant> sourceRange) {
         List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
         if (meterActivations.isEmpty()
                 && effectiveMetrologyConfiguration.getMetrologyConfiguration().getMeterRoles().isEmpty()
                 && sourceRange.isConnected(effectiveMetrologyConfiguration.getRange())) {
-            return effectiveMetrologyConfiguration.getRange().intersection(sourceRange);
+            return Optional.of(effectiveMetrologyConfiguration.getRange().intersection(sourceRange));
         } else if (!meterActivations.isEmpty()) {
             RangeSet<Instant> meterActivationIntervals = meterActivations.stream()
                     .map(MeterActivation::getRange)
                     .collect(TreeRangeSet::<Instant>create, RangeSet::add, RangeSet::addAll);
             Range<Instant> usagePointActivationsRange = !meterActivationIntervals.isEmpty() ? meterActivationIntervals.span() : Range.singleton(Instant.MIN);
             if (usagePointActivationsRange.isConnected(sourceRange)) {
-                return usagePointActivationsRange.intersection(sourceRange);
+                return Optional.of(usagePointActivationsRange.intersection(sourceRange));
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @GET
