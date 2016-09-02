@@ -151,11 +151,11 @@ Ext.define('Scs.controller.ServiceCalls', {
         var me = this,
             trail = this.getBreadcrumbs(),
             root = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Workspace',
+                text: Uni.I18n.translate('general.workspace', 'SCS', 'Workspace'),
                 href: me.getController('Scs.controller.history.ServiceCall').tokenizeShowOverview()
             }),
             parent = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Service calls',
+                text: Uni.I18n.translate('general.serviceCalls', 'SCS', 'Service calls'),
                 href: 'servicecalls'
             }),
             bc;
