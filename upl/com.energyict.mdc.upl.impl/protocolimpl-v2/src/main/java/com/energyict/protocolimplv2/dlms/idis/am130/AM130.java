@@ -46,7 +46,12 @@ import java.util.List;
  */
 public class AM130 extends AM500 {
 
-    protected static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
+    protected static final int IDIS2_CLIENT_MANAGEMENT        = 1;
+    protected static final int IDIS2_CLIENT_PUBLIC            = 16;
+    protected static final int IDIS2_CLIENT_PRE_ESTABLISHED   = 102;
+
+
+    protected static final ObisCode FRAMECOUNTER_OBISCODE_MANAGEMENT = ObisCode.fromString("0.0.43.1.0.255");
 
     protected AM130RegisterFactory registerFactory;
 
@@ -107,35 +112,51 @@ public class AM130 extends AM500 {
     }
 
     private void initDlmsSession(ComChannel comChannel) {
-        readFrameCounter(comChannel);
+        readFrameCounter(comChannel, (int)getDlmsSessionProperties().getTimeout());
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
     /**
      * First read out the frame counter for the management client, using the public client.
      */
-    protected void readFrameCounter(ComChannel comChannel) {
+    protected void readFrameCounter(ComChannel comChannel, int timeout) {
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
-        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
+        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(IDIS2_CLIENT_PUBLIC));
         IDISProperties publicClientProperties = getNewInstanceOfProperties();
         publicClientProperties.addProperties(clone);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
 
         long frameCounter;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
+        getLogger().info("Connecting to public client:"+IDIS2_CLIENT_PUBLIC);
         connectToPublicClient(publicDlmsSession);
         try {
-            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
+            ObisCode frameCounterObisCode = getFrameCounterForClient(IDIS2_CLIENT_PUBLIC);
+            getLogger().info("Public client connected, reading framecounter "+frameCounterObisCode.toString());
+            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
+            getLogger().info("Frame counter received: "+frameCounter);
         } catch (DataAccessResultException | ProtocolException e) {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
+        getLogger().info("Disconnecting public client");
         disconnectFromPublicClient(publicDlmsSession);
 
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
+
+    protected ObisCode getFrameCounterForClient(int clientId) {
+        switch (clientId){
+            case IDIS2_CLIENT_MANAGEMENT:
+            case IDIS2_CLIENT_PRE_ESTABLISHED:
+            case IDIS2_CLIENT_PUBLIC:
+            default:
+                return FRAMECOUNTER_OBISCODE_MANAGEMENT;
+        }
+    }
+
 
     /**
      * Actually create an association to the public client, it is not pre-established

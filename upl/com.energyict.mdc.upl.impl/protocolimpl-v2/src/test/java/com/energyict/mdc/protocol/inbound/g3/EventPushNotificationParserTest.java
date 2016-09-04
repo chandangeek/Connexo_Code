@@ -15,6 +15,8 @@ import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
 
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -69,7 +71,7 @@ public class EventPushNotificationParserTest extends TestCase {
     private static final byte[] DATA_NOTIFICATION_ENCRYPTED_WITH_AUTHENTICATION_1_6_0 = ProtocolTools.getBytesFromHexString("0001000100010063db08454c5373000280035830000000021c18c0e78b589afefa0a404db82a1ae76963257f18279b19072edf8b57422663a03ce3e4119fff81f3ce3066d1e5c5bb77ae153301ec3b8d269a0d978e63e26209f6b02d8b3f429098d38399139eec23df8f3d", "");
     private static final byte[] DATA_NOTIFICATION_PLAIN_1_6_0 = ProtocolTools.getBytesFromHexString("00010001000100470f000000010c07e0071302082728410000000203090e33343135373330303032383030331200010204090c07e00713020827283f0000001200021200000908506f776572207570", "");
     private static final byte[] DATA_NOTIFICATION_PLAIN_1_6_1 = ProtocolTools.getBytesFromHexString("00010001000100280F000000000C07E0040307013B3100FFC480020101010910FE80000000000000187900FFFE000009", "");
-    private static final byte[] RELAY_EVENT_NOTIFICATION_1_6_0 = ProtocolTools.getBytesFromHexString("0001001400100010c20000010000616214ff020600002000", "");
+    private static final byte[] RELAYED_EVENT_NOTIFICATION_1_6_0 = ProtocolTools.getBytesFromHexString("0001001400100010c20000010000616214ff020600002000", "");
     private static final byte[] RELAYED_EVENT_NOTIFICATION_ORIGIN_HEADER_AM540_1_6_0 = ProtocolTools.getBytesFromHexString("0001001400100039c20000010000616214ff020203090e333431353733303030323937383112001402020910454c532d5547572d020000fffe00003b0600002000", "");
     private static final byte[] RELAYED_EVENT_NOTIFICATION_ORIGIN_HEADER_LINKY_COVER_1_6_0 = ProtocolTools.getBytesFromHexString("0001001b00100039c20000010000616200ff020203090e333431353733303030323935363012001b02020910454c532d5547572d02237efffefd7fcf0600200204", "");
     private static final byte[] RELAYED_DATA_NOTIFICATION_ORIGIN_HEADER_AM540_1_6_0 = ProtocolTools.getBytesFromHexString("00010014000100400f000000010c07e0071302082728410000000203090e333431353733303030323937383112001402020910454c532d5547572d020000fffe00003b0600002000", "");
@@ -151,9 +153,6 @@ public class EventPushNotificationParserTest extends TestCase {
         } catch (DataParseException e) {
             expected = e;
         }
-/*
-        assertNotNull("Parsing a relayed meter event should have thrown an exception, since it is not supported yet", expected);
-*/
     }
 
     @Test
