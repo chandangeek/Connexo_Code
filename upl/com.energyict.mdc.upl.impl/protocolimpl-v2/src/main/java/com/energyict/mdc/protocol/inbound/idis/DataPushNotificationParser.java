@@ -291,7 +291,7 @@ public class DataPushNotificationParser {
         }
     }
 
-    private void addCollectedRegister(ObisCode obisCode, long value, ScalerUnit scalerUnit, Date eventTime, String text) {
+    protected void addCollectedRegister(ObisCode obisCode, long value, ScalerUnit scalerUnit, Date eventTime, String text) {
         CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(
                 new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier())
         );

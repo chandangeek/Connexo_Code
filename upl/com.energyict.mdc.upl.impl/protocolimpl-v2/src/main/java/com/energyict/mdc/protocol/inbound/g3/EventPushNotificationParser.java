@@ -1,25 +1,19 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
-import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.EventPushNotificationConfig;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.channels.ComChannelType;
+
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotificationParser;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
@@ -42,15 +36,7 @@ import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDe
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.RandomAccessFile;
-import java.io.Writer;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -81,15 +67,15 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private static final int INTERNAL_EVENT = 5;
 
     private ComChannel comChannel;
-    /*    private final InboundDAO inboundDAO;
-        private final InboundComPort inboundComPort;*/
     protected ObisCode logbookObisCode;
     protected CollectedLogBook collectedLogBook;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     protected DeviceIdentifier deviceIdentifier;
+    private DeviceIdentifier originDeviceId;
     private int sourceSAP = 0;
     private int destinationSAP = 0;
     private int notificationType = 0;
+
 
     public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
         super(comChannel, context);
@@ -239,11 +225,14 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         int attributeNumber;
         ObisCode obisCode;
         byte attributeValue;
+        Date dateTime = null;
 
         // Check notification type by source SAP
         if (getNotificatioType() == INTERNAL_EVENT) {
             byte dateLength = inboundFrame.get();
-            inboundFrame.get(new byte[dateLength]); //Skip the date field
+            byte[] octetString = new byte[dateLength];
+            inboundFrame.get(octetString);
+            /*dateTime = parseDateTime(new OctetString(octetString));*/
 
             classId = inboundFrame.getShort();
             if ((classId != DLMSClassId.EVENT_NOTIFICATION.getClassId()) &&
@@ -260,7 +249,6 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             }
 
             attributeNumber = inboundFrame.get() & 0xFF;
-
             validateCosemAttributeDescriptorOriginatingFromGateway(classId, obisCode, attributeNumber);
         } else {
             classId = inboundFrame.getShort();
@@ -334,11 +322,12 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         byte[] invokeIdAndPriority = new byte[4];   // 32-bits long format used
         inboundFrame.get(invokeIdAndPriority);
 
-        /* date-time (skip date/time length and value)*/
+        /* date-time (length and value)*/
         int dateTimeAxdrLength = DLMSUtils.getAXDRLength(inboundFrame.array(), inboundFrame.position());
         inboundFrame.get(new byte[DLMSUtils.getAXDRLengthOffset(dateTimeAxdrLength)]); // Increment ByteBuffer position
         byte[] octetString = new byte[dateTimeAxdrLength];
         inboundFrame.get(octetString);
+        Date dateTime = parseDateTime(new OctetString(octetString));
 
         /* notification-body*/
         Structure structure = null;
@@ -354,6 +343,10 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             throw DataParseException.ioException(new ProtocolException("Expected a structure with 3 elements, but received a structure with " + nrOfDataTypes + " element(s)"));
         }
 
+        parseWrappedMeterEvent(structure, dateTime);
+    }
+
+    private void parseWrappedMeterEvent(Structure structure, Date dateTime) {
         OctetString equipmentIdentifier = structure.getDataType(0).getOctetString();
         if (equipmentIdentifier == null) {
             throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure (equipment identifier) to be of type OctetString"));
@@ -364,30 +357,162 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         if (logicalDeviceId == null) {
             throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure (logical device id) to be of type Unsigned16"));
         }
-
         Structure eventPayload = structure.getDataType(2).getStructure();
-        if (getNotificatioType() == INTERNAL_EVENT) {
-            Date dateTime = parseDateTime(eventPayload.getDataType(0).getOctetString());
-            Unsigned16 eventCode = eventPayload.getDataType(1).getUnsigned16();
-            Unsigned16 deviceCode = eventPayload.getDataType(2).getUnsigned16();
-            String description = parseDescriptionFromOctetString(eventPayload.getDataType(3).getOctetString());
-            createCollectedLogBook(dateTime, deviceCode.getValue(), eventCode.getValue(), description);
-        } else {
-            AbstractDataType dataType = eventPayload.getNextDataType();
-            if (dataType instanceof OctetString) {
-                ObisCode obisCode = ObisCode.fromByteArray(((OctetString) dataType).getOctetStr());
-                if (!obisCode.equalsIgnoreBChannel(EventPushNotificationConfig.getDefaultObisCode())) {
-                    throw DataParseException.ioException(new ProtocolException("The first element of the Data-notification body should contain the obiscode of the Push Setup IC, but was unexpected obis '" + obisCode.toString() + "'"));
-                }
+        if (eventPayload.nrOfDataTypes() == 4) {
+            if (getNotificatioType() == INTERNAL_EVENT) {
+                Date dateTime1 = parseDateTime(eventPayload.getDataType(0).getOctetString());
+                Unsigned16 eventCode = eventPayload.getDataType(1).getUnsigned16();
+                Unsigned16 deviceCode = eventPayload.getDataType(2).getUnsigned16();
+                String description = parseDescriptionFromOctetString(eventPayload.getDataType(3).getOctetString());
+                createCollectedLogBook(dateTime1, deviceCode.getValue(), eventCode.getValue(), description);
             } else {
-                throw DataParseException.ioException(new ProtocolException("The first element of the Data-notification body should contain the obiscode of the Push Setup IC, but was an element of type '" + dataType.getClass().getSimpleName() + "'"));
-            }
+                AbstractDataType dataType = eventPayload.getNextDataType();
+                if (dataType instanceof OctetString) {
+                    ObisCode obisCode = ObisCode.fromByteArray(((OctetString) dataType).getOctetStr());
+                    if (!obisCode.equalsIgnoreBChannel(EventPushNotificationConfig.getDefaultObisCode())) {
+                        throw DataParseException.ioException(new ProtocolException("The first element of the Data-notification body should contain the obiscode of the Push Setup IC, but was unexpected obis '" + obisCode
+                                .toString() + "'"));
+                    }
+                } else {
+                    throw DataParseException.ioException(new ProtocolException("The first element of the Data-notification body should contain the obiscode of the Push Setup IC, but was an element of type '" + dataType
+                            .getClass()
+                            .getSimpleName() + "'"));
+                }
 
-            dataType = eventPayload.getNextDataType();
-            if (dataType instanceof Structure) {
-                parseRegisters(eventPayload);
-            } else if (dataType instanceof OctetString) {
-                OctetString originalAPDU = OctetString.fromByteArray(((OctetString) dataType).getOctetStr());
+                dataType = eventPayload.getNextDataType();
+                if (dataType instanceof Structure) {
+                    parseRegisters(eventPayload);
+                } else if (dataType instanceof OctetString) {
+                    OctetString originalAPDU = OctetString.fromByteArray(((OctetString) dataType).getOctetStr());
+                }
+            }
+        } else if (eventPayload.nrOfDataTypes() == 6) { // WRAP_AS_SERVER_EVENT event notification
+            parseNotificationWith6Elements(eventPayload);
+        } else if (eventPayload.nrOfDataTypes() == 7) { // WRAP_AS_SERVER_EVENT data notification
+            parseNotificationWith7Elements(eventPayload);
+        }
+    }
+
+    private void parseNotificationWith6Elements(Structure eventPayload) {
+        OctetString equipmentIdentifier = eventPayload.getDataType(0).getOctetString();
+        if (equipmentIdentifier == null) {
+            throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure (equipment identifier) to be of type OctetString"));
+        }
+        originDeviceId = new DeviceIdentifierBySerialNumber(equipmentIdentifier.stringValue());
+
+        if (eventPayload.peekAtNextDataType().isOctetString()) {
+            OctetString originDeviceIdData = eventPayload.getDataType(1).getOctetString();
+        } else {
+            throw DataParseException.ioException(new ProtocolException("Expected the second element(Origin Device ID) of the received structure to be of type OctetString"));
+        }
+
+        if (eventPayload.peekAtNextDataType().isUnsigned16()) {
+            Unsigned16 originalClientID = eventPayload.getDataType(2).getUnsigned16();
+        } else {
+            throw DataParseException.ioException(new ProtocolException("Expected the third element(Client ID of the original event) of the received structure to be of type OctetString"));
+        }
+
+        if (eventPayload.peekAtNextDataType().isUnsigned8()) {
+            Unsigned8 originalSecurityControlField = eventPayload.getDataType(3).getUnsigned8();
+        } else {
+            throw DataParseException.ioException(new ProtocolException("Expected the forth element(Security control field) of the received structure to be of type OctetString"));
+        }
+
+        if (eventPayload.peekAtNextDataType().isTypeEnum()) {
+            TypeEnum originalType = eventPayload.getDataType(4).getTypeEnum();
+        } else {
+            throw DataParseException.ioException(new ProtocolException("Expected the fifth element(Original event type) of the received structure to be of type OctetString"));
+        }
+
+        // data notification
+        if (eventPayload.peekAtNextDataType().isStructure()) {
+            Structure eventHeaderAndBody = eventPayload.getDataType(5).getStructure();
+            if (eventHeaderAndBody.peekAtNextDataType().isStructure()) {
+                Structure eventBody = eventHeaderAndBody.getDataType(0).getStructure();
+
+                // Cosem-Attribute-Descriptor
+                short classId = (short) eventBody.getDataType(0).getUnsigned16().getValue();
+                if (classId != DLMSClassId.DATA.getClassId()) {
+                    throw DataParseException.ioException(new ProtocolException("Expected DATA notification from object with class ID '" + DLMSClassId.EVENT_NOTIFICATION.getClassId() + "' but was '" + classId + "'"));
+                }
+
+                AbstractDataType obisCodeBytes = eventBody.getNextDataType();
+                ObisCode obisCodeDescriptor = ObisCode.fromByteArray(((OctetString) obisCodeBytes).getOctetStr());
+
+                AbstractDataType attributeNumberData = eventBody.getNextDataType();
+                int attributeNumber = attributeNumberData.getInteger8().getValue();
+
+                // ClassId_1 Data
+                if (eventHeaderAndBody.peekAtNextDataType().isOctetString()) {
+                    // Logical Name(OBIS Code) + data value
+                    parseRegisters(eventHeaderAndBody);
+                } else if (eventHeaderAndBody.peekAtNextDataType().isNumerical()) {
+                    // just data value
+                    AbstractDataType dataType = eventHeaderAndBody.getNextDataType();
+                    long value = dataType.getUnsigned32().getValue();
+                    Date dateTime = Calendar.getInstance().getTime();
+                            /*addCollectedRegister(obisCode, value, null, dateTime, null);*/
+                }
+            }
+        }
+    }
+
+    private void parseNotificationWith7Elements(Structure eventPayload) {
+        OctetString equipmentIdentifier = eventPayload.getDataType(0).getOctetString();
+        if (equipmentIdentifier == null) {
+            throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure (equipment identifier) to be of type OctetString"));
+        }
+        originDeviceId = new DeviceIdentifierBySerialNumber(equipmentIdentifier.stringValue());
+
+        if (eventPayload.peekAtNextDataType().isOctetString()) {
+            OctetString originDeviceIdData = eventPayload.getDataType(1).getOctetString();
+        } else {
+            throw DataParseException.ioException(new ProtocolException("Expected the second element(Origin Device ID) of the received structure to be of type OctetString"));
+        }
+
+        if (eventPayload.peekAtNextDataType().isUnsigned16()) {
+            Unsigned16 originalClientID = eventPayload.getDataType(2).getUnsigned16();
+        } else {
+            throw DataParseException.ioException(new ProtocolException("Expected the third element(Client ID of the original event) of the received structure to be of type OctetString"));
+        }
+
+        if (eventPayload.peekAtNextDataType().isUnsigned16()) {
+            Unsigned8 originalSecurityControlField = eventPayload.getDataType(3).getUnsigned8();
+        } else {
+            throw DataParseException.ioException(new ProtocolException("Expected the forth element(Security control field) of the received structure to be of type OctetString"));
+        }
+
+        if (eventPayload.peekAtNextDataType().isTypeEnum()) {
+            TypeEnum originalType = eventPayload.getDataType(4).getTypeEnum();
+        } else {
+            throw DataParseException.ioException(new ProtocolException("Expected the fifth element(Original event type) of the received structure to be of type OctetString"));
+        }
+
+        // data notification
+        if (eventPayload.peekAtNextDataType().isOctetString()) {
+            OctetString dataBlob = eventPayload.getDataType(5).getOctetString();
+            if (eventPayload.peekAtNextDataType().isStructure()) {
+                Structure notificationBody = eventPayload.getDataType(6).getStructure();
+                Unsigned32 originalInvokeId = notificationBody.getDataType(0).getUnsigned32();
+
+                // ClassId_1 Data
+                AbstractDataType obisCodeBytes = notificationBody.getNextDataType();
+                ObisCode dataObisCode = ObisCode.fromByteArray(((OctetString) obisCodeBytes).getOctetStr());
+                AbstractDataType valueData = notificationBody.getNextDataType();
+                long value = 0;
+                String text = null;
+
+                try {
+                    if (valueData.isOctetString()) {
+                        text = valueData.getOctetString().stringValue();
+                    } else if (valueData.isNumerical()) {
+                        value = DLMSUtils.parseValue2long(valueData.getBEREncodedByteArray());
+                    }
+                    Date dateTime = Calendar.getInstance().getTime();
+                    addCollectedRegister(dataObisCode, value, null, dateTime, text);
+                } catch (IndexOutOfBoundsException | ProtocolException e) {
+                    throw DataParseException.ioException(new ProtocolException(e, "Failed to parse the register data from the Data-notification body: " + e.getMessage()));
+                }
             }
         }
     }
@@ -489,7 +614,6 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         inboundFrame.get(obisCodeBytes);
         ObisCode obisCode = ObisCode.fromByteArray(obisCodeBytes);
 
-
         int attributeNumber = inboundFrame.get() & 0xFF;
 
         byte[] eventData = new byte[inboundFrame.remaining()];
@@ -575,11 +699,15 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             parseGatewayRelayedEventWith2Elements(eventPayLoad, getAlarmRegister(obisCode));
         } else if (nrOfDataTypes == 4) {
             validateCosemAttributeDescriptorOriginatingFromGateway(classId, obisCode, attributeNumber);
-            Date dateTime = parseDateTime(eventPayLoad.getDataType(0).getOctetString());
+            Date dateTime1 = parseDateTime(eventPayLoad.getDataType(0).getOctetString());
             int eiCode = eventPayLoad.getDataType(1).intValue();
             int protocolCode = eventPayLoad.getDataType(2).intValue();
             String description = parseDescription(eventPayLoad.getDataType(3).getOctetString());
-            createCollectedLogBook(dateTime, eiCode, protocolCode, description);
+            createCollectedLogBook(dateTime1, eiCode, protocolCode, description);
+        } else if (nrOfDataTypes == 6) { // WRAP_AS_SERVER_EVENT event notification
+            parseNotificationWith6Elements(eventPayLoad);
+        } else if (nrOfDataTypes == 7) { // WRAP_AS_SERVER_EVENT data notification
+            parseNotificationWith7Elements(eventPayLoad);
         } else {
             throw DataParseException.ioException(new ProtocolException("Expected the event-payload to be a structure with 3, 4 or 5 elements, but received a structure with " + nrOfDataTypes + " element(s)"));
         }
