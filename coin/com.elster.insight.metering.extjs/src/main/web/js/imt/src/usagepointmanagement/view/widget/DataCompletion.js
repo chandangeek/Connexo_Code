@@ -203,7 +203,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
                     }
                 }
             }
-        }
+        };
     },
 
     addWidgetsOnTab: function () {
@@ -229,9 +229,10 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
         });
 
         if (tabs.length > 1) {
-            me.add(Ext.apply(me.addTabPanel(), {items: tabs}))
+            me.add(Ext.apply(me.addTabPanel(), {items: tabs}));
         } else {
-            me.add(tabs.pop());
+            // case when there are all widgets on one page, no tabs navigation is needed
+            me.add(Ext.apply(tabs.pop(),{xtype: 'container'}));
         }
     }
 });
