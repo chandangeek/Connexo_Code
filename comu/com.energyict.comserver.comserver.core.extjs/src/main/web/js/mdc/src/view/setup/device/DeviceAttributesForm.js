@@ -137,18 +137,6 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 }
             },
             {
-                name: 'location',
-                itemId: 'fld-device-location',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
-                renderer: function (value) {
-                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue) && !Ext.isEmpty(value.displayValue.formattedLocationValue)) {
-                        return Ext.String.htmlEncode(value.displayValue.formattedLocationValue).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>');
-                    } else {
-                        return '-'
-                    }
-                }
-            },
-            {
                 name: 'yearOfCertification',
                 itemId: 'fld-year-of-certification',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.yearOfCertification', 'MDC', 'Year of certification'),
@@ -191,18 +179,6 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 }
             },
             {
-                name: 'batch',
-                itemId: 'fld-device-batch',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.batch', 'MDC', 'Batch'),
-                renderer: function (value) {
-                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue)) {
-                        return Ext.String.htmlEncode(value.displayValue)
-                    } else {
-                        return '-'
-                    }
-                }
-            },
-            {
                 name: 'geoCoordinates',
                 itemId: 'fld-device-coordinates',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.coordinates', 'MDC', 'Coordinates'),
@@ -210,6 +186,30 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 renderer: function (value) {
                     if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue) && !Ext.isEmpty(value.displayValue.coordinatesDisplay)) {
                         return Ext.String.htmlEncode(value.displayValue.coordinatesDisplay);
+                    } else {
+                        return '-'
+                    }
+                }
+            },
+            {
+                name: 'location',
+                itemId: 'fld-device-location',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
+                renderer: function (value) {
+                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue) && !Ext.isEmpty(value.displayValue.formattedLocationValue)) {
+                        return Ext.String.htmlEncode(value.displayValue.formattedLocationValue).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>');
+                    } else {
+                        return '-'
+                    }
+                }
+            },
+            {
+                name: 'batch',
+                itemId: 'fld-device-batch',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.batch', 'MDC', 'Batch'),
+                renderer: function (value) {
+                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue)) {
+                        return Ext.String.htmlEncode(value.displayValue)
                     } else {
                         return '-'
                     }
