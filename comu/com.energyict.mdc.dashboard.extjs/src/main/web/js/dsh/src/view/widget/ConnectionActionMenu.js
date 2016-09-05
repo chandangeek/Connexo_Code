@@ -3,16 +3,16 @@ Ext.define('Dsh.view.widget.ConnectionActionMenu', {
     alias: 'widget.connection-action-menu',
     items: [
         {
-            text: 'Run now',
+            text: Uni.I18n.translate('general.runNow', 'DSH', 'Run now'),
             privileges : Mdc.privileges.Device.operateDeviceCommunication,
             action: 'run'
         },
         {
-            text: 'View history',
+            text: Uni.I18n.translate('general.viewHistory', 'DSH', 'View history'),
             action: 'viewHistory'
         },
         {
-            text: 'View log',
+            text: Uni.I18n.translate('general.viewLog', 'DSH', 'View log'),
             action: 'viewLog'
         }
     ]
