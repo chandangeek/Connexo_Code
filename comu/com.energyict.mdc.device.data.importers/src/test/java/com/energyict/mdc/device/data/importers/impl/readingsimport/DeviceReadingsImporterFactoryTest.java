@@ -288,7 +288,7 @@ public class DeviceReadingsImporterFactoryTest {
 
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.NO_DEVICE).format(2, "VPB0001"));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 3, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
 
     @Test
@@ -306,7 +306,7 @@ public class DeviceReadingsImporterFactoryTest {
 
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE).format(2, "VPB0001"));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 3, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
 
     @Test
@@ -324,7 +324,7 @@ public class DeviceReadingsImporterFactoryTest {
 
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE).format(2, "VPB0001"));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 3, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
 
     @Test
@@ -348,7 +348,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION).format(2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstReadingDate)));
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_AFTER_METER_ACTIVATION).format(3, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(lastReadingDate)));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 2, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
 
     @Test
@@ -368,7 +368,7 @@ public class DeviceReadingsImporterFactoryTest {
 
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION).format(2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(readingDate)));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 1, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
 
     @Test
@@ -419,7 +419,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.NO_SUCH_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 2, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
 
     @Test
@@ -438,7 +438,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.NOT_SUPPORTED_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 2, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
 
     @Test
@@ -493,7 +493,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.DEVICE_DOES_NOT_SUPPORT_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 2, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
 
     @Test
@@ -522,7 +522,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.NOT_SUPPORTED_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1"));
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.NOT_SUPPORTED_READING_TYPE).format(3, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 4, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
 
     @Test
