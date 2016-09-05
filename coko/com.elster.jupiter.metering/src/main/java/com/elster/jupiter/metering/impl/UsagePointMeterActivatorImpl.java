@@ -133,11 +133,14 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             if (mappingEntry.getValue() == null) {
                 continue;
             }
-            List<MeterActivation> activations = mappingEntry.getValue().getMeterActivations().stream()
-                    .filter(ma -> !ma.getStart().equals(ma.getEnd()))
-                    .filter(ma -> ma.isEffectiveAt(this.activationTime) || ma.getRange().lowerEndpoint().isAfter(this.activationTime))
-                    .filter(ma -> ma.getUsagePoint().isPresent() && !ma.getUsagePoint().get().equals(this.usagePoint))
-                    .collect(Collectors.toList());
+            List<MeterActivation> activations =
+                    mappingEntry
+                        .getValue()
+                        .getMeterActivations()
+                        .stream()
+                        .filter(ma -> ma.isEffectiveAt(this.activationTime) || ma.getRange().lowerEndpoint().isAfter(this.activationTime))
+                        .filter(this::differentUsagePoint)
+                        .collect(Collectors.toList());
             for (MeterActivation activation : activations) {
                 result = false;
                 String errorMessage = this.metrologyConfigurationService.getThesaurus()
@@ -147,6 +150,10 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             }
         }
         return result;
+    }
+
+    private boolean differentUsagePoint(MeterActivation ma) {
+        return ma.getUsagePoint().isPresent() && !ma.getUsagePoint().get().equals(this.usagePoint);
     }
 
     private boolean validateMetersCapabilities(ConstraintValidatorContext context) {
