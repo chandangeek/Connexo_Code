@@ -66,7 +66,7 @@ public class ValidationRuleInfoFactory {
         return dataValidationStatus.getOffendedRules().stream()
                 .map(this::createValidationRuleInfo)
                 .sorted((a, b) -> a.name.compareTo(b.name))
-                .sorted((a, b) -> Integer.compare(a.action.getId(), b.action.getId()))
+                .sorted((a, b) -> Integer.compare(b.action.getId(), a.action.getId()))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -74,7 +74,7 @@ public class ValidationRuleInfoFactory {
         return dataValidationStatus.getBulkOffendedRules().stream()
                 .map(this::createValidationRuleInfo)
                 .sorted((a, b) -> a.name.compareTo(b.name))
-                .sorted((a, b) -> Integer.compare(a.action.getId(), b.action.getId()))
+                .sorted((a, b) -> Integer.compare(b.action.getId(), a.action.getId()))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
