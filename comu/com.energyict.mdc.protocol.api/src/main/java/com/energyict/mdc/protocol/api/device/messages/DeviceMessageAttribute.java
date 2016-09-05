@@ -16,14 +16,14 @@ public interface DeviceMessageAttribute {
      *
      * @return The DeviceMessageAttributeSpec
      */
-    public PropertySpec getSpecification ();
+    PropertySpec getSpecification();
 
     /**
      * Gets the owning {@link DeviceMessage}.
      *
      * @return The DeviceMessage
      */
-    public DeviceMessage getDeviceMessage();
+    DeviceMessage getDeviceMessage();
 
     /**
      * Gets the name of this attribute, which is copied from
@@ -32,7 +32,7 @@ public interface DeviceMessageAttribute {
      * @return The name of this attribute
      * @see PropertySpec#getName()
      */
-    public String getName ();
+    String getName();
 
     /**
      * Gets the value of this attribute, which is compatible
@@ -44,6 +44,6 @@ public interface DeviceMessageAttribute {
      *
      * @return The value of this attribute
      */
-    public Object getValue ();
+    Object getValue();
 
 }
