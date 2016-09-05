@@ -4,6 +4,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.pluggable.rest.impl.LoadProfileInfo;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 
 /**
  * Created by mbarinov on 31.08.2016.
@@ -12,7 +13,8 @@ public class LoadProfilePropertyValueConverter implements PropertyValueConverter
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && LoadProfile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
+        return propertySpec != null && (LoadProfile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())
+                || BaseLoadProfile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()));
     }
 
     @Override
