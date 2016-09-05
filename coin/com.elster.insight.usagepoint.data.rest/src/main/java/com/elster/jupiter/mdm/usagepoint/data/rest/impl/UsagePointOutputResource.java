@@ -49,6 +49,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -261,6 +262,18 @@ public class UsagePointOutputResource {
         effectiveMC.getChannelsContainer(metrologyContract)
                 .ifPresent(channelsContainer -> validationService.validate(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer)
                         .setMetrologyContract(metrologyContract), purposeInfo.validationInfo.lastChecked));
+
+        effectiveMC.getUsagePoint().getCurrentMeterActivations()
+                .stream()
+                .map(MeterActivation::getChannelsContainer)
+                .forEach(channelsContainer -> {
+                    validationService.validate(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer).setMetrologyContract(metrologyContract), purposeInfo.validationInfo.lastChecked);
+                });
+
         return Response.status(Response.Status.OK).build();
     }
+
+
+
+
 }
