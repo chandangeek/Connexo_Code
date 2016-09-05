@@ -110,7 +110,7 @@ Ext.define('Usr.controller.UserEdit', {
         record.save({
             backUrl: '#/administration/users',
             success: function (record) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('user.saved', 'USR', "User '{0}' saved.", [record.get('authenticationName')], false));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('user.saved', 'USR', 'User saved.'));
                 location.href = '#/administration/users';
             },
             failure: function (record, operation) {

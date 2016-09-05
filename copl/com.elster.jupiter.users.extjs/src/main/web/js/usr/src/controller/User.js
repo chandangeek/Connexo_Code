@@ -73,7 +73,7 @@ Ext.define('Usr.controller.User', {
             currentGroups = record.groups().data.items,
             detailsRoles = form.down('[name=roles]');
 
-        page.down('userDetails').setTitle(record.get('name'));
+        page.down('userDetails').setTitle(Ext.String.htmlEncode(record.get('authenticationName')));
         form.loadRecord(record);
         for (var i = 0; i < currentGroups.length; i++) {
             roles += Ext.String.htmlEncode(currentGroups[i].data.name) + '<br/>';
@@ -131,8 +131,8 @@ Ext.define('Usr.controller.User', {
                     form.loadRecord(record);
                 }
                 me.getApplication().fireEvent('acknowledge', isActive
-                    ? Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated')
-                    : Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated'));
+                    ? Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated.')
+                    : Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated.'));
             },
             callback: function () {
                 viewport.setLoading(false);
