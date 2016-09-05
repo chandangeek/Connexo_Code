@@ -1,10 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-
-import org.junit.*;
+import org.junit.Test;
 
 /**
  * Integration test of the {@link ConnectionTaskReportServiceImpl} component
@@ -14,15 +13,6 @@ import org.junit.*;
  * @since 2014-08-25 (09:32)
  */
 public class ConnectionTaskReportServiceImplIT extends PersistenceIntegrationTest {
-
-    @Transactional
-    @Test
-    public void getConnectionTaskLastComSessionSuccessIndicatorCountDoesNotProduceSQLExceptions() {
-        // Business method
-        inMemoryPersistence.getConnectionTaskReportService().getConnectionTaskLastComSessionSuccessIndicatorCount();
-
-        // Asserts: should not cause any SQLExceptions
-    }
 
     @Transactional
     @Test

@@ -52,15 +52,15 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
 
+import org.osgi.framework.BundleContext;
+
 import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -133,6 +133,8 @@ public class MultisenseHeadEndInterfaceTest {
     ComTaskExecutionImpl comTaskExecution;
     @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
     Device device;
+    @Mock
+    BundleContext context;
 
     private MultiSenseHeadEndInterfaceImpl headEndInterface;
 
@@ -141,11 +143,10 @@ public class MultisenseHeadEndInterfaceTest {
         when(clock.instant()).thenReturn(Instant.EPOCH);
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
         when(user.hasPrivilege(KnownAmrSystem.MDC.getName(), Privileges.Constants.VIEW_DEVICE)).thenReturn(true);
-        Map<KnownAmrSystem, String> knownAmrSystemStringMap = new HashMap<>();
-        knownAmrSystemStringMap.put(KnownAmrSystem.MDC, url);
-        when(meteringService.getSupportedApplicationsUrls()).thenReturn(knownAmrSystemStringMap);
+        when(context.getProperty(MultiSenseHeadEndInterfaceImpl.MDC_URL)).thenReturn(url);
         headEndInterface = Mockito.spy(new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService, meteringService, thesaurus, serviceCallService, customPropertySetService, endDeviceCommandFactory, threadPrincipalService, clock));
         when(headEndInterface.getServiceCallCommands()).thenReturn(serviceCallCommands);    // Use mocked variant of ServiceCallCommands, as for this test we are not interested in what happens with ServiceCalls
+        headEndInterface.activate(context);
         when(serviceCallCommands.createOperationServiceCall(any(), any(), any(), any())).thenReturn(serviceCall);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(new CommandServiceCallDomainExtension()));
         endDevice.setMRID(DEVICE_MRID);

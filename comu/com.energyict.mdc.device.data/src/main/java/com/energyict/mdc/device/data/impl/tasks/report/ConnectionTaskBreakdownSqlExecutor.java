@@ -4,13 +4,13 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskBreakdowns;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -24,84 +24,8 @@ import java.util.Optional;
 @LiteralSql
 class ConnectionTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor {
 
-    private static final String BASE_SQL =
-            "WITH ctsFromCtes as (\n" +
-            "  SELECT connectiontask\n" +
-            "    FROM " + TableSpecs.DDC_COMTASKEXEC.name() + "\n" +
-            "   WHERE comport is not null\n" +
-            "     AND obsolete_date is null\n" +
-            "   GROUP BY connectiontask\n" +
-            "),\n" +
-            "alldata as (\n" +
-            "  SELECT ct.connectiontypepluggableclass,\n" +
-            "         ct.comportpool,\n" +
-            "         dev.devicetype,\n" +
-            "         CASE WHEN ctsFromCtes.connectiontask IS NOT NULL\n" +
-            "                OR ct.comserver          IS NOT NULL" +
-            "              THEN '" + ServerComTaskStatus.Busy.name() + "'\n" +
-            "              WHEN (discriminator = '" + ConnectionTaskImpl.INBOUND_DISCRIMINATOR + "' AND status > 0)\n" +
-            "                OR (discriminator = '" + ConnectionTaskImpl.SCHEDULED_DISCRIMINATOR + "' AND (status > 0 OR nextExecutionTimestamp is null))" +
-            "              THEN '" + ServerComTaskStatus.OnHold.name() + "'\n" +
-            "              WHEN nextexecutiontimestamp <= ?" +
-            "              THEN '" + ServerComTaskStatus.Pending.name() + "'\n" +
-            "              WHEN currentretrycount = 0\n" +
-            "               AND nextexecutiontimestamp > ?\n" +
-            "               AND lastsuccessfulcommunicationend is null" +
-            "              THEN '" + ServerComTaskStatus.NeverCompleted.name() + "'\n" +
-            "              WHEN currentretrycount > 0\n" +
-            "               AND nextexecutiontimestamp > ?" +
-            "              THEN '" + ServerComTaskStatus.Retrying.name() + "'\n" +
-            "              WHEN currentretrycount = 0\n" +
-            "               AND lastExecutionFailed = 1\n" +
-            "               AND nextexecutiontimestamp > ?\n" +
-            "               AND lastsuccessfulcommunicationend is not null" +
-            "              THEN '" + ServerComTaskStatus.Failed.name() + "'\n" +
-            "              WHEN currentretrycount = 0\n" +
-            "               AND lastExecutionFailed = 0\n" +
-            "               AND nextexecutiontimestamp > ?\n" +
-            "               AND lastsuccessfulcommunicationend is not null" +
-            "              THEN '" + ServerComTaskStatus.Waiting.name() + "'\n" +
-            "              ELSE 'Unknown'\n" +
-            "          END taskStatus\n" +
-            "         --\n" +
-            "    FROM DDC_CONNECTIONTASK ct\n" +
-            "         JOIN DDC_DEVICE DEV on ct.device = dev.id\n" +
-            "         LEFT OUTER JOIN ctsFromCtes on ct.id = ctsFromCtes.connectiontask\n" +
-            "   WHERE ct.status = 0\n" +
-            "     AND ct.obsolete_date is null\n" +
-            "     AND ct.nextexecutiontimestamp is not null\n";
-    private static final String SQL_REMAINDER =
-            "),\n" +
-            "grouped as (\n" +
-            "  SELECT connectiontypepluggableclass,\n" +
-            "         comportpool,\n" +
-            "         devicetype,\n" +
-            "         taskStatus,\n" +
-            "         count(*) as counter\n" +
-            "    FROM alldata\n" +
-            "   GROUP BY connectiontypepluggableclass, comportpool, devicetype, taskstatus\n" +
-            ")\n" +
-            "SELECT '" + BreakdownType.None.name() + "', taskStatus, null as item, nvl(sum(counter), 0)\n" +
-            "  FROM grouped\n" +
-            " GROUP BY taskStatus\n" +
-            "UNION ALL\n" +
-            "SELECT '" + BreakdownType.ComPortPool.name() + "', taskStatus, comportpool, nvl(sum(counter), 0)\n" +
-            "  FROM grouped\n" +
-            " GROUP BY taskStatus, comportpool\n" +
-            "UNION ALL\n" +
-            "SELECT '" + BreakdownType.ConnectionType.name() + "', taskStatus, connectiontypepluggableclass, nvl(sum(counter), 0)\n" +
-            "  FROM grouped\n" +
-            " GROUP BY taskStatus, connectiontypepluggableclass\n" +
-            "UNION ALL\n" +
-            "SELECT '" + BreakdownType.DeviceType.name() + "', taskStatus, devicetype, nvl(sum(counter), 0)\n" +
-            "  FROM grouped\n" +
-            " GROUP BY taskStatus, devicetype\n" +
-            " ORDER BY 1, 2, 3";
-
-    private static final int NUMBER_OF_UTC_SECONDS_BINDS = 5;
-
     static ConnectionTaskBreakdownSqlExecutor systemWide(DataModel dataModel) {
-        return new ConnectionTaskBreakdownSqlExecutor(dataModel, Optional.<EndDeviceGroup>empty(), Optional.<AmrSystem>empty());
+        return new ConnectionTaskBreakdownSqlExecutor(dataModel, Optional.empty(), Optional.empty());
     }
 
     static ConnectionTaskBreakdownSqlExecutor forGroup(EndDeviceGroup deviceGroup, AmrSystem mdcAmrSystem, DataModel dataModel) {
@@ -113,32 +37,126 @@ class ConnectionTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor {
     }
 
     @Override
-    protected String beforeDeviceStateSql() {
-        return BASE_SQL;
+    protected SqlBuilder beforeDeviceGroupSql(Instant now) {
+        SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
+        DeviceStateSqlBuilder
+                .forDefaultExcludedStates("enddevices")
+                .appendRestrictedStatesWithClause(sqlBuilder, now);
+        sqlBuilder.append(", ");
+        sqlBuilder.append("ctsFromCtes as (");
+        sqlBuilder.append("  SELECT connectiontask");
+        sqlBuilder.append("    FROM ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
+        sqlBuilder.append("   WHERE comport is not null");
+        sqlBuilder.append("     AND obsolete_date is null");
+        sqlBuilder.append("   GROUP BY connectiontask");
+        sqlBuilder.append("),");
+        sqlBuilder.append("alldata as (");
+        sqlBuilder.append("  SELECT ct.connectiontypepluggableclass,");
+        sqlBuilder.append("         ct.comportpool,");
+        sqlBuilder.append("         dev.devicetype,");
+        sqlBuilder.append("         CASE WHEN ctsFromCtes.connectiontask IS NOT NULL");
+        sqlBuilder.append("                OR ct.comserver          IS NOT NULL");
+        sqlBuilder.append("              THEN '" + ServerComTaskStatus.Busy.name() + "'");
+        sqlBuilder.append("              WHEN (   discriminator = '");
+        sqlBuilder.append(ConnectionTaskImpl.INBOUND_DISCRIMINATOR);
+        sqlBuilder.append("'");
+        sqlBuilder.append("                    AND status > 0)");
+        sqlBuilder.append("                OR (   discriminator = '");
+        sqlBuilder.append(ConnectionTaskImpl.SCHEDULED_DISCRIMINATOR);
+        sqlBuilder.append("'");
+        sqlBuilder.append("                    AND (status > 0 OR nextExecutionTimestamp is null))");
+        sqlBuilder.append("              THEN '");
+        sqlBuilder.append(ServerComTaskStatus.OnHold.name());
+        sqlBuilder.append("'");
+        sqlBuilder.append("              WHEN nextexecutiontimestamp <=");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append("              THEN '");
+        sqlBuilder.append(ServerComTaskStatus.Pending.name());
+        sqlBuilder.append("'");
+        sqlBuilder.append("              WHEN currentretrycount = 0");
+        sqlBuilder.append("               AND nextexecutiontimestamp >");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append("               AND lastsuccessfulcommunicationend is null");
+        sqlBuilder.append("              THEN '");
+        sqlBuilder.append(ServerComTaskStatus.NeverCompleted.name());
+        sqlBuilder.append("'");
+        sqlBuilder.append("              WHEN currentretrycount > 0");
+        sqlBuilder.append("               AND nextexecutiontimestamp >");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append("              THEN '");
+        sqlBuilder.append(ServerComTaskStatus.Retrying.name());
+        sqlBuilder.append("'");
+        sqlBuilder.append("              WHEN currentretrycount = 0");
+        sqlBuilder.append("               AND lastExecutionFailed = 1");
+        sqlBuilder.append("               AND nextexecutiontimestamp >");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append("               AND lastsuccessfulcommunicationend is not null");
+        sqlBuilder.append("              THEN '");
+        sqlBuilder.append(ServerComTaskStatus.Failed.name());
+        sqlBuilder.append("'");
+        sqlBuilder.append("              WHEN currentretrycount = 0");
+        sqlBuilder.append("               AND lastExecutionFailed = 0");
+        sqlBuilder.append("               AND nextexecutiontimestamp >");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append("               AND lastsuccessfulcommunicationend is not null");
+        sqlBuilder.append("              THEN '");
+        sqlBuilder.append(ServerComTaskStatus.Waiting.name());
+        sqlBuilder.append("'");
+        sqlBuilder.append("              ELSE 'Unknown'");
+        sqlBuilder.append("          END taskStatus");
+        sqlBuilder.append("    FROM DDC_CONNECTIONTASK ct");
+        sqlBuilder.append("         JOIN DDC_DEVICE DEV on ct.device = dev.id");
+        sqlBuilder.append("         JOIN enddevices kd on dev.meterid = kd.id");
+        sqlBuilder.append("         LEFT OUTER JOIN ctsFromCtes on ct.id = ctsFromCtes.connectiontask");
+        sqlBuilder.append("   WHERE ct.status = 0");
+        sqlBuilder.append("     AND ct.obsolete_date is null");
+        sqlBuilder.append("     AND ct.nextexecutiontimestamp is not null");
+        return sqlBuilder;
     }
 
     @Override
-    protected int bindBeforeDeviceStateSql(PreparedStatement statement, Instant now, int startPosition) throws SQLException {
-        int bindPosition = startPosition;
-        for (int i = 0; i < NUMBER_OF_UTC_SECONDS_BINDS; i++) {
-            statement.setLong(bindPosition++, now.getEpochSecond());
-        }
-        return bindPosition;
-    }
-
-    @Override
-    protected String taskStatusSql() {
-        return SQL_REMAINDER;
+    protected SqlBuilder taskStatusSql(Instant now) {
+        SqlBuilder sqlBuilder = new SqlBuilder("),");
+        sqlBuilder.append("grouped as (");
+        sqlBuilder.append("  SELECT connectiontypepluggableclass,");
+        sqlBuilder.append("         comportpool,");
+        sqlBuilder.append("         devicetype,");
+        sqlBuilder.append("         taskStatus,");
+        sqlBuilder.append("         count(*) as counter");
+        sqlBuilder.append("    FROM alldata");
+        sqlBuilder.append("   GROUP BY connectiontypepluggableclass, comportpool, devicetype, taskstatus");
+        sqlBuilder.append(")");
+        sqlBuilder.append("SELECT '");
+        sqlBuilder.append(BreakdownType.None.name());
+        sqlBuilder.append("', taskStatus, null as item, nvl(sum(counter), 0)");
+        sqlBuilder.append("  FROM grouped");
+        sqlBuilder.append(" GROUP BY taskStatus ");
+        sqlBuilder.append("UNION ALL ");
+        sqlBuilder.append("SELECT '");
+        sqlBuilder.append(BreakdownType.ComPortPool.name());
+        sqlBuilder.append("', taskStatus, comportpool, nvl(sum(counter), 0)");
+        sqlBuilder.append("  FROM grouped");
+        sqlBuilder.append(" GROUP BY taskStatus, comportpool ");
+        sqlBuilder.append("UNION ALL ");
+        sqlBuilder.append("SELECT '");
+        sqlBuilder.append(BreakdownType.ConnectionType.name());
+        sqlBuilder.append("', taskStatus, connectiontypepluggableclass, nvl(sum(counter), 0)");
+        sqlBuilder.append("  FROM grouped");
+        sqlBuilder.append(" GROUP BY taskStatus, connectiontypepluggableclass ");
+        sqlBuilder.append("UNION ALL ");
+        sqlBuilder.append("SELECT '");
+        sqlBuilder.append(BreakdownType.DeviceType.name());
+        sqlBuilder.append("', taskStatus, devicetype, nvl(sum(counter), 0)");
+        sqlBuilder.append("  FROM grouped");
+        sqlBuilder.append(" GROUP BY taskStatus, devicetype");
+        sqlBuilder.append(" ORDER BY 1, 2, 3");
+        return sqlBuilder;
     }
 
     @Override
     protected String deviceContainerAliasName() {
         return "ct";
-    }
-
-    @Override
-    protected int bindTaskStatusSql(PreparedStatement statement, Instant now, int startPosition) {
-        return startPosition;
     }
 
 }
