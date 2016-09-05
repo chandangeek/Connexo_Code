@@ -259,11 +259,11 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                     type: 'hbox',
                                     align: 'stretch'
                                 },
+                                itemId:'numberOfSimultaneousConnections',
                                 items: [
                                     {
 
                                         xtype: 'numberfield',
-                                        itemId: 'numberOfSimultaneousConnections',
                                         name: 'numberOfSimultaneousConnections',
                                         required: true,
                                         allowDecimals: false,
@@ -274,28 +274,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 ]
                             }
 
-                        ]
-                    },
-                    {
-                        xtype: 'form',
-                        border: false,
-                        itemId: 'connectionDetailsTitle',
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
-                        defaults: {
-                            labelWidth: 250
-                        },
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'connectionDetailsField',
-                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details'),
-                                renderer: function() {
-                                    return ''; // No dash!
-                                }
-                            }
                         ]
                     },
                     {
