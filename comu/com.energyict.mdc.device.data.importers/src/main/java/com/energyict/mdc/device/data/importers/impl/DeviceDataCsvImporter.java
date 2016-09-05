@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
+import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportLineException;
 import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 
@@ -76,17 +77,21 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
 
     // Parser exceptions should always fail whole importing process
     private void processRecord(CSVRecord csvRecord) throws FileImportParserException, ProcessorException {
-        T data = parser.parse(csvRecord);
         try {
-            processor.process(data, logger);
-            logger.importLineFinished(data);
-        } catch (ProcessorException exception) {
-            if (exception.shouldStopImport()) {
-                throw exception;
+            T data = parser.parse(csvRecord);
+            try {
+                processor.process(data, logger);
+                logger.importLineFinished(data);
+            } catch (ProcessorException exception) {
+                if (exception.shouldStopImport()) {
+                    throw exception;
+                }
+                logger.importLineFailed(data, exception);
+            } catch (Exception exception) {
+                logger.importLineFailed(data, exception);
             }
-            logger.importLineFailed(data, exception);
-        } catch (Exception exception) {
-            logger.importLineFailed(data, exception);
+        }catch (FileImportLineException lineException){
+            logger.importLineFailed(lineException.getLineNumber(), lineException);
         }
     }
 

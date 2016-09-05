@@ -1,5 +1,11 @@
 package com.energyict.mdc.device.data.importers.impl.devices.shipment;
 
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -13,13 +19,6 @@ import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
-import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.FileImporter;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.util.Collections;
@@ -28,8 +27,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -132,10 +132,8 @@ public class DeviceShipmentImporterFactoryTest {
         FileImporter importer = createDeviceShipmentImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.FILE_FORMAT_ERROR).format(2, 4, 2));
     }
 
     @Test
@@ -146,10 +144,8 @@ public class DeviceShipmentImporterFactoryTest {
         FileImporter importer = createDeviceShipmentImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(2, "device type"));
     }
 
     @Test
@@ -160,10 +156,8 @@ public class DeviceShipmentImporterFactoryTest {
         FileImporter importer = createDeviceShipmentImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(2, "device configuration"));
     }
 
     @Test
@@ -174,10 +168,8 @@ public class DeviceShipmentImporterFactoryTest {
         FileImporter importer = createDeviceShipmentImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(2, "shipment date"));
     }
 
     @Test

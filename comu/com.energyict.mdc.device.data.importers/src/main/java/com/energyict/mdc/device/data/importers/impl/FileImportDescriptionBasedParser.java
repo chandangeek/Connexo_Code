@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportLineException;
 import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.fields.FieldSetter;
 import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
 import com.energyict.mdc.device.data.importers.impl.parsers.FieldParser;
 
-import com.elster.jupiter.util.Checks;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
@@ -36,7 +37,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         List<FileImportField<?>> fields = this.descriptor.getFields(record);
         List<String> rawValues = getRawValuesSkipTrailingNulls(csvRecord);
         if (rawValues.size() < getNumberOfMandatoryColumns(fields)) {
-            throw new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(),
+            throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(),
                     getNumberOfMandatoryColumns(fields), rawValues.size());
         }
         int repetitiveColumnCount = 0;
@@ -48,7 +49,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                 repetitiveColumnCount++;
             }
             if (currentField.isMandatory() && Checks.is(rawValue).emptyOrOnlyWhiteSpace()) {
-                throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), getHeaderColumn(i));
+                throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), getHeaderColumn(i));
             }
             try {
                 FieldSetter fieldSetter = currentField.getSetter();

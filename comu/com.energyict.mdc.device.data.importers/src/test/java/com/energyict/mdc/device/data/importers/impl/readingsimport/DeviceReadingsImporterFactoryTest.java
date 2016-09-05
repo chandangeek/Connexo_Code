@@ -652,11 +652,9 @@ public class DeviceReadingsImporterFactoryTest {
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger).severe(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(4, "#5"));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(4, "#5"));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_FAIL).format(3, 1));
-
-        verify(device, never()).store(Matchers.any());
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS).format(3, 1));
     }
 
     @Test

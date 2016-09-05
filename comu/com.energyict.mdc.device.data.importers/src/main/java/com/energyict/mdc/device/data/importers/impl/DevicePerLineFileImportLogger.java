@@ -41,6 +41,12 @@ public class DevicePerLineFileImportLogger extends FileImportLoggerImpl<FileImpo
         this.linesWithError++;
     }
 
+    @Override
+    public void importLineFailed(long lineNumber, Exception exception) {
+        super.importLineFailed(lineNumber, exception);
+        this.linesWithError++;
+    }
+
     protected void summarizeFailedImport() {
         if (linesWithError != 0 && linesWithWarnings == 0) {
             // Some devices were processed with errors

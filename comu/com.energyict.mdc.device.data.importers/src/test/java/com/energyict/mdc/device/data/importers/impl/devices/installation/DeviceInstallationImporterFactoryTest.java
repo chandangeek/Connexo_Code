@@ -218,10 +218,8 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.FILE_FORMAT_ERROR).format(2, 2, 1));
     }
 
     @Test
@@ -232,10 +230,8 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(2, "mrid"));
     }
 
     @Test
@@ -246,10 +242,8 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(2, "installation date"));
     }
 
     @Test

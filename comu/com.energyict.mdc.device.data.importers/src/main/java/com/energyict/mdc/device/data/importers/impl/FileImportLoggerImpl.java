@@ -1,10 +1,9 @@
 package com.energyict.mdc.device.data.importers.impl;
 
-import com.energyict.mdc.device.data.importers.impl.exceptions.ImportException;
-
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.importers.impl.exceptions.ImportException;
 import com.energyict.mdc.issues.Warning;
 
 public abstract class FileImportLoggerImpl<T extends FileImportRecord> implements FileImportLogger<T> {
@@ -46,6 +45,19 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
             message = this.context.getThesaurus()
                     .getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE)
                     .format(data.getLineNumber(), data.getDeviceMRID(), exception.getLocalizedMessage());
+        }
+        fileImportOccurrence.getLogger().warning(message);
+    }
+
+    @Override
+    public void importLineFailed(long lineNumber, Exception exception){
+        String message;
+        if (exception instanceof ImportException) {
+            message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
+        } else {
+            message = this.context.getThesaurus()
+                    .getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE)
+                    .format(lineNumber, exception.getLocalizedMessage());
         }
         fileImportOccurrence.getLogger().warning(message);
     }
