@@ -96,7 +96,7 @@ public class DataValidationTaskInfoFactory {
         TimeDuration every = scheduleExpression.getEvery();
         int count = every.getCount();
         TimeDuration.TimeUnit unit = every.getTimeUnit();
-        String everyTranslation = thesaurus.getString("every", "every");
+        String everyTranslation = thesaurus.getString("Every", "Every");
 
         String unitTranslation = unit.getDescription();
         if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
