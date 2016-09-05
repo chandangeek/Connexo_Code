@@ -370,6 +370,7 @@ Ext.define('Fim.controller.ImportServices', {
     addImportService: function (button) {
         var me = this,
             addPage = me.getAddPage(),
+            router = me.getController('Uni.controller.history.Router'),
             importServiceRecord = addPage.importServiceRecord || Ext.create('Fim.model.ImportService'),
             addImportServiceForm = addPage.down('#frm-add-import-service'),
             formErrorsPanel = addImportServiceForm.down('#form-errors'),
@@ -397,7 +398,10 @@ Ext.define('Fim.controller.ImportServices', {
             importServiceRecord.save({
                 backUrl: me.getAddPage().returnLink,
                 success: function () {
-                    location.href = me.getAddPage().returnLink;
+                    location.href = me.getAddPage().returnLink
+                        ? me.getAddPage().returnLink
+                        : router.getRoute('administration/importservices/importservice').buildUrl({importServiceId: importServiceRecord.getId()});
+
                     if (button.action === 'edit') {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('importService.successMsg.saved', 'FIM', 'Import service saved'));
                     } else {
@@ -424,13 +428,10 @@ Ext.define('Fim.controller.ImportServices', {
 
     showAddImportService: function () {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
             addImportServiceView, addImportServiceForm, returnLink;
 
-        returnLink = router.getRoute('administration/importservices').buildUrl();
         addImportServiceView = Ext.create('Fim.view.importservices.AddImportService', {
-            edit: false,
-            returnLink: returnLink
+            edit: false
         });
 
         var fileImporterCombo = addImportServiceView.down('#cbo-file-importer');
