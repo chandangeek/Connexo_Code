@@ -367,7 +367,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
             if (rule.deleted) {
                 str += '<span style="word-wrap: break-word; display: inline-block">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'IMT', '(removed rule)') + prop + '</span>' + '&nbsp;' + application + '<br>';
             } else {
-                str = '<span style="word-wrap: break-word; display: inline-block">';
+                str += '<span style="word-wrap: break-word; display: inline-block">';
 
                 if (Cfg.privileges.Validation.canViewOrAdministrate()) {
                     var url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({
