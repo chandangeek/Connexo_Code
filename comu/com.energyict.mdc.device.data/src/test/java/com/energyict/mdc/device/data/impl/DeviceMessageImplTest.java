@@ -497,7 +497,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}")
     public void createWithIncorrectDeviceMessageIdTest() {
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
 
@@ -631,7 +631,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG + "}", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG + "}")
     public void createWithMessageWhichIsNotAllowedByTheDeviceConfigurationTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Config2");
         DeviceConfiguration config2 = deviceConfigurationBuilder.add();

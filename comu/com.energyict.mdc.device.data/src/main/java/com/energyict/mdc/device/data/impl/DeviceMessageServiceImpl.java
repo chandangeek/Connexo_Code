@@ -105,13 +105,14 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         if (threadPrincipalService.getPrincipal() instanceof User) {
             User currentUser = (User) threadPrincipalService.getPrincipal();
             if (currentUser != null) {
-                return deviceConfiguration
-                            .getDeviceMessageEnablements()
-                            .stream()
-                            .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId))
-                            .map(DeviceMessageEnablement::getUserActions)
-                            .flatMap(Collection::stream)
-                            .anyMatch(deviceMessageUserAction -> currentUser.hasPrivilege("MDC", deviceMessageUserAction.getPrivilege()));
+                Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId)).findFirst();
+                if (deviceMessageEnablementOptional.isPresent()) {
+                    DeviceMessageEnablement deviceMessageEnablement = deviceMessageEnablementOptional.get();
+                    return deviceMessageEnablement
+                                .getUserActions()
+                                .stream()
+                                .anyMatch(deviceMessageUserAction -> currentUser.hasPrivilege("MDC", deviceMessageUserAction.getPrivilege()));
+                }
             }
         }
         return true;
