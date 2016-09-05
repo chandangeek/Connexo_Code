@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.devicehistory.MeterActivations', {
                                 deviceTypeId: me.device.get('deviceTypeId'),
                                 deviceConfigurationId: value.id
                             });
-                            return '<a href="' + url + '">' + value.name + '</a>';
+                            return '<a href="' + url + '">' + Ext.htmlEncode(value.name) + '</a>';
                         } else {
                             return value.name;
                         }

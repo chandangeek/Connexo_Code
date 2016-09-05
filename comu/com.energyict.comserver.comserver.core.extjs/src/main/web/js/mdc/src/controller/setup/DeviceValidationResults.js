@@ -263,11 +263,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     },
 
     onValidateNow: function (confWindow) {
-
-        var me = this;
-
-        var isFromLastValidation = confWindow.down('#rdg-validation-run').getValue().validation === 'lastValidation';
-        var isFromNewValidation = confWindow.down('#rdg-validation-run').getValue().validation === 'newValidation';
+        var me = this,
+            isFromNewValidation = confWindow.down('#rdg-validation-run').getValue().validation === 'newValidation';
 
         me.confirmationWindowButtonsDisable(true);
         Ext.Ajax.request({
@@ -366,12 +363,16 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             defaults: {
                 labelAlign: 'left'
             },
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
             items: [
                 {
                     xtype: 'radiogroup',
                     itemId: 'rdg-validation-run',
                     columns: 1,
-                    padding: '-10 0 0 60',
+                    padding: '-5 0 0 60',
                     defaults: {
                         name: 'validationRun'
                     },
@@ -442,23 +443,26 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     },
 
     destroyConfirmationWindow: function () {
-        if (Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0]) {
-            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].removeAll(true);
-            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].destroy();
+        var confirmationWindow = Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0];
+        if (confirmationWindow) {
+            confirmationWindow.removeAll(true);
+            confirmationWindow.destroy();
         }
     },
 
     confirmationWindowButtonsDisable: function (value) {
-        if (Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0]) {
-            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].down('button[name=confirm]').setDisabled(value);
-            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].down('button[name=cancel]').setDisabled(value);
+        var confirmationWindow = Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0];
+        if (confirmationWindow) {
+            confirmationWindow.down('button[name=confirm]').setDisabled(value);
+            confirmationWindow.down('button[name=cancel]').setDisabled(value);
         }
     },
 
     showValidationActivationErrors: function (errors) {
-        if (Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0]) {
-            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].down('#pnl-validation-date-errors').update(errors);
-            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].down('#pnl-validation-date-errors').setVisible(true);
+        var confirmationWindow = Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0];
+        if (confirmationWindow) {
+            confirmationWindow.down('#pnl-validation-date-errors').update(errors);
+            confirmationWindow.down('#pnl-validation-date-errors').setVisible(true);
         }
     },
 

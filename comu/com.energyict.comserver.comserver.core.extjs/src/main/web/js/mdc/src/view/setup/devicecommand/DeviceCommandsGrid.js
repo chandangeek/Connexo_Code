@@ -70,7 +70,9 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 privileges: Mdc.privileges.DeviceCommands.executeCommands,
                 itemId: 'commands-action-column',
                 menu: {
-                    xtype: 'device-command-action-menu'
+                    xtype: 'device-command-action-menu',
+                    device: me.device,
+                    mRID: me.device.get('mRID')
                 },
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
