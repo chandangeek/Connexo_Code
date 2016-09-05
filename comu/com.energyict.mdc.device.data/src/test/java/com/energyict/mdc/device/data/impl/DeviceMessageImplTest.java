@@ -105,7 +105,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("MyTestDeviceType", deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigForMessaging");
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         resetClock();
     }
@@ -497,7 +497,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}", strict = false)
     public void createWithIncorrectDeviceMessageIdTest() {
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
 
@@ -631,11 +631,11 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG + "}", strict = false)
     public void createWithMessageWhichIsNotAllowedByTheDeviceConfigurationTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Config2");
         DeviceConfiguration config2 = deviceConfigurationBuilder.add();
-        config2.getDeviceMessageEnablements().stream().forEach(deviceMessageEnablement -> config2.removeDeviceMessageEnablement(deviceMessageEnablement.getDeviceMessageId()));
+        config2.getDeviceMessageEnablements().forEach(deviceMessageEnablement -> config2.removeDeviceMessageEnablement(deviceMessageEnablement.getDeviceMessageId()));
         config2.activate();
 
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
