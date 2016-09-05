@@ -62,7 +62,7 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
         FileImportParser<UsagePointImportRecord> parser = new FileImportDescriptionBasedParser(
                 new UsagePointImportDescription(dateFormat, timeZone, numberFormat, context), context);
 
-        FileImportProcessor<UsagePointImportRecord> processor = context.getLicenseService().getLicenseForApplication("INS").isPresent()
+        FileImportProcessor<UsagePointImportRecord> processor = insightIsPresent()
                 ? new UsagePointsImportProcessor(getContext(), metrologyConfigurationService)
                 : new UsagePointsImportProcessorForMultisense(getContext());
 
@@ -72,6 +72,10 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
                 .withLogger(logger)
                 .withDelimiter(delimiter.charAt(0))
                 .build();
+    }
+
+    private boolean insightIsPresent() {
+        return context.getLicenseService().getLicenseForApplication("INS").isPresent();
     }
 
     @Override
@@ -107,5 +111,8 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
-
+    @Override
+    public String getApplicationName() {
+        return insightIsPresent() ? "INS" : "MDC";
+    }
 }
