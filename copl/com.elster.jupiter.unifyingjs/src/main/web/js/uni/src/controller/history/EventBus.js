@@ -65,6 +65,7 @@ Ext.define('Uni.controller.history.EventBus', {
     },
 
     onHistoryChange: function (token) {
+        debugger;
         var queryString,
             queryStringIndex = token.indexOf('?'),
             queryStringChanged = false,
