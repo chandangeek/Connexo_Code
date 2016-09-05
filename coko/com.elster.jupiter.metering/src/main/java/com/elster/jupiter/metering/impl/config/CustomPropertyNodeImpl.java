@@ -80,7 +80,7 @@ public class CustomPropertyNodeImpl extends AbstractNode implements CustomProper
 
     @Override
     public String toString() {
-        return this.getPropertySpec().getDisplayName();
+        return "property(" + this.customPropertySet.get() + ", " + this.getPropertySpec().getDisplayName() + ")";
     }
 
 }

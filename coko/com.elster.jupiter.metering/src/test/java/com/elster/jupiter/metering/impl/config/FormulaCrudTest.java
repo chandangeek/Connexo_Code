@@ -575,11 +575,9 @@ public class FormulaCrudTest {
             builder.build(builder.requirement(req));
         } catch (ConstraintViolationException e) {
             assertThat(e.getConstraintViolations().iterator().next().getMessage())
-                .isEqualTo(
+                .startsWith(
                     "The readingtype \"" + readingTypeDeliverable.getMRID() + " (" + readingTypeDeliverable.getFullAliasName() +
-                            ")\" is not compatible with the dimension of the formula of deliverable \"" +
-                            "deliverable" + " = " + req.getName()
-                            + "\".");
+                            ")\" is not compatible with the dimension of the formula of deliverable");
             throw e;
         }
     }

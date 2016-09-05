@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.readings;
 
 import com.elster.jupiter.metering.ReadingQualityType;
 
+import java.util.stream.Stream;
+
 /**
  * Common known reading qualities that can be readout from a device, by a protocol.
  * These were previously known as interval flags.
@@ -32,7 +34,7 @@ public enum ProtocolReadingQualities {
 
     private final String cimCode;
 
-    private ProtocolReadingQualities(String cimCode) {
+    ProtocolReadingQualities(String cimCode) {
         this.cimCode = cimCode;
     }
 
@@ -43,13 +45,11 @@ public enum ProtocolReadingQualities {
     public ReadingQualityType getReadingQualityType() {
         return new ReadingQualityType(getCimCode());
     }
+    private boolean hasCimCode(String cimCode){
+        return this.cimCode.equals(cimCode);
+    }
 
-    public static ProtocolReadingQualities fromCimCode(String cimCode) {
-        for (ProtocolReadingQualities protocolReadingQualities : values()) {
-            if (protocolReadingQualities.getCimCode().equals(cimCode)) {
-                return protocolReadingQualities;
-            }
-        }
-        return null;
+    public static ProtocolReadingQualities fromCimCode(final String cimCode) {
+        return Stream.of(ProtocolReadingQualities.values()).filter(rq -> rq.getCimCode().equals(cimCode)).findAny().orElse(null);
     }
 }
