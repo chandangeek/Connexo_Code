@@ -54,20 +54,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin</artifactId>
         </dependency>
-<!--
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin.extjs</artifactId>
-        </dependency>
--->
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>loaderjs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>unifyingjs</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
