@@ -68,11 +68,8 @@ Ext.define('Mdc.view.setup.devicegroup.StaticGroupDevicesGrid', {
 
     setDevices: function (devices) {
         var me = this,
-            ids = [],
-            selectionGroupType = {};
+            ids = [];
 
-        selectionGroupType[me.radioGroupName] = me.selectedInputValue;
-        me.getSelectionGroupType().setValue(selectionGroupType);
         Ext.Array.each(devices, function (device) {
             ids.push(device.get('id'));
         });
