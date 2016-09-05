@@ -3,7 +3,8 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
     alias: 'widget.purpose-details-form',
     requires: [
         'Imt.purpose.view.PurposeActionsMenu',
-        'Imt.purpose.view.ValidationStatusForm'
+        'Imt.purpose.view.ValidationStatusForm',
+        'Cfg.model.ValidationTask'
     ],
     itemId: 'purpose-details-form',
     layout: 'hbox',
@@ -44,7 +45,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                         htmlEncode: false,
                         renderer: function (status, meta, record) {
                             if (!Ext.isEmpty(status)) {
-                                var icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                                var icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
                                     + status.name
                                     + '"></i>';
                                 return status.name + icon
@@ -84,14 +85,14 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                                             var url = me.router.getRoute('administration/validationtasks/validationtask').buildUrl({
                                                 taskId: item.id
                                             });
+                                            var taskModel = new Cfg.model.ValidationTask(item);
+
                                             result += '<tr>';
                                             result += '<td>';
                                             result += '<a href="' + url + '">' + item.name + '</a>';
                                             result += '</td>';
                                             result += '<td>';
-                                            if (item.trigger) {
-                                                result += item.trigger;
-                                            }
+                                            result += taskModel.getTriggerText();
                                             result += '</td>';
                                             result += '</tr>';
                                         });
@@ -125,7 +126,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
         me.down('#data-validation-tasks-field').setVisible(hasValidationTasks);
         validationTasksEmptyMsg.setVisible(!hasValidationTasks);
         if (!hasValidationTasks) {
-            validationTasksEmptyMsg.setText(Uni.I18n.translate('usagepoint.purpose.validation.task.noTasks', 'IMT', 'No validation tasks has been configured for "{0}" purpose yet ({1}manage validation tasks{2})',
+            validationTasksEmptyMsg.setText(Uni.I18n.translate('usagepoint.purpose.validation.task.noTasks', 'IMT', 'No validation tasks have been configured for  "{0}" purpose yet ({1}manage validation tasks{2})',
                 [
                     [record.get('name')],
                     '<a href="'

@@ -45,34 +45,37 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                     metrologyConfig.getProxy().setUrl(mrid);
                     metrologyConfig.load(undefined, {
                         success: function (mconfig) {
-                            meterActivationsStore.setMrid(mrid);
-                            meterActivationsStore.load({
-                                callback: function (records, operation, success) {
-                                    if (success) {
-                                        var meterRoles = mconfig.get('meterRoles');
-                                        Ext.Array.each(meterRoles, function (meterRole) {
-                                            meterActivationsStore.each(function (mact) {
-                                                if ((mact.get('meterRole') && mact.get('meterRole').id) == meterRole.id) {
-                                                    meterRole.value = mact.get('meter').mRID;
-                                                }
+                            if (Ext.isEmpty(mconfig.get('meterRoles'))) {
+                                window.location.replace(router.getRoute('error/notfound').buildUrl())
+                            } else {
+                                meterActivationsStore.setMrid(mrid);
+                                meterActivationsStore.load({
+                                    callback: function (records, operation, success) {
+                                        if (success) {
+                                            var meterRoles = mconfig.get('meterRoles');
+                                            Ext.Array.each(meterRoles, function (meterRole) {
+                                                meterActivationsStore.each(function (mact) {
+                                                    if ((mact.get('meterRole') && mact.get('meterRole').id) == meterRole.id) {
+                                                        meterRole.value = mact.get('meter').mRID;
+                                                    }
+                                                });
+                                                meterRole.fieldLabel = meterRole.name;
+                                                meterRole.name = meterRole.id;
+                                                meterRole.itemId = 'meterRoleCombobox-' + meterRole.id;
                                             });
-                                            meterRole.fieldLabel = meterRole.name;
-                                            meterRole.name = meterRole.id;
-                                            meterRole.itemId = 'meterRoleCombobox-' + meterRole.id;
-                                        });
 
-                                        widget = Ext.widget('usagePointActivateMeters', {
-                                            router: router,
-                                            returnLink: returnLink,
-                                            usagePoint: usagePoint,
-                                            meterRoles: meterRoles
-                                        });
-                                        app.fireEvent('changeContentEvent', widget);
+                                            widget = Ext.widget('usagePointActivateMeters', {
+                                                router: router,
+                                                returnLink: returnLink,
+                                                usagePoint: usagePoint,
+                                                meterRoles: meterRoles
+                                            });
+                                            app.fireEvent('changeContentEvent', widget);
+                                        }
+                                        mainView.setLoading(false);
                                     }
-                                    mainView.setLoading(false);
-                                }
-                            })
-
+                                })
+                            }
                         },
                         callback: function () {
                             mainView.setLoading(false);

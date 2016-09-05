@@ -74,7 +74,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                                 itemId: 'metrology-configuration-details-status',
                                 renderer: function () {
                                     var status = me.usagePoint.get('metrologyConfiguration_status'),
-                                        icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                                        icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
                                             + status.name
                                             + '"></i>';
                                     return status.name + icon;

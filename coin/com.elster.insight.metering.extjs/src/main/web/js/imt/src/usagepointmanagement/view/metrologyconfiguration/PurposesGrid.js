@@ -31,7 +31,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesGrid', 
                 dataIndex: 'status',
                 flex: 1,
                 renderer: function (value) {
-                    var icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon ' + (value.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                    var icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon ' + (value.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
                             + value.name
                             + '"></i>';
 

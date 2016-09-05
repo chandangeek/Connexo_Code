@@ -76,7 +76,7 @@ Ext.define('Imt.purpose.view.ValidationStatusForm', {
                 xtype: 'displayfield',
                 name: 'suspectReason',
                 itemId: 'suspect-reason-field',
-                fieldLabel: Uni.I18n.translate('usagepoint.purpose.output.validation.suspects', 'IMT', 'Suspects (last mounth)'),
+                fieldLabel: Uni.I18n.translate('usagepoint.purpose.output.validation.suspects', 'IMT', 'Suspects (last month)'),
                 htmlEncode: false,
                 renderer: function (value) {
                     var result = '';

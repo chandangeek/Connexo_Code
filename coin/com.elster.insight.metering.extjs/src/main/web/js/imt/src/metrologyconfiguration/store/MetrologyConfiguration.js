@@ -8,6 +8,7 @@ Ext.define('Imt.metrologyconfiguration.store.MetrologyConfiguration', {
             type: 'json',
             root: 'metrologyconfigurations'
         },
+        timeout: 640000,
         pageParam: false,
         startParam: false,
         limitParam: false
