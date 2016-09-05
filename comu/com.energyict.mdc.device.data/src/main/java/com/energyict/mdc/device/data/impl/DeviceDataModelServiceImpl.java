@@ -18,7 +18,11 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -69,7 +73,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -549,6 +552,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(UserPreferencesService.class).toInstance(userService.getUserPreferencesService());
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(DeviceMessageService.class).toInstance(deviceMessageService);
             }
         };
     }
