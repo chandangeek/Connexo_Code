@@ -15,7 +15,9 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
     margin: 0,
     padding: 0,
     border: false,
-    itemsDefaultConfig: {},
+    itemsDefaultConfig: {
+        allowBlank: false
+    },
 
     setValue: function(value) {
         this.items.each(function(item, index) {
@@ -23,7 +25,13 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
         });
     },
 
+    isValid: function() {
+        return this.down('#from').isValid() && this.down('#to').isValid();
+    },
+
     onChange: function () {
+        this.down('#from').validate();
+        this.down('#to').validate();
         this.fireEvent('change', this, this.getValue());
     },
 
@@ -42,13 +50,7 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
     },
 
     initComponent: function () {
-        var me = this,
-            listeners = {
-                change: {
-                    fn: me.onChange,
-                    scope: me
-                }
-            };
+        var me = this;
 
         me.addEvents(
             "change"
@@ -58,14 +60,24 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
             {
                 xtype: 'uni-search-internal-numberfield',
                 itemId: 'from',
-                listeners: listeners,
-                itemsDefaultConfig: me.itemsDefaultConfig
+                itemsDefaultConfig: me.itemsDefaultConfig,
+                listeners: {
+                    change: function (field, newValue) {
+                        me.down('#to').getField().setMinValue(!Ext.isEmpty(newValue) ? newValue : 0);
+                        me.onChange();
+                    }
+                }
             },
             {
                 xtype: 'uni-search-internal-numberfield',
                 itemId: 'to',
-                listeners: listeners,
-                itemsDefaultConfig: me.itemsDefaultConfig
+                itemsDefaultConfig: me.itemsDefaultConfig,
+                listeners: {
+                    change: function (field, newValue) {
+                        me.down('#from').getField().setMaxValue(!Ext.isEmpty(newValue) ? newValue : Number.MAX_SAFE_INTEGER);
+                        me.onChange();
+                    }
+                }
             }
         ];
 

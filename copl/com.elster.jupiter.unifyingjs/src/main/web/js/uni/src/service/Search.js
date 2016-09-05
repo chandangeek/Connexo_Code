@@ -459,7 +459,7 @@ Ext.define('Uni.service.Search', {
                         fn: function(widget, value) {
                             me.setFilter(new Ext.util.Filter({
                                 property: widget.dataIndex,
-                                value: value ? value.map(function(v){return v.getData()}) : null,
+                                value: value && widget.isValid() ? value.map(function(v){return v.getData()}) : null,
                                 id: widget.dataIndex
                             }));
                         },
