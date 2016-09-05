@@ -117,7 +117,6 @@ Ext.define('Isu.view.issues.bulk.Step2', {
                 closable: true,
                 modal: true,
                 width: 800,
-                height: 150,
                 layout: 'fit',
                 autoShow: true,
                 closeAction: 'destroy',
