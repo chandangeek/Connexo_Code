@@ -32,7 +32,6 @@ public class MdcChecklist implements UpgradeCheckList {
                         InstallIdentifier.identifier(application(), "DTL"),
                         InstallIdentifier.identifier(application(), "IDC"),
                         InstallIdentifier.identifier(application(), "FWC"),
-                        InstallIdentifier.identifier(application(), "PR1"),
                         InstallIdentifier.identifier(application(), "DDI"),
                         InstallIdentifier.identifier(application(), "MRI"),
                         InstallIdentifier.identifier(application(), "CES"),
