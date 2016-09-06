@@ -34,7 +34,18 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     private static final ObisCode ALARM_DESCRIPTOR_OBISCODE_3 = ObisCode.fromString("0.0.97.98.22.255");
     private static final ObisCode P1_PORT_VERSION_OBIS = ObisCode.fromString("1.3.0.2.8.255");
     private static final ObisCode CLOCK_OBIS = ObisCode.fromString("0.0.1.0.0.255");
+    private static final ObisCode PUSH_ACTION_SCHEDULER_OBISCODE = ObisCode.fromString("0.0.15.0.4.255");
     private static final long SUPERVISION_MAXIMUM_THRESHOLD_VALUE = 0x80000000l;
+    private final String undefined_hour = "FF"; //not defined
+    private final String undefined_minute = "FF"; //not defined
+    private final String undefined_second = "FF"; //not defined
+    private final String undefined_hundredths = "FF"; //not defined
+    private final String undefined_year = "FFFF"; //not defined
+    private final String undefined_month = "FF"; //not defined
+    private final String undefined_dayOfMonth = "FF"; //not defined
+    private final String undefined_dayOfWeek = "FF"; //not defined
+    private final String disabledTime = undefined_hour + undefined_minute + undefined_second + undefined_hundredths;
+    private final String disabledDate = undefined_year + undefined_month + undefined_dayOfMonth + undefined_dayOfWeek;
 
     public T210DMessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
@@ -53,6 +64,10 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             collectedMessage = configureSuperVisionMonitor(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ConfigureGeneralLocalPortReadout)) {
             collectedMessage = configureConsumerP1port(pendingMessage, collectedMessage);
+        } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.DISABLE_PUSH_ON_INSTALLATION)) {
+            collectedMessage = disablePushOnInstallation(pendingMessage, collectedMessage);
+        } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ENABLE_PUSH_ON_INTERVAL_OBJECTS)) {
+            collectedMessage = enablePushOnInterval(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
             firmwareUpgrade(pendingMessage);
         } else {
@@ -290,6 +305,78 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
 
         imageTransfer.setUsePollingVerifyAndActivate(true);    //Poll verification
         imageTransfer.upgrade(binaryImage, false, firmwareIdentifier, true);
+    }
+
+    private CollectedMessage disablePushOnInstallation(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
+        Array executionTimes = new Array();
+        Structure timeDate = new Structure();
+        timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(disabledTime, "")));
+        timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(disabledDate, "")));
+        executionTimes.addDataType(timeDate);
+        ObisCode pushSetupObisCode = PUSH_ACTION_SCHEDULER_OBISCODE;
+        pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.On_Installation.getId());
+        return writeExecutionTime(pendingMessage, collectedMessage, executionTimes, pushSetupObisCode);
+    }
+
+    private CollectedMessage enablePushOnInterval(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
+        String executionMinutesForEachHour = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.executionMinutesForEachHour).getDeviceMessageAttributeValue();
+        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getDeviceMessageAttributeValue();
+        ObisCode pushSetupObisCode = PUSH_ACTION_SCHEDULER_OBISCODE;
+        pushSetupObisCode.setB(ConfigurationChangeDeviceMessage.PushType.valueOf(setupType).getId());
+        List<String> executionMinutes = extractExecutionMinutesFromString(pendingMessage, collectedMessage, executionMinutesForEachHour);
+        Array executionTimes = new Array();
+        for(String minuteValue: executionMinutes){
+            String time = undefined_hour + getMinuteValueInHex(minuteValue) + undefined_second + undefined_hundredths;
+            Structure timeDate = new Structure();
+            timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(time, "")));
+            timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(disabledDate, "")));
+            executionTimes.addDataType(timeDate);
+        }
+        return writeExecutionTime(pendingMessage, collectedMessage, executionTimes, pushSetupObisCode);
+    }
+
+    private String getMinuteValueInHex(String minuteValue) {
+        String minute =  Integer.toHexString(Integer.parseInt(minuteValue));
+        return minute.length() == 1 ? "0"+minute : minute;
+    }
+
+    private List<String> extractExecutionMinutesFromString(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, String executionMinutesForEachHour) {
+        List<String> executionMinutes = new ArrayList<>();
+        for(String minute: executionMinutesForEachHour.trim().split(",")){
+            try {
+                int m = Integer.parseInt(minute);
+                if (m < 0 || m > 59){
+                    throw new NumberFormatException();
+                }
+                executionMinutes.add(minute);
+            } catch (NumberFormatException e){
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                String msg = "The value: "+ minute +" is not a valid minute in an hour. Valid values are between 0 and 59 " + e.getMessage();
+                collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(pendingMessage, msg));
+                collectedMessage.setDeviceProtocolInformation(msg);
+            }
+        }
+        return executionMinutes;
+    }
+
+    private CollectedMessage writeExecutionTime(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, Array executionTimes, ObisCode obisCode) {
+        try {
+            SingleActionSchedule singleActionSchedule = getCosemObjectFactory().getSingleActionSchedule(obisCode);
+            singleActionSchedule.writeExecutionTime(executionTimes);
+            return collectedMessage;
+        } catch (NotInObjectListException niole){
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            String msg = "The obiscode: "+obisCode.getValue()+" was not found in device object list: " + niole.getMessage();
+            collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, msg));
+            collectedMessage.setDeviceProtocolInformation(msg);
+            return collectedMessage;
+        } catch (IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            String msg = "Unable to write execution time array";
+            collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, msg));
+            collectedMessage.setDeviceProtocolInformation(msg);
+            return collectedMessage;
+        }
     }
 
 }
