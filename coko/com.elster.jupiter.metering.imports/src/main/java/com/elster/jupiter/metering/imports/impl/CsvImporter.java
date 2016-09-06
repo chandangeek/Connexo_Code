@@ -84,10 +84,10 @@ public final class CsvImporter<T extends FileImportRecord> implements FileImport
                 processor.process(data, logger);
                 logger.importLineFinished(data);
             } catch (ProcessorException exception) {
+                logger.importLineFailed(data, exception);
                 if (exception.shouldStopImport()) {
                     throw exception;
                 }
-                logger.importLineFailed(data, exception);
             } catch (Exception exception) {
                 logger.importLineFailed(data, exception);
             }
