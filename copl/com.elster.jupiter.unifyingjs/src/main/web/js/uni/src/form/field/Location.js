@@ -18,6 +18,7 @@ Ext.define('Uni.form.field.Location', {
         align: 'stretch'
     },
     labelWidth: 150,
+    minWidth: 600,
 
     editLocation: Uni.I18n.translate('location.editLocation', 'UNI', 'Input location'),
     findLocationsUrl: null,
@@ -31,9 +32,9 @@ Ext.define('Uni.form.field.Location', {
             labelPad = 15,
         //completeWidth = me.width-me.labelWidth-labelPad,
         //itemsWidth = me.displayResetButton ?  me.width-me.labelWidth-labelPad-40 : me.width-me.labelWidth-labelPad,
-            completeWidth = me.width,
-            propertyWidth = me.displayResetButton ? me.width - me.labelWidth - labelPad - 40 : me.width - me.labelWidth - labelPad,
-            itemsWidth = me.displayResetButton ? me.width - 40 : me.width,
+            completeWidth = me.width || me.minWidth,
+            propertyWidth = me.displayResetButton ? completeWidth - me.labelWidth - labelPad - 40 : completeWidth - me.labelWidth - labelPad,
+            itemsWidth = me.displayResetButton ? completeWidth - 40 : completeWidth,
             store = Ext.create('Uni.store.FindLocations');
 
         store.getProxy().setUrl(me.findLocationsUrl);
