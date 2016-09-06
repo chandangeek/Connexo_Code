@@ -10,8 +10,6 @@ public interface MeterActivationBuilder {
 
     MeterActivationBuilder onUsagePoint(UsagePoint usagePoint);
 
-    MeterActivationBuilder keepingUsagePoint();
-
     MeterActivationBuilder startingAt(Instant start);
 
     List<MeterActivation> build();

@@ -26,11 +26,11 @@ public interface ServerMicroAction {
      * @param propertySpecService The PropertySpecService
      * @return The List of PropertySpec
      */
-    public default List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+    default List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
         return Collections.emptyList();
     }
 
-    public default void buildMeterActivation(MeterActivationBuilder builder, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
+    default void buildMeterActivation(MeterActivationBuilder builder, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         // by default do nothing
     }
 
@@ -42,7 +42,7 @@ public interface ServerMicroAction {
      * @param effectiveTimestamp The point in time when this transition will become effective, i.e. when the resulting state change will become effective
      * @param properties The List of
      */
-    public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties);
+    void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties);
 
     String getName();
 

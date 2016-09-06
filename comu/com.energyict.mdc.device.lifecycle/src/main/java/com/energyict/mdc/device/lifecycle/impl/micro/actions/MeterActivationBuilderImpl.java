@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -23,7 +22,6 @@ import com.google.common.collect.TreeRangeMap;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +34,6 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 public class MeterActivationBuilderImpl implements MeterActivationBuilder {
 
     private final Device device;
-    private UpdatableHolder<MeterActivation> previousMeterActivation;
 
     public MeterActivationBuilderImpl(Device device) {
         this.device = device;
@@ -45,7 +42,6 @@ public class MeterActivationBuilderImpl implements MeterActivationBuilder {
     private static class Combo {
         private UsagePoint usagePoint;
         private Instant start;
-        private boolean copyUsagePoint;
 
         public Instant getStart() {
             return start;
@@ -61,14 +57,6 @@ public class MeterActivationBuilderImpl implements MeterActivationBuilder {
 
         public void setUsagePoint(UsagePoint usagePoint) {
             this.usagePoint = usagePoint;
-        }
-
-        public boolean isCopyUsagePoint() {
-            return copyUsagePoint;
-        }
-
-        public void setCopyUsagePoint(boolean copyUsagePoint) {
-            this.copyUsagePoint = copyUsagePoint;
         }
     }
 
@@ -100,26 +88,9 @@ public class MeterActivationBuilderImpl implements MeterActivationBuilder {
     }
 
     @Override
-    public MeterActivationBuilder keepingUsagePoint() {
-        currentCombo.setCopyUsagePoint(true);
-        return this;
-    }
-
-    @Override
     public List<MeterActivation> build() {
         try {
-            Map<Range<Instant>, Combo> rangeMap = combos.asMapOfRanges();
-            previousMeterActivation = new UpdatableHolder<>(null);
-            if (!rangeMap.isEmpty()) {
-                rangeMap.keySet()
-                        .stream()
-                        .map(Range::lowerEndpoint)
-                        .min(Comparator.naturalOrder())
-                        .flatMap(instant -> device.getCurrentMeterActivation()
-                                .filter(meterActivation -> meterActivation.getRange().contains(instant)))
-                        .ifPresent(previousMeterActivation::update);
-            }
-            return rangeMap
+            return combos.asMapOfRanges()
                     .entrySet()
                     .stream()
                     .map(entry -> {
@@ -164,7 +135,7 @@ public class MeterActivationBuilderImpl implements MeterActivationBuilder {
     }
 
     private MeterActivation createNewMeterActivation(Combo combo, Instant timestamp) {
-        UsagePoint usagePoint = determineUsagePoint(combo);
+        UsagePoint usagePoint = combo.getUsagePoint();
         MeterActivation newMeterActivation = null;
         if (usagePoint == null) {
             newMeterActivation = device.activate(timestamp);
@@ -172,18 +143,6 @@ public class MeterActivationBuilderImpl implements MeterActivationBuilder {
             newMeterActivation = device.activate(timestamp, usagePoint);
         }
         return newMeterActivation;
-    }
-
-    private UsagePoint determineUsagePoint(Combo combo) {
-        UsagePoint usagePoint = null;
-        if (combo.getUsagePoint() != null) {
-            usagePoint = combo.getUsagePoint();
-        } else if (combo.isCopyUsagePoint()) {
-            usagePoint = Optional.ofNullable(previousMeterActivation.get())
-                    .flatMap(MeterActivation::getUsagePoint)
-                    .orElse(null);
-        }
-        return usagePoint;
     }
 
     /**

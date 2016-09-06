@@ -3,7 +3,6 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -417,10 +416,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         MeterActivationBuilder meterActivationBuilder = new MeterActivationBuilderImpl(device);
         serverMicroActions
                 .forEach(microAction -> microAction.buildMeterActivation(meterActivationBuilder, device, effectiveTimestamp, properties));
-        List<MeterActivation> meterActivations = meterActivationBuilder.build();
-        action.getActions()
-            .stream()
-                .map(this.microActionFactory::from)
+        meterActivationBuilder.build();
+        serverMicroActions
             .forEach(a -> this.execute(a, device, effectiveTimestamp, properties));
     }
 
