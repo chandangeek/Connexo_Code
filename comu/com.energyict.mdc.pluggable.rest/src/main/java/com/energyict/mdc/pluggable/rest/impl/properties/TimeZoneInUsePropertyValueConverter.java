@@ -1,7 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.TimeZoneInUseInfo;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
@@ -13,7 +12,7 @@ public class TimeZoneInUsePropertyValueConverter implements PropertyValueConvert
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && propertySpec.getValueFactory() instanceof TimeZoneFactory;
+        return propertySpec != null && TimeZoneInUse.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
     }
 
     @Override
@@ -28,7 +27,7 @@ public class TimeZoneInUsePropertyValueConverter implements PropertyValueConvert
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        return new TimeZoneInUseInfo((TimeZoneInUse) domainValue);
+        return domainValue != null ? new TimeZoneInUseInfo((TimeZoneInUse) domainValue) : null;
     }
 
 }
