@@ -116,16 +116,14 @@ Ext.define('Mdc.controller.setup.Devices', {
         record.data.nextExecution = Number(Ext.Date.format(record.data.nextExecution, 'time'));
         record.set('connectionMethod', connectionMethod);
         widget.setLoading(true);
-        record.deactivate({
-            callback: function (record, operation, success) {
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translate('device.connection.toggle', 'MDC', 'Connection status changed to {0}',[connectionMethod.status])
-                    );
-                    me.updateDevice(me.doRefresh);
-                }
-                widget.setLoading(false);
+        record.deactivate(function (record, operation, success) {
+            if (success) {
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('device.connection.toggle', 'MDC', 'Connection status changed to {0}',[connectionMethod.status])
+                );
+                me.updateDevice(me.doRefresh);
             }
+            widget.setLoading(false);
         }, _.pick(record.getRecordData(), 'id', 'name', 'version', 'parent', 'connectionMethod'));
     },
 
