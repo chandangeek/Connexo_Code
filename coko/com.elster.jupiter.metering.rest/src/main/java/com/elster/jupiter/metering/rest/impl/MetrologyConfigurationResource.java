@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.domain.util.FormValidationException;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -26,6 +27,7 @@ import com.elster.jupiter.rest.util.Transactional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -168,30 +170,36 @@ public class MetrologyConfigurationResource {
     }
 
     private void setReadingTypes(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingType> readingTypes, boolean isUpdate) {
-        MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_METROLOGY_PURPOSE_NOT_FOUND));
-        MeterRole meterRoleDefault = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_METER_ROLE_NOT_FOUND));
+        try {
+            MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_METROLOGY_PURPOSE_NOT_FOUND));
+            MeterRole meterRoleDefault = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_METER_ROLE_NOT_FOUND));
 
-        if (isUpdate) {
-            metrologyConfiguration.getDeliverables().stream().forEach(deliverable -> {
-                metrologyConfiguration.getContracts().forEach(metrologyContract -> metrologyContract.removeDeliverable(deliverable));
-                metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
+            if (isUpdate) {
+                metrologyConfiguration.getDeliverables().stream().forEach(deliverable -> {
+                    metrologyConfiguration.getContracts().forEach(metrologyContract -> metrologyContract.removeDeliverable(deliverable));
+                    metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
+                });
+                metrologyConfiguration.getRequirements().stream().forEach(metrologyConfiguration::removeReadingTypeRequirement);
+            } else {
+                metrologyConfiguration.addMeterRole(meterRoleDefault);
+            }
+
+            readingTypes.stream().forEach(readingType -> {
+                FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement =
+                        metrologyConfiguration
+                                .newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)
+                                .withReadingType(readingType);
+                ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
+                ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
+                MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(purpose);
+                metrologyContract.addDeliverable(deliverable);
             });
-            metrologyConfiguration.getRequirements().stream().forEach(metrologyConfiguration::removeReadingTypeRequirement);
-        } else {
-            metrologyConfiguration.addMeterRole(meterRoleDefault);
+        } catch (ConstraintViolationException ex) {
+            FormValidationException exception = new FormValidationException();
+            ex.getConstraintViolations().forEach(violation -> exception.addException("readingTypes", violation.getMessage()));
+            throw exception;
         }
-
-        readingTypes.stream().forEach(readingType -> {
-            FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement =
-                    metrologyConfiguration
-                            .newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)
-                            .withReadingType(readingType);
-            ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
-            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
-            MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(purpose);
-            metrologyContract.addDeliverable(deliverable);
-        });
     }
 }
