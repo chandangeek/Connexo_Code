@@ -73,6 +73,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
@@ -105,6 +106,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -194,6 +196,7 @@ public class InMemoryIntegrationPersistence {
     private FiniteStateMachineService finiteStateMachineService;
     private CalendarService calendarService;
     private ServiceCallService serviceCallService;
+    private DeviceMessageService deviceMessageService;
     private Injector injector;
 
     public InMemoryIntegrationPersistence() {
@@ -325,6 +328,7 @@ public class InMemoryIntegrationPersistence {
             this.dataValidationKpiService = injector.getInstance(DataValidationKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.calendarService = injector.getInstance(CalendarService.class);
+            this.deviceMessageService = injector.getInstance(DeviceMessageService.class);
             initHeadEndInterface();
             initializePrivileges();
             ctx.commit();
@@ -526,6 +530,10 @@ public class InMemoryIntegrationPersistence {
 
     public ServiceCallService getServiceCallService() {
         return serviceCallService;
+    }
+
+    public DeviceMessageService getDeviceMessageService() {
+        return deviceMessageService;
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {

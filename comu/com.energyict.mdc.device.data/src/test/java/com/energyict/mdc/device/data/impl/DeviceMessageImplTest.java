@@ -105,7 +105,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("MyTestDeviceType", deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigForMessaging");
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         resetClock();
     }
@@ -635,7 +635,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     public void createWithMessageWhichIsNotAllowedByTheDeviceConfigurationTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Config2");
         DeviceConfiguration config2 = deviceConfigurationBuilder.add();
-        config2.getDeviceMessageEnablements().stream().forEach(deviceMessageEnablement -> config2.removeDeviceMessageEnablement(deviceMessageEnablement.getDeviceMessageId()));
+        config2.getDeviceMessageEnablements().forEach(deviceMessageEnablement -> config2.removeDeviceMessageEnablement(deviceMessageEnablement.getDeviceMessageId()));
         config2.activate();
 
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
