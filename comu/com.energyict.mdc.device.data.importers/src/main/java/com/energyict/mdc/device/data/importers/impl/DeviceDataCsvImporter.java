@@ -83,10 +83,10 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
                 processor.process(data, logger);
                 logger.importLineFinished(data);
             } catch (ProcessorException exception) {
+                logger.importLineFailed(data, exception);
                 if (exception.shouldStopImport()) {
                     throw exception;
                 }
-                logger.importLineFailed(data, exception);
             } catch (Exception exception) {
                 logger.importLineFailed(data, exception);
             }

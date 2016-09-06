@@ -67,7 +67,7 @@ public class DevicePerLineFileImportLogger extends FileImportLoggerImpl<FileImpo
     }
 
     protected void summarizeSuccessImport() {
-        if (linesProcessed == 0 && linesWithError == 0) {
+        if (linesProcessed == 0) {
             // No devices were processed (No devices in file)
             fileImportOccurrence.markFailure(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         } else if (linesProcessed != 0 && linesWithError == 0 && linesWithWarnings == 0) {
