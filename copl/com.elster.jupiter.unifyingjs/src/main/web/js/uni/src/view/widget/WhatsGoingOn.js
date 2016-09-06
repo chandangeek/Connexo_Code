@@ -343,7 +343,12 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
     },
 
     addAssigneeToTooltip: function (result, value) {
-        result += !!value.assignee ? Uni.I18n.translate('whatsGoingOn.assignee', 'UNI', 'Assignee: {0}', value.assignee) + "<br>" : '';
+        if(value.type === 'process'){
+            result += !!value.assignee ? Uni.I18n.translate('whatsGoingOn.startedBy', 'UNI', 'Started by: {0}', value.assignee) + "<br>" : '';
+        } else{
+            result += !!value.assignee ? Uni.I18n.translate('whatsGoingOn.assignee', 'UNI', 'Assignee: {0}', value.assignee) + "<br>" : '';
+        }
+
         return result;
     }
 });
