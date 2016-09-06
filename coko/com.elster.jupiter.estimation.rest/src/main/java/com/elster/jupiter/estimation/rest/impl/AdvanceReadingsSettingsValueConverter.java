@@ -4,6 +4,7 @@ import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
+import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 
@@ -44,8 +45,11 @@ public class AdvanceReadingsSettingsValueConverter implements PropertyValueConve
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        Map<String, Boolean> valueMap = new HashMap<>();
-        valueMap.put(domainValue.toString(), true);
-        return valueMap;
+        if (domainValue != null && !(domainValue instanceof ReadingTypeAdvanceReadingsSettings)){
+            Map <String, Boolean> propertyValueMap = new HashMap<>();
+            propertyValueMap.put(domainValue.toString(), true);
+            return propertyValueMap;
+        }
+        return domainValue;
     }
 }
