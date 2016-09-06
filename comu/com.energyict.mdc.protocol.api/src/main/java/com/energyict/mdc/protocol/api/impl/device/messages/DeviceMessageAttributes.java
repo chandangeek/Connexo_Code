@@ -80,7 +80,7 @@ public enum DeviceMessageAttributes implements TranslationKey {
     newWrappedEncryptionKeyAttributeName(DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, "New wrapped encryption key"),
     newAuthenticationKeyAttributeName(DeviceMessageConstants.newAuthenticationKeyAttributeName, "New authentication key"),
     newWrappedAuthenticationKeyAttributeName(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, "New wrapped authentication key"),
-    newPasswordAttributeName(DeviceMessageConstants.newPasswordAttributeName, "new password"),
+    newPasswordAttributeName(DeviceMessageConstants.newPasswordAttributeName, "New password"),
     newHexPasswordAttributeName(DeviceMessageConstants.newHexPasswordAttributeName, "new hex password"),
     preparedDataAttributeName(DeviceMessageConstants.preparedDataAttributeName, "Prepared data"),
     signatureAttributeName(DeviceMessageConstants.signatureAttributeName, "signature"),
