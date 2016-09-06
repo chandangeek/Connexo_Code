@@ -14,7 +14,7 @@ Ext.define('Uni.view.menu.NavigationMenu', {
     floating: false,
     hidden: false,
     activeStep: 1,
-    width: 256,
+    minWidth: 256,
     jumpBack: true,
     jumpForward: false,
 

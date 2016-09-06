@@ -13,12 +13,14 @@ Ext.define('Uni.form.field.Coordinates', {
         'Uni.property.view.DefaultButton'
     ],
     displayResetButton: false,
+    labelWidth: 150,
+    minWidth: 600,
 
     initComponent: function () {
-
         var me = this,
-            completeWidth = me.width - me.labelWidth - me.labelPad,
-            itemsWidth = me.displayResetButton ? me.width - me.labelWidth - me.labelPad - 40 : me.width - me.labelWidth - me.labelPad,
+            width = me.width || me.minWidth,
+            completeWidth = width - me.labelWidth - me.labelPad,
+            itemsWidth = me.displayResetButton ? completeWidth - 40 : completeWidth,
             noCoordinate = {
                 xtype: 'displayfield',
                 itemId: 'no-coordinate',
