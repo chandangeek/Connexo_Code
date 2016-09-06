@@ -101,6 +101,10 @@
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
+      <artifactId>security.thread</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
       <artifactId>estimation</artifactId>
     </dependency>
 
@@ -143,11 +147,6 @@
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>tasks</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
-      <artifactId>security.thread</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
