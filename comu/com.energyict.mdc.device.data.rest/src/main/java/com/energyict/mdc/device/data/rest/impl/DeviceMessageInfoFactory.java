@@ -69,6 +69,7 @@ public class DeviceMessageInfoFactory {
         info.errorMessage = deviceMessage.getProtocolInfo();
 
         Device device = (Device) deviceMessage.getDevice();
+        info.userCanAdministrate = deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId());
         if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
             info.willBePickedUpByPlannedComTask = this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
             if (info.willBePickedUpByPlannedComTask) {
