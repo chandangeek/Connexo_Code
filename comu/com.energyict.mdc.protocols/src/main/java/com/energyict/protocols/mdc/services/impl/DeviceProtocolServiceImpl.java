@@ -11,8 +11,6 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.upgrade.InstallIdentifier;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -110,7 +108,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     private volatile Thesaurus thesaurus;
     private volatile OrmClient ormClient;
     private volatile List<LoadProfileFactory> loadProfileFactories = new CopyOnWriteArrayList<>();
-    private volatile UpgradeService upgradeService;
 
     // For OSGi purposes
     public DeviceProtocolServiceImpl() {
@@ -119,7 +116,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CalendarService calendarService, DeviceConfigurationService deviceConfigurationService, DeviceMessageFileService deviceMessageFileService, TransactionService transactionService, ProtocolPluggableService protocolPluggableService, UpgradeService upgradeService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CalendarService calendarService, DeviceConfigurationService deviceConfigurationService, DeviceMessageFileService deviceMessageFileService, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
         this();
         setMeteringService(meteringService);
         setTransactionService(transactionService);
@@ -139,7 +136,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageFileService(deviceMessageFileService);
         setProtocolPluggableService(protocolPluggableService);
-        setUpgradeService(upgradeService);
         activate();
     }
 
@@ -148,7 +144,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
         Module module = this.getModule();
         this.dataModel.register(module);
         this.injector = Guice.createInjector(module);
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceProtocolService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     private Module getModule() {
@@ -225,11 +220,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel(DeviceProtocolService.COMPONENT_NAME, "DeviceProtocol service 1");
         this.createOrmClientIfAllDependenciesHaveBeenResolved();
-    }
-
-    @Reference
-    public void setUpgradeService(UpgradeService upgradeService) {
-        this.upgradeService = upgradeService;
     }
 
     private void createOrmClientIfAllDependenciesHaveBeenResolved() {

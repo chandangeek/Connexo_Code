@@ -30,7 +30,6 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
-import com.energyict.protocols.mdc.services.impl.Installer;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 
 import com.energyict.license.LicensedProtocolRule;
@@ -146,7 +145,6 @@ public class AllDeviceProtocolsTest {
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        when(dataModel.getInstance(Installer.class)).thenAnswer(invocation -> new Installer(dataModel));
     }
 
     @After
