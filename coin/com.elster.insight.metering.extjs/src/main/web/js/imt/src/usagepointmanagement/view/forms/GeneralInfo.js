@@ -12,8 +12,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
     ],
     isPossibleAdd: true,
     defaults: {
-        labelWidth: 260,
-        width: 595
+        labelWidth: 260
+    },
+
+    layout: {
+        type: 'vbox',
+        align: 'stretchmax'
     },
 
     initComponent: function () {
@@ -40,29 +44,45 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
             },
             me.isPossibleAdd ?
             {
-                xtype: 'combobox',
-                name: 'serviceCategory',
-                itemId: 'up-service-category-combo',
+                xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
-                afterSubTpl: '<span class="field-additional-info" style="color: #686868; font-style: italic">'
-                + Uni.I18n.translate('usagepoint.add.clarification.serviceCategory', 'IMT', 'Service categories that you can\'t edit due to insufficient privileges are not included')
-                + '</span>',
-                required: true,
-                store: 'Imt.usagepointmanagement.store.ServiceCategories',
-                displayField: 'displayName',
-                valueField: 'name',
-                queryMode: 'local',
-                forceSelection: true,
-                emptyText: Uni.I18n.translate('usagepoint.add.emptyText.serviceCategory', 'IMT', 'Select service category...'),
-                listeners: {
-                    errorchange: {
-                        fn: function (field, error) {
-                            if (field.rendered) {
-                                field.getEl().down('.field-additional-info').setDisplayed(Ext.isEmpty(error));
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                items: [
+                    {
+                        xtype: 'combobox',
+                        name: 'serviceCategory',
+                        itemId: 'up-service-category-combo',
+                        required: true,
+                        store: 'Imt.usagepointmanagement.store.ServiceCategories',
+                        displayField: 'displayName',
+                        valueField: 'name',
+                        queryMode: 'local',
+                        forceSelection: true,
+                        emptyText: Uni.I18n.translate('usagepoint.add.emptyText.serviceCategory', 'IMT', 'Select service category...'),
+                        listeners: {
+                            errorchange: {
+                                fn: function (field, error) {
+                                    if (field.rendered) {
+                                        field.getEl().down('.field-additional-info').setDisplayed(Ext.isEmpty(error));
+                                    }
+                                }
                             }
                         }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        width: 300,
+                        margin: 0,
+                        value: Uni.I18n.translate('usagepoint.add.clarification.serviceCategory', 'IMT', 'Service categories that you can\'t edit due to insufficient privileges are not included'),
+                        fieldStyle: {
+                            fontStyle: 'italic',
+                            color: '#999'
+                        }
                     }
-                }
+                ]
             } :
             {
                 xtype: 'displayfield',
@@ -86,15 +106,13 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 dateFieldName: 'installationTime',
                 itemId: 'up-createTime-installationtimefield',
                 fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
-                required: true,
-                width: 600
+                required: true
             },
             {
                 xtype: 'coordinates',
                 name: 'extendedGeoCoordinates',
                 itemId: 'up-summary-geoCoordinates',
-                fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates'),
-                width: 595
+                fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates')
             },
             {
                 xtype: 'location',
@@ -102,10 +120,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 name: 'extendedLocation',
                 fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
                 findLocationsUrl: '/api/jsr/search/com.elster.jupiter.metering.UsagePoint/locationsearchcriteria/location',
-                locationDetailsUrl: '/api/udr/usagepoints/locations',
-                labelWidth: 260,
-                width: 595
-
+                locationDetailsUrl: '/api/udr/usagepoints/locations'
             },
             {
                 xtype: 'combobox',
