@@ -741,9 +741,12 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
         HashMap<Register, Register> registerMapping = new HashMap<>();
-        registerMapping.put(slave.getRegisters().get(0), dataLoggerR1);
-        registerMapping.put(slave.getRegisters().get(1), dataLoggerR2);
-        registerMapping.put(slave.getRegisters().get(2), dataLoggerR3);
+        Register slaveRegister1 = slave.getRegisters().get(0);
+        Register slaveRegister2 = slave.getRegisters().get(1);
+        Register slaveRegister3 = slave.getRegisters().get(2);
+        registerMapping.put(slaveRegister1, dataLoggerR1);
+        registerMapping.put(slaveRegister2, dataLoggerR2);
+        registerMapping.put(slaveRegister3, dataLoggerR3);
 
         inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
 
@@ -755,15 +758,15 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(dataLoggerReferences.get(0).getRange().hasUpperBound()).isFalse();
 
         assertThat(slave.hasData()).isTrue();
-        assertThat(slave.getRegisters().get(0).hasData()).isTrue();
-        assertThat(slave.getRegisters().get(1).hasData()).isTrue();
-        assertThat(slave.getRegisters().get(2).hasData()).isTrue();
+        assertThat(slaveRegister1.hasData()).isTrue();
+        assertThat(slaveRegister2.hasData()).isTrue();
+        assertThat(slaveRegister3.hasData()).isTrue();
 
-        assertThat(slave.getRegisters().get(0).getLastReadingDate()).isEqualTo(Optional.of(r1End)); // all data on data logger after link date copied
-        assertThat(slave.getRegisters().get(1).getLastReadingDate()).isEqualTo(Optional.of(r2End));
-        assertThat(slave.getRegisters().get(2).getLastReadingDate()).isEqualTo(Optional.of(r3End));
+        assertThat(slaveRegister1.getLastReadingDate()).isEqualTo(Optional.of(r1End)); // all data on data logger after link date copied
+        assertThat(slaveRegister2.getLastReadingDate()).isEqualTo(Optional.of(r2End));
+        assertThat(slaveRegister3.getLastReadingDate()).isEqualTo(Optional.of(r3End));
 
-        List<Reading> readings = slave.getRegisters().get(0).getReadings(Interval.of(Range.atLeast(startLink)));
+        List<Reading> readings = slaveRegister1.getReadings(Interval.of(Range.atLeast(startLink)));
         assertThat(readings).hasSize(new Long(readingsDataLoggerR1.stream()
                 .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
@@ -773,7 +776,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
                         .stream()
                         .allMatch(rqr -> rqr.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false)))).isTrue();
 
-        readings = slave.getRegisters().get(1).getReadings(Interval.of(Range.atLeast(startLink)));
+        readings = slaveRegister2.getReadings(Interval.of(Range.atLeast(startLink)));
         assertThat(readings).hasSize(new Long(readingsDataLoggerR2.stream()
                 .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
@@ -783,7 +786,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
                         .stream()
                         .allMatch(rqr -> rqr.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false)))).isTrue();
 
-        readings = slave.getRegisters().get(2).getReadings(Interval.of(Range.atLeast(startLink)));
+        readings = slaveRegister3.getReadings(Interval.of(Range.atLeast(startLink)));
         assertThat(readings).hasSize(new Long(readingsDataLoggerR3.stream()
                 .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
@@ -793,9 +796,9 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
                         .stream()
                         .allMatch(rqr -> rqr.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false)))).isTrue();
 
-        assertThat(slave.getRegisters().get(0).getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty(); // No data before link date
-        assertThat(slave.getRegisters().get(1).getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty();
-        assertThat(slave.getRegisters().get(2).getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty();
+        assertThat(slaveRegister1.getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty(); // No data before link date
+        assertThat(slaveRegister2.getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty();
+        assertThat(slaveRegister3.getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty();
     }
 
     @Test
@@ -839,9 +842,12 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
         HashMap<Register, Register> registerMapping = new HashMap<>();
-        registerMapping.put(slave.getRegisters().get(0), dataLoggerR1);
-        registerMapping.put(slave.getRegisters().get(1), dataLoggerR2);
-        registerMapping.put(slave.getRegisters().get(2), dataLoggerR3);
+        Register slaveRegister1 = slave.getRegisters().get(0);
+        Register slaveRegister2 = slave.getRegisters().get(1);
+        registerMapping.put(slaveRegister1, dataLoggerR1);
+        Register slaveRegister3 = slave.getRegisters().get(2);
+        registerMapping.put(slaveRegister2, dataLoggerR2);
+        registerMapping.put(slaveRegister3, dataLoggerR3);
 
         dataLoggerR2.startEditingData()
                 .editReading(ReadingImpl.of(dataLoggerR2.getReadingType().getMRID(), new BigDecimal(0), readingsDataLoggerR2.get(readingsDataLoggerR2.size() / 2).getTimeStamp()))
@@ -857,15 +863,15 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(dataLoggerReferences.get(0).getRange().hasUpperBound()).isFalse();
 
         assertThat(slave.hasData()).isTrue();
-        assertThat(slave.getRegisters().get(0).hasData()).isTrue();
-        assertThat(slave.getRegisters().get(1).hasData()).isTrue();
-        assertThat(slave.getRegisters().get(2).hasData()).isTrue();
+        assertThat(slaveRegister1.hasData()).isTrue();
+        assertThat(slaveRegister2.hasData()).isTrue();
+        assertThat(slaveRegister3.hasData()).isTrue();
 
-        assertThat(slave.getRegisters().get(0).getLastReadingDate()).isEqualTo(Optional.of(r1End)); // all data on data logger after link date copied
-        assertThat(slave.getRegisters().get(1).getLastReadingDate()).isEqualTo(Optional.of(r2End));
-        assertThat(slave.getRegisters().get(2).getLastReadingDate()).isEqualTo(Optional.of(r3End));
+        assertThat(slaveRegister1.getLastReadingDate()).isEqualTo(Optional.of(r1End)); // all data on data logger after link date copied
+        assertThat(slaveRegister2.getLastReadingDate()).isEqualTo(Optional.of(r2End));
+        assertThat(slaveRegister3.getLastReadingDate()).isEqualTo(Optional.of(r3End));
 
-        List<Reading> readings = slave.getRegisters().get(0).getReadings(Interval.of(Range.atLeast(startLink)));
+        List<Reading> readings = slaveRegister1.getReadings(Interval.of(Range.atLeast(startLink)));
         assertThat(readings).hasSize(new Long(readingsDataLoggerR1.stream()
                 .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
@@ -875,8 +881,8 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
                         .stream()
                         .allMatch(rqr -> rqr.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false)))).isTrue();
 
-        readings = slave.getRegisters().get(1).getReadings(Interval.of(Range.atLeast(startLink)));
-        assertThat(slave.getRegisters().get(1).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR2.stream()
+        readings = slaveRegister2.getReadings(Interval.of(Range.atLeast(startLink)));
+        assertThat(readings).hasSize(new Long(readingsDataLoggerR2.stream()
                 .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
         assertThat(readings.stream()
@@ -887,8 +893,8 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
                 .filter(not(rq -> rq.getType().qualityIndex().map(QualityCodeIndex.EDITGENERIC::equals).orElse(false)))
                 .allMatch(rq -> rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false)));
 
-        readings = slave.getRegisters().get(2).getReadings(Interval.of(Range.atLeast(startLink)));
-        assertThat(slave.getRegisters().get(2).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR3.stream()
+        readings = slaveRegister3.getReadings(Interval.of(Range.atLeast(startLink)));
+        assertThat(readings).hasSize(new Long(readingsDataLoggerR3.stream()
                 .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
         assertThat(readings.stream()
@@ -897,9 +903,9 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
                         .stream()
                         .allMatch(rqr -> rqr.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false)))).isTrue();
 
-        assertThat(slave.getRegisters().get(0).getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty(); // No data before link date
-        assertThat(slave.getRegisters().get(1).getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty();
-        assertThat(slave.getRegisters().get(2).getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty();
+        assertThat(slaveRegister1.getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty(); // No data before link date
+        assertThat(slaveRegister2.getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty();
+        assertThat(slaveRegister3.getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty();
     }
 
 
@@ -1044,19 +1050,22 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
         HashMap<Register, Register> registerMapping = new HashMap<>();
-        registerMapping.put(slave.getRegisters().get(0), dataLoggerR1);
-        registerMapping.put(slave.getRegisters().get(1), dataLoggerR2);
-        registerMapping.put(slave.getRegisters().get(2), dataLoggerR3);
+        Register slaveRegister1 = slave.getRegisters().get(0);
+        registerMapping.put(slaveRegister1, dataLoggerR1);
+        Register slaveRegister2 = slave.getRegisters().get(1);
+        registerMapping.put(slaveRegister2, dataLoggerR2);
+        Register slaveRegister3 = slave.getRegisters().get(2);
+        registerMapping.put(slaveRegister3, dataLoggerR3);
 
         inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
         // Making sure data has been transferred form data logge<r to slave
-        assertThat(slave.getRegisters().get(0).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR1.stream()
+        assertThat(slaveRegister1.getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR1.stream()
                 .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
-        assertThat(slave.getRegisters().get(1).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR2.stream()
+        assertThat(slaveRegister2.getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR2.stream()
                 .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
-        assertThat(slave.getRegisters().get(2).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR3.stream()
+        assertThat(slaveRegister3.getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR3.stream()
                 .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
 
