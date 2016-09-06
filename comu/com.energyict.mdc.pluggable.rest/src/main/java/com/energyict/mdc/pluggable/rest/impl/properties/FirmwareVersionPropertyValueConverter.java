@@ -4,6 +4,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
 /**
  * Created by mbarinov on 31.08.2016.
@@ -12,7 +13,7 @@ public class FirmwareVersionPropertyValueConverter implements PropertyValueConve
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && FirmwareVersion.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
+        return propertySpec != null && BaseFirmwareVersion.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
     }
 
     @Override

@@ -13,8 +13,7 @@ public class LoadProfilePropertyValueConverter implements PropertyValueConverter
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && (LoadProfile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())
-                || BaseLoadProfile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()));
+        return propertySpec != null && BaseLoadProfile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
     }
 
     @Override
