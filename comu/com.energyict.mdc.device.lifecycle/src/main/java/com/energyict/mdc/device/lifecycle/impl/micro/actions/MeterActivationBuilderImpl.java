@@ -169,7 +169,7 @@ public class MeterActivationBuilderImpl implements MeterActivationBuilder {
         if (usagePoint == null) {
             newMeterActivation = device.activate(timestamp);
         } else {
-            newMeterActivation = device.activate(timestamp, usagePoint);
+            newMeterActivation = device.forceActivate(timestamp, usagePoint);
         }
         return newMeterActivation;
     }
