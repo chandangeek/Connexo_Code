@@ -3,11 +3,13 @@ package com.energyict.mdc.device.data.impl.tasks.report;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,10 +30,19 @@ enum BreakdownType {
     None {
         @Override
         BreakdownResult parse(ResultSet row) throws SQLException {
-            return BreakdownResult
-                    .noBreakdown(
-                            ServerComTaskStatus.valueOf(row.getString(STATUS_COLUMN_NUMBER)),
-                            row.getLong(COUNT_COLUMN_NUMBER));
+            try {
+                ServerComTaskStatus taskStatus = ServerComTaskStatus.valueOf(row.getString(STATUS_COLUMN_NUMBER));
+                return BreakdownResult
+                            .noBreakdown(
+                                taskStatus,
+                                row.getLong(COUNT_COLUMN_NUMBER));
+            } catch (IllegalArgumentException e) {
+                LOGGER.severe("ComTaskExecution with id " + row.getString(STATUS_COLUMN_NUMBER) + " is in unknown status for the breakdown queries, assuming " + TaskStatus.initial() + " as default value.");
+                return BreakdownResult
+                            .noBreakdown(
+                                ServerComTaskStatus.NeverCompleted,
+                                row.getLong(COUNT_COLUMN_NUMBER));
+            }
         }
 
         @Override
@@ -89,6 +100,8 @@ enum BreakdownType {
             processor.addDeviceTypeStatusCount(breakdownResult);
         }
     };
+
+    Logger LOGGER = Logger.getLogger(BreakdownType.class.getName());
 
     /**
      * Returns the Set of BreakdownType that support {@link ConnectionTask}s.
