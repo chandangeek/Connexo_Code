@@ -12,7 +12,7 @@ Ext.define('Uni.view.search.field.internal.QuantityRange', {
     margin: 0,
     padding: 0,
     border: false,
-    itemsDefaultConfig: {},
+    unitsStore: null,
 
     setValue: function(value) {
         var me = this,
@@ -72,7 +72,7 @@ Ext.define('Uni.view.search.field.internal.QuantityRange', {
                     scope: me
                 }
             },
-            store = me.itemsDefaultConfig.unitsStore,
+            store = me.unitsStore,
             defaultUnit = store ? store.getAt(0) : null;
 
         me.addEvents(
