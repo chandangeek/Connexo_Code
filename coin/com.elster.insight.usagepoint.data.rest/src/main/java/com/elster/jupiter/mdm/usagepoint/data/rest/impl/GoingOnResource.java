@@ -106,6 +106,7 @@ public class GoingOnResource {
             goingOnInfo.id = userTaskInfo.map(info -> Long.parseLong(info.id)).orElse(0L);
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
+            goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).filter(not(String::isEmpty)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);
             goingOnInfo.severity = severity(goingOnInfo.dueDate);
             goingOnInfo.assignee = userTaskInfo.flatMap(info -> Optional.ofNullable(info.actualOwner)).orElse(null);
             goingOnInfo.assigneeIsCurrentUser = userTaskInfo.flatMap(info -> Optional.ofNullable(info.isAssignedToCurrentUser)).orElse(false);
