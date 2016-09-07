@@ -45,7 +45,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                         htmlEncode: false,
                         renderer: function (status, meta, record) {
                             if (!Ext.isEmpty(status)) {
-                                var icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                                var icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
                                     + status.name
                                     + '"></i>';
                                 return status.name + icon
@@ -126,7 +126,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
         me.down('#data-validation-tasks-field').setVisible(hasValidationTasks);
         validationTasksEmptyMsg.setVisible(!hasValidationTasks);
         if (!hasValidationTasks) {
-            validationTasksEmptyMsg.setText(Uni.I18n.translate('usagepoint.purpose.validation.task.noTasks', 'IMT', 'No validation tasks has been configured for "{0}" purpose yet ({1}manage validation tasks{2})',
+            validationTasksEmptyMsg.setText(Uni.I18n.translate('usagepoint.purpose.validation.task.noTasks', 'IMT', 'No validation tasks have been configured for  "{0}" purpose yet ({1}manage validation tasks{2})',
                 [
                     [record.get('name')],
                     '<a href="'

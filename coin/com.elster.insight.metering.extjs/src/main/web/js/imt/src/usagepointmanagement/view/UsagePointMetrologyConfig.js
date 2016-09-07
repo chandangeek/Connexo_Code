@@ -32,7 +32,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                                     + me.router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: record.getId()})
                                     + '">';
                             }
-                            result += value;
+                            result += Ext.htmlEncode(value);
                             if (canViewMetrologyConfig) {
                                 result += '</a>';
                             }
@@ -128,7 +128,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                         value: purpose.name,
                         renderer: function(value){
                             var icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
-                                    + (purpose.status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2')
+                                    + (purpose.status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle')
                                     + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
                                     + purpose.status.name
                                     + '"></i>',
@@ -239,9 +239,8 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                         fieldLabel: Uni.I18n.translate('general.label.meters', 'IMT', 'Meters'),
                         value: '-'
                     });
-
-                    var metrologyConfiguration = me.usagePoint.get('metrologyConfiguration');
-                    if(metrologyConfiguration && metrologyConfiguration.meterRoles && metrologyConfiguration.meterRoles.length){
+                    var metrologyConfig = me.usagePoint.get('metrologyConfiguration');
+                    if (metrologyConfig && !Ext.isEmpty(metrologyConfig.meterRoles)) {
                         me.down('#up-metrology-config-meters-empty').show();
                     }
                 }
