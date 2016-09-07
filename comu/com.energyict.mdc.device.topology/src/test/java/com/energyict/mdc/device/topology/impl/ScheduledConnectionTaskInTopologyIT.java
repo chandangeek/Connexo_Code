@@ -516,7 +516,6 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServerBuilder.numberOfStoreTaskThreads(2);
         onlineComServerBuilder.serverName(name);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
