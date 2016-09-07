@@ -142,7 +142,6 @@ public class ComPortParserTest {
         onlineComServerBuilder.storeTaskThreadPriority(Thread.NORM_PRIORITY);
         onlineComServerBuilder.numberOfStoreTaskThreads(1);
         onlineComServerBuilder.serverName(name);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         return onlineComServer.newOutboundComPort("TCP", 5).active(true).comPortType(ComPortType.TCP).add();
