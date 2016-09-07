@@ -47,6 +47,7 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_SPEC_REGISTER_TYPE_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Keys.REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG,"The register type can not be modified if the device configuration is active"),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(6014, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits."),
     REGISTER_SPEC_OVERFLOW_INVALID(6015, Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be above larger than 0 and smaller than " + Integer.MAX_VALUE),
+    REGISTER_SPEC_DUPLICATE_REGISTER_TYPE(6016, Keys.REGISTER_SPEC_DUPLICATE_REGISTER_TYPE, "Device configuration already has a register configuration with given reading type."),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required"),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Keys.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS, "The device type {0} cannot be removed because it still has active configurations"),
     DEVICE_PROTOCOL_IS_REQUIRED(7004, Keys.DEVICE_PROTOCOL_IS_REQUIRED, "The protocol of a device type is required"),
@@ -243,6 +244,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String RETRY_DELAY_MUST_BE_HIGHER = "partialScheduledConnectionTask.retryDelayMustBeHigher";
         public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "registerSpec.invalidNumberOfFractionDigits";
         public static final String REGISTER_SPEC_INVALID_OVERFLOW_VALUE = "registerSpec.invalidOverflow";
+        public static final String REGISTER_SPEC_DUPLICATE_REGISTER_TYPE = "register.spec.duplicate.register.type";
         public static final String CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "channelSpec.invalidNumberOfFractionDigits";
         public static final String CHANNEL_SPEC_INVALID_OVERFLOW_VALUE = "channelSpec.invalidOverflow";
         public static final String UNSUPPORTED_SECURITY_LEVEL = "securityPropertySet.unsupportedSecurityLevel";
