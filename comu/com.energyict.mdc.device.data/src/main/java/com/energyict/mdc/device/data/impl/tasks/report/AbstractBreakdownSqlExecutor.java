@@ -5,13 +5,9 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,14 +22,12 @@ import java.util.Optional;
 /**
  * Provides code reuse opportunities for components that generate and execute SQL
  * to count instances of XXX, broken down by various properties of the XXX class.
- * It is assumed that the complete SQL comes in 3 parts.
- * The second part tests against the current state of the related device.
- * This part will bind the current system time in millis. It also requires
- * that the SQL context contains an element that has a foreign key
- * to a device. The name of the column that holds this foreign key should be "device".
- * The first part contains sufficient SQL constructs to provide the aforementioded
- * foreign key to the device table {@link com.energyict.mdc.device.data.impl.TableSpecs#DDC_DEVICE}.
- * This first part does not require any binding.
+ * It is assumed that the complete SQL comes in 2 or 3 parts.
+ * Three parts are only necessary if the devices that are linked to the XXX class
+ * are required to be part of a group. Otherwise, 2 parts are sufficient.
+ * The first part includes a tests against the current state of the related device.
+ * This part will bind the current system time in millis.
+ * The second part is optional an contains the conditions of the device group.
  * The last part produces the {@link com.energyict.mdc.device.data.tasks.TaskStatus}
  * SQL clauses and will bind the current system time in seconds.
  * The current system time is extracted from the clock that is
@@ -52,8 +46,7 @@ abstract class AbstractBreakdownSqlExecutor {
     private final DataModel dataModel;
     private final Optional<EndDeviceGroup> deviceGroup;
     private final Optional<AmrSystem> amrSystem;
-    private Optional<SqlFragment> deviceGroupFragment = Optional.empty();
-    private int numberOfUtcMilliBinds;
+    private SqlFragment deviceGroupFragment = null;
 
     AbstractBreakdownSqlExecutor(DataModel dataModel, Optional<EndDeviceGroup> deviceGroup, Optional<AmrSystem> amrSystem) {
         super();
@@ -73,81 +66,41 @@ abstract class AbstractBreakdownSqlExecutor {
     }
 
     private PreparedStatement statement(Connection connection) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(this.sql());
-        boolean failed = true;
-        try {
-            this.bind(statement);
-            failed = false;
-        }
-        finally {
-            if (failed) {
-                statement.close();
-            }
-        }
-        return statement;
+        return this.sql().prepare(connection);
     }
 
-    private String sql() {
-        StringBuilder sqlBuilder = new StringBuilder(this.beforeDeviceStateSql());
-        this.numberOfUtcMilliBinds =
-                DeviceStateSqlBuilder
-                        .forDefaultExcludedStates(this.deviceContainerAliasName())
-                        .appendRestrictedStatesCondition(sqlBuilder);
+    private SqlBuilder sql() {
+        Instant now = this.dataModel.getInstance(Clock.class).instant();
+        SqlBuilder sqlBuilder = this.beforeDeviceGroupSql(now);
         this.deviceGroup.ifPresent(deviceGroup -> this.appendDeviceGroupSql(deviceGroup, sqlBuilder));
-        sqlBuilder.append(this.taskStatusSql());
-        return sqlBuilder.toString();
+        sqlBuilder.add(this.taskStatusSql(now));
+        return sqlBuilder;
     }
 
     /**
-     * Returns the part of the SQL before the test against
-     * the current state of the related device.
+     * Returns a SqlBuilder that contains the part of the SQL before
+     * the conditions of the the related device group.
+     * This will not be called if the related device
+     * is not required to be part of a device group.
      * For more details read the class comment.
      *
+     * @param now The current time
      * @return The first part of the SQL
      */
-    protected abstract String beforeDeviceStateSql();
-
-    /**
-     * Binds the {@link #beforeDeviceStateSql()}, starting at the specified
-     * start position and returns the next bind position.
-     * In other words, increments the start position with the
-     * number of binds that were done. Therefore, if no bindings
-     * are required, simply return the start position
-     *
-     * @param statement The PreparedStatement
-     * @param now The current system time
-     * @param startPosition The position on which the first bind should be done
-     * @return The position of the next bind
-     * @throws SQLException Thrown by the PreparedStatement when binding values
-     */
-    protected abstract int bindBeforeDeviceStateSql(PreparedStatement statement, Instant now, int startPosition)  throws SQLException;
+    protected abstract SqlBuilder beforeDeviceGroupSql(Instant now);
 
     /**
      * Returns the part of the SQL that produces the TaskStatus clauses.
      * For more details read the class comment.
      *
+     * @param now The current time
      * @return The last part of the SQL
      */
-    protected abstract String taskStatusSql();
-
-    /**
-     * Binds the {@link #taskStatusSql()}, starting at the specified
-     * start position and returns the next bind position.
-     * In other words, increments the start position with the
-     * number of binds that were done. Therefore, if no bindings
-     * are required, simply return the start position
-     *
-     * @param statement The PreparedStatement
-     * @param now The current system time
-     * @param startPosition The position on which the first bind should be done
-     * @return The position of the next bind
-     * @throws SQLException Thrown by the PreparedStatement when binding values
-     */
-    protected abstract int bindTaskStatusSql(PreparedStatement statement, Instant now, int startPosition) throws SQLException;
+    protected abstract SqlBuilder taskStatusSql(Instant now);
 
     protected abstract String deviceContainerAliasName();
 
-    private void appendDeviceGroupSql(EndDeviceGroup deviceGroup, StringBuilder sqlBuilder) {
+    private void appendDeviceGroupSql(EndDeviceGroup deviceGroup, SqlBuilder sqlBuilder) {
         SqlFragment fragment;
         sqlBuilder.append(" and ");
         sqlBuilder.append(this.deviceContainerAliasName());
@@ -158,22 +111,9 @@ abstract class AbstractBreakdownSqlExecutor {
         else {
             fragment = ((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery(this.amrSystem.get()).toFragment();
         }
-        sqlBuilder.append(fragment.getText());
+        sqlBuilder.add(fragment);
         sqlBuilder.append(")");
-        this.deviceGroupFragment = Optional.of(fragment);
-    }
-
-    private void bind(PreparedStatement statement) throws SQLException {
-        Instant instant = this.dataModel.getInstance(Clock.class).instant();
-        int bindPosition = this.bindBeforeDeviceStateSql(statement, instant, 1);
-        long nowInMillis = instant.toEpochMilli();
-        for (int i = 0; i < this.numberOfUtcMilliBinds; i++) {
-            statement.setLong(bindPosition++, nowInMillis);
-        }
-        if (this.deviceGroupFragment.isPresent()) {
-            bindPosition = this.deviceGroupFragment.get().bind(statement, bindPosition);
-        }
-        this.bindTaskStatusSql(statement, instant, bindPosition);
+        this.deviceGroupFragment = fragment;
     }
 
     private List<BreakdownResult> fetchBreakdowns(PreparedStatement statement) throws SQLException {
@@ -184,16 +124,6 @@ abstract class AbstractBreakdownSqlExecutor {
             }
         }
         return breakdownResults;
-    }
-
-    /**
-     * Returns a QueryExecutor that supports building a subquery to match
-     * that the ComTaskExecution's device is in a EndDeviceGroup.
-     *
-     * @return The QueryExecutor
-     */
-    private QueryExecutor<Device> deviceFromDeviceGroupQueryExecutor() {
-        return this.dataModel.query(Device.class, DeviceConfiguration.class, DeviceType.class);
     }
 
 }

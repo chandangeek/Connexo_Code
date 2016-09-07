@@ -30,21 +30,31 @@ public class RegisterObisCodeSearchableProperty extends AbstractObisCodeSearchab
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        SqlBuilder builder = new SqlBuilder();
-        builder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN (");
-        builder.append("select DTC_REGISTERSPEC.DEVICECONFIGID " +
-                "from DTC_REGISTERSPEC " +
-                "join MDS_MEASUREMENTTYPE on MDS_MEASUREMENTTYPE.ID = DTC_REGISTERSPEC.REGISTERTYPEID " +
-                "where ");
-        builder.add(this.toSqlFragment("DTC_REGISTERSPEC.deviceobiscode", condition, now));
-        builder.append(" OR ");
-        builder.openBracket();
-        builder.append(" DTC_REGISTERSPEC.deviceobiscode is null ");
-        builder.append(" AND ");
-        builder.add(this.toSqlFragment("MDS_MEASUREMENTTYPE.obiscode", condition, now));
-        builder.closeBracket();
-        builder.closeBracket();
-        return builder;
+        SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
+        sqlBuilder.openBracket();
+        sqlBuilder.append(" SELECT DDC_DEVICE.ID FROM DDC_DEVICE ");
+        sqlBuilder.append("RIGHT JOIN DTC_REGISTERSPEC ON DDC_DEVICE.DEVICECONFIGID = DTC_REGISTERSPEC.DEVICECONFIGID ");
+        sqlBuilder.append("LEFT JOIN MDS_MEASUREMENTTYPE ON DTC_REGISTERSPEC.REGISTERTYPEID = MDS_MEASUREMENTTYPE.ID ");
+        sqlBuilder.append("LEFT JOIN DDC_OVERRULEDOBISCODE ON DDC_DEVICE.ID = DDC_OVERRULEDOBISCODE.DEVICEID " +
+                "AND MDS_MEASUREMENTTYPE.READINGTYPE = DDC_OVERRULEDOBISCODE.READINGTYPEMRID ");
+        sqlBuilder.append(" WHERE ");
+        sqlBuilder.openBracket();
+        sqlBuilder.append("DDC_OVERRULEDOBISCODE.OBISCODE IS NOT NULL AND ");
+        sqlBuilder.add(this.toSqlFragment("DDC_OVERRULEDOBISCODE.OBISCODE", condition, now));
+        sqlBuilder.closeBracket();
+        sqlBuilder.append(" OR ");
+        sqlBuilder.openBracket();
+        sqlBuilder.append("DDC_OVERRULEDOBISCODE.OBISCODE IS NULL AND DTC_REGISTERSPEC.DEVICEOBISCODE IS NOT NULL AND ");
+        sqlBuilder.add(this.toSqlFragment("DTC_REGISTERSPEC.DEVICEOBISCODE", condition, now));
+        sqlBuilder.closeBracket();
+        sqlBuilder.append(" OR ");
+        sqlBuilder.openBracket();
+        sqlBuilder.append("DDC_OVERRULEDOBISCODE.OBISCODE IS NULL AND DTC_REGISTERSPEC.DEVICEOBISCODE IS NULL AND ");
+        sqlBuilder.add(this.toSqlFragment("MDS_MEASUREMENTTYPE.OBISCODE", condition, now));
+        sqlBuilder.closeBracket();
+        sqlBuilder.closeBracket();
+        return sqlBuilder;
     }
 
     @Override
