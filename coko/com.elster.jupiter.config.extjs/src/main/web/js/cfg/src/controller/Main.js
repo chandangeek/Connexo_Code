@@ -43,8 +43,10 @@ Ext.define('Cfg.controller.Main', {
     },
 
     initMenu: function () {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            validationKpiRoute = router.getRoute('administration/datavalidationkpis');
 
-        var me = this;
         if (Cfg.privileges.Validation.canView()) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'CFG', 'Administration'),
@@ -72,9 +74,9 @@ Ext.define('Cfg.controller.Main', {
                         itemId: 'lnk-validation-tasks'
                     },
                     {
-                        text: Uni.I18n.translate('dataValidationKPIs.general.dataValidationKPIs', 'CFG', 'Data validation KPIs'),
-                        href: '#/administration/datavalidationkpis',
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'),
+                        text: validationKpiRoute.getTitle(),
+                        href: validationKpiRoute.buildUrl(),
+                        hidden: validationKpiRoute.disabled,
                         itemId: 'lnk-data-validation-kpis'
                     }
                 ]
