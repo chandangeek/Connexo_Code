@@ -1,7 +1,8 @@
 Ext.define('Cfg.controller.history.DataValidationKpis', {
     extend: 'Uni.controller.history.Converter',
     requires: [
-        'Cfg.privileges.Validation'
+        'Cfg.privileges.Validation',
+        'Uni.util.Application'
     ],
 
     rootToken: 'administration',
@@ -16,6 +17,7 @@ Ext.define('Cfg.controller.history.DataValidationKpis', {
                     route: 'datavalidationkpis',
                     controller: 'Cfg.controller.DataValidationKpi',
                     privileges: Cfg.privileges.Validation.view,
+                    disabled: Uni.util.Application.getAppName() === 'MdmApp',
                     action: 'showDataValidationKPIs',
                     items: {
                         add: {
@@ -23,6 +25,7 @@ Ext.define('Cfg.controller.history.DataValidationKpis', {
                             route: 'add',
                             controller: 'Cfg.controller.DataValidationKpi',
                             privileges: Cfg.privileges.Validation.admin,
+                            disabled: Uni.util.Application.getAppName() === 'MdmApp',
                             action: 'showAddDataValidationKpi'
                         }
                     }
