@@ -61,7 +61,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(
         name = "UsagePointDataServiceImpl",
-        service = {UsagePointDataService.class, MessageSeedProvider.class},
+        service = {UsagePointDataService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = {"name=" + UsagePointDataService.COMPONENT_NAME},
         immediate = true)
 public class UsagePointDataServiceImpl implements UsagePointDataService, MessageSeedProvider, TranslationKeyProvider {
