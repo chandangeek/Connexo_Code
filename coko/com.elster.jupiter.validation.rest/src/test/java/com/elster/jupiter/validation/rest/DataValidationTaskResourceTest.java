@@ -246,7 +246,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         JsonModel jsonModel = JsonModel.model(response);
         //Asserts
         assertThat(jsonModel.<Number>get("$.id")).isEqualTo(TASK_ID);
-        assertThat(jsonModel.<String>get("$.recurrence")).isEqualTo("every 14 days");
+        assertThat(jsonModel.<String>get("$.recurrence")).isEqualTo("Every 14 days");
         assertThat(jsonModel.<Boolean>get("$.lastValidationOccurence.wasScheduled")).isTrue();
         assertThat(jsonModel.<Number>get("$.lastValidationOccurence.startedOn")).isEqualTo(startedOn.toEpochMilli());
         assertThat(jsonModel.<Number>get("$.lastValidationOccurence.finishedOn")).isEqualTo(finishedOn.toEpochMilli());
