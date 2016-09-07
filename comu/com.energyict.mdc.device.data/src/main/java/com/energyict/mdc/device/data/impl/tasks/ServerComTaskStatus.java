@@ -34,7 +34,13 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append(" and onhold <> 0 ");
+            this.completeCountSqlBuilder(sqlBuilder, now);
+        }
+
+        @Override
+        public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append("cte.onhold <> 0 ");
         }
     },
 
@@ -55,10 +61,19 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and onhold = 0 and ((comport is not null) or " +
+            sqlBuilder.append("and cte.onhold = 0 and ((cte.comport is not null) or " +
                     " ((exists (select * from busytask where busytask.comserver is not null and busytask.connectiontask = cte.connectiontask " +
                     " and busytask.lastCommunicationStart > cte.nextexecutiontimestamp)) " +
                     " and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <= ");
+            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.append("))");
+        }
+
+        @Override
+        public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append("cte.onhold = 0 and ((cte.comport is not null) or ((cte.thereisabusytask is not null) and cte.nextexecutiontimestamp <=");
+            // Merge feature/CXO-2099: add cte.onhold = 0 to above line
             sqlBuilder.addLong(this.asSeconds(now));
             sqlBuilder.append("))");
         }
@@ -84,12 +99,20 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and onhold = 0 and ((comport is null) and " +
+            sqlBuilder.append("and cte.onhold = 0 and ((comport is null) and " +
                     " (not exists (select * from busytask where busytask.comserver is not null and busytask.connectiontask = cte.connectiontask " +
                     " and busytask.lastCommunicationStart > cte.nextexecutiontimestamp)) " +
-                    " and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <= ");
+                    " and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <=");
             sqlBuilder.addLong(this.asSeconds(now));
             sqlBuilder.append(")");
+        }
+
+        @Override
+        public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append("cte.comport is null and cte.thereisabusytask is null and cte.nextexecutiontimestamp <=");
+            // Merge feature/CXO-2099: add cte.onhold = 0 to above line
+            sqlBuilder.addLong(this.asSeconds(now));
         }
     },
 
@@ -115,12 +138,18 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append(" and onhold = 0 ");
-            sqlBuilder.append(" and comport is null ");
-            sqlBuilder.append(" and currentretrycount = 0 ");
-            sqlBuilder.append(" and lastSuccessfulCompletion is null ");
-            sqlBuilder.append(" and lastExecutionTimestamp is not null ");
-            sqlBuilder.append(getPlannedAndNextExecTimeStampForWaitingSubStates());
+            this.completeCountSqlBuilder(sqlBuilder, now);
+        }
+
+        @Override
+        public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append("    cte.onhold <> 0 ");
+            sqlBuilder.append("and cte.comport is null ");
+            sqlBuilder.append("and cte.currentretrycount = 0 ");
+            sqlBuilder.append("and cte.lastSuccessfulCompletion is null ");
+            sqlBuilder.append("and cte.lastExecutionTimestamp is not null ");
+            sqlBuilder.append("and (cte.nextexecutiontimestamp IS NULL OR (cte.nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(now));
             sqlBuilder.append("))");
         }
@@ -146,11 +175,17 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append(" and onhold = 0 ");
-            sqlBuilder.append(" and nextexecutiontimestamp > ");
+            this.completeCountSqlBuilder(sqlBuilder, now);
+        }
+
+        @Override
+        public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append("cte.onhold = 0 ");
+            sqlBuilder.append("and cte.nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(now));
-            sqlBuilder.append(" and comport is null ");
-            sqlBuilder.append(" and currentretrycount > 0");  // currentRetryCount is only incremented when task fails. It is reset to 0 when the maxTries is reached
+            sqlBuilder.append("and cte.comport is null ");
+            sqlBuilder.append("and cte.currentretrycount > 0");  // currentRetryCount is only incremented when task fails. It is reset to 0 when the maxTries is reached
         }
     },
 
@@ -176,14 +211,19 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append(" and onhold = 0 ");
-            sqlBuilder.append(" and nextExecutionTimestamp is not null ");
-            sqlBuilder.append(" and nextExecutionTimestamp > ");
+            this.completeCountSqlBuilder(sqlBuilder, now);
+        }
+
+        @Override
+        public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append("cte.onhold = 0 ");
+            sqlBuilder.append("and cte.nextExecutionTimestamp >");
             sqlBuilder.addLong(this.asSeconds(now));
-            sqlBuilder.append(" and lastSuccessfulCompletion is not null ");
-            sqlBuilder.append(" and LASTEXECUTIONTIMESTAMP > lastSuccessfulCompletion ");
-            sqlBuilder.append(" and lastExecutionFailed = 1 ");
-            sqlBuilder.append(" and currentretrycount = 0");
+            sqlBuilder.append("and cte.lastSuccessfulCompletion is not null ");
+            sqlBuilder.append("and cte.LASTEXECUTIONTIMESTAMP > lastSuccessfulCompletion ");
+            sqlBuilder.append("and cte.lastExecutionFailed = 1 ");
+            sqlBuilder.append("and cte.currentretrycount = 0");
         }
     },
 
@@ -209,22 +249,33 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and onhold = 0 ");
-            sqlBuilder.append("and comport is null ");
-            sqlBuilder.append("and lastExecutionFailed = 0 ");
-            sqlBuilder.append("and currentretrycount = 0 ");
-            sqlBuilder.append("and (lastExecutionTimestamp is null or lastSuccessfulCompletion is not null) ");
-            sqlBuilder.append(getPlannedAndNextExecTimeStampForWaitingSubStates());
+            this.completeCountSqlBuilder(sqlBuilder, now);
+        }
+
+        @Override
+        public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append("cte.onhold = 0");
+            sqlBuilder.append("and cte.comport is null ");
+            sqlBuilder.append("and cte.lastExecutionFailed = 0 ");
+            sqlBuilder.append("and cte.currentretrycount = 0 ");
+            sqlBuilder.append("and (cte.lastExecutionTimestamp is null or cte.lastSuccessfulCompletion is not null) ");
+            sqlBuilder.append("and (cte.nextexecutiontimestamp IS NULL OR (cte.nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(now));
             sqlBuilder.append("))");
         }
     };
 
-    private static String getPlannedAndNextExecTimeStampForWaitingSubStates() {
-        return " AND (nextexecutiontimestamp IS NULL OR (nextexecutiontimestamp > ";
+    protected long asSeconds(Instant date) {
+        if (date == null) {
+            return 0;
+        }
+        else {
+            return date.getEpochSecond();
+        }
     }
 
-    private static boolean plannedAndNextExecTimeStampForWaitingStates(ServerComTaskExecution task, Instant now) {
+    protected boolean plannedAndNextExecTimeStampForWaitingStates(ServerComTaskExecution task, Instant now) {
         return (task.getPlannedNextExecutionTimestamp() == null && task.getNextExecutionTimestamp() == null)
                 || (task.isAdHoc()
                 && (task.getNextExecutionTimestamp() == null
@@ -232,6 +283,32 @@ public enum ServerComTaskStatus {
                 || (task.getNextExecutionSpecs().isPresent()
                 && (task.getNextExecutionTimestamp() == null || task.getNextExecutionTimestamp().isAfter(now)));
     }
+    /**
+     * Returns the public counterpart of this ServerTaskStatus.
+     *
+     * @return The public counterpart
+     */
+    public abstract TaskStatus getPublicStatus();
+
+    /**
+     * Checks if this ServerTaskStatus applies to the {@link ComTaskExecution}.
+     *
+     * @param task The ComTaskExecution
+     * @param now  The current time
+     * @return <code>true</code> iff this ServerTaskStatus applies to the ComTaskExecution
+     */
+    public abstract boolean appliesTo(ServerComTaskExecution task, Instant now);
+
+    public final void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
+        sqlBuilder.appendWhereOrAnd();
+        this.completeFindBySqlBuilder(sqlBuilder, clock.instant());
+    }
+
+    protected void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant date) {
+        sqlBuilder.append("cte.obsolete_date is null ");
+    }
+
+    public abstract void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now);
 
     /**
      * Gets the {@link TaskStatus} that applies to the specified {@link ComTaskExecution}.
@@ -267,39 +344,6 @@ public enum ServerComTaskStatus {
 //        throw CodingException.unrecognizedEnumValue(TaskStatus.class, taskStatus.ordinal());
         //TODO JP-1125
         throw new RuntimeException("UnrecognizedEnumValue ...");
-    }
-
-    protected long asSeconds(Instant date) {
-        if (date == null) {
-            return 0;
-        } else {
-            return date.getEpochSecond();
-        }
-    }
-
-    /**
-     * Returns the public counterpart of this ServerTaskStatus.
-     *
-     * @return The public counterpart
-     */
-    public abstract TaskStatus getPublicStatus();
-
-    /**
-     * Checks if this ServerTaskStatus applies to the {@link ComTaskExecution}.
-     *
-     * @param task The ComTaskExecution
-     * @param now  The current time
-     * @return <code>true</code> iff this ServerTaskStatus applies to the ComTaskExecution
-     */
-    public abstract boolean appliesTo(ServerComTaskExecution task, Instant now);
-
-    public final void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
-        sqlBuilder.appendWhereOrAnd();
-        this.completeFindBySqlBuilder(sqlBuilder, clock.instant());
-    }
-
-    protected void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant date) {
-        sqlBuilder.append("cte.obsolete_date is null ");
     }
 
 }

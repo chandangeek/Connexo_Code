@@ -1414,12 +1414,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         for (MeterActivation meterActivation : meterActivations) {
             Range<Instant> meterActivationInterval = meterActivation.getInterval().toOpenClosedRange().intersection(interval);
             meterHasData |= meterActivationInterval.lowerEndpoint() != meterActivationInterval.upperEndpoint();
-            ReadingType readingType = mdcChannel.getReadingType(); // getChannelSpec().getReadingType();
+            ReadingType readingType = mdcChannel.getReadingType();
             List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
+            // To avoid to have to collect the readingqualities meter reading by meter reading (meterreading.getReadingQualities()
+            // does a lazy load (database access) we collect all readingqualities here;
+            List<? extends ReadingQualityRecord> readingQualities = meter.getReadingQualities(meterActivationInterval);
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 loadProfileReading.setChannelData(mdcChannel, meterReading);
-                loadProfileReading.setReadingQualities(mdcChannel, meterReading.getReadingQualities());
+                //Previously collected readingqualities are filtered and added to the loadProfile Reading
+                loadProfileReading.setReadingQualities(mdcChannel, readingQualities.stream().filter(rq -> rq.getReadingTimestamp().equals(meterReading.getTimeStamp()))
+                        .filter(rq -> meterReading.getReadingTypes().contains(rq.getReadingType())).collect(Collectors.toList()));
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
 

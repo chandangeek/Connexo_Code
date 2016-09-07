@@ -7,12 +7,9 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
@@ -98,16 +95,6 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
                         .stream()
                         .map(ServerConnectionTaskStatus::forTaskStatus)
                         .collect(Collectors.toList()));
-    }
-
-    /**
-     * Returns a QueryExecutor that supports building a sub-query to match
-     * that the ConnectionTask's device is in a QueryEndDeviceGroup.
-     *
-     * @return The QueryExecutor
-     */
-    private QueryExecutor<Device> deviceFromDeviceGroupQueryExecutor() {
-        return this.deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class);
     }
 
     @Override
@@ -258,26 +245,38 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
 
     @Override
     public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount() {
-        SqlBuilder sqlBuilder = new SqlBuilder("select ct.lastSessionSuccessIndicator, count(*) from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
+        DeviceStateSqlBuilder
+                .forDefaultExcludedStates("enddevices")
+                .appendRestrictedStatesWithClause(sqlBuilder, this.clock().instant());
+        sqlBuilder.append("select ct.lastSessionSuccessIndicator, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct where ct.nextexecutiontimestamp is not null");
-        sqlBuilder.append("      and ct.obsolete_date is null");
-        sqlBuilder.append("      and ct.lastsession is not null");
-        this.appendRestrictedStatesClause(sqlBuilder, "ct");
-        sqlBuilder.append("    group by ct.lastSessionSuccessIndicator");
+        sqlBuilder.append(" ct join ");
+        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        sqlBuilder.append("  dev on ct.device = dev.id join enddevices kd on dev.meterid = kd.id ");
+        sqlBuilder.append("where ct.nextexecutiontimestamp is not null");
+        sqlBuilder.append("  and ct.obsolete_date is null");
+        sqlBuilder.append("  and ct.lastsession is not null ");
+        sqlBuilder.append("group by ct.lastSessionSuccessIndicator");
         return this.addMissingSuccessIndicatorCounters(this.fetchSuccessIndicatorCounters(sqlBuilder));
     }
 
     @Override
     public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount(EndDeviceGroup deviceGroup) {
-        SqlBuilder sqlBuilder = new SqlBuilder("select ct.lastSessionSuccessIndicator, count(*) from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
+        DeviceStateSqlBuilder
+                .forDefaultExcludedStates("enddevices")
+                .appendRestrictedStatesWithClause(sqlBuilder, this.clock().instant());
+        sqlBuilder.append("select ct.lastSessionSuccessIndicator, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct where ct.nextexecutiontimestamp is not null");
-        sqlBuilder.append("      and ct.obsolete_date is null");
-        sqlBuilder.append("      and ct.lastsession is not null");
+        sqlBuilder.append(" ct join ");
+        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        sqlBuilder.append(" dev on ct.device = dev.id join enddevices kd on dev.meterid = kd.id ");
+        sqlBuilder.append("where ct.nextexecutiontimestamp is not null");
+        sqlBuilder.append("  and ct.obsolete_date is null");
+        sqlBuilder.append("  and ct.lastsession is not null");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, "ct");
-        this.appendRestrictedStatesClause(sqlBuilder, "ct");
-        sqlBuilder.append(" group by ct.lastSessionSuccessIndicator");
+        sqlBuilder.append("group by ct.lastSessionSuccessIndicator");
         return this.addMissingSuccessIndicatorCounters(this.fetchSuccessIndicatorCounters(sqlBuilder));
     }
 
@@ -415,8 +414,8 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
                 this.connectionTypeHeatMapSqlBuilder(
                         deviceGroup,
                         this.connectionTypeHeapMapFailureIndicators(),
-                        "dev", "devicetype",
-                        "DDC_DEVICE dev", "ct.device = dev.id"));
+                        "dev", "devicetype"
+                ));
     }
 
     private Map<DeviceType, List<Long>> fetchDeviceTypeHeatMapCounters(SqlBuilder sqlBuilder) {
@@ -513,18 +512,19 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
             final EndDeviceGroup deviceGroup,
             final List<ComSession.SuccessIndicator> failureIndicators,
             final String groupByFieldName) {
-        return this.connectionTypeHeatMapSqlBuilder(deviceGroup, failureIndicators, "ct", groupByFieldName, "", "");
+        return this.connectionTypeHeatMapSqlBuilder(deviceGroup, failureIndicators, "ct", groupByFieldName);
     }
 
     private SqlBuilder connectionTypeHeatMapSqlBuilder(
             final EndDeviceGroup deviceGroup,
             final List<ComSession.SuccessIndicator> failureIndicators,
             final String groupByEntityAliasName,
-            final String groupByFieldName,
-            final String additionalFromClause,
-            final String additionalJoinClause) {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("WITH failedTask as (");
+            final String groupByFieldName) {
+        SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
+        DeviceStateSqlBuilder
+                .forDefaultExcludedStates("enddevices")
+                .appendRestrictedStatesWithClause(sqlBuilder, this.deviceDataModelService.clock().instant());
+        sqlBuilder.append(", failedTask as (");
         sqlBuilder.append("  select comsession");
         sqlBuilder.append("    from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
@@ -562,17 +562,8 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
         sqlBuilder.append("        from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct, ");
-        sqlBuilder.append(additionalFromClause);
-        if (!additionalFromClause.isEmpty()) {
-            sqlBuilder.append(", ");
-        }
-        sqlBuilder.append("failedTask where ct.obsolete_date is null and ct.status = 0 and ");
-        sqlBuilder.append(additionalJoinClause);
-        if (!additionalJoinClause.isEmpty()) {
-            sqlBuilder.append(" and ");
-        }
-        sqlBuilder.append("ct.lastSession = failedTask.comSession(+)");
-        this.appendRestrictedStatesClause(sqlBuilder, "ct");
+        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        sqlBuilder.append(" dev, enddevices kd, failedTask where ct.device = dev.id and dev.meterid = kd.id and ct.obsolete_date is null and ct.status = 0 and ct.lastSession = failedTask.comSession(+)");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, "ct");
         sqlBuilder.append("       )");
         sqlBuilder.append(" group by " + groupByFieldName);
@@ -608,13 +599,6 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
             }
             sqlBuilder.append(")");
         }
-    }
-
-    void appendRestrictedStatesClause(SqlBuilder sqlBuilder, String connectionTaskAliasName) {
-        sqlBuilder.append( " and ");
-        DeviceStateSqlBuilder
-                .forDefaultExcludedStates(connectionTaskAliasName)
-                .appendRestrictedStatesCondition(sqlBuilder, this.deviceDataModelService.clock());
     }
 
     @Override

@@ -4,10 +4,14 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.sql.TupleParser;
+import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.util.Set;
 
 /**
  * Wraps or decorates a {@link SqlBuilder} and is aware of the
@@ -19,10 +23,22 @@ import java.sql.SQLException;
 public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
 
     private final SqlBuilder actualBuilder;
-    private final Where where = new Where();
+    private final State state = new State();
 
     public static ClauseAwareSqlBuilder with(String withClause, String alias) {
-        return new ClauseAwareSqlBuilder(new SqlBuilder("with " + alias + " as (" + withClause + ") "));
+        ClauseAwareSqlBuilder builder = new ClauseAwareSqlBuilder(new SqlBuilder());
+        builder.appendWith(withClause, alias);
+        return builder;
+    }
+
+    public static ClauseAwareSqlBuilder withExcludedStates(String withClauseAliasName, Set<DefaultState> excludedStates, Instant now) {
+        SqlBuilder actual = new SqlBuilder("with ");
+        DeviceStateSqlBuilder
+                .forExcludeStates(withClauseAliasName, excludedStates)
+                .appendRestrictedStatesWithClause(actual, now);
+        ClauseAwareSqlBuilder builder = new ClauseAwareSqlBuilder(actual);
+        builder.state.toWith();
+        return builder;
     }
 
     public static ClauseAwareSqlBuilder select(String selectClause) {
@@ -34,23 +50,22 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
         this.actualBuilder = actualBuilder;
     }
 
-    public SqlBuilder toSqlWhereBuilder() {
-        this.where.toWhere();
-        return actualBuilder;
-    }
-
     public void unionAll () {
         this.actualBuilder.append(" UNION ALL ");
-        this.where.reset();
+        this.state.reset();
+    }
+
+    public void appendWith(String withClause, String aliasName) {
+        this.state.with(withClause, aliasName, this.actualBuilder);
     }
 
     /**
      * Completes the building of the from clause and starts
-     * building the where clause or continues to build the
-     * where clause by generating an 'and' construct.
+     * building the state clause or continues to build the
+     * state clause by generating an 'and' construct.
      */
     public void appendWhereOrAnd () {
-        this.where.orAnd(this.actualBuilder);
+        this.state.whereOrAnd(this.actualBuilder);
     }
 
     public ClauseAwareSqlBuilder append(SqlFragment sqlFragment) {
@@ -60,11 +75,11 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
 
     /**
      * Completes the building of the from clause and starts
-     * building the where clause or continues to build the
-     * where clause by generating an 'or' construct.
+     * building the state clause or continues to build the
+     * state clause by generating an 'or' construct.
      */
     public void appendWhereOrOr () {
-        this.where.orOr(this.actualBuilder);
+        this.state.whereOrOr(this.actualBuilder);
     }
 
     public ClauseAwareSqlBuilder addObject(Object value) {
@@ -152,6 +167,56 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
      */
     private enum SqlClause {
         /**
+         * Guess what: the initial state.
+         */
+        INITIAL {
+            @Override
+            protected SqlClause appendWhereOrAnd(SqlBuilder sqlBuilder) {
+                return FROM.appendWhereOrAnd(sqlBuilder);
+            }
+
+            @Override
+            protected SqlClause appendWhereOrOr(SqlBuilder sqlBuilder) {
+                return FROM.appendWhereOrAnd(sqlBuilder);
+            }
+
+            @Override
+            protected SqlClause with(String withClause, String aliasName, SqlBuilder sqlBuilder) {
+                sqlBuilder.append("with ");
+                sqlBuilder.append(aliasName);
+                sqlBuilder.append(" as (");
+                sqlBuilder.append(withClause);
+                sqlBuilder.append(") ");
+                return WITH;
+            }
+        },
+        /**
+         * Generating the with clause
+         */
+        WITH {
+            @Override
+            protected SqlClause appendWhereOrAnd(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" where ");
+                return WHERE;
+            }
+
+            @Override
+            protected SqlClause appendWhereOrOr(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" where ");
+                return WHERE;
+            }
+
+            @Override
+            protected SqlClause with(String withClause, String aliasName, SqlBuilder sqlBuilder) {
+                sqlBuilder.append(", ");
+                sqlBuilder.append(aliasName);
+                sqlBuilder.append(" as (");
+                sqlBuilder.append(withClause);
+                sqlBuilder.append(") ");
+                return WITH;
+            }
+        },
+        /**
          * Generating the from clause
          */
         FROM {
@@ -166,10 +231,15 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
                 sqlBuilder.append(" where ");
                 return WHERE;
             }
+
+            @Override
+            protected SqlClause with(String withClause, String aliasName, SqlBuilder sqlBuilder) {
+                throw new IllegalStateException("Cannot add with clauses when already generated the from clause");
+            }
         },
 
         /**
-         * Generating the where clause
+         * Generating the state clause
          */
         WHERE {
             @Override
@@ -183,27 +253,38 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
                 sqlBuilder.append(" or ");
                 return this;
             }
+
+            @Override
+            protected SqlClause with(String withClause, String aliasName, SqlBuilder sqlBuilder) {
+                throw new IllegalStateException("Cannot add with clauses when already generated the where clause");
+            }
         };
 
         protected abstract SqlClause appendWhereOrAnd(SqlBuilder sqlBuilder);
 
         protected abstract SqlClause appendWhereOrOr(SqlBuilder sqlBuilder);
 
+        protected abstract SqlClause with(String withClause, String aliasName, SqlBuilder sqlBuilder);
+
     }
 
-    private class Where {
-        private SqlClause state = SqlClause.FROM;
+    private class State {
+        private SqlClause state = SqlClause.INITIAL;
 
-        private void toWhere() {
-            this.state = SqlClause.WHERE;
+        private void toWith() {
+            this.state = SqlClause.WITH;
         }
 
-        private void orAnd(SqlBuilder sqlBuilder) {
+        private void whereOrAnd(SqlBuilder sqlBuilder) {
             this.state = this.state.appendWhereOrAnd(sqlBuilder);
         }
 
-        private void orOr(SqlBuilder sqlBuilder) {
+        private void whereOrOr(SqlBuilder sqlBuilder) {
             this.state = this.state.appendWhereOrOr(sqlBuilder);
+        }
+
+        private void with(String withClause, String aliasName, SqlBuilder sqlBuilder) {
+            this.state = this.state.with(withClause, aliasName, sqlBuilder);
         }
 
         public void reset() {
