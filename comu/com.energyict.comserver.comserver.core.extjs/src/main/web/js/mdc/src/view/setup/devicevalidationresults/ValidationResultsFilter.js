@@ -73,8 +73,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
         loadProfileStore.each(function (record) {
             result.push({
                 id: record.getId(),
-                intervalStart: filterParams.intervalStart - zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(record.get('interval')).get('all')),
-                intervalEnd: Ext.Date.add(new Date(filterParams.intervalStart), Ext.Date.DAY, 1).getTime()
+                intervalStart: filterParams.intervalStart,
+                intervalEnd: filterParams.intervalStart + zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(record.get('interval')).get('all'))
             });
         });
 
