@@ -17,11 +17,11 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step5', {
         itemId: 'searchitemsbulkactiontitle'
     },
 
-    showChangeDeviceConfigSuccess: function (title, text) {
+    showChangeDeviceConfigSuccess: function (text) {
         var widget = {
             xtype: 'uni-notification-panel',
             margin: '0 0 0 -13',
-            message: title,
+            message: Uni.I18n.translate('searchItems.bulk.devicesAddedToQueueTitle', 'MDC', 'This task has been put on the queue successfully'),
             type: 'success',
             additionalItems: [
                 {

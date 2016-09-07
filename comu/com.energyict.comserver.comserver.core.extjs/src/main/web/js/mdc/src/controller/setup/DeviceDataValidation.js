@@ -208,6 +208,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             ruleSetName = record.get('name'),
             ruleSetIsActive = record.get('isActive'),
             page = me.getPage();
+
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/' + ruleSetId + '/status',
             method: 'PUT',
@@ -216,7 +217,9 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 isActive: !ruleSetIsActive,
                 device: _.pick(page.device.getRecordData(), 'mRID', 'version', 'parent')
             },
-            success: function () {
+            success: function (res) {
+                var data = Ext.decode(res.responseText);
+                page.device.set(data.device);
                 me.getRulesSetGrid().getStore().reload({
                     callback: function () {
                         me.getRulesSetGrid().getSelectionModel().doSelect(me.getRulesSetGrid().getStore().indexOf(record));

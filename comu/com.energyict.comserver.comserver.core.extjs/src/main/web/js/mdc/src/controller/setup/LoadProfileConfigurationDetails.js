@@ -411,7 +411,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             grid.clearHighlight();
             preloader.show();
             this.displayedItemId = channelId;
-            this.getLoadProfileDetailChannelPreview().setTitle(channelName);
+            this.getLoadProfileDetailChannelPreview().setTitle(Ext.htmlEncode(channelName));
             form.loadRecord(channelConfig);
 
             if (channelConfig.get('multipliedCalculatedReadingType') && channelConfig.get('multipliedCalculatedReadingType') !== '') {
@@ -422,9 +422,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             } else {
                 calculatedReadingTypeField.hide();
             }
-
             this.getPage().down('#rulesForChannelConfig').setTitle(
-                Uni.I18n.translate('channelConfig.validationRules.list', 'MDC', '{0} validation rules', channelName)
+               Uni.I18n.translate('channelConfig.validationRules.list', 'MDC', '{0} validation rules', channelName, false)
             );
             if (me.getPage().down('#rulesForChannelPreviewContainer')) {
                 me.getPage().down('#rulesForChannelPreviewContainer').destroy();
