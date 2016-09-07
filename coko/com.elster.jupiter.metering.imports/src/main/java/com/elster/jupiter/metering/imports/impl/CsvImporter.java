@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.imports.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.metering.imports.impl.exceptions.FileImportLineException;
 import com.elster.jupiter.metering.imports.impl.exceptions.FileImportParserException;
 import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
 
@@ -74,12 +75,16 @@ public final class CsvImporter<T extends FileImportRecord> implements FileImport
 
     // Parser exceptions should always fail whole importing process
     private void processRecord(CSVRecord csvRecord) throws FileImportParserException, ProcessorException {
-        T data = parser.parse(csvRecord);
         try {
-            processor.process(data, logger);
-            logger.importLineFinished(data);
-        } catch (Exception exception) {
-            logger.importLineFailed(data, exception);
+            T data = parser.parse(csvRecord);
+            try {
+                processor.process(data, logger);
+                logger.importLineFinished(data);
+            } catch (Exception exception) {
+                logger.importLineFailed(data, exception);
+            }
+        }catch (FileImportLineException lineException){
+            logger.importLineFailed(lineException.getLineNumber(), lineException);
         }
     }
 

@@ -305,7 +305,7 @@ public class UsagePointCsvImporterTest {
     // Parser successfully finished
     // 0 success, 0 warning, 1 error
     public void testSuccessWithErrors() throws Exception {
-        String csv = "mRID\nup1";
+        String csv = "mRID\nup1\nup2";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(2, null);

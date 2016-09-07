@@ -92,4 +92,9 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
     public void setMeteringDataImporterContext(MeteringDataImporterContext context) {
         this.context = context;
     }
+
+    @Override
+    public String getApplicationName() {
+        return context.insightInstalled() ? "INS" : "MDC";
+    }
 }

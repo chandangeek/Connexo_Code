@@ -31,6 +31,11 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
 
     @Override
     public void importLineFailed(T data, Exception exception) {
+        importLineFailed(data.getLineNumber(), exception);
+    }
+
+    @Override
+    public void importLineFailed(long lineNumber, Exception exception) {
         String message;
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
@@ -38,7 +43,7 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
             // Always specify line number and mrid
             message = this.context.getThesaurus()
                     .getFormat(TranslationKeys.Labels.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE)
-                    .format(data.getLineNumber(), exception.toString());
+                    .format(lineNumber, exception.toString());
         }
         fileImportOccurrence.getLogger().warning(message);
     }

@@ -172,7 +172,7 @@ public class UsagePointProcessorForMultisenseTest {
     public void testProcessIncorrectInfo() throws IOException {
         FileImporter importer = createUsagePointImporter();
         importer.process(fileImportOccurrenceIncorrect);
-        verify(fileImportOccurrenceIncorrect).markSuccessWithFailures("message");
+        verify(fileImportOccurrenceIncorrect).markFailure("message");
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
@@ -184,8 +184,6 @@ public class UsagePointProcessorForMultisenseTest {
         importer.process(fileImportOccurrenceFail);
         verify(fileImportOccurrenceFail).markFailure("message");
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(Matchers.anyString());
     }
 
     @Test

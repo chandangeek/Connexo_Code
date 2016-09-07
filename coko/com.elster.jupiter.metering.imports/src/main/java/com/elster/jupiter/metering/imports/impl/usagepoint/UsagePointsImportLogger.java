@@ -42,7 +42,13 @@ public class UsagePointsImportLogger extends FileImportLoggerImpl<FileImportReco
 
     @Override
     public void importLineFailed(FileImportRecord data, Exception exception) {
-        super.importLineFailed(data, exception);
+        super.importLineFailed(data.getLineNumber(), exception);
+        this.linesWithError++;
+    }
+
+    @Override
+    public void importLineFailed(long lineNumber, Exception exception) {
+        super.importLineFailed(lineNumber, exception);
         this.linesWithError++;
     }
 
@@ -76,7 +82,7 @@ public class UsagePointsImportLogger extends FileImportLoggerImpl<FileImportReco
     }
 
     protected void summarizeSuccessImport() {
-        if (linesProcessed == 0 && linesWithError == 0) {
+        if (linesProcessed == 0) {
             // No data were processed (No data in file)
             fileImportOccurrence.markFailure(this.context.getThesaurus()
                     .getFormat(TranslationKeys.Labels.IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED)

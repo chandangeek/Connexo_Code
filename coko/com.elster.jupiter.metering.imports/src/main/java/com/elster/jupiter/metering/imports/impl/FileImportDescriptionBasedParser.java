@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.imports.impl.exceptions.FileImportLineException;
 import com.elster.jupiter.metering.imports.impl.exceptions.FileImportParserException;
 import com.elster.jupiter.metering.imports.impl.exceptions.ValueParserException;
 import com.elster.jupiter.metering.imports.impl.fields.FieldSetter;
@@ -47,10 +48,9 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         record.setLineNumber(csvRecord.getRecordNumber());
         Map<String, FileImportField<?>> fields = this.descriptor.getFields(record);
         List<String> rawValues = getRawValuesSkipTrailingNulls(csvRecord);
-        long numberOfMandatoryColumns = getNumberOfMandatoryColumns(fields);
-        if (rawValues.size() < numberOfMandatoryColumns) {
-            throw new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(),
-                    numberOfMandatoryColumns, rawValues.size());
+        if (rawValues.size() < getNumberOfMandatoryColumns(fields)) {
+            throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(),
+                    getNumberOfMandatoryColumns(fields), rawValues.size());
         }
 
         for (Map.Entry<String, FileImportField<?>> field : fields.entrySet().stream()
@@ -59,7 +59,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             if (field.getValue().isMandatory() && (csvRecord.toMap().entrySet().stream()
                     .allMatch(e -> !e.getKey().equalsIgnoreCase(field.getKey()) || Checks.is(csvRecord.get(e.getKey()))
                             .emptyOrOnlyWhiteSpace()))) {
-                throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field
+                throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field
                         .getKey());
             }
         }
@@ -72,7 +72,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                     .findFirst().ifPresent(field -> {
                 if (field.isMandatory() && csvRecord.isMapped(entry.getKey()) && Checks.is(csvRecord.get(entry.getKey()))
                         .emptyOrOnlyWhiteSpace()) {
-                    throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field
+                    throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field
                             .getFieldName());
                 }
                 if (context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
