@@ -16,7 +16,7 @@ public enum FunctionCode {
     WRITE_MULTIPLE_REGISTER(16, "Write multiple registers"),
     REPORT_SLAVE_ID(17, "Report slave ID"),
     READ_DEVICE_ID(43, "Read device ID"),
-    READ_GENERAL_REFERENCE(20, "Read general reference");
+    READ_FILE_RECORD(20, "Read file record");
 
     private final int functionCode;
     private final String description;
