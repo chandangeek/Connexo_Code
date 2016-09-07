@@ -582,6 +582,8 @@ public class DeviceMessageConstants {
     public static final String minBe = "PLCConfigurationDeviceMessage.minBe";
     public static final String plcSecurityLevel = "PLCConfigurationDeviceMessage.plcSecurityLevel";
     public static final String weakLQIValueAttributeName = "PLCConfigurationDeviceMessage.weaklqivalue";
+    public static final String lowLQIValueAttributeName = "PLCConfigurationDeviceMessage.lowlqivalue";
+    public static final String highLQIValueAttributeName = "PLCConfigurationDeviceMessage.highlqivalue";
     public static final String plcG3TimeoutAttributeName = "PLCConfigurationDeviceMessage.plcg3timeout";
     public static final String G3PanIdAttributename = "PLCConfigurationDeviceMessage.g3panid";
     public static final String adp_Kr = "PLCConfigurationDeviceMessage.adp_Kr";
@@ -594,6 +596,7 @@ public class DeviceMessageConstants {
     public static final String adp_RLC_enabled = "PLCConfigurationDeviceMessage.adp_RLC_enabled";
     public static final String adp_net_traversal_time = "PLCConfigurationDeviceMessage.adp_net_traversal_time";
     public static final String adp_routing_table_entry_TTL = "PLCConfigurationDeviceMessage.adp_routing_table_entry_TTL";
+    public static final String adp_routing_tuple_TTL = "PLCConfigurationDeviceMessage.adp_routing_tuple_TTL";
     public static final String adp_RREQ_RERR_wait = "PLCConfigurationDeviceMessage.adp_RREQ_RERR_wait";
     public static final String adp_Blacklist_table_entry_TTL = "PLCConfigurationDeviceMessage.adp_Blacklist_table_entry_TTL";
     public static final String adp_unicast_RREQ_gen_enable = "PLCConfigurationDeviceMessage.adp_unicast_RREQ_gen_enable";

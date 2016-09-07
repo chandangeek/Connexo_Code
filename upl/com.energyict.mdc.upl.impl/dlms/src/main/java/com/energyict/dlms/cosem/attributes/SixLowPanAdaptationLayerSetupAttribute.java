@@ -35,7 +35,10 @@ public enum SixLowPanAdaptationLayerSetupAttribute implements DLMSClassAttribute
     ADP_METRIC_TYPE(16, 0x0078),
     ADP_COORD_SHORT_ADDRESS(17, 0x0080),
     ADP_DISABLE_DEFAULT_ROUTING(18, 0x0088),
-    ADP_DEVICE_TYPE(19, 0x0090);
+    ADP_DEVICE_TYPE(19, 0x0090),
+    ADP_LOW_LQI_VALUE(20, 0x0098),
+    ADP_HIGH_LQI_VALUE(21, 0x00A0),
+    ROUTING_TUPLE_TTL(22, 0x00A8);
 
     private final int attributeNumber;
     private final int shortName;

@@ -22,7 +22,7 @@ import java.io.IOException;
 public class SixLowPanAdaptationLayerSetupMapping extends RegisterMapping {
 
     private static final int MIN_ATTR = 1;
-    private static final int MAX_ATTR = 19;
+    private static final int MAX_ATTR = 22;
 
     public SixLowPanAdaptationLayerSetupMapping(CosemObjectFactory cosemObjectFactory) {
         super(cosemObjectFactory);
@@ -102,6 +102,9 @@ public class SixLowPanAdaptationLayerSetupMapping extends RegisterMapping {
 
             case 19:
                 return sixLowPanSetup.readDeviceType();
+
+            case 22:
+                return sixLowPanSetup.readAdpRoutingTupleTTL();
 
             default:
                 throw new NoSuchRegisterException("SixLowPanAdaptationLayerSetupMapping attribute [" + obisCode.getB() + "] not supported!");
