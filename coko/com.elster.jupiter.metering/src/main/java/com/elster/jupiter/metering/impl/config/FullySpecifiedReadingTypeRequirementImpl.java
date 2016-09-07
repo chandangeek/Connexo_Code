@@ -13,6 +13,8 @@ import com.elster.jupiter.util.units.Dimension;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
+import java.util.EnumSet;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -83,8 +85,8 @@ class FullySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequirementImp
     }
 
     @Override
-    public ReadingTypeUnit getUnit() {
-        return getReadingType().getUnit();
+    public Set<ReadingTypeUnit> getUnits() {
+        return EnumSet.of(getReadingType().getUnit());
     }
 
     @Override

@@ -8,6 +8,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface PartiallySpecifiedReadingTypeRequirement extends ReadingTypeRequirement {
@@ -38,8 +39,7 @@ public interface PartiallySpecifiedReadingTypeRequirement extends ReadingTypeReq
 
     TimeAttribute getMeasuringPeriod();
 
-    ReadingTypeUnit getUnit();
-
+    Set<ReadingTypeUnit> getUnits();
 
     /**
      * @return A string value of attribute
