@@ -325,7 +325,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         onlineComServer.communicationLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServer.serverLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServer.create();
     }
