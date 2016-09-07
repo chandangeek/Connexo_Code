@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.IPBasedInboundComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -45,8 +46,7 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     private int queryApiPort;
     @Range(min = MIN_REQUIRED_PORT_RANGE, max = MAX_PORT_RANGE, message = "{" + MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE + "}", groups = {Save.Update.class, Save.Create.class})
     private int eventRegistrationPort;
-    @Range(min = MIN_REQUIRED_PORT_RANGE, max = MAX_PORT_RANGE, message = "{" + MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE + "}", groups = {Save.Update.class, Save.Create.class})
-    private int statusPort;
+    private int statusPort = ComServer.DEFAULT_STATUS_PORT_NUMBER;
     @Range(min=MINIMUM_STORE_TASK_QUEUE_SIZE, max=MAXIMUM_STORE_TASK_QUEUE_SIZE, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
     private int storeTaskQueueSize;
     @Range(min=MINIMUM_NUMBER_OF_STORE_TASK_THREADS, max=MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
@@ -256,10 +256,5 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
             return this;
         }
 
-        @Override
-        public OnlineComServerBuilder statusPort(int statusPort) {
-            getComServerInstance().setStatusPort(statusPort);
-            return this;
-        }
     }
 }
