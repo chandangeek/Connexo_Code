@@ -174,7 +174,6 @@ public class ComServerParserTest {
         onlineComServer.storeTaskThreadPriority(Thread.NORM_PRIORITY);
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServer.create();
     }

@@ -274,7 +274,6 @@ public class WebSocketQueryApiServiceTest {
             onlineComServerBuilder.numberOfStoreTaskThreads(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
             onlineComServerBuilder.storeTaskThreadPriority(ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY);
             onlineComServerBuilder.serverName(hostName);
-            onlineComServerBuilder.statusPort(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
             onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
             final OnlineComServer onlineComServer = onlineComServerBuilder.create();
             ctx.commit();

@@ -219,7 +219,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 injector.getInstance(MeteringService.class);
                 injector.getInstance(MasterDataService.class);
                 injector.getInstance(MeteringGroupsService.class);
-                injector.getInstance(EngineService.class);
+//                injector.getInstance(EngineService.class);
                 injector.getInstance(TopologyService.class);
                 injector.getInstance(EventService.class);
                 meteringService = injector.getInstance(MeteringService.class);
