@@ -34,34 +34,36 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                 title: Uni.I18n.translate('device.dataValidation.validationConfiguration', 'MDC', 'Validation configuration'),
                 items: [
                     {
-                        xtype: 'container',
+                        xtype: 'panel',
                         margin: '0 0 0 -10',
-                        items: [
-                            {
-                                xtype: 'panel',
-                                itemId: 'dataValidationStatusPanel',
-                                ui: 'medium',
-                                layout: 'column',
-                                title: Uni.I18n.translate('general.status', 'MDC', 'Status'),
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        itemId: 'deviceDataValidationStatusField',
-                                        columnWidth: 1,
-                                        labelAlign: 'left',
-                                        fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
-                                        value: Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...')
+                        itemId: 'dataValidationStatusPanel',
+                        ui: 'medium',
+                        title: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                        layout: 'fit',
+                        items: {
+                            xtype: 'toolbar',
+                            items: [
+                                {
+                                    xtype: 'displayfield',
+                                    itemId: 'deviceDataValidationStatusField',
+                                    columnWidth: 1,
+                                    labelAlign: 'left',
+                                    fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                                    value: Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...')
+                                },
+                                '->',
+                                {
+                                    xtype: 'button',
+                                    itemId: 'deviceDataValidationStateChangeBtn',
+                                    style: {
+                                        'background-color': '#71adc7'
                                     },
-                                    {
-                                        xtype: 'button',
-                                        itemId: 'deviceDataValidationStateChangeBtn',
-                                        privileges:Cfg.privileges.Validation.device,
-                                        action: '',
-                                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationActions
-                                    }
-                                ]
-                            }
-                        ]
+                                    privileges: Cfg.privileges.Validation.device,
+                                    action: '',
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationActions
+                                }
+                            ]
+                        }
                     },
                     {
                         ui: 'medium',
