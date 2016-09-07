@@ -176,21 +176,21 @@ Ext.define('Mtr.readingtypes.view.AddReadingTypesForm', {
                     {
                         fieldLabel: Uni.I18n.translate('readingtypesmanagment.attribute.ToU', 'MTR', 'Time of use'),
                         store: 'Mtr.readingtypes.attributes.store.TimeOfUse',
-
+                        showCimCodes: false,
                         cimIndex: 12,
                         name: 'tou'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('readingtypesmanagment.attribute.criticalPeakPeriod', 'MTR', 'Critical peak period'),
                         store: 'Mtr.readingtypes.attributes.store.CriticalPeakPeriod',
-
+                        showCimCodes: false,
                         cimIndex: 13,
                         name: 'cpp'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('readingtypesmanagment.attribute.consumptionTier', 'MTR', 'Consumption tier'),
                         store: 'Mtr.readingtypes.attributes.store.ConsumptionTier',
-
+                        showCimCodes: false,
                         cimIndex: 14,
                         name: 'consumptionTier'
                     },
