@@ -66,7 +66,8 @@ Ext.define('Sam.controller.datapurge.Settings', {
                 page.setLoading(false);
             },
             success: function () {
-                store.commitChanges();
+                store.reload();
+               // store.commitChanges();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datapurge.settings.success.msg', 'SAM', 'Data purge settings saved'));
             }
         });
