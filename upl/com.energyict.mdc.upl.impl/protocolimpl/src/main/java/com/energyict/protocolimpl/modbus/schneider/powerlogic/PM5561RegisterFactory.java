@@ -4,8 +4,13 @@ package com.energyict.protocolimpl.modbus.schneider.powerlogic;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.modbus.core.*;
-import com.energyict.protocolimpl.modbus.generic.common.DataTypeSelector;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.InputRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.Parser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -37,10 +42,18 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
     private static final int MEGA_SCALE = 6;
 
     public static final String LOAD_PROFILE_STATUS = "Load Profile Status";
-    public static final String LOAD_PROFILE_RECORD_ITEM1 = "Load Profile Configuration";
+    public static final String LOAD_PROFILE_RECORD_ITEMS = "Load Profile Configuration";
     public static final String LOAD_PROFILE_FIRST_RECORD = "Load Profile Configuration - First Record Sequence Number";
     public static final String LOAD_PROFILE_LAST_RECORD = "Load Profile Configuration - Last Record Sequence Number";
     public static final String LOAD_PROFILE_NUMBER_OF_RECORDS = "Number of records in file";
+
+    public static final String LOAD_PROFILE_ALLOCATED_FILE_SIZE = "Load Profile - Allocated file size";
+    public static final String LOAD_PROFILE_ALLOCATED_RECORD_SIZE = "Load Profile - Allocated record size";
+    public static final String LOAD_PROFILE_RECORD_MANAGEMENT_METHOD = "Load Profile - Record management method";
+    public static final String LOAD_PROFILE_FILE_STATUS = "Load Profile - File status";
+    public static final String LOAD_PROFILE_TOPIC_MODE = "Load Profile - Topic mode";
+    public static final String LOAD_PROFILE_INTERVAL_CONTROL_MINUTES = "Load Profile - Interval minutes";
+
     public static final String CommandSemaphore = "CommandSemaphore";
     public static final String CommandParameter = "CommandParameter";
 
@@ -123,11 +136,18 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
         getRegisters().add(new HoldingRegister(0x4A38, 1, ObisCode.fromString("170.3.74.56.3.255"), "Logging Status").setParser(UnsignedValueParser));
 
         // LoadProfile related registers
-        getRegisters().add(new HoldingRegister(0x4A38, 1, ObisCode.fromString("170.3.74.60.3.255"), LOAD_PROFILE_STATUS).setParser(UnsignedValueParser));
-        getRegisters().add(new HoldingRegister(0x4A49, 1, ObisCode.fromString("170.3.74.73.3.255"), LOAD_PROFILE_RECORD_ITEM1).setParser(UnsignedValueParser));
-        getRegisters().add(new HoldingRegister(0x4A3E, 1, ObisCode.fromString("170.3.74.62.3.255"), LOAD_PROFILE_FIRST_RECORD).setParser(UnsignedValueParser));
-        getRegisters().add(new HoldingRegister(0x4A3F, 1, ObisCode.fromString("170.3.74.63.3.255"),LOAD_PROFILE_LAST_RECORD).setParser(UnsignedValueParser));
-        getRegisters().add(new HoldingRegister(0x4A3D, 1, ObisCode.fromString("170.3.74.61.3.255"),LOAD_PROFILE_NUMBER_OF_RECORDS).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(19000, 1, ObisCode.fromString("170.3.74.60.0.255"), LOAD_PROFILE_STATUS).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(19001, 1, ObisCode.fromString("170.3.74.60.1.255"), LOAD_PROFILE_ALLOCATED_FILE_SIZE).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(19002, 1, ObisCode.fromString("170.3.74.60.2.255"), LOAD_PROFILE_ALLOCATED_RECORD_SIZE).setParser(UnsignedValueParser));
+//        getRegisters().add(new HoldingRegister(19003, 1, ObisCode.fromString("170.3.74.60.3.255"), LOAD_PROFILE_RECORD_MANAGEMENT_METHOD).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(19004, 1, ObisCode.fromString("170.3.74.60.4.255"), LOAD_PROFILE_FILE_STATUS).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(19005, 1, ObisCode.fromString("170.3.74.61.5.255"), LOAD_PROFILE_NUMBER_OF_RECORDS).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(19006, 1, ObisCode.fromString("170.3.74.62.6.255"), LOAD_PROFILE_FIRST_RECORD).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(19007, 1, ObisCode.fromString("170.3.74.63.7.255"), LOAD_PROFILE_LAST_RECORD).setParser(UnsignedValueParser));
+//        getRegisters().add(new HoldingRegister(19008, 1, ObisCode.fromString("170.3.74.63.3.255"), LOAD_PROFILE_TOPIC_MODE).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(19011, 1, ObisCode.fromString("170.3.74.63.11.255"), LOAD_PROFILE_INTERVAL_CONTROL_MINUTES).setParser(UnsignedValueParser));
+
+        getRegisters().add(new HoldingRegister(19017, 14, ObisCode.fromString("170.3.74.73.17.255"), LOAD_PROFILE_RECORD_ITEMS).setParser(UnsignedValueParser));
 
     }
 

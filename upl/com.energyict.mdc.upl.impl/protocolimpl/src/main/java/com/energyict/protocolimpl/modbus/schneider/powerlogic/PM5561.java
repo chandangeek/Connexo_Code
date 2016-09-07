@@ -1,11 +1,17 @@
 package com.energyict.protocolimpl.modbus.schneider.powerlogic;
 
 
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
@@ -18,13 +24,14 @@ import com.energyict.protocolimpl.modbus.schneider.powerlogic.profile.ProfileBui
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public class PM5561 extends PM5560 implements SerialNumberSupport {
-    private static final String APPLY_CTRATIO = "ApplyCTRatio";
     private ProfileBuilder profileBuilder;
-    private boolean applyCtRatio;
     private String timeZone = "UTC";
 
     @Override
@@ -38,8 +45,9 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
 
     @Override
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        applyCtRatio = Integer.parseInt(properties.getProperty(APPLY_CTRATIO, "0").trim()) == 1;
         setTimeZone(properties.getProperty(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, "UTC"));
+        setConnectionMode(Integer.parseInt(properties.getProperty("Connection", "1").trim()));
+        setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty("PhysicalLayer", "1").trim()));
     }
 
     private void setTimeZone(String timeZone) {
@@ -118,12 +126,6 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
         return this.profileBuilder;
     }
 
-
-    public boolean isApplyCtRatio() {
-        return applyCtRatio;
-    }
-
-
     /**
      * Setter for the {@link ModbusConnection}
      *
@@ -156,7 +158,7 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
 
     @Override
     public Date getTime() throws IOException {
-        return DateTime.parseDateTime(getDateTimeRegister().values(), getTimeZone()).getMeterCalender().getTime();
+        return new DateTime().parseDateTime(getDateTimeRegister().values()).getMeterCalender().getTime();
     }
 
     @Override

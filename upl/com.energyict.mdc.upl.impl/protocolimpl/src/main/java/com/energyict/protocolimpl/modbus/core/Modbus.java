@@ -37,7 +37,6 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusTCPConnection;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -121,7 +120,11 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     protected void setInfoTypePhysicalLayer(int physicalLayer) {
     	this.physicalLayer=physicalLayer;
     }
-    
+
+    public void setConnectionMode(int connection) {
+        this.connection = connection;
+    }
+
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","10").trim()));
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","15").trim()));

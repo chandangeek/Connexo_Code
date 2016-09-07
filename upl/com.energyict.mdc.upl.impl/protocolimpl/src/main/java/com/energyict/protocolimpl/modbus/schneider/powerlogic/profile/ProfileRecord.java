@@ -5,18 +5,17 @@ import java.util.List;
 
 
 public class ProfileRecord {
+
     private Date date;
-    private List values;
-    private boolean incompleteIntegrationPeriod;
+    private List<Number> values;
 
     public ProfileRecord() {
     }
 
-    public static ProfileRecord parse(List values) {
+    public static ProfileRecord parse(Date intervalDate, List<Number> values) {
         ProfileRecord profileRecord = new ProfileRecord();
-        profileRecord.setDate((Date) values.get(0));
-        profileRecord.setIncompleteIntegrationPeriod(values.get(0).equals(0));
-        profileRecord.setValues(values.subList(1, values.size()));
+        profileRecord.setDate(intervalDate);
+        profileRecord.setValues(values);
         return profileRecord;
     }
 
@@ -24,28 +23,15 @@ public class ProfileRecord {
         return date;
     }
 
-    public void setDate(Date date) {
+    protected void setDate(Date date) {
         this.date = date;
     }
 
-    public void setValues(List values) {
+    protected void setValues(List<Number> values) {
         this.values = values;
-    }
-
-    public int getWordLength() {
-        return 4;
     }
 
     public List getValues() {
         return values;
     }
-
-    public void setIncompleteIntegrationPeriod(boolean incompleteIntegrationPeriod) {
-        this.incompleteIntegrationPeriod = incompleteIntegrationPeriod;
-    }
-
-    public boolean isIncompleteIntegrationPeriod() {
-        return incompleteIntegrationPeriod;
-    }
-
 }
