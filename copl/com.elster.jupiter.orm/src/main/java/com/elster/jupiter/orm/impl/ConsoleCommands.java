@@ -32,7 +32,7 @@ import java.util.LongSummaryStatistics;
 @Component(name = "com.elster.jupiter.orm.console", service = ConsoleCommands.class,
         property = {"osgi.command.scope=orm", "osgi.command.function=ddl",
                 "osgi.command.function=executeQuery",
-                "osgi.command.function=listDataModels", "osgi.command.function=pingDb"}, immediate = true)
+                "osgi.command.function=listDataModels", "osgi.command.function=pingDb", "osgi.command.function=clearCaches"}, immediate = true)
 public class ConsoleCommands {
 
     private volatile BundleContext context;
@@ -147,6 +147,15 @@ public class ConsoleCommands {
         System.out.println("   Minimum = " + format.format(longSummaryStatistics.getMin() / NANOSECONDS_IN_MS) + "ms, " +
                 "Maximum = " + format.format(longSummaryStatistics.getMax() / NANOSECONDS_IN_MS) + "ms, " +
                 "Average = " + format.format(longSummaryStatistics.getAverage() / NANOSECONDS_IN_MS) + "ms");
+    }
+
+    public void clearCaches() {
+        ormService.getDataModels()
+                .stream()
+                .map(DataModel::getTables)
+                .flatMap(List::stream)
+                .map(TableImpl.class::cast)
+                .forEach(TableImpl::renewCache);
     }
 
     class ResultSetPrinter {

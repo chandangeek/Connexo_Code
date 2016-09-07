@@ -873,7 +873,7 @@ public class TableImpl<T> implements Table<T> {
         return getMapperType().getField(fieldName);
     }
 
-    void renewCache() {
+    public void renewCache() {
         getCache().renew();
     }
 
