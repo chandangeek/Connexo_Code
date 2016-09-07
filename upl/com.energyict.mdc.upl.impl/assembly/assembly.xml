@@ -26,6 +26,7 @@
                 <include>com.energyict:protocolimpl-v2</include>
                 <include>com.energyict:protocolcommon</include>
                 <include>com.energyict:protocolimpl-elster</include>
+                <include>com.energyict:protocolimpl-us</include>
             </includes>
 
             <binaries>
