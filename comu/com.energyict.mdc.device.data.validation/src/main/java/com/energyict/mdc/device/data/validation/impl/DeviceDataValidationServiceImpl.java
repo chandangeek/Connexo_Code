@@ -62,7 +62,7 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
     @Override
     public List<ValidationOverview> getValidationResultsOfDeviceGroup(long groupId, Range<Instant> range) {
         List<ValidationOverview> list = new ArrayList<>();
-        List<Long> deviceIds  = validationService.getDevicesWithSuspects(groupId);
+        List<Long> deviceIds = validationService.getDevicesIdsList(groupId).stream().filter(deviceId -> getKpiScores(groupId,deviceId,range).isPresent()).collect(Collectors.toList());;
         SqlBuilder validationOverviewBuilder = new SqlBuilder();
         validationOverviewBuilder.append("SELECT DEV.mrid, DEV.serialnumber, DT.name, DC.name FROM DDC_DEVICE DEV ");
         validationOverviewBuilder.append("  LEFT JOIN DTC_DEVICETYPE DT ON dev.devicetype = DT.id");
@@ -72,23 +72,42 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
              PreparedStatement statement = validationOverviewBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 AtomicLong idx = new AtomicLong(0);
-                while (resultSet.next() && getKpiScores(groupId, deviceIds.get(idx.intValue()), range).isPresent()) {
-                    list.add(new ValidationOverviewImpl(
-                            resultSet.getString(1),
-                            resultSet.getString(2),
-                            resultSet.getString(3),
-                            resultSet.getString(4),
-                            new DeviceValidationKpiResults(
-                                    getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get().getTotalSuspects().longValue(),
-                                    getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get().getChannelSuspects().longValue(),
-                                    getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get().getRegisterSuspects().longValue(),
-                                    getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get().getAllDataValidated().longValue(),
-                                    getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get().getTimestamp(),
-                                    getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get().getThresholdValidator().longValue(),
-                                    getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get().getMissingValuesValidator().longValue(),
-                                    getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get().getReadingQualitiesValidator().longValue(),
-                                    getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get().getRegisterIncreaseValidator().longValue()
-                            )));
+                while (resultSet.next()) {
+                    if(getKpiScores(groupId,deviceIds.get(idx.intValue()),range).isPresent()) {
+                        list.add(new ValidationOverviewImpl(
+                                resultSet.getString(1),
+                                resultSet.getString(2),
+                                resultSet.getString(3),
+                                resultSet.getString(4),
+                                new DeviceValidationKpiResults(
+                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
+                                                .getTotalSuspects()
+                                                .longValue(),
+                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
+                                                .getChannelSuspects()
+                                                .longValue(),
+                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
+                                                .getRegisterSuspects()
+                                                .longValue(),
+                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
+                                                .getAllDataValidated()
+                                                .longValue(),
+                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
+                                                .getTimestamp(),
+                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
+                                                .getThresholdValidator()
+                                                .longValue(),
+                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
+                                                .getMissingValuesValidator()
+                                                .longValue(),
+                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
+                                                .getReadingQualitiesValidator()
+                                                .longValue(),
+                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
+                                                .getRegisterIncreaseValidator()
+                                                .longValue()
+                                )));
+                    }
                     idx.incrementAndGet();
                 }
             }
