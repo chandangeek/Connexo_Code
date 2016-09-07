@@ -53,7 +53,7 @@ public class UsagePointTestResource {
                                 "SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
                                 "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
                                 "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " +
                                 usagePointId + "))))"
                 );
                 statement.addBatch(
@@ -61,38 +61,41 @@ public class UsagePointTestResource {
                                 "SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
                                 "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
                                 "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " +
                                 usagePointId + "))))"
                 );
                 statement.addBatch(
                         "DELETE FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
                                 "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
                                 "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " +
                                 usagePointId + ")))"
                 );
                 statement.addBatch(
                         "DELETE FROM VAL_MA_VALIDATION WHERE CHANNEL_CONTAINER IN (" +
                                 "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
                                 "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " +
                                 usagePointId + ")))"
                 );
                 statement.addBatch(
                         "DELETE FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
                                 "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " +
                                 usagePointId + "))"
                 );
                 statement.addBatch(
                         "DELETE FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " +
                                 usagePointId + ")"
                 );
                 statement.addBatch("DELETE FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " + usagePointId);
                 statement.addBatch("DELETE FROM ANT_CPS_ANTENNA WHERE USAGEPOINT = " + usagePointId);
                 statement.addBatch("DELETE FROM CON_CPS_USAGEPOINT_CONTRCT WHERE USAGEPOINT = " + usagePointId);
-                statement.addBatch("DELETE FROM GNR_CPS_USAGEPOINT_GNRL WHERE USAGEPOINT  = " + usagePointId);
+                statement.addBatch("DELETE FROM GNR_CPS_USAGEPOINT_GNRL WHERE USAGEPOINT = " + usagePointId);
+                statement.addBatch("DELETE FROM TE1_CPS_TECH_EL WHERE USAGEPOINT = " + usagePointId);
+                statement.addBatch("DELETE FROM MIS_CPS_USAGEPOINT_TECH WHERE USAGEPOINT = " + usagePointId);
+                statement.addBatch("DELETE FROM MTC_CPS_USAGEPOINT_GENER WHERE USAGEPOINT = " + usagePointId);
 
                 for (MeterActivation meterActivation : meterActivations) {
                     long meterActivationId = meterActivation.getId();
