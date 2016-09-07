@@ -43,6 +43,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -467,7 +468,7 @@ public class MeterActivationImplIT {
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter = system.newMeter("meterForActivation").create();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        Instant now = inMemoryBootstrapModule.getClock().instant();
+        Instant now = inMemoryBootstrapModule.getClock().instant().truncatedTo(ChronoUnit.MINUTES);
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
         MeterRole meterRole = metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         serviceCategory.addMeterRole(meterRole);
