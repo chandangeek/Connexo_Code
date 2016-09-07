@@ -15,14 +15,16 @@ public class T210DMeterAlarmParser {
     public static List<MeterEvent> parseAlarmCode(Date date, long meterAlarmCode, int alarmRegister) {
 
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        int alarmGeneratedMeterEvent = MeterEvent.OTHER;
+        String alarmGeneratedEventDescription = "Alarm generated event: ";
 
         if (ProtocolTools.isBitSet(meterAlarmCode, 0)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.CLOCK_INVALID, 6, "Clock invalid"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 6, alarmGeneratedEventDescription+"Clock invalid"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.POWERDOWN, 1, "Total Power Failure"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 1, alarmGeneratedEventDescription+"Total Power Failure"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -32,10 +34,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 1)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.REPLACE_BATTERY, 7, "Battery replace"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 7, alarmGeneratedEventDescription+"Battery replace"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.POWERUP, 2, "Power Resume"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 2, alarmGeneratedEventDescription+"Power Resume"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -47,7 +49,7 @@ public class T210DMeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 82, "Voltage Phase Failure L1"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 82, alarmGeneratedEventDescription+"Voltage Phase Failure L1"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -59,7 +61,7 @@ public class T210DMeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 83, "Voltage Phase Failure L2"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 83, alarmGeneratedEventDescription+"Voltage Phase Failure L2"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -71,10 +73,10 @@ public class T210DMeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 84, "Voltage Phase Failure L3"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 84, alarmGeneratedEventDescription+"Voltage Phase Failure L3"));
                     break;
                 case 3:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 208, "M-Bus device uninstalled ch1"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 208, alarmGeneratedEventDescription+"M-Bus device uninstalled ch1"));
                     break;
             }
         }
@@ -84,10 +86,10 @@ public class T210DMeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 85, "Voltage Phase Resume L1"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 85, alarmGeneratedEventDescription+"Voltage Phase Resume L1"));
                     break;
                 case 3:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 209, "M-Bus device uninstalled ch2"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 209, alarmGeneratedEventDescription+"M-Bus device uninstalled ch2"));
                     break;
             }
         }
@@ -97,10 +99,10 @@ public class T210DMeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 86, "Voltage Phase Resume L2"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 86, alarmGeneratedEventDescription+"Voltage Phase Resume L2"));
                     break;
                 case 3:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 210, "M-Bus device uninstalled ch3"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 210, alarmGeneratedEventDescription+"M-Bus device uninstalled ch3"));
                     break;
             }
         }
@@ -110,10 +112,10 @@ public class T210DMeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 87, "Voltage Phase Resume L3"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 87, alarmGeneratedEventDescription+"Voltage Phase Resume L3"));
                     break;
                 case 3:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 211, "M-Bus device uninstalled ch4"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 211, alarmGeneratedEventDescription+"M-Bus device uninstalled ch4"));
                     break;
             }
         }
@@ -121,10 +123,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 8)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.PROGRAM_MEMORY_ERROR, 12, "Program memory error"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 12, alarmGeneratedEventDescription+"Program memory error"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 89, "Missing Neutral"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 89, alarmGeneratedEventDescription+"Missing Neutral"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -134,10 +136,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 9)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.RAM_MEMORY_ERROR, 13, "RAM error"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 13, alarmGeneratedEventDescription+"RAM error"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 90, "Phase Asymmetry"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 90, alarmGeneratedEventDescription+"Phase Asymmetry"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -147,13 +149,13 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 10)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.NV_MEMORY_ERROR, 14, "NV memory error"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 14, alarmGeneratedEventDescription+"NV memory error"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.REVERSE_RUN, 91, "Current Reversal"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 91, alarmGeneratedEventDescription+"Current Reversal"));
                     break;
                 case 3:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 220, "Temporary error M-Bus ch1"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 220, alarmGeneratedEventDescription+"Temporary error M-Bus ch1"));
                     break;
             }
         }
@@ -161,13 +163,13 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 11)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.MEASUREMENT_SYSTEM_ERROR, 16, "Measurement system error"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 16, alarmGeneratedEventDescription+"Measurement system error"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 88, "Wrong Phase Sequence"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 88, alarmGeneratedEventDescription+"Wrong Phase Sequence"));
                     break;
                 case 3:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 221, "Temporary error M-Bus ch2"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 221, alarmGeneratedEventDescription+"Temporary error M-Bus ch2"));
                     break;
             }
         }
@@ -175,13 +177,13 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 12)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.WATCHDOG_ERROR, 15, "Watchdog error"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 15, alarmGeneratedEventDescription+"Watchdog error"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 52, "Unexpected Consumption"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 52, alarmGeneratedEventDescription+"Unexpected Consumption"));
                     break;
                 case 3:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 222, "Temporary error M-Bus ch3"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 222, alarmGeneratedEventDescription+"Temporary error M-Bus ch3"));
                     break;
             }
         }
@@ -189,13 +191,13 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 13)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.FRAUD_ATTEMPT_MBUS, 40, "Fraud attempt"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 40, alarmGeneratedEventDescription+"Fraud attempt"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 48, "Key Exchanged"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 48, alarmGeneratedEventDescription+"Key Exchanged"));
                     break;
                 case 3:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 223, "Temporary error M-Bus ch4"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 223, alarmGeneratedEventDescription+"Temporary error M-Bus ch4"));
                     break;
             }
         }
@@ -205,10 +207,10 @@ public class T210DMeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 92, "Bad Voltage Quality L1"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 92, alarmGeneratedEventDescription+"Bad Voltage Quality L1"));
                     break;
                 case 3:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 41, "End of fraud attempt"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 41, alarmGeneratedEventDescription+"End of fraud attempt"));
                     break;
             }
         }
@@ -218,10 +220,10 @@ public class T210DMeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 93, "Bad Voltage Quality L2"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 93, alarmGeneratedEventDescription+"Bad Voltage Quality L2"));
                     break;
                 case 3:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 236, "Certificate almost expired"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 236, alarmGeneratedEventDescription+"Certificate almost expired"));
                     break;
             }
         }
@@ -229,10 +231,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 16)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.COMMUNICATION_ERROR_MBUS, 100, "M-Bus communication error ch1"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 100, alarmGeneratedEventDescription+"M-Bus communication error ch1"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 94, "Bad Voltage Quality L3"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 94, alarmGeneratedEventDescription+"Bad Voltage Quality L3"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -242,10 +244,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 17)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.COMMUNICATION_ERROR_MBUS, 110, "M-Bus communication error ch2"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 110, alarmGeneratedEventDescription+"M-Bus communication error ch2"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 20, "External Alert"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 20, alarmGeneratedEventDescription+"External Alert"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -255,10 +257,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 18)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.COMMUNICATION_ERROR_MBUS, 120, "M-Bus communication error ch3"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 120, alarmGeneratedEventDescription+"M-Bus communication error ch3"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 53, "Local communication attempt"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 53, alarmGeneratedEventDescription+"Local communication attempt"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -268,10 +270,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 19)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.COMMUNICATION_ERROR_MBUS, 130, "M-Bus communication error ch4"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 130, alarmGeneratedEventDescription+"M-Bus communication error ch4"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 105, "New M-Bus Device Installed Ch1"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 105, alarmGeneratedEventDescription+"New M-Bus Device Installed Ch1"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -281,10 +283,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 20)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.FRAUD_ATTEMPT_MBUS, 103, "M-Bus fraud attempt ch1"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 103, alarmGeneratedEventDescription+"M-Bus fraud attempt ch1"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 115, "New M-Bus Device Installed Ch2"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 115, alarmGeneratedEventDescription+"New M-Bus Device Installed Ch2"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -294,10 +296,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 21)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.FRAUD_ATTEMPT_MBUS, 113, "M-Bus fraud attempt ch2"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 113, alarmGeneratedEventDescription+"M-Bus fraud attempt ch2"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 125, "New M-Bus Device Installed Ch3"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 125, alarmGeneratedEventDescription+"New M-Bus Device Installed Ch3"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -307,10 +309,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 22)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.FRAUD_ATTEMPT_MBUS, 123, "M-Bus fraud attempt ch3"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 123, alarmGeneratedEventDescription+"M-Bus fraud attempt ch3"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 135, "New M-Bus Device Installed Ch4"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 135, alarmGeneratedEventDescription+"New M-Bus Device Installed Ch4"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -320,7 +322,7 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 23)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.FRAUD_ATTEMPT_MBUS, 133, "M-Bus fraud attempt ch4"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 133, alarmGeneratedEventDescription+"M-Bus fraud attempt ch4"));
                     break;
                 case 2:
                     break;//Reserved for future use
@@ -332,7 +334,7 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 24)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 106, "Permanent error M-bus ch1"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 106, alarmGeneratedEventDescription+"Permanent error M-bus ch1"));
                     break;
                 case 2:
                     break;//Reserved for future use
@@ -344,7 +346,7 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 25)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 116, "Permanent error M-bus ch2"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 116, alarmGeneratedEventDescription+"Permanent error M-bus ch2"));
                     break;
                 case 2:
                     break;//Reserved for future use
@@ -356,7 +358,7 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 26)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 126, "Permanent error M-bus ch3"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 126, alarmGeneratedEventDescription+"Permanent error M-bus ch3"));
                     break;
                 case 2:
                     break;//Reserved for future use
@@ -368,10 +370,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 27)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 136, "Permanent error M-bus ch4"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 136, alarmGeneratedEventDescription+"Permanent error M-bus ch4"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.VALVE_ALARM_MBUS, 164, "M-Bus valve alarm Ch1"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 164, alarmGeneratedEventDescription+"M-Bus valve alarm Ch1"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -381,10 +383,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 28)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, 102, "Battery low on M-bus ch1"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 102, alarmGeneratedEventDescription+"Battery low on M-bus ch1"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.VALVE_ALARM_MBUS, 174, "M-Bus valve alarm Ch2"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 174, alarmGeneratedEventDescription+"M-Bus valve alarm Ch2"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -394,10 +396,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 29)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, 112, "Battery low on M-bus ch2"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 112, alarmGeneratedEventDescription+"Battery low on M-bus ch2"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.VALVE_ALARM_MBUS, 184, "M-Bus valve alarm Ch3"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 184, alarmGeneratedEventDescription+"M-Bus valve alarm Ch3"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -407,10 +409,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 30)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, 122, "Battery low on M-bus ch3"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 122, alarmGeneratedEventDescription+"Battery low on M-bus ch3"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.VALVE_ALARM_MBUS, 194, "M-Bus valve alarm Ch4"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 194, alarmGeneratedEventDescription+"M-Bus valve alarm Ch4"));
                     break;
                 case 3:
                     break;//Reserved for future use
@@ -420,10 +422,10 @@ public class T210DMeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 31)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, 132, "Battery low on M-bus ch4"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 132, alarmGeneratedEventDescription+"Battery low on M-bus ch4"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 68, "Disconnect/Reconnect Failure"));
+                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 68, alarmGeneratedEventDescription+"Disconnect/Reconnect Failure"));
                     break;
                 case 3:
                     break;//Reserved for future use

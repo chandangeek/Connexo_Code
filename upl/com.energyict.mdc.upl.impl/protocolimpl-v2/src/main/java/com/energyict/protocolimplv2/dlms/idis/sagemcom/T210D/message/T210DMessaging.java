@@ -27,7 +27,6 @@ public class T210DMessaging extends AM540Messaging {
     @Override
     protected void addSupportedDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
         //Security
-        supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
         supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
         //Supervision monitor
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR_FOR_IMPORT_EXPORT);
@@ -43,6 +42,8 @@ public class T210DMessaging extends AM540Messaging {
         supportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_OBJECT_DEFINITIONS);
         supportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_SEND_DESTINATION);
         //Configuration for ConfigureGeneralLocalPortReadout captured_objects
+        supportedMessages.add(ConfigurationChangeDeviceMessage.DISABLE_PUSH_ON_INSTALLATION);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.ENABLE_PUSH_ON_INTERVAL_OBJECTS);
         supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureGeneralLocalPortReadout);
         //Contactor
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);

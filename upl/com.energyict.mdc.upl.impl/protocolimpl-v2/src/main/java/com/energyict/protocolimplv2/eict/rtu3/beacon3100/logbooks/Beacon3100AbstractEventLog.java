@@ -121,6 +121,7 @@ public abstract class Beacon3100AbstractEventLog {
         eventsMap.put(0x00C60000L, " PLC_G3_UPPERMAC_STOPPED");
         eventsMap.put(0x00C70000L, " PLC_G3_UPPERMAC_STARTED");
         eventsMap.put(0x00C80000L, " PLC_G3_JOIN_FAILED");
+        eventsMap.put(0x00C90000L, " PLC_G3_AUTH_FAILURE");
         eventsMap.put(0x00200000L, " DLMS_SERVER_SESSION_ACCEPTED");
         eventsMap.put(0x00210000L, " DLMS_SERVER_SESSION_FINISHED");
         eventsMap.put(0x00220000L, " DLMS_OTHER");

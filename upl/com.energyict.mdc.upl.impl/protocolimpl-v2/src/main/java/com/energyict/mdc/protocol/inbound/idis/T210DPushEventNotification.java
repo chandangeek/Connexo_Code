@@ -6,7 +6,6 @@ import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.Beacon3100ProtocolTypedProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,6 @@ public class T210DPushEventNotification extends DataPushNotification {
         }
         parser = new T210DEventPushNotificationParser(comChannel, getContext());
         parser.parseInboundFrame();
-        //TODO: for push on installtion return IDENTIFICATION
         return DiscoverResultType.DATA;
     }
 
@@ -49,13 +47,9 @@ public class T210DPushEventNotification extends DataPushNotification {
             }
         }
 
-        if(parser.getCollectedLogBook() != null){
-            collectedDatas.add(parser.getCollectedLogBook());
+        if(parser.getCollectedLogBooks() != null){
+            collectedDatas.addAll(parser.getCollectedLogBooks());
         }
-//
-//        if(parser.getCollectedRegisters() != null){
-//            collectedDatas.add(parser.getCollectedRegisters());
-//        }
 
         return collectedDatas;
     }
