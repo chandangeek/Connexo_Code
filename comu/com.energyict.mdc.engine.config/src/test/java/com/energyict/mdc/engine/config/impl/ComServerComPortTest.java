@@ -457,7 +457,6 @@ public class ComServerComPortTest extends PersistenceTest {
                 .storeTaskThreadPriority(1)
                 .numberOfStoreTaskThreads(1)
                 .queryApiPort(onlineNameNumber)
-                .statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER)
                 .eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER)
                 .serverName(name)
                 .name(name)

@@ -19,6 +19,7 @@ public class ComServerCrudTest extends PersistenceTest {
 
     private static final int QUERY_API_PORT = 123;
     private static final int STATUS_API_PORT = 456;
+    private static final int STATUS_PORT = 8080;
     private static final int EVENT_REGISTRATION_PORT = 789;
 
     public static final TimeDuration ONE_MINUTE = new TimeDuration(60);
@@ -84,7 +85,6 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServerBuilder.storeTaskThreadPriority(3);
         onlineComServerBuilder.numberOfStoreTaskThreads(6);
         onlineComServerBuilder.serverName(onlineName);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComserver = onlineComServerBuilder.create();
 
@@ -128,7 +128,6 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServerBuilder.storeTaskThreadPriority(3);
         onlineComServerBuilder.numberOfStoreTaskThreads(6);
         onlineComServerBuilder.serverName(onlineName);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
 
@@ -167,7 +166,6 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(6);
         onlineComServer.serverName(name);
         onlineComServer.queryApiPort(QUERY_API_PORT);
-        onlineComServer.statusPort(STATUS_API_PORT);
         onlineComServer.eventRegistrationPort(EVENT_REGISTRATION_PORT);
 
         onlineComServer.create();
@@ -182,8 +180,8 @@ public class ComServerCrudTest extends PersistenceTest {
         assertThat(((OnlineComServer) reloaded).getQueryApiPostUri()).isEqualTo(MessageFormat.format(ComServer.QUERY_API_URI_PATTERN, SERVER_NAME, QUERY_API_PORT));
         assertThat(((OnlineComServer) reloaded).getEventRegistrationPort()).isEqualTo(EVENT_REGISTRATION_PORT);
         assertThat(((OnlineComServer) reloaded).getEventRegistrationUri()).isEqualTo(MessageFormat.format(ComServer.EVENT_REGISTRATION_URI_PATTERN, SERVER_NAME, EVENT_REGISTRATION_PORT));
-        assertThat(((OnlineComServer) reloaded).getStatusPort()).isEqualTo(STATUS_API_PORT);
-        assertThat(((OnlineComServer) reloaded).getStatusUri()).isEqualTo(MessageFormat.format(ComServer.STATUS_URI_ATTERN, SERVER_NAME, STATUS_API_PORT));
+        assertThat(((OnlineComServer) reloaded).getStatusPort()).isEqualTo(STATUS_PORT);
+        assertThat(((OnlineComServer) reloaded).getStatusUri()).isEqualTo(MessageFormat.format(ComServer.STATUS_URI_ATTERN, SERVER_NAME, Integer.toString(STATUS_PORT)));
         assertThat(((OnlineComServer) reloaded).getNumberOfStoreTaskThreads()).isEqualTo(6);
         assertThat(((OnlineComServer) reloaded).getStoreTaskThreadPriority()).isEqualTo(3);
         assertThat(((OnlineComServer) reloaded).getStoreTaskQueueSize()).isEqualTo(10);
@@ -205,7 +203,6 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServerBuilder.storeTaskThreadPriority(3);
         onlineComServerBuilder.numberOfStoreTaskThreads(6);
         onlineComServerBuilder.serverName(name);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         onlineComServer.newOutboundComPort("some comport", 4).comPortType(ComPortType.TCP).add();
@@ -230,7 +227,6 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(3);
         onlineComServer.numberOfStoreTaskThreads(6);
         onlineComServer.serverName("serverName");
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         onlineComServer.create();
     }
@@ -250,7 +246,6 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(3);
         onlineComServer.numberOfStoreTaskThreads(6);
         onlineComServer.serverName("serverName");
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         onlineComServer.create();
     }
