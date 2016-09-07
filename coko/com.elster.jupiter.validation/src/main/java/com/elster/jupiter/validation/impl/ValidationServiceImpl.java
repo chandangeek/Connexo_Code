@@ -4,7 +4,6 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -34,7 +33,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -59,7 +57,6 @@ import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
 import com.elster.jupiter.validation.impl.kpi.DataValidationReportServiceImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
-import com.elster.jupiter.validation.kpi.DataValidationKpiChild;
 import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
@@ -765,25 +762,12 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public List<Long> getDevicesWithSuspects(long endDeviceGroupId) {
-        List<Long> devices = new ArrayList<>();
+    public List<Long> getDevicesIdsList(long endDeviceGroupId) {
         Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
-        if (endDeviceGroup.isPresent()) {
-            Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(endDeviceGroup.get());
-            if (dataValidationKpi.isPresent()) {
-                devices = dataValidationKpi.get()
-                        .getDataValidationKpiChildren()
-                        .stream()
-                        .map(DataValidationKpiChild::getChildKpi)
-                        .map(Kpi::getMembers)
-                        .flatMap(List::stream)
-                        .map(HasName::getName)
-                        .map(name -> name.substring(name.indexOf("_") + 1))
-                        .map(Long::parseLong)
-                        .distinct().sorted().collect(Collectors.toList());
-            }
+        if(endDeviceGroup.isPresent()){
+            return endDeviceGroup.get().getMembers(Instant.now()).stream().map(EndDevice::getId).collect(Collectors.toList());
         }
-        return devices;
+        return new ArrayList<>();
     }
 
     @Override

@@ -57,7 +57,11 @@ class DataValidationKpiMembers {
         suspectMap.putAll(dataValidationStatusMap);
         suspectMap.putAll(validatorsMap);
         if (suspectMap.entrySet().stream()
-                .filter(element -> !element.getKey().equals(MonitoredDataValidationKpiMemberTypes.ALLDATAVALIDATED))
+                .filter(element -> !element.getKey().equals(MonitoredDataValidationKpiMemberTypes.ALLDATAVALIDATED) &&
+                        !element.getKey().equals(MonitoredDataValidationKpiMemberTypes.REGISTERINCREASEVALIDATOR) &&
+                        !element.getKey().equals(MonitoredDataValidationKpiMemberTypes.READINGQUALITIESVALIDATOR) &&
+                        !element.getKey().equals(MonitoredDataValidationKpiMemberTypes.MISSINGVALUESVALIDATOR) &&
+                        !element.getKey().equals(MonitoredDataValidationKpiMemberTypes.THRESHOLDVALIDATOR))
                 .allMatch(a -> a.getValue().compareTo(BigDecimal.ZERO) == 0)) {
             return Optional.empty();
         } else {

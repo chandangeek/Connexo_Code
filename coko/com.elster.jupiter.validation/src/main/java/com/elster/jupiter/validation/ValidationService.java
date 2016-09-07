@@ -147,7 +147,7 @@ public interface ValidationService {
 
     Optional<DataValidationKpiScore> getDataValidationKpiScores(long groupId, long deviceId, Range<Instant> interval);
 
-    List<Long> getDevicesWithSuspects(long endDeviceGroupId);
+    List<Long> getDevicesIdsList(long endDeviceGroupId);
 
     Optional<? extends ValidationRuleSetVersion> findValidationRuleSetVersion(long id);
 
