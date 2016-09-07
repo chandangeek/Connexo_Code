@@ -16,8 +16,8 @@ Ext.define('Uni.view.search.field.internal.Operator', {
         [">=", ">="],
         ["<", "<"],
         ["<=", "<="],
-        ["BETWEEN", "Between"],
-        ["NOTNULL", "Not empty"]
+        ["BETWEEN", Uni.I18n.translate('search.field.internal.between', 'UNI', 'Between')],
+        ["NOTNULL", Uni.I18n.translate('search.field.internal.notEmpty', 'UNI', 'Not empty')]
         //...
     ],
     config: {

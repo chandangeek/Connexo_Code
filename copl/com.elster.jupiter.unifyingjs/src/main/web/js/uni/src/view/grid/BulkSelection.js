@@ -246,8 +246,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.getSelectionGroupType().on('change', me.onChangeSelectionGroupType, me);
         me.getAddButton().on('click', me.onClickAddButton, me);
         me.on('selectionchange', me.onBulkSelectionChange, me);
-
-        me.store.on('load', me.onSelectDefaultGroupType, me, {
+        me.on('render', me.onSelectDefaultGroupType, me, {
             single: true
         });
     },
@@ -260,7 +259,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
         }
     },
 
-    onChangeSelectionGroupType: function (radiogroup, value) {
+    onChangeSelectionGroupType: function () {
         var me = this;
         if (me.view) {
             var selection = me.view.getSelectionModel().getSelection();
@@ -268,6 +267,13 @@ Ext.define('Uni.view.grid.BulkSelection', {
             Ext.suspendLayouts();
             me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
             me.setGridVisible(!me.isAllSelected());
+            if(!me.isAllSelected()) {
+                me.store.loadPage(1, {
+                    callback: function() {
+                        me.setGridVisible(true);
+                    }
+                });
+            }
             Ext.resumeLayouts(true);
         }
     },
