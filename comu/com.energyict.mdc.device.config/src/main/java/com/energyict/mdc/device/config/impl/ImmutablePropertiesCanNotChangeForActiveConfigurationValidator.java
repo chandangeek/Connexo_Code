@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -46,6 +47,11 @@ public class ImmutablePropertiesCanNotChangeForActiveConfigurationValidator impl
             }
             if (deviceConfiguration.isDirectlyAddressable()!=originalConfiguration.get().isDirectlyAddressable()) {
                 context.buildConstraintViolationWithTemplate(message).addPropertyNode(DeviceConfigurationImpl.Fields.IS_DIRECTLY_ADDRESSABLE.fieldName()).addConstraintViolation().disableDefaultConstraintViolation();
+                valid=false;
+            }
+        } else {
+            if(!deviceConfiguration.isDirectlyAddressable() && originalConfiguration.get().isDirectlyAddressable() && deviceConfiguration.getPartialConnectionTasks().size() > 0){
+                context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS+ "}").addPropertyNode(DeviceConfigurationImpl.Fields.IS_DIRECTLY_ADDRESSABLE.fieldName()).addConstraintViolation().disableDefaultConstraintViolation();
                 valid=false;
             }
         }

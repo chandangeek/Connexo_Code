@@ -160,6 +160,8 @@ public enum MessageSeeds implements MessageSeed {
     DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(15015, Keys.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before " +
             "you can activate a datalogger device configuration"),
     INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS(15016, Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, "Invalid number of simultaneous connections, should be between 1 and 16"),
+    DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS(15017, Keys.DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS, "You cannot change this property because you already have connection tasks"),
+    CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT(15018, Keys.CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT, "You cannot remove the connection method because it is used by a communication task"),
     ;
 
     private final int number;
@@ -278,6 +280,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DATALOGGER_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG = "datalogger.enabled.change.on.active.config";
         public static final String DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE = "datalogger.slave.at.least.one.datasource";
         public static final String DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE = "datalogger.enablements.at.least.one.datasource";
+        public static final String DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS = "deviceConfig.active.directly.addressable.with.connectiontasks";
+        public static final String CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT = "connection.task.used.by.comtask.enablement";
     }
 
 }

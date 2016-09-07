@@ -1,14 +1,13 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 
 import javax.validation.ConstraintValidatorContext;
 
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -31,6 +30,7 @@ public class DeviceConfigurationMustBeDirectlyAddressableValidatorTest {
 
     @Before
     public void initializeMocks() {
+        when(deviceConfiguration.isActive()).thenReturn(true);
         when(this.partialConnectionTask.getConfiguration()).thenReturn(this.deviceConfiguration);
     }
 

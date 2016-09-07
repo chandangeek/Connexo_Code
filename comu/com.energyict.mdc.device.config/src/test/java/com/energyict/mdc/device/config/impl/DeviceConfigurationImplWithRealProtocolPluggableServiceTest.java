@@ -43,7 +43,7 @@ public class DeviceConfigurationImplWithRealProtocolPluggableServiceTest extends
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS + "}", strict = false)
     public void cannotSwitchOffDirectlyAddressableWithPartialConnectionTasks() {
         when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
         ConnectionTypePluggableClass connectionTypePluggableClass =
