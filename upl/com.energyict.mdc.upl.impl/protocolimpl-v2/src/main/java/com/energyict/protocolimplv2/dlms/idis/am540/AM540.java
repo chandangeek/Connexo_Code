@@ -70,6 +70,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     protected static final int EVN_CLIENT_INSTALLATION      = 5;
     protected static final int EVN_CLIENT_MAINTENANCE       = 6;
     protected static final int EVN_CLIENT_CERTIFICATION     = 7;
+    protected static final int PUBLIC_CLIENT                = 16;
     protected static final int EVN_CLIENT_CUSTOMER_INFORMATION_PUSH    = 103;
 
 
@@ -147,7 +148,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-06-13 09:30:28 +0300 (Mon, 13 Jun 2016)$";
+        return "$Date: 2016-09-07 14:19:32 +0300 (Wed, 07 Sep 2016)$";
     }
 
     /**
@@ -303,13 +304,13 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         getLogger().info("Reading frame counter using secure method");
         // construct a temporary session with 0:0 security and clientId=16 (public)
         final TypedProperties publicProperties = getDlmsSessionProperties().getProperties().clone();
-        publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
+        publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
         final AM540Properties publicClientProperties = new AM540Properties();
         publicClientProperties.addProperties(publicProperties);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, publicProperties));    //SecurityLevel 0:0
 
         final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
-        final ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
+        final ObisCode frameCounterObisCode = getFrameCounterForClient(PUBLIC_CLIENT);
         final long frameCounter;
 
         publicDlmsSession.getDlmsV2Connection().connectMAC();
@@ -336,6 +337,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         // handle some special frame-counters for EVN
         switch (clientId){
             case EVN_CLIENT_DATA_READOUT:
+            case PUBLIC_CLIENT:
                 return EVN_FRAMECOUNTER_DATA_READOUT;
             case EVN_CLIENT_INSTALLATION:
                 return EVN_FRAMECOUNTER_INSTALLATION;
