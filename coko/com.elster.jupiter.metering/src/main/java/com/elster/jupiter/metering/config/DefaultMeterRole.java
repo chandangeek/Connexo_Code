@@ -4,11 +4,12 @@ import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public enum DefaultMeterRole {
+public enum DefaultMeterRole implements TranslationKey {
 
     DEFAULT("default", "Default"),
     CONSUMPTION("consumption", "Consumption"),
@@ -26,10 +27,12 @@ public enum DefaultMeterRole {
         this.defaultFormat = defaultFormat;
     }
 
+    @Override
     public String getKey() {
-        return key;
+        return "meter.role." + key;
     }
 
+    @Override
     public String getDefaultFormat() {
         return defaultFormat;
     }
