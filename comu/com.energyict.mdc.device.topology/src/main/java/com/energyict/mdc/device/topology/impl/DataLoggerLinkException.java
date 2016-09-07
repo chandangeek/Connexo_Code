@@ -15,11 +15,11 @@ import java.time.Instant;
  */
 public class DataLoggerLinkException extends LocalizedException {
 
-    final static String NO_MAPPING_FOR_ALL_SLAVE_CHANNELS = "DataLoggerLinkException.allSlaveChannelsShouldBeIncludedInTheMapping";
-    final static String NO_FREE_DATA_LOGGER_CHANNEL = "DataLoggerLinkException.noFreeDataLoggerChannel";
-    final static String NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X = "DataLoggerLinkException.noDataLoggerChannelForReadingTypeX";
-    final static String NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X = "DataLoggerLinkException.noPhysicalSlaveChannelForReadingTypeX";
-    final static String DEVICE_NOT_LINKED = "DataLoggerLinkException.DeviceNotLinked";
+    static final String NO_MAPPING_FOR_ALL_SLAVE_CHANNELS = "DataLoggerLinkException.allSlaveChannelsShouldBeIncludedInTheMapping";
+    static final String NO_FREE_DATA_LOGGER_CHANNEL = "DataLoggerLinkException.noFreeDataLoggerChannel";
+    static final String NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X = "DataLoggerLinkException.noDataLoggerChannelForReadingTypeX";
+    static final String NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X = "DataLoggerLinkException.noPhysicalSlaveChannelForReadingTypeX";
+    static final String DEVICE_NOT_LINKED = "DataLoggerLinkException.DeviceNotLinked";
 
     private DataLoggerLinkException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
         super(thesaurus, messageSeed, args);
@@ -29,19 +29,20 @@ public class DataLoggerLinkException extends LocalizedException {
         return new DataLoggerLinkException(thesaurus, MessageSeeds.forKey(NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X), readingType.getMRID());
     }
 
-    public static DataLoggerLinkException invalidTerminationDate(Thesaurus thesaurus) {
+    static DataLoggerLinkException invalidTerminationDate(Thesaurus thesaurus) {
         return new DataLoggerLinkException(thesaurus, MessageSeeds.DATA_LOGGER_LINK_INVALID_TERMINATION_DATE);
     }
 
-    public static DataLoggerLinkException slaveWasNotLinkedAt(Thesaurus thesaurus, Device slave, Instant when) {
+    static DataLoggerLinkException slaveWasNotLinkedAt(Thesaurus thesaurus, Device slave, Instant when) {
         return new DataLoggerLinkException(thesaurus, MessageSeeds.DATA_LOGGER_SLAVE_NOT_LINKED_AT, slave.getmRID(), when);
     }
 
-    public static DataLoggerLinkException slaveWasPreviouslyLinkedAtSameTimeStamp(Thesaurus thesaurus, Device slave, Device datalogger, Instant linkingDate) {
+    static DataLoggerLinkException slaveWasPreviouslyLinkedAtSameTimeStamp(Thesaurus thesaurus, Device slave, Device datalogger, Instant linkingDate) {
         return new DataLoggerLinkException(thesaurus, MessageSeeds.DATA_LOGGER_UNIQUE_KEY_VIOLATION, slave.getmRID(), datalogger.getmRID(), linkingDate);
     }
 
-    public static DataLoggerLinkException slaveWasAlreadyLinkedToOtherDatalogger(Thesaurus thesaurus, Device slave, Device datalogger, Instant linkingDate) {
+    static DataLoggerLinkException slaveWasAlreadyLinkedToOtherDatalogger(Thesaurus thesaurus, Device slave, Device datalogger, Instant linkingDate) {
         return new DataLoggerLinkException(thesaurus, MessageSeeds.DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED, slave.getmRID(), datalogger.getmRID(), linkingDate);
     }
+
 }

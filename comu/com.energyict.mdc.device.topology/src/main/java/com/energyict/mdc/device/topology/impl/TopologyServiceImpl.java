@@ -472,7 +472,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                 .map((dataLoggerChannelUsage) -> getRegister(dataLoggerChannelUsage.getDataLoggerReference().getOrigin(), dataLoggerChannelUsage.getSlaveChannel()).get());
     }
 
-    Optional<Register> getRegister(Device device, com.elster.jupiter.metering.Channel channel) {
+    private Optional<Register> getRegister(Device device, com.elster.jupiter.metering.Channel channel) {
         return device.getRegisters().stream().filter(mdcRegister -> channel.getReadingTypes().contains(mdcRegister.getReadingType())).findFirst();
     }
 
@@ -722,23 +722,23 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         dataLoggerReference.addDataLoggerChannelUsage(channelForSlave, channelForDataLogger);
     }
 
-    Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final com.energyict.mdc.device.data.Channel channel) {
+    private Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final com.energyict.mdc.device.data.Channel channel) {
         return channel.getDevice().getCurrentMeterActivation().map(meterActivation -> getMeteringChannel(channel, meterActivation));
     }
 
-    com.elster.jupiter.metering.Channel getMeteringChannel(final com.energyict.mdc.device.data.Channel channel, final MeterActivation meterActivation) {
+    private com.elster.jupiter.metering.Channel getMeteringChannel(final com.energyict.mdc.device.data.Channel channel, final MeterActivation meterActivation) {
         return meterActivation.getChannelsContainer().getChannels()
                 .stream()
-                .filter((x) -> x.getReadingTypes().contains(channel.getReadingType()))
+                .filter(meterActivationChannel -> meterActivationChannel.getReadingTypes().contains(channel.getReadingType()))
                 .findFirst()
                 .orElseThrow(() -> DataLoggerLinkException.noPhysicalChannelForReadingType(this.thesaurus, channel.getReadingType()));
     }
 
-    Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final Register register) {
+    private Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final Register register) {
         return register.getDevice().getCurrentMeterActivation().map(meterActivation -> getMeteringChannel(register, meterActivation));
     }
 
-    com.elster.jupiter.metering.Channel getMeteringChannel(final Register register, final MeterActivation meterActivation) {
+    private com.elster.jupiter.metering.Channel getMeteringChannel(final Register register, final MeterActivation meterActivation) {
         return meterActivation.getChannelsContainer().getChannels().stream().filter((x) -> x.getReadingTypes().contains(register.getReadingType()))
                 .findFirst()
                 .orElseThrow(() -> DataLoggerLinkException.noPhysicalChannelForReadingType(this.thesaurus, register.getReadingType()));
@@ -970,7 +970,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     private List<G3Neighbor> safeCast(List<G3NeighborImpl> tableEntries) {
         List<G3Neighbor> neighbors = new ArrayList<>(tableEntries.size());
-        tableEntries.stream().forEach(neighbors::add);
+        tableEntries.forEach(neighbors::add);
         return neighbors;
     }
 
