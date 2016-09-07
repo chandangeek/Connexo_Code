@@ -47,7 +47,6 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
         comServerBuilder.serverName(this.serverName);
         comServerBuilder.queryApiPort(this.queryAPIPort != null ? this.queryAPIPort : 0);
         comServerBuilder.eventRegistrationPort(this.eventRegistrationPort != null ? this.eventRegistrationPort : 0);
-        comServerBuilder.statusPort(this.statusPort != null ? this.statusPort : 0);
         comServerBuilder.storeTaskQueueSize(this.storeTaskQueueSize != null ? this.storeTaskQueueSize : 0);
         comServerBuilder.storeTaskThreadPriority(this.storeTaskThreadPriority != null ? this.storeTaskThreadPriority : 0);
         comServerBuilder.numberOfStoreTaskThreads(this.numberOfStoreTaskThreads != null ? this.numberOfStoreTaskThreads : 0);
