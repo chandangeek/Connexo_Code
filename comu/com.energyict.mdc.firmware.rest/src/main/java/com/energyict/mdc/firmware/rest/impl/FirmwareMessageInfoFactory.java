@@ -26,8 +26,12 @@ public class FirmwareMessageInfoFactory {
     }
 
     public FirmwareMessageInfo from(DeviceMessageSpec deviceMessageSpec, Device device, String uploadOption, String firmwareType) {
-        PropertyDefaultValuesProvider provider = (propertySpec, propertyType) ->
-                firmwareService.getAllUpgradableFirmwareVersionsFor(device, firmwareType!= null ? FirmwareTypeFieldAdapter.INSTANCE.unmarshal(firmwareType): null);
+        PropertyDefaultValuesProvider provider = (propertySpec, propertyType) -> {
+            if (BaseFirmwareVersion.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
+                return firmwareService.getAllUpgradableFirmwareVersionsFor(device, firmwareType != null ? FirmwareTypeFieldAdapter.INSTANCE.unmarshal(firmwareType) : null);
+            }
+            return null;
+        };
         return from(deviceMessageSpec, uploadOption, provider);
     }
 
