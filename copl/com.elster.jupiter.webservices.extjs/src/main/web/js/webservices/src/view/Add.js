@@ -60,6 +60,7 @@ Ext.define('Wss.view.Add', {
                                 required: true,
                                 allowBlank: false,
                                 fieldLabel: Uni.I18n.translate('endPointAdd.Webservice', 'WSS', 'Webservice'),
+                                emptyText: Uni.I18n.translate('general.selectWebservice', 'WSS', 'Select a webservice...'),
                                 store: 'Wss.store.Webservices',
                                 forceSelection: true,
                                 displayField: 'name',
