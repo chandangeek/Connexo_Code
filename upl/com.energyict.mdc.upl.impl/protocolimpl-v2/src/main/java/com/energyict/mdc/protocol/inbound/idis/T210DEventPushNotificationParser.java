@@ -3,13 +3,11 @@ package com.energyict.mdc.protocol.inbound.idis;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.generalblocktransfer.GeneralBlockTransferFrame;
 import com.energyict.mdc.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
@@ -295,9 +293,9 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
                 isPushObjectListStructure = false;
             }
             int attributeNr = struct.getDataType(2).intValue();
-            long element3 = struct.getDataType(3).longValue();
-            pushObjectList.add(new T210DPushObjectListEntry(classId, obisCode, attributeNr, element3));
-            System.out.println("classID = "+classId+ " obisCode = "+obisCode.toString()+ " attributeNr = "+attributeNr+ " element3 = "+element3);
+            long maxBlockSize = struct.getDataType(3).longValue();
+            pushObjectList.add(new T210DPushObjectListEntry(classId, obisCode, attributeNr, maxBlockSize));
+            System.out.println("classID = "+classId+ " obisCode = "+obisCode.toString()+ " attributeNr = "+attributeNr+ " maxBlockSize = "+maxBlockSize);
         }
     }
 
@@ -380,7 +378,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
         for(AbstractDataType structure: dataType.getAllDataTypes()){
             Structure struct = structure.getStructure();
-            if(offlineChannels.size() != struct.nrOfDataTypes() - 2){
+            if(offlineChannels.size() > struct.nrOfDataTypes() - 2){
                 throw DataParseException.ioException(new ProtocolException("Configuration mismatch: The number of channels configured in the device is not the same as the number of channels configured in HES"));
             }
             List<IntervalValue> intervalValues = new ArrayList<>();
@@ -455,10 +453,17 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         for(OfflineLoadProfileChannel offlineLoadProfileChannel: offlineChannels){
             ChannelInfo channelInfo = new ChannelInfo(id, offlineLoadProfileChannel.getObisCode().getValue(), offlineLoadProfileChannel.getUnit(), deviceIdentifier.getIdentifier());
             channelInfos.add(channelInfo);
+            if (isCumulative(offlineLoadProfileChannel.getObisCode())) {
+                channelInfo.setCumulative();
+            }
             id++;
         }
 
         return channelInfos;
+    }
+
+    private boolean isCumulative(ObisCode obisCode) {
+        return ParseUtils.isObisCodeCumulative(obisCode);
     }
 
     private List<ChannelInfo> getDeviceChannelInfoLP1() { //This is hardcoded list as we do not receive the captured objects in the notification
