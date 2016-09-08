@@ -58,30 +58,31 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
             layout.setActiveItem(layout.getNext());
             step2Page.showProgressBar();
 
-        propertyForm.updateRecord();
-        record = propertyForm.getRecord();
-        if (!transitionFieldValue.transitionNow) {
-            record.set('effectiveTimestamp', transitionFieldValue.time);
-        } else {
-            record.set('effectiveTimestamp', null);
-        }
-        var deviceRemoved = record.get('name')==='Remove';
-        record.save({
-            backUrl: router.getRoute('devices/device').buildUrl(),
-            success: function (record, operation) {
-                step2Page.handleSuccessRequest(Ext.decode(operation.response.responseText), router, deviceRemoved);
-            },
-            failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText);
-                Ext.suspendLayouts();
-                layout.setActiveItem(layout.getPrev());
-                me.showWizardBtns();
-                me.getNavigationMenu().movePrevStep();
-                me.getDeviceTransitionExecuteWizard().down('#transitionDateField').setActiveError(json.errors[0].msg);
-                propertyForm.markInvalid(json.errors);
-                Ext.resumeLayouts(true);
+            propertyForm.updateRecord();
+            if (!transitionFieldValue.transitionNow) {
+                record.set('effectiveTimestamp', transitionFieldValue.time);
+            } else {
+                record.set('effectiveTimestamp', null);
             }
-        });
+            var deviceRemoved = record.get('name')==='Remove';
+            record.save({
+                backUrl: router.getRoute('devices/device').buildUrl(),
+                success: function (record, operation) {
+                    step2Page.handleSuccessRequest(Ext.decode(operation.response.responseText), router, deviceRemoved);
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    Ext.suspendLayouts();
+                    layout.setActiveItem(layout.getPrev());
+                    me.showWizardBtns();
+                    me.getNavigationMenu().movePrevStep();
+                    me.getDeviceTransitionExecuteWizard().down('#transitionDateField').setActiveError(json.errors[0].msg);
+                    propertyForm.markInvalid(json.errors);
+                    Ext.resumeLayouts(true);
+                }
+            });
+        }
+
     },
 
     hideWizardBtns: function () {
