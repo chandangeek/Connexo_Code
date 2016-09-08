@@ -10,9 +10,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -98,6 +100,15 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
 
     @Override
     public void validateDelete () {
+        if (getConfiguration().getComTaskEnablements()
+                .stream()
+                .filter(ComTaskEnablement::hasPartialConnectionTask)
+                .map(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().get())
+                .filter(partialConnectionTask -> partialConnectionTask.getId() == getId())
+                .findAny()
+                .isPresent()) {
+            throw CannotDeleteBecauseStillInUseException.connectionTaskIsInUse(this.getThesaurus(), this, MessageSeeds.CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT);
+        }
         this.getEventService().postEvent(this.validateDeleteEventType().topic(), this);
     }
 

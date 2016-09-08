@@ -1,19 +1,19 @@
 package com.energyict.mdc.device.config.exceptions;
 
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MeasurementType;
-
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.MeasurementType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -119,6 +119,19 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         return new CannotDeleteBecauseStillInUseException(thesaurus, messageSeed, deviceType.getName());
     }
 
+    /**
+     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
+     * situation that occurs when an attempt is made to delete a {@link DeviceType}
+     * while it has active {@link com.energyict.mdc.device.config.DeviceConfiguration}s.
+     *
+     * @param messageSeed The MessageSeed
+     * @param thesaurus The Thesaurus
+     * @return The CannotDeleteBecauseStillInUseException
+     */
+    public static CannotDeleteBecauseStillInUseException connectionTaskIsInUse(Thesaurus thesaurus, PartialConnectionTask connectionTask, MessageSeed messageSeed) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, messageSeed, connectionTask.getName());
+    }
+
     private static String namesToStringListForChannelSpecs(List<ChannelSpec> channelSpecs) {
         return channelSpecs
                 .stream()
@@ -167,9 +180,9 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         this.set("dependendObjectNames", dependendObjectNames);
     }
 
-    private CannotDeleteBecauseStillInUseException(Thesaurus thesaurus, MessageSeed messageSeed, String deviceTypeName) {
-        super(thesaurus, messageSeed, deviceTypeName);
-        this.set("deviceTypeName", deviceTypeName);
+    private CannotDeleteBecauseStillInUseException(Thesaurus thesaurus, MessageSeed messageSeed, String name) {
+        super(thesaurus, messageSeed, name);
+        this.set("name", name);
     }
 
 }
