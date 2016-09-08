@@ -1,10 +1,15 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 
@@ -18,11 +23,13 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 class DeviceMessageServiceImpl implements DeviceMessageService {
 
     private final DeviceDataModelService deviceDataModelService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    DeviceMessageServiceImpl(DeviceDataModelService deviceDataModelService) {
+    DeviceMessageServiceImpl(DeviceDataModelService deviceDataModelService, ThreadPrincipalService threadPrincipalService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Override
@@ -91,6 +98,24 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
                         anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).
                 findFirst().
                 orElse(null)));
+    }
+
+    @Override
+    public boolean canUserAdministrateDeviceMessage(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId) {
+        if (threadPrincipalService.getPrincipal() instanceof User) {
+            User currentUser = (User) threadPrincipalService.getPrincipal();
+            if (currentUser != null) {
+                Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId)).findFirst();
+                if (deviceMessageEnablementOptional.isPresent()) {
+                    DeviceMessageEnablement deviceMessageEnablement = deviceMessageEnablementOptional.get();
+                    return deviceMessageEnablement
+                                .getUserActions()
+                                .stream()
+                                .anyMatch(deviceMessageUserAction -> currentUser.hasPrivilege("MDC", deviceMessageUserAction.getPrivilege()));
+                }
+            }
+        }
+        return true;
     }
 
 }

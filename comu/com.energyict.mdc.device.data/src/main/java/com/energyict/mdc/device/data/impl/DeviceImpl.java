@@ -1721,6 +1721,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public MeterActivation forceActivate(Instant start, UsagePoint usagePoint) {
+        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(this, start, usagePoint, deviceService, readingTypeUtilService, thesaurus, userPreferencesService, threadPrincipalService, eventService, true);
+        //All actions to take to sync with Kore once a Device is created
+        usagePointChange.syncWithKore(this);
+        return getCurrentMeterActivation().get();
+    }
+
+    @Override
     public void deactivateNow() {
         this.deactivate(this.clock.instant());
     }

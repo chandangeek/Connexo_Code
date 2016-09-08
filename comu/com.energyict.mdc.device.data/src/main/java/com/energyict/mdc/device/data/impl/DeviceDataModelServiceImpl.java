@@ -18,7 +18,12 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -142,6 +147,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile UpgradeService upgradeService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ServiceCallService serviceCallService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -174,7 +180,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
-            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService) {
+            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -208,6 +214,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setUpgradeService(upgradeService);
         setMetrologyConfigurationService(metrologyConfigurationService);
         setServiceCallService(serviceCallService);
+        setThreadPrincipalService(threadPrincipalService);
         activate(bundleContext);
     }
 
@@ -299,6 +306,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -546,6 +558,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(com.energyict.mdc.issues.IssueService.class).toInstance(mdcIssueService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(UserPreferencesService.class).toInstance(userService.getUserPreferencesService());
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(DeviceMessageService.class).toInstance(deviceMessageService);
             }
         };
     }
@@ -568,7 +582,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
         this.batchService = new BatchServiceImpl(this);
-        this.deviceMessageService = new DeviceMessageServiceImpl(this);
+        this.deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
