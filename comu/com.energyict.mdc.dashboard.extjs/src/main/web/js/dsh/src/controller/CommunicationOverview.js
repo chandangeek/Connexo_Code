@@ -97,7 +97,7 @@ Ext.define('Dsh.controller.CommunicationOverview', {
 
                         quickLinks.push({
                             link: reportName,
-                            href: '#/administration/generatereport?reportUUID=' + reportUUID +'&subCategory=Device%20Communication' +(filter ? '&filter=' + filter : '')
+                            href: '#/workspace/generatereport?reportUUID=' + reportUUID + '&subCategory=Device%20Communication' + (filter ? '&filter=' + filter : '')
                         });
                     });
 
