@@ -104,12 +104,12 @@ sub check_create_users {
     if ("$OS" eq "linux") {
         if ("$INSTALL_CONNEXO" eq "yes") {
             if (`cat /etc/passwd|grep connexo:` eq "") {
-                system("useradd -U -r connexo") == 0 or die "system useradd -U -r connexo failed: $?";
+                system("useradd -U -r -m connexo") == 0 or die "system useradd -U -r -m connexo failed: $?";
             }
         }
         if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
             if (`cat /etc/passwd|grep tomcat:` eq "") {
-                system("useradd -U -r tomcat") == 0 or die "system useradd -U -r tomcat failed: $?";
+                system("useradd -U -r -m tomcat") == 0 or die "system useradd -U -r -m tomcat failed: $?";
             }
         }
     }
@@ -680,11 +680,19 @@ sub activate_sso {
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<class>org.jbpm.services.cdi.producer.JAASUserGroupInfoProducer</class>","<!--class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class-->");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<!--class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class-->","<class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class>");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<!--class>com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService</class-->","<class>com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService</class>");
+
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","");
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.user=$CONNEXO_ADMIN_ACCOUNT");
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.password=$CONNEXO_ADMIN_PASSWORD");
             }
 
             if ("$INSTALL_FACTS" eq "yes") {
                 replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!--filter>","<filter>");
                 replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
+
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","");
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.yellowfin.admin.usr=$CONNEXO_ADMIN_ACCOUNT");
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.yellowfin.admin.pwd=$CONNEXO_ADMIN_PASSWORD");
             }
             
             add_to_file("$CATALINA_BASE/conf/connexo.properties","");
