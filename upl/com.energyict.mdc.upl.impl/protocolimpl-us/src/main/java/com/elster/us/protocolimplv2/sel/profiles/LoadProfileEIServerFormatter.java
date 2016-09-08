@@ -1,32 +1,38 @@
 package com.elster.us.protocolimplv2.sel.profiles;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
+import com.elster.us.protocolimplv2.sel.SELProperties;
 import com.elster.us.protocolimplv2.sel.profiles.structure.Interval;
 import com.elster.us.protocolimplv2.sel.profiles.structure.LPData;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.IntervalStateBits;
 
 public class LoadProfileEIServerFormatter {
   
   private LDPData data;
+  private SELProperties properties;
   
-  public LoadProfileEIServerFormatter(LDPData data) {
+  public LoadProfileEIServerFormatter(LDPData data, SELProperties properties) {
     this.data = data;
+    this.properties = properties;
   }
   
   public List<IntervalData> getIntervalData(List<Integer> channelIndexes) {
     boolean EOIFirstIntvlFlag = true;
-    float[] previousEOIValues = new float[]{0,0,0,0,0,0,0,0};
+    Number[] previousEOIValues = new Number[]{0,0,0,0,0,0,0,0};
     List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
     for (LPData lpdata : data.getLpData()) {
       for (Interval interval : lpdata.getIntervals()) {
         Date endTimeStamp = getTimeStamp(interval.getYear(),interval.getJulianDay(),interval.getTenthsMillSecSinceMidnight());
-        IntervalData intervalData = new IntervalData(endTimeStamp, interval.getStatus());
+        Date endTimeMeterTz = adjustTimeUsingMeterTz(endTimeStamp, properties.getDeviceTimezone());
+        IntervalData intervalData = new IntervalData(endTimeMeterTz);
+        addMeterStatuses(intervalData, interval.getStatus());
         for(int i : channelIndexes) {
           if(data.getMeterConfig().getRecorderNames().get(0).equalsIgnoreCase("EOI")) {
             intervalData.addValue(getCOI(previousEOIValues[i], interval.getChannelValues()[i]));
@@ -45,6 +51,15 @@ public class LoadProfileEIServerFormatter {
     return intervalDatas;
   }
   
+  private Date adjustTimeUsingMeterTz(Date endTimeStamp, String deviceTimezone) {
+    if(endTimeStamp == null)
+      return null;
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(endTimeStamp);
+    cal.setTimeZone(TimeZone.getTimeZone(deviceTimezone));
+    return cal.getTime();
+  }
+
   public Date getTimeStamp(int year, int julianDay, long tenthsMillisSinceMidnight) {
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.YEAR, year);
@@ -61,18 +76,50 @@ public class LoadProfileEIServerFormatter {
     
   }
   
-  public float getCOI(float previous, float current) {
-    return current - previous;
+  public BigDecimal getCOI(Number previous, Number current) {
+    BigDecimal curr = new BigDecimal(current.longValue());
+    BigDecimal prev = new BigDecimal(previous.longValue());
+    return curr.subtract(prev);
   }
   
-  public CollectedLoadProfileConfiguration getConfiguration(LoadProfileReader lpr) {
-    //CollectedLoadProfileConfiguration config = new CollectedLoadProfileConfiguration();
-    return null;
+  private void addMeterStatuses(IntervalData intervalData, int status) {
+    if(status == 0) {
+      intervalData.addEiStatus(IntervalStateBits.OK);
+      return;
+    }
+    String seq = Integer.toBinaryString(status);
+    String reverseSeq = new StringBuilder(seq).reverse().toString();
+    char[] bits = reverseSeq.toCharArray();
+    for (int i = 0; i < bits.length; i++) {
+      char b=bits[i];
+      if(b == '1') {
+        switch (i) {
+        case 0:
+          intervalData.addEiStatus(IntervalStateBits.OTHER);
+          break;
+        case 1:
+          intervalData.addEiStatus(IntervalStateBits.POWERDOWN);
+          break;
+        case 2:
+          intervalData.addEiStatus(IntervalStateBits.BADTIME);
+          break;
+        case 3:
+          intervalData.addEiStatus(IntervalStateBits.BADTIME);
+          break;
+        case 4:
+          intervalData.addEiStatus(IntervalStateBits.CORRUPTED);
+          break;
+        case 5:
+          intervalData.addEiStatus(IntervalStateBits.TEST);
+          break;
+        case 6:
+          intervalData.addEiStatus(IntervalStateBits.OTHER);
+          break;
+        default:
+          intervalData.addEiStatus(IntervalStateBits.OTHER);
+        }
+      }
+      System.out.println(b);
+    }
   }
-  
-  public int getProtocolStatus() {
-    // TODO not sure what this is but may be used for setting protocol specific status
-    return 0;
-  }
-
 }

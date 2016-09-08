@@ -26,6 +26,7 @@ import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierById;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
@@ -52,7 +53,7 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
    * @throws java.io.IOException when error occurred during dataFetching or -Parsing
    */
   public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
-    LDPData results = meterProtocol.getConnection().readLoadProfileConfig();
+    LDPData results = meterProtocol.getConnection().readLoadProfileConfig(loadProfileReaders.get(0).getMeterSerialNumber());
     UnitMapper.setupUnitMappings(meterProtocol.getLogger());
     //setUnits(results);
     
@@ -105,6 +106,8 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
         }
         loadProfileConfigList.add(config);
     }
+    this.loadProfileConfigurationList = loadProfileConfigList;
+    
     return loadProfileConfigList;
   }
 
@@ -161,7 +164,7 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
 
           // TODO: set start/end times correctly using timezone
           LDPData results = meterProtocol.getConnection().readLoadProfileData(lpr, intvlLength);
-          LoadProfileEIServerFormatter formatter = new LoadProfileEIServerFormatter(results);
+          LoadProfileEIServerFormatter formatter = new LoadProfileEIServerFormatter(results, meterProtocol.getProperties());
           intervalDatas = formatter.getIntervalData(interestedIn);
           profileData1.setCollectedIntervalData(intervalDatas, channelInfosFromEiServer);
       }

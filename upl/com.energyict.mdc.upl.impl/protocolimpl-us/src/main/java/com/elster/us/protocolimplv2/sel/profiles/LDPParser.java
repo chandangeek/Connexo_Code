@@ -10,6 +10,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.elster.us.protocolimplv2.sel.profiles.structure.Event;
 import com.elster.us.protocolimplv2.sel.profiles.structure.Interval;
 import com.elster.us.protocolimplv2.sel.profiles.structure.LDPError;
 import com.elster.us.protocolimplv2.sel.profiles.structure.LPData;
@@ -28,6 +29,7 @@ import static com.elster.us.protocolimplv2.sel.Consts.RECORD_LDP_ERROR;
 public class LDPParser {
   
   private int numberOfChannels;
+  private String recorder = "COI";
   
   public LDPData parseYModemFile(DataInputStream dataInputStream) throws IOException {
     LDPData ldpData = new LDPData();
@@ -75,7 +77,7 @@ public class LDPParser {
           break;
         default:
           //either invalid recordtype or EOF
-          System.out.println("unrecognized recordtype: " + String.format("%02X", recordType));
+          //System.out.println("unrecognized recordtype: " + String.format("%02X", recordType));
           break;
         }
       }
@@ -97,9 +99,23 @@ public class LDPParser {
     return null;
   }
 
-  private SERData parseSERData(byte[] dataBlock) {
-    // TODO Auto-generated method stub
-    return null;
+  private SERData parseSERData(byte[] dataBlock) throws IOException {
+    DataInputStream dis = new DataInputStream(new ByteArrayInputStream(dataBlock, 0, dataBlock.length));
+    SERData serdata = new SERData();
+    List<Event> events = new ArrayList<Event>();
+    Event event;
+    int numEvents = (int) Math.floor(((dataBlock.length) / (10)));
+    for(int i=0; i<numEvents; i++) {
+      event = new Event();
+      event.setYear(dis.readUnsignedShort());
+      event.setJulianDay(dis.readUnsignedShort());
+      event.setTenthsMillSecSinceMidnight(readUInt32(dis));
+      event.setSerData(dis.readUnsignedShort());
+      events.add(event);
+    }
+    serdata.setEvents(events);
+    serdata.setCheckSum(dis.readUnsignedShort());
+    return serdata;
   }
 
   private float[] parsePresentValues(byte[] dataBlock) throws IOException {
@@ -112,7 +128,8 @@ public class LDPParser {
   }
 
   private LPData parseLDPData(byte[] dataBlock) throws IOException {
-    float[] intvlValues;
+    Float[] intvlValues;
+    Long[] intvlValuesEOI;
     DataInputStream dis = new DataInputStream(new ByteArrayInputStream(dataBlock, 0, dataBlock.length));
     LPData lpData = new LPData();
     List<Interval> intervals = new ArrayList<Interval>();
@@ -120,22 +137,37 @@ public class LDPParser {
     int numIntervals = (int) Math.floor(((dataBlock.length) / (9 + (this.numberOfChannels * 4))));
     for(int i=0; i<numIntervals; i++) {
       interval = new Interval();
-      intvlValues = new float[this.numberOfChannels];
+      intvlValues = new Float[this.numberOfChannels];
+      intvlValuesEOI = new Long[this.numberOfChannels];
       interval.setStatus(dis.readByte() & 0xFF);
       interval.setYear(dis.readUnsignedShort());
       interval.setJulianDay(dis.readUnsignedShort());
       interval.setTenthsMillSecSinceMidnight(readUInt32(dis));
       for(int j=0; j<intvlValues.length; j++) {
-        //intvlValues[j] = dis.readFloat();
-        intvlValues[j] = readUInt32(dis);
+        if(recorder.trim().equals("EOI"))
+          intvlValuesEOI[j] = readUInt32(dis);
+        else
+          intvlValues[j] = dis.readFloat();
       }
-      interval.setChannelValues(intvlValues);
+      if(recorder.trim().equals("EOI"))
+        interval.setChannelValues(intvlValuesEOI);
+      else
+        interval.setChannelValues(intvlValues);
+      
       intervals.add(interval);
     }
     lpData.setIntervals(intervals);
     lpData.setCheckSum(dis.readUnsignedShort());
+    lpData.setCalCheckSum(calcCheckSum(dataBlock));
+    validateChecksum(lpData.getCheckSum(), lpData.getCalCheckSum());
     
     return lpData;
+  }
+
+  private void validateChecksum(int checkSum, int binarySum) throws IOException {
+    binarySum += 1; //the binary sum is always one off from checksum, not sure why
+    if(checkSum != binarySum)
+      throw new IOException("Checksum error: checksum = " + checkSum + " binary sum = " + binarySum); 
   }
 
   private MeterStatus parseMeterStatus(byte[] dataBlock) {
@@ -224,7 +256,7 @@ public class LDPParser {
         terminate = false;
       }else {
         if(!terminate) {
-          recorderNames.add(new String(chnlBytes, "ASCII").trim());
+          recorderNames.add(new String(recorderBytes, "ASCII").trim());
           index = 0;
           recorderBytes = new byte[3];
           terminate = true;
@@ -233,6 +265,7 @@ public class LDPParser {
         }
       }
     }
+    setRecorderType(recorderNames);
     meterConfig.recorderNames = recorderNames;
     
     return meterConfig;
@@ -252,6 +285,20 @@ public class LDPParser {
   
   private int getIntFromUINT32(byte[] buffer) {
     return (buffer[0] & 0xFF) | (buffer[1] & 0xFF) << 8 | (buffer[2] & 0xFF) << 16 | (buffer[3] & 0xFF) << 24;
+  }
+  
+  private void setRecorderType(List<String> recorderNames) {
+    this.recorder = recorderNames.get(0);
+  }
+  
+  private int calcCheckSum(byte[] dataBlock) {
+    long checksum = 0;
+    int length = dataBlock.length - 2; //ignore the last two bytes which represent checksum
+    for(int i=0; i<length; i++) {
+      checksum += (dataBlock[i] & 0xff);
+    }
+    checksum = checksum & 0xFFFFFFFFL; // truncate to 4 byte
+    return (int) checksum;
   }
 
 }
