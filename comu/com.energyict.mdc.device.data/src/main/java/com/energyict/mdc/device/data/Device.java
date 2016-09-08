@@ -249,7 +249,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     boolean hasData();
 
     /**
-     * Activates the device. Either end the current MeterActivation and create a new one based on previous MeterActivation, or just create a new one.
+     * Activates the device. Either end the current MeterActivation and create a new one based on previous MeterActivation
+     * (the same usage point, meter role, multiplier, core channels and so on), or just create a new one.
      *
      * @param start start of the meterActivation
      * @return the new meterActivation
@@ -257,6 +258,12 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     MeterActivation activate(Instant start);
 
     /**
+     *<b>MULTISENSE ONLY, DO NOT USE WHEN INSIGHT IS INSTALLED.</b>
+     * This method doesn't take {@link com.elster.jupiter.metering.config.MeterRole} into account. As a result all actions on meter activations
+     * (for example, check for mandatory reading type requirements) are performed with {@code com.elster.jupiter.metering.config.DefaultMeterRole#DEFAULT}
+     * role. Additional argument {@code 'MeterRole meterRole'} should be added to this method. Business constraints should be aligned with
+     * {@link UsagePoint#linkMeters()} method.
+     * <p></p>
      * Activates the device on a usage point. Either end the current MeterActivation and create a new one
      * based on previous MeterActivation but with the target Usage Point, or just create a new MeterActivation.
      * Activation can fail if:
@@ -268,6 +275,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param usagePoint the Usage Point to be linked to the device
      * @return the new meterActivation
      */
+    // TODO Change method signature: add third argument 'MeterRole meterRole'
     MeterActivation activate(Instant start, UsagePoint usagePoint);
 
     /**
@@ -488,6 +496,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     void removeFromBatch(Batch batch);
 
     Optional<Batch> getBatch();
+
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
      */
@@ -563,7 +572,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
          * Add a key/value-Pair which will result in a DeviceMessageAttribute.
          * If you try to add the same key twice, then the first one will be overwritten.
          *
-         * @param key   the key of the attribute
+         * @param key the key of the attribute
          * @param value the value of the attribute
          * @return this builder
          */
