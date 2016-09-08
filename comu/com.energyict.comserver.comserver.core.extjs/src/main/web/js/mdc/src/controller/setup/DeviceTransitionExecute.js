@@ -43,36 +43,45 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
             step2Page = me.getStep2(),
             transitionDateField = me.getTransitionDateField(),
             transitionFieldValue = transitionDateField.getValue(),
-            record;
+            record = propertyForm.getRecord(),
+            shipmentDate = record.get('device').shipmentDate,
+            currentDate = new Date();
 
-        me.getNavigationMenu().moveNextStep();
-        me.hideWizardBtns();
-        layout.setActiveItem(layout.getNext());
-        step2Page.showProgressBar();
-
-        propertyForm.updateRecord();
-        record = propertyForm.getRecord();
-        if (!transitionFieldValue.transitionNow) {
-            record.set('effectiveTimestamp', transitionFieldValue.time);
+        if(!Ext.isEmpty(transitionFieldValue) && shipmentDate > transitionFieldValue.time || Ext.isEmpty(transitionFieldValue) && shipmentDate > currentDate.valueOf()){
+            transitionDateField.markInvalid(
+                Uni.I18n.translate('devicetransitionexecute.wrongTransitionDate', 'MDC', 'The transition date should be after the shipment date')
+            );
         } else {
-            record.set('effectiveTimestamp', null);
-        }
-        var deviceRemoved = record.get('name')==='Remove';
-        record.save({
-            backUrl: router.getRoute('devices/device').buildUrl(),
-            success: function (record, operation) {
-                step2Page.handleSuccessRequest(Ext.decode(operation.response.responseText), router, deviceRemoved);
-            },
-            failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText);
-                Ext.suspendLayouts();
-                layout.setActiveItem(layout.getPrev());
-                me.showWizardBtns();
-                me.getNavigationMenu().movePrevStep();
-                propertyForm.markInvalid(json.errors);
-                Ext.resumeLayouts(true);
+            transitionDateField.clearInvalid();
+            me.getNavigationMenu().moveNextStep();
+            me.hideWizardBtns();
+            layout.setActiveItem(layout.getNext());
+            step2Page.showProgressBar();
+
+            propertyForm.updateRecord();
+            if (!transitionFieldValue.transitionNow) {
+                record.set('effectiveTimestamp', transitionFieldValue.time);
+            } else {
+                record.set('effectiveTimestamp', null);
             }
-        });
+            var deviceRemoved = record.get('name')==='Remove';
+            record.save({
+                backUrl: router.getRoute('devices/device').buildUrl(),
+                success: function (record, operation) {
+                    step2Page.handleSuccessRequest(Ext.decode(operation.response.responseText), router, deviceRemoved);
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    Ext.suspendLayouts();
+                    layout.setActiveItem(layout.getPrev());
+                    me.showWizardBtns();
+                    me.getNavigationMenu().movePrevStep();
+                    propertyForm.markInvalid(json.errors);
+                    Ext.resumeLayouts(true);
+                }
+            });
+        }
+
     },
 
     hideWizardBtns: function () {
