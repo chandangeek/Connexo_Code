@@ -68,16 +68,17 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointDataServiceImplTest {
-    private static final Instant FIRST_DATE = ZonedDateTime.of(2016, 7, 5, 12, 0, 0, 0, ZoneId.of("Europe/Paris")).toInstant();
-    private static final Instant EDITED_DATE = ZonedDateTime.of(2016, 7, 6, 12, 0, 0, 0, ZoneId.of("Europe/Paris")).toInstant();
-    private static final Instant ESTIMATED_DATE = ZonedDateTime.of(2016, 7, 7, 12, 0, 0, 0, ZoneId.of("Europe/Paris")).toInstant();
-    private static final Instant MISSING_DATE = ZonedDateTime.of(2016, 7, 8, 12, 0, 0, 0, ZoneId.of("Europe/Paris")).toInstant();
-    private static final Instant SUSPECT_DATE = ZonedDateTime.of(2016, 7, 9, 12, 0, 0, 0, ZoneId.of("Europe/Paris")).toInstant();
-    private static final Instant REJECTED_DATE = ZonedDateTime.of(2016, 7, 10, 12, 0, 0, 0, ZoneId.of("Europe/Paris")).toInstant();
-    private static final Instant LAST_CHECKED = ZonedDateTime.of(2016, 7, 11, 12, 0, 0, 0, ZoneId.of("Europe/Paris")).toInstant();
-    private static final Instant UNCHECKED_DATE = ZonedDateTime.of(2016, 7, 12, 12, 0, 0, 0, ZoneId.of("Europe/Paris")).toInstant();
-    private static final Instant NOW = ZonedDateTime.of(2016, 7, 13, 12, 0, 0, 0, ZoneId.of("Europe/Paris")).toInstant();
-    private static final Instant FUTURE_DATE = ZonedDateTime.of(2016, 7, 13, 12, 1, 0, 0, ZoneId.of("Europe/Paris")).toInstant();
+    private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
+    private static final Instant FIRST_DATE = ZonedDateTime.of(2016, 7, 5, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant EDITED_DATE = ZonedDateTime.of(2016, 7, 6, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant ESTIMATED_DATE = ZonedDateTime.of(2016, 7, 7, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant MISSING_DATE = ZonedDateTime.of(2016, 7, 8, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant SUSPECT_DATE = ZonedDateTime.of(2016, 7, 9, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant REJECTED_DATE = ZonedDateTime.of(2016, 7, 10, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant LAST_CHECKED = ZonedDateTime.of(2016, 7, 11, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant UNCHECKED_DATE = ZonedDateTime.of(2016, 7, 12, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant NOW = ZonedDateTime.of(2016, 7, 13, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant FUTURE_DATE = ZonedDateTime.of(2016, 7, 13, 12, 1, 0, 0, PARIS).toInstant();
     private static final Range<Instant> NOMINAL_RANGE = Range.openClosed(FIRST_DATE.minusNanos(1), NOW);
 
     @Rule
