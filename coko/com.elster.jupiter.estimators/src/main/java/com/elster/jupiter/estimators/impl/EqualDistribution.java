@@ -125,7 +125,7 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
         SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
         Set<QualityCodeSystem> systems = Estimator.qualityCodeSystemsToTakeIntoAccount(system);
         estimationBlocks.forEach(block -> {
-            try (LoggingContexts contexts = initLoggingContext(block)) {
+            try (LoggingContext contexts = initLoggingContext(block)) {
                 if (estimate(block, systems)) {
                     builder.addEstimated(block);
                 } else {

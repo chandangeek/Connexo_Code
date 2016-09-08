@@ -111,7 +111,7 @@ public class ValueFillEstimator extends AbstractEstimator {
     }
 
     public void estimate(EstimationBlock block, List<EstimationBlock> remain, List<EstimationBlock> estimated) {
-        try (LoggingContexts contexts = initLoggingContext(block)) {
+        try (LoggingContext contexts = initLoggingContext(block)) {
             if (canEstimate(block)) {
                 block.estimatables().forEach(this::estimate);
                 estimated.add(block);
