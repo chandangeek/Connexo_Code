@@ -16,9 +16,6 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
         'Imt.processes.view.UsagePointStartProcess',
         'Imt.processes.view.MetrologyConfigurationOutputs'
     ],
-    refs: [
-        {ref: 'overviewLink', selector: '#usage-point-overview-link'}
-    ],
 
     showUsagePointProcesses: function (mRID) {
         var me = this,
@@ -45,7 +42,6 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.getOverviewLink().setText(usagePoint.get('mRID'));
             },
             failure: function () {
                 viewport.setLoading(false);

@@ -136,8 +136,9 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             me.items = [{
                 xtype: 'no-readings-found-panel',
                 itemId: 'up-no-readings-found-panel',
+                width: 380,
                 margin: '0 20 0 20'
-            }]
+            }];
         }
 
         this.callParent(arguments);
