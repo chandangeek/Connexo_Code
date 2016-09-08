@@ -21,11 +21,14 @@ Ext.define('Uni.override.DisplayFieldOverride', {
             var
                 inputEl = field.getEl().down('#'+field.id+'-inputEl'),
                 tm = new Ext.util.TextMetrics(inputEl),
-                value = inputEl.dom.innerHTML
+                value
             ;
 
-            if (inputEl.getWidth() < tm.getWidth(value)) {
-                inputEl.set({'data-qtip': value});
+            if (inputEl) {
+                value = inputEl.dom.innerHTML;
+                if (inputEl.getWidth() < tm.getWidth(value)) {
+                    inputEl.set({'data-qtip': value});
+                }
             }
 
             Ext.resumeLayouts(true);

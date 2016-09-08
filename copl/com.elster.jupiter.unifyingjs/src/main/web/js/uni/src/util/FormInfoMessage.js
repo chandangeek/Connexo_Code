@@ -12,6 +12,7 @@ Ext.define('Uni.util.FormInfoMessage', {
     margin: '7 0 32 0',
     htmlEncode: true,
     iconCmp: null,
+    shrinkWrapDock: true,
 
     beforeRender: function () {
         var me = this;
@@ -22,22 +23,18 @@ Ext.define('Uni.util.FormInfoMessage', {
     initComponent: function() {
         var me = this;
 
-        if (Ext.isEmpty(me.iconCmp)) {
-            me.lbar = {
-                padding: '5 0 0 0',
-                items: {
-                    xtype: 'box',
-                    height: 22,
-                    width: 26,
-                    style: {
-                        fontSize: '22px',
-                        color: '#71adc7'
-                    },
-                    cls: 'icon-info'
-                }
+        me.lbar = me.iconCmp || {
+                xtype: 'box',
+                height: 45,
+                width: 26,
+                style: {
+                    fontSize: '22px',
+                    color: '#71adc7'
+                },
+                cls: 'icon-info'
             }
-        }
-      this.callParent(arguments);
+
+        this.callParent(arguments);
     },
 
     renew: function () {

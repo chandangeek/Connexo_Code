@@ -165,6 +165,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     gridHeight: 0,
     gridHeaderHeight: 0,
+    autoLoadStore: false,
 
     initComponent: function () {
         var me = this;
@@ -267,9 +268,10 @@ Ext.define('Uni.view.grid.BulkSelection', {
             Ext.suspendLayouts();
             me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
             me.setGridVisible(!me.isAllSelected());
-            if(!me.isAllSelected()) {
+            
+            if (!me.isAllSelected() && me.autoLoadStore) {
                 me.store.loadPage(1, {
-                    callback: function() {
+                    callback: function () {
                         me.setGridVisible(true);
                     }
                 });
