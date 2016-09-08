@@ -434,7 +434,6 @@ Ext.define('Fwc.controller.Firmware', {
                     }
 
                     view.setLoading(true);
-                    view.suspendLayouts();
                     me.reconfigureMenu(deviceType, view);
                     var activeTab = view.down('tabpanel').getActiveTab(),
                         versionsTab = view.down('#mdc-versions-tab'),
@@ -452,6 +451,8 @@ Ext.define('Fwc.controller.Firmware', {
 
     reconfigureMenu: function (deviceType, view) {
         var me = this;
+
+        Ext.suspendLayouts();
         me.getApplication().fireEvent('loadDeviceType', deviceType);
         if (view.down('deviceTypeSideMenu')) {
             view.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
@@ -459,8 +460,8 @@ Ext.define('Fwc.controller.Firmware', {
                 Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'FWC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
             );
         }
+        Ext.resumeLayouts(true);
         view.setLoading(false);
-        view.resumeLayouts();
     },
 
     editFirmwareOptions: function (deviceTypeId) {
