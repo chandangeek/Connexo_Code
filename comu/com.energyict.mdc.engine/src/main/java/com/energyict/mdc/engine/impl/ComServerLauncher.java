@@ -161,10 +161,10 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     private void startOnlineComServer() {
         ComServerDAO comServerDAO = new ComServerDAOImpl(new ComServerDaoServiceProvider());
         this.comServer = comServerDAO.getThisComServer();
-        this.doStartOnlineComServer();
+        this.doStartOnlineComServer(comServerDAO);
     }
 
-    private void doStartOnlineComServer() {
+    private void doStartOnlineComServer(ComServerDAO comServerDAO) {
         if (this.comServer == null) {
             this.logger.comServerNotFound(HostName.getCurrent());
         } else if (!this.comServer.isActive()) {
@@ -173,7 +173,7 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
             if (this.comServer.isOnline()) {
                 if (this.validateServices((OnlineComServer) this.comServer)) {
                     this.logger.starting(this.comServer.getName());
-                    this.runningComServer = new RunningOnlineComServerImpl((OnlineComServer) this.comServer, serviceProvider);
+                    this.runningComServer = new RunningOnlineComServerImpl((OnlineComServer) this.comServer, comServerDAO, serviceProvider);
                     this.runningComServer.start();
                 }
             } else {

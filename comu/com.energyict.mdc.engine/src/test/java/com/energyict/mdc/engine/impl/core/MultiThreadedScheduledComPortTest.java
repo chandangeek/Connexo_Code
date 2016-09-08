@@ -7,17 +7,35 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundCapableComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -31,7 +49,12 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
-import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
@@ -43,6 +66,27 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.LogManager;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,18 +97,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.LogManager;
-
 import static com.elster.jupiter.util.Checks.is;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -73,7 +105,17 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.MultiThreadedScheduledComPort} component.
@@ -231,7 +273,8 @@ public class MultiThreadedScheduledComPortTest {
         when(issueService.newWarning(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(mock(Warning.class));
         when(issueService.newWarning(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(mock(Warning.class));
         when(this.serviceProvider.userService()).thenReturn(this.userService);
-        when(this.userService.findUser(anyString())).thenReturn(Optional.empty());
+        when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
+        when(this.user.getLocale()).thenReturn(Optional.empty());
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
@@ -361,6 +404,38 @@ public class MultiThreadedScheduledComPortTest {
             fail("Value for " + systemPropertyName + " system property is not a number: " + property);
         }
         return defaultValue;
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void minimalGetUserTest() throws InterruptedException {
+        int numberOfSimultaneousConnections = 5;
+        final CountDownLatch countDownLatch = new CountDownLatch(numberOfSimultaneousConnections);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        OutboundComPort comPort = this.mockComPort(numberOfSimultaneousConnections, "minimalGetUserTest");
+        doAnswer(invocationOnMock -> {
+            countDownLatch.countDown();
+            return null;
+        }).when(threadPrincipalService).set(user, "MultiThreadedComPort", "Executing", Locale.ENGLISH);
+        when(this.simultaneousConnectionTask.getNumberOfSimultaneousConnections()).thenReturn(numberOfSimultaneousConnections);
+
+        final List<ComJob> work = new ArrayList<>();
+        for (int i = 0; i < 1; i++) {
+            work.add(this.toComJob(this.mockComTask(i + 1, this.simultaneousConnectionTask)));
+        }
+        final AtomicBoolean returnActualWork = new AtomicBoolean(true);
+        final CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
+        when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(provideSingleJobFromDB(work, returnActualWork, stopLatch));
+
+        MultiThreadedScheduledComPort scheduledComPort = new MultiThreadedScheduledComPort(runningComServer, comPort, comServerDAO, this.deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
+
+        // Business method
+        scheduledComPort.start();
+
+        countDownLatch.await();
+
+        // Asserts
+        verify(userService, times(1)).findUser(EngineServiceImpl.COMSERVER_USER);
+        verify(threadPrincipalService, times(numberOfSimultaneousConnections)).set(user, "MultiThreadedComPort", "Executing", Locale.ENGLISH);
     }
 
     @Test(timeout = TIMEOUT)
