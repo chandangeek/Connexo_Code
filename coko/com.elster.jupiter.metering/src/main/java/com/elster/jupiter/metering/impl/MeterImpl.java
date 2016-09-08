@@ -68,16 +68,16 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     @Override
     public List<? extends MeterActivation> getMeterActivations() {
-        return this.meterActivations.stream()
-                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
+        return this.meterActivations
+                .stream()
                 .sorted(Comparator.comparing(MeterActivation::getStart))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<? extends MeterActivation> getMeterActivations(Range<Instant> range) {
-        return this.meterActivations.stream()
-                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
+        return this.meterActivations
+                .stream()
                 .filter(activation -> activation.overlaps(range))
                 .collect(Collectors.toList());
     }
