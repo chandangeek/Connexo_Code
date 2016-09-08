@@ -100,9 +100,8 @@ Ext.define('Mdc.controller.setup.Devices', {
 
     connectionToggle: function (record) {
         var me = this;
-        var connectionMethod = record.get('connectionMethod'),
-            bodyDataForRequest =
-                _.pick(record.getRecordData(), 'id', 'name', 'version', 'parent');
+        var connectionMethod = record.get('connectionMethod');
+
         connectionMethod.status = connectionMethod.status == 'active' ? 'inactive' : 'active';
         // COMU-705 : the save() failed due to the fact that for the dates numbers are expected (but strings were passed)
         record.data.startDateTime = Number(Ext.Date.format(record.data.startDateTime, 'time'));
@@ -118,7 +117,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                     me.updateDevice(me.doRefresh);
                 }
             }
-        }, bodyDataForRequest);
+        }, _.pick(record.getRecordData(), 'id', 'name', 'version', 'parent', 'connectionMethod'));
     },
 
     communicationToggle: function (record) {
