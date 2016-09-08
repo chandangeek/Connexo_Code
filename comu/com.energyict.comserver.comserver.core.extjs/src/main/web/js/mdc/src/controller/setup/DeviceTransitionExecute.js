@@ -43,12 +43,20 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
             step2Page = me.getStep2(),
             transitionDateField = me.getTransitionDateField(),
             transitionFieldValue = transitionDateField.getValue(),
-            record;
+            record = propertyForm.getRecord(),
+            shipmentDate = record.get('device').shipmentDate,
+            currentDate = new Date();
 
-        me.getNavigationMenu().moveNextStep();
-        me.hideWizardBtns();
-        layout.setActiveItem(layout.getNext());
-        step2Page.showProgressBar();
+        if(!Ext.isEmpty(transitionFieldValue) && shipmentDate > transitionFieldValue.time || Ext.isEmpty(transitionFieldValue) && shipmentDate > currentDate.valueOf()){
+            transitionDateField.markInvalid(
+                Uni.I18n.translate('devicetransitionexecute.wrongTransitionDate', 'MDC', 'The transition date should be after the shipment date')
+            );
+        } else {
+            transitionDateField.clearInvalid();
+            me.getNavigationMenu().moveNextStep();
+            me.hideWizardBtns();
+            layout.setActiveItem(layout.getNext());
+            step2Page.showProgressBar();
 
         propertyForm.updateRecord();
         record = propertyForm.getRecord();
