@@ -46,6 +46,7 @@ import com.elster.jupiter.validation.DataValidationAssociationProvider;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
+import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -82,6 +83,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -612,7 +614,10 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        Collections.addAll(keys, TranslationKeys.values());
+        Collections.addAll(keys, DataValidationTaskStatus.DataValidationTaskStatusTranslationKeys.values());
+        return keys;
     }
 
     @Override
