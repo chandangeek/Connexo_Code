@@ -27,6 +27,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
             if (!oldWidth || width === oldWidth) {
                 return;
             }
+
             var outputKpiWidgets = Ext.ComponentQuery.query('data-completion-widget output-kpi-widget'),
                 visibleWidgets = 0;
 
@@ -37,11 +38,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
             });
 
             if (visibleWidgets > 1) {
-                if (width < 1200 ) {
-                    this.reconfigure(2, this.getStore().getCount() == 3);
-                } else {
-                    this.reconfigure();
-                }
+                this.reconfigure();
             }
         }
     },
@@ -167,35 +164,21 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
         this.bindStore('ext-empty-store');
     },
 
-    reconfigure: function(count, withTabPanel) {
-        var me = this,
-            store = me.getStore(),
-            numberOfVisibleItems = count || 3,
-            items;
+    reconfigure: function() {
+        var me = this;
 
         Ext.suspendLayouts();
         me.removeAll(true);
-        if (store.getCount() > 3 || withTabPanel) {
-            me.add(me.addTabPanel());
-            me.addWidgetsOnTab(numberOfVisibleItems);
-        } else {
-            items = [];
-            store.each(function (item) {
-                items.push(me.addWidget(item));
-            });
-            me.add({
-                xtype: 'container',
-                layout: 'hbox',
-                items: items
-            });
-        }
+        me.addWidgetsOnTab();
         Ext.resumeLayouts(true);
     },
 
     addTab: function(mod) {
         return {
-            layout: 'column',
-            columnWidth: 0.3,
+            layout: {
+                type: 'hbox',
+                align: 'stretchmax'
+            },
             iconCls: mod === 0 ? 'icon-circle' : 'icon-circle2',
             items: []
         };
@@ -206,7 +189,8 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
 
         return {
             xtype: 'output-kpi-widget',
-            width: 400,
+            minWidth: 400,
+            flex: 1,
             output: output,
             purpose: me.getPurpose(),
             router: me.router
@@ -230,24 +214,36 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
                     }
                 }
             }
-        }
+        };
     },
 
-    addWidgetsOnTab: function (numberOfVisibleItems) {
+    addWidgetsOnTab: function () {
         var me = this,
-            tabs = [];
+            tabs = [],
+            maxWidth = me.getContentTarget().getWidth(),
+            width = 0,
+            tab = me.addTab(0)
+        ;
 
-        me.getStore().each(function (item, index, total) {
-            var mod = Math.floor(index / numberOfVisibleItems);
-            if (!tabs[mod]) {
-                tabs[mod] = me.addTab(mod)
+        tabs.push(tab);
+        me.getStore().each(function (item) {
+            var widget = Ext.createWidget(me.addWidget(item));
+            width += widget.minWidth;
+            if (width > maxWidth) {
+                tab = me.addTab(1);
+                width = widget.width;
+                tabs.push(tab);
+                tab.items.push(widget);
+            }else {
+                tab.items.push(widget);
             }
-
-            tabs[mod].items.push(me.addWidget(item));
         });
 
-        if (me.down('tabpanel')) {
-            me.down('tabpanel').add(tabs);
+        if (tabs.length > 1) {
+            me.add(Ext.apply(me.addTabPanel(), {items: tabs}));
+        } else {
+            // case when there are all widgets on one page, no tabs navigation is needed
+            me.add(Ext.apply(tabs.pop(),{xtype: 'container'}));
         }
     }
 });
