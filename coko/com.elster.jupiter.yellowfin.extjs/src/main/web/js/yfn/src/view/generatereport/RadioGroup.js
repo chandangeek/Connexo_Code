@@ -39,11 +39,6 @@ Ext.define('Yfn.view.generatereport.RadioGroup', {
                                 html: tooltip
                             });
 
-                        },
-                        change:function(field, newValue, oldValue, eOpt){
-                            if(newValue) {
-                                field.up('radiogroup').previousSibling('radiofield').setValue(newValue);
-                            }
                         }
                     }
                 });
@@ -53,12 +48,9 @@ Ext.define('Yfn.view.generatereport.RadioGroup', {
             Ext.applyIf(me, {
                 items: [
                     {
-                        xtype: 'radiofield',
-                        boxLabel: me.groupLabel,
+                        xtype: 'label',
+                        text: me.groupLabel,
                         disabled : me.groupDisabled,
-                        checked : me.groupSelected,
-                        inputValue:me.groupValue,
-                        allowBlank:me.allowBlank,
                         name: me.groupName
                     },
                     {
@@ -66,7 +58,6 @@ Ext.define('Yfn.view.generatereport.RadioGroup', {
                         layout:'fit',
                         padding: '0 0 0 20',
                         columns: 1,
-
                         items: items
                     }
                 ]

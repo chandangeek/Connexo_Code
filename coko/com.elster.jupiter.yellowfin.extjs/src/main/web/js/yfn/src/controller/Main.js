@@ -67,7 +67,7 @@ Ext.define('Yfn.controller.Main', {
                     reportsItems.push({
                         text: reportName,
                         tooltip: reportDescription,
-                        href: '#/administration/generatereport?reportUUID=' + reportUUID//+'&subCategory=Device'
+                        href: '#/workspace/generatereport?reportUUID=' + reportUUID//+'&subCategory=Device'
                         //,hrefTarget: '_blank'
                     });
                 });

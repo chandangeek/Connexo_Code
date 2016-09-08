@@ -14,7 +14,7 @@ Ext.define('Yfn.controller.history.YellowfinReports', {
     routeConfig: {
          generatereport: {
              title: Uni.I18n.translate('generatereport.reportGenerator', 'YFN', 'Report generator'),
-                 route: 'administration/generatereport',
+             route: 'workspace/generatereport',
                  controller: 'Yfn.controller.setup.GenerateReportWizard',
                  privileges: Yfn.privileges.Yellowfin.view,
                  action: 'showGenerateReportWizard'
