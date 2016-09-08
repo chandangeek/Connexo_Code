@@ -6,14 +6,13 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.logging.LogEntry;
@@ -26,8 +25,9 @@ import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationOccurrenceLogInfos;
-import com.elster.jupiter.validation.rest.DataValidationTaskHistoryInfos;
+import com.elster.jupiter.validation.rest.DataValidationTaskHistoryInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 import com.elster.jupiter.validation.security.Privileges;
 
 import com.google.common.collect.Range;
@@ -58,32 +58,29 @@ import java.util.stream.Collectors;
 @Path("/validationtasks")
 public class DataValidationTaskResource {
 
-    private final RestQueryService queryService;
     private final ValidationService validationService;
     private final MeteringGroupsService meteringGroupsService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
-    private final TimeService timeService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
 
     @Inject
-    public DataValidationTaskResource(RestQueryService queryService,
-                                      ValidationService validationService,
+    public DataValidationTaskResource(ValidationService validationService,
                                       TransactionService transactionService,
                                       MeteringGroupsService meteringGroupsService,
                                       MetrologyConfigurationService metrologyConfigurationService,
-                                      TimeService timeService,
                                       Thesaurus thesaurus,
-                                      ConcurrentModificationExceptionFactory conflictFactory) {
-        this.queryService = queryService;
+                                      ConcurrentModificationExceptionFactory conflictFactory,
+                                      DataValidationTaskInfoFactory dataValidationTaskInfoFactory) {
         this.validationService = validationService;
         this.transactionService = transactionService;
         this.meteringGroupsService = meteringGroupsService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.thesaurus = thesaurus;
-        this.timeService = timeService;
         this.conflictFactory = conflictFactory;
+        this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
     }
 
     private QualityCodeSystem getQualityCodeSystemForApplication(String applicationName) {
@@ -102,7 +99,7 @@ public class DataValidationTaskResource {
                 .setName(info.name)
                 .setQualityCodeSystem(getQualityCodeSystemForApplication(applicationName))
                 .setScheduleExpression(getScheduleExpression(info))
-                .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
+                .setNextExecution(info.nextRun);
         if (info.deviceGroup != null) {
             builder = builder.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
         }
@@ -111,8 +108,7 @@ public class DataValidationTaskResource {
         }
         DataValidationTask dataValidationTask = builder.create();
 
-        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).build();
-
+        return Response.status(Response.Status.CREATED).entity(dataValidationTaskInfoFactory.asInfo(dataValidationTask)).build();
     }
 
     @GET
@@ -124,7 +120,7 @@ public class DataValidationTaskResource {
         List<DataValidationTaskInfo> infos = validationService.findValidationTasks()
                 .stream()
                 .filter(task -> task.getQualityCodeSystem().equals(getQualityCodeSystemForApplication(applicationName)))
-                .map(dataValidationTask -> new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService))
+                .map(dataValidationTaskInfoFactory::asInfo)
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("dataValidationTasks", infos, queryParameters);
@@ -151,7 +147,7 @@ public class DataValidationTaskResource {
                                                         @Context SecurityContext securityContext) {
         DataValidationTask task = findValidationTaskForQualitySystem(dataValidationTaskId, getQualityCodeSystemForApplication(applicationName))
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return new DataValidationTaskInfo(task, thesaurus, timeService);
+        return dataValidationTaskInfoFactory.asInfo(task);
     }
 
     @PUT
@@ -178,9 +174,9 @@ public class DataValidationTaskResource {
             task.setMetrologyContract(null);
             task.setEndDeviceGroup(null);
         }
-        task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
+        task.setNextExecution(info.nextRun);
         task.update();
-        return Response.ok(new DataValidationTaskInfo(task, thesaurus, timeService)).build();
+        return Response.ok(dataValidationTaskInfoFactory.asInfo(task)).build();
     }
 
     @PUT
@@ -207,16 +203,15 @@ public class DataValidationTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
-    public DataValidationTaskHistoryInfos getDataValidationTaskHistory(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
-                                                                       @PathParam("id") long id,
-                                                                       @Context SecurityContext securityContext,
-                                                                       @BeanParam JsonQueryFilter filter,
-                                                                       @Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+    public PagedInfoList getDataValidationTaskHistory(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                                            @PathParam("id") long id,
+                                                                            @Context SecurityContext securityContext,
+                                                                            @BeanParam JsonQueryFilter filter,
+                                                                            @BeanParam JsonQueryParameters queryParameters) {
         DataValidationTask task = fetchDataValidationTask(id, applicationName);
         DataValidationOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
-                .setStart(queryParameters.getStartInt())
-                .setLimit(queryParameters.getLimit() + 1);
+                .setStart(queryParameters.getStart().orElse(0))
+                .setLimit(queryParameters.getLimit().orElse(-1) + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
             if (filter.hasProperty("startedOnTo")) {
@@ -238,9 +233,11 @@ public class DataValidationTaskResource {
         }
         List<? extends DataValidationOccurrence> occurrences = occurrencesFinder.find();
 
-        DataValidationTaskHistoryInfos infos = new DataValidationTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus, timeService);
-        infos.total = queryParameters.determineTotal(occurrences.size());
-        return infos;
+        History<DataValidationTask> history = (History<DataValidationTask>) task.getHistory();
+        List<DataValidationTaskHistoryInfo> infos = occurrences.stream()
+                .map(occurrence -> dataValidationTaskInfoFactory.asInfo(history, occurrence))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("data", infos, queryParameters);
     }
 
     @GET

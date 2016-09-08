@@ -3,8 +3,8 @@ package com.elster.jupiter.validation.rest.impl;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey{
-    SCHEDULED("validationtask.occurrence.scheduled", "Scheduled"),
-    ON_REQUEST("validationtask.occurrence.onrequest", "On request");
+
+    NONE("validationtask.recurrence.none", "None"),
     ;
 
     private String key;
