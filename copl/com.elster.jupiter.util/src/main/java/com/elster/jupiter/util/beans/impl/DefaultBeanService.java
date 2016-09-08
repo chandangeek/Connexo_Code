@@ -10,8 +10,12 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultBeanService implements BeanService {
+
+    private volatile Map<Class, BeanInfo> beanInfoCache = new ConcurrentHashMap<>();
 
     @Override
     public Class<?> getPropertyType(Class beanClass, String property) throws NoSuchPropertyException {
@@ -95,19 +99,23 @@ public class DefaultBeanService implements BeanService {
     }
 
     private BeanInfo getAllBeanInfo(Object bean) {
-        try {
-            return Introspector.getBeanInfo(bean.getClass(), Object.class);
-        } catch (IntrospectionException e) {
-            throw new BeanEvaluationException(bean, e);
-        }
+        return beanInfoCache.computeIfAbsent(bean.getClass(), clazz -> {
+            try {
+                return Introspector.getBeanInfo(bean.getClass(), Object.class);
+            } catch (IntrospectionException e) {
+                throw new BeanEvaluationException(bean, e);
+            }
+        });
     }
 
     private BeanInfo getAllBeanInfo(Class beanClass) {
-        try {
-            return Introspector.getBeanInfo(beanClass);
-        } catch (IntrospectionException e) {
-            throw new BeanEvaluationException(beanClass, e);
-        }
+        return beanInfoCache.computeIfAbsent(beanClass, clazz -> {
+            try {
+                return Introspector.getBeanInfo(beanClass);
+            } catch (IntrospectionException e) {
+                throw new BeanEvaluationException(beanClass, e);
+            }
+        });
     }
 
     private Method getter(Object bean, String property) {
