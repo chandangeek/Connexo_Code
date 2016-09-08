@@ -11,6 +11,7 @@ Ext.define('Imt.usagepointmanagement.store.MeterActivations', {
         }
     },
     setMrid: function (mrid) {
-        this.getProxy().url = this.getProxy().urlTpl.replace('{usagePointMRID}', mrid);
+        this.getProxy().url = this.getProxy()
+            .urlTpl.replace('{usagePointMRID}', encodeURIComponent(mrid));
     }
 });

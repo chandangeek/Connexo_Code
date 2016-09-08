@@ -33,7 +33,7 @@ Ext.define('Imt.purpose.view.Outputs', {
                     {
                         xtype: 'panel',
                         ui: 'medium',
-                        title: 'Outputs',
+                        title: Uni.I18n.translate('outputs.list.title', 'IMT', 'Outputs'),
                         items: {
                             xtype: 'emptygridcontainer',
                             title: me.router.getRoute().getTitle(),
