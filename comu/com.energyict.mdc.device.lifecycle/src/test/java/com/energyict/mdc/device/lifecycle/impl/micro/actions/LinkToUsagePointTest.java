@@ -89,7 +89,7 @@ public class LinkToUsagePointTest {
         when(property.getValue()).thenReturn(usagePoint);
         Instant now = Instant.now();
         LocalizedException exception = mock(LocalizedException.class);
-        when(device.activate(now, usagePoint)).thenThrow(exception);
+        when(device.forceActivate(now, usagePoint)).thenThrow(exception);
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         //Business method
