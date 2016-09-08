@@ -5,6 +5,7 @@ import java.util.List;
 public class LPData {
   private List<Interval> intervals;
   private int checkSum;
+  private int calCheckSum;
   
   public List<Interval> getIntervals() {
     return intervals;
@@ -17,5 +18,11 @@ public class LPData {
   }
   public void setCheckSum(int checkSum) {
     this.checkSum = checkSum;
+  }
+  public int getCalCheckSum() {
+    return calCheckSum;
+  }
+  public void setCalCheckSum(int calCheckSum) {
+    this.calCheckSum = calCheckSum;
   }
 }

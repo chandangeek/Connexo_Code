@@ -1,11 +1,13 @@
 package com.elster.us.protocolimplv2.sel.profiles.structure;
 
+import java.math.BigDecimal;
+
 public class Interval {
   private int status;
   private int year;
   private int julianDay;
   private long tenthsMillSecSinceMidnight;
-  private float[] channelValues;
+  private Number[] channelValues;
   
   
   public int getStatus() {
@@ -32,10 +34,10 @@ public class Interval {
   public void setTenthsMillSecSinceMidnight(long tenthsMillSecSinceMidnight) {
     this.tenthsMillSecSinceMidnight = tenthsMillSecSinceMidnight;
   }
-  public float[] getChannelValues() {
+  public Number[] getChannelValues() {
     return channelValues;
   }
-  public void setChannelValues(float[] channelValues) {
+  public void setChannelValues(Number[] channelValues) {
     this.channelValues = channelValues;
   }
 

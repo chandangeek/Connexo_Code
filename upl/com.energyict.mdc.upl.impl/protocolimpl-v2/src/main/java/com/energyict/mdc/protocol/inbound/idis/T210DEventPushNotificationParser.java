@@ -3,21 +3,22 @@ package com.energyict.mdc.protocol.inbound.idis;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.generalblocktransfer.GeneralBlockTransferFrame;
 import com.energyict.mdc.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedRegisterList;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdw.core.DeviceOfflineFlags;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineLoadProfile;
+import com.energyict.mdw.offline.OfflineLoadProfileChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -78,6 +79,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private int acknowledgedBlockNumber;
     private byte[] responseData;
     private byte[] storedBlockDataFromPreviousResponse;
+    private List<CollectedLogBook> collectedLogBooks = new ArrayList<>();
 
     public T210DEventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
         super(comChannel, context);
@@ -85,7 +87,6 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
     public void parseInboundFrame() {
         ByteBuffer inboundFrame = readInboundFrame();
-//        ByteBuffer inboundFrame = ByteBuffer.wrap(readFrames(true));
         parseInboundFrame(inboundFrame);
     }
 
@@ -204,11 +205,14 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         parseAlarmRegister(structure.getNextDataType(), eventDate, 1);
         parseAlarmRegister(structure.getNextDataType(), eventDate, 2);
         parseAlarmRegister(structure.getNextDataType(), eventDate, 3);
+        if(getCollectedLogBook().getCollectedMeterEvents().size() > 0){
+            getCollectedLogBooks().add(getCollectedLogBook());
+        }
     }
 
     private void parsePushOnInterval3(Structure structure) {
         parsePushOnInterval1(structure);
-        //TODO: proper implementation after configuration will be possible.....right now we receive LP1
+        //TODO: proper implementation after device will support this
     }
 
     private void parsePushOnInterval2(Structure structure) {
@@ -216,19 +220,36 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
             ObisCode obisCode = pushObjectList.get(i).getObisCode();
             DataContainer dataContainer = new DataContainer();
             dataContainer.parseObjectList(structure.getNextDataType().getBEREncodedByteArray(), Logger.getLogger(this.getClass().getName()));
-            getCollectedLogBook().addCollectedMeterEvents(parseEvents(dataContainer, obisCode));
+            List<MeterProtocolEvent> meterProtocolEventList = parseEvents(dataContainer, obisCode);
+            if(meterProtocolEventList.size() > 0){
+                CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, obisCode));
+                collectedLogBook.addCollectedMeterEvents(meterProtocolEventList);
+                getCollectedLogBooks().add(collectedLogBook);
+            }
         }
     }
 
     private void parsePushOnInterval1(Structure structure) {
+        DeviceOfflineFlags offlineContext = new DeviceOfflineFlags(DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG);
+        OfflineDevice offlineDevice = inboundDAO.getOfflineDevice(deviceIdentifier, offlineContext);
+        List<OfflineLoadProfile> allOfflineLoadProfiles = offlineDevice.getAllOfflineLoadProfiles();
         for(int i = 2; i <= pushObjectList.size() - 1; i++){
             ObisCode obisCode = pushObjectList.get(i).getObisCode();
             if(obisCode.equals(LOAD_PROFILE_1_OBIS) || obisCode.equals(LOAD_PROFILE_2_OBIS)){
-                getColectedLoadProfile(structure.getNextDataType(), obisCode);
+                getColectedLoadProfile(structure.getNextDataType(), obisCode, getOfflineLoadProfile(allOfflineLoadProfiles, obisCode));
             } else if (obisCode.equalsIgnoreBChannel(MBUS_VALUE_CHANNEL_OBIS)){
                 getCollectedMbusChannelValue(structure.getNextDataType(), obisCode);
             }
         }
+    }
+
+    private OfflineLoadProfile getOfflineLoadProfile(List<OfflineLoadProfile> allOfflineLoadProfiles, ObisCode obisCode){
+        for(OfflineLoadProfile loadProfile: allOfflineLoadProfiles){
+            if (loadProfile.getObisCode().equals(obisCode)){
+                return loadProfile;
+            }
+        }
+        return null;
     }
 
     private void parsePushOnInstallatioEvent(Structure structure) {
@@ -244,15 +265,15 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private void parseAlarmRegister(AbstractDataType nextDataType, Date eventDate, int alarmRegister) {
         long alarmDescriptor = nextDataType.getUnsigned32().getValue();
         System.out.println("AlarmDescriptor = "+alarmDescriptor);
-        createCollectedLogBook(T210DMeterAlarmParser.parseAlarmCode(eventDate, alarmDescriptor, alarmRegister));
+        addMeterEventsToCollectedLogBook(T210DMeterAlarmParser.parseAlarmCode(eventDate, alarmDescriptor, alarmRegister));
     }
 
-    protected void createCollectedLogBook(List<MeterEvent> meterEvents) {
+    protected void addMeterEventsToCollectedLogBook(List<MeterEvent> meterEvents) {
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
         for(MeterEvent meterEvent: meterEvents){
             meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(meterEvent));
         }
-        getCollectedLogBook().setCollectedMeterEvents(meterProtocolEvents);
+        getCollectedLogBook().addCollectedMeterEvents(meterProtocolEvents);
     }
 
     private void parsePushObjectList(AbstractDataType dataType) {
@@ -272,9 +293,9 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
                 isPushObjectListStructure = false;
             }
             int attributeNr = struct.getDataType(2).intValue();
-            long element3 = struct.getDataType(3).longValue();
-            pushObjectList.add(new T210DPushObjectListEntry(classId, obisCode, attributeNr, element3));
-            System.out.println("classID = "+classId+ " obisCode = "+obisCode.toString()+ " attributeNr = "+attributeNr+ " element3 = "+element3);
+            long maxBlockSize = struct.getDataType(3).longValue();
+            pushObjectList.add(new T210DPushObjectListEntry(classId, obisCode, attributeNr, maxBlockSize));
+            System.out.println("classID = "+classId+ " obisCode = "+obisCode.toString()+ " attributeNr = "+attributeNr+ " maxBlockSize = "+maxBlockSize);
         }
     }
 
@@ -333,19 +354,48 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         //TODO: implement this
     }
 
-    private void getColectedLoadProfile(AbstractDataType dataType, ObisCode loadProfileObisCode) {
+    private void getColectedLoadProfile(AbstractDataType dataType, ObisCode loadProfileObisCode, OfflineLoadProfile offlineLoadProfile) {
         if (!(dataType instanceof Array)) {
             throw DataParseException.ioException(new ProtocolException("The third element of the Data-notification body should be the of type Array"));
         }
+
         CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(loadProfileObisCode, deviceIdentifier));
-        List<ChannelInfo> channelInfos = getDeviceChannelInfo(loadProfileObisCode);
-        List<IntervalData> collectedIntervalData = getCollectedIntervalData((Array) dataType, loadProfileObisCode);
+        List<ChannelInfo> channelInfos = getDeviceChannelInfo(loadProfileObisCode, offlineLoadProfile);
+        List<IntervalData> collectedIntervalData;
+        if(offlineLoadProfile != null){
+            collectedIntervalData = getCollectedIntervalDataUserDefinedChannels((Array) dataType, loadProfileObisCode, offlineLoadProfile);
+        } else {
+            collectedIntervalData = getCollectedIntervalDataForHardCodedChannels((Array) dataType, loadProfileObisCode);
+        }
         collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
         collectedLoadProfile.setDoStoreOlderValues(true);
         getCollectedLoadProfile().add(collectedLoadProfile);
     }
 
-    private List<IntervalData> getCollectedIntervalData(Array dataType, ObisCode loadProfileObisCode) {
+    private List<IntervalData> getCollectedIntervalDataUserDefinedChannels(Array dataType, ObisCode loadProfileObisCode, OfflineLoadProfile offlineLoadProfile) {
+        List<IntervalData> collectedIntervalData = new ArrayList<>();
+        List<OfflineLoadProfileChannel> offlineChannels = offlineLoadProfile.getOfflineChannels();
+
+        for(AbstractDataType structure: dataType.getAllDataTypes()){
+            Structure struct = structure.getStructure();
+            if(offlineChannels.size() > struct.nrOfDataTypes() - 2){
+                throw DataParseException.ioException(new ProtocolException("Configuration mismatch: The number of channels configured in the device is not the same as the number of channels configured in HES"));
+            }
+            List<IntervalValue> intervalValues = new ArrayList<>();
+            Date clockTime = parseDateTime(struct.getDataType(0).getOctetString());
+            int status = struct.getDataType(1).getUnsigned8().intValue();
+            int eiStatus = getEiServerStatus(status);
+            for(int i = 2; i < offlineChannels.size() + 2; i++){
+                intervalValues.add(new IntervalValue(struct.getDataType(i).getUnsigned32().intValue(), status, eiStatus));
+                System.out.println("clockTime = " + clockTime + " status = " + status + " eiStatus = " + eiStatus + " intervalValue = " + struct.getDataType(i).getUnsigned32().intValue());
+            }
+            collectedIntervalData.add(new IntervalData(clockTime, eiStatus, status, 0, intervalValues));
+        }
+
+        return collectedIntervalData;
+    }
+
+    private List<IntervalData> getCollectedIntervalDataForHardCodedChannels(Array dataType, ObisCode loadProfileObisCode) {
         List<IntervalData> collectedIntervalData = new ArrayList<>();
         for(AbstractDataType structure: dataType.getAllDataTypes()){
             Structure struct = structure.getStructure();
@@ -383,11 +433,37 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         return new IntervalData(date, eiStatus, status, 0, intervalValues);
     }
 
-    private List<ChannelInfo> getDeviceChannelInfo(ObisCode loadProfileObisCode) {
+    private List<ChannelInfo> getDeviceChannelInfo(ObisCode loadProfileObisCode, OfflineLoadProfile offlineLoadProfile) {
+        if(offlineLoadProfile != null){
+            return getDeviceChannelInfoFromUserDefinedChannels(offlineLoadProfile.getOfflineChannels());
+        }
+
+        System.out.println("Hardcoded channels are used for load profile with obiscode: "+loadProfileObisCode);
+        // if we did not found an offlineLoadProfile with loadProfileObisCode for our device then use the default hardcoded values
         if(loadProfileObisCode.equals(LOAD_PROFILE_2_OBIS)){
             return getDeviceChannelInfoLP2();
         }
         return getDeviceChannelInfoLP1();
+    }
+
+    private List<ChannelInfo> getDeviceChannelInfoFromUserDefinedChannels(List<OfflineLoadProfileChannel> offlineChannels) {
+        List<ChannelInfo> channelInfos = new ArrayList<>();
+
+        int id = 0;
+        for(OfflineLoadProfileChannel offlineLoadProfileChannel: offlineChannels){
+            ChannelInfo channelInfo = new ChannelInfo(id, offlineLoadProfileChannel.getObisCode().getValue(), offlineLoadProfileChannel.getUnit(), deviceIdentifier.getIdentifier());
+            channelInfos.add(channelInfo);
+            if (isCumulative(offlineLoadProfileChannel.getObisCode())) {
+                channelInfo.setCumulative();
+            }
+            id++;
+        }
+
+        return channelInfos;
+    }
+
+    private boolean isCumulative(ObisCode obisCode) {
+        return ParseUtils.isObisCodeCumulative(obisCode);
     }
 
     private List<ChannelInfo> getDeviceChannelInfoLP1() { //This is hardcoded list as we do not receive the captured objects in the notification
@@ -408,9 +484,6 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         int scale = 1;
         List<ChannelInfo> channelInfos = new ArrayList<>();
 
-        //TODO: use these hardcoded channels (also check the final configuration before releasing to the client)
-        //TODO configure attr 3 on push object
-        //TODO read the configuration from InboundDAO
         ChannelInfo ci1 = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale), deviceIdentifier.getIdentifier());
         ChannelInfo ci2 = new ChannelInfo(1, "1.0.2.8.0.255", Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, scale), deviceIdentifier.getIdentifier());
         ChannelInfo ci3 = new ChannelInfo(2, "1.0.3.8.0.255", Unit.get(BaseUnit.UNITLESS, scale), deviceIdentifier.getIdentifier());
@@ -545,19 +618,15 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         }
     }
 
-    @Override
-    public CollectedRegisterList getCollectedRegisters() {
-        if (this.collectedRegisters == null)  {
-            this.collectedRegisters = MdcManager.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
-        }
-        return this.collectedRegisters;
-    }
-
     public CollectedLogBook getCollectedLogBook() {
         if(this.collectedLogBook == null) {
             this.collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
         }
         return this.collectedLogBook;
+    }
+
+    public List<CollectedLogBook> getCollectedLogBooks(){
+        return collectedLogBooks;
     }
 
     public List<CollectedLoadProfile> getCollectedLoadProfile() {

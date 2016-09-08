@@ -39,8 +39,9 @@ import java.util.logging.Logger;
 /**
  *
  * @author  Koen
+ * @author James Fox
  * @beginchanges
- * @endchanges 
+ * @endchanges
  */
 public class Sentinel extends AbstractProtocol implements C12ProtocolLink, SerialNumberSupport {
 
@@ -49,6 +50,10 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     String c12User;
     int c12UserId;
     int maxNrPackets;
+    boolean readLoadProfilesChunked = false;
+    boolean convertRegisterReadsToKiloUnits = false;
+    int chunkSize;
+
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     SerialCommunicationChannel commChannel;
     private C12Layer2 c12Layer2;
@@ -59,7 +64,6 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     private ManufacturerProcedureFactory manufacturerProcedureFactory;
     private DataReadFactory dataReadFactory=null;
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
-
 
     /**
      * Creates a new instance of Sentinel
@@ -220,19 +224,19 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     public AbstractManufacturer getManufacturer() {
         return sentinelItron;
     }
-    
+
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         this.commChannel=commChannel;
     }
-    
+
     protected void doConnect() throws IOException {
         // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
         if (commChannel!=null) {
 
             commChannel.setParams(9600,
-                                  SerialCommunicationChannel.DATABITS_8,
-                                  SerialCommunicationChannel.PARITY_NONE,
-                                  SerialCommunicationChannel.STOPBITS_1);
+                    SerialCommunicationChannel.DATABITS_8,
+                    SerialCommunicationChannel.PARITY_NONE,
+                    SerialCommunicationChannel.STOPBITS_1);
             if (getDtrBehaviour() == 0)
                 commChannel.setDTR(false);
             else if (getDtrBehaviour() == 1)
@@ -242,17 +246,17 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)))
             setInfoTypePassword(new String(new byte[]{0}));
 
-      //identify with node 1 before you can address other nodes
+        //identify with node 1 before you can address other nodes
         if (c12Layer2.getIdentity()!=1) {
-        	int targetIdentity = c12Layer2.getIdentity();
+            int targetIdentity = c12Layer2.getIdentity();
             c12Layer2.setIdentity(1);
             getPSEMServiceFactory().getIdentificationResponse().getIdentificationFeature0();
-        	getPSEMServiceFactory().terminate();
-        	c12Layer2.setIdentity(targetIdentity);
+            getPSEMServiceFactory().terminate();
+            c12Layer2.setIdentity(targetIdentity);
         }
         getPSEMServiceFactory().logOn(c12UserId,replaceSpaces(c12User),getInfoTypePassword(),getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII, 128, maxNrPackets);
     }
-    
+
     private String replaceSpaces(String c12User) {
 
         return c12User;
@@ -264,28 +268,33 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
 //        String user = new String(temp);
 //        return user.replace(' ', '\0');
     }
-    
+
     protected void doDisConnect() throws IOException {
         getPSEMServiceFactory().logOff();
     }
-    
+
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","10").trim()));
         setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"0"));
         c12User = properties.getProperty("C12User","");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
         maxNrPackets = Integer.parseInt(properties.getProperty("MaxNrPackets", "1"), 16);
-
+        readLoadProfilesChunked = Boolean.parseBoolean(properties.getProperty("ReadLoadProfilesChunked", "false"));
+        chunkSize = Integer.parseInt(properties.getProperty("ChunkSize", "19"));
+        convertRegisterReadsToKiloUnits = Boolean.parseBoolean(properties.getProperty("ConvertRegisterReadsToKiloUnits", "false"));
     }
-    
+
     protected List doGetOptionalKeys() {
         List result = new ArrayList();
         result.add("C12User");
         result.add("C12UserId");
         result.add("MaxNrPackets");
+        result.add("ReadLoadProfilesChunked");
+        result.add("ChunkSize");
+        result.add("ConvertRegisterReadsToKiloUnits");
         return result;
     }
-    
+
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
         c12Layer2.initStates();
@@ -295,15 +304,15 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         standardProcedureFactory = new StandardProcedureFactory(this);
         manufacturerProcedureFactory = new ManufacturerProcedureFactory(this);
         setDataReadFactory(new DataReadFactory(manufacturerTableFactory));
-        sentinelLoadProfile = new SentinelLoadProfile(this);
+        sentinelLoadProfile = new SentinelLoadProfile(this, readLoadProfilesChunked, chunkSize);
         return c12Layer2;
     }
-    
+
     public void setTime() throws IOException {
         getStandardProcedureFactory().setDateTime();
 //        throw new UnsupportedException("NOT IMPLEMENTED YET!");
     }
-    
+
     public Date getTime() throws IOException {
         return getStandardTableFactory().getTime();
         //return getDataReadFactory().getCurrentStateDataRead().getCurrentTimeDate();
@@ -321,16 +330,16 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
             throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
         }
     }
-    
+
     public String getProtocolVersion() {
-        return "$Date: 2016-03-16 16:41:11 +0100 (Wed, 16 Mar 2016)$";
+        return "$Date: 2016-09-08 09:36:35 +0300 (Thu, 08 Sep 2016)$";
     }
 
     public String getFirmwareVersion() throws IOException {
         return getStandardTableFactory().getManufacturerIdentificationTable().getManufacturer()+", "+
-               getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
-               "Firmware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getFwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getFwRevision()+", "+
-               "Hardware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getHwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getHwRevision();
+                getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
+                "Firmware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getFwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getFwRevision()+", "+
+                "Hardware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getHwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getHwRevision();
     }
 
     /*
@@ -346,7 +355,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     public String getRegister(String name) throws IOException, NoSuchRegisterException {
         throw new UnsupportedException();
     }
-    
+
     /*******************************************************************************************
      R e g i s t e r P r o t o c o l  i n t e r f a c e
      *******************************************************************************************/
@@ -354,11 +363,11 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
-    
+
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
-    
+
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         int skip=0;
         StringBuffer strBuff = new StringBuffer();
@@ -458,9 +467,9 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
                 if (skip<=24) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualLogTable());}
                 if (skip<=25) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventsIdentificationTable());}
                 if (skip<=26) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogControlTable());}
-if (skip<=27) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogDataTable());}
+                if (skip<=27) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogDataTable());}
                 if (skip<=28) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogControlTable());}
-if (skip<=29) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableHeader());}
+                if (skip<=29) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableHeader());}
 //                if (skip<=31) { skip++;strBuff.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n"+getManufacturerTableFactory().getFeatureParameters());}
 //                if (skip<=32) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getServiceTypeTable());}
 //                if (skip<=33) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getMeterFactors());}
@@ -481,7 +490,7 @@ if (skip<=29) { skip++;strBuff.append("-----------------------------------------
         //System.out.println(strBuff.toString());
         return strBuff.toString();
     }
-    
+
     /****************************************************************************************************************
      * Implementing C12ProtocolLink interface
      ****************************************************************************************************************/
@@ -504,16 +513,16 @@ if (skip<=29) { skip++;strBuff.append("-----------------------------------------
     public PSEMServiceFactory getPSEMServiceFactory() {
         return psemServiceFactory;
     }
-    
+
     public ManufacturerTableFactory getManufacturerTableFactory() {
         return manufacturerTableFactory;
     }
-    
+
     public StandardTableFactory getStandardTableFactory() {
         return standardTableFactory;
     }
 
-    public StandardProcedureFactory getStandardProcedureFactory() { 
+    public StandardProcedureFactory getStandardProcedureFactory() {
         return standardProcedureFactory;
     }
 
@@ -527,7 +536,7 @@ if (skip<=29) { skip++;strBuff.append("-----------------------------------------
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {
         if (obisCodeInfoFactory == null)
-            obisCodeInfoFactory=new ObisCodeInfoFactory(this); 
+            obisCodeInfoFactory=new ObisCodeInfoFactory(this, convertRegisterReadsToKiloUnits);
         return obisCodeInfoFactory;
     }
 

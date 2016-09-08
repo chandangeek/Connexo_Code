@@ -1,87 +1,41 @@
 package com.energyict.protocolimpl.modbus.schneider.powerlogic.profile;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ProfileBlock {
 
-    private ProfileHeader profileHeader;
-    private ProfileRecords profileRecords;
+    private ProfileRecord profileRecord;
 
-    public ProfileBlock(byte[] values, int recordCount, TimeZone timezone) throws ProtocolException {
-        this.profileHeader = ProfileHeader.parse(recordCount);
-        this.profileRecords = ProfileRecords.parse(values, timezone);
+    public ProfileBlock(byte[] values, int[] loadProfileRecordItems) throws IOException {
+        this.profileRecord = ProfileRecordParser.parse(values, getLoadProfileRecordItemsDataTypes(loadProfileRecordItems));
     }
 
-    public ProfileHeader getProfileHeader() {
-        return profileHeader;
-    }
-
-    public ProfileRecords getProfileRecords() {
-        return profileRecords;
-    }
-
-    public ProfileData getProfileData() {
-        ProfileData profileData = new ProfileData();
-        profileData.setChannelInfos(buildChannelInfos());
-        profileData.setIntervalDatas(buildIntervalDatas());
-        return profileData;
-    }
-
-    private List<ChannelInfo> buildChannelInfos() {
-        List<ChannelInfo> channelInfos = new ArrayList<>();
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Energy Delivered", Unit.get(BaseUnit.WATTHOUR)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Energy Received", Unit.get(BaseUnit.WATTHOUR)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power A", Unit.get(BaseUnit.WATTHOUR)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power Total", Unit.get(BaseUnit.WATTHOUR)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Apparent Energy Delivered", Unit.get(BaseUnit.VOLTAMPERE)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Apparent Energy Received", Unit.get(BaseUnit.VOLTAMPERE)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Reactive Energy Delivered", Unit.get(BaseUnit.VOLTAMPERE)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Reactive Energy Received", Unit.get(BaseUnit.VOLTAMPERE)));
-        return channelInfos;
-    }
-
-    private List<IntervalData> buildIntervalDatas() {
-        List<IntervalData> intervalDatas = new ArrayList<>();
-        for (ProfileRecord profileRecord : getProfileRecords().getProfileRecords()) {
-            List<IntervalValue> intervalValues = new ArrayList<>();
-            for(Object value: profileRecord.getValues()){
-                    intervalValues.add(new IntervalValue(
-                            (Number)value,
-                            0,
-                            0
-                    ));
-            }
-
-            intervalDatas.add(
-                    new IntervalData(
-                            profileRecord.getDate(),
-                            IntervalStateBits.OK,
-                            profileRecord.isIncompleteIntegrationPeriod() ? 1 : 0,
-                            IntervalStateBits.POWERDOWN,
-                            intervalValues
-                    )
-            );
-
-        }
-
-        return intervalDatas;
-    }
-
-    public Date getOldestProfileRecordDate() {
-        Date oldestDate = null;
-        for (ProfileRecord profileRecord : getProfileRecords().getProfileRecords()) {
-            if (oldestDate == null) {
-                oldestDate = profileRecord.getDate();
-            } else if (oldestDate.after(profileRecord.getDate())) {
-                oldestDate = profileRecord.getDate();
+    private List<ChannelConfigMapping.DataType> getLoadProfileRecordItemsDataTypes(int[] loadProfileRecordItems) throws IOException {
+        List<ChannelConfigMapping.DataType> dataTypes = new ArrayList<>();
+        for (int loadProfileRecordItem : loadProfileRecordItems) {
+            if (loadProfileRecordItem != 0) {
+                dataTypes.add(ChannelConfigMapping.findChannelConfigurationFor(loadProfileRecordItem).getDataType());
             }
         }
+        return dataTypes;
+    }
 
-        return oldestDate;
+    public ProfileRecord getProfileRecord() {
+        return profileRecord;
+    }
+
+    public IntervalData getIntervalData() {
+        List<IntervalValue> intervalValues = new ArrayList<>();
+        for (Object value : getProfileRecord().getValues()) {
+            intervalValues.add(new IntervalValue((Number) value, 0, 0));
+        }
+        return new IntervalData(getProfileRecord().getDate(), IntervalStateBits.OK, 0, 0, intervalValues);
     }
 }

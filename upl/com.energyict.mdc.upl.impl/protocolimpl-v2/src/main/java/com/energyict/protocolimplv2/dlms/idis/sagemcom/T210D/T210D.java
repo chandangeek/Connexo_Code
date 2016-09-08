@@ -65,6 +65,15 @@ public class T210D extends AM130 {
         }
     }
 
+    //TODO: remove this when the device will offer propper support for realeasing the association
+    //For now disconnect only the TCP connection
+    @Override
+    public void logOff() {
+        if (getDlmsSession() != null) {
+            getDlmsSession().getDlmsV2Connection().disconnectMAC();
+        }
+    }
+
     @Override
     public String getProtocolDescription() {
         return "Sagemcom T210-D DLMS (IDIS P2) GPRS";
@@ -72,6 +81,6 @@ public class T210D extends AM130 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-08-05 14:15:55 +0300 (Fri, 05 Aug 2016)$";
+        return "$Date: 2016-09-07 16:54:19 +0300 (Wed, 07 Sep 2016)$";
     }
 }

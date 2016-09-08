@@ -354,8 +354,11 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     SetAuthenticationMechanism(80, PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM, AuthenticationMechanism.getAuthNames())),
     SetMaxLoginAttempts(81, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS)),
     SetLockoutDuration(82, PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DeviceMessageConstants.SET_LOCKOUT_DURATION, new TimeDuration(10000, TimeDuration.MILLISECONDS))),
-    ConfigureGeneralLocalPortReadout(83, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.objectDefinitionsAttributeName))
-    ;
+    ConfigureGeneralLocalPortReadout(83, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.objectDefinitionsAttributeName)),
+    DISABLE_PUSH_ON_INSTALLATION(84),
+    ENABLE_PUSH_ON_INTERVAL_OBJECTS(85,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.typeAttributeName, PushType.getTypes()),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionMinutesForEachHour));
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
@@ -413,5 +416,30 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
         private static final Date DEFAULT_DATE = new Date(978307200000l);   // 01/01/2001
         private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yy");
+    }
+
+    public enum PushType {
+        Interval_1(1),
+        Interval_2(2),
+        Interval_3(3);
+
+        private final int id;
+
+        private PushType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            PushType[] allTypes = values();
+            String[] result = new String[allTypes.length];
+            for (int index = 0; index < allTypes.length; index++) {
+                result[index] = allTypes[index].name();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
     }
 }

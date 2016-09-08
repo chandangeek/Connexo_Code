@@ -725,4 +725,5 @@ public class DeviceMessageConstants {
     public static final String SET_AUTHENTICATION_MECHANISM = "ConfigurationChangeDeviceMessage.SET_AUTHENTICATION_MECHANISM";
     public static final String SET_MAX_LOGIN_ATTEMPTS = "ConfigurationChangeDeviceMessage.SET_MAX_LOGIN_ATTEMPTS";
     public static final String SET_LOCKOUT_DURATION = "ConfigurationChangeDeviceMessage.SET_LOCKOUT_DURATION";
+    public static final String executionMinutesForEachHour = "ConfigurationChangeDeviceMessage.executionMinutesForEachHour";
 }
