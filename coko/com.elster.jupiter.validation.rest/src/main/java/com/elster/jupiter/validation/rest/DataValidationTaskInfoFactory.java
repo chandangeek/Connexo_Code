@@ -141,7 +141,7 @@ public class DataValidationTaskInfoFactory {
         info.startedOn = dataValidationOccurrence.getStartDate().orElse(null);
         info.finishedOn = dataValidationOccurrence.getEndDate().orElse(null);
         info.duration = calculateDuration(info.startedOn, info.finishedOn);
-        info.status = getName(dataValidationOccurrence.getStatus());
+        info.status = dataValidationOccurrence.getStatus().getDisplayName(thesaurus);
         info.reason = dataValidationOccurrence.getFailureReason();
         info.lastRun = dataValidationOccurrence.getTriggerTime();
         setStatusOnDate(info, dataValidationOccurrence);

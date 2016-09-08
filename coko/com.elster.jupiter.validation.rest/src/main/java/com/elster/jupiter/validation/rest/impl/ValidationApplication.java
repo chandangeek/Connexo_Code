@@ -118,7 +118,8 @@ public class ValidationApplication extends Application implements TranslationKey
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST)
+                .join(nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     class HK2Binder extends AbstractBinder {
