@@ -373,7 +373,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 + scheduleFormatted.join(' ')
                 + ' ' + Uni.I18n.translate('communicationschedule.startingFrom', 'MDC', 'Starting from').toLowerCase() + ' '
                 + Uni.DateTime.formatDateLong(new Date(startDate))
-                + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                + ' ' + Uni.I18n.translate('general.lowercase.at', 'MDC', 'at') + ' '
                 + Uni.DateTime.formatTimeLong(new Date(startDate))
                 + '</b>');
 

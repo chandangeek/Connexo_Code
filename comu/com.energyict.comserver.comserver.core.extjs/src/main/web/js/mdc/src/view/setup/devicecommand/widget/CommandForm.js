@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
                 flex:1
             },
             dateTimeSeparatorConfig: {
-                html: Uni.I18n.translate('deviceCommand.add.at', 'MDC', 'at'),
+                html: Uni.I18n.translate('general.lowercase.at', 'MDC', 'at'),
                 margin: '0 6 0 6'
             }
         }

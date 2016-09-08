@@ -55,11 +55,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         mainValidationInfo = detailRecord.get('channelValidationData')[channel.id].mainValidationInfo;
                         bulkValidationInfo = detailRecord.get('channelValidationData')[channel.id].bulkValidationInfo;
                         dataQualities = detailRecord.get('channelValidationData')[channel.id].readingQualities;
-                        if (containter.down('#mainValidationInfo' + channel.id)) {
-                            containter.down('#mainValidationInfo' + channel.id).setValue(mainValidationInfo);
+                        containter.down('#mainValidationInfo' + channel.id).setValue(mainValidationInfo);
+                        if (containter.down('#bulkValidationInfo' + channel.id)) {
+                            containter.down('#bulkValidationInfo' + channel.id).setValue(bulkValidationInfo);
                         }
-                        containter.down('#bulkValidationInfo' + channel.id).setValue(bulkValidationInfo);
-
                         if (me.down('#channelValue' + channel.id)) {
                             me.down('#channelValue' + channel.id).setValue(detailRecord.get('channelData')[channel.id]);
                         }
@@ -396,7 +395,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         xtype: 'reading-qualities-field',
                         router: me.router,
                         labelWidth: 200,
-                        itemId: (calculatedReadingType ? 'main' : 'bulk') + 'ValidationInfo' + channel.id,
+                        itemId: 'mainValidationInfo' + channel.id,
                         htmlEncode: false
                     }
                 );
