@@ -1381,13 +1381,37 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         BigDecimal multiplier = BigDecimal.TEN;
         device.setMultiplier(multiplier);
         device.save();
-        assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
+        assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(2);
 
         Instant fiveDaysLater = freezeClock(2015, 11, 30);
-        device.setMultiplier(BigDecimal.valueOf(100d), fiveDaysLater);
+        device.setMultiplier(BigDecimal.valueOf(10), fiveDaysLater);
         device.save();
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(2);
-        assertThat(device.getMultiplier()).isEqualTo(BigDecimal.valueOf(100d));
+        assertThat(device.getMultiplier()).isEqualTo(BigDecimal.valueOf(10));
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(initialStart);
+    }
+
+    @Test
+    @Transactional
+    public void setMultiplierCreatesNewMeterActivationTest() {
+        DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
+
+        Instant initialStart = freezeClock(2015, 11, 25);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest4", "setMultiplierTest4", initialStart);
+
+        assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
+        assertThat(device.getMultiplier()).isEqualTo(BigDecimal.ONE);
+
+        BigDecimal multiplier = BigDecimal.TEN;
+        device.setMultiplier(multiplier);
+        device.save();
+        assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(2);
+
+        Instant fiveDaysLater = freezeClock(2015, 11, 30);
+        device.setMultiplier(BigDecimal.valueOf(100), fiveDaysLater);
+        device.save();
+        assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(3);
+        assertThat(device.getMultiplier()).isEqualTo(BigDecimal.valueOf(100));
         assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(fiveDaysLater);
     }
 
