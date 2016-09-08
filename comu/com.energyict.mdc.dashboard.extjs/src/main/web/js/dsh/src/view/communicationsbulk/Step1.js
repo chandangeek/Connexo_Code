@@ -20,7 +20,7 @@ Ext.define('Dsh.view.communicationsbulk.Step1', {
                 xtype: 'bulk-selection-grid',
                 itemId: 'communications-bulk-selection-grid',
                 store: 'Dsh.store.CommunicationTasksBuffered',
-
+                autoLoadStore: true,
                 counterTextFn: function (count) {
                     return Uni.I18n.translatePlural('general.nrOfCommunications.selected', count, 'DSH',
                         'No communications selected', '{0} communication selected', '{0} communications selected'
