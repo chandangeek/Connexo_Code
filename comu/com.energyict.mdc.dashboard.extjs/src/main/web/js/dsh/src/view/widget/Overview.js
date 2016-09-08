@@ -39,6 +39,8 @@ Ext.define('Dsh.view.widget.Overview', {
             item.counters().each(function (record) {
                 if (record.get('id')) {
                     var filter = me.router.filter.getWriteData(true, true);
+                    filter.deviceGroups = filter.deviceGroup;
+                    delete filter.deviceGroup;
                     filter[item.get('alias')] = record.get('id');
                     var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, filter);
                     record.set('href', href);
