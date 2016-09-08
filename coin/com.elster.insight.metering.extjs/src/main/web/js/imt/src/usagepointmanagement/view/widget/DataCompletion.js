@@ -52,6 +52,13 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
         purposesStore.filter(function(p){
             return !!p.get('active');
         });
+
+        purposesStore.sort([
+            {
+                property : 'required',
+                direction: 'DESC'
+            }
+        ]);
         defaultPurposeId = purposesStore.first().getId();
 
         me.bindStore(me.store || 'ext-empty-store', true);
