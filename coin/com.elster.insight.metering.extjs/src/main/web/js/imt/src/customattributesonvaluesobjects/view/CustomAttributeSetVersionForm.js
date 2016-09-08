@@ -5,7 +5,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
     padding: '0 16 16 16',
     overflowY: 'auto',
     layout: 'hbox',
-    dateTimeSeparator: Uni.I18n.translate('general.lovercase.at', 'IMT', 'at'),
+    dateTimeSeparator: Uni.I18n.translate('general.lowercase.at', 'IMT', 'at'),
     hoursMinutesSeparator: ':',
     requires: [
         'Uni.property.form.Property',
