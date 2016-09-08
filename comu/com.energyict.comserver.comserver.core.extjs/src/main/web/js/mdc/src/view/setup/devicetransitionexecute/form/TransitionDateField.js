@@ -88,6 +88,16 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.form.TransitionDateField', {
             }
         };
 
+        me.markInvalid = function(msg){
+            var radioGroup = me.down('#uploadFileDateContainer');
+            radioGroup.markInvalid(msg);
+        };
+
+        me.clearInvalid = function(msg){
+            var radioGroup = me.down('#uploadFileDateContainer');
+            radioGroup.clearInvalid();
+        };
+
         me.callParent(arguments);
     }
 

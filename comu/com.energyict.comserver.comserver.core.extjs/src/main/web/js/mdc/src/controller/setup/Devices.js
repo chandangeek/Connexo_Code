@@ -106,7 +106,7 @@ Ext.define('Mdc.controller.setup.Devices', {
 
     connectionToggle: function (record) {
         var me = this;
-        var connectionMethod = record.get('connectionMethod');
+        var connectionMethod = record.get('connectionMethod'),
         var widget = this.getDeviceConnectionsList();
 
         connectionMethod.status = connectionMethod.status == 'active' ? 'inactive' : 'active';
