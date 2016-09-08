@@ -100,6 +100,7 @@ public class UsagePointOutputResource {
         if (effectiveMetrologyConfiguration.isPresent()) {
             purposeInfoList = effectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().stream()
                     .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfiguration.get(), metrologyContract, withValidationTasks))
+                    .sorted(Comparator.comparing(info -> info.name))
                     .collect(Collectors.toList());
         } else {
             purposeInfoList = Collections.emptyList();

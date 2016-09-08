@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
@@ -61,6 +62,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -69,7 +71,7 @@ import static org.mockito.Mockito.when;
 
 public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
-    public static final Instant NOW = ZonedDateTime.of(2015, 12, 10, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant NOW = ZonedDateTime.of(2015, 12, 10, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
 
     @Rule
     public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
@@ -90,7 +92,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Mock
     private CustomPropertySetInfoFactory customPropertySetInfoFactory;
     @Mock
-    private CustomPropertySet customPropertySet;
+    private CustomPropertySet<UsagePoint, PersistentDomainExtension<UsagePoint>> customPropertySet;
     @Mock
     private UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
     @Mock
@@ -151,7 +153,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());
         when(usagePoint.forCustomProperties()).thenReturn(extension);
         when(extension.getPropertySet(1L)).thenReturn(usagePointPropertySet);
-        when(usagePointPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        doReturn(customPropertySet).when(usagePointPropertySet).getCustomPropertySet();
         when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
         when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
@@ -159,7 +161,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
         when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Collections.singletonList(usagePointMetrologyConfiguration));
         when(usagePoint.forCustomProperties().getPropertySet(1L)).thenReturn(usagePointPropertySet);
-        when(usagePointPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        doReturn(customPropertySet).when(usagePointPropertySet).getCustomPropertySet();
         when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
@@ -418,7 +420,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(issueService.newIssueFilter()).thenReturn(issueFilter);
         Finder issueFinder = mock(Finder.class);
         when(issueFinder.find()).thenReturn(Collections.emptyList());
-        when(issueService.findIssues(issueFilter)).thenReturn(issueFinder);
+        doReturn(issueFinder).when(issueService).findIssues(issueFilter);
         IssueStatus issueStatus = mock(IssueStatus.class);
         when(issueService.findStatus(anyString())).thenReturn(Optional.of(issueStatus));
         when(bpmService.getRunningProcesses(anyString(), anyString())).thenReturn(new ProcessInstanceInfos());
@@ -440,7 +442,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
 
-        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.getContracts().stream().findFirst().get();
+        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.getContracts().get(0);
         MetrologyContract.Status status = mock(MetrologyContract.Status.class);
         when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
         when(metrologyContract.getStatus(usagePoint).getKey()).thenReturn("INCOMPLETE");

@@ -44,7 +44,7 @@ public class GoingOnResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters,
                                @HeaderParam("authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
 
@@ -74,7 +74,7 @@ public class GoingOnResource {
     }
 
     private String filterFor(UsagePoint usagePoint) {
-            return "?variableid=usagePointId&variablevalue=" + usagePoint.getMRID();
+        return "?variableid=usagePointId&variablevalue=" + usagePoint.getId();
     }
 
     private final class GoingOnInfoFactory {
@@ -106,7 +106,6 @@ public class GoingOnResource {
             goingOnInfo.id = userTaskInfo.map(info -> Long.parseLong(info.id)).orElse(0L);
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
-            goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);
             goingOnInfo.severity = severity(goingOnInfo.dueDate);
             goingOnInfo.assignee = userTaskInfo.flatMap(info -> Optional.ofNullable(info.actualOwner)).orElse(null);
             goingOnInfo.assigneeIsCurrentUser = userTaskInfo.flatMap(info -> Optional.ofNullable(info.isAssignedToCurrentUser)).orElse(false);

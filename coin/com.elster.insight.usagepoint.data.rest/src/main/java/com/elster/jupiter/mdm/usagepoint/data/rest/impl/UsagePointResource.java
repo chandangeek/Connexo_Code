@@ -45,6 +45,7 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Checks;
@@ -664,9 +665,17 @@ public class UsagePointResource {
                 .max(temporalAmountComparator)
                 .orElse(Period.ofYears(1));//return max period to cover the use-case with registers when there is no intervalLength
         List<IdWithNameInfo> infos = getRelativePeriodsDefaultOnTop(max).stream()
-                .map(rp -> new IdWithNameInfo(rp.getId(), rp.getName()))
+                .map(rp -> new IdWithNameInfo(rp.getId(), findTranslatedRelativePeriod(rp.getName())))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("relativePeriods", infos, queryParameters);
+    }
+
+    private String findTranslatedRelativePeriod(String name) {
+        return Arrays.stream(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values())
+                .filter(e -> e.getDefaultFormat().equals(name))
+                .findFirst()
+                .map(e -> thesaurus.getFormat(e).format())
+                .orElse(name);
     }
 
     private List<? extends RelativePeriod> getRelativePeriodsDefaultOnTop(TemporalAmount intervalLength) {
