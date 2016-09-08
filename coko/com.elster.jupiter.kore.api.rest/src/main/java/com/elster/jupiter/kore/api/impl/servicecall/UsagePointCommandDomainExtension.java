@@ -45,7 +45,6 @@ public class UsagePointCommandDomainExtension extends AbstractPersistentDomainEx
     }
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal expectedNumberOfCommands;
@@ -66,8 +65,12 @@ public class UsagePointCommandDomainExtension extends AbstractPersistentDomainEx
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackFailureURL;
 
+    public UsagePointCommandDomainExtension() {
+        super();
+    }
+
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public String getCallbackFailureURL() {

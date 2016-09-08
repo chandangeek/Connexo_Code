@@ -44,6 +44,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
@@ -95,6 +96,8 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
     EffectiveMetrologyConfigurationInfoFactory effectiveMetrologyConfigurationInfoFactory;
     @Mock
     MeterActivationInfoFactory meterActivationInfoFactory;
+    @Mock
+    PropertySpecService propertySpecService;
 
 
 
@@ -113,6 +116,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         application.setMeteringService(meteringService);
         application.setMessageService(messageService);
         application.setServiceCallService(serviceCallService);
+        application.setPropertySpecService(propertySpecService);
         return application;
     }
 
@@ -266,7 +270,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
 
     protected void mockCommands() {
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        UsagePointCommandCustomPropertySet customPropertySet = new UsagePointCommandCustomPropertySet();
+        UsagePointCommandCustomPropertySet customPropertySet = new UsagePointCommandCustomPropertySet(propertySpecService);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         ServiceCall serviceCall = mock(ServiceCall.class);

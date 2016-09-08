@@ -3,6 +3,7 @@ package com.elster.jupiter.kore.api.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.cps.rest.impl.CustomPropertySetApplication;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandCustomPropertySet;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.messaging.MessageService;
@@ -15,6 +16,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.hypermedia.RestExceptionMapper;
@@ -65,10 +68,15 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile ServiceCallService serviceCallService;
     private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
+    private volatile PropertySpecService propertySpecService;
 
     @Activate
     public void activate() {
         DataModel dataModel = upgradeService.newNonOrmDataModel();
+        InstallIdentifier identifier = InstallIdentifier.identifier("Insight", "PRA");
+        if (upgradeService.isInstalled(identifier, Version.version(1, 0))) {
+            this.registerCustomPropertySets();
+        }
 
         dataModel.register(new AbstractModule() {
             @Override
@@ -76,10 +84,11 @@ public class PublicRestApplication extends Application implements TranslationKey
                 bind(ServiceCallService.class).toInstance(serviceCallService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
             }
         });
 
-        upgradeService.register(InstallIdentifier.identifier("Insight", "PRA"), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier, dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
@@ -143,6 +152,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService){
+        this.propertySpecService = propertySpecService;
     }
 
     @Reference
@@ -233,6 +247,10 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(MeterReadingsFactory.class).to(MeterReadingsFactory.class);
             bind(MetrologyConfigurationPurposeInfoFactory.class).to(MetrologyConfigurationPurposeInfoFactory.class);
         }
+    }
+
+    private void registerCustomPropertySets(){
+        customPropertySetService.addCustomPropertySet(new UsagePointCommandCustomPropertySet(propertySpecService));
     }
 
 }

@@ -23,31 +23,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.kore.api.impl.sc.UsagePointCommandCustomPropertySet",
-        service = CustomPropertySet.class,
-        immediate = true)
 public class UsagePointCommandCustomPropertySet implements CustomPropertySet<ServiceCall, UsagePointCommandDomainExtension> {
 
-    private volatile PropertySpecService propertySpecService;
-    private volatile CustomPropertySetService customPropertySetService;
+    private PropertySpecService propertySpecService;
 
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    public UsagePointCommandCustomPropertySet(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    public void setServiceCallService(ServiceCallService serviceCallService) {
-        // PATCH; required for proper startup; do not delete
-    }
-
-    @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     @Override
