@@ -18,6 +18,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import com.google.common.collect.ImmutableSet;
@@ -160,6 +161,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(ReadingTypeDeliverableFactory.class).to(ReadingTypeDeliverableFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
+            bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
         }
     }

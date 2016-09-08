@@ -18,18 +18,17 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.ValidationVersionStatus;
-import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
+import com.elster.jupiter.validation.rest.DataValidationTaskMinimalInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -61,8 +60,6 @@ public class MetrologyConfigurationResource {
 
     private final ResourceHelper resourceHelper;
     private final ValidationService validationService;
-    private final TimeService timeService;
-    private final Thesaurus thesaurus;
     private final MeteringService meteringService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final CustomPropertySetService customPropertySetService;
@@ -70,11 +67,12 @@ public class MetrologyConfigurationResource {
     private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
     private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
 
     @Inject
     public MetrologyConfigurationResource(ResourceHelper resourceHelper, MeteringService meteringService, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService,
                                           CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory,
-                                          MetrologyConfigurationService metrologyConfigurationService, TimeService timeService, Thesaurus thesaurus, ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
+                                          MetrologyConfigurationService metrologyConfigurationService, ReadingTypeDeliverableFactory readingTypeDeliverableFactory, DataValidationTaskInfoFactory dataValidationTaskInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.meteringService = meteringService;
         this.usagePointConfigurationService = usagePointConfigurationService;
@@ -83,9 +81,8 @@ public class MetrologyConfigurationResource {
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
         this.metrologyConfigurationService = metrologyConfigurationService;
-        this.timeService = timeService;
-        this.thesaurus = thesaurus;
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
+        this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
     }
 
     @GET
@@ -343,12 +340,12 @@ public class MetrologyConfigurationResource {
     public PagedInfoList getValidationScheduleOnMetrologyConfiguration(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         List<MetrologyContractInfo> metrologyContractInfos = new ArrayList<>();
         for (MetrologyContract metrologyContract : resourceHelper.getMetrologyConfigOrThrowException(id).getContracts()) {
-            List<DataValidationTaskInfo> dataValidationTaskInfos = validationService.findValidationTasks()
+            List<DataValidationTaskMinimalInfo> dataValidationTaskInfos = validationService.findValidationTasks()
                     .stream()
                     .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
                     .filter(task -> task.getMetrologyContract().isPresent())
                     .filter(task -> task.getMetrologyContract().get().getId() == metrologyContract.getId())
-                    .map(dataValidationTask -> new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService))
+                    .map(dataValidationTaskInfoFactory::asMinimalInfo)
                     .collect(Collectors.toList());
             MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
             metrologyContractInfo.addValidationTasks(dataValidationTaskInfos);
