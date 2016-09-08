@@ -3,6 +3,7 @@ Ext.define('Uni.view.search.field.internal.QuantityField', {
     alias: 'widget.uni-search-internal-quantityfield',
     width: '455',
     layout: 'hbox',
+    unitsStore: null,
     itemsDefaultConfig: {},
 
     setValue: function(value) {
@@ -45,7 +46,7 @@ Ext.define('Uni.view.search.field.internal.QuantityField', {
 
     initComponent: function () {
         var me = this,
-            store = me.itemsDefaultConfig.unitsStore,
+            store = me.unitsStore,
             defaultUnit = store ? store.getAt(0) : null;
 
         me.addEvents(

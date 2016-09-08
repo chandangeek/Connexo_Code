@@ -276,7 +276,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
     },
 
     createLink: function (textColor, value) {
-        var href, html;
+        var me = this, href, html;
 
         switch (value.type) {
             case 'issue':
@@ -291,8 +291,13 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 href = "#alarm";
                 break;
             case 'process':
-                href = this.router.getRoute('devices/device').buildUrl({mRID: this.mrId}) + '/processes?activeTab=running';
-                html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
+                if(me.type == 'usagepoint'){
+                    href = this.router.getRoute('usagepoints/view').buildUrl({mRID: this.mrId}) + '/processes?activeTab=running';
+                    html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
+                } else  if (me.type == 'device'){
+                    href = this.router.getRoute('devices/device').buildUrl({mRID: this.mrId}) + '/processes?activeTab=running';
+                    html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
+                }
                 break;
         }
         html += !!value.dueDate ? ' ' + Uni.I18n.translate('whatsGoingOn.due', 'UNI', '(due {0})', Uni.DateTime.formatDateShort(new Date(value.dueDate))) : '';
@@ -343,7 +348,12 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
     },
 
     addAssigneeToTooltip: function (result, value) {
-        result += !!value.assignee ? Uni.I18n.translate('whatsGoingOn.assignee', 'UNI', 'Assignee: {0}', value.assignee) + "<br>" : '';
+        if(value.type === 'process'){
+            result += !!value.assignee ? Uni.I18n.translate('whatsGoingOn.startedBy', 'UNI', 'Started by: {0}', value.assignee) + "<br>" : '';
+        } else{
+            result += !!value.assignee ? Uni.I18n.translate('whatsGoingOn.assignee', 'UNI', 'Assignee: {0}', value.assignee) + "<br>" : '';
+        }
+
         return result;
     }
 });

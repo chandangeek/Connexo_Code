@@ -23,9 +23,13 @@ Ext.define('Uni.override.RestOverride', {
         operation.records = records;
 
         var urlTemplate = new Ext.Template(url),
-            params = request.proxy.extraParams,
+            params = _.object(
+                _.keys(request.proxy.extraParams),
+                _.map(request.proxy.extraParams || [],
+                    encodeURIComponent
+                )
+            ),
             newUrl = urlTemplate.apply(params);
-
 
         //Remove variables embedded into URL
         Ext.Object.each(params, function (key, value) {
