@@ -26,7 +26,6 @@ public class DeviceConnectionTaskInfo extends ConnectionTaskVersionInfo {
     public ConnectionStrategyInfo connectionStrategy;
     public Instant nextExecution;
     public long comSessionId;
-    public long version;
 
     public static class LatestStatusInfo {
         public String id;
