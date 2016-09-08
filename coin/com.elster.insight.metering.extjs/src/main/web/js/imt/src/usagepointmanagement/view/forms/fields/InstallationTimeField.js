@@ -3,6 +3,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.InstallationTimeField', {
     alias: 'widget.techinfo-installationtimefield',
     columns: 1,
 
+    layout: {
+        type: 'vbox',
+        align: 'stretchmax'
+    },
+
     listeners: {
         change: function (field, newValue) {
             var dateField = field.down('date-time');

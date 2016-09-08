@@ -26,11 +26,7 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
                 isWizardStep: true,
                 navigationIndex: 1,
                 ui: 'large',
-                isPossibleAdd: me.isPossibleAdd,
-                defaults: {
-                    labelWidth: 260,
-                    width: 595
-                }
+                isPossibleAdd: me.isPossibleAdd
             }
         ];
 
