@@ -326,25 +326,27 @@ Ext.define('Cfg.controller.Validation', {
             },
             failure: function (record, operation) {
                 me.getAddRule().setLoading(false);
-                var json = Ext.decode(operation.response.responseText, true);
-                if (json && json.errors) {
-                    var readingQualitiesErrorSet = false;
-                    Ext.Array.each(json.errors, function (item) {
-                        if (item.id.indexOf("readingTypes") !== -1) {
-                            form.down('#readingTypesForValidationRuleGridPanel').addCls('error-border');
-                            form.down('#readingTypesErrorLabel').setText(item.msg);
-                            form.down('#readingTypesErrorLabel').show();
-                        }
-                        if (item.id.indexOf('readingQualities') !== -1 && !readingQualitiesErrorSet) {
-                            form.down('#readingQualitiesErrorLabel').setText(item.msg);
-                            form.down('#readingQualitiesErrorLabel').show();
-                            readingQualitiesErrorSet = true;
-                        }
-                    });
+                if (operation.response.status == 400) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        var readingQualitiesErrorSet = false;
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id.indexOf("readingTypes") !== -1) {
+                                form.down('#readingTypesForValidationRuleGridPanel').addCls('error-border');
+                                form.down('#readingTypesErrorLabel').setText(item.msg);
+                                form.down('#readingTypesErrorLabel').show();
+                            }
+                            if (item.id.indexOf('readingQualities') !== -1 && !readingQualitiesErrorSet) {
+                                form.down('#readingQualitiesErrorLabel').setText(item.msg);
+                                form.down('#readingQualitiesErrorLabel').show();
+                                readingQualitiesErrorSet = true;
+                            }
+                        });
 
-                    form.getForm().markInvalid(json.errors);
-                    formErrorsPanel.show();
-                    me.validationRuleRecord = null;
+                        form.getForm().markInvalid(json.errors);
+                        formErrorsPanel.show();
+                        me.validationRuleRecord = null;
+                    }
                 }
             }
         });
@@ -604,10 +606,12 @@ Ext.define('Cfg.controller.Validation', {
             },
             failure: function (record, operation) {
                 createEditRuleSetPanel.setLoading(false);
-                var json = Ext.decode(operation.response.responseText);
-                if (json && json.errors) {
-                    form.getForm().markInvalid(json.errors);
-                    formErrorsPanel.show();
+                if (operation.response.status == 400) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        form.getForm().markInvalid(json.errors);
+                        formErrorsPanel.show();
+                    }
                 }
             }
         });
@@ -1451,15 +1455,17 @@ Ext.define('Cfg.controller.Validation', {
             },
             failure: function (record, operation) {
                 me.getAddVersion().setLoading(false);
-                var json = Ext.decode(operation.response.responseText, true);
-                if (json && json.errors) {
-                    Ext.Array.each(json.errors, function (item) {
-                        if (item.id.indexOf("name") !== -1) {
-                            form.down('#startPeriodOn').setActiveError(item.msg);
-                        }
-                    });
-                    form.getForm().markInvalid(json.errors);
-                    formErrorsPanel.show();
+                if (operation.response.status == 400) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id.indexOf("name") !== -1) {
+                                form.down('#startPeriodOn').setActiveError(item.msg);
+                            }
+                        });
+                        form.getForm().markInvalid(json.errors);
+                        formErrorsPanel.show();
+                    }
                 }
             }
         });
