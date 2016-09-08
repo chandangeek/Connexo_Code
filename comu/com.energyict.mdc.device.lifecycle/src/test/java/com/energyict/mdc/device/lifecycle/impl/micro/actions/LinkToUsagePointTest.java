@@ -66,7 +66,7 @@ public class LinkToUsagePointTest {
         microAction.execute(device, now, Collections.singletonList(property));
 
         //Asserts
-        verify(device).activate(now, usagePoint);
+        verify(device).forceActivate(now, usagePoint);
     }
 
     @Test
