@@ -35,8 +35,7 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
 
     @Override
     public void buildMeterActivation(MeterActivationBuilder builder, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        builder.startingAt(effectiveTimestamp)
-                .keepingUsagePoint();
+        builder.startingAt(effectiveTimestamp);
     }
 
     @Override
