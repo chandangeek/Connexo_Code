@@ -16,7 +16,7 @@ import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.RangeInstantComparator;
+import com.elster.jupiter.util.RangeComparatorFactory;
 
 import com.google.common.collect.Range;
 
@@ -247,9 +247,9 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
             Range<Instant> valuesRange = values.getEffectiveRange();
             if (!valuesRange.hasLowerBound()) {
                 valuesRange = valuesRange.hasUpperBound()
-                        ? Range.open(usagePoint.getCreateDate(), valuesRange.upperEndpoint())
-                        : Range.atLeast(usagePoint.getCreateDate());
-            } else if (usagePoint.getCreateDate().isAfter(valuesRange.lowerEndpoint())) {
+                        ? Range.open(usagePoint.getInstallationTime(), valuesRange.upperEndpoint())
+                        : Range.atLeast(usagePoint.getInstallationTime());
+            } else if (usagePoint.getInstallationTime().isAfter(valuesRange.lowerEndpoint())) {
                 throw new UsagePointCustomPropertySetVersionIncorrectStartDateException(thesaurus, MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE);
             }
             if (anyTimeInVersionInterval == null) {
@@ -300,8 +300,7 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
                 }
             }
             // return the default interval
-            return Range.atLeast(usagePoint.getCreateDate());
-//            return Range.all();
+            return Range.atLeast(usagePoint.getInstallationTime());
         }
 
         /**
@@ -313,7 +312,7 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
                     .stream()
                     .map(CustomPropertySetValues::getEffectiveRange)
                     .distinct()
-                    .sorted(new RangeInstantComparator())
+                    .sorted(RangeComparatorFactory.INSTANT_DEFAULT)
                     .collect(Collectors.toList());
             Collections.reverse(versionIntervals);
             return versionIntervals;

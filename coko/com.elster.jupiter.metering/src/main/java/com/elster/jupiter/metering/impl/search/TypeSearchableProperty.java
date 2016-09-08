@@ -66,7 +66,7 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
     @Override
     public String toDisplay(Object value) {
         if (value instanceof UsagePointTypeInfo.UsagePointType) {
-            return ((UsagePointTypeInfo.UsagePointType) value).getDisplayName();
+            return ((UsagePointTypeInfo.UsagePointType) value).getDisplayName(thesaurus);
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
