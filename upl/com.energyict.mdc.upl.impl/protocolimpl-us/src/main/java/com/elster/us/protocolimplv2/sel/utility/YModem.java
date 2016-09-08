@@ -15,7 +15,7 @@ import static com.elster.us.protocolimplv2.sel.utility.ByteArrayHelper.*;
 
 public class YModem {
   protected final byte CPMEOF = 26;       /* control/z */
-  protected final int MAXERRORS = 10;     /* max times to retry one block */
+  protected final int MAXERRORS = 20;     /* max times to retry one block */
   protected final int SECSIZE128 = 128;      /* transmission block, size indicated by first byte 01 */
   protected final int SECSIZE1024 = 1024; /* transmission block, size indicated by first byte 02 */
   protected final int SENTIMOUT = 30;     /* timeout time in send */
@@ -260,7 +260,7 @@ public class YModem {
                     checksum += sector[index];
                   }
                   if (checksum != getChecksum()) {
-                    System.out.println( "Bad checksum");
+                    //System.out.println( "Bad checksum");
                     //errorcount++;
                     //continue rxLoop;
                   }
@@ -382,7 +382,7 @@ public class YModem {
             checksum += sector[index];
           }
           if (checksum != getChecksum()) {
-            System.out.println( "Bad checksum");
+            //System.out.println( "Bad checksum");
             //errorcount++;
           }
           

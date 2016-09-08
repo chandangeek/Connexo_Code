@@ -205,7 +205,7 @@ class ObisCodeMapper {
         } else {
             obisPartE = Integer.toString(dataBlockIndex) + Integer.toString(rowIndex);
         }
-        o = ObisCode.fromString("1.1.5.9." + obisPartE + "." + billing );
+        o = ObisCode.fromString("1.1.5.9." + obisPartE + "" + billing );
         //System.out.println("mapping obis code " + o + " to " + rcd);
         createValueFactory( offset, rcd, l, o );
     }
@@ -216,7 +216,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.2.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.2.9." + rcd.getDataBlockIndex() + "" + billing );
         //System.out.println("mapping obis code " + o + " to " + rcd);
         createValueFactory( offset, rcd, l, o );
     }
@@ -227,7 +227,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.6.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.6.9." + rcd.getDataBlockIndex() + "" + billing );
 
         createValueFactory( offset, rcd, l, o );
     }
@@ -238,7 +238,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.7.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.7.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -249,7 +249,7 @@ class ObisCodeMapper {
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
 
-        o = ObisCode.fromString("1.1.8.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.8.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
 
@@ -261,7 +261,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.21.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.21.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -271,7 +271,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.22.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.22.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -281,7 +281,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.25.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.25.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -291,7 +291,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.26.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.26.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -301,7 +301,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.27.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.27.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -311,7 +311,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.28.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.28.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
 
@@ -324,7 +324,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.41.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.41.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -334,7 +334,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.42.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.42.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -344,7 +344,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.45.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.45.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -354,7 +354,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.46.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.46.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -364,7 +364,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.47.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.47.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -374,7 +374,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.48.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.48.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -386,7 +386,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.61.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.61.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -396,7 +396,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.62.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.62.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -406,7 +406,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.65.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.65.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -416,7 +416,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.66.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.66.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -426,7 +426,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.67.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.67.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
     
@@ -436,7 +436,7 @@ class ObisCodeMapper {
     si = t14.getSummations( b, l ).iterator();
     while( si.hasNext() ) {
         final TypeChannelSelectRcd rcd = (TypeChannelSelectRcd)si.next();
-        o = ObisCode.fromString("1.1.68.9." + rcd.getDataBlockIndex() + "." + billing );
+        o = ObisCode.fromString("1.1.68.9." + rcd.getDataBlockIndex() + "" + billing );
         createValueFactory( offset, rcd, l, o );
     }
 
@@ -543,7 +543,7 @@ class ObisCodeMapper {
         ObisCodeWrapper( ObisCode oc ){
             obisCode = oc;
             
-            os = obisCode.getA() + "." + obisCode.getB() + "." +
+            os = obisCode.getA() + "" + obisCode.getB() + "" +
                     obisCode.getC() + "." + obisCode.getD() + "." +
                     obisCode.getE() + "." + Math.abs( obisCode.getF() );
             

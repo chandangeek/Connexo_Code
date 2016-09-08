@@ -4,34 +4,35 @@ public class Consts {
   private Consts() {}
 
   // Constants
-  public final static String STR_VQ = "vq"; // Used in SN sign-on command
-  // TODO: define the encoding in the properties, or OK to hardcode?
   public final static String ENCODING = "US-ASCII"; // Encoding for String -> byte[]
-  public final static String ACC0 = "Invalid Access Level"; // prompt meter sends once serial port communications are established
-  public final static String ACC1 = "=>"; // prompt meter sends when meter is in Access Level 1
-  public final static String ENTER_PASWD = "Password:"; //prompt to enter password
+  public final static String ACC0 = "Invalid Access Level"; // prompt indicating serial port communications are established
+  public final static String ACC1 = "=>"; // Access Level 1 meter prompt
+  public final static String ENTER_PASWD = "Password:"; //password prompt
   public final static String CR = "\r";
-  public final static String LF = "\n";
 
   // Date formats
   public final static String MMDDYY = "MM/dd/yy";
   public final static String DDMMYY = "dd-MM-yy";
   public final static String YYMMDD = "yy-MM-dd";
   public final static String LDP_DATE_FORMAT = "MM/dd/yyyy HH:mm:ss";
+  public final static String LDP_YFILE_FORMAT = "MMddyyyyHHmmss";
 
-  // Date formats for events
-  public final static String MMDDYY_EVENT = "MMddyy";
-  public final static String DDMMYY_EVENT = "ddMMyy";
-  public final static String YYMMDD_EVENI = "yyMMdd";
 
   // Commands
   public final static String COMMAND_SN = "SN"; // Sign on
-  public final static String COMMAND_SF = "SF"; // Sign off
+  public final static String COMMAND_SF = "QUI"; // Sign off, return to access 0
   public final static String COMMAND_RD = "RD"; // Read single
   public final static String COMMAND_RG = "RG"; // Read group
-  public final static String COMMAND_WD = "WD"; // Write data
-  public final static String COMMAND_EM = "EM"; // Read events (MiniMax)
+  public final static String COMMAND_EM = "EM"; // Read events (SEL)
   public final static String COMMAND_RE = "RE"; // Read events (other)
+  
+  //SEL ASCII Commands
+  public final static String COMMAND_ID = "ID";
+  public final static String COMMAND_TIME = "TIM";
+  public final static String COMMAND_DATE = "DAT";
+  public final static String COMMAND_ACC = "ACC"; // switch to access level 1
+  public final static String COMMAND_REG = "MET E";
+  public final static String COMMAND_LP = "ldp_data.bin";
 
   // Response codes
   public final static String RESPONSE_OK = "00";
@@ -65,21 +66,7 @@ public class Consts {
   public final static byte RECORD_LDP_DATA  = 0x67;
   public final static byte RECORD_SER_DATA = 0x68;
   public final static byte RECORD_LDP_ERROR = 0x69;
-  
-  // SEL ASCII Commands
-  public final static String COMMAND_ID = "ID";
-  public final static String COMMAND_TIME = "TIM";
-  public final static String COMMAND_DATE = "DAT";
-  public final static String COMMAND_ACC = "ACC"; // switch to access level 1
-  public final static String COMMAND_REG = "MET E";
-  public final static String COMMAND_LP = "ldp_data.bin";
 
-  // Object codes
-  public final static String OBJECT_TIME = "203";
-  public final static String OBJECT_DATE = "204";
-  public final static String OBJECT_DATE_FORMAT = "262";
-  public final static String OBJECT_FIRMWARE_VERSION = "122";
-  public final static String OBJECT_SERIAL_NUMBER = "062";
   
   //OBIS map
   public final static String OBJECT_KWH_DELIVERED = "kWh";
@@ -100,5 +87,31 @@ public class Consts {
 
   // Error strings not related to protocol
   public final static String ERROR_COMMAND_LENGTH = "Command code can only be two bytes in length";
+  
+  
+  //SEL Events (Meter Word Bits) configured in SER1, SER2, SER3. Returned in SER(sequential event recorder) report
+  public final static String EVENT_HALARM = "HALARM";
+  public final static String EVENT_SALARM = "SALARM";
+  public final static String EVENT_RSTDEM = "RSTDEM";
+  public final static String EVENT_RSTENGY = "RSTENGY";
+  public final static String EVENT_RSTPKDM = "RSTPKDM";
+  public final static String EVENT_TEST = "TEST";
+  public final static String EVENT_DSTCH = "DSTCH";
+  public final static String EVENT_SSI_EVE = "SSI_EVE";
+  public final static String EVENT_FAULT = "FAULT";
+  public final static String EVENT_HARM02 = "HARM02";
+  public final static String EVENT_HARM03 = "HARM03";
+  public final static String EVENT_HARM04 = "HARM04";
+  public final static String EVENT_HARM05 = "HARM05";
+  public final static String EVENT_HARM06 = "HARM06";
+  public final static String EVENT_HARM07 = "HARM07";
+  public final static String EVENT_HARM08 = "HARM08";
+  public final static String EVENT_HARM09 = "HARM09";
+  public final static String EVENT_HARM10 = "HARM10";
+  public final static String EVENT_HARM11 = "HARM11";
+  public final static String EVENT_HARM12 = "HARM12";
+  public final static String EVENT_HARM13 = "HARM13";
+  public final static String EVENT_HARM14 = "HARM14";
+  public final static String EVENT_HARM15 = "HARM15";
 
 }
