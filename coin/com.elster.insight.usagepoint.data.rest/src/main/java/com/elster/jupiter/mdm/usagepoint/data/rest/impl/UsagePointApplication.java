@@ -32,6 +32,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import com.google.common.collect.ImmutableSet;
@@ -105,6 +106,7 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST))
+                .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(com.elster.jupiter.rest.util.impl.MessageSeeds.COMPONENT_NAME, Layer.REST))
@@ -283,6 +285,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(OutputInfoFactory.class).to(OutputInfoFactory.class);
             bind(PurposeInfoFactory.class).to(PurposeInfoFactory.class);
             bind(ValidationStatusFactory.class).to(ValidationStatusFactory.class);
+            bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
         }
     }
 }

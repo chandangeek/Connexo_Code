@@ -20,8 +20,8 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.RangeComparatorFactory;
 import com.elster.jupiter.util.time.RangeInstantBuilder;
-import com.elster.jupiter.util.time.RangeInstantComparator;
 
 import com.google.common.collect.Range;
 
@@ -42,6 +42,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -116,7 +117,7 @@ public class UsagePointCustomPropertySetResource {
         List valuesRangeConflicts = conflictValuesSupplier.apply(customPropertySetService
                 .calculateOverlapsFor(versionedPropertySet.getCustomPropertySet(), usagePointExtension.getUsagePoint()))
                 .stream()
-                .sorted((c1, c2) -> new RangeInstantComparator().compare(c1.getConflictingRange(), c2.getConflictingRange()))
+                .sorted(Comparator.comparing(ValuesRangeConflict::getConflictingRange, RangeComparatorFactory.INSTANT_DEFAULT))
                 .map(conflict -> {
                     ValuesRangeConflictInfo conflictInfo = customPropertySetInfoFactory.getValuesRangeConflictInfo(conflict);
                     conflictInfo.customPropertySet = customPropertySetInfoFactory.getFullInfo(versionedPropertySet, conflict.getValues());

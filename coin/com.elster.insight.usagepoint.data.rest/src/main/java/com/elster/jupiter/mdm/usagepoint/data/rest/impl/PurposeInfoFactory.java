@@ -6,7 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 
 import javax.inject.Inject;
 import java.util.Comparator;
@@ -16,16 +16,14 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class PurposeInfoFactory {
     private final ValidationStatusFactory validationStatusFactory;
-    private final Thesaurus thesaurus;
     private final ValidationService validationService;
-    private final TimeService timeService;
+    private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
 
     @Inject
-    public PurposeInfoFactory(ValidationStatusFactory validationStatusFactory, Thesaurus thesaurus, ValidationService validationService, TimeService timeService) {
+    public PurposeInfoFactory(ValidationStatusFactory validationStatusFactory, Thesaurus thesaurus, ValidationService validationService, TimeService timeService, DataValidationTaskInfoFactory dataValidationTaskInfoFactory) {
         this.validationStatusFactory = validationStatusFactory;
-        this.thesaurus = thesaurus;
+        this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
         this.validationService = validationService;
-        this.timeService = timeService;
     }
 
     public PurposeInfo asInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, boolean withValidationTasks) {
@@ -46,8 +44,7 @@ public class PurposeInfoFactory {
             purposeInfo.dataValidationTasks = validationService.findValidationTasksQuery()
                     .select(where("metrologyContract").isEqualTo(metrologyContract))
                     .stream()
-                    .map(validationTask -> new DataValidationTaskInfo(validationTask, thesaurus, timeService))
-                    .map(DataValidationTaskShortInfo::new)
+                    .map(dataValidationTaskInfoFactory::asMinimalInfo)
                     .sorted(Comparator.comparing(info -> info.name))
                     .collect(Collectors.toList());
         }

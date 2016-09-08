@@ -30,7 +30,12 @@ public enum MessageSeeds implements MessageSeed {
     THIS_OUTPUT_IS_REGULAR(29, "ThisOutputIsRegular", "Usage point output with id {0} is regular and provides only interval data."),
     NO_RELATIVEPERIOD_FOR_ID(30, "NoRelativePeriodForId", "Relative period with id {0} is not found."),
     RELATIVEPERIOD_IS_IN_THE_FUTURE(31, "RelativePeriodIsInTheFuture", "Cannot gather validation statistics for relative period with id {0}: it is in the future."),
-    START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE(32, "version.start.should.be.greater.than.up.creation.date", "Start date must be greater or equal to Created date of usage point");
+    START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE(32, "version.start.should.be.greater.than.up.creation.date", "Start date must be greater or equal to Created date of usage point"),
+    PROCESS_STATUS_PENDING(33, Keys.PROCESS_STATUS_PENDING, "Pending"),
+    PROCESS_STATUS_ACTIVE(34, Keys.PROCESS_STATUS_ACTIVE, "Active"),
+    PROCESS_STATUS_COMPLETED(35, Keys.PROCESS_STATUS_COMPLETED, "Completed"),
+    PROCESS_STATUS_ABORTED(36, Keys.PROCESS_STATUS_ABORDED, "Aborted"),
+    PROCESS_STATUS_SUSPENDED(37, Keys.PROCESS_STATUS_SUSPENDED, "Suspended");
 
     private final int number;
     private final String key;
@@ -82,6 +87,11 @@ public enum MessageSeeds implements MessageSeed {
         public static final String USAGE_POINT_LINKED_EXCEPTION_MSG = "UsagePointLinkedExceptionMsg";
         public static final String NO_METER_ROLE_FOR_KEY = "NoMeterRoleForKey";
         public static final String NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT = "UsagePointLinkedInactiveMetrologyConfigurationExceptionMsg";
+        public static final String PROCESS_STATUS_PENDING = "ProcessStatusPending";
+        public static final String PROCESS_STATUS_ACTIVE = "ProcessStatusActive";
+        public static final String PROCESS_STATUS_COMPLETED = "ProcessStatusCompleted";
+        public static final String PROCESS_STATUS_ABORDED = "ProcessStatusAborted";
+        public static final String PROCESS_STATUS_SUSPENDED = "ProcessStatusSuspended";
     }
 
 }
