@@ -36,9 +36,9 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
                 },
                 items: [    
 					{
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.trigger', 'CFG', 'Trigger'),
-                        name: 'trigger'
-                    },						
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.recurrence', 'CFG', 'Recurrence'),
+                        name: 'recurrence'
+                    },
                     {
                         fieldLabel: Uni.I18n.translate('general.status', 'CFG', 'Status'),
                         name: 'status'

@@ -11,7 +11,6 @@ Ext.define('Cfg.model.ValidationTaskHistory', {
         {name: 'duration', type: 'number'},
         {name: 'status', type: 'string'},
         {name: 'reason', type: 'string'},
-		{name: 'trigger', type: 'string'},
         {name: 'statusDate', type: 'number'},
         {name: 'statusPrefix', type: 'string'},    
         {
@@ -70,6 +69,13 @@ Ext.define('Cfg.model.ValidationTaskHistory', {
                     return Uni.DateTime.formatDateTimeLong(new Date(data.finishedOn));
                 }
                 return '-';
+            }
+        },
+        {
+            name: 'recurrence',
+            persist: false,
+            mapping: function (data) {
+                return data.task.recurrence;
             }
         }
     ]
