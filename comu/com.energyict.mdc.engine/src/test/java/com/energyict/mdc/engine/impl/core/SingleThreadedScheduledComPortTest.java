@@ -313,7 +313,7 @@ public class SingleThreadedScheduledComPortTest {
                 new SingleThreadedScheduledComPort(
                         runningComServer,
                         this.mockComPort("testStart"),
-                        mock(ComServerDAO.class),
+                        getMockedComServerDAO(),
                         this.deviceCommandExecutor,
                         threadFactory,
                         this.serviceProvider);
@@ -326,12 +326,18 @@ public class SingleThreadedScheduledComPortTest {
         verify(mockedThread, times(1)).start();
     }
 
+    private ComServerDAO getMockedComServerDAO() {
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        when(comServerDAO.getComServerUser()).thenReturn(user);
+        return comServerDAO;
+    }
+
     @Test(timeout = 7000)
     public void testShutdown() {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread mockedThread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
-        SingleThreadedScheduledComPort scheduledComPort = new SingleThreadedScheduledComPort(runningComServer, this.mockComPort("testShutdown"), mock(ComServerDAO.class), this.deviceCommandExecutor, threadFactory, this.serviceProvider);
+        SingleThreadedScheduledComPort scheduledComPort = new SingleThreadedScheduledComPort(runningComServer, this.mockComPort("testShutdown"), getMockedComServerDAO(), this.deviceCommandExecutor, threadFactory, this.serviceProvider);
 
         scheduledComPort.start();
 
@@ -345,7 +351,7 @@ public class SingleThreadedScheduledComPortTest {
 
     @Test(timeout = 7000)
     public void testStartupCleansInterruptedWork() throws InterruptedException, SQLException {
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = getMockedComServerDAO();
         OutboundComPort comPort = this.mockComPort("testStartupCleansInterruptedWork");
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(runningComServer, comPort, comServerDAO, this.deviceCommandExecutor, serviceProvider);
@@ -372,7 +378,7 @@ public class SingleThreadedScheduledComPortTest {
 
     @Test(timeout = 7000)
     public void testExecuteTasksWithNoWork() throws InterruptedException, SQLException {
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = getMockedComServerDAO();
         OutboundComPort comPort = this.mockComPort("testExecuteTasksWithNoWork");
         SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(runningComServer, comPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
         final CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
@@ -401,7 +407,7 @@ public class SingleThreadedScheduledComPortTest {
 
     @Test(timeout = 7000)
     public void testExecuteTasksInParallel() throws InterruptedException, SQLException, ConnectionException {
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = getMockedComServerDAO();
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallel");
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
@@ -446,7 +452,7 @@ public class SingleThreadedScheduledComPortTest {
 
     @Test(timeout = 7000)
     public void testExecuteTasksInParallelWithConnectionSetupFailure() throws ConnectionException, InterruptedException {
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = getMockedComServerDAO();
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithConnectionFailure");
         when(comServerDAO.isStillPending(anyInt())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
@@ -507,7 +513,7 @@ public class SingleThreadedScheduledComPortTest {
         when(this.clock.instant()).thenReturn(now.toInstant());
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_HOUR * 6); // Window is from 4 am to 6 am
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = getMockedComServerDAO();
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
@@ -555,7 +561,7 @@ public class SingleThreadedScheduledComPortTest {
         when(this.clock.instant()).thenReturn(now.toInstant());
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_HOUR * 9); // Window is from 4 am to 9 am
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = getMockedComServerDAO();
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
@@ -590,7 +596,7 @@ public class SingleThreadedScheduledComPortTest {
 
     @Test(timeout = 7000)
     public void testExecuteTasksOneByOneWithConnectionTaskLockAttemptFailures() throws InterruptedException, SQLException {
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = getMockedComServerDAO();
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithConnectionTaskLockAttemptFailures");
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
@@ -762,7 +768,7 @@ public class SingleThreadedScheduledComPortTest {
         private CountDownLatch executeLatch;
 
         private RealTimeWorkingLatchDrivenDeviceCommandExecutor(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, ComServerDAO comServerDAO, CountDownLatch startedLatch, CountDownLatch executeLatch) {
-            super(comServerName, queueCapacity, numberOfThreads, threadPriority, logLevel, threadFactory, clock, comServerDAO, eventPublisher, threadPrincipalService, userService);
+            super(comServerName, queueCapacity, numberOfThreads, threadPriority, logLevel, threadFactory, clock, comServerDAO, eventPublisher, threadPrincipalService);
             this.startedLatch = startedLatch;
             this.executeLatch = executeLatch;
         }

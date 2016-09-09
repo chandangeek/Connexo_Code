@@ -58,7 +58,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
     @Override
     protected void setThreadPrinciple() {
-        User comServerUser = getComServerUser();
+        User comServerUser = getComServerDAO().getComServerUser();
         getServiceProvider().threadPrincipalService().set(comServerUser, "MultiThreadedComPortRunner", "Executing", comServerUser.getLocale().orElse(Locale.ENGLISH));
     }
 
@@ -126,7 +126,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
         private MultiThreadedJobScheduler(int threadPoolSize, ThreadFactory threadFactory) {
             this.executorService = Executors.newFixedThreadPool(1);
-            executorService.submit(new MultiThreadedJobCreator(jobQueue, MultiThreadedScheduledComPort.this.getComPort(), getDeviceCommandExecutor(), threadPoolSize, threadFactory, getServiceProvider(), getComServerUser()));
+            executorService.submit(new MultiThreadedJobCreator(jobQueue, MultiThreadedScheduledComPort.this.getComPort(), getDeviceCommandExecutor(), threadPoolSize, threadFactory, getServiceProvider(), getComServerDAO().getComServerUser()));
         }
 
         @Override

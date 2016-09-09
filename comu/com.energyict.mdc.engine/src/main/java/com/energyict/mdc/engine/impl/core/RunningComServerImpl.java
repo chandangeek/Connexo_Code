@@ -293,8 +293,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                         this.serviceProvider.clock(),
                         this.comServerDAO,
                         this.eventMechanism.getEventPublisher(),
-                        this.serviceProvider.threadPrincipalService(),
-                        this.serviceProvider.userService());
+                        this.serviceProvider.threadPrincipalService()
+                );
     }
 
     /**

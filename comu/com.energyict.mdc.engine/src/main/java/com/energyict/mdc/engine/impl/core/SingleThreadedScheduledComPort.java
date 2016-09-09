@@ -32,7 +32,7 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
 
     @Override
     protected void setThreadPrinciple() {
-        User comServerUser = getComServerUser();
+        User comServerUser = getComServerDAO().getComServerUser();
         getServiceProvider().threadPrincipalService().set(comServerUser, "SingleThreadedComPort", "Executing", comServerUser.getLocale().orElse(Locale.ENGLISH));
     }
 

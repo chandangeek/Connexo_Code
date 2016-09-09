@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -88,8 +86,8 @@ public class ComServlet extends HttpServlet {
     }
 
     private void setThreadPrinciple() {
-        Optional<User> user = this.serviceProvider.userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        user.ifPresent(u -> this.serviceProvider.threadPrincipalService().set(u, "ComServlet", "doPost", u.getLocale().orElse(Locale.ENGLISH)));
+        User comServerUser = comServerDAO.getComServerUser();
+        this.serviceProvider.threadPrincipalService().set(comServerUser, "ComServlet", "doPost", comServerUser.getLocale().orElse(Locale.ENGLISH));
     }
 
     private void handOverToInboundDeviceProtocol(HttpServletRequest request, HttpServletResponse response) {

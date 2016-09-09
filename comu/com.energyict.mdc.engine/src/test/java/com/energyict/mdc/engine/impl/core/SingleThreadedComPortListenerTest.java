@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundCapableComServer;
@@ -15,23 +17,31 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.time.Clock;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadFactory;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.time.Clock;
-import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadFactory;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener} component
@@ -64,7 +74,11 @@ public class SingleThreadedComPortListenerTest {
     @Mock
     private UserService userService;
     @Mock
+    private User user;
+    @Mock
     private RunningComServer runningComServer;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     private Clock clock = Clock.systemDefaultZone();
 
@@ -78,7 +92,8 @@ public class SingleThreadedComPortListenerTest {
         when(this.inboundComPortExecutorServiceProvider.clock()).thenReturn(this.clock);
         when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
-        when(this.userService.findUser(EngineServiceImpl.COMSERVER_USER)).thenReturn(Optional.empty());
+        when(this.userService.findUser(EngineServiceImpl.COMSERVER_USER)).thenReturn(Optional.of(user));
+        when(user.getLocale()).thenReturn(Optional.of(Locale.ENGLISH));
     }
 
     @Test(timeout = 5000)
@@ -101,7 +116,9 @@ public class SingleThreadedComPortListenerTest {
         when(serviceProvider.clock()).thenReturn(this.clock);
         when(serviceProvider.userService()).thenReturn(this.userService);
         when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
-        when(serviceProvider.comServerDAO()).thenReturn(mock(ComServerDAO.class));
+        ComServerDAO mockedComServerDAO = getMockedComServerDAO();
+        when(serviceProvider.comServerDAO()).thenReturn(mockedComServerDAO);
+        when(serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
 
         SingleThreadedComPortListener singleThreadedComPortListener =
                 spy(new SingleThreadedComPortListener(runningComServer, inboundComPort, this.deviceCommandExecutor, serviceProvider));
@@ -112,6 +129,12 @@ public class SingleThreadedComPortListenerTest {
         //Asserts
         verify(connector, atLeast(1)).accept(); // accept should have been called twice (one time it should have returned a VoidComChannel
         verify(singleThreadedComPortListener, never()).handleInboundDeviceProtocol(any(ComPortRelatedComChannel.class));
+    }
+
+    private ComServerDAO getMockedComServerDAO() {
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        when(comServerDAO.getComServerUser()).thenReturn(user);
+        return comServerDAO;
     }
 
     @Test(timeout = 5000)
@@ -136,8 +159,9 @@ public class SingleThreadedComPortListenerTest {
         when(serviceProvider.clock()).thenReturn(this.clock);
         when(serviceProvider.userService()).thenReturn(this.userService);
         when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = getMockedComServerDAO();
         when(serviceProvider.comServerDAO()).thenReturn(comServerDAO);
+        when(serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
 
         SingleThreadedComPortListener singleThreadedComPortListener =
                 spy(new SingleThreadedComPortListener(runningComServer, inboundComPort, this.deviceCommandExecutor, serviceProvider));
@@ -227,7 +251,9 @@ public class SingleThreadedComPortListenerTest {
         when(serviceProvider.clock()).thenReturn(this.clock);
         when(serviceProvider.userService()).thenReturn(this.userService);
         when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
-        when(serviceProvider.comServerDAO()).thenReturn(mock(ComServerDAO.class));
+        ComServerDAO mockedComServerDAO = getMockedComServerDAO();
+        when(serviceProvider.comServerDAO()).thenReturn(mockedComServerDAO);
+        when(serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
         LatchDrivenSingleThreadedComPortListener singleThreadedComPortListener =
                 spy(new LatchDrivenSingleThreadedComPortListener(
                         runningComServer,

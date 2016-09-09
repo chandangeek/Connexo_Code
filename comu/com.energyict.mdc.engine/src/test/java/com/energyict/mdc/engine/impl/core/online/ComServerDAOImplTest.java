@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.online;
 
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceType;
@@ -23,7 +24,12 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceBreakerStatus;
 import com.energyict.mdc.engine.impl.meterdata.DeviceFirmwareVersion;
-import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
+import com.energyict.mdc.firmware.FirmwareType;
+import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
@@ -32,13 +38,8 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+
 import com.google.common.collect.Range;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -47,10 +48,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests the {@link ComServerDAOImpl} component.
@@ -99,6 +114,8 @@ public class ComServerDAOImplTest {
     private FirmwareService firmwareService;
     @Mock
     private DeviceService deviceDataModelService;
+    @Mock
+    private User comServerUser;
 
     private ComServerDAO comServerDAO;
 
@@ -125,7 +142,7 @@ public class ComServerDAOImplTest {
         when(this.comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.comPort.getId()).thenReturn(COMPORT_ID);
         when(this.scheduledComTask.getId()).thenReturn(SCHEDULED_COMTASK_ID);
-        this.comServerDAO = new ComServerDAOImpl(this.serviceProvider);
+        this.comServerDAO = new ComServerDAOImpl(this.serviceProvider, comServerUser);
     }
 
     @Test

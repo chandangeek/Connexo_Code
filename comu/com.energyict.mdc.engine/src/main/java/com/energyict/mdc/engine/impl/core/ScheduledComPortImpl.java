@@ -3,14 +3,12 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.events.ComPortOperationsLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;
@@ -74,7 +72,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private LoggerHolder loggerHolder;
     private ExceptionLogger exceptionLogger = new ExceptionLogger();
     private Instant lastActivityTimestamp;
-    private Optional<User> comServerUser = Optional.empty();
 
     ScheduledComPortImpl(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this(runningComServer, comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
@@ -98,13 +95,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     public OutboundComPort getComPort () {
         return comPort;
-    }
-
-    User getComServerUser(){
-        if(!comServerUser.isPresent()){
-            comServerUser = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        }
-        return comServerUser.get();
     }
 
     protected void setComPort (OutboundComPort comPort) {

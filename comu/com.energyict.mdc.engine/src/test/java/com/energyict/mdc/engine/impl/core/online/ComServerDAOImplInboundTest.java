@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core.online;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -30,8 +31,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -62,6 +65,8 @@ public class ComServerDAOImplInboundTest {
     private CommunicationTaskService communicationTaskService;
     @Mock
     private ComServerDAOImpl.ServiceProvider serviceProvider;
+    @Mock
+    private User comServerUser;
 
     private ComServerDAO comServerDAO;
 
@@ -71,7 +76,7 @@ public class ComServerDAOImplInboundTest {
         when(this.serviceProvider.transactionService()).thenReturn(transactionService);
         when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
         when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
-        this.comServerDAO = new ComServerDAOImpl(this.serviceProvider);
+        this.comServerDAO = new ComServerDAOImpl(this.serviceProvider, comServerUser);
     }
 
     /**
