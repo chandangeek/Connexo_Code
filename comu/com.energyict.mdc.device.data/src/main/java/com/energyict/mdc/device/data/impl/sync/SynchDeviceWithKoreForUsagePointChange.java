@@ -35,8 +35,13 @@ public class SynchDeviceWithKoreForUsagePointChange extends AbstractSyncDeviceWi
     private final Thesaurus thesaurus;
     private final UserPreferencesService userPreferencesService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final boolean forceNew;
 
     public SynchDeviceWithKoreForUsagePointChange(ServerDevice device, Instant start, UsagePoint usagePoint, ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, UserPreferencesService userPreferencesService, ThreadPrincipalService threadPrincipalService, EventService eventService) {
+        this(device, start, usagePoint, deviceService, readingTypeUtilService, thesaurus, userPreferencesService, threadPrincipalService, eventService, false);
+    }
+
+    public SynchDeviceWithKoreForUsagePointChange(ServerDevice device, Instant start, UsagePoint usagePoint, ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, UserPreferencesService userPreferencesService, ThreadPrincipalService threadPrincipalService, EventService eventService, boolean force) {
         super(deviceService, readingTypeUtilService, eventService, (start == null ? device.getKoreHelper()
                 .getCurrentMeterActivation()
                 .get()
@@ -46,6 +51,7 @@ public class SynchDeviceWithKoreForUsagePointChange extends AbstractSyncDeviceWi
         this.thesaurus = thesaurus;
         this.userPreferencesService = userPreferencesService;
         this.threadPrincipalService = threadPrincipalService;
+        this.forceNew = force;
     }
 
     @Override
@@ -83,10 +89,10 @@ public class SynchDeviceWithKoreForUsagePointChange extends AbstractSyncDeviceWi
         } else {
             meterActivation = Optional.of(getDevice().getMeter().get().getMeterActivation(generalizedStartDate).get());
         }
-        if (meterActivation.isPresent() && (!meterActivation.get().getUsagePoint().isPresent() || meterActivation.get()
+        if ((meterActivation.isPresent() && (!meterActivation.get().getUsagePoint().isPresent() || meterActivation.get()
                 .getUsagePoint()
                 .get()
-                .getId() != this.usagePoint.getId())) {
+                .getId() != this.usagePoint.getId())) || forceNew) {
             meterActivation = Optional.of(endMeterActivationAndRestart(generalizedStartDate, meterActivation, Optional.of(usagePoint)));
         }
         device.getKoreHelper().setCurrentMeterActivation(meterActivation);

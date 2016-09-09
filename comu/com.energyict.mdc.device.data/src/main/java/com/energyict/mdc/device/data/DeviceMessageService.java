@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
@@ -40,5 +42,14 @@ public interface DeviceMessageService {
      * @return A ComTask if one is found, else null
      */
     ComTask getPreferredComTask(Device device, DeviceMessage<?> deviceMessage);
+
+    /**
+     * Checks if the logged in user can create or update a given message
+     *
+     * @param deviceConfiguration The deviceconfiguration of the device the user wants to administrate messages for
+     * @param deviceMessageId The id of the devicemessage
+     * @return
+     */
+    boolean canUserAdministrateDeviceMessage(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId);
 
 }

@@ -56,12 +56,7 @@ public class DeviceFinder implements Finder<Device> {
                 .collect(Collectors.joining(", ")));
         final SqlBuilder finalBuilder = this.pager.addPaging(sqlBuilder, "id");
         QueryExecutor<Device> query = this.dataModel.query(Device.class, DeviceConfiguration.class, DeviceType.class, Batch.class);
-        return query.select(ListOperator.IN.contains(() -> {
-            SqlBuilder result = new SqlBuilder("select id from (");
-            result.add(finalBuilder);
-            result.closeBracket();
-            return result;
-        }, "id"), this.orders.toArray(new Order[orders.size()]));
+        return query.select(ListOperator.IN.contains(() -> finalBuilder, "id"), this.orders.toArray(new Order[orders.size()]));
     }
 
     @Override

@@ -266,6 +266,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * <p></p>
      * Activates the device on a usage point. Either end the current MeterActivation and create a new one
      * based on previous MeterActivation but with the target Usage Point, or just create a new MeterActivation.
+     * If this constitutes no change vs the current activation, the current MeterActivation will be returned.
      * Activation can fail if:
      * <ul>
      * <li>the usagePoint is linked to another device</li>
@@ -277,6 +278,21 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     // TODO Change method signature: add third argument 'MeterRole meterRole'
     MeterActivation activate(Instant start, UsagePoint usagePoint);
+
+    /**
+     * Activates the device on a usage point. Either end the current MeterActivation and create a new one
+     * based on previous MeterActivation but with the target Usage Point, or just create a new MeterActivation.
+     * If this constitutes no change vs the current activation, a new MeterActivation will be made regardless.
+     * Activation can fail if:
+     * <ul>
+     * <li>the usagePoint is linked to another device</li>
+     * <li>the device doesn't provide all required reading types that specified in the metrology configurations of the usagePoint</li>
+     *</ul>
+     * @param start start of the meterActivation
+     * @param usagePoint the Usage Point to be linked to the device
+     * @return the new meterActivation
+     */
+    MeterActivation forceActivate(Instant start, UsagePoint usagePoint);
 
     /**
      * Terminates the current MeterActivation on this Device.
