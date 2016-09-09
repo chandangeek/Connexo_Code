@@ -9,9 +9,7 @@ Ext.define('Isu.view.issues.Overview', {
         'Isu.view.issues.Grid',
         'Isu.view.issues.Preview',
         'Isu.view.issues.SortingToolbar',
-        'Isu.view.issues.GroupingTitle',
-        'Isu.view.issues.NoGroupSelectedPanel',
-        'Uni.util.FormEmptyMessage'
+        'Isu.view.issues.GroupingTitle'
     ],
     router: null,
     groupingType: null,
@@ -41,12 +39,6 @@ Ext.define('Isu.view.issues.Overview', {
                         hidden: true
                     },
                     {
-                        xtype: 'uni-form-empty-message',
-                        itemId: 'no-issues-group-panel',
-                        text: Uni.I18n.translate('group.empty.list.item1', 'ISU', 'No groups have been defined yet.'),
-                        hidden: true
-                    },
-                    {
                         xtype: 'menuseparator'
                     },
                     {
@@ -59,11 +51,6 @@ Ext.define('Isu.view.issues.Overview', {
                         itemId: 'issues-sorting-toolbar',
                         hideEmpty: false,
                         store: 'Isu.store.Issues'
-                    },
-                    {
-                        xtype: 'no-issues-group-selected-panel',
-                        itemId: 'no-issues-group-selected-panel',
-                        hidden: true
                     },
                     {
                         xtype: 'preview-container',

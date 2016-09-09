@@ -47,20 +47,12 @@ Ext.define('Isu.controller.IssuesOverview', {
             selector: 'issues-overview #issues-group-grid'
         },
         {
-            ref: 'groupEmptyPanel',
-            selector: 'issues-overview #no-issues-group-panel'
-        },
-        {
             ref: 'previewContainer',
             selector: 'issues-overview #issues-preview-container'
         },
         {
             ref: 'groupingTitle',
             selector: 'issues-overview issues-grouping-title'
-        },
-        {
-            ref: 'noGroupSelectedPanel',
-            selector: 'issues-overview no-issues-group-selected-panel'
         },
         {
             ref: 'issuesGrid',
@@ -196,7 +188,6 @@ Ext.define('Isu.controller.IssuesOverview', {
     setGroupingType: function (combo, newValue) {
         var me = this,
             groupGrid = me.getGroupGrid(),
-            groupEmptyPanel = me.getGroupEmptyPanel(),
             queryString = Uni.util.QueryString.getQueryStringValues(false);
 
         queryString.groupingType = newValue;
@@ -207,19 +198,16 @@ Ext.define('Isu.controller.IssuesOverview', {
                 params: me.getGroupProxyParams(newValue),
                 callback: function (records) {
                     if (!Ext.isEmpty(records)) {
-                        groupEmptyPanel.hide();
                         queryString.groupingValue = records.length ? records[0].getId() : undefined;
                         me.applyGrouping(queryString);
                     } else {
                         groupGrid.hide();
-                        groupEmptyPanel.show();
                         queryString.groupingValue = undefined;
                         me.applyGrouping(queryString);
                     }
                 }
             });
         } else {
-            groupEmptyPanel.hide();
             queryString.groupingValue = undefined;
             me.applyGrouping(queryString);
         }
@@ -266,14 +254,21 @@ Ext.define('Isu.controller.IssuesOverview', {
         var me = this,
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             groupGrid = me.getGroupGrid(),
-            groupEmptyPanel = me.getGroupEmptyPanel(),
             groupingTitle = me.getGroupingTitle(),
             groupStore = groupGrid.getStore(),
-            previewContainer = me.getPreviewContainer(),
             afterLoad = function () {
                 if (!Ext.isEmpty(groupGrid.getStore().getRange())) {
-                    groupEmptyPanel.hide();
+                    if ( Ext.isEmpty(queryString.groupingValue) && !Ext.isEmpty(queryString[queryString.groupingType]) ) {
+                        queryString.groupingValue = queryString[queryString.groupingType];
+                    }
                     var groupingRecord = groupStore.getById(queryString.groupingValue);
+                    if ( Ext.isEmpty(groupingRecord) && !Ext.isEmpty(queryString[queryString.groupingType]) ) {
+                        queryString.groupingValue = queryString[queryString.groupingType];
+                        groupingRecord = groupStore.getById(queryString.groupingValue);
+                    }
+                    if (Ext.isEmpty(groupingRecord)) {
+                        groupGrid.getView().getSelectionModel().select(0);
+                    }
 
                     Ext.suspendLayouts();
                     if (queryString.groupingValue && groupingRecord) {
@@ -287,7 +282,6 @@ Ext.define('Isu.controller.IssuesOverview', {
                 } else {
                     groupGrid.hide();
                     groupingTitle.hide();
-                    groupEmptyPanel.show();
                 }
             };
         me.getIssuesGrid().down('#pagingtoolbartop').isFullTotalCount = false;
@@ -304,9 +298,6 @@ Ext.define('Isu.controller.IssuesOverview', {
             } else {
                 afterLoad();
             }
-
-            previewContainer.setVisible(!!queryString.groupingValue);
-            me.getNoGroupSelectedPanel().setVisible(!queryString.groupingValue);
         } else {
             groupGrid.hide();
             groupingTitle.hide();
