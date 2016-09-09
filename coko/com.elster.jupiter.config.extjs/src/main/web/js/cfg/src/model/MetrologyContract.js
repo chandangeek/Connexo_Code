@@ -3,6 +3,6 @@ Ext.define('Cfg.model.MetrologyContract', {
     proxy: 'memory',
     fields: [
         { name: 'id', type: 'int'},
-        { name: 'displayValue', type: 'string'},
+        { name: 'displayValue', type: 'string'}
     ]
 });

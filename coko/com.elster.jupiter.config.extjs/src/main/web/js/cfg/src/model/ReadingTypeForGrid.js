@@ -6,6 +6,6 @@ Ext.define('Cfg.model.ReadingTypeForGrid', {
 
     associations: [
         {name: 'readingType', type: 'hasOne', model: 'Cfg.model.ReadingType', associationKey: 'readingType',
-            getterName: 'getReadingType', setterName: 'setReadingType', foreignKey: 'readingType'},
+            getterName: 'getReadingType', setterName: 'setReadingType', foreignKey: 'readingType'}
     ]
 });

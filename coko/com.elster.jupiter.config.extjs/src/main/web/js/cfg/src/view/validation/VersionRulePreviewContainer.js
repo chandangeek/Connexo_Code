@@ -45,7 +45,7 @@ Ext.define('Cfg.view.validation.VersionRulePreviewContainer', {
                         xtype: 'versionSubMenu',
                         itemId: 'versionMenu',
                         ruleSetId: this.ruleSetId,
-						versionId: this.versionId,
+						versionId: this.versionId
                     }
                 ]
             }
