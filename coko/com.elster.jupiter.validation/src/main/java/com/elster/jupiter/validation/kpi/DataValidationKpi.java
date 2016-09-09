@@ -1,9 +1,7 @@
 package com.elster.jupiter.validation.kpi;
 
-import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.validation.impl.kpi.MonitoredDataValidationKpiMemberTypes;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -11,7 +9,6 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @ProviderType

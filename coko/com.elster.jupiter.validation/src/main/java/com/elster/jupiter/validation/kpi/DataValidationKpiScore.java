@@ -1,27 +1,28 @@
 package com.elster.jupiter.validation.kpi;
 
-import java.math.BigDecimal;
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
-
+@ProviderType
 public interface DataValidationKpiScore extends Comparable<DataValidationKpiScore> {
 
-    BigDecimal getTotalSuspects();
+    long getTotalSuspects();
 
-    BigDecimal getChannelSuspects();
+    long getChannelSuspects();
 
-    BigDecimal getRegisterSuspects();
+    long getRegisterSuspects();
 
-    BigDecimal getAllDataValidated();
+    long getAllDataValidated();
 
     Instant getTimestamp();
 
-    BigDecimal getThresholdValidator();
+    long getThresholdValidator();
 
-    BigDecimal getMissingValuesValidator();
+    long getMissingValuesValidator();
 
-    BigDecimal getReadingQualitiesValidator();
+    long getReadingQualitiesValidator();
 
-    BigDecimal getRegisterIncreaseValidator();
+    long getRegisterIncreaseValidator();
 
 }

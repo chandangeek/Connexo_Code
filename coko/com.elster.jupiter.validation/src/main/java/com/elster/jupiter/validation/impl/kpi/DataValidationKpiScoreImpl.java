@@ -21,47 +21,47 @@ final class DataValidationKpiScoreImpl implements DataValidationKpiScore {
         return this.timestamp;
     }
 
-    private BigDecimal getValue(MonitoredDataValidationKpiMemberTypes member) {
-        return entries.get(member);
+    private long getValue(MonitoredDataValidationKpiMemberTypes member) {
+        return entries.get(member).longValue();
     }
 
     @Override
-    public BigDecimal getTotalSuspects() {
+    public long getTotalSuspects() {
         return this.getValue(MonitoredDataValidationKpiMemberTypes.SUSPECT);
     }
 
     @Override
-    public BigDecimal getChannelSuspects() {
+    public long getChannelSuspects() {
         return this.getValue(MonitoredDataValidationKpiMemberTypes.CHANNEL);
     }
 
     @Override
-    public BigDecimal getThresholdValidator() {
+    public long getThresholdValidator() {
         return this.getValue(MonitoredDataValidationKpiMemberTypes.THRESHOLDVALIDATOR);
     }
 
     @Override
-    public BigDecimal getMissingValuesValidator() {
+    public long getMissingValuesValidator() {
         return this.getValue(MonitoredDataValidationKpiMemberTypes.MISSINGVALUESVALIDATOR);
     }
 
     @Override
-    public BigDecimal getReadingQualitiesValidator() {
+    public long getReadingQualitiesValidator() {
         return this.getValue(MonitoredDataValidationKpiMemberTypes.READINGQUALITIESVALIDATOR);
     }
 
     @Override
-    public BigDecimal getRegisterIncreaseValidator() {
+    public long getRegisterIncreaseValidator() {
         return this.getValue(MonitoredDataValidationKpiMemberTypes.REGISTERINCREASEVALIDATOR);
     }
 
     @Override
-    public BigDecimal getRegisterSuspects() {
+    public long getRegisterSuspects() {
         return this.getValue(MonitoredDataValidationKpiMemberTypes.REGISTER);
     }
 
     @Override
-    public BigDecimal getAllDataValidated() {
+    public long getAllDataValidated() {
         return this.getValue(MonitoredDataValidationKpiMemberTypes.ALLDATAVALIDATED);
     }
 

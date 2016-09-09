@@ -23,7 +23,8 @@ public class ValidationModule extends AbstractModule {
         requireBinding(OrmService.class);
         requireBinding(MeteringGroupsService.class);
 
-        bind(ValidationService.class).to(ValidationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(ServerValidationService.class).to(ValidationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(ValidationService.class).to(ServerValidationService.class);
         bind(DataValidationKpiService.class).to(DataValidationKpiServiceImpl.class).in(Scopes.SINGLETON);
     }
 
