@@ -117,7 +117,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
-    private Optional<DestinationSpec> destinationSpec = Optional.empty();
+    private DestinationSpec destinationSpec;
     private DataValidationKpiService dataValidationKpiService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private DataValidationReportService dataValidationReportService;
@@ -263,10 +263,10 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     private DestinationSpec getDestination() {
-        if (!destinationSpec.isPresent()) {
-            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
+        if (destinationSpec == null) {
+            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME).orElse(null);
         }
-        return destinationSpec.orElse(null);
+        return destinationSpec;
     }
 
     @Override
@@ -339,7 +339,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         return getMeterValidation(meter).filter(MeterValidationImpl::getValidateOnStorage).isPresent();
     }
 
-    Optional<MeterValidationImpl> getMeterValidation(Meter meter) {
+    private Optional<MeterValidationImpl> getMeterValidation(Meter meter) {
         return dataModel.mapper(MeterValidationImpl.class).getOptional(meter.getId());
     }
 
@@ -557,7 +557,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     public List<Validator> getAvailableValidators() {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
         return validatorFactories.stream()
-                .flatMap(f -> f.available().stream())
+                .map(ValidatorFactory::available)
+                .flatMap(List::stream)
                 .map(validatorCreator::getTemplateValidator)
                 .collect(Collectors.toList());
     }
@@ -566,7 +567,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     public List<Validator> getAvailableValidators(QualityCodeSystem qualityCodeSystem) {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
         return validatorFactories.stream()
-                .flatMap(f -> f.available().stream())
+                .map(ValidatorFactory::available)
+                .flatMap(List::stream)
                 .map(validatorCreator::getTemplateValidator)
                 .filter(validator -> validator.getSupportedQualityCodeSystems().contains(qualityCodeSystem))
                 .collect(Collectors.toList());
@@ -578,8 +580,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     @Override
-    public ValidationEvaluator getEvaluator(Meter meter, Range<Instant> interval) {
-        return new ValidationEvaluatorForMeter(this, meter, interval);
+    public ValidationEvaluator getEvaluator(Meter meter) {
+        return new ValidationEvaluatorForMeter(this, meter);
     }
 
     @Override
