@@ -12,6 +12,7 @@ Ext.define('Mdc.model.DeviceCommand', {
         {name: 'user', type: 'string', useNull: true},
         {name: 'errorMessage', type: 'string', useNull: true},
         {name: 'messageSpecification', type: 'auto', useNull: true},
+        {name: 'userCanAdministrate', type: 'boolean', useNull: true, persist: false},
         {
             name: 'preferredComTask',
             persist: false

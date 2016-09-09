@@ -79,7 +79,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
                                     labelWidth: 16
                                 },
                                 dateTimeSeparatorConfig: {
-                                    html: Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase(),
+                                    html: Uni.I18n.translate('general.lowercase.at', 'MDC', 'at'),
                                     style: 'color: #686868'
                                 },
                                 hoursConfig: {
