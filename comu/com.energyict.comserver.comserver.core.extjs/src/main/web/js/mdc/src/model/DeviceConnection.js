@@ -30,7 +30,7 @@ Ext.define('Mdc.model.DeviceConnection', {
         Ext.Ajax.request({
             method: 'PUT',
             url: this.proxy.url + '/{id}/run'.replace('{id}', this.getId()),
-            success: callback,
+            callback: callback,
             isNotEdit: true,
             jsonData: body
         });
@@ -39,7 +39,7 @@ Ext.define('Mdc.model.DeviceConnection', {
         Ext.Ajax.request({
             method: 'PUT',
             url: this.proxy.url + '/{id}'.replace('{id}', this.getId()),
-            success: callback,
+            callback: callback,
             isNotEdit: true,
             jsonData: body
         });

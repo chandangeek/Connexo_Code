@@ -76,6 +76,7 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
                     layout.setActiveItem(layout.getPrev());
                     me.showWizardBtns();
                     me.getNavigationMenu().movePrevStep();
+                    me.getDeviceTransitionExecuteWizard().down('#transitionDateField').setActiveError(json.errors[0].msg);
                     propertyForm.markInvalid(json.errors);
                     Ext.resumeLayouts(true);
                 }

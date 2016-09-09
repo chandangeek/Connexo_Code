@@ -40,10 +40,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                 xtype: 'form',
                 border: false,
                 itemId: 'deviceTypeDetailForm',
-                layout: {
-                    type: 'vbox'
-                },
-
+                layout: 'fit',
                 items: [
                     {
                         xtype: 'container',

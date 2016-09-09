@@ -6,7 +6,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.VersionDateField', {
     width: 800,
     labelWidth: 250,
 
-    dateTimeSeparator: Uni.I18n.translate('general.lovercase.at', 'MDC', 'at'),
+    dateTimeSeparator: Uni.I18n.translate('general.lowercase.at', 'MDC', 'at'),
     hoursMinutesSeparator: ':',
 
     requires: [

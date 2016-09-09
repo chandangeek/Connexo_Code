@@ -13,7 +13,7 @@ Ext.define('Mdc.model.DeviceCommunication', {
             isNotEdit: true,
             jsonData: body,
             url: this.proxy.url + '/{id}/run'.replace('{id}', this.get('comTask').id),
-            success: callback
+            callback: callback
         });
     },
 
@@ -23,7 +23,7 @@ Ext.define('Mdc.model.DeviceCommunication', {
             isNotEdit: true,
             jsonData: body,
             url: this.proxy.url + '/{id}/runnow'.replace('{id}', this.get('comTask').id),
-            success: callback
+            callback: callback
         });
     },
 
@@ -33,7 +33,7 @@ Ext.define('Mdc.model.DeviceCommunication', {
             isNotEdit: true,
             jsonData: body,
             url: this.proxy.url + '/{id}/activate'.replace('{id}', this.get('comTask').id),
-            success: callback
+            callback: callback
         });
     },
 
@@ -43,7 +43,7 @@ Ext.define('Mdc.model.DeviceCommunication', {
             isNotEdit: true,
             jsonData: body,
             url: this.proxy.url + '/{id}/deactivate'.replace('{id}', this.get('comTask').id),
-            success: callback
+            callback: callback
         });
     },
 

@@ -141,9 +141,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                             devices = me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPagination');
                             devices.getProxy().setUrl(deviceGroupId);
                             devices.load(function (records) {
+                                var staticGrid = widget.down('static-group-devices-grid'),
+                                    selectionGroupType = {};
+
                                 mainView.setLoading(false);
                                 Ext.suspendLayouts();
                                 widget.down('static-group-devices-grid').setDevices(records);
+                                selectionGroupType[staticGrid.radioGroupName] = staticGrid.selectedInputValue;
+                                staticGrid.getSelectionGroupType().setValue(selectionGroupType);
                                 Ext.resumeLayouts(true);
                             });
                         } else {

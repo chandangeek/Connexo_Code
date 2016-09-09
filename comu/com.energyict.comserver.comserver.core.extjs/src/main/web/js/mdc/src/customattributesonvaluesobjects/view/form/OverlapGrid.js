@@ -35,7 +35,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.OverlapGrid', {
                         width: 75
                     },
                     dateTimeSeparatorConfig: {
-                        html: '<span style="color: #686868;">' + Uni.I18n.translate('general.lovercase.at', 'MDC', 'at') + '</span>'
+                        html: '<span style="color: #686868;">' + Uni.I18n.translate('general.lowercase.at', 'MDC', 'at') + '</span>'
                     }
                 }
             },
