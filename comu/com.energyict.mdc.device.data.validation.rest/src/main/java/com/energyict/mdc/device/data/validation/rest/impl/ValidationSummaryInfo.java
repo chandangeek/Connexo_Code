@@ -24,10 +24,10 @@ public class ValidationSummaryInfo {
     public boolean registerIncreaseValidator;
 
     public ValidationSummaryInfo(ValidationOverview validationOverview) {
-        this.mrid = validationOverview.getMrid();
-        this.serialNumber = validationOverview.getSerialNumber();
-        this.deviceType = validationOverview.getDeviceType();
-        this.deviceConfig = validationOverview.getDeviceConfig();
+        this.mrid = validationOverview.getDevice_mRID();
+        this.serialNumber = validationOverview.getDeviceSerialNumber();
+        this.deviceType = validationOverview.getDeviceTypeName();
+        this.deviceConfig = validationOverview.getDeviceConfigurationName();
         this.amountOfSuspects = validationOverview.getDeviceValidationKpiResults().getAmountOfSuspects();
         this.channelSuspects = validationOverview.getDeviceValidationKpiResults().getChannelSuspects();
         this.registerSuspects = validationOverview.getDeviceValidationKpiResults().getRegisterSuspects();

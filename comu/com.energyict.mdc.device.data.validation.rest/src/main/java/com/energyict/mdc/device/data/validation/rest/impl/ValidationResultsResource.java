@@ -1,13 +1,15 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
+import com.energyict.mdc.device.data.validation.ValidationOverviews;
 
 import com.google.common.collect.Range;
 import org.json.JSONArray;
@@ -25,18 +27,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
+import static com.elster.jupiter.util.streams.Currying.test;
 
 @Path("/validationresults")
 public class ValidationResultsResource {
@@ -51,30 +48,22 @@ public class ValidationResultsResource {
         READINGQUALITIESVALIDATOR("intervalState"),
         REGISTERINCREASEVALIDATOR("registerIncrease");
 
-        private final String elementAbbreviation;
+        private final String abbreviation;
 
-        public String getElementAbbreviation() {
-            return elementAbbreviation;
+        Validator(String abbreviation) {
+            this.abbreviation = abbreviation;
         }
 
-        Validator(String elementName) {
-            this.elementAbbreviation = elementName;
+        static Validator fromAbbreviation(String abbreviation) {
+            return Stream
+                        .of(values())
+                        .filter(test(Validator::matchesAbbreviation).with(abbreviation))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("Unknown kpi type " + abbreviation));
         }
 
-
-        private static final Map<String, Boolean> stringToEnum
-                = new HashMap<>();
-
-        static void refreshValidatorValues() {
-            Stream.of(values()).forEach(e -> stringToEnum.put(e.elementAbbreviation, false));
-        }
-
-        static {
-            refreshValidatorValues();
-        }
-
-        public static Boolean fromAbbreviation(String abbreviation) {
-            return stringToEnum.get(abbreviation);
+        private boolean matchesAbbreviation(String abbreviation) {
+            return this.abbreviation.equals(abbreviation);
         }
     }
 
@@ -91,86 +80,123 @@ public class ValidationResultsResource {
     @Path("/devicegroups")
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.VALIDATE_MANUAL, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public PagedInfoList getValidationResultsPerDeviceGroup(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) throws JSONException {
-
         Instant from = null;
         Instant to = null;
-        List<Long> deviceGroups = new ArrayList<>();
-        List<Long> amountOfSuspectsList = new ArrayList<>();
+        List<Long> deviceGroupIds = new ArrayList<>();
+        SuspectsRange suspectsRange = new IgnoreSuspectRange();
+        Set<Validator> validators = EnumSet.noneOf(Validator.class);
 
         if (uriInfo.getQueryParameters().getFirst("filter") != null) {
             JSONArray filters = new JSONArray(uriInfo.getQueryParameters().getFirst("filter"));
             for (int i = 0; i < filters.length(); i++) {
-                if (filters.getJSONObject(i).get("property").equals("from")) {
+                if ("from".equals(filters.getJSONObject(i).get("property"))) {
                     from = Instant.ofEpochMilli((Long) filters.getJSONObject(i).get("value"));
                 }
-                if (filters.getJSONObject(i).get("property").equals("to")) {
+                if ("to".equals(filters.getJSONObject(i).get("property"))) {
                     to = Instant.ofEpochMilli((Long) filters.getJSONObject(i).get("value"));
                 }
-                if (filters.getJSONObject(i).get("property").equals("deviceGroups")) {
+                if ("deviceGroups".equals(filters.getJSONObject(i).get("property"))) {
                     JSONArray groups = new JSONArray(filters.getJSONObject(i).get("value").toString());
-                    IntStream.range(0, groups.length()).forEach(iter -> {
-                        try {
-                            deviceGroups.add(groups.getLong(iter));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    });
+                    for (int j = 0; j < groups.length(); j++) {
+                        deviceGroupIds.add(groups.getLong(j));
+                    }
                 }
-                if (filters.getJSONObject(i).get("property").equals("amountOfSuspects")) {
+                if ("amountOfSuspects".equals(filters.getJSONObject(i).get("property"))) {
                     try {
                         JSONObject value = new JSONObject(filters.getJSONObject(i).get("value").toString());
-                        if (value.get("operator").equals("==")) {
-                            amountOfSuspectsList.add(Long.parseLong(value.get("criteria").toString()));
-                        } else if (value.get("operator").equals("BETWEEN")) {
+                        if ("==".equals(value.get("operator"))) {
+                            suspectsRange = new ExactMatch(Long.parseLong(value.get("criteria").toString()));
+                        } else if ("BETWEEN".equals(value.get("operator"))) {
                             JSONArray interval = new JSONArray(value.get("criteria").toString());
-                            amountOfSuspectsList.add(Long.parseLong(interval.get(0).toString()));
-                            amountOfSuspectsList.add(Long.parseLong(interval.get(1).toString()));
+                            suspectsRange =
+                                    new LongRange(
+                                            Long.parseLong(interval.get(0).toString()),
+                                            Long.parseLong(interval.get(1).toString()));
                         }
-                    }catch (NumberFormatException e){
+                    } catch (NumberFormatException e) {
                         throw exceptionFactory.newException(MessageSeeds.NUMBER_FORMAT_INVALID);
                     } catch (JSONException e){
                         throw exceptionFactory.newException(MessageSeeds.BETWEEN_VALUES_INVALID);
                     }
                 }
-                if (filters.getJSONObject(i).get("property").equals("validator")) {
-                    JSONArray validators = new JSONArray(filters.getJSONObject(i).get("value").toString());
-                    IntStream.range(0, validators.length()).forEach(iter -> {
-                        try {
-                            Validator.stringToEnum.put(validators.get(iter).toString(), true);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    });
+                if ("validator".equals(filters.getJSONObject(i).get("property"))) {
+                    JSONArray validatorNames = new JSONArray(filters.getJSONObject(i).get("value").toString());
+                    for (int j = 0; j < validatorNames.length(); j++) {
+                        validators.add(Validator.fromAbbreviation(validatorNames.get(j).toString()));
+                    }
                 }
             }
         }
 
         Range<Instant> range = from != null && to != null ? Range.closed(from, to) : Range.all();
-        if (deviceGroups.isEmpty()) {
-            meteringGroupsService.findEndDeviceGroups().stream().map(HasId::getId).forEach(deviceGroups::add);
-        }
-        List<ValidationSummaryInfo> data = deviceGroups.stream().flatMap(groupId ->
-                deviceDataValidationService
-                        .getValidationResultsOfDeviceGroup(groupId, range)
-                        .stream()
-                        .filter(resultAmt -> (amountOfSuspectsList.isEmpty() || (amountOfSuspectsList.size() == 2 && amountOfSuspectsList.get(0)
-                                .longValue() <= resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects()
-                                && resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects() <= amountOfSuspectsList.get(1)
-                                .longValue())) || (amountOfSuspectsList.size() == 1 && amountOfSuspectsList.get(0).longValue() == resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects()))
-                        .filter(validator -> Validator.stringToEnum.entrySet().stream().allMatch(a -> a.getValue() == false) ||
-                                (validator.getDeviceValidationKpiResults().isThresholdValidator() && Validator.fromAbbreviation(Validator.THRESHOLDVALIDATOR.getElementAbbreviation()) ||
-                                        validator.getDeviceValidationKpiResults().isMissingValuesValidator() && Validator.fromAbbreviation(Validator.MISSINGVALUESVALIDATOR.getElementAbbreviation()) ||
-                                        validator.getDeviceValidationKpiResults()
-                                                .isReadingQualitiesValidator() && Validator.fromAbbreviation(Validator.READINGQUALITIESVALIDATOR.getElementAbbreviation()) ||
-                                        validator.getDeviceValidationKpiResults()
-                                                .isRegisterIncreaseValidator() && Validator.fromAbbreviation(Validator.REGISTERINCREASEVALIDATOR.getElementAbbreviation())))
-                        .map(ValidationSummaryInfo::new)).distinct().collect(Collectors.toList());
-        data = data.stream()
-                .sorted((f1, f2) -> Long.compare(f2.lastSuspect.toEpochMilli(), f1.lastSuspect.toEpochMilli()))
-                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(p -> p.mrid))),
-                        ArrayList::new));
-        Validator.refreshValidatorValues();
-        return PagedInfoList.fromPagedList("summary", data, queryParameters);
-
+        DeviceDataValidationService.ValidationOverviewBuilder builder =
+                this.deviceDataValidationService
+                    .forAllGroups(this.endDevicesFromIds(deviceGroupIds))
+                    .in(range);
+        suspectsRange.applyTo(builder);
+        ValidationOverviews validationOverviews =
+            builder
+                .paged(
+                    queryParameters.getStart().orElse(1),
+                    queryParameters.getLimit().map(limit -> limit + 1).orElse(11));
+        return PagedInfoList.fromPagedList("summary", toInfos(validationOverviews), queryParameters);
     }
+
+    private List<ValidationOverviewInfo> toInfos(ValidationOverviews validationOverviews) {
+        return validationOverviews
+                .allOverviews()
+                .stream()
+                .map(ValidationOverviewInfo::from)
+                .collect(Collectors.toList());
+    }
+
+    private List<EndDeviceGroup> endDevicesFromIds(List<Long> ids) {
+        return ids.stream()
+                .map(this.meteringGroupsService::findEndDeviceGroup)
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toList());
+    }
+
+    interface SuspectsRange {
+        DeviceDataValidationService.ValidationOverviewBuilder applyTo(DeviceDataValidationService.ValidationOverviewBuilder builder);
+    }
+
+    private class IgnoreSuspectRange implements SuspectsRange {
+        @Override
+        public DeviceDataValidationService.ValidationOverviewBuilder applyTo(DeviceDataValidationService.ValidationOverviewBuilder builder) {
+            // Since we are ignoring, there is nothing to copy
+            return builder;
+        }
+    }
+
+    private class ExactMatch implements SuspectsRange {
+        private final long match;
+
+        private ExactMatch(long match) {
+            this.match = match;
+        }
+
+        @Override
+        public DeviceDataValidationService.ValidationOverviewBuilder applyTo(DeviceDataValidationService.ValidationOverviewBuilder builder) {
+            return builder.suspects().equalTo(this.match);
+        }
+    }
+
+    private class LongRange implements SuspectsRange {
+        private final Range<Long> range;
+
+        private LongRange(long from, long to) {
+            this(Range.closed(from, to));
+        }
+
+        private LongRange(Range<Long> range) {
+            this.range = range;
+        }
+
+        @Override
+        public DeviceDataValidationService.ValidationOverviewBuilder applyTo(DeviceDataValidationService.ValidationOverviewBuilder builder) {
+            return builder.suspects().inRange(this.range);
+        }
+    }
+
 }
