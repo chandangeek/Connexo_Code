@@ -6,7 +6,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.VersionDateField', {
     width: 800,
     labelWidth: 250,
 
-    dateTimeSeparator: Uni.I18n.translate('general.lovercase.at', 'IMT', 'at'),
+    dateTimeSeparator: Uni.I18n.translate('general.lowercase.at', 'IMT', 'at'),
     hoursMinutesSeparator: ':',
 
     requires: [
