@@ -10,7 +10,7 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
     returnLink: null,
     ui: 'large',
     defaults: {
-        labelWidth: 260,
+        labelWidth: 260
     },
     initComponent: function () {
         var me = this;
