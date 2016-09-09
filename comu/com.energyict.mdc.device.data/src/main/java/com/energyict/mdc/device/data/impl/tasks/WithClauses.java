@@ -13,7 +13,7 @@ public enum WithClauses {
 
     COMTASK_EXECUTION_WITH_DEVICE_STATE("select /* +INLINE */" +
             "       cte.obsolete_date, cte.nextExecutionTimestamp, cte.lastExecutionTimestamp, cte.lastSuccessfulCompletion, cte.currentretrycount, cte.lastExecutionFailed, " +
-            "       cte.comport, cte.onhold," +
+            "       cte.comport, cte.onhold, cte.device," +
             "       ct.id as thereisabusytask " +
             "  from " + TableSpecs.DDC_COMTASKEXEC.name() + " cte " +
             "  join " + TableSpecs.DDC_DEVICE.name() + " dev on cte.device = dev.id " +

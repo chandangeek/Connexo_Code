@@ -6,10 +6,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Optional;
 
 /**
@@ -22,26 +25,7 @@ import java.util.Optional;
 @LiteralSql
 class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor {
 
-    private static final String BASE_SQL =
-            "WITH alldata AS (" +
-                    "  SELECT cte.id," +
-                    "         cte.nextexecutiontimestamp," +
-                    "         cte.comport," +
-                    "         cte.currentretrycount," +
-                    "         cte.lastsuccessfulcompletion," +
-                    "         cte.lastexecutionfailed," +
-                    "         cte.comtask," +
-                    "         cte.comschedule," +
-                    "         dev.devicetype," +
-                    "         CASE WHEN ct.id IS NULL" +
-                    "              THEN 0" +
-                    "              ELSE 1" +
-                    "         END as thereisabusytask" +
-                    "    FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " cte" +
-                    "    JOIN " + TableSpecs.DDC_DEVICE.name() + " dev ON cte.device = dev.id" +
-                    "    LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct ON cte.connectiontask = ct.id" +
-                    "                                                                   AND ct.comserver is not null" +
-                    "   WHERE cte.obsolete_date is null";
+    private static final String DEVICE_STATE_ALIAS_NAME = "enddevices";
 
     static CommunicationTaskBreakdownSqlExecutor systemWide(DataModel dataModel) {
         return new CommunicationTaskBreakdownSqlExecutor(dataModel, Optional.empty(), Optional.empty());
@@ -57,7 +41,34 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
 
     @Override
     protected SqlBuilder beforeDeviceGroupSql(Instant now) {
-        return new SqlBuilder(BASE_SQL);
+        SqlBuilder sqlBuilder = new SqlBuilder("with ");
+        DeviceStateSqlBuilder
+                .forExcludeStates(DEVICE_STATE_ALIAS_NAME, EnumSet.of(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED))
+                .appendRestrictedStatesWithClause(sqlBuilder, now);
+        sqlBuilder.append(", alldata AS (");
+        sqlBuilder.append("  SELECT cte.id,");
+        sqlBuilder.append("         cte.nextexecutiontimestamp,");
+        sqlBuilder.append("         cte.lastexecutiontimestamp,");
+        sqlBuilder.append("         cte.comport,");
+        sqlBuilder.append("         cte.onhold,");
+        sqlBuilder.append("         cte.currentretrycount,");
+        sqlBuilder.append("         cte.lastsuccessfulcompletion,");
+        sqlBuilder.append("         cte.lastexecutionfailed,");
+        sqlBuilder.append("         cte.comtask,");
+        sqlBuilder.append("         cte.comschedule,");
+        sqlBuilder.append("         dev.devicetype,");
+        sqlBuilder.append("         CASE WHEN ct.id IS NULL");
+        sqlBuilder.append("              THEN 0");
+        sqlBuilder.append("              ELSE 1");
+        sqlBuilder.append("         END as thereisabusytask");
+        sqlBuilder.append("    FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " cte");
+        sqlBuilder.append("    JOIN " + TableSpecs.DDC_DEVICE.name() + " dev ON cte.device = dev.id");
+        sqlBuilder.append("    JOIN enddevices kd ON dev.meterid = kd.id");
+        sqlBuilder.append("    LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct ON cte.connectiontask = ct.id");
+        sqlBuilder.append("                                                                   AND ct.comserver is not null");
+        sqlBuilder.append("                                                                   AND ct.lastCommunicationStart > cte.nextExecutionTimestamp");
+        sqlBuilder.append("   WHERE cte.obsolete_date is null");
+        return sqlBuilder;
     }
 
     @Override
@@ -82,42 +93,57 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
         sqlBuilder.append("                       THEN 0");
         sqlBuilder.append("                       ELSE 1");
         sqlBuilder.append("                   END q2_count,");
-        sqlBuilder.append("                  CASE WHEN comport is not null");
-        sqlBuilder.append("                         OR (thereisabusytask = 1 AND nextexecutiontimestamp <=");
+        sqlBuilder.append("                  CASE WHEN onhold = 0");
+        sqlBuilder.append("                        AND (   comport is not null");
+        sqlBuilder.append("                             OR (thereisabusytask = 1 AND nextexecutiontimestamp <=");
         sqlBuilder.addLong(now.getEpochSecond());
-        sqlBuilder.append(")");
+        sqlBuilder.append("))");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.Busy.name() + "'");
-        sqlBuilder.append("                       WHEN comport is null");
+        sqlBuilder.append("                       WHEN onhold = 0");
+        sqlBuilder.append("                        AND comport is null");
+        sqlBuilder.append("                        AND thereisabusytask = 0");
         sqlBuilder.append("                        AND nextexecutiontimestamp <=");
         sqlBuilder.addLong(now.getEpochSecond());
-        sqlBuilder.append("                        AND thereisabusytask = 0");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.Pending.name() + "'");
-        sqlBuilder.append("                       WHEN comport is null");
-        sqlBuilder.append("                        AND nextexecutiontimestamp >");
-        sqlBuilder.addLong(now.getEpochSecond());
-        sqlBuilder.append("                        AND lastsuccessfulcompletion is null");
+        sqlBuilder.append("                       WHEN onhold = 0");
+        sqlBuilder.append("                        AND comport is null");
         sqlBuilder.append("                        AND currentretrycount = 0");
+        sqlBuilder.append("                        AND lastsuccessfulcompletion is null");
+        sqlBuilder.append("                        AND lastExecutionTimestamp is not null");
+        sqlBuilder.append("                        AND (   nextExecutionTimestamp is null");
+        sqlBuilder.append("                             OR nextExecutionTimestamp >");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append(")");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.NeverCompleted.name() + "'");
-        sqlBuilder.append("                       WHEN comport is null");
+        sqlBuilder.append("                       WHEN onhold = 0");
         sqlBuilder.append("                        AND nextexecutiontimestamp >");
         sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append("                        AND comport is null");
         sqlBuilder.append("                        AND currentretrycount > 0");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.Retrying.name() + "'");
-        sqlBuilder.append("                       WHEN nextexecutiontimestamp >");
-        sqlBuilder.addLong(now.getEpochSecond());
-        sqlBuilder.append("                        AND lastsuccessfulcompletion is not null");
-        sqlBuilder.append("                        AND currentretrycount = 0");
-        sqlBuilder.append("                        AND lastExecutionfailed = 1");
-        sqlBuilder.append("                       THEN '" + ServerComTaskStatus.Failed.name() + "'");
-        sqlBuilder.append("                       WHEN comport is null");
+        sqlBuilder.append("                       WHEN onhold = 0");
         sqlBuilder.append("                        AND nextexecutiontimestamp >");
         sqlBuilder.addLong(now.getEpochSecond());
         sqlBuilder.append("                        AND lastsuccessfulcompletion is not null");
+        sqlBuilder.append("                        AND lastExecutionTimestamp > lastSuccessfulCompletion");
+        sqlBuilder.append("                        AND lastExecutionfailed = 1");
+        sqlBuilder.append("                        AND currentretrycount = 0");
+        sqlBuilder.append("                       THEN '" + ServerComTaskStatus.Failed.name() + "'");
+        sqlBuilder.append("                       WHEN onhold = 0");
+        sqlBuilder.append("                        AND comport is null");
         sqlBuilder.append("                        AND lastexecutionfailed = 0");
+        sqlBuilder.append("                        AND currentretrycount = 0");
+        sqlBuilder.append("                        AND (   lastExecutionTimestamp is null");
+        sqlBuilder.append("                             OR lastSuccessfulCompletion is not null)");
+        sqlBuilder.append("                        AND (   nextexecutiontimestamp is null");
+        sqlBuilder.append("                             OR nextexecutiontimestamp >");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append(")");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.Waiting.name() + "'");
-        sqlBuilder.append("                       WHEN comport is null");
-        sqlBuilder.append("                        AND nextexecutiontimestamp is null");
-        sqlBuilder.append("                       THEN 'OnHold'");
+        sqlBuilder.append("                       WHEN onhold <> 0");
+        sqlBuilder.append("                       THEN '" + ServerComTaskStatus.OnHold.name() + "'");
+        sqlBuilder.append("                       WHEN 1 = 1"); // Works as an default clause of a java switch statement
+        sqlBuilder.append("                       THEN 'to_char(id)'");
         sqlBuilder.append("                   END AS status");
         sqlBuilder.append("             FROM alldata)");
         sqlBuilder.append("   GROUP BY status, comtask, comschedule, devicetype)");

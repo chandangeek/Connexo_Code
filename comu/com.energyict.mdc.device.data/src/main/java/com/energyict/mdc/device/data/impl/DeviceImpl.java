@@ -319,7 +319,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private Optional<Location> location = Optional.empty();
     private Optional<SpatialCoordinates> spatialCoordinates = Optional.empty();
-    private boolean dirtyMeter = false;
     private static Map<Predicate<Class<? extends ProtocolTask>>, Integer> scorePerProtocolTask;
 
     // Next objects separate 'Kore' Specific Behaviour
@@ -394,11 +393,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     ValidationService getValidationService() {
         return validationService;
-    }
-
-    @Override
-    public void setInitialActivationStartDate(Instant startDate) {
-        koreHelper.setInitialMeterActivationStartDate(startDate);
     }
 
     private void setDeviceTypeFromDeviceConfiguration() {
@@ -1065,11 +1059,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void createNewMeterActivation(Instant meterActivationStartTime) {
-        activate(meterActivationStartTime);
-    }
-
-    @Override
     public void removeLoadProfiles(List<LoadProfile> loadProfiles) {
         this.loadProfiles.removeAll(loadProfiles);
     }
@@ -1721,6 +1710,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public MeterActivation forceActivate(Instant start, UsagePoint usagePoint) {
+        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(this, start, usagePoint, deviceService, readingTypeUtilService, thesaurus, userPreferencesService, threadPrincipalService, eventService, true);
+        //All actions to take to sync with Kore once a Device is created
+        usagePointChange.syncWithKore(this);
+        return getCurrentMeterActivation().get();
+    }
+
+    @Override
     public void deactivateNow() {
         this.deactivate(this.clock.instant());
     }
@@ -2081,7 +2078,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public DeviceValidation forValidation() {
         if (deviceValidation == null) {
-            deviceValidation = new DeviceValidationImpl(getMdcAmrSystem(), this.validationService, this.clock, this.thesaurus, this);
+            deviceValidation = new DeviceValidationImpl(this.validationService, this.thesaurus, this);
         }
         return deviceValidation;
     }

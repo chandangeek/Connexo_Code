@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -67,8 +68,10 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
     Thesaurus thesaurus;
     @Mock
     PropertySpecService propertySpecService;
+    @Mock
+    ThreadPrincipalService threadPrincipalService;
 
-    DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl());
+    DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService);
 
     DeviceMessage<Device> command1;
 

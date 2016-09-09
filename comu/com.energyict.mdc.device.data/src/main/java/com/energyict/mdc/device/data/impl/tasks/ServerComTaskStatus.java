@@ -91,9 +91,10 @@ public enum ServerComTaskStatus {
         @Override
         public boolean appliesTo(ServerComTaskExecution task, Instant now) {
             Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
-            return !task.isOnHold() && !task.isExecuting()
-                    && nextExecutionTimestamp != null
-                    && now.isAfter(nextExecutionTimestamp);
+            return !task.isOnHold()
+                && !task.isExecuting()
+                && nextExecutionTimestamp != null
+                && now.isAfter(nextExecutionTimestamp);
         }
 
         @Override
@@ -110,7 +111,7 @@ public enum ServerComTaskStatus {
         @Override
         public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append("cte.comport is null and cte.thereisabusytask is null and cte.nextexecutiontimestamp <=");
+            sqlBuilder.append("cte.onhold = 0 and cte.comport is null and cte.thereisabusytask is null and cte.nextexecutiontimestamp <=");
             // Merge feature/CXO-2099: add cte.onhold = 0 to above line
             sqlBuilder.addLong(this.asSeconds(now));
         }
@@ -127,12 +128,13 @@ public enum ServerComTaskStatus {
 
         @Override
         public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            return !task.isOnHold() && !task.isExecuting()
-                    && task.getExecutingComPort() == null
-                    && task.getCurrentTryCount() == 1
-                    && task.getLastSuccessfulCompletionTimestamp() == null
-                    && task.getLastExecutionStartTimestamp() != null
-                    && plannedAndNextExecTimeStampForWaitingStates(task, now);
+            return !task.isOnHold()
+                && !task.isExecuting()
+                && task.getExecutingComPort() == null
+                && task.getCurrentTryCount() == 1
+                && task.getLastSuccessfulCompletionTimestamp() == null
+                && task.getLastExecutionStartTimestamp() != null
+                && plannedAndNextExecTimeStampForWaitingStates(task, now);
         }
 
         @Override
@@ -144,7 +146,7 @@ public enum ServerComTaskStatus {
         @Override
         public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append("    cte.onhold <> 0 ");
+            sqlBuilder.append("    cte.onhold = 0 ");
             sqlBuilder.append("and cte.comport is null ");
             sqlBuilder.append("and cte.currentretrycount = 0 ");
             sqlBuilder.append("and cte.lastSuccessfulCompletion is null ");
@@ -167,9 +169,10 @@ public enum ServerComTaskStatus {
         @Override
         public boolean appliesTo(ServerComTaskExecution task, Instant now) {
             int retryCount = task.getCurrentTryCount() - 1;
-            return !task.isOnHold() && (task.getNextExecutionTimestamp() != null)
-                    && !task.isExecuting()
-                    && retryCount > 0;
+            return !task.isOnHold()
+                && (task.getNextExecutionTimestamp() != null)
+                && !task.isExecuting()
+                && retryCount > 0;
         }
 
         @Override
@@ -202,10 +205,11 @@ public enum ServerComTaskStatus {
         public boolean appliesTo(ServerComTaskExecution task, Instant now) {
             int retryCount = task.getCurrentTryCount() - 1;
             return !task.isOnHold()
-                    && task.getLastSuccessfulCompletionTimestamp() != null
-                    && (task.getLastExecutionStartTimestamp() != null && task.getLastExecutionStartTimestamp().isAfter(task.getLastSuccessfulCompletionTimestamp()))
-                    && task.isLastExecutionFailed()
-                    && retryCount == 0;
+                && task.getLastSuccessfulCompletionTimestamp() != null
+                && (   task.getLastExecutionStartTimestamp() != null
+                    && task.getLastExecutionStartTimestamp().isAfter(task.getLastSuccessfulCompletionTimestamp()))
+                && task.isLastExecutionFailed()
+                && retryCount == 0;
         }
 
         @Override
@@ -239,11 +243,11 @@ public enum ServerComTaskStatus {
         @Override
         public boolean appliesTo(ServerComTaskExecution task, Instant now) {
             return !task.isOnHold()
-                    && !task.isExecuting()
-                    && !task.isLastExecutionFailed()
-                    && task.getCurrentTryCount() == 1
-                    && (task.getLastExecutionStartTimestamp() == null || task.getLastSuccessfulCompletionTimestamp() != null)
-                    && plannedAndNextExecTimeStampForWaitingStates(task, now);
+                && !task.isExecuting()
+                && !task.isLastExecutionFailed()
+                && task.getCurrentTryCount() == 1
+                && (task.getLastExecutionStartTimestamp() == null || task.getLastSuccessfulCompletionTimestamp() != null)
+                && plannedAndNextExecTimeStampForWaitingStates(task, now);
         }
 
         @Override
@@ -255,7 +259,7 @@ public enum ServerComTaskStatus {
         @Override
         public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append("cte.onhold = 0");
+            sqlBuilder.append("cte.onhold = 0 ");
             sqlBuilder.append("and cte.comport is null ");
             sqlBuilder.append("and cte.lastExecutionFailed = 0 ");
             sqlBuilder.append("and cte.currentretrycount = 0 ");
@@ -277,11 +281,12 @@ public enum ServerComTaskStatus {
 
     protected boolean plannedAndNextExecTimeStampForWaitingStates(ServerComTaskExecution task, Instant now) {
         return (task.getPlannedNextExecutionTimestamp() == null && task.getNextExecutionTimestamp() == null)
-                || (task.isAdHoc()
-                && (task.getNextExecutionTimestamp() == null
-                || (task.getNextExecutionTimestamp().isAfter(now))))
-                || (task.getNextExecutionSpecs().isPresent()
-                && (task.getNextExecutionTimestamp() == null || task.getNextExecutionTimestamp().isAfter(now)));
+            || (   task.isAdHoc()
+                && (   task.getNextExecutionTimestamp() == null
+                    || (task.getNextExecutionTimestamp().isAfter(now))))
+            || (   task.getNextExecutionSpecs().isPresent()
+                && (   task.getNextExecutionTimestamp() == null
+                    || task.getNextExecutionTimestamp().isAfter(now)));
     }
     /**
      * Returns the public counterpart of this ServerTaskStatus.

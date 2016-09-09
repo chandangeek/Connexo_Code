@@ -43,6 +43,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
@@ -67,6 +68,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
@@ -279,6 +281,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private IssueService issueService;
         private com.energyict.mdc.issues.IssueService mdcIssueService;
 
+
         public void initializeDatabase(String testName, boolean showSqlLogging) {
             this.initializeMocks(testName);
             this.bootstrapModule = new InMemoryBootstrapModule();
@@ -373,7 +376,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(MdcReadingTypeUtilService.class),
                                 UpgradeModule.FakeUpgradeService.getInstance(),
                                 injector.getInstance(MetrologyConfigurationService.class),
-                                injector.getInstance(ServiceCallService.class));
+                                injector.getInstance(ServiceCallService.class),
+                                injector.getInstance(ThreadPrincipalService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }
@@ -441,6 +445,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(BundleContext.class).toInstance(bundleContext);
                 bind(LicenseService.class).toInstance(licenseService);
                 bind(LogService.class).toInstance(mock(LogService.class));
+                bind(DeviceMessageService.class).toInstance(mock(DeviceMessageService.class));
 
                 bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);
                 bind(ConnectionTaskService.class).to(ConnectionTaskServiceImpl.class).in(Scopes.SINGLETON);
