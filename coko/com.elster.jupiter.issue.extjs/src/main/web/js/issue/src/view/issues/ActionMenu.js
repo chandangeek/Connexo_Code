@@ -188,9 +188,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                                 historyId: comTaskSessionId
                             },
                             {
-                                filter: {
-                                    logLevels: ['Error', 'Warning', 'Information']
-                                }
+                                logLevels: ['Error', 'Warning', 'Information']
                             }
                         ),
                         hrefTarget: '_blank'
