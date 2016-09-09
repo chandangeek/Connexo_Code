@@ -13,17 +13,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
     },
     mentionDataLoggerSlave: false,
     router: null,
-    tools: [
-        {
-            xtype: 'uni-button-action',
-            privileges: Mdc.privileges.Device.administrateDeviceData,
-            itemId: 'gridPreviewActionMenu',
-            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
-            menu: {
-                xtype: 'deviceregisterdataactionmenu'
-            }
-        }
-    ],
 
     getValidationItems: function () {
         return [];

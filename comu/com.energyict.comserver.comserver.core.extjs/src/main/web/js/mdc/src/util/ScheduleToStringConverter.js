@@ -51,7 +51,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
                     seconds = offset.count;
 
                     if (seconds) {
-                        result += ' ' + Uni.I18n.translate('scheduleToStringConverter.at', 'MDC', 'at') + ' ';
+                        result += ' ' + Uni.I18n.translate('general.lowercase.at', 'MDC', 'at') + ' ';
                         result += Ext.String.format(Uni.I18n.translatePlural('general.timeUnit.seconds', seconds, 'MDC', '{0} seconds', '{0} second', '{0} seconds'), seconds);
                     }
                     break;
@@ -60,7 +60,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
                     minutes = Math.floor((offset.count % 3600) / 60);
 
                     if (minutes || seconds) {
-                        result += ' ' + Uni.I18n.translate('scheduleToStringConverter.at', 'MDC', 'at') + ' ';
+                        result += ' ' + Uni.I18n.translate('general.lowercase.at', 'MDC', 'at') + ' ';
                         if (minutes) {
                             result += Ext.String.format(Uni.I18n.translatePlural('general.timeUnit.minutes', minutes, 'MDC', '{0} minutes', '{0} minute', '{0} minutes'), minutes);
                         }
@@ -117,7 +117,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
         var result = '';
 
         if (hours || minutes || seconds) {
-            result += ' ' + Uni.I18n.translate('scheduleToStringConverter.at', 'MDC', 'at') + ' ';
+            result += ' ' + Uni.I18n.translate('general.lowercase.at', 'MDC', 'at') + ' ';
             if (hours) {
                 result += Uni.I18n.translatePlural('general.timeUnit.hours', hours, 'MDC', '{0} hours', '{0} hour', '{0} hours');
             }

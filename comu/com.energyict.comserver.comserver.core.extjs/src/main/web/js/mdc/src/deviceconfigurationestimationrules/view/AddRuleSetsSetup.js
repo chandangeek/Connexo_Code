@@ -58,7 +58,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.AddRuleSetsSetup', {
                             ]
                         },
                         previewComponent: {
-                            xtype: 'container',
+                            xtype: 'panel',
                             ui: 'medium',
                             style: {
                                 paddingLeft: 0
