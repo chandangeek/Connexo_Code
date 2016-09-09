@@ -1,102 +1,32 @@
+/*
+ * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.validation;
 
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 
-public class DeviceValidationKpiResults {
+@ProviderType
+public interface DeviceValidationKpiResults {
 
-    public boolean allDataValidated;
-    public long amountOfSuspects;
-    public long channelSuspects;
-    public long registerSuspects;
-    public Instant lastSuspect;
-    public boolean thresholdValidator;
-    public boolean missingValuesValidator;
-    public boolean readingQualitiesValidator;
-    public boolean registerIncreaseValidator;
+    boolean isAllDataValidated();
 
-    public DeviceValidationKpiResults(long amountOfSuspects, long channelSuspects, long registerSuspects, long allDataValidated, Instant lastSuspect,
-           long thresholdValidator, long missingValuesValidator, long readingQualitiesValidator, long registerIncreaseValidator) {
-        this.amountOfSuspects = amountOfSuspects;
-        this.channelSuspects = channelSuspects;
-        this.registerSuspects = registerSuspects;
-        this.allDataValidated = allDataValidated == 1;
-        this.lastSuspect = lastSuspect;
-        this.thresholdValidator = thresholdValidator == 1;
-        this.missingValuesValidator = missingValuesValidator == 1;
-        this.readingQualitiesValidator = readingQualitiesValidator == 1;
-        this.registerIncreaseValidator = registerIncreaseValidator == 1;
-    }
+    long getAmountOfSuspects();
 
-    public boolean isAllDataValidated() {
-        return allDataValidated;
-    }
+    long getChannelSuspects();
 
-    public void setAllDataValidated(boolean allDataValidated) {
-        this.allDataValidated = allDataValidated;
-    }
+    long getRegisterSuspects();
 
-    public long getAmountOfSuspects() {
-        return amountOfSuspects;
-    }
+    Instant getLastSuspect();
 
-    public void setAmountOfSuspects(long amountOfSuspects) {
-        this.amountOfSuspects = amountOfSuspects;
-    }
+    boolean isThresholdValidator();
 
-    public long getChannelSuspects() {
-        return channelSuspects;
-    }
+    boolean isMissingValuesValidator();
 
-    public void setChannelSuspects(long channelSuspects) {
-        this.channelSuspects = channelSuspects;
-    }
+    boolean isReadingQualitiesValidator();
 
-    public long getRegisterSuspects() {
-        return registerSuspects;
-    }
+    boolean isRegisterIncreaseValidator();
 
-    public void setRegisterSuspects(long registerSuspects) {
-        this.registerSuspects = registerSuspects;
-    }
-
-    public Instant getLastSuspect() {
-        return lastSuspect;
-    }
-
-    public void setLastSuspect(Instant lastSuspect) {
-        this.lastSuspect = lastSuspect;
-    }
-
-    public boolean isThresholdValidator() {
-        return thresholdValidator;
-    }
-
-    public void setThresholdValidator(boolean thresholdValidator) {
-        this.thresholdValidator = thresholdValidator;
-    }
-
-    public boolean isMissingValuesValidator() {
-        return missingValuesValidator;
-    }
-
-    public void setMissingValuesValidator(boolean missingValuesValidator) {
-        this.missingValuesValidator = missingValuesValidator;
-    }
-
-    public boolean isReadingQualitiesValidator() {
-        return readingQualitiesValidator;
-    }
-
-    public void setReadingQualitiesValidator(boolean readingQualitiesValidator) {
-        this.readingQualitiesValidator = readingQualitiesValidator;
-    }
-
-    public boolean isRegisterIncreaseValidator() {
-        return registerIncreaseValidator;
-    }
-
-    public void setRegisterIncreaseValidator(boolean registerIncreaseValidator) {
-        this.registerIncreaseValidator = registerIncreaseValidator;
-    }
 }
