@@ -3,7 +3,7 @@ Ext.define('Bpm.monitorissueprocesses.view.IssueProcessesMainView', {
     alias: 'widget.bpm-issue-processes-main-view',
     requires: [
         'Bpm.monitorissueprocesses.view.IssueProcesses',
-        'Bpm.monitorissueprocesses.view.IssueProcessPreview',
+        'Bpm.monitorissueprocesses.view.IssueProcessPreview'
     ],
     properties: {},
 
@@ -17,12 +17,12 @@ Ext.define('Bpm.monitorissueprocesses.view.IssueProcessesMainView', {
             xtype: 'bpm-issue-processes',
             margin: '0 0 0 -15',
             itemId: 'issue-processes'
-        },
+        }
     ],
     initComponent: function () {
         var me = this;
         me.fireEvent('initStores',this.properties);
         me.callParent(arguments);
-    },
+    }
 
 });

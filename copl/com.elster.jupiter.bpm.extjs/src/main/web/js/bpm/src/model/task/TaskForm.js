@@ -8,7 +8,7 @@ Ext.define('Bpm.model.task.TaskForm', {
         'status',
         'action',
         'id',
-        {name: 'properties', type: 'auto', defaultValue: null},
+        {name: 'properties', type: 'auto', defaultValue: null}
 
     ],
     associations: [

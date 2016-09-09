@@ -12,7 +12,7 @@ Ext.define('Bpm.model.task.TaskGroup', {
         'count',
         'hasMandatory',
         'taskIds',
-        {name: 'tasksForm', type: 'auto', defaultValue: null},
+        {name: 'tasksForm', type: 'auto', defaultValue: null}
     ],
     associations: [
         {
