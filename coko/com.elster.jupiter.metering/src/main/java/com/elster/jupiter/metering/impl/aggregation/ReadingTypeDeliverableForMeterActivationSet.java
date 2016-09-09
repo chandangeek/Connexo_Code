@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.metering.impl.aggregation.DataSourceTableFactory.dual;
+
 /**
  * Redefines a {@link ReadingTypeDeliverable} for a {@link MeterActivationSet}.
  * Maintains a copy of the original expression tree because the target
@@ -102,7 +104,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         return builder.build();
     }
 
-    Range<Instant> getReadingQualitiesRange(Instant timestamp) {
+    private Range<Instant> getReadingQualitiesRange(Instant timestamp) {
         IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
         ZoneId zoneId = meterActivationSet.getZoneId();
         Instant endOfInterval = targetIntervalLength.truncate(timestamp, zoneId);
@@ -110,7 +112,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         return Range.openClosed(targetIntervalLength.subtractFrom(endOfInterval, zoneId), endOfInterval);
     }
 
-    Range getTargetRange(Instant timestamp) {
+    private Range<Instant> getTargetRange(Instant timestamp) {
         IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
         ZoneId zoneId = meterActivationSet.getZoneId();
         Instant endOfInterval = targetIntervalLength.truncate(timestamp, zoneId);
@@ -186,18 +188,18 @@ class ReadingTypeDeliverableForMeterActivationSet {
         Flatten visitor = new Flatten();
         this.expressionNode.accept(visitor);
         visitor
-                .getFlattened()
-                .stream()
-                .filter(each -> each instanceof CustomPropertyNode)
-                .map(CustomPropertyNode.class::cast)
-                .filter(each -> !sqlBuilder.withExists(each.sqlName()))
-                .forEach(each -> each.appendDefinitionTo(sqlBuilder));
+            .getFlattened()
+            .stream()
+            .filter(each -> each instanceof CustomPropertyNode)
+            .map(CustomPropertyNode.class::cast)
+            .filter(each -> !sqlBuilder.withExists(each.sqlName()))
+            .forEach(each -> each.appendDefinitionTo(sqlBuilder));
     }
 
     private void appendWithClause(SqlBuilder withClauseBuilder) {
         this.appendWithSelectClause(withClauseBuilder);
-        String sourceTableName = this.appendWithFromClause(withClauseBuilder);
-        this.appendWithJoinClauses(withClauseBuilder, sourceTableName);
+        DataSourceTable source = this.appendWithFromClause(withClauseBuilder);
+        this.appendWithJoinClauses(withClauseBuilder, source);
     }
 
     private void appendWithSelectClause(SqlBuilder withClauseBuilder) {
@@ -211,18 +213,18 @@ class ReadingTypeDeliverableForMeterActivationSet {
                         withClauseBuilder);
     }
 
-    private String appendWithFromClause(SqlBuilder sqlBuilderBuilder) {
+    private DataSourceTable appendWithFromClause(SqlBuilder sqlBuilderBuilder) {
         sqlBuilderBuilder.append("  FROM ");
         // Use dual as a default when expression is not backed by a requirement or deliverable that produces a timeline
-        FromClauseForExpressionNode fromClauseForExpressionNode = new FromClauseForExpressionNode("dual");
+        FromClauseForExpressionNode fromClauseForExpressionNode = new FromClauseForExpressionNode(dual());
         this.expressionNode.accept(fromClauseForExpressionNode);
-        String sourceTableName = fromClauseForExpressionNode.getTableName();
-        sqlBuilderBuilder.append(sourceTableName);
-        return sourceTableName;
+        DataSourceTable sourceTable = fromClauseForExpressionNode.getSource();
+        sqlBuilderBuilder.append(sourceTable.getName());
+        return sourceTable;
     }
 
-    private void appendWithJoinClauses(SqlBuilder sqlBuilder, String sourceTableName) {
-        JoinClausesForExpressionNode visitor = new JoinClausesForExpressionNode(sourceTableName);
+    private void appendWithJoinClauses(SqlBuilder sqlBuilder, DataSourceTable source) {
+        JoinClausesForExpressionNode visitor = new JoinClausesForExpressionNode(source);
         this.expressionNode.accept(visitor);
         Iterator<String> iterator = visitor.joinClauses().iterator();
         while (iterator.hasNext()) {

@@ -37,7 +37,7 @@ import static com.elster.jupiter.util.streams.Currying.test;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-11 (11:17)
  */
-class CalculatedReadingRecord implements BaseReadingRecord {
+class CalculatedReadingRecord implements BaseReadingRecord, Comparable<CalculatedReadingRecord> {
 
     private static final int SUSPECT = 4;
     private static final int MISSING = 3;
@@ -58,6 +58,11 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     CalculatedReadingRecord(InstantTruncaterFactory truncaterFactory) {
         super();
         this.truncaterFactory = truncaterFactory;
+    }
+
+    @Override
+    public int compareTo(CalculatedReadingRecord other) {
+        return this.getTimeStamp().compareTo(other.getTimeStamp());
     }
 
     static CalculatedReadingRecord merge(CalculatedReadingRecord r1, CalculatedReadingRecord r2, Instant mergedTimestamp, InstantTruncaterFactory truncaterFactory) {
@@ -279,11 +284,20 @@ class CalculatedReadingRecord implements BaseReadingRecord {
 
     @Override
     public Optional<Range<Instant>> getTimePeriod() {
-        MeterActivation meterActivation = this.usagePoint.getMeterActivations(this.getTimeStamp())
+        Optional<MeterActivation> meterActivation = this.usagePoint.getMeterActivations(this.getTimeStamp())
                 .stream()
-                .findFirst()
-                .get();
-        ZoneId zoneId = meterActivation.getChannelsContainer().getZoneId();
+                .findFirst();
+        if (meterActivation.isPresent()) {
+            return this.getTimePeriod(meterActivation.get().getStart(), meterActivation.get().getChannelsContainer().getZoneId());
+        } else {
+            ZoneId zoneId = ZoneId.of("UTC");
+            IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
+            Instant start = truncaterFactory.truncaterFor(this.getReadingType()).truncate(this.getTimeStamp(), intervalLength, zoneId);
+            return this.getTimePeriod(start, zoneId);
+        }
+    }
+
+    private Optional<Range<Instant>> getTimePeriod(Instant start, ZoneId zoneId) {
         IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
         InstantTruncater truncater = truncaterFactory.truncaterFor(this.getReadingType());
         Instant truncatedTimestamp = truncater.truncate(this.getTimeStamp(), intervalLength, zoneId);
@@ -308,7 +322,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             }
         } else {
             // No meter activation, clip TimePeriod to start of meter activation
-            return Optional.of(Range.openClosed(meterActivation.getStart(), endCandidate));
+            return Optional.of(Range.openClosed(start, endCandidate));
         }
     }
 

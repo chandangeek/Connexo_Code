@@ -54,6 +54,34 @@ public class IntervalLengthTimeSeriesTest {
     }
 
     @Test
+    public void closedClosedWithOffsetAtStart() {
+        Range<Instant> period = Range.closed(START.plusMillis(10), END);
+
+        // Business method
+        ZoneId zoneId = ZoneId.of("UTC");
+        List<Instant> timeSeries = IntervalLength.HOUR1.toTimeSeries(period, zoneId).collect(Collectors.toList());
+
+        // Asserts
+        assertThat(timeSeries).hasSize(24);
+        assertThat(timeSeries.get(0)).isEqualTo(IntervalLength.HOUR1.addTo(START, zoneId));
+        assertThat(timeSeries.get(23)).isEqualTo(END);
+    }
+
+    @Test
+    public void closedClosedWithOffsetAtEnd() {
+        Range<Instant> period = Range.closed(START, END.minusMillis(10));
+
+        // Business method
+        ZoneId zoneId = ZoneId.of("UTC");
+        List<Instant> timeSeries = IntervalLength.HOUR1.toTimeSeries(period, zoneId).collect(Collectors.toList());
+
+        // Asserts
+        assertThat(timeSeries).hasSize(24);
+        assertThat(timeSeries.get(0)).isEqualTo(START);
+        assertThat(timeSeries.get(23)).isEqualTo(IntervalLength.HOUR1.subtractFrom(END, zoneId));
+    }
+
+    @Test
     public void closedOpen() {
         Range<Instant> period = Range.closedOpen(START, END);
 

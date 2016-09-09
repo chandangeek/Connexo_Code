@@ -10,8 +10,11 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.util.Ranges;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeMap;
+import com.google.common.collect.TreeRangeMap;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -20,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -43,7 +47,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         this.period = period;
         this.truncaterFactory = truncaterFactory;
         this.injectUsagePoint(calculatedReadingRecords);
-        this.calculatedReadingRecords = this.generateConstantsAsTimeSeries(contract, this.mergeMeterActivations(calculatedReadingRecords));
+        this.calculatedReadingRecords = this.generateTimeSeriesIfNecessary(contract, this.mergeMeterActivations(calculatedReadingRecords));
     }
 
     private void injectUsagePoint(Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
@@ -72,7 +76,8 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
      */
     private Map<ReadingType, List<CalculatedReadingRecord>> mergeMeterActivations(Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
         Map<ReadingType, List<CalculatedReadingRecord>> merged = new HashMap<>();
-        calculatedReadingRecords.entrySet()
+        calculatedReadingRecords
+                .entrySet()
                 .forEach(readingTypeAndRecords -> this.mergeMeterActivations(readingTypeAndRecords, merged));
         return merged;
     }
@@ -107,52 +112,86 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
                 (timestamp, existingRecord) -> existingRecord == null ? record : CalculatedReadingRecord.merge(existingRecord, record, endOfInterval, this.truncaterFactory));
     }
 
-    /**
-     * Generates the single record that was produced for a deliverable
-     * whose formula only contains constants, as a timeseries that
-     * produces that constant value at every expected interval.
-     *
-     * @param contract The MetrologyContract
-     * @param calculatedReadingRecords The List of CalculatedReadingRecord
-     * @return The Map that will now contain a List of CalculatedReadingRecord instead of a single CalculatedReadingRecord
-     * for the ReadingTypes whose formula only contains constants
-     */
-    private Map<ReadingType, List<CalculatedReadingRecord>> generateConstantsAsTimeSeries(MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+    private Map<ReadingType, List<CalculatedReadingRecord>> generateTimeSeriesIfNecessary(MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
         return calculatedReadingRecords
                 .keySet()
                 .stream()
                 .collect(Collectors.toMap(
                         java.util.function.Function.identity(),
-                        readingType -> this.generateConstantsAsTimeSeries(
+                        readingType -> this.generateTimeSeriesIfNecessary(
                                 contract,
                                 readingType,
                                 calculatedReadingRecords.get(readingType))));
     }
 
-    private List<CalculatedReadingRecord> generateConstantsAsTimeSeries(MetrologyContract contract, ReadingType readingType, List<CalculatedReadingRecord> calculatedReadingRecords) {
-        if (calculatedReadingRecords.size() == 1) {
-            ExpressionNode expressionNode =
-                    contract
-                            .getDeliverables()
-                            .stream()
-                            .filter(deliverable -> deliverable.getReadingType().getMRID().equals(readingType.getMRID()))
-                            .map(ReadingTypeDeliverable::getFormula)
-                            .map(Formula::getExpressionNode)
-                            .findFirst()    // Guaranteed to find one: reading type is result from sql that was generated from the list of deliverables
-                            .get();
-            if (expressionNode.accept(new ContainsOnlyConstants())) {
+    private List<CalculatedReadingRecord> generateTimeSeriesIfNecessary(MetrologyContract contract, ReadingType readingType, List<CalculatedReadingRecord> calculatedReadingRecords) {
+        ExpressionNode expressionNode =
+                contract
+                    .getDeliverables()
+                    .stream()
+                    .filter(deliverable -> deliverable.getReadingType().getMRID().equals(readingType.getMRID()))
+                    .map(ReadingTypeDeliverable::getFormula)
+                    .map(Formula::getExpressionNode)
+                    .findFirst()    // Guaranteed to find one: reading type is result from sql that was generated from the list of deliverables
+                    .get();
+        if (this.containsOnlyConstants(expressionNode)) {
+            if (calculatedReadingRecords.size() == 1) {
                 CalculatedReadingRecord record = calculatedReadingRecords.get(0);
                 return IntervalLength
-                        .from(readingType)
-                        .toTimeSeries(this.period, this.usagePoint.getZoneId())
-                        .map(record::atTimeStamp)
-                        .collect(Collectors.toList());
+                            .from(readingType)
+                            .toTimeSeries(this.period, this.usagePoint.getZoneId())
+                            .map(record::atTimeStamp)
+                            .collect(Collectors.toList());
             } else {
                 return calculatedReadingRecords;
             }
+        } else if (this.containsOnlyCustomProperties(expressionNode)) {
+            // Assuming no gaps in custom property values
+            RangeMap<Instant, CalculatedReadingRecord> recordRangeMap = this.toRangeMap(calculatedReadingRecords);
+            return IntervalLength
+                        .from(readingType)
+                        .toTimeSeries(this.period, this.usagePoint.getZoneId())
+                        .map(timestamp -> recordAtTimeStampOrNull(recordRangeMap, timestamp))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
         } else {
             return calculatedReadingRecords;
         }
+    }
+
+    private CalculatedReadingRecord recordAtTimeStampOrNull(RangeMap<Instant, CalculatedReadingRecord> recordRangeMap, Instant timestamp) {
+        CalculatedReadingRecord record = recordRangeMap.get(timestamp);
+        if (record != null) {
+            return record.atTimeStamp(timestamp);
+        } else {
+            return null;
+        }
+    }
+
+    private boolean containsOnlyConstants(ExpressionNode expressionNode) {
+        return expressionNode.accept(new ContainsOnlyConstants());
+    }
+
+    private boolean containsOnlyCustomProperties(ExpressionNode expressionNode) {
+        return expressionNode.accept(new ContainsOnlyCustomProperties());
+    }
+
+    private RangeMap<Instant, CalculatedReadingRecord> toRangeMap(List<CalculatedReadingRecord> records) {
+        RangeMap<Instant, CalculatedReadingRecord> map = TreeRangeMap.create();
+        RangesBuilder rangesBuilder = new RangesBuilder(this.period.upperEndpoint());
+        records.stream().sorted().forEach(record -> rangesBuilder.add(record.getTimeStamp()));
+        rangesBuilder
+                .allRanges()
+                .forEach(range -> map.put(range, this.recordForRange(range, records)));
+        return map;
+    }
+
+    private CalculatedReadingRecord recordForRange(Range<Instant> range, List<CalculatedReadingRecord> records) {
+        return records
+                    .stream()
+                    .filter(record -> range.contains(record.getTimeStamp()))
+                    .findFirst()
+                    .get();
     }
 
     @Override
@@ -173,6 +212,68 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
     @Override
     public List<? extends BaseReadingRecord> getCalculatedDataFor(ReadingTypeDeliverable deliverable) {
         return this.calculatedReadingRecords.getOrDefault(deliverable.getReadingType(), Collections.emptyList());
+    }
+
+    private static class RangesBuilder {
+        private final Instant lastInterval;
+        private final RangeBuilder singleBuilder = new RangeBuilder();
+        private final List<Range<Instant>> built = new ArrayList<>();
+
+        private RangesBuilder(Instant lastInterval) {
+            this.lastInterval = lastInterval;
+        }
+
+        public void add(Instant when) {
+            if (this.lastInterval.isAfter(when)) {
+                this.singleBuilder.add(when);
+                if (this.singleBuilder.hasRange()) {
+                    this.built.add(this.singleBuilder.getRange());
+                    this.singleBuilder.reset();
+                    this.singleBuilder.add(when);
+                }
+            }
+        }
+
+        List<Range<Instant>> allRanges() {
+            this.singleBuilder.add(this.lastInterval);
+            this.built.add(Ranges.copy(this.singleBuilder.getRange()).asClosed());
+            List<Range<Instant>> ranges = new ArrayList<>(this.built);
+            this.built.clear();
+            this.singleBuilder.reset();
+            return ranges;
+        }
+    }
+
+    private static class RangeBuilder {
+        private Instant start;
+        private Instant end;
+
+        void reset() {
+            this.start = null;
+            this.end = null;
+        }
+
+        void add(Instant when) {
+            if (this.start == null) {
+                this.start = when;
+            } else if (this.end == null) {
+                this.end = when;
+            } else {
+                throw new IllegalStateException("Current range is already complete");
+            }
+        }
+
+        boolean hasRange() {
+            return this.start != null && this.end != null;
+        }
+
+        Range<Instant> getRange() {
+            if (this.start == null || this.end == null) {
+                throw new IllegalStateException("Need to add at least 2 ranges before getting the range");
+            }
+            return Range.closedOpen(this.start, this.end);
+        }
+
     }
 
 }

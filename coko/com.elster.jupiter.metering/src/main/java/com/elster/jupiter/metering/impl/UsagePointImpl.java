@@ -67,6 +67,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.streams.Currying;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.RangeInstantBuilder;
 import com.elster.jupiter.util.units.Quantity;
@@ -95,6 +96,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Currying.test;
 
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGEPOINT + "}")
 public class UsagePointImpl implements UsagePoint {
@@ -992,8 +994,8 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public List<MeterActivation> getMeterActivations(Instant when) {
-        return this.meterActivations.stream()
-                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
+        return this.meterActivations
+                .stream()
                 .filter(meterActivation -> meterActivation.isEffectiveAt(when))
                 .collect(Collectors.toList());
     }
@@ -1015,9 +1017,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public List<MeterActivation> getMeterActivations() {
-        return meterActivations.stream()
-                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
-                .collect(Collectors.toList());
+        return Collections.unmodifiableList(meterActivations);
     }
 
     @Override
@@ -1029,10 +1029,14 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public List<MeterActivation> getMeterActivations(MeterRole role) {
-        return this.meterActivations.stream()
-                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
-                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().equals(role))
+        return this.meterActivations
+                .stream()
+                .filter(test(this::roleMatches).with(role))
                 .collect(Collectors.toList());
+    }
+
+    private boolean roleMatches(IMeterActivation ma, MeterRole role) {
+        return ma.getMeterRole().isPresent() && ma.getMeterRole().get().equals(role);
     }
 
     @Override

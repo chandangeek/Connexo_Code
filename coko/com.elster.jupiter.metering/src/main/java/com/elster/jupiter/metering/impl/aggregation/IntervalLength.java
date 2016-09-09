@@ -679,7 +679,7 @@ public enum IntervalLength {
             throw new IllegalArgumentException("Cannot generate timeseries when end is not known");
         }
         Stream.Builder<Instant> builder = Stream.builder();
-        Instant current = period.lowerEndpoint();
+        Instant current = this.truncateToFirstIntervalInPeriod(period, zoneId);
         if (period.lowerBoundType().equals(BoundType.OPEN)) {
             current = this.addTo(current, zoneId);
         }
@@ -688,6 +688,20 @@ public enum IntervalLength {
             current = this.addTo(current, zoneId);
         }
         return builder.build();
+    }
+
+    private Instant truncateToFirstIntervalInPeriod(Range<Instant> period, ZoneId zoneId) {
+        Instant attempt = this.truncate(period.lowerEndpoint(), zoneId);
+        if (attempt.equals(period.lowerEndpoint())) {
+            // Period is aligned with this IntervalLength
+            return period.lowerEndpoint();
+        } else {
+            // Add this IntervalLength to the attempt until it is contained by the period
+            do {
+                attempt = this.addTo(attempt, zoneId);
+            } while (!period.contains(attempt));
+            return attempt;
+        }
     }
 
     public static IntervalLength from(PartiallySpecifiedReadingTypeRequirement readingType) {

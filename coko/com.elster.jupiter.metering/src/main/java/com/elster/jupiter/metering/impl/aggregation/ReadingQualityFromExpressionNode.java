@@ -1,11 +1,11 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.util.streams.Predicates;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link ServerExpressionNode.Visitor} interface
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class ReadingQualityFromExpressionNode implements ServerExpressionNode.Visitor<String> {
+class ReadingQualityFromExpressionNode implements ServerExpressionNode.Visitor<String> {
 
     @Override
     public String visitConstant(NumericalConstantNode constant) {
@@ -61,31 +61,20 @@ public class ReadingQualityFromExpressionNode implements ServerExpressionNode.Vi
 
     @Override
     public String visitOperation(OperationNode operationNode) {
-        return this.findAll(Arrays.asList(
-                operationNode.getLeftOperand(),
-                operationNode.getRightOperand()));
+        return this.findAll(Stream.of(operationNode.getLeftOperand(), operationNode.getRightOperand()));
     }
 
     @Override
     public String visitFunctionCall(FunctionCallNode functionCall) {
-        return this.findAll(functionCall.getArguments());
+        return this.findAll(functionCall.getArguments().stream());
     }
 
-    private String findAll(List<ServerExpressionNode> children) {
+    private String findAll(Stream<ServerExpressionNode> children) {
         return children
-                .stream()
                 .map(child -> child.accept(this))
                 .filter(Objects::nonNull)
+                .filter(Predicates.not(String::isEmpty))
                 .collect(Collectors.joining(","));
-    }
-
-    private String findFirst(List<ServerExpressionNode> children) {
-        return children
-                .stream()
-                .map(child -> child.accept(this))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
     }
 
     @Override

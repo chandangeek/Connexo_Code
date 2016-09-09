@@ -6,11 +6,13 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -18,7 +20,9 @@ import com.elster.jupiter.metering.impl.GasDayOptions;
 import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ConstantNodeImpl;
+import com.elster.jupiter.metering.impl.config.CustomPropertyNodeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNodeImpl;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.DayMonthTime;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -82,6 +86,10 @@ public class CalculatedMetrologyContractDataImplTest {
     private ReadingTypeDeliverable deliverable;
     @Mock
     private ServerMeteringService meteringService;
+    @Mock
+    private PropertySpec propertySpec;
+    @Mock
+    private RegisteredCustomPropertySet customPropertySet;
     private InstantTruncaterFactory truncaterFactory;
 
     @Mock
@@ -99,6 +107,7 @@ public class CalculatedMetrologyContractDataImplTest {
         when(this.monthlyNetConsumption.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(this.monthlyNetConsumption.getMRID()).thenReturn(MONTHLY_NET_CONSUMPTION_MRID);
         when(this.monthlyNetConsumption.toQuantity(BigDecimal.ZERO)).thenReturn(Quantity.create(BigDecimal.ZERO, "Wh"));
+        when(this.monthlyNetConsumption.toQuantity(BigDecimal.ONE)).thenReturn(Quantity.create(BigDecimal.ONE, "Wh"));
         when(this.monthlyNetConsumption.toQuantity(BigDecimal.TEN)).thenReturn(Quantity.create(BigDecimal.TEN, "Wh"));
         when(this.dailyGasVolume.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
         when(this.dailyGasVolume.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
@@ -295,6 +304,47 @@ public class CalculatedMetrologyContractDataImplTest {
     }
 
     @Test
+    public void customPropertiesOnly() throws SQLException {
+        Instant march1st2016 = instant(2016, Month.MARCH, 1);
+        Instant april1st2016 = instant(2016, Month.APRIL, 1);
+        Instant may1st2016 = instant(2016, Month.MAY, 1);
+        Instant june1st2016 = instant(2016, Month.JUNE, 1);
+        Instant july1st2016 = instant(2016, Month.JULY, 1);
+        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, BigDecimal.ONE, march1st2016);    // For CPS, timestamp is start of the effectivity of the property value
+        r1.setUsagePoint(this.usagePoint);
+        r1.setReadingType(this.monthlyNetConsumption);
+        CalculatedReadingRecord r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, BigDecimal.TEN, june1st2016);    // For CPS, timestamp is start of the effectivity of the property value
+        r2.setUsagePoint(this.usagePoint);
+        r2.setReadingType(this.monthlyNetConsumption);
+        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
+        recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
+        Formula formula = mock(Formula.class);
+        ExpressionNode node = new CustomPropertyNodeImpl(this.propertySpec, this.customPropertySet);
+        when(formula.getExpressionNode()).thenReturn(node);
+        when(this.deliverable.getFormula()).thenReturn(formula);
+        Range<Instant> period = Range.openClosed(march1st2016, july1st2016);
+
+        // Business method
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, period, recordsByReadingType, this.truncaterFactory);
+
+        // Asserts
+        List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
+        assertThat(readingRecords).hasSize(4);
+        BaseReadingRecord marchRecord = readingRecords.get(0);
+        assertThat(marchRecord.getTimeStamp()).isEqualTo(april1st2016);
+        assertThat(marchRecord.getQuantity(0)).isEqualTo(Quantity.create(BigDecimal.ONE, "Wh"));
+        BaseReadingRecord aprilRecord = readingRecords.get(1);
+        assertThat(aprilRecord.getTimeStamp()).isEqualTo(may1st2016);
+        assertThat(aprilRecord.getQuantity(0)).isEqualTo(Quantity.create(BigDecimal.ONE, "Wh"));
+        BaseReadingRecord mayRecord = readingRecords.get(2);
+        assertThat(mayRecord.getTimeStamp()).isEqualTo(june1st2016);
+        assertThat(mayRecord.getQuantity(0)).isEqualTo(Quantity.create(BigDecimal.TEN, "Wh"));
+        BaseReadingRecord juneRecord = readingRecords.get(3);
+        assertThat(juneRecord.getTimeStamp()).isEqualTo(july1st2016);
+        assertThat(juneRecord.getQuantity(0)).isEqualTo(Quantity.create(BigDecimal.TEN, "Wh"));
+    }
+
+    @Test
     public void incompleteGasDay() throws SQLException {
         GasDayOptions gasDayOptions = mock(GasDayOptions.class);
         when(gasDayOptions.getYearStart()).thenReturn(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(5, 0)));
@@ -353,7 +403,7 @@ public class CalculatedMetrologyContractDataImplTest {
         when(resultSet.getLong(4)).thenReturn(now.toEpochMilli());
         when(resultSet.getLong(5)).thenReturn(0L);
         when(resultSet.getLong(6)).thenReturn(30L);
-        return new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService)).init(resultSet, deliverablesPerMeterActivation);
+        return new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService)).init(resultSet, this.deliverablesPerMeterActivation);
     }
 
     private Instant instant(int year, Month month, int dayOfMonth) {

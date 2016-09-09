@@ -5,20 +5,24 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
+import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Unit;
+
+import javax.validation.ConstraintViolationException;
+import java.math.BigDecimal;
+import java.time.Instant;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-
+import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UsagePointDetailsPersistentTestIT {
@@ -177,5 +181,40 @@ public class UsagePointDetailsPersistentTestIT {
         assertThat(waterDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
         assertThat(waterDetail.getPhysicalCapacity().equals(Unit.WATT_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
         assertThat(waterDetail.getPressure().equals(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)))).isTrue();
+    }
+
+    @Transactional
+    @Test
+    public void testSaveWithDuplicateDetails() {
+
+        Instant now = inMemoryPersistentModule.getClock().instant();
+        UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.HEAT)
+                .get().newUsagePoint("test", now.minusSeconds(1000)).create();
+
+        HeatDetailBuilder heatDetailBuilder = up.newHeatDetailBuilder(now)
+                .withCollar(YesNoAnswer.YES)
+                .withValve(YesNoAnswer.YES)
+                .withBypass(YesNoAnswer.YES)
+                .withBypassStatus(BypassStatus.OPEN)
+                .withPhysicalCapacity(Unit.WATT_HOUR.amount(BigDecimal.valueOf(123.45)))
+                .withPressure(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)));
+        heatDetailBuilder.validate();
+        heatDetailBuilder.create();
+
+        up.update();
+
+        HeatDetailBuilder heatDetailBuilder1 = up.newHeatDetailBuilder(now)
+                .withCollar(YesNoAnswer.YES)
+                .withValve(YesNoAnswer.YES)
+                .withBypass(YesNoAnswer.YES)
+                .withBypassStatus(BypassStatus.OPEN)
+                .withPhysicalCapacity(Unit.WATT_HOUR.amount(BigDecimal.valueOf(123.45)))
+                .withPressure(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)));
+        try {
+            heatDetailBuilder1.validate();
+            fail("Expected ConstraintViolationException");
+        } catch (ConstraintViolationException e) {
+            assertThat(e.getMessage()).contains("usage.point.details.not.unique.for.interval");
+        }
     }
 }
