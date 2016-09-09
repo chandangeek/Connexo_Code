@@ -36,7 +36,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                         width: 75
                     },
                     dateTimeSeparatorConfig: {
-                        html: '<span style="color: #686868;">' + Uni.I18n.translate('general.lovercase.at', 'IMT', 'at') + '</span>'
+                        html: '<span style="color: #686868;">' + Uni.I18n.translate('general.lowercase.at', 'IMT', 'at') + '</span>'
                     }
                 }
             },
