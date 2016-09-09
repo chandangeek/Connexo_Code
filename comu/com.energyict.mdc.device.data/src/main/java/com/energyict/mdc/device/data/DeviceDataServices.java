@@ -9,6 +9,6 @@ package com.energyict.mdc.device.data;
  */
 public interface DeviceDataServices {
 
-    public static String COMPONENT_NAME = "DDC";
+    String COMPONENT_NAME = "DDC";
 
 }
