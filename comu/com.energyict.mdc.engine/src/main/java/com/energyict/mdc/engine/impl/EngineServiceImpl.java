@@ -73,6 +73,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
@@ -395,8 +396,8 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     public void activate(BundleContext bundleContext) {
         this.dataModel.register(this.getModule());
         this.setHostNameIfOverruled(bundleContext);
-        this.updatePortNumber(bundleContext);
         upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        this.updatePortNumber(bundleContext);
 
         this.tryStartComServer();
     }
@@ -408,9 +409,7 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     }
 
     private void updatePortNumber(BundleContext context) {
-        String portNumber = Optional
-                .ofNullable(context.getProperty(PORT_PROPERTY_NUMBER))
-                .orElse("80");
+        String portNumber = Optional.ofNullable(context.getProperty(PORT_PROPERTY_NUMBER)).orElse("80");
         transactionService.execute(() -> {
             updatePortNumberForComServer(portNumber);
             return null;
@@ -418,6 +417,7 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     }
 
     private void updatePortNumberForComServer(String portNumber) {
+        userService.findUser(EngineServiceImpl.COMSERVER_USER).ifPresent(user -> threadPrincipalService.set(user, "EngineService", "SetStatusPort", user.getLocale().orElse(Locale.ENGLISH)));
         engineConfigurationService.findAllOnlineComServers()
                 .stream()
                 .filter(onlineComServer -> onlineComServer.getServerName().equals(HostName.getCurrent()))
