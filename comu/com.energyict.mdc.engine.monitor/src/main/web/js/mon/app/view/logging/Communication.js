@@ -75,7 +75,7 @@ Ext.define('CSMonitor.view.logging.Communication', {
                             style: {
                                 color: '#000000'
                             },
-                            html: '<sup>*</sup> Define at least one criterion beneath)'
+                            html: '(<sup>*</sup> Define at least one criterion beneath)'
                         },
                         {
                             xtype: 'component',
