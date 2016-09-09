@@ -16,7 +16,7 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && propertySpec.getValueFactory().getValueType().equals(HasIdAndName.class);
+        return propertySpec != null && HasIdAndName.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
     }
 
     @Override
@@ -33,6 +33,8 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
                 listValue.add((HasIdAndName) propertySpec.getValueFactory().fromStringValue((String) listItem));
             }
             return listValue;
+        } else if (infoValue != null) {
+            return propertySpec.getValueFactory().fromStringValue(infoValue.toString());
         }
         return null;
     }

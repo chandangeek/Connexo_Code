@@ -1,5 +1,6 @@
 package com.elster.jupiter.properties.rest.impl;
 
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.rest.PredefinedPropertyValuesInfo;
@@ -14,6 +15,7 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -139,6 +141,9 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
             for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
                 if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
+                } else if (propertyType == SimplePropertyType.IDWITHNAME) {
+                    HasIdAndName idWithName = (HasIdAndName) possibleValues.getAllValues().get(i);
+                    possibleObjects[i] = asInfo(idWithName.getId(), idWithName.getName());
                 } else {
                     possibleObjects[i] = converter.convertValueToInfo(propertySpec, possibleValues.getAllValues().get(i));
                 }
@@ -151,5 +156,12 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
     private boolean hasValue(PropertyInfo propertyInfo) {
         PropertyValueInfo<?> propertyValueInfo = propertyInfo.getPropertyValueInfo();
         return propertyValueInfo != null && propertyValueInfo.getValue() != null && !"".equals(propertyValueInfo.getValue());
+    }
+
+    private Object asInfo(Object id, String name) {
+        Map<String, Object> info = new LinkedHashMap<>();
+        info.put("id", id);
+        info.put("name", name);
+        return info;
     }
 }
