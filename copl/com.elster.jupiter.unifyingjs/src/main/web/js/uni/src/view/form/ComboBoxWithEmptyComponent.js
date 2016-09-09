@@ -22,7 +22,7 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
         displayField: null,
         valueField: null,
         allowBlank: false,
-        emptyText: Uni.I18n.translate('general.selectAnObject', 'UNI', 'Select an object...'),
+        emptyText: Uni.I18n.translate('general.selectAnObject', 'UNI', 'Select an object...')
     },
 
     initComponent: function () {

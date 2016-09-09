@@ -7,6 +7,6 @@ Ext.define('Uni.model.timeofuse.Range', {
         {name: 'event', type: 'number'},
         {name: 'fromHour', type: 'number'},
         {name: 'fromMinute', type: 'number'},
-        {name: 'fromSecond', type: 'number'},
+        {name: 'fromSecond', type: 'number'}
     ]
 });
