@@ -22,6 +22,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 
@@ -57,7 +58,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
     private volatile IssueService issueService;
-    private volatile UserService userService;
+    private volatile Optional<User> batchUser;
 
     private volatile KnowledgeBase knowledgeBase;
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
@@ -81,7 +82,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.queryService = queryService;
-        this.userService = userService;
+        this.batchUser = userService.findUser("batch executor");
         this.knowledgeBaseFactoryService = knowledgeBaseFactoryService;
         this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
         this.resourceFactoryService = resourceFactoryService;
@@ -183,7 +184,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setRule(firedRule);
         event.getEndDevice().ifPresent(baseIssue::setDevice);
         baseIssue.save();
-        baseIssue.addComment(firedRule.getComment(), userService.findUser("batch executor").orElse(null));
+        baseIssue.addComment(firedRule.getComment(), batchUser.orElse(null));
         OpenIssue newIssue = template.createIssue(baseIssue, event);
         newIssue.autoAssign();
         executeCreationActions(newIssue);
