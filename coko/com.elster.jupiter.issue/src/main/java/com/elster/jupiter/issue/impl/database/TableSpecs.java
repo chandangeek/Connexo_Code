@@ -27,7 +27,6 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -74,7 +73,6 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_COMMENT;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_FK_TO_USER;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_ISSUE_ID;
-import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_JOURNAL_TABLE_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_USER_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_DEVICE;
@@ -104,13 +102,11 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_CO
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_COLUMN_PREFIX;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_COLUMN_TRANSLATION;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_PK_NAME;
-import static com.elster.jupiter.issue.impl.database.DatabaseConst.METERING_DEVICE_TABLE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_DEVICE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_RULE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_STATUS;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_USER;
-import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_JOURNAL_TABLE_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_FK_TO_ACTION_TYPE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_FK_TO_RULE;
@@ -217,6 +213,7 @@ public enum TableSpecs {
             Table<CreationRule> table = dataModel.addTable(name(), CreationRule.class);
             table.map(CreationRuleImpl.class);
             table.setJournalTableName(CREATION_RULE_JOURNAL_TABLE_NAME);
+            table.cache();
 
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column(CREATION_RULE_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
