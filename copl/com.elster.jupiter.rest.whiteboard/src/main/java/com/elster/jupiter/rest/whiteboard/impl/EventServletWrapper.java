@@ -4,6 +4,7 @@ import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.transaction.SqlEvent;
 import com.elster.jupiter.transaction.TransactionEvent;
+import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.time.StopWatch;
 import com.google.common.collect.ImmutableMap;
 import org.osgi.service.event.Event;
@@ -38,12 +39,12 @@ public class EventServletWrapper extends HttpServlet {
 
     protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         Tracker tracker = new Tracker(new URL(request.getRequestURL().toString()));
-        whiteBoard.getPublisher().addThreadSubscriber(tracker);
-        try {
+		Registration threadSubscriber = whiteBoard.getPublisher().addThreadSubscriber(tracker);
+		try {
         	servlet.service(request,response);        	
         } finally {
         	tracker.stop();
-        	whiteBoard.getPublisher().removeThreadSubscriber(tracker);
+        	threadSubscriber.unregister();
         }       
         whiteBoard.fire(tracker);        
     }
