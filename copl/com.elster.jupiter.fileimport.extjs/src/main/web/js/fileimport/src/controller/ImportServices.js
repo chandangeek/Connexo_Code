@@ -431,7 +431,8 @@ Ext.define('Fim.controller.ImportServices', {
             addImportServiceView, addImportServiceForm, returnLink;
 
         addImportServiceView = Ext.create('Fim.view.importservices.AddImportService', {
-            edit: false
+            edit: false,
+            returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/importservices').buildUrl()
         });
 
         var fileImporterCombo = addImportServiceView.down('#cbo-file-importer');
