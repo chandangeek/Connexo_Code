@@ -34,10 +34,22 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>unifyingjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>yellowfin.extjs</artifactId>
+        </dependency>
         <!-- Adding the extjs dependency so maven can build in the proper order -->
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.bpm.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>comserver.core.extjs</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
