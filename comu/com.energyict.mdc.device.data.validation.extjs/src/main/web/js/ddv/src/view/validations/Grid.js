@@ -16,7 +16,7 @@ Ext.define('Ddv.view.validations.Grid', {
                 dataIndex: 'mrid',
                 flex: 1,
                 renderer: function (value, metaData, record) {
-                    var href = me.router.getRoute('devices/device').buildUrl({mRID: value});
+                    var href = me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(value)});
                     return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                 }
             },
