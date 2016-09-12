@@ -46,6 +46,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -98,13 +99,9 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
     MeterActivationInfoFactory meterActivationInfoFactory;
     @Mock
     PropertySpecService propertySpecService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
-
-
-
-
-    //    @Mock
-//    JsonService jsonService;
     @Override
     protected Application getApplication() {
         PublicRestApplication application = new PublicRestApplication();
@@ -117,6 +114,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         application.setMessageService(messageService);
         application.setServiceCallService(serviceCallService);
         application.setPropertySpecService(propertySpecService);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 
