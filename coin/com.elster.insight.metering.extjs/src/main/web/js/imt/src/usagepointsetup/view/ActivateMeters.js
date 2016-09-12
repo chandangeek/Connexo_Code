@@ -105,13 +105,13 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                             xtype: 'button',
                             itemId: 'save-btn',
                             ui: 'action',
-                            text: 'Save',
+                            text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
                             usagePoint: this.usagePoint
                         }, {
                             xtype: 'button',
                             ui: 'link',
                             href: me.returnLink,
-                            text: 'Cancel'
+                            text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel')
                         }]
                     }
                 }
