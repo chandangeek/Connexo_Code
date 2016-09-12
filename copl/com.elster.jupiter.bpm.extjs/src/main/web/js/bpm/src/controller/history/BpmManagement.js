@@ -57,8 +57,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                     }
                 }
             }
-        },
-
+        }
     },
 
     tokenizePreviousTokens: function () {

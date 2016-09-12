@@ -67,7 +67,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                                 }
 
                             ]
-                        },
+                        }
                     ]
                 },
                 {
@@ -131,7 +131,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                                     }
                                 }
                             ]
-                        },
+                        }
                     ]
                 },
                 {
@@ -213,7 +213,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                     margin: '0 0 0 40',
                     html: Uni.I18n.translate('task.bulk.MgmtControlsSelectionError', 'BPM', 'You must enable a field before you can proceed'),
                     hidden: true
-                },
+                }
 
             ]
         }

@@ -19,7 +19,7 @@ Ext.define('Bpm.store.task.TaskGroups', {
         startParam: false,
         limitParam: false
 
-    },
+    }
 
 });
 

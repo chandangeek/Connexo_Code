@@ -21,16 +21,14 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         var me = this;
         me.control({
             'bpm-issue-processes-main-view': {
-                initStores: this.initStores,
-                //initComponents: this.initComponents,
+                initStores: this.initStores
             },
             '#issue-processes #issue-processes-grid': {
                 select: this.showProcessPreview
             },
             '#issue-process-preview #process-nodes-grid': {
                 select: this.showVariablesPreview
-            },
-
+            }
         });
     },
 
@@ -171,7 +169,7 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         previewPanel.removeAll();
         previewPanel.items = panelItems;
         previewPanel.doLayout();
-    },
+    }
 
 
 });

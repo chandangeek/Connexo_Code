@@ -34,7 +34,7 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                     inputValue: 'taskexecute'
                 }
 
-            ],
+            ]
 
         }
 

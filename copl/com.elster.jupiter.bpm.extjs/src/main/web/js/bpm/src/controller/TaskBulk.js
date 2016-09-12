@@ -19,7 +19,7 @@ Ext.define('Bpm.controller.TaskBulk', {
         {
             ref: 'taskExecutionContent',
             selector: 'tasks-bulk-browse task-complete-form'
-        },
+        }
     ],
 
     stores: [
@@ -124,7 +124,7 @@ Ext.define('Bpm.controller.TaskBulk', {
                     Ext.resumeLayouts(true);
                     return;
                 }
-            },
+            }
         });
     },
 
@@ -170,7 +170,7 @@ Ext.define('Bpm.controller.TaskBulk', {
                     }
                     me.getWizard().setLoading(false);
                 }
-            },
+            }
         });
     },
 

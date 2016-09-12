@@ -41,7 +41,7 @@ Ext.define('Bpm.processes.model.EditProcess', {
         {
             name: 'versionDB',
             type: 'string'
-        },
+        }
     ],
     associations: [
         {

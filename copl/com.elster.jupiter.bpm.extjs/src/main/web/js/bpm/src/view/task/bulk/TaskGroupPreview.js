@@ -4,8 +4,7 @@ Ext.define('Bpm.view.task.bulk.TaskGroupPreview', {
     alias: 'widget.bpm-task-group-preview',
     tools: [
         {
-            xtype: 'button',
-
+            xtype: 'button'
         }
     ],
     items: [

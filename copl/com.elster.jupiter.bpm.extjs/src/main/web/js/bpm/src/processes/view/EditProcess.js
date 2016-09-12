@@ -6,7 +6,7 @@ Ext.define('Bpm.processes.view.EditProcess', {
         'Uni.property.form.Property',
         'Bpm.processes.view.PrivilegesGrid',
         'Uni.property.form.GroupedPropertyForm',
-        'Uni.property.view.property.SelectionGrid',
+        'Uni.property.view.property.SelectionGrid'
     ],
 
     editProcessRecord: null,
