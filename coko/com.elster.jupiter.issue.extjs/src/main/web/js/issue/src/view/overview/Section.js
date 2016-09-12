@@ -29,9 +29,11 @@ Ext.define('Isu.view.overview.Section', {
 
             Ext.suspendLayouts();
             me.removeAll(true);
-            me.down('button').setVisible(store.getCount() > me.itemsInCollapsedMode);
-            if (me.down('button').isVisible()) {
-                me.down('button').setText(Uni.I18n.translate('overview.issues.showMore', 'ISU', 'Show more'));
+            if (me.down('button')) {
+                me.down('button').setVisible(store.getCount() > me.itemsInCollapsedMode);
+                if (me.down('button').isVisible()) {
+                    me.down('button').setText(Uni.I18n.translate('overview.issues.showMore', 'ISU', 'Show more'));
+                }
             }
             if (section == 'assignee') {
                 var unassigned = store.findRecord('id', -1);
@@ -48,8 +50,10 @@ Ext.define('Isu.view.overview.Section', {
                 }
                 queryString.groupingType = 'none';
                 queryString.sort = ['dueDate', 'modTime'];
-                var href = me.up('overview-of-issues').router.getRoute('workspace/issues').buildUrl(null, queryString);
-                record.set('href', href);
+                if (me.up('overview-of-issues')) {
+                    var href = me.up('overview-of-issues').router.getRoute('workspace/issues').buildUrl(null, queryString);
+                    record.set('href', href);
+                }
             });
             var dataview = Ext.create('Ext.view.View', {
                 style: {padding: '10px'},
