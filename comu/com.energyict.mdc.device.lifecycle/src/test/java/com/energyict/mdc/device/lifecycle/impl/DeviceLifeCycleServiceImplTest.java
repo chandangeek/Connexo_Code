@@ -17,7 +17,7 @@ import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -178,7 +178,7 @@ public class DeviceLifeCycleServiceImplTest {
             when(this.microActionFactory.from(microAction)).thenReturn(serverMicroAction);
         }
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
-        when(userPreferencesService.getPreferenceByKey(any(User.class), any(FormatKey.class))).thenReturn(Optional.empty());
+        when(userPreferencesService.getPreferenceByKey(any(User.class), any(PreferenceType.class))).thenReturn(Optional.empty());
     }
 
     @Test
