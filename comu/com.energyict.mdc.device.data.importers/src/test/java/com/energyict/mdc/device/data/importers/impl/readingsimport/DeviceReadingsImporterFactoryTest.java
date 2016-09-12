@@ -19,7 +19,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -152,8 +152,8 @@ public class DeviceReadingsImporterFactoryTest {
     @Test
     public void testGetProperties() {
         User user = mockUser("admin");
-        mockUserPreference(user, FormatKey.DECIMAL_SEPARATOR, ",");
-        mockUserPreference(user, FormatKey.THOUSANDS_SEPARATOR, ".");
+        mockUserPreference(user, PreferenceType.DECIMAL_SEPARATOR, ",");
+        mockUserPreference(user, PreferenceType.THOUSANDS_SEPARATOR, ".");
 
         DeviceReadingsImporterFactory factory = new DeviceReadingsImporterFactory(context);
         List<PropertySpec> propertySpecs = factory.getPropertySpecs();
@@ -184,8 +184,8 @@ public class DeviceReadingsImporterFactoryTest {
     @Test
     public void testGetDefaultNumberFormatProperties() {
         User user = mockUser("admin");
-        mockUserPreference(user, FormatKey.DECIMAL_SEPARATOR, ",");
-        when(userPreferencesService.getPreferenceByKey(user, FormatKey.THOUSANDS_SEPARATOR)).thenReturn(Optional.empty());
+        mockUserPreference(user, PreferenceType.DECIMAL_SEPARATOR, ",");
+        when(userPreferencesService.getPreferenceByKey(user, PreferenceType.THOUSANDS_SEPARATOR)).thenReturn(Optional.empty());
 
         DeviceReadingsImporterFactory factory = new DeviceReadingsImporterFactory(context);
         List<PropertySpec> propertySpecs = factory.getPropertySpecs();
@@ -204,10 +204,10 @@ public class DeviceReadingsImporterFactoryTest {
         return user;
     }
 
-    private void mockUserPreference(User user, FormatKey formatKey, String value) {
+    private void mockUserPreference(User user, PreferenceType preferenceType, String value) {
         UserPreference userPreference = mock(UserPreference.class);
-        when(userPreference.getFormatFE()).thenReturn(value);
-        when(userPreferencesService.getPreferenceByKey(user, formatKey)).thenReturn(Optional.of(userPreference));
+        when(userPreference.getDisplayFormat()).thenReturn(value);
+        when(userPreferencesService.getPreferenceByKey(user, preferenceType)).thenReturn(Optional.of(userPreference));
     }
 
     @Test
