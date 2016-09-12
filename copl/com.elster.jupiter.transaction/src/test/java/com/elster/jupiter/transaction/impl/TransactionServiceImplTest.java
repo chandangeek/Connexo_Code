@@ -7,13 +7,7 @@ import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.NestedTransactionException;
 import com.elster.jupiter.transaction.NotInTransactionException;
 import com.elster.jupiter.transaction.VoidTransaction;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.elster.jupiter.util.Registration;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -22,9 +16,22 @@ import java.io.Writer;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionServiceImplTest {
@@ -45,11 +52,14 @@ public class TransactionServiceImplTest {
     private SQLException sqlException;
     @Mock
     private Publisher publisher;
+    @Mock
+    private Registration registration;
 
     @Before
     public void setUp() throws SQLException {
         when(bootStrapService.createDataSource()).thenReturn(dataSource);
         when(dataSource.getConnection()).thenReturn(connection);
+        doReturn(registration).when(publisher).addThreadSubscriber(any());
 
         transactionService = new TransactionServiceImpl();
 

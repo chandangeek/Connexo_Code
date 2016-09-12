@@ -1,5 +1,10 @@
 package com.elster.jupiter.transaction.impl;
 
+import com.elster.jupiter.util.Registration;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,10 +12,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionContextImplTest {
@@ -21,10 +26,13 @@ public class TransactionContextImplTest {
     private TransactionServiceImpl transactionService;
     @Mock
     private Connection connection;
+    @Mock
+    private Registration registration;
 
     @Before
     public void setUp() throws SQLException {
         doReturn(connection).when(transactionService).newConnection(false);
+        doReturn(registration).when(transactionService).addThreadSubscriber(any());
         transactionContext = new TransactionState(transactionService);
     }
 
