@@ -16,7 +16,10 @@ import com.elster.jupiter.orm.schema.ExistingConstraint;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionEvent;
+import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -25,6 +28,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -59,6 +63,7 @@ public final class OrmServiceImpl implements OrmService {
     private volatile ValidationProviderResolver validationProviderResolver;
     private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<>());
     private volatile SchemaInfoProvider schemaInfoProvider;
+    private Registration clearCacheOnRollBackRegistration;
 
     // For OSGi purposes
     public OrmServiceImpl() {
@@ -181,6 +186,12 @@ public final class OrmServiceImpl implements OrmService {
     public void activate() {
         createDataModel(false);
         createExistingTableDataModel();
+        clearCacheOnRollBackRegistration = publisher.addSubscriber(new ClearCachesOnTransactionRollBack());
+    }
+
+    @Deactivate
+    public void deactivate() {
+        clearCacheOnRollBackRegistration.unregister();
     }
 
     private void createExistingTableDataModel() {
@@ -378,5 +389,24 @@ public final class OrmServiceImpl implements OrmService {
         DataModelImpl fullModel = new DataModelImpl(this);
         dataModels.values().forEach(fullModel::addAllTables);
         return fullModel;
+    }
+
+    private class ClearCachesOnTransactionRollBack implements Subscriber {
+        @Override
+        public void handle(Object notification, Object... notificationDetails) {
+            if (((TransactionEvent) notification).hasFailed()) {
+                getDataModels()
+                        .stream()
+                        .map(DataModel::getTables)
+                        .flatMap(List::stream)
+                        .map(TableImpl.class::cast)
+                        .forEach(TableImpl::renewCache);
+            }
+        }
+
+        @Override
+        public Class<?>[] getClasses() {
+            return new Class<?>[]{TransactionEvent.class};
+        }
     }
 }
