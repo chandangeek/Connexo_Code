@@ -75,13 +75,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 columnWidth: 0.5,
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
                                                 required: true,
-                                                layout: {
-                                                    type: 'hbox'
-                                                },
+                                                layout: 'fit',
                                                 items: [
                                                     {
                                                         xtype: 'radiogroup',
                                                         itemId: 'directlyAddressableCombo',
+                                                        name: "isDirectlyAddressable",
+                                                        msgTarget: 'under',
+                                                        combineErrors: true,
                                                         columns: 1,
                                                         vertical: true,
                                                         items: [
@@ -98,6 +99,10 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                                 boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
                                                                 inputValue: false,
                                                                 checked: false
+                                                            },
+                                                            {
+                                                                xtype: 'container',
+                                                                itemId: 'isDirectlyAddressableError'
                                                             }
                                                         ]
                                                     }
@@ -124,15 +129,16 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 columnWidth: 0.5,
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.deviceIsGateway', 'MDC', 'Device is a gateway'),
                                                 required: true,
-                                                layout: {
-                                                    type: 'hbox'
-                                                },
+                                                layout: 'fit',
                                                 hidden: false,
                                                 items: [
                                                     {
                                                         xtype: 'radiogroup',
                                                         itemId: 'deviceIsGatewayCombo',
                                                         columns: 1,
+                                                        name: "canBeGateway",
+                                                        msgTarget: 'under',
+                                                        combineErrors: true,
                                                         vertical: true,
                                                         items: [
                                                             {
@@ -175,14 +181,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 itemId: 'typeOfGatewayComboContainer',
                                                 padding: '0 0 0 0',
                                                 required: true,
-                                                layout: {
-                                                    type: 'hbox'
-                                                },
+                                                layout: 'fit',
                                                 hidden: true,
                                                 items: [
                                                     {
                                                         xtype: 'radiogroup',
                                                         itemId: 'typeOfGatewayCombo',
+                                                        name: "gatewayType",
+                                                        msgTarget: 'under',
+                                                        combineErrors: true,
                                                         columns: 1,
                                                         vertical: true,
                                                         items: [
@@ -214,13 +221,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 columnWidth: 0.5,
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.dataLoggerFunctionality', 'MDC', 'Data logger functionality'),
                                                 required: true,
-                                                layout: {
-                                                    type: 'hbox'
-                                                },
+                                                layout: 'fit',
                                                 items: [
                                                     {
                                                         xtype: 'radiogroup',
                                                         itemId: 'dataLoggerRadioGroup',
+                                                        name: "dataloggerEnabled",
+                                                        msgTarget: 'under',
+                                                        combineErrors: true,
                                                         columns: 1,
                                                         vertical: true,
                                                         items: [

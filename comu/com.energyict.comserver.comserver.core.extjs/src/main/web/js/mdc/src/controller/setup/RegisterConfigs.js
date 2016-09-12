@@ -328,6 +328,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         Ext.suspendLayouts();
                         errorMsgPnl.show();
                         baseForm.markInvalid(json.errors);
+                        var calculatedReadingTypeError = Ext.Array.findBy(json.errors, function (item) { return item.id == 'calculatedReadingType';});
+                        if (calculatedReadingTypeError && form.down('[name=calculatedReadingType]').isHidden()) {
+                            form.down('#mdc-calculated-readingType-combo').markInvalid(calculatedReadingTypeError.msg);
+                        }
                         Ext.resumeLayouts(true);
                     }
                 },
@@ -488,6 +492,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         var json = Ext.decode(operation.response.responseText);
                         if (json && json.errors) {
                             baseForm.markInvalid(json.errors);
+                            var calculatedReadingTypeError = Ext.Array.findBy(json.errors, function (item) { return item.id == 'calculatedReadingType';});
+                            if (calculatedReadingTypeError && form.down('[name=calculatedReadingType]').isHidden()) {
+                                form.down('#mdc-calculated-readingType-combo').markInvalid(calculatedReadingTypeError.msg);
+                            }
                         }
                         Ext.resumeLayouts(true);
                     },
