@@ -1,10 +1,9 @@
 package com.elster.jupiter.validation.rest;
 
-import java.util.List;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import java.util.List;
 
 @XmlRootElement
 public class ValidatorInfo {

@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -22,7 +23,6 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationActionInfos;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -71,7 +71,7 @@ public class ValidationResource {
     private final ValidationService validationService;
     private final TransactionService transactionService;
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
-    private final PropertyUtils propertyUtils;
+    private final PropertyValueInfoService propertyValueInfoService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final Thesaurus thesaurus;
 
@@ -80,14 +80,14 @@ public class ValidationResource {
                               ValidationService validationService,
                               TransactionService transactionService,
                               ValidationRuleInfoFactory validationRuleInfoFactory,
-                              PropertyUtils propertyUtils,
+                              PropertyValueInfoService propertyValueInfoService,
                               ConcurrentModificationExceptionFactory conflictFactory,
                               Thesaurus thesaurus) {
         this.queryService = queryService;
         this.validationService = validationService;
         this.transactionService = transactionService;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
-        this.propertyUtils = propertyUtils;
+        this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
         this.thesaurus = thesaurus;
     }
@@ -338,7 +338,7 @@ public class ValidationResource {
                         validationService.getValidator(info.implementation)
                                 .getPropertySpecs()
                                 .stream()
-                                .map(spec -> Pair.of(spec.getName(), propertyUtils.findPropertyValue(spec, info.properties)))
+                                .map(spec -> Pair.of(spec.getName(), propertyValueInfoService.findPropertyValue(spec, info.properties)))
                                 .filter(pair -> pair.getLast() != null)
                                 .forEach(pair -> ruleBuilder.havingProperty(pair.getFirst()).withValue(pair.getLast()));
                     } catch (ValidatorNotFoundException ex) {
@@ -367,7 +367,7 @@ public class ValidationResource {
             List<String> mRIDs = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList());
             Map<String, Object> propertyMap = new HashMap<>();
             for (PropertySpec propertySpec : rule.getPropertySpecs()) {
-                Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                Object value = propertyValueInfoService.findPropertyValue(propertySpec, info.properties);
                 if (value != null) {
                     propertyMap.put(propertySpec.getName(), value);
                 }
@@ -470,7 +470,7 @@ public class ValidationResource {
                 .map(validator -> new ValidatorInfo(
                         validator.getClass().getName(),
                         validator.getDisplayName(),
-                        propertyUtils.convertPropertySpecsToPropertyInfos(validator.getPropertySpecs())))
+                        propertyValueInfoService.getPropertyInfos(validator.getPropertySpecs())))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("validators", data, parameters);
     }

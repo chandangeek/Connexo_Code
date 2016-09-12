@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
@@ -49,9 +50,10 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
     protected DataValidationTask dataValidationTask;
     @Mock
     protected KpiService kpiService;
+    @Mock
+    protected PropertyValueInfoService propertyValueInfoService;
 
     protected DataValidationTaskBuilder builder = initBuilderStub();
-    protected PropertyUtils propertyUtils;
 
     private DataValidationTaskBuilder initBuilderStub() {
         final Object proxyInstance = Proxy.newProxyInstance(DataValidationTaskBuilder.class.getClassLoader(), new Class<?>[]{DataValidationTaskBuilder.class}, new InvocationHandler() {
@@ -74,7 +76,6 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
     @Override
     public void setupMocks() {
         super.setupMocks();
-        propertyUtils = new PropertyUtils();
         when(validationService.newTaskBuilder()).thenReturn(builder);
         when(meteringGroupsService.findEndDeviceGroup(1)).thenReturn(Optional.of(endDeviceGroup));
         when(metrologyConfigurationService.findMetrologyContract(1)).thenReturn(Optional.of(metrologyContract));
@@ -93,6 +94,7 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
         app.setMetrologyConfigurationService(metrologyConfigurationService);
         app.setNlsService(nlsService);
         app.setTimeService(timeService);
+        app.setPropertyValueInfoService(propertyValueInfoService);
         return app;
     }
 

@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -18,7 +19,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
-import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.validation.rest.kpi.rest.DataValidationKpiInfoFactory;
 import com.elster.jupiter.validation.rest.kpi.rest.KpiResource;
@@ -58,6 +58,7 @@ public class ValidationApplication extends Application implements TranslationKey
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile TimeService timeService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>> of(
@@ -122,13 +123,18 @@ public class ValidationApplication extends Application implements TranslationKey
                 .join(nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.DOMAIN));
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
             bind(restQueryService).to(RestQueryService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
-            bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(nlsService).to(NlsService.class);
             bind(validationService).to(ValidationService.class);
             bind(transactionService).to(TransactionService.class);

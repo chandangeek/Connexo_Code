@@ -26,11 +26,15 @@ import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PredefinedPropertyValuesInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -66,6 +70,7 @@ import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -317,7 +322,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         ValidationRule rule = mockValidationRule(V_RULE_ID, ruleSetVersion);
         ValidationRuleBuilder builder = FakeBuilder.initBuilderStub(rule, ValidationRuleBuilder.class, ValidationRuleBuilder.PropertyBuilder.class);
         when(ruleSetVersion.addRule(Matchers.eq(ValidationAction.FAIL), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(builder);
-
+        mockPropertyInfos(info);
         Response response = target("/validation/" + V_RULE_SET_ID + "/versions/" + V_RULE_VERSION_ID + "/rules").request().post(entity);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -352,7 +357,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(rule.getAction()).thenReturn(ValidationAction.WARN_ONLY);
         ValidationRuleBuilder builder = FakeBuilder.initBuilderStub(rule, ValidationRuleBuilder.class, ValidationRuleBuilder.PropertyBuilder.class);
         when(ruleSetVersion.addRule(Matchers.eq(ValidationAction.WARN_ONLY), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(builder);
-
+        mockPropertyInfos(info);
         Response response = target("/validation/" + V_RULE_SET_ID + "/versions/" + V_RULE_VERSION_ID + "/rules").request().post(entity);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -676,10 +681,10 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(rule.getReadingTypes()).thenReturn(readingTypes);
 
         List<PropertySpec> propertySpes = Arrays.asList(
-                mockPropertySpec(BasicPropertyTypes.NUMBER, "number", true),
-                mockPropertySpec(BasicPropertyTypes.NULLABLE_BOOLEAN, "nullableboolean", true),
-                mockPropertySpec(BasicPropertyTypes.BOOLEAN, "boolean", true),
-                mockPropertySpec(BasicPropertyTypes.TEXT, "text", true),
+                mockPropertySpec(SimplePropertyType.NUMBER, "number", true),
+                mockPropertySpec(SimplePropertyType.NULLABLE_BOOLEAN, "nullableboolean", true),
+                mockPropertySpec(SimplePropertyType.BOOLEAN, "boolean", true),
+                mockPropertySpec(SimplePropertyType.TEXT, "text", true),
                 mockListValueBeanPropertySpec("listvalue", true));
         when(rule.getPropertySpecs()).thenReturn(propertySpes);
         Validator validator = mock(Validator.class);
@@ -696,6 +701,14 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         listValue.add(Finder.bean2);
         props.put("listvalue", listValue);
         when(rule.getProps()).thenReturn(props);
+
+        PropertyInfo numberPropertyInfo = new PropertyInfo("number", "number", new PropertyValueInfo<>(13, null), null, true);
+        PropertyInfo nullableBooleanPropertyInfo = new PropertyInfo("nullableboolean", "nullableboolean", new PropertyValueInfo<>(true, null), null, true);
+        PropertyInfo booleanPropertyInfo = new PropertyInfo("boolean", "boolean", new PropertyValueInfo<>(false, null), null, true);
+        PropertyInfo textPropertyInfo = new PropertyInfo("text", "text", new PropertyValueInfo<>("string", null), null, true);
+        PropertyInfo listValuePropertyInfo = new PropertyInfo("listvalue", "listvalue", new PropertyValueInfo<>(Arrays.asList("1", "2"), null), null, true);
+        List<PropertyInfo> propertyInfoList = Arrays.asList(numberPropertyInfo, nullableBooleanPropertyInfo, booleanPropertyInfo, textPropertyInfo, listValuePropertyInfo);
+        when(propertyValueInfoService.getPropertyInfos(propertySpes, props)).thenReturn(propertyInfoList);
 
         doReturn(Optional.of(rule)).when(validationService).findValidationRule(id);
         doReturn(Optional.of(rule)).when(validationService).findAndLockValidationRuleByIdAndVersion(id, OK_VERSION);
@@ -741,7 +754,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         return infos;
     }
 
-    private PropertySpec mockPropertySpec(BasicPropertyTypes propertyType, String name, boolean isRequired) {
+    private PropertySpec mockPropertySpec(SimplePropertyType propertyType, String name, boolean isRequired) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(name);
         when(propertySpec.isRequired()).thenReturn(isRequired);
@@ -762,7 +775,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         return propertySpec;
     }
 
-    private ValueFactory getValueFactoryFor(BasicPropertyTypes propertyType) {
+    private ValueFactory getValueFactoryFor(SimplePropertyType propertyType) {
         switch (propertyType) {
             case NUMBER:
                return new BigDecimalFactory();
@@ -785,8 +798,53 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(validator.getDisplayName()).thenReturn(displayName);
         List<PropertySpec> propertySpecs = Collections.singletonList(mockListValueBeanPropertySpec("listvalue", false));
         when(validator.getPropertySpecs()).thenReturn(propertySpecs);
-
+        when(propertyValueInfoService.getPropertyInfos(propertySpecs)).thenReturn(getPropertyInfos());
         return validator;
+    }
+
+    private List<PropertyInfo> getPropertyInfos() {
+        PredefinedPropertyValuesInfo predefinedPropertyValuesInfo = new PredefinedPropertyValuesInfo();
+        predefinedPropertyValuesInfo.selectionMode = PropertySelectionMode.LIST;
+        IdWithNameInfo[] arr = new IdWithNameInfo[2];
+        IdWithNameInfo firstPossibleValue = new IdWithNameInfo();
+        firstPossibleValue.id = "1";
+        firstPossibleValue.name = "first";
+        IdWithNameInfo secondPossibleValue = new IdWithNameInfo();
+        secondPossibleValue.id = "2";
+        secondPossibleValue.name = "second";
+        arr[0] = firstPossibleValue;
+        arr[1] = secondPossibleValue;
+        predefinedPropertyValuesInfo.possibleValues = arr;
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
+        propertyTypeInfo.predefinedPropertyValuesInfo = predefinedPropertyValuesInfo;
+        PropertyInfo propertyInfo = new PropertyInfo();
+        propertyInfo.key = "listvalue";
+        propertyInfo.required = false;
+        propertyInfo.propertyTypeInfo = propertyTypeInfo;
+        return Collections.singletonList(propertyInfo);
+    }
+
+    private void mockPropertyInfos(ValidationRuleInfo info) {
+        validationService.getValidator(info.implementation).getPropertySpecs()
+                .forEach(propertySpec -> {
+                    switch (propertySpec.getName()) {
+                        case "number":
+                            when(propertyValueInfoService.findPropertyValue(eq(propertySpec), any())).thenReturn(BigDecimal.valueOf(10.0));
+                            break;
+                        case "nullableboolean":
+                            when(propertyValueInfoService.findPropertyValue(eq(propertySpec), any())).thenReturn(false);
+                            break;
+                        case "boolean":
+                            when(propertyValueInfoService.findPropertyValue(eq(propertySpec), any())).thenReturn(true);
+                            break;
+                        case "text":
+                            when(propertyValueInfoService.findPropertyValue(eq(propertySpec), any())).thenReturn("string");
+                            break;
+                        case "listvalue":
+                            when(propertyValueInfoService.findPropertyValue(eq(propertySpec), any())).thenReturn(Collections.singletonList(info));
+                            break;
+                    }
+                });
     }
 
     private static class Finder extends AbstractValueFactory<ListValueBean> {
