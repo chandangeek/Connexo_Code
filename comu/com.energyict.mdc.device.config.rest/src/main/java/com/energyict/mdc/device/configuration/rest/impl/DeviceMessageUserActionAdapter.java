@@ -7,9 +7,14 @@ public class DeviceMessageUserActionAdapter extends MapBasedXmlAdapter<DeviceMes
 
     public DeviceMessageUserActionAdapter() {
         register("", null);
-        register("execute.device.message.level1", DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1);
-        register("execute.device.message.level2", DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2);
-        register("execute.device.message.level3", DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3);
-        register("execute.device.message.level4", DeviceMessageUserAction.EXECUTEDEVICEMESSAGE4);
+        this.register(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1);
+        this.register(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2);
+        this.register(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3);
+        this.register(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE4);
     }
+
+    private void register(DeviceMessageUserAction action) {
+        this.register(action.getPrivilege(), action);
+    }
+
 }
