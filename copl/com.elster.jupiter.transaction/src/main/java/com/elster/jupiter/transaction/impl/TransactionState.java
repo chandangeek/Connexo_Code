@@ -3,6 +3,7 @@ package com.elster.jupiter.transaction.impl;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.transaction.SqlEvent;
 import com.elster.jupiter.transaction.TransactionEvent;
+import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.time.StopWatch;
 
 import java.sql.Connection;
@@ -15,11 +16,12 @@ class TransactionState implements Subscriber {
 	private int statementCount;
 	private int fetchCount;
 	private StopWatch stopWatch;
+	private Registration threadSubscriberRegistration;
 	
 	TransactionState(TransactionServiceImpl transactionService)  {
 		this.transactionService = transactionService;
 		stopWatch = new StopWatch(true);
-		transactionService.addThreadSubscriber(this);
+		threadSubscriberRegistration = transactionService.addThreadSubscriber(this);
 	}
 
 	Connection getConnection() throws SQLException {
@@ -46,8 +48,8 @@ class TransactionState implements Subscriber {
 			}
 		} finally {
 			stopWatch.stop();
-			transactionService.removeThreadSubscriber(this);
-			event = new TransactionEvent(rollback,stopWatch,statementCount,fetchCount);
+			threadSubscriberRegistration.unregister();
+			event = new TransactionEvent(rollback || !commit,stopWatch,statementCount,fetchCount);
 			transactionService.publish(event);
 		}
 		return event;

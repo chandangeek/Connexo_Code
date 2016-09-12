@@ -12,6 +12,7 @@ import com.elster.jupiter.transaction.TransactionBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Registration;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -135,12 +136,8 @@ public class TransactionServiceImpl implements TransactionService {
 		return transactionStateHolder.get() != null;
     }
 
-    void addThreadSubscriber(Subscriber subscriber) {
-    	publisher.addThreadSubscriber(subscriber);
-    }
-
-    void removeThreadSubscriber(Subscriber subscriber) {
-    	publisher.removeThreadSubscriber(subscriber);
+    Registration addThreadSubscriber(Subscriber subscriber) {
+    	return publisher.addThreadSubscriber(subscriber);
     }
 
     void publish(Object event) {
