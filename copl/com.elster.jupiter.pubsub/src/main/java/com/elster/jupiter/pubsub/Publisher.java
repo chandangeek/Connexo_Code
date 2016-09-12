@@ -1,5 +1,7 @@
 package com.elster.jupiter.pubsub;
 
+import com.elster.jupiter.util.Registration;
+
 /**
  * Service that allows posting of events, which will be synchronously handled by subscribers to that type of event.
  */
@@ -19,9 +21,8 @@ public interface Publisher {
     /**
      * Manually add a subscriber. Only use when you can not publish your subscriber as an OSGI service 
      */
-    void addSubscriber(Subscriber subscriber);
+    Registration addSubscriber(Subscriber subscriber);
 
-	void addThreadSubscriber(Subscriber subscriber);
+	Registration addThreadSubscriber(Subscriber subscriber);
 
-	void removeThreadSubscriber(Subscriber subscriber);
 }

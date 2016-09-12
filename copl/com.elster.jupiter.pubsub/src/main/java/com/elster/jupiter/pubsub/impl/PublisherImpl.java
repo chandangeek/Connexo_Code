@@ -2,6 +2,7 @@ package com.elster.jupiter.pubsub.impl;
 
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.util.Registration;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -36,8 +37,9 @@ public class PublisherImpl implements Publisher {
 	}
 
     @Override
-    public void addSubscriber(Subscriber subscriber) {
+    public Registration addSubscriber(Subscriber subscriber) {
     	addHandler(subscriber);
+        return () -> removeHandler(subscriber);
     }
     
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -50,13 +52,14 @@ public class PublisherImpl implements Publisher {
     }
 
 	@Override
-	public void addThreadSubscriber(Subscriber subscriber) {
-		threadSubscriptionsHolder.get().add(new Subscription(subscriber));
+	public Registration addThreadSubscriber(Subscriber subscriber) {
+		Subscription subscription = new Subscription(subscriber);
+		threadSubscriptionsHolder.get().add(subscription);
+		return () -> removeThreadSubscriber(subscription);
 	}
 
-	@Override
-	public void removeThreadSubscriber(Subscriber subscriber) {
-		threadSubscriptionsHolder.get().removeIf(subscription -> subscription.getSubscriber().equals(subscriber));					
+	private void removeThreadSubscriber(Subscription subscription) {
+		threadSubscriptionsHolder.get().remove(subscription);
 	}
 	
 }

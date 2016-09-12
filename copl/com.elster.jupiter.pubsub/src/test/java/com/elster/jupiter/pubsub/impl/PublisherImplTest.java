@@ -1,16 +1,17 @@
 package com.elster.jupiter.pubsub.impl;
 
-import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.util.Registration;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.pubsub.Subscriber;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PublisherImplTest {
@@ -45,14 +46,17 @@ public class PublisherImplTest {
     @Test
     public void testThreadSubscribersReceivesEvents() {
         PublisherImpl publisher = new PublisherImpl();
+        Registration registration = null;
         try {
-            publisher.addThreadSubscriber(subscriber);
+            registration = publisher.addThreadSubscriber(subscriber);
 
             publisher.publish("A", "B");
 
             verify(subscriber).handle("A", "B");
         } finally {
-            publisher.removeThreadSubscriber(subscriber);
+            if (registration != null) {
+                registration.unregister();
+            }
         }
     }
 
