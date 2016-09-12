@@ -128,7 +128,7 @@ Ext.define('Uni.controller.Error', {
         }
         else {
             title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
-            message = Uni.I18n.translate('error' + message.replace(' ', '.'), 'UNI', message);
+            message = Uni.I18n.translate('error.' + message.replace(' ', '.'), 'UNI', message);
         }
 
         switch (response.status) {
