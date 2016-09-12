@@ -299,6 +299,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                         xtype: 'device-data-validation-panel',
                                         privileges: Mdc.privileges.Device.deviceOperator,
                                         mRID: me.device.get('mRID'),
+                                        router: me.router,
                                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationWidget
                                     }
                                 ]

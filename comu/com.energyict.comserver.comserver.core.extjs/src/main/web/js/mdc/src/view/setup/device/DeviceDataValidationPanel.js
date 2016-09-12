@@ -56,23 +56,25 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 }
                             },
                             {
-                                xtype: 'fieldcontainer',
-                                layout: 'hbox',
                                 itemId: 'fld-validation-result',
                                 fieldLabel: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
-                                style: {
-                                    marginBottom: '18px'
-                                },
-                                minWidth: 250,
-                                items: {
-                                    xtype: 'button',
-                                    name: 'validationResultName',
-                                    text: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
-                                    itemId: 'lnk-validation-result',
-                                    ui: 'link',
-                                    href: '#',
-                                    style: {
-                                        padding: '3px 0 0 0'
+                                renderer: function (record) {
+                                    if (record) {
+                                        this.show();
+                                        var route = me.router.getRoute('devices/device/validationresultsdata'),
+                                            url = route.buildUrl(),
+                                            msg;
+
+                                        if (record.get('loadProfileSuspectCount') != 0 || record.get('registerSuspectCount') != 0) {
+                                            msg = Uni.I18n.translate('device.dataValidation.recentsuspects', 'MDC', 'Recent suspects');
+                                        } else {
+                                            msg = Uni.I18n.translate('device.dataValidation.nosuspects', 'MDC', 'No suspects');
+                                        }
+
+                                        return '<a href="' + url + '">' + Ext.String.htmlEncode(msg) + '</a>';
+                                    } else {
+                                        this.hide();
+                                        return null;
                                     }
                                 }
                             },

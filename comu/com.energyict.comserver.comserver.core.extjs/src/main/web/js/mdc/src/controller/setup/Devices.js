@@ -106,7 +106,7 @@ Ext.define('Mdc.controller.setup.Devices', {
 
     connectionToggle: function (record) {
         var me = this;
-        var connectionMethod = record.get('connectionMethod'),
+        var connectionMethod = record.get('connectionMethod');
         var widget = this.getDeviceConnectionsList();
 
         connectionMethod.status = connectionMethod.status == 'active' ? 'inactive' : 'active';
@@ -284,9 +284,6 @@ Ext.define('Mdc.controller.setup.Devices', {
                 }
                 if (!Ext.isEmpty(me.getDeviceOpenIssuesPanel())) {
                     me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
-                }
-                if (!Ext.isEmpty(me.getDeviceValidationResultFieldLink())) {
-                    me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
                 }
                 if ( (device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
                      && Cfg.privileges.Validation.canUpdateDeviceValidation() ) {
