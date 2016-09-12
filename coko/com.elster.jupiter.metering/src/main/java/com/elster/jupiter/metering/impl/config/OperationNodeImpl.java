@@ -53,12 +53,12 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
 
     @Override
     public ServerExpressionNode getLeftOperand() {
-        return this.getChildren().get(0);
+        return this.getServerSideChildren().get(0);
     }
 
     @Override
     public ServerExpressionNode getRightOperand() {
-        return this.getChildren().get(1);
+        return this.getServerSideChildren().get(1);
     }
 
     @Override
@@ -74,9 +74,10 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
         return visitor.visitOperation(this);
     }
 
+    @Override
     public String toString() {
         if (this.getChildren().size() == 3 && this.getOperator().equals(Operator.SAFE_DIVIDE)) {
-            return operator.toString() + "(" + getLeftOperand().toString() + ", " + getRightOperand().toString() + ", " + this.getChildren().get(2).toString() + ")";
+            return operator.toString() + "(" + getLeftOperand().toString() + ", " + getRightOperand().toString() + ", " + this.getZeroReplacement().get().toString() + ")";
         }
         return operator.toString() + "(" + getLeftOperand().toString() + ", " + getRightOperand().toString() + ")";
     }
