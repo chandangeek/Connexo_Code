@@ -106,7 +106,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         minValue: 0,
                                         maxValue: 23,
                                         editable: false,
-                                        emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
+                                        emptyText: '00',
                                         flex: 1,
                                         valueToRaw: function (value) {
                                             if (!Ext.isDefined(value)) {
@@ -129,7 +129,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         minValue: 0,
                                         maxValue: 59,
                                         editable: false,
-                                        emptyText: Uni.I18n.translate('grid.filter.date.minutefield.emptytext', 'UNI', '00'),
+                                        emptyText: '00',
                                         flex: 1,
                                         valueToRaw: function (value) {
                                             if (!Ext.isDefined(value)) {
@@ -190,7 +190,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         minValue: 0,
                                         maxValue: 23,
                                         editable: false,
-                                        emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
+                                        emptyText: '00',
                                         flex: 1,
                                         valueToRaw: function (value) {
                                             if (!Ext.isDefined(value)) {
@@ -213,7 +213,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         minValue: 0,
                                         maxValue: 59,
                                         editable: false,
-                                        emptyText: Uni.I18n.translate('grid.filter.date.minutefield.emptytext', 'UNI', '00'),
+                                        emptyText: '00',
                                         flex: 1,
                                         valueToRaw: function (value) {
                                             if (!Ext.isDefined(value)) {
