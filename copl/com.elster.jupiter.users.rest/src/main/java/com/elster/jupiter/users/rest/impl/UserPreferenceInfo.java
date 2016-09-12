@@ -11,7 +11,7 @@ public class UserPreferenceInfo {
     }
 
     public UserPreferenceInfo(UserPreference preference) {
-        this.key = preference.getKey().getKey();
-        this.value = preference.getFormatFE();
+        this.key = preference.getType().getTranslationKey();
+        this.value = preference.getDisplayFormat();
     }
 }
