@@ -311,6 +311,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Arrays.stream(ServiceKind.values()).forEach(translationKeys::add);
         Arrays.stream(Privileges.values()).forEach(translationKeys::add);
         Arrays.stream(PropertyTranslationKeys.values()).forEach(translationKeys::add);
+        Arrays.stream(com.elster.jupiter.metering.impl.search.enddevice.PropertyTranslationKeys.values()).forEach(translationKeys::add);
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
         Arrays.stream(BypassStatus.values()).forEach(translationKeys::add);
