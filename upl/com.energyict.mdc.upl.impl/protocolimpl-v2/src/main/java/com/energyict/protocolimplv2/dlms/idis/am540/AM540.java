@@ -148,7 +148,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-09-07 14:19:32 +0300 (Wed, 07 Sep 2016)$";
+        return "$Date: 2016-09-12 15:52:00 +0300 (Mon, 12 Sep 2016)$";
     }
 
     /**
@@ -337,8 +337,12 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         // handle some special frame-counters for EVN
         switch (clientId){
             case EVN_CLIENT_DATA_READOUT:
-            case PUBLIC_CLIENT:
                 return EVN_FRAMECOUNTER_DATA_READOUT;
+            case PUBLIC_CLIENT:
+                if(getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()){
+                    return EVN_FRAMECOUNTER_DATA_READOUT;
+                }
+                break;
             case EVN_CLIENT_INSTALLATION:
                 return EVN_FRAMECOUNTER_INSTALLATION;
             case EVN_CLIENT_MAINTENANCE:
