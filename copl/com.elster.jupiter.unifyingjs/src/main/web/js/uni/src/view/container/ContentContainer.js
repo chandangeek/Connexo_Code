@@ -151,15 +151,16 @@ Ext.define('Uni.view.container.ContentContainer', {
     },
 
     afterLayout: function () {
-        var el;
-
         this.callParent(arguments);
 
+        var element = this.getEl(),
+            domElement = element.dom;
+        if (domElement.scrollHeight > domElement.clientHeight) {
+            element.setStyle('padding-right', '16px');
+        }
         if (this.lastScrollPosition) {
-            el = this.getEl();
-
-            el.scrollTo('left', this.lastScrollPosition.left);
-            el.scrollTo('top', this.lastScrollPosition.top);
+            element.scrollTo('left', this.lastScrollPosition.left);
+            element.scrollTo('top', this.lastScrollPosition.top);
         }
     }
 });
