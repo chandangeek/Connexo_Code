@@ -268,6 +268,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>properties.rest</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>public.rest.util</artifactId>
                 <version>1.0.0${revision}</version>
                 <scope>provided</scope>
@@ -710,6 +716,7 @@
                 <module>../com.elster.jupiter.orm</module>
                 <module>../com.elster.jupiter.osgi.goodies</module>
                 <module>../com.elster.jupiter.properties</module>
+                <module>../com.elster.jupiter.properties.rest</module>
                 <module>../com.elster.jupiter.public.rest.util</module>
                 <module>../com.elster.jupiter.pubsub</module>
                 <module>../com.elster.jupiter.rest.util</module>
