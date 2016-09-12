@@ -32,21 +32,21 @@ import java.util.Optional;
 @ConsumerType
 public interface DeviceMessage<D extends BaseDevice> extends HasId {
 
-    public void save();
+    void save();
 
-    public void delete();
+    void delete();
 
     /**
      * Gets the {@link DeviceMessageSpec specification} of this DeviceMessage.
      *
      * @return The specification
      */
-    public DeviceMessageSpec getSpecification();
+    DeviceMessageSpec getSpecification();
 
     /**
      * @return the DeviceMessageId of the spec of this DeviceMessage
      */
-    public DeviceMessageId getDeviceMessageId();
+    DeviceMessageId getDeviceMessageId();
 
     /**
      * Gets the {@link DeviceMessageAttribute}s of this DeviceMessage.
@@ -56,7 +56,7 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
      *
      * @return The attributes
      */
-    public List<DeviceMessageAttribute> getAttributes();
+    List<DeviceMessageAttribute> getAttributes();
 
     /**
      * Gets the {@link com.energyict.mdc.protocol.api.device.BaseDevice device} to which this DeviceMessage
@@ -64,14 +64,14 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
      *
      * @return The device
      */
-    public D getDevice();
+    D getDevice();
 
     /**
      * Gets the {@link DeviceMessageStatus} of this DeviceMessage.
      *
      * @return The DeviceMessageStatus
      */
-    public DeviceMessageStatus getStatus();
+    DeviceMessageStatus getStatus();
 
     /**
      * Provides information regarding the state of the message,
@@ -79,7 +79,7 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
      *
      * @return the protocolInfo
      */
-    public String getProtocolInfo();
+    String getProtocolInfo();
 
     /**
      * Gets the Date on which this DeviceMessage becomes eligible
@@ -92,56 +92,56 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
      *
      * @return The release Date
      */
-    public Instant getReleaseDate();
+    Instant getReleaseDate();
 
     /**
      * Provides the date when this object was created
      *
      * @return the creationDate of this DeviceMessage
      */
-    public Instant getCreationDate();
+    Instant getCreationDate();
 
     /**
      * Returns the receiver's tracking id
      *
      * @return the receiver's tracking id
      */
-    public String getTrackingId();
+    String getTrackingId();
 
     /**
      * Returns the sender's tracking id
      *
      * @return the sender's tracking id
      */
-    public TrackingCategory getTrackingCategory();
+    TrackingCategory getTrackingCategory();
 
     /**
      * This is the date & time when a message was actually transmitted to the device. Will be empty if the message was not sent yet.
      * @return The sent-date or empty if unsent
      */
-    public Optional<Instant> getSentDate();
+    Optional<Instant> getSentDate();
 
     /**
      * Sets the date & time when the message was actually transmitted to the device.
      * @param sentDate the sent-date to set
      */
-    public void setSentDate(Instant sentDate);
+    void setSentDate(Instant sentDate);
 
     /**
      * User who created the command
      * @return the name of the User who created the command
      */
-    public String getUser();
+    String getUser();
 
     /**
      * Updates the release date of this device message. Will only be allowed for messages in state WAITING. Will be persisted by save()
      */
-    public void setReleaseDate(Instant releaseDate);
+    void setReleaseDate(Instant releaseDate);
 
     /**
      * Cancels/revokes this DeviceMessage
      */
-    public void revoke();
+    void revoke();
 
     /**
      * Sets information regarding this message which was provided by the DeviceProtocol during

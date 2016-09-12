@@ -15,27 +15,27 @@ public interface DeviceMessageCategory {
      *
      * @return The name
      */
-    public String getName();
+    String getName();
 
     /**
      * Gets the description of this DeviceMessageCategory.
      *
      * @return The description
      */
-    public String getDescription();
+    String getDescription();
 
     /**
      * Gets the unique identifier this DeviceMessageCategory.
      *
      * @return The identifier
      */
-    public int getId();
+    int getId();
 
     /**
      * Gets the {@link DeviceMessageSpec}s that are part of this DeviceMessageCategory.
      *
      * @return The DeviceMessageSpecs that are part of this DeviceMessageCategory
      */
-    public List<DeviceMessageSpec> getMessageSpecifications();
+    List<DeviceMessageSpec> getMessageSpecifications();
 
 }
