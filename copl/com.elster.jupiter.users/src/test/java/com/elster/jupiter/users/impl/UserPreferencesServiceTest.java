@@ -15,7 +15,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
@@ -98,7 +98,7 @@ public class UserPreferencesServiceTest {
         User user = mock(User.class);
         when(user.getLocale()).thenReturn(Optional.of(Locale.US));
 
-        assertThat(userPrefsService.getPreferences(user)).hasSize(FormatKey.values().length);
+        assertThat(userPrefsService.getPreferences(user)).hasSize(PreferenceType.values().length);
     }
     
     @Test
@@ -106,26 +106,26 @@ public class UserPreferencesServiceTest {
         User user = mock(User.class);
         when(user.getLocale()).thenReturn(Optional.of(Locale.ENGLISH));
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.LONG_DATE, "test", "test", false);
+            userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.LONG_DATE, "test", "test", false);
             ctx.commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Optional<UserPreference> preference = userPrefsService.getPreferenceByKey(user, FormatKey.LONG_DATE);
+        Optional<UserPreference> preference = userPrefsService.getPreferenceByKey(user, PreferenceType.LONG_DATE);
 
         assertThat(preference.isPresent()).isTrue();
         assertThat(preference.get().getLocale()).isEqualTo(Locale.ENGLISH);
-        assertThat(preference.get().getKey()).isEqualTo(FormatKey.LONG_DATE);
-        assertThat(preference.get().getFormatBE()).isNotEmpty();
-        assertThat(preference.get().getFormatFE()).isNotEmpty();
+        assertThat(preference.get().getType()).isEqualTo(PreferenceType.LONG_DATE);
+        assertThat(preference.get().getFormat()).isNotEmpty();
+        assertThat(preference.get().getDisplayFormat()).isNotEmpty();
         assertThat(preference.get().isDefault()).isTrue();
     }
     
     @Test
     public void testCreateNewUserPreferences() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            userPrefsService.createUserPreference(Locale.FRANCE, FormatKey.LONG_DATE, "fr_be", "fr_fe", true);
+            userPrefsService.createUserPreference(Locale.FRANCE, PreferenceType.LONG_DATE, "fr_be", "fr_fe", true);
             ctx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -133,20 +133,20 @@ public class UserPreferencesServiceTest {
 
         User user = mock(User.class);
         when(user.getLocale()).thenReturn(Optional.of(Locale.FRANCE));
-        Optional<UserPreference> preference = userPrefsService.getPreferenceByKey(user, FormatKey.LONG_DATE);
+        Optional<UserPreference> preference = userPrefsService.getPreferenceByKey(user, PreferenceType.LONG_DATE);
 
         assertThat(preference.isPresent()).isTrue();
         assertThat(preference.get().getLocale()).isEqualTo(Locale.FRANCE);
-        assertThat(preference.get().getKey()).isEqualTo(FormatKey.LONG_DATE);
-        assertThat(preference.get().getFormatBE()).isEqualTo("fr_be");
-        assertThat(preference.get().getFormatFE()).isEqualTo("fr_fe");
+        assertThat(preference.get().getType()).isEqualTo(PreferenceType.LONG_DATE);
+        assertThat(preference.get().getFormat()).isEqualTo("fr_be");
+        assertThat(preference.get().getDisplayFormat()).isEqualTo("fr_fe");
         assertThat(preference.get().isDefault()).isTrue();
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "locale", strict = false)
     public void testCreateUserPreferencesWithoutLocale() {
-        userPrefsService.createUserPreference(null, FormatKey.DECIMAL_PRECISION, "fr_be", "fr_fe", true);
+        userPrefsService.createUserPreference(null, PreferenceType.DECIMAL_PRECISION, "fr_be", "fr_fe", true);
     }
 
     @Test
@@ -158,31 +158,31 @@ public class UserPreferencesServiceTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "formatBE", strict = false)
     public void testCreateUserPreferencesWithoutFormatBE() {
-        userPrefsService.createUserPreference(Locale.US, FormatKey.CURRENCY, null, "fr_fe", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.CURRENCY, null, "fr_fe", true);
     }
     
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "formatFE", strict = false)
     public void testCreateUserPreferencesWithoutFormatFE() {
-        userPrefsService.createUserPreference(Locale.US, FormatKey.CURRENCY, "be", null, true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.CURRENCY, "be", null, true);
     }
     
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}", property = "formatBE", strict = false)
     public void testCreateUserPreferencesFormatBEWrongSize() {
-        userPrefsService.createUserPreference(Locale.US, FormatKey.CURRENCY, "", "fe", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.CURRENCY, "", "fe", true);
     }
     
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}", property = "formatFE", strict = false)
     public void testCreateUserPreferencesFormatFEWrongSize() {
-        userPrefsService.createUserPreference(Locale.US, FormatKey.CURRENCY, "be", "", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.CURRENCY, "be", "", true);
     }
     
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED + "}", strict = false)
     public void testCreateUserPreferenceButDefaultAlreadyInstalled() {
-        userPrefsService.createUserPreference(Locale.US, FormatKey.CURRENCY, "be", "fe", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.CURRENCY, "be", "fe", true);
     }
 
 }

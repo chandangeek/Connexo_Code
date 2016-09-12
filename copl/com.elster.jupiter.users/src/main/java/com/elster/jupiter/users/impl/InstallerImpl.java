@@ -4,7 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
@@ -155,27 +155,27 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     private void createUserPreferences(UserPreferencesService userPrefsService) {
         //en (UK)
-        userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.SHORT_DATE, "dd MMM ''yy", "d M \'y", true);
-        userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.LONG_DATE, "EEE dd MMM ''yy", "D d M \'y", true);
-        userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.SHORT_TIME, "HH:mm", "H:i", true);
-        userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.LONG_TIME, "HH:mm:ss", "H:i:s", true);
-        userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.DATETIME_SEPARATOR, "SPACE", "-", true);
-        userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.DATETIME_ORDER, "TD", "DT", true);
-        userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.DECIMAL_PRECISION, "2", "2", true);
-        userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.DECIMAL_SEPARATOR, ".", ".", true);
-        userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.THOUSANDS_SEPARATOR, ",", ",", true);
-        userPrefsService.createUserPreference(Locale.ENGLISH, FormatKey.CURRENCY, "\u00A3 {0}", "\u00A3 {0}", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.SHORT_DATE, "dd MMM ''yy", "d M \'y", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.LONG_DATE, "EEE dd MMM ''yy", "D d M \'y", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.SHORT_TIME, "HH:mm", "H:i", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.LONG_TIME, "HH:mm:ss", "H:i:s", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DATETIME_SEPARATOR, "SPACE", "-", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DATETIME_ORDER, "TD", "DT", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DECIMAL_PRECISION, "2", "2", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DECIMAL_SEPARATOR, ".", ".", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.THOUSANDS_SEPARATOR, ",", ",", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.CURRENCY, "\u00A3 {0}", "\u00A3 {0}", true);
         //en (US)
-        userPrefsService.createUserPreference(Locale.US, FormatKey.SHORT_DATE, "MMM-dd-''yy", "M-d-\'y", true);
-        userPrefsService.createUserPreference(Locale.US, FormatKey.LONG_DATE, "EEE, MMM-dd-''yy", "D, M-d-\'y", true);
-        userPrefsService.createUserPreference(Locale.US, FormatKey.SHORT_TIME, "hh:mm a", "h:i a", true);
-        userPrefsService.createUserPreference(Locale.US, FormatKey.LONG_TIME, "hh:mm:ss a", "h:i:s a", true);
-        userPrefsService.createUserPreference(Locale.US, FormatKey.DATETIME_SEPARATOR, "SPACE", "-", true);
-        userPrefsService.createUserPreference(Locale.US, FormatKey.DATETIME_ORDER, "TD", "DT", true);
-        userPrefsService.createUserPreference(Locale.US, FormatKey.DECIMAL_PRECISION, "2", "2", true);
-        userPrefsService.createUserPreference(Locale.US, FormatKey.DECIMAL_SEPARATOR, ".", ".", true);
-        userPrefsService.createUserPreference(Locale.US, FormatKey.THOUSANDS_SEPARATOR, ",", ",", true);
-        userPrefsService.createUserPreference(Locale.US, FormatKey.CURRENCY, "{0} $", "{0} $", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.SHORT_DATE, "MMM-dd-''yy", "M-d-\'y", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.LONG_DATE, "EEE, MMM-dd-''yy", "D, M-d-\'y", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.SHORT_TIME, "hh:mm a", "h:i a", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.LONG_TIME, "hh:mm:ss a", "h:i:s a", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.DATETIME_SEPARATOR, "SPACE", "-", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.DATETIME_ORDER, "TD", "DT", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.DECIMAL_PRECISION, "2", "2", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.DECIMAL_SEPARATOR, ".", ".", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.THOUSANDS_SEPARATOR, ",", ",", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.CURRENCY, "{0} $", "{0} $", true);
     }
 
 }

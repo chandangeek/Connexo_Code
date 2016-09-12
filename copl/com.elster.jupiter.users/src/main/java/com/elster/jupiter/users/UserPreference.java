@@ -6,11 +6,11 @@ public interface UserPreference {
     
     Locale getLocale();
     
-    FormatKey getKey();
+    PreferenceType getType();
     
-    String getFormatBE();
+    String getFormat();
     
-    String getFormatFE();
+    String getDisplayFormat();
     
     boolean isDefault();
 

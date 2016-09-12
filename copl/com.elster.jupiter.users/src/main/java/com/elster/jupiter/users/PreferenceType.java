@@ -1,6 +1,6 @@
 package com.elster.jupiter.users;
 
-public enum FormatKey {
+public enum PreferenceType {
     //date
     SHORT_DATE("format.date.short"),
     LONG_DATE("format.date.long"),
@@ -26,11 +26,11 @@ public enum FormatKey {
 
     private String key;
     
-    private FormatKey(String key) {
+    private PreferenceType(String key) {
         this.key = key;
     }
     
-    public String getKey() {
+    public String getTranslationKey() {
         return key;
     }
 }

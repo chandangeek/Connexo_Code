@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.MessageSeeds.Keys;
 import com.elster.jupiter.users.UserPreference;
@@ -19,7 +19,7 @@ public class UserPreferenceImpl implements UserPreference {
     private String locale;
     
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    private FormatKey key;
+    private PreferenceType key;
     
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
@@ -46,16 +46,16 @@ public class UserPreferenceImpl implements UserPreference {
     }
 
     @Override
-    public FormatKey getKey() {
+    public PreferenceType getType() {
         return key;
     }
     
-    public void setKey(FormatKey key) {
+    public void setKey(PreferenceType key) {
         this.key = key;
     }
 
     @Override
-    public String getFormatBE() {
+    public String getFormat() {
         return formatBE;
     }
     
@@ -64,7 +64,7 @@ public class UserPreferenceImpl implements UserPreference {
     }
 
     @Override
-    public String getFormatFE() {
+    public String getDisplayFormat() {
         return formatFE;
     }
     

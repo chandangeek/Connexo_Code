@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -23,7 +23,7 @@ public class UserPreferencesServiceImpl implements UserPreferencesService {
     }
 
     @Override
-    public UserPreference createUserPreference(Locale locale, FormatKey key, String formatBE, String formatFE, boolean isDefault) {
+    public UserPreference createUserPreference(Locale locale, PreferenceType key, String formatBE, String formatFE, boolean isDefault) {
         UserPreferenceImpl userPreference = new UserPreferenceImpl();
         userPreference.setLanguageTag(locale != null ? locale.toLanguageTag() : null);
         userPreference.setKey(key);
@@ -50,12 +50,12 @@ public class UserPreferencesServiceImpl implements UserPreferencesService {
     }
 
     @Override
-    public Optional<UserPreference> getPreferenceByKey(User user, FormatKey key) {
+    public Optional<UserPreference> getPreferenceByKey(User user, PreferenceType key) {
         return this.getPreferenceByKey(user.getLocale().orElse(Locale.getDefault()), key);
     }
 
     @Override
-    public Optional<UserPreference> getPreferenceByKey(Locale locale, FormatKey key) {
+    public Optional<UserPreference> getPreferenceByKey(Locale locale, PreferenceType key) {
         return dataModel.mapper(UserPreference.class).getUnique(
                 new String[] { "locale", "key", "isDefault" },
                 new Object[] { locale.toLanguageTag(), key, true });

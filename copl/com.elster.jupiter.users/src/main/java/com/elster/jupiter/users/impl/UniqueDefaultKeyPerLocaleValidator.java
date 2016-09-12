@@ -27,10 +27,10 @@ public class UniqueDefaultKeyPerLocaleValidator implements ConstraintValidator<U
 
     @Override
     public boolean isValid(UserPreference preference, ConstraintValidatorContext context) {
-        if (preference.getLocale() == null || preference.getKey() == null || !preference.isDefault()) {
+        if (preference.getLocale() == null || preference.getType() == null || !preference.isDefault()) {
             return true;
         }
-        Optional<UserPreference> existingPreference = userPreferencesService.getPreferenceByKey(preference.getLocale(), preference.getKey());
+        Optional<UserPreference> existingPreference = userPreferencesService.getPreferenceByKey(preference.getLocale(), preference.getType());
         if (!existingPreference.isPresent()) {
             return true;
         }

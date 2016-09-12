@@ -6,13 +6,13 @@ import java.util.Optional;
 
 public interface UserPreferencesService {
     
-    UserPreference createUserPreference(Locale locale, FormatKey key, String formatBE, String formatFE, boolean isDefault);
+    UserPreference createUserPreference(Locale locale, PreferenceType key, String formatBE, String formatFE, boolean isDefault);
     
     List<Locale> getSupportedLocales();
     
     List<UserPreference> getPreferences(User user);
     
-    Optional<UserPreference> getPreferenceByKey(User user, FormatKey format);
+    Optional<UserPreference> getPreferenceByKey(User user, PreferenceType format);
     
-    Optional<UserPreference> getPreferenceByKey(Locale locale, FormatKey format);
+    Optional<UserPreference> getPreferenceByKey(Locale locale, PreferenceType format);
 }
