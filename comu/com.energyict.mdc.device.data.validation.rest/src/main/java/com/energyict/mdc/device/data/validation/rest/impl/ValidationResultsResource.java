@@ -137,9 +137,20 @@ public class ValidationResultsResource {
         ValidationOverviews validationOverviews =
             builder
                 .paged(
-                    queryParameters.getStart().orElse(1),
-                    queryParameters.getLimit().map(limit -> limit + 1).orElse(11));
+                    this.getPageStart(queryParameters),
+                    this.getPageEnd(queryParameters));
         return PagedInfoList.fromPagedList("summary", toInfos(validationOverviews), queryParameters);
+    }
+
+    private Integer getPageStart(@BeanParam JsonQueryParameters queryParameters) {
+        return queryParameters.getStart().orElse(0) + 1;
+    }
+
+    private Integer getPageEnd(@BeanParam JsonQueryParameters queryParameters) {
+        return queryParameters
+                .getLimit()
+                .map(limit -> this.getPageStart(queryParameters) + limit)
+                .orElse(Integer.MAX_VALUE);
     }
 
     private List<ValidationOverviewInfo> toInfos(ValidationOverviews validationOverviews) {
