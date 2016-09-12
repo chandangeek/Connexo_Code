@@ -118,9 +118,9 @@ class ValidationOverviewSqlBuilder {
             sqlBuilder.append(this.withClauseAliasName);
         }
 
-        private void appendJoinIfIncluded(Set<KpiType> options, SqlBuilder sqlBuilder, DeviceDataValidationServiceImpl.SuspectsRange suspectsRange) {
+        private void appendJoinIfIncluded(Set<KpiType> options, SqlBuilder sqlBuilder) {
             if (options.contains(this)) {
-                this.appendJoinTo(sqlBuilder, suspectsRange);
+                this.appendJoinTo(sqlBuilder);
             }
         }
 
@@ -243,7 +243,7 @@ class ValidationOverviewSqlBuilder {
     private void appendJoinClauses() {
         this.sqlBuilder.append(" join dtc_devicetype dt on dev.devicetype = dt.id");
         this.sqlBuilder.append(" join dtc_deviceconfig dc on dev.deviceconfigid = dc.id");
-        KpiType.TOTAL.appendJoinTo(this.sqlBuilder);
+        KpiType.TOTAL.appendJoinTo(this.sqlBuilder, this.suspectsRange);
         this.sqlBuilder.append(" join registerSuspectValues registerSuspectsKpi ");
         this.sqlBuilder.append("   on registerSuspectsKpi.device = dev.meterid");
         this.sqlBuilder.append("  and registerSuspectsKpi.devicegroup = ");
@@ -265,7 +265,7 @@ class ValidationOverviewSqlBuilder {
     private void appendOptionalJoinClauses() {
         Stream
             .of(KpiType.THRESHOLD, KpiType.MISSING_VALUES, KpiType.READING_QUALITIES, KpiType.REGISTER_INCREASE)
-            .forEach(kpiType -> kpiType.appendJoinIfIncluded(this.kpiTypes, this.sqlBuilder, this.suspectsRange));
+            .forEach(kpiType -> kpiType.appendJoinIfIncluded(this.kpiTypes, this.sqlBuilder));
     }
 
     private void appendOrderByClause() {
