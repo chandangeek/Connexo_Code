@@ -15,9 +15,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -41,7 +39,6 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.DataValidationAssociationProvider;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
@@ -122,7 +119,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
-    private Optional<DestinationSpec> destinationSpec = Optional.empty();
+    private DestinationSpec destinationSpec;
     private DataValidationKpiService dataValidationKpiService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private DataValidationReportService dataValidationReportService;
@@ -267,10 +264,10 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     private DestinationSpec getDestination() {
-        if (!destinationSpec.isPresent()) {
-            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
+        if (destinationSpec == null) {
+            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME).orElse(null);
         }
-        return destinationSpec.orElse(null);
+        return destinationSpec;
     }
 
     @Override
@@ -343,7 +340,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         return getMeterValidation(meter).filter(MeterValidationImpl::getValidateOnStorage).isPresent();
     }
 
-    Optional<MeterValidationImpl> getMeterValidation(Meter meter) {
+    private Optional<MeterValidationImpl> getMeterValidation(Meter meter) {
         return dataModel.mapper(MeterValidationImpl.class).getOptional(meter.getId());
     }
 
@@ -487,8 +484,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 .map(ruleSet -> Pair.of(ruleSet, getForRuleSet(persistedChannelsContainerValidations, ruleSet)))
                 .map(validationPair -> validationPair.getLast().orElseGet(() -> applyRuleSet(validationPair.getFirst(), validationContext.getChannelsContainer())))
                 .collect(Collectors.toList());
-        returnList.stream()
-                .forEach(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer().getChannels()
+        returnList.forEach(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer().getChannels()
                         .stream()
                         .filter(channel -> !channelsContainerValidation.getRuleSet().getRules(channel.getReadingTypes()).isEmpty())
                         .filter(channel -> !channelsContainerValidation.getChannelValidation(channel).isPresent())
@@ -561,7 +557,8 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     public List<Validator> getAvailableValidators() {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
         return validatorFactories.stream()
-                .flatMap(f -> f.available().stream())
+                .map(ValidatorFactory::available)
+                .flatMap(List::stream)
                 .map(validatorCreator::getTemplateValidator)
                 .collect(Collectors.toList());
     }
@@ -570,7 +567,8 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     public List<Validator> getAvailableValidators(QualityCodeSystem qualityCodeSystem) {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
         return validatorFactories.stream()
-                .flatMap(f -> f.available().stream())
+                .map(ValidatorFactory::available)
+                .flatMap(List::stream)
                 .map(validatorCreator::getTemplateValidator)
                 .filter(validator -> validator.getSupportedQualityCodeSystems().contains(qualityCodeSystem))
                 .collect(Collectors.toList());
@@ -582,8 +580,8 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public ValidationEvaluator getEvaluator(Meter meter, Range<Instant> interval) {
-        return new ValidationEvaluatorForMeter(this, meter, interval);
+    public ValidationEvaluator getEvaluator(Meter meter) {
+        return new ValidationEvaluatorForMeter(this, meter);
     }
 
     @Override
@@ -770,49 +768,6 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
             return endDeviceGroup.get().getMembers(Instant.now()).stream().map(EndDevice::getId).collect(Collectors.toList());
         }
         return new ArrayList<>();
-    }
-
-
-    @Deprecated
-    @Override
-    public Optional<SqlBuilder> getValidationResults(long endDeviceGroupId, Optional<Integer> start, Optional<Integer> limit) {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-
-        Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
-        if (found.isPresent()) {
-            EndDeviceGroup deviceGroup = found.get();
-            try {
-                sqlBuilder.append("SELECT MED.id FROM (");
-
-                if (deviceGroup instanceof QueryEndDeviceGroup) {
-                    QueryEndDeviceGroup queryEndDeviceGroup = (QueryEndDeviceGroup) deviceGroup;
-                    sqlBuilder.add(queryEndDeviceGroup.getEndDeviceQueryProvider().toFragment(queryEndDeviceGroup.toFragment(), "id"));
-                } else {
-                    EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = (EnumeratedEndDeviceGroup) deviceGroup;
-                    sqlBuilder.add(enumeratedEndDeviceGroup.getAmrIdSubQuery().toFragment());
-                }
-
-                sqlBuilder.append(") MED ");
-                sqlBuilder.append("WHERE EXISTS (");
-                sqlBuilder.append("SELECT * FROM MTR_READINGQUALITY mrq ");
-                sqlBuilder.append("  LEFT JOIN MTR_CHANNEL mc ON mrq.CHANNELID = mc.id");
-                sqlBuilder.append("  LEFT JOIN MTR_CHANNEL_CONTAINER cc ON mc.CHANNEL_CONTAINER = cc.id");
-                sqlBuilder.append("  LEFT JOIN MTR_METERACTIVATION ma ON cc.METER_ACTIVATION = ma.id");
-                sqlBuilder.append(" WHERE (mrq.type = '2.5.258' OR mrq.type = '2.5.259')");
-                sqlBuilder.append("   AND mrq.actual='Y' AND MA.meterid = med.id)");
-
-                if (start.isPresent() && limit.isPresent()) {
-                    sqlBuilder = sqlBuilder.asPageBuilder("id", start.get() + 1, start.get() + limit.get() + 1);
-                }
-
-                return Optional.of(sqlBuilder);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-        return Optional.empty();
     }
 
     @Override

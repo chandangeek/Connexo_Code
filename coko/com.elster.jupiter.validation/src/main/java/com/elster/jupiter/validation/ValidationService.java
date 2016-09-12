@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
 
 import aQute.bnd.annotation.ProviderType;
@@ -96,20 +95,20 @@ public interface ValidationService {
     void updateLastChecked(Channel channel, Instant date);
 
     /**
-     * Validates all channels in the given <code>channelsContainer</code>.
+     * Validates all channels in the given {@code channelsContainer}.
      *
-     * @param targetQualityCodeSystems set of desired QualityCodeSystems (only rulesets with these QualityCodeSystems will be applied).
+     * @param targetQualityCodeSystems Set of desired QualityCodeSystems (only rulesets with these QualityCodeSystems will be applied).
      * It can be empty (in that case engine will use rulesets with any QualityCodeSystem).
-     * @param channelsContainer
+     * @param channelsContainer Container with channels to validate.
      */
     void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer);
 
     /**
-     * Validates channel with specific <code>readingType</code> in the given <code>channelsContainer</code>.
+     * Validates channel with specific {@code readingType} in the given {@code channelsContainer}.
      *
-     * @param targetQualityCodeSystems set of desired QualityCodeSystems (only rulesets with these QualityCodeSystems will be applied).
+     * @param targetQualityCodeSystems Set of desired QualityCodeSystems (only rulesets with these QualityCodeSystems will be applied).
      * It can be empty (in that case engine will use rulesets with any QualityCodeSystem).
-     * @param channelsContainer
+     * @param channelsContainer Container with channels to validate.
      * @param readingType channel's reading type
      */
     void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType);
@@ -118,7 +117,7 @@ public interface ValidationService {
 
     ValidationEvaluator getEvaluator();
 
-    ValidationEvaluator getEvaluator(Meter meter, Range<Instant> interval);
+    ValidationEvaluator getEvaluator(Meter meter);
 
     /*
      * Following methods for adding resources in a non OSGI environment
@@ -149,8 +148,6 @@ public interface ValidationService {
     Optional<DataValidationKpiScore> getDataValidationKpiScores(long groupId, long deviceId, Range<Instant> interval);
 
     List<Long> getDevicesIdsList(long endDeviceGroupId);
-
-    Optional<SqlBuilder> getValidationResults(long endDeviceGroupId, Optional<Integer> start, Optional<Integer> limit);
 
     Optional<? extends ValidationRuleSetVersion> findValidationRuleSetVersion(long id);
 

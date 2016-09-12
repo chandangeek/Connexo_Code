@@ -6,12 +6,12 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationContextImpl;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Comparator;
@@ -38,10 +38,10 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
     private Map<Long, ChannelValidationContainer> mapChannelToValidation;
     private Multimap<String, IValidationRule> mapQualityToRule;
 
-    private Optional<Boolean> isEnabled = Optional.empty();
-    private Optional<Boolean> isOnStorageEnabled = Optional.empty();
+    private Boolean isEnabled;
+    private Boolean isOnStorageEnabled;
 
-    ValidationEvaluatorForMeter(ValidationServiceImpl validationService, Meter meter, Range<Instant> interval) {
+    ValidationEvaluatorForMeter(ValidationServiceImpl validationService, Meter meter) {
         this.validationService = validationService;
         this.meter = meter;
     }
@@ -70,18 +70,18 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
 
     @Override
     public boolean isValidationEnabled(Meter meter) {
-        return isEnabled.orElseGet(() -> {
-            isEnabled = Optional.of(validationService.validationEnabled(meter));
-            return isEnabled.get();
-        });
+        if (isEnabled == null) {
+            isEnabled = validationService.validationEnabled(meter);
+        }
+        return isEnabled;
     }
 
     @Override
     public boolean isValidationOnStorageEnabled(Meter meter) {
-        return isOnStorageEnabled.orElseGet(() -> {
-            isOnStorageEnabled = Optional.of(validationService.validationOnStorageEnabled(meter));
-            return isOnStorageEnabled.get();
-        });
+        if (isOnStorageEnabled == null) {
+            isOnStorageEnabled = validationService.validationOnStorageEnabled(meter);
+        }
+        return isOnStorageEnabled;
     }
 
     @Override
@@ -146,7 +146,8 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
         Set<IValidationRule> rules = getMapToValidation().values().stream()
                 .flatMap(channelsContainerValidationList -> channelsContainerValidationList.ruleSets().stream())
                 .distinct()
-                .flatMap(ruleSet -> ruleSet.getRules().stream())
+                .map(ValidationRuleSet::getRules)
+                .flatMap(List::stream)
                 .map(IValidationRule.class::cast)
                 .collect(Collectors.toSet());
         return Multimaps.index(rules, i -> i.getReadingQualityType().getCode());
