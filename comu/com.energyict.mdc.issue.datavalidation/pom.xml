@@ -105,6 +105,10 @@
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
+      <artifactId>security.thread</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
       <artifactId>estimation</artifactId>
     </dependency>
 
@@ -151,11 +155,6 @@
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
-      <artifactId>security.thread</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
       <artifactId>pubsub</artifactId>
       <scope>test</scope>
     </dependency>
@@ -198,10 +197,6 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>messaging.h2</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
-      <artifactId>security.thread</artifactId>
     </dependency>
     <dependency>
     <groupId>com.energyict</groupId>
@@ -291,11 +286,6 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>calendar</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
-      <artifactId>util</artifactId>
-      <version>2.1.0${revision}</version>
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
