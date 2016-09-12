@@ -27,6 +27,7 @@ public class DeviceMessageInfo {
     public Boolean willBePickedUpByPlannedComTask;
     public List<PropertyInfo> properties;
     public IdWithNameInfo preferredComTask;
+    public boolean userCanAdministrate;
     public long version;
     public VersionInfo<String> parent;
 
