@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.imports.impl.AbstractFileImporterFactory;
 import com.elster.jupiter.metering.imports.impl.CsvImporter;
 import com.elster.jupiter.metering.imports.impl.DataImporterProperty;
@@ -13,7 +12,6 @@ import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -36,19 +34,13 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
     public static final String NAME = "UsagePointFileImporterFactory";
 
     private volatile MeteringDataImporterContext context;
-    private volatile MetrologyConfigurationService metrologyConfigurationService;
-
-    @Activate
-    public void activate() {
-    }
 
     public UsagePointsImporterFactory() {
     }
 
     @Inject
-    public UsagePointsImporterFactory(MeteringDataImporterContext context, MetrologyConfigurationService metrologyConfigurationService) {
+    public UsagePointsImporterFactory(MeteringDataImporterContext context) {
         setMeteringDataImporterContext(context);
-        setMetrologyConfigurationService(metrologyConfigurationService);
     }
 
     @Override
@@ -62,8 +54,8 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
         FileImportParser<UsagePointImportRecord> parser = new FileImportDescriptionBasedParser(
                 new UsagePointImportDescription(dateFormat, timeZone, numberFormat, context), context);
 
-        FileImportProcessor<UsagePointImportRecord> processor = insightIsPresent()
-                ? new UsagePointsImportProcessor(getContext(), metrologyConfigurationService)
+        FileImportProcessor<UsagePointImportRecord> processor = context.insightInstalled()
+                ? new UsagePointsImportProcessor(getContext())
                 : new UsagePointsImportProcessorForMultisense(getContext());
 
         FileImportLogger logger = new UsagePointsImportLogger(getContext());
@@ -72,10 +64,6 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
                 .withLogger(logger)
                 .withDelimiter(delimiter.charAt(0))
                 .build();
-    }
-
-    private boolean insightIsPresent() {
-        return context.getLicenseService().getLicenseForApplication("INS").isPresent();
     }
 
     @Override
@@ -106,13 +94,7 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
     }
 
     @Override
-    @Reference
-    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = metrologyConfigurationService;
-    }
-
-    @Override
     public String getApplicationName() {
-        return insightIsPresent() ? "INS" : "MDC";
+        return context.insightInstalled() ? "INS" : "MDC";
     }
 }

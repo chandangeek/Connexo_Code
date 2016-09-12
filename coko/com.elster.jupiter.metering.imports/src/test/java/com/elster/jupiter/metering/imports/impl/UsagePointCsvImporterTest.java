@@ -39,7 +39,6 @@ import static org.mockito.Mockito.when;
 public class UsagePointCsvImporterTest {
 
     static class CSVLineMatcher extends ArgumentMatcher<CSVRecord> implements Serializable {
-
         private int line;
 
         CSVLineMatcher(int lineNumber) {
@@ -58,7 +57,6 @@ public class UsagePointCsvImporterTest {
     }
 
     static class RecordLineMatcher extends ArgumentMatcher<FileImportRecord> implements Serializable {
-
         private int line;
 
         RecordLineMatcher(int lineNumber) {
@@ -87,10 +85,8 @@ public class UsagePointCsvImporterTest {
     public void beforeTest() {
         reset(logger, context, thesaurus);
         when(simpleNlsMessageFormat.format(anyObject())).thenReturn("format");
-        when(thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> simpleNlsMessageFormat);
-        when(thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> simpleNlsMessageFormat);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocationOnMock -> simpleNlsMessageFormat);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocationOnMock -> simpleNlsMessageFormat);
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
 

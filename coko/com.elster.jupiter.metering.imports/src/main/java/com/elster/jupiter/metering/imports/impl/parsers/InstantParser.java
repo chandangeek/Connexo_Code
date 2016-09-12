@@ -12,12 +12,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class DateParser implements FieldParser<Instant> {
+public class InstantParser implements FieldParser<Instant> {
 
     private final String format;
     private final String timeZone;
 
-    public DateParser(String format, String timeZone) {
+    public InstantParser(String format, String timeZone) {
         this.format = format;
         this.timeZone = timeZone;
     }

@@ -12,26 +12,26 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class DateParserTest {
+public class InstantParserTest {
 
     @Test
     public void testNominalCase() {
-        DateParser dateParser = new DateParser("dd/MM/yyyy HH:mm", "GMT-03:00");
-        Instant parsedDateTime = dateParser.parse("28/07/2015 14:52");
+        InstantParser instantParser = new InstantParser("dd/MM/yyyy HH:mm", "GMT-03:00");
+        Instant parsedDateTime = instantParser.parse("28/07/2015 14:52");
         assertThat(parsedDateTime).isEqualTo(ZonedDateTime.of(2015, 7, 28, 14, 52, 0, 0, ZoneOffset.ofHours(-3))
                 .toInstant());
     }
 
     @Test
     public void testParseEmptyValue() {
-        DateParser dateParser = new DateParser("dd/MM/yyyy HH:mm", "GMT-03:00");
-        assertThat(dateParser.parse(null)).isNull();
-        assertThat(dateParser.parse("")).isNull();
+        InstantParser instantParser = new InstantParser("dd/MM/yyyy HH:mm", "GMT-03:00");
+        assertThat(instantParser.parse(null)).isNull();
+        assertThat(instantParser.parse("")).isNull();
     }
 
     @Test
     public void testValueParserException() {
-        DateParser dateParser = new DateParser("dd/MM/yyyy HH:mm", "GMT-03:00");
-        assertThatThrownBy(() -> dateParser.parse("36/25/10055")).isInstanceOf(ValueParserException.class);
+        InstantParser instantParser = new InstantParser("dd/MM/yyyy HH:mm", "GMT-03:00");
+        assertThatThrownBy(() -> instantParser.parse("36/25/10055")).isInstanceOf(ValueParserException.class);
     }
 }

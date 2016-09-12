@@ -1,16 +1,18 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.metering.LocationTemplate;
-import com.elster.jupiter.metering.imports.impl.CustomPropertySetDescription;
+import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FieldParser;
 import com.elster.jupiter.metering.imports.impl.FileImportDescription;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
+import com.elster.jupiter.metering.imports.impl.exceptions.ValueParserException;
 import com.elster.jupiter.metering.imports.impl.fields.CommonField;
 import com.elster.jupiter.metering.imports.impl.fields.FileImportField;
 import com.elster.jupiter.metering.imports.impl.parsers.BigDecimalParser;
 import com.elster.jupiter.metering.imports.impl.parsers.BooleanParser;
-import com.elster.jupiter.metering.imports.impl.parsers.DateParser;
+import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
 import com.elster.jupiter.metering.imports.impl.parsers.LiteralStringParser;
 import com.elster.jupiter.metering.imports.impl.parsers.NumberParser;
 import com.elster.jupiter.metering.imports.impl.parsers.QuantityParser;
@@ -22,9 +24,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-class UsagePointImportDescription extends CustomPropertySetDescription implements FileImportDescription<UsagePointImportRecord> {
+class UsagePointImportDescription implements FileImportDescription<UsagePointImportRecord> {
 
-    private final DateParser dateParser;
+    private final InstantParser instantParser;
     private final BigDecimalParser bigDecimalParser;
     private final QuantityParser quantityParser;
     private final LiteralStringParser stringParser;
@@ -34,7 +36,7 @@ class UsagePointImportDescription extends CustomPropertySetDescription implement
     private NumberParser numberParser;
 
     UsagePointImportDescription(String dateFormat, String timeZone, SupportedNumberFormat numberFormat, MeteringDataImporterContext context) {
-        this.dateParser = new DateParser(dateFormat, timeZone);
+        this.instantParser = new InstantParser(dateFormat, timeZone);
         this.bigDecimalParser = new BigDecimalParser(numberFormat);
         this.numberParser = new NumberParser(NumberFormat.getInstance(context.getThreadPrincipalService().getLocale()));
         this.stringParser = new LiteralStringParser();
@@ -52,21 +54,15 @@ class UsagePointImportDescription extends CustomPropertySetDescription implement
     @Override
     public Map<String, FileImportField<?>> getFields(UsagePointImportRecord record) {
         Map<String, FileImportField<?>> fields = new HashMap<>();
-        //mRID
         fields.put("mRID", CommonField.withParser(stringParser)
                 .withSetter(record::setmRID)
                 .withName("mRID")
                 .markMandatory()
                 .build());
-        //Service category
         fields.put("serviceKind", CommonField.withParser(stringParser)
                 .withSetter(record::setServiceKind)
                 .withName("serviceKind")
                 .markMandatory()
-                .build());
-        fields.put("metrologyConfiguration", CommonField.withParser(numberParser)
-                .withSetter(record::setMetrologyConfiguration)
-                .withName("metrologyConfiguration")
                 .build());
         fields.put("isSdp", CommonField.withParser(booleanParser)
                 .withSetter(record::setSdp)
@@ -76,33 +72,11 @@ class UsagePointImportDescription extends CustomPropertySetDescription implement
                 .withSetter(record::setVirtual)
                 .withName("isVirtual")
                 .build());
-        fields.put("latitude", CommonField.withParser(stringParser)
-                .withSetter(record::setLatitude)
-                .withName("latitude")
-                .build());
-        fields.put("longitude", CommonField.withParser(stringParser)
-                .withSetter(record::setLongitude)
-                .withName("longitude")
-                .build());
-        fields.put("elevation", CommonField.withParser(stringParser)
-                .withSetter(record::setElevation)
-                .withName("elevation")
-                .build());
-        context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                .sorted((t1,t2)->Integer.compare(t1.getRanking(),t2.getRanking()))
-                .map(LocationTemplate.TemplateField::getName)
-                .forEach(s-> {
-                    fields.put(s, CommonField.withParser(stringParser)
-                            .withSetter(record::addLocation)
-                            .withName(s)
-                            .build());
-                });
-
         fields.put("name", CommonField.withParser(stringParser)
                 .withSetter(record::setName)
                 .withName("name")
                 .build());
-        fields.put("installationTime", CommonField.withParser(dateParser)
+        fields.put("installationTime", CommonField.withParser(instantParser)
                 .withSetter(record::setInstallationTime)
                 .withName("installationTime")
                 .build());
@@ -119,15 +93,29 @@ class UsagePointImportDescription extends CustomPropertySetDescription implement
                 .withName("servicePriority")
                 .build());
         fields.put("serviceDeliveryRemark", CommonField.withParser(stringParser)
-                .withSetter(record::setServicePriority)
+                .withSetter(record::setServiceDeliveryRemark)
                 .withName("serviceDeliveryRemark")
                 .build());
         fields.put("allowUpdate", CommonField.withParser(booleanParser)
                 .withSetter(record::setAllowUpdate)
                 .withName("allowUpdate")
                 .build());
+        fields.put("metrologyConfiguration", CommonField.withParser(stringParser)
+                .withSetter(record::setMetrologyConfiguration)
+                .withName("metrologyConfiguration")
+                .build());
+        fields.put("metrologyConfigurationTime", CommonField.withParser(instantParser)
+                .withSetter(record::setMetrologyConfigurationApplyTime)
+                .withName("metrologyConfigurationTime")
+                .build());
 
-        //Technical attributes
+        addTechnicalAttributesFields(fields, record);
+        addLocationFields(fields, record);
+        addCustomPropertySetFields(fields, record);
+        return fields;
+    }
+
+    private void addTechnicalAttributesFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
         fields.put("collar", CommonField.withParser(yesNoAnswerParser)
                 .withSetter(record::setCollar)
                 .withName("collar")
@@ -200,27 +188,67 @@ class UsagePointImportDescription extends CustomPropertySetDescription implement
                 .withSetter(record::setInterruptible)
                 .withName("interruptible")
                 .build());
+    }
 
-        //Custom property Sets
-        fields.putAll(super.getCustomPropertySetFields(dateParser, record));
+    private void addLocationFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
+        if (context.insightInstalled()) {
+            fields.put("latitude", CommonField.withParser(stringParser)
+                    .withSetter(record::setLatitude)
+                    .withName("latitude")
+                    .build());
+            fields.put("longitude", CommonField.withParser(stringParser)
+                    .withSetter(record::setLongitude)
+                    .withName("longitude")
+                    .build());
+            fields.put("elevation", CommonField.withParser(stringParser)
+                    .withSetter(record::setElevation)
+                    .withName("elevation")
+                    .build());
+            context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                    .sorted((t1, t2) -> Integer.compare(t1.getRanking(), t2.getRanking()))
+                    .map(LocationTemplate.TemplateField::getName)
+                    .forEach(s -> {
+                        fields.put(s, CommonField.withParser(stringParser)
+                                .withSetter(record::addLocation)
+                                .withName(s)
+                                .build());
+                    });
+        }
+    }
 
-        return fields;
+    public void addCustomPropertySetFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
+        fields.put("customPropertySetTime", CommonField
+                .withParser(instantParser)
+                .build());
+        fields.put("customPropertySetValue", CommonField
+                .withParser(new FieldParser<Map<CustomPropertySet, CustomPropertySetRecord>>() {
+                    @Override
+                    public Class<Map<CustomPropertySet, CustomPropertySetRecord>> getValueType() {
+                        throw new UnsupportedOperationException();
+                    }
+
+                    @Override
+                    public Map<CustomPropertySet, CustomPropertySetRecord> parse(String value) throws
+                            ValueParserException {
+                        throw new UnsupportedOperationException();
+                    }
+                })
+                .withSetter(record::setCustomPropertySets)
+                .build());
     }
 
     @Override
     public Map<Class, FieldParser> getParsers() {
-        Map<Class, FieldParser> parsers = new HashMap<>();
+        Map<Class, FieldParser> fieldParsers = new HashMap<>();
         Arrays.asList(
-                dateParser,
+                instantParser,
                 bigDecimalParser,
                 numberParser,
                 stringParser,
                 booleanParser,
                 yesNoAnswerParser,
                 quantityParser
-        ).forEach(e -> parsers.put(e.getValueType(), e));
-        return parsers;
+        ).forEach(fieldParser -> fieldParsers.put(fieldParser.getValueType(), fieldParser));
+        return fieldParsers;
     }
-
-
 }

@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.imports.impl.exceptions.FileImportParserExcep
 import com.elster.jupiter.metering.imports.impl.exceptions.ValueParserException;
 import com.elster.jupiter.metering.imports.impl.fields.FieldSetter;
 import com.elster.jupiter.metering.imports.impl.fields.FileImportField;
-import com.elster.jupiter.metering.imports.impl.parsers.DateParser;
+import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 
@@ -26,9 +26,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class FileImportDescriptionBasedParser<T extends FileImportRecord> implements FileImportParser<T> {
-
-    private static final String MRID_FIELD = "mRID";
-    private static final String SERVICEKIND_FIELD = "serviceKind";
     private static final String CUSTOM_PROPERTY_FIELD = "customPropertySetValue";
     private static final String CUSTOM_PROPERTY_TIME_FIELD = "customPropertySetTime";
 
@@ -126,22 +123,22 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             CustomPropertySetRecord customPropertySetRecord = new CustomPropertySetRecord();
             CustomPropertySetValues values = CustomPropertySetValues.empty();
             try {
-                if (dateParser instanceof DateParser) {
+                if (dateParser instanceof InstantParser) {
                     csvRecordMap.entrySet()
                             .stream()
                             .filter(r -> r.getKey().equalsIgnoreCase(set.getId() + ".versionId"))
                             .findFirst()
-                            .ifPresent(r -> customPropertySetRecord.setVersionId(((DateParser) dateParser).parse(r.getValue())));
+                            .ifPresent(r -> customPropertySetRecord.setVersionId(((InstantParser) dateParser).parse(r.getValue())));
                     csvRecordMap.entrySet()
                             .stream()
                             .filter(r -> r.getKey().equalsIgnoreCase(set.getId() + ".startTime"))
                             .findFirst()
-                            .ifPresent(r -> customPropertySetRecord.setStartTime(((DateParser) dateParser).parse(r.getValue())));
+                            .ifPresent(r -> customPropertySetRecord.setStartTime(((InstantParser) dateParser).parse(r.getValue())));
                     csvRecordMap.entrySet()
                             .stream()
                             .filter(r -> r.getKey().equalsIgnoreCase(set.getId() + ".endTime"))
                             .findFirst()
-                            .ifPresent(r -> customPropertySetRecord.setEndTime(((DateParser) dateParser).parse(r.getValue())));
+                            .ifPresent(r -> customPropertySetRecord.setEndTime(((InstantParser) dateParser).parse(r.getValue())));
                 }
             } catch (ValueParserException ex) {
                 throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(),
@@ -206,11 +203,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
     }
 
     private long getNumberOfMandatoryColumns(Map<String, FileImportField<?>> fields) {
-        return fields
-                .values()
-                .stream()
-                .filter(FileImportField::isMandatory)
-                .count();
+        return fields.values().stream().filter(FileImportField::isMandatory).count();
     }
 
     private List<String> getRawValuesSkipTrailingNulls(CSVRecord csvRecord) {

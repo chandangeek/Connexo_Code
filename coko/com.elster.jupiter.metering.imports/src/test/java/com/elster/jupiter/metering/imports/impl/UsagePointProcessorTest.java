@@ -17,7 +17,6 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -66,120 +65,78 @@ public class UsagePointProcessorTest {
 
     @Mock
     Clock clock;
-
     @Mock
     private Logger logger;
-
     @Mock
     private UsagePoint usagePoint;
-
     @Mock
     private UsagePointBuilder usagePointBuilder;
-
     @Mock
     private ElectricityDetailBuilder usagePointDetailBuilder;
-
     @Mock
     private ElectricityDetail usagePointDetail;
-
     @Mock
     private Thesaurus thesaurus;
-
     @Mock
     MeteringService meteringService;
-
     @Mock
     CustomPropertySetService customPropertySetService;
-
     @Mock
     PropertySpecService propertySpecService;
-
     @Mock
     LicenseService licenseService;
-
     @Mock
     ThreadPrincipalService threadPrincipalService;
-
     @Mock
     License license;
-
     @Mock
     private ServiceCategory serviceCategoryOne;
-
     @Mock
     private ServiceCategory serviceCategoryTwo;
-
     @Mock
     private ServiceLocation servicelocation;
-
     @Mock
     NlsMessageFormat nlsMessageFormat;
-
     @Mock
     UsagePointCustomPropertySetExtension usagePointCustomPropertySetExtension;
-
-
     @Mock
     private FileImportOccurrence fileImportOccurrenceCorrect;
-
     @Mock
     private FileImportOccurrence fileImportOccurrenceIncorrect;
-
     @Mock
     private LocationTemplate locationTemplate;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldCountryCode;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldCountryName;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldAdministrativeArea;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldEstablishmentType;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldLocality;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldSubLocality;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldStreetType;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldStreetName;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldStreetNumber;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldLocale;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldEstablishmentName;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldEstablishmentNumber;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldAddressDetail;
-
     @Mock
     private LocationTemplate.TemplateField templateFieldZipCode;
-
     @Mock
     private LocationBuilder locationBuilder;
-
     @Mock
     private LocationBuilder.LocationMemberBuilder locationMemberBuilder;
-
-    @Mock
-    MetrologyConfigurationService metrologyConfigurationService;
-
-
 
     private MeteringDataImporterContext context;
 
@@ -292,12 +249,8 @@ public class UsagePointProcessorTest {
         try {
             when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
             when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
-            when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader()
-                    .getResource("usagepoint_correct.csv")
-                    .getPath()));
-            when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader()
-                    .getResource("usagepoint_incorrect.csv")
-                    .getPath()));
+            when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_correct.csv").getPath()));
+            when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getPath()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -332,7 +285,7 @@ public class UsagePointProcessorTest {
     }
 
     private FileImporter createUsagePointImporter() {
-        UsagePointsImporterFactory factory = new UsagePointsImporterFactory(context, metrologyConfigurationService);
+        UsagePointsImporterFactory factory = new UsagePointsImporterFactory(context);
         Map<String, Object> properties = new HashMap<>();
         properties.put(DataImporterProperty.DELIMITER.getPropertyKey(), ";");
         properties.put(DataImporterProperty.DATE_FORMAT.getPropertyKey(), "dd/MM/yyyy HH:mm");
