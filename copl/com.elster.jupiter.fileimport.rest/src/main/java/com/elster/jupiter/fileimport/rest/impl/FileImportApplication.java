@@ -14,13 +14,24 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.api.Factory;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.hibernate.validator.HibernateValidator;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import javax.validation.spi.ValidationProvider;
 import javax.ws.rs.core.Application;
 import java.nio.file.FileSystem;
 import java.util.Arrays;
@@ -133,9 +144,47 @@ public class FileImportApplication extends Application implements MessageSeedPro
                 bind(FileImportApplication.this).to(AppNamesProvider.class);
                 bind(FileImportScheduleInfoFactory.class).to(FileImportScheduleInfoFactory.class);
                 bind(FileImporterInfoFactory.class).to(FileImporterInfoFactory.class);
+                bindFactory(getValidatorFactory()).to(Validator.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    private Factory<Validator> getValidatorFactory() {
+            return new Factory<Validator>() {
+                private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
+                        .providerResolver(() -> ImmutableList.<ValidationProvider<?>>of(new HibernateValidator()))
+                        .configure()
+//                    .constraintValidatorFactory(getConstraintValidatorFactory())
+                        .messageInterpolator(thesaurus)
+                        .buildValidatorFactory();
+
+                @Override
+                public Validator provide() {
+                    return validatorFactory.getValidator();
+                }
+
+                @Override
+                public void dispose(Validator validator) {
+
+                }
+            };
+    }
+
+    public ConstraintValidatorFactory getConstraintValidatorFactory() {
+        return new ConstraintValidatorFactory() {
+
+            @Override
+            public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> aClass) {
+                ServiceLocatorFactory factory = ServiceLocatorFactory.getInstance();
+                ServiceLocator serviceLocator = factory.create("rest");
+                return serviceLocator.getService(aClass);
+            }
+            @Override
+            public void releaseInstance(ConstraintValidator<?, ?> constraintValidator) {
+                // noop
+            }
+        };
     }
 
     @Override

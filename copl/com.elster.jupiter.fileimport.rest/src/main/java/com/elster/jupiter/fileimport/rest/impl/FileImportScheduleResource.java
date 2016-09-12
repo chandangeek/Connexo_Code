@@ -17,15 +17,19 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -46,30 +50,32 @@ import java.nio.file.FileSystem;
 import java.nio.file.InvalidPathException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/importservices")
 public class FileImportScheduleResource {
 
+    private static final String NON_PATH_INVALID = "\":*?<>|";
     private final FileImportService fileImportService;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
-    private final CronExpressionParser cronExpressionParser;
     private final PropertyValueInfoService propertyValueInfoService;
     private final FileSystem fileSystem;
     private final FileImportScheduleInfoFactory fileImportScheduleInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final Validator validator;
 
     @Inject
-    public FileImportScheduleResource(FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyValueInfoService propertyValueInfoService, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
+    public FileImportScheduleResource(FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, Validator validator) {
         this.fileImportService = fileImportService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
-        this.cronExpressionParser = cronExpressionParser;
         this.propertyValueInfoService = propertyValueInfoService;
         this.fileSystem = fileSystem;
         this.fileImportScheduleInfoFactory = fileImportScheduleInfoFactory;
         this.conflictFactory = conflictFactory;
+        this.validator = validator;
     }
 
     @GET
@@ -108,36 +114,43 @@ public class FileImportScheduleResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES})
+    @Transactional
     public Response addImportSchedule(FileImportScheduleInfo info) {
         if (info.scanFrequency < 0) {
             info.scanFrequency = 1;
         }
-            ImportScheduleBuilder builder = fileImportService.newBuilder()
-                    .setName(info.name)
-                    .setPathMatcher(info.pathMatcher)
-                    .setImportDirectory(getPath(info.importDirectory))
-                    .setFailureDirectory(getPath(info.failureDirectory))
-                    .setSuccessDirectory(getPath(info.successDirectory))
-                    .setProcessingDirectory(getPath(info.inProcessDirectory))
-                    .setImporterName(info.importerInfo.name)
-                    .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency));
+        validate(info, POST.class);
+        ImportScheduleBuilder builder = fileImportService.newBuilder()
+                .setName(info.name)
+                .setPathMatcher(info.pathMatcher)
+                .setImportDirectory(getPath(info.importDirectory))
+                .setFailureDirectory(getPath(info.failureDirectory))
+                .setSuccessDirectory(getPath(info.successDirectory))
+                .setProcessingDirectory(getPath(info.inProcessDirectory))
+                .setImporterName(info.importerInfo.name)
+                .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency));
 
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
 
-        propertiesSpecs.stream()
+        propertiesSpecs
                 .forEach(spec -> {
                     Object value = propertyValueInfoService.findPropertyValue(spec, info.properties);
                     builder.addProperty(spec.getName()).withValue(value);
                 });
         ImportSchedule importSchedule;
-        try (TransactionContext context = transactionService.getContext()) {
-            importSchedule = builder.create();
-            context.commit();
-        }
+        importSchedule = builder.create();
+
         return Response.status(Response.Status.CREATED).entity(fileImportScheduleInfoFactory.asInfo(importSchedule)).build();
+    }
+
+    public void validate(Object info, Class<?> clazz) {
+        Set<ConstraintViolation<Object>> violations = validator.validate(info, clazz);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
     }
 
     @DELETE
@@ -169,6 +182,7 @@ public class FileImportScheduleResource {
         if (info.scanFrequency < 0) {
             info.scanFrequency = 1;
         }
+        validate(info, PUT.class);
         try (TransactionContext context = transactionService.getContext()) {
             ImportSchedule importSchedule = fetchAndLockImportSchedule(info);
             if (!importSchedule.isImporterAvailable()) {
@@ -288,7 +302,7 @@ public class FileImportScheduleResource {
 
     private void updateProperties(FileImportScheduleInfo info, ImportSchedule importSchedule) {
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
-        propertiesSpecs.stream()
+        propertiesSpecs
                 .forEach(spec -> {
                     Object value = propertyValueInfoService.findPropertyValue(spec, info.properties);
                     importSchedule.setProperty(spec.getName(), value);

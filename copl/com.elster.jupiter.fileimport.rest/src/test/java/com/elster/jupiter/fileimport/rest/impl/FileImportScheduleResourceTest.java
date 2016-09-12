@@ -81,12 +81,17 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
     @Test
     public void testAddImportSchedules() {
         FileImportScheduleInfo info = new FileImportScheduleInfo();
+        info.name = "name";
         info.importerInfo = new FileImporterInfo();
         info.importerInfo.name = "Test importer";
         info.scanFrequency = -1;
         info.importerInfo.displayName = "Display test importer";
         info.importerInfo.properties = ImmutableList.of();
         Entity<FileImportScheduleInfo> json = Entity.json(info);
+        info.importDirectory = "import";
+        info.inProcessDirectory = "progress";
+        info.failureDirectory = "failure";
+        info.successDirectory = "success";
 
         ImportScheduleBuilder builder = mock(ImportScheduleBuilder.class);
         when(fileImportService.newBuilder()).thenReturn(builder);
@@ -119,6 +124,9 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         info.name = "New name";
         info.scanFrequency = -1;
         info.importDirectory = "New folder";
+        info.inProcessDirectory = "progress";
+        info.failureDirectory = "failure";
+        info.successDirectory = "success";
         info.importerInfo.name = "Test importer";
         info.importerInfo.displayName = "Display test importer";
         info.importerInfo.properties = ImmutableList.of();
