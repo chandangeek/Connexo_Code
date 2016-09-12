@@ -153,23 +153,21 @@ public class UsagePointOutputResource {
         }
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
-            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
-            EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
-            ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
-            Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
-            if (usagePointActivationInterval.isConnected(requestedInterval)) {
-                Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);
+            Range<Instant> requestedInterval = getRequestedInterval(usagePoint, filter);
+            if (requestedInterval != null) {
+                EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
+                ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
                 Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
                 TemporalAmount intervalLength = channel.getIntervalLength().get();
                 ValidationEvaluator evaluator = validationService.getEvaluator();
                 IntervalReadingWithValidationStatus.Builder builder = IntervalReadingWithValidationStatus.builder(
                         validationStatusFactory.isValidationActive(effectiveMetrologyConfiguration, metrologyContract),
                         validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
-                Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(effectiveInterval).stream()
+                Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(requestedInterval).stream()
                         .collect(Collectors.toMap(Function.identity(), timeStamp -> builder.from(ZonedDateTime.ofInstant(timeStamp, clock.getZone()), intervalLength)));
 
                 // add readings to pre filled channel data map
-                List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(effectiveInterval);
+                List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(requestedInterval);
                 for (IntervalReadingRecord intervalReadingRecord : intervalReadings) {
                     IntervalReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(intervalReadingRecord.getTimeStamp());
                     if (readingWithValidationStatus != null) {
@@ -179,7 +177,7 @@ public class UsagePointOutputResource {
 
                 // add validation statuses to pre filled channel data map
                 List<DataValidationStatus> dataValidationStatuses = evaluator
-                        .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, intervalReadings, effectiveInterval);
+                        .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, intervalReadings, requestedInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                     IntervalReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
                     if (readingWithValidationStatus != null) {
@@ -197,11 +195,28 @@ public class UsagePointOutputResource {
         return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
     }
 
-    private Range<Instant> getUsagePointActivationInterval(UsagePoint usagePoint) {
-        RangeSet<Instant> meterActivationIntervals = usagePoint.getMeterActivations().stream()
-                .map(MeterActivation::getRange)
-                .collect(TreeRangeSet::<Instant>create, RangeSet::add, RangeSet::addAll);
-        return !meterActivationIntervals.isEmpty() ? meterActivationIntervals.span() : Range.singleton(Instant.MIN);
+    private Range<Instant> getRequestedInterval(UsagePoint usagePoint, JsonQueryFilter filter) {
+        Range<Instant> sourceRange = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
+        return getUsagePointAdjustedDataRange(usagePoint, sourceRange).orElse(null);
+    }
+
+    static Optional<Range<Instant>> getUsagePointAdjustedDataRange(UsagePoint usagePoint, Range<Instant> sourceRange) {
+        List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
+        if (meterActivations.isEmpty()
+                && effectiveMetrologyConfiguration.getMetrologyConfiguration().getMeterRoles().isEmpty()
+                && sourceRange.isConnected(effectiveMetrologyConfiguration.getRange())) {
+            return Optional.of(effectiveMetrologyConfiguration.getRange().intersection(sourceRange));
+        } else if (!meterActivations.isEmpty()) {
+            RangeSet<Instant> meterActivationIntervals = meterActivations.stream()
+                    .map(MeterActivation::getRange)
+                    .collect(TreeRangeSet::<Instant>create, RangeSet::add, RangeSet::addAll);
+            Range<Instant> usagePointActivationsRange = !meterActivationIntervals.isEmpty() ? meterActivationIntervals.span() : Range.singleton(Instant.MIN);
+            if (usagePointActivationsRange.isConnected(sourceRange)) {
+                return Optional.of(usagePointActivationsRange.intersection(sourceRange));
+            }
+        }
+        return Optional.empty();
     }
 
     @GET

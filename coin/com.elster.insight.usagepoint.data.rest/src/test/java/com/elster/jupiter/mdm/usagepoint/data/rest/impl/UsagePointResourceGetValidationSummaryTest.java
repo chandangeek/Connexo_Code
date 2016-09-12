@@ -6,11 +6,11 @@ import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -66,6 +66,8 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
     private ReadingTypeDeliverable readingTypeDeliverable1, readingTypeDeliverable2;
     @Mock
     private ChannelDataValidationSummary summary1, summary2;
+    @Mock
+    private MeterRole meterRole;
 
     @Before
     public void before() {
@@ -73,9 +75,10 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getMRID()).thenReturn("MRID");
         when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
-        when(meterActivation.getInterval()).thenReturn(Interval.of(Range.all()));
+        when(meterActivation.getRange()).thenReturn(Range.all());
         when(clock.instant()).thenReturn(NOW.toInstant());
         when(clock.getZone()).thenReturn(NOW.getZone());
+        when(metrologyConfiguration.getMeterRoles()).thenReturn(Collections.singletonList(meterRole));
 
         when(timeService.findRelativePeriod(anyLong())).thenReturn(Optional.empty());
         when(timeService.findRelativePeriod(5)).thenReturn(Optional.of(TODAY));
@@ -98,7 +101,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.message")).isEqualTo("No usage point with MRID xxx");
     }
 
@@ -111,7 +114,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.message")).isEqualTo("Metrology purpose with id 0 is not found on usage point with MRID MRID.");
     }
 
@@ -124,7 +127,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.message")).isEqualTo("Metrology purpose with id 1,000 is not found on usage point with MRID MRID.");
     }
 
@@ -138,7 +141,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.message")).isEqualTo("Relative period with id 0 is not found.");
     }
 
@@ -152,7 +155,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.message")).isEqualTo("Relative period with id 100 is not found.");
     }
 
@@ -166,7 +169,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.message")).isEqualTo("Cannot gather validation statistics for relative period with id 7: it is in the future.");
     }
 
@@ -204,7 +207,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, Range.openClosed(NOW.withMinute(0).toInstant(), NOW.toInstant()));
         verifyNoMoreInteractions(usagePointDataService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].id")).containsExactly(2, 1);
         assertThat(jsonModel.<List<String>>get("$.outputs[*].name")).containsExactly("Vmoihobyatiah", "Ityvbelomplatye");
@@ -224,7 +227,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         mockUsagePointMetrologyConfiguration();
         mockMetrologyContract(5);
         Instant meterActivated = NOW.minusDays(1).withHour(4).toInstant();
-        when(meterActivation.getInterval()).thenReturn(Interval.of(Range.closedOpen(meterActivated, NOW.toInstant())));
+        when(meterActivation.getRange()).thenReturn(Range.closedOpen(meterActivated, NOW.toInstant()));
         when(usagePointDataService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), any()))
                 .thenReturn(ImmutableMap.of(
                         readingTypeDeliverable1, summary1
@@ -238,10 +241,10 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
 
         // Asserts
-        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, Range.openClosed(meterActivated, NOW.withMinute(0).toInstant()));
+        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, Range.closed(meterActivated, NOW.withMinute(0).toInstant()));
         verifyNoMoreInteractions(usagePointDataService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].id")).containsExactly(3);
         assertThat(jsonModel.<List<String>>get("$.outputs[*].name")).containsExactly("DekabrJanvahrIFevral");
@@ -272,7 +275,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, emptyInterval);
         verifyNoMoreInteractions(usagePointDataService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].id")).containsExactly(4);
         assertThat(jsonModel.<List<String>>get("$.outputs[*].name")).containsExactly("Lalalala");
@@ -295,7 +298,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, YESTERDAY.getOpenClosedInterval(NOW));
         verifyNoMoreInteractions(usagePointDataService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
         assertThat(jsonModel.<List<ChannelDataValidationSummaryInfo>>get("$.outputs")).isEmpty();
     }
@@ -304,6 +307,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
+        when(effectiveMC.getRange()).thenReturn(Range.all());
     }
 
     private void mockMetrologyContract(long id) {
