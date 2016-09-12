@@ -206,6 +206,7 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
             }
             Comparator<? super Instant> comparator = nullsLast(naturalOrder());
             return channelValidations.stream()
+                    .filter(channelValidation -> channelValidation.getChannel().getLastDateTime() != null)
                     .noneMatch(c -> c.hasActiveRules() && comparator.compare(c.getLastChecked(), c.getChannel().getLastDateTime()) < 0);
         }
         return channelValidations.stream()
