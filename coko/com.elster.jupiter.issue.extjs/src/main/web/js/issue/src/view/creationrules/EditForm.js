@@ -88,7 +88,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                         htmlEncode: false,
                         hidden: true,
                         value: '<div class="uni-icon-info-small" style="width: 16px; height: 16px;"></div>',
-                        setTooltip: function (tooltip) {
+                        setInfoTooltip: function (tooltip) {
                             if (tooltip) {
                                 this.getEl().down('.uni-icon-info-small').set({
                                     'data-qtip': tooltip
@@ -325,7 +325,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
         }
         template = templateCombo.findRecordByValue(templateCombo.getValue());
         if (template) {
-            me.down('#rule-template-info').setTooltip(template.get('description'));
+            me.down('#rule-template-info').setInfoTooltip(template.get('description'));
         }
         me.updateLayout();
         Ext.resumeLayouts(true);
@@ -374,7 +374,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
             template = combo.findRecordByValue(newValue);
 
         if (template) {
-            me.down('#rule-template-info').setTooltip(template.get('description'));
+            me.down('#rule-template-info').setInfoTooltip(template.get('description'));
             me.down('property-form').loadRecord(template);
             me.hideResetButtons();
         }
@@ -398,7 +398,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
         if (type) {
             Ext.suspendLayouts();
             templateCombo.reset();
-            me.down('#rule-template-info').setTooltip(null);
+            me.down('#rule-template-info').setInfoTooltip(null);
             issueReasonCombo.reset();
             me.down('property-form').loadRecord(Ext.create('Isu.model.CreationRuleTemplate'));
             me.hideResetButtons();
