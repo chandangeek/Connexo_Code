@@ -27,7 +27,7 @@ public class SynchDeviceWithKoreForConfigurationChange extends AbstractSyncDevic
         this.setDevice(device);
 
         endCurrentMeterConfigurationIfPresent();
-        createKoreMeterConfiguration(device.getKoreHelper().getMultiplier().isPresent());
+        createKoreMeterConfiguration();
         // create a new MeterActivation
 
         MeterActivation activation = activateMeter(getStart());
