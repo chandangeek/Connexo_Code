@@ -1,6 +1,6 @@
 package com.energyict.mdc.common;
 
-import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -51,19 +51,19 @@ public class DateTimeFormatGenerator {
         if (principal instanceof User) {
             User user = (User) principal;
             Optional<UserPreference> dateFormatPref = dateFormatMode.equals(DateTimeFormatGenerator.Mode.LONG)
-                    ? preferencesService.getPreferenceByKey(user, FormatKey.LONG_DATE)
-                    : preferencesService.getPreferenceByKey(user, FormatKey.SHORT_DATE);
+                    ? preferencesService.getPreferenceByKey(user, PreferenceType.LONG_DATE)
+                    : preferencesService.getPreferenceByKey(user, PreferenceType.SHORT_DATE);
             Optional<UserPreference> timeFormatPref = timeFormatMode.equals(DateTimeFormatGenerator.Mode.LONG)
-                    ? preferencesService.getPreferenceByKey(user, FormatKey.LONG_TIME)
-                    : preferencesService.getPreferenceByKey(user, FormatKey.SHORT_TIME);
-            Optional<UserPreference> orderFormatPref = preferencesService.getPreferenceByKey(user, FormatKey.DATETIME_ORDER);
-            Optional<UserPreference> separatorFormatPref = preferencesService.getPreferenceByKey(user, FormatKey.DATETIME_SEPARATOR);
+                    ? preferencesService.getPreferenceByKey(user, PreferenceType.LONG_TIME)
+                    : preferencesService.getPreferenceByKey(user, PreferenceType.SHORT_TIME);
+            Optional<UserPreference> orderFormatPref = preferencesService.getPreferenceByKey(user, PreferenceType.DATETIME_ORDER);
+            Optional<UserPreference> separatorFormatPref = preferencesService.getPreferenceByKey(user, PreferenceType.DATETIME_SEPARATOR);
             if (dateFormatPref.isPresent() && timeFormatPref.isPresent() && orderFormatPref.isPresent() && separatorFormatPref.isPresent()) {
                 dateTimeFormat = DateTimeFormatGenerator.getDateTimeFormat(
-                        dateFormatPref.get().getFormatBE(),
-                        timeFormatPref.get().getFormatBE(),
-                        orderFormatPref.get().getFormatBE(),
-                        separatorFormatPref.get().getFormatBE()
+                        dateFormatPref.get().getFormat(),
+                        timeFormatPref.get().getFormat(),
+                        orderFormatPref.get().getFormat(),
+                        separatorFormatPref.get().getFormat()
                 );
             }
             locale = user.getLocale().orElse(locale);
