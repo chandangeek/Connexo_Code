@@ -71,11 +71,14 @@ Ext.define('CSMonitor.controller.logging.Communication', {
     },
 
     onChangeDeviceMRID: function(field, newValue, oldValue) {
-        this.setDeviceMRID(newValue);
+        newValue = newValue.replace(/\s*,\s*/g, ",");
+        this.setDeviceMRID(newValue.trim());
+
     },
 
     onChangeComportName: function(field, newValue, oldValue) {
-        this.setComportName(newValue);
+        newValue = newValue.replace(/\s*,\s*/g, ",");
+        this.setComportName(newValue.trim());
     },
 
     onSpecialKey: function(field, event) {
