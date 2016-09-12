@@ -54,8 +54,8 @@ import java.util.Set;
         immediate = true,
         property = {"alias=/udr", "app=INS", "name=" + UsagePointApplication.COMPONENT_NAME})
 public class UsagePointApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
-    public static final String APP_KEY = "INS";
-    public static final String COMPONENT_NAME = "UDR";
+    private static final String APP_KEY = "INS";
+    static final String COMPONENT_NAME = "UDR";
 
     private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
@@ -77,6 +77,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile BpmService bpmService;
     private volatile ServiceCallService serviceCallService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private volatile DataAggregationService dataAggregationService;
     private volatile TimeService timeService;
     private volatile LicenseService licenseService;
@@ -234,6 +235,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setReadingTypeDeliverableFactory(ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
+        this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
+    }
+
+    @Reference
     public void setLocationService(LocationService locationService) {
         this.locationService = locationService;
     }
@@ -280,7 +286,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(OutputRegisterDataInfoFactory.class).to(OutputRegisterDataInfoFactory.class);
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
             bind(GoingOnResource.class).to(GoingOnResource.class);
-            bind(ReadingTypeDeliverableFactory.class).to(ReadingTypeDeliverableFactory.class);
+            bind(readingTypeDeliverableFactory).to(ReadingTypeDeliverableFactory.class);
             bind(ChannelDataValidationSummaryInfoFactory.class).to(ChannelDataValidationSummaryInfoFactory.class);
             bind(OutputInfoFactory.class).to(OutputInfoFactory.class);
             bind(PurposeInfoFactory.class).to(PurposeInfoFactory.class);
@@ -288,4 +294,5 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
         }
     }
-}
+
+        }
