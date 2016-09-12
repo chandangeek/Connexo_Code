@@ -145,7 +145,6 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(deliverable.getMetrologyConfiguration()).thenReturn(mock);
         when(deliverable.getName()).thenReturn("testDeliveralble");
         Formula formula = mock(Formula.class);
-        when(formula.getDescription()).thenReturn("testDescription");
         ReadingTypeRequirementNode requirementNode = mock(ReadingTypeRequirementNode.class);
         FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement.getMetrologyConfiguration()).thenReturn(mock);
