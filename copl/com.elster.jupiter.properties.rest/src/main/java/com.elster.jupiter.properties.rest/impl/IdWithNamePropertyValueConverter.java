@@ -41,7 +41,7 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        return ((HasIdAndName) domainValue).getId();
+        return domainValue != null ? ((HasIdAndName) domainValue).getId() : null;
     }
 
 }
