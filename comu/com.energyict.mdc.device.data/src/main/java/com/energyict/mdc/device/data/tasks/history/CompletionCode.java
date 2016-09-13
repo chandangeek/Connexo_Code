@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -22,22 +23,24 @@ import java.util.Set;
  * Time: 14:30
  */
 public enum CompletionCode {
-    Ok(EnumSet.of(ResultType.Supported)),
-    NotExecuted(EnumSet.noneOf(ResultType.class)),
-    ConfigurationWarning(EnumSet.of(ResultType.NotSupported, ResultType.ConfigurationMisMatch)),
-    ProtocolError(EnumSet.of(ResultType.DataIncomplete, ResultType.InCompatible)),
-    TimeError(EnumSet.noneOf(ResultType.class)),
-    ConfigurationError(EnumSet.of(ResultType.ConfigurationError)),
-    IOError(EnumSet.noneOf(ResultType.class)),
-    UnexpectedError(EnumSet.of(ResultType.Other)),
-    ConnectionError(EnumSet.noneOf(ResultType.class)),
-    InitError(EnumSet.noneOf(ResultType.class)),
-    TimeoutError(EnumSet.noneOf(ResultType.class));
+    Ok(EnumSet.of(ResultType.Supported), 0),
+    NotExecuted(EnumSet.noneOf(ResultType.class), 2),
+    ConfigurationWarning(EnumSet.of(ResultType.NotSupported, ResultType.ConfigurationMisMatch), 1),
+    ProtocolError(EnumSet.of(ResultType.DataIncomplete, ResultType.InCompatible), 3),
+    TimeError(EnumSet.noneOf(ResultType.class), 7),
+    ConfigurationError(EnumSet.of(ResultType.ConfigurationError), 4),
+    IOError(EnumSet.noneOf(ResultType.class), 5),
+    UnexpectedError(EnumSet.of(ResultType.Other), 6),
+    ConnectionError(EnumSet.noneOf(ResultType.class), 10),
+    InitError(EnumSet.noneOf(ResultType.class), 8),
+    TimeoutError(EnumSet.noneOf(ResultType.class), 9);
 
     private Set<ResultType> relatedResultTypes;
+    private final int priority;
 
-    CompletionCode(Set<ResultType> relatedResultTypes) {
+    CompletionCode(Set<ResultType> relatedResultTypes, int priority) {
         this.relatedResultTypes = relatedResultTypes;
+        this.priority = priority;
     }
 
     public static CompletionCode fromDBValue(int dbValue) {
@@ -106,6 +109,8 @@ public enum CompletionCode {
      * the other and is therefore considered have a higher priority
      */
     public boolean hasPriorityOver(CompletionCode other) {
-        return other == null || this.compareTo(other) > 0;
+        return other == null || BY_PRIORITY.compare(this, other) > 0;
     }
+
+    private static final Comparator<CompletionCode> BY_PRIORITY = Comparator.comparing(code -> code.priority);
 }
