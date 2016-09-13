@@ -152,9 +152,15 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     @Override
     public boolean validate(ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
+        Map<Meter, TimeLine<Activation, Instant>> validationTimeLines = new HashMap<>();
+        this.meterTimeLines.entrySet().forEach(entry -> {
+            TimeLine<Activation, Instant> timeLine = new TimeLine<>(Activation::getRange, RangeComparatorFactory.INSTANT_DEFAULT);
+            timeLine.addAll(entry.getValue().getElements(ActivationImpl::new));
+            validationTimeLines.put(entry.getKey(), timeLine);
+        });
         FormValidationActivationVisitor formValidationVisitor = new FormValidationActivationVisitor(context);
         this.activationChanges.forEach(activation ->
-                getMeterTimeLine(activation.getMeter(), this.meterTimeLines).adjust(activation, formValidationVisitor));
+                getMeterTimeLine(activation.getMeter(), validationTimeLines).adjust(activation, formValidationVisitor));
         boolean result = formValidationVisitor.getResult();
         result &= validateMetersCapabilities(context);
         result &= validateByCustomValidators(context);
@@ -306,6 +312,13 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             this.meterRole = meterRole;
             this.usagePoint = usagePoint;
             this.meter = meter;
+        }
+
+        public ActivationImpl(Activation activation) {
+            this.start = activation.getRange().lowerEndpoint();
+            this.meterRole = activation.getMeterRole();
+            this.usagePoint = activation.getUsagePoint();
+            this.meter = activation.getMeter();
         }
 
         public Range<Instant> getRange() {
@@ -513,6 +526,15 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             Collections.sort(this.ranges, this.comparator);
         }
 
+        public List<T> getElements() {
+            return this.getElements(Function.identity());
+        }
+
+        public List<T> getElements(Function<T, T> mapper) {
+            Collections.sort(this.ranges, this.comparator);
+            return this.ranges.stream().map(mapper).collect(Collectors.toList());
+        }
+
         public void adjust(T modifier, AdjustActionVisitor<T> actionVisitor) {
             Iterator<T> rangesIterator = this.ranges.iterator();
             List<T> newElementsAccumulator = new ArrayList<>();
@@ -561,12 +583,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     class MeterActivationModificationVisitor extends AdjustActionVisitor<Activation> {
 
-        private MeterActivationImpl createNewMeterActivation(Activation activation) {
+        protected Activation createNewMeterActivation(Activation activation) {
             MeterActivationImpl meterActivation = metrologyConfigurationService.getDataModel()
                     .getInstance(MeterActivationImpl.class)
                     .init(activation.getMeter(), activation.getMeterRole(), activation.getUsagePoint(), activation.getRange());
             meterActivation.save();
-            return meterActivation;
+            return new ActivationWrapper(meterActivation);
         }
 
         private void extendActivationEnd(Activation last, Activation modifier, ElementPosition position) {
@@ -584,7 +606,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         @Override
         public List<Activation> before(Activation first, Activation modifier, ElementPosition position) {
-            Activation activation = new ActivationWrapper(createNewMeterActivation(modifier));
+            Activation activation = createNewMeterActivation(modifier);
             if (first != null) {
                 first.startAt(modifier.getRange().upperEndpoint());
                 first.save();
@@ -690,7 +712,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         }
     }
 
-    class FormValidationActivationVisitor extends AdjustActionVisitor<Activation> {
+    class FormValidationActivationVisitor extends MeterActivationModificationVisitor {
         private final ConstraintValidatorContext context;
         private boolean result = true;
 
@@ -700,6 +722,11 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         public boolean getResult() {
             return this.result;
+        }
+
+        @Override
+        protected Activation createNewMeterActivation(Activation activation) {
+            return new ActivationImpl(activation.getRange().lowerEndpoint(), activation.getUsagePoint(), activation.getMeter(), activation.getMeterRole());
         }
 
         private List<Activation> compareActivations(Activation element, Activation modifier) {
@@ -725,22 +752,26 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         @Override
         public List<Activation> replace(Activation element, Activation modifier, ElementPosition position) {
-            return compareActivations(element, modifier);
+            compareActivations(element, modifier);
+            return super.replace(element, modifier, position);
         }
 
         @Override
         public List<Activation> split(Activation element, Activation modifier, ElementPosition position) {
-            return compareActivations(element, modifier);
+            compareActivations(element, modifier);
+            return super.split(element, modifier, position);
         }
 
         @Override
         public List<Activation> cropStart(Activation element, Activation modifier, ElementPosition position) {
-            return compareActivations(element, modifier);
+            compareActivations(element, modifier);
+            return super.cropStart(element, modifier, position);
         }
 
         @Override
         public List<Activation> cropEnd(Activation element, Activation modifier, ElementPosition position) {
-            return compareActivations(element, modifier);
+            compareActivations(element, modifier);
+            return super.cropEnd(element, modifier, position);
         }
     }
 }
