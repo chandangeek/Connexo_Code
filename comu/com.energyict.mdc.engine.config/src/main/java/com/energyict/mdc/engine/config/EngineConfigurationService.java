@@ -7,7 +7,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 
 import aQute.bnd.annotation.ProviderType;
-import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Optional;
@@ -73,7 +72,7 @@ public interface EngineConfigurationService {
     List<OfflineComServer> findAllOfflineComServers();
 
     /**
-     * Finds the {@link ComServer} with the specified event registration uri
+     * Finds the {@link ComServer} with the specified event registration uri.
      *
      * @param serverName
      * @param eventRegistrationPort
@@ -82,7 +81,7 @@ public interface EngineConfigurationService {
     Optional<ComServer> findComServerByServerNameAndEventRegistrationPort(String serverName, int eventRegistrationPort);
 
     /**
-     * Finds the {@link ComServer} with the specified status uri
+     * Finds the {@link ComServer} with the specified status uri.
      *
      * @param serverName
      * @param statusPort
@@ -119,14 +118,14 @@ public interface EngineConfigurationService {
      *
      * @return Llist of OutboundComPort
      */
-    public List<OutboundComPort> findAllOutboundComPorts();
+    List<OutboundComPort> findAllOutboundComPorts();
 
     /**
      * Finds all {@link InboundComPort}s.
      *
      * @return List of InboundComPort
      */
-    public List<InboundComPort> findAllInboundComPorts();
+    List<InboundComPort> findAllInboundComPorts();
 
     /**
      * Finds the {@link ComPortPool} with the specified unique identifier.
@@ -145,7 +144,7 @@ public interface EngineConfigurationService {
      * @return The InboundComPortPool or <code>null</code> if no such ComPortPool exists
      * or if the ComPortPool with that unique identifier is not inbound
      */
-    public Optional<InboundComPortPool> findInboundComPortPool(long id);
+    Optional<InboundComPortPool> findInboundComPortPool(long id);
 
     /**
      * Finds the {@link OutboundComPortPool} with the specified unique identifier.
@@ -154,7 +153,7 @@ public interface EngineConfigurationService {
      * @return The OutboundComPortPool or <code>null</code> if no such ComPortPool exists
      * or if the ComPortPool with that unique identifier is not outbound
      */
-    public Optional<OutboundComPortPool> findOutboundComPortPool(long id);
+    Optional<OutboundComPortPool> findOutboundComPortPool(long id);
 
     /**
      * Finds all the {@link OutboundComPortPool}s that can contain {@link ComPort}s
@@ -163,7 +162,7 @@ public interface EngineConfigurationService {
      * @param comPortType The ComPortType
      * @return The List of OutboundComPortPool
      */
-    public List<OutboundComPortPool> findOutboundComPortPoolsByType(ComPortType comPortType);
+    List<OutboundComPortPool> findOutboundComPortPoolsByType(ComPortType comPortType);
 
     /**
      * Finds all the {@link InboundComPortPool}s that can contain {@link ComPort}s
@@ -172,7 +171,7 @@ public interface EngineConfigurationService {
      * @param comPortType The ComPortType
      * @return The List of InboundComPortPool
      */
-    public List<InboundComPortPool> findInboundComPortPoolsByType(ComPortType comPortType);
+    List<InboundComPortPool> findInboundComPortPoolsByType(ComPortType comPortType);
 
     /**
      * Finds the {@link ComPortPool} with the specified unique name.
@@ -180,7 +179,7 @@ public interface EngineConfigurationService {
      * @param name The unique name
      * @return The ComPortPool or <code>null</code> if no such ComPortPool exists
      */
-    public Optional<? extends ComPortPool> findComPortPoolByName(String name);
+    Optional<? extends ComPortPool> findComPortPoolByName(String name);
 
     /**
      * Finds the {@link OutboundComPortPool} with the specified unique name.
@@ -188,7 +187,7 @@ public interface EngineConfigurationService {
      * @param name The unique name
      * @return The OutboundComPortPool
      */
-    public Optional<OutboundComPortPool> findOutboundComPortPoolByName(String name);
+    Optional<OutboundComPortPool> findOutboundComPortPoolByName(String name);
 
     /**
      * Finds the {@link InboundComPortPool} with the specified unique name.
@@ -196,15 +195,7 @@ public interface EngineConfigurationService {
      * @param name The unique name
      * @return The InboundComPortPool
      */
-    public Optional<InboundComPortPool> findInboundComPortPoolByName(String name);
-
-    /**
-     * Finds the {@link ComPort} with the specified unique name.
-     *
-     * @param name The unique name
-     * @return The ComPort or <code>null</code> if no such ComPort exists
-     */
-    public Optional<? extends ComPort> findComPortByName(String name);
+    Optional<InboundComPortPool> findInboundComPortPoolByName(String name);
 
     /**
      * Finds all the {@link InboundComPortPool}s that are using the specified.
@@ -212,21 +203,21 @@ public interface EngineConfigurationService {
      * @param pluggableClass The discovery protocol pluggable class
      * @return The InboundComPortPools that are using the discovery protocol pluggable class
      */
-    public List<InboundComPortPool> findComPortPoolByDiscoveryProtocol(PluggableClass pluggableClass);
+    List<InboundComPortPool> findComPortPoolByDiscoveryProtocol(PluggableClass pluggableClass);
 
     /**
      * Creates a new {@link InboundComPortPool} from the specifications.
      *
      * @return The newly created InboundComPortPool
      */
-    public InboundComPortPool newInboundComPortPool(String name, ComPortType comPortType, InboundDeviceProtocolPluggableClass discoveryProtocol);
+    InboundComPortPool newInboundComPortPool(String name, ComPortType comPortType, InboundDeviceProtocolPluggableClass discoveryProtocol);
 
     /**
      * Creates a new {@link OutboundComPortPool} from the specifications.
      *
      * @return The newly created OutboundComPortPool
      */
-    public OutboundComPortPool newOutboundComPortPool(String name, ComPortType comPortType, TimeDuration taskExecutionTimeout);
+    OutboundComPortPool newOutboundComPortPool(String name, ComPortType comPortType, TimeDuration taskExecutionTimeout);
 
     List<OutboundComPortPool> findContainingComPortPoolsForComPort(OutboundComPort comPort);
 
@@ -236,9 +227,6 @@ public interface EngineConfigurationService {
 
     List<InboundComPort> findInboundInPool(InboundComPortPool comPortPool);
 
-    List<ComPort> findAllComPortsWithDeleted();
+    List<ComPort> findAllComPortsIncludingObsolete();
 
-    ComServer parseComServerQueryResult(JSONObject comServerJSon);
-
-    ComPort parseComPortQueryResult(JSONObject comPortJSon);
 }

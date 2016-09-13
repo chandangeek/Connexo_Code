@@ -17,7 +17,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.proxy.LazyLoader;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -47,8 +46,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -383,11 +380,6 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public Optional<? extends ComPort> findComPortByName(String name) {
-        return this.findComPortByName(name, getComPortDataMapper());
-    }
-
-    @Override
     public Optional<OutboundComPortPool> findOutboundComPortPoolByName(String name) {
         return this.findComPortPoolByName(name, dataModel.mapper(OutboundComPortPool.class));
     }
@@ -503,28 +495,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public List<ComPort> findAllComPortsWithDeleted() {
+    public List<ComPort> findAllComPortsIncludingObsolete() {
         return getComPortDataMapper().find();
-    }
-
-    @Override
-    public ComServer parseComServerQueryResult(JSONObject comServerJSon) {
-        try {
-            String comServerName = (String) comServerJSon.get("name");
-            return new ComServerLazyLoader(comServerName).load();
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public ComPort parseComPortQueryResult(JSONObject comPortJSon) {
-        try {
-            Long id = Long.parseLong((String) comPortJSon.get("id"));
-            return new ComPortLazyLoader(id).load();
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private <T> Optional<T> unique(Collection<T> collection) {
@@ -539,62 +511,6 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     private TranslatableApplicationException notUniqueException() {
         return new TranslatableApplicationException(thesaurus, MessageSeeds.NOT_UNIQUE);
-    }
-
-    private class ComServerLazyLoader implements LazyLoader<ComServer> {
-
-        private final String comServerName;
-
-        private ComServerLazyLoader(String comServerName) {
-            super();
-            this.comServerName = comServerName;
-        }
-
-        @Override
-        public ComServer load() {
-            return findComServer(this.comServerName).orElse(null);
-        }
-
-        @Override
-        public ClassLoader getClassLoader() {
-            return EngineConfigurationServiceImpl.class.getClassLoader();
-        }
-
-        @Override
-        public Class<ComServer> getImplementedInterface() {
-            return ComServer.class;
-        }
-
-
-    }
-
-    private class ComPortLazyLoader implements LazyLoader<ComPort> {
-        private final Long comPortId;
-
-        private ComPortLazyLoader(Long id) {
-            super();
-            this.comPortId = id;
-        }
-
-        @Override
-        public ComPort load() {
-            if (this.comPortId != null) {
-                return findComPort(comPortId).orElse(null);
-            } else {
-                return null;
-            }
-        }
-
-        @Override
-        public Class<ComPort> getImplementedInterface() {
-            return ComPort.class;
-        }
-
-        @Override
-        public ClassLoader getClassLoader() {
-            return EngineConfigurationServiceImpl.class.getClassLoader();
-        }
-
     }
 
 }
