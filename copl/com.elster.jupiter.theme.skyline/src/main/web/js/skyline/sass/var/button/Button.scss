@@ -4,6 +4,7 @@
 
 // Default button colors
 $button-default-background-color: #71adc7 !default;
+$button-toolbar-background-color: #71adc7 !default;
 $button-default-background-color-over: #5897b3 !default;
 $button-default-background-color-pressed: #8ec5dc !default;
 $button-default-background-color-focus: #71adc7 !default;
@@ -15,7 +16,7 @@ $button-large-border-radius: $button-small-border-radius !default;
 
 // Default border color
 $button-default-border-color: transparent !default;
-//$button-toolbar-border-color: #ffffff !default;
+$button-toolbar-border-color-focus: #11739e !default;
 $button-default-border-color-focus: #11739e !default;
 $button-default-border-color-over: $button-default-border-color;
 $button-default-border-color-pressed: $button-default-background-color-pressed;
@@ -34,8 +35,11 @@ $button-default-background-gradient-pressed: $button-default-background-gradient
 
 // Disabled button colors
 $button-default-background-color-disabled: #d4d4d4 !default;
+$button-toolbar-background-color-disabled: #d4d4d4 !default;
 $button-default-color-disabled: #ffffff !default;
+$button-toolbar-color-disabled: #ffffff !default;
 $button-opacity-disabled: 1 !default;
+$button-toolbar-opacity-disabled: 1 !default;
 
 // Default button font
 $button-small-font-family: 'Lato', helvetica, arial, verdana, sans-serif !default;
