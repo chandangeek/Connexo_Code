@@ -22,24 +22,22 @@ import java.util.Set;
  * Time: 14:30
  */
 public enum CompletionCode {
-    Ok(EnumSet.of(ResultType.Supported), 0),
-    ConfigurationWarning(EnumSet.of(ResultType.NotSupported, ResultType.ConfigurationMisMatch), 2),
-    NotExecuted(EnumSet.noneOf(ResultType.class), 1),
-    ProtocolError(EnumSet.of(ResultType.DataIncomplete, ResultType.InCompatible), 3),
-    ConfigurationError(EnumSet.of(ResultType.ConfigurationError), 5),
-    IOError(EnumSet.noneOf(ResultType.class), 6),
-    UnexpectedError(EnumSet.of(ResultType.Other), 7),
-    TimeError(EnumSet.noneOf(ResultType.class), 4),
-    InitError(EnumSet.noneOf(ResultType.class), 9),
-    TimeoutError(EnumSet.noneOf(ResultType.class), 10),
-    ConnectionError(EnumSet.noneOf(ResultType.class), 8);
+    Ok(EnumSet.of(ResultType.Supported)),
+    NotExecuted(EnumSet.noneOf(ResultType.class)),
+    ConfigurationWarning(EnumSet.of(ResultType.NotSupported, ResultType.ConfigurationMisMatch)),
+    ProtocolError(EnumSet.of(ResultType.DataIncomplete, ResultType.InCompatible)),
+    TimeError(EnumSet.noneOf(ResultType.class)),
+    ConfigurationError(EnumSet.of(ResultType.ConfigurationError)),
+    IOError(EnumSet.noneOf(ResultType.class)),
+    UnexpectedError(EnumSet.of(ResultType.Other)),
+    ConnectionError(EnumSet.noneOf(ResultType.class)),
+    InitError(EnumSet.noneOf(ResultType.class)),
+    TimeoutError(EnumSet.noneOf(ResultType.class));
 
-    private final int databaseValue;
     private Set<ResultType> relatedResultTypes;
 
-    CompletionCode(Set<ResultType> relatedResultTypes, int databaseValue) {
+    CompletionCode(Set<ResultType> relatedResultTypes) {
         this.relatedResultTypes = relatedResultTypes;
-        this.databaseValue = databaseValue;
     }
 
     public static CompletionCode fromDBValue(int dbValue) {
@@ -65,7 +63,7 @@ public enum CompletionCode {
     }
 
     public int dbValue() {
-        return databaseValue;
+        return ordinal();
     }
 
     private boolean relatesTo(ResultType resultType) {
