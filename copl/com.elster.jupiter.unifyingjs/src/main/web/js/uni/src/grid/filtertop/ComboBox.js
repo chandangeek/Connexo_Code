@@ -19,6 +19,16 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
     highlightedDisplayValue: null,
     highlightedValue: null,
 
+    listeners: {
+        change: {
+            fn: function () {
+                if (this.getValue() === null) {
+                    this.reset();
+                }
+            }
+        }
+    },
+
     initComponent: function () {
         var me = this;
 
