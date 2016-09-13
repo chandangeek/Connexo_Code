@@ -115,6 +115,10 @@ public final class MeterActivationImpl implements IMeterActivation {
             throw new IllegalArgumentException("You are trying to activate meter on usage point, but you didn't specified a meter role" +
                     " or you specified a meter role, but forgot about meter.");
         }
+        return initInternal(meter, meterRole, usagePoint, range);
+    }
+
+    private MeterActivationImpl initInternal(Meter meter, MeterRole meterRole, UsagePoint usagePoint, Range<Instant> range) {
         this.meter.set(meter);
         this.meterRole.set(meterRole);
         this.usagePoint.set(usagePoint);
@@ -477,6 +481,24 @@ public final class MeterActivationImpl implements IMeterActivation {
         ChannelDataPresentException() {
             super(thesaurus, MessageSeeds.CHANNEL_DATA_PRESENT);
         }
+    }
+
+    public MeterActivation split(Instant breakTime) {
+        Range<Instant> sourceRange = getRange();
+        if (breakTime == null || !sourceRange.contains(breakTime)) {
+            throw new IllegalArgumentException("Break time is not within meter activation range. Range = " + sourceRange + ", time = " + breakTime);
+        }
+        Range<Instant> newRange = sourceRange.hasUpperBound()
+                ? Range.closedOpen(breakTime, sourceRange.upperEndpoint())
+                : Range.atLeast(breakTime);
+        MeterActivationImpl newActivation = dataModel.getInstance(MeterActivationImpl.class)
+                .initInternal(this.meter.orElse(null), this.meterRole.orElse(null), this.usagePoint.orElse(null), newRange);
+        getMultipliers().entrySet().stream()
+                .forEach(entry -> newActivation.setMultiplier(entry.getKey(), entry.getValue()));
+        newActivation.moveAllChannelsData(this, newRange);
+        newActivation.save();
+        doEndAt(breakTime);
+        return newActivation;
     }
 
     @Override
