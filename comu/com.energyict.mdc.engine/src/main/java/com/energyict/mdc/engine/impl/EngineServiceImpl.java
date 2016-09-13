@@ -72,13 +72,10 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
 
@@ -133,6 +130,8 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
+
+    public static final String PORT_PROPERTY_NUMBER = "org.osgi.service.http.port";
 
     public EngineServiceImpl() {
     }
@@ -396,7 +395,7 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     public void activate(BundleContext bundleContext) {
         this.dataModel.register(this.getModule());
         this.setHostNameIfOverruled(bundleContext);
-
+        this.updatePortNumber(bundleContext);
         upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
         this.tryStartComServer();
@@ -406,6 +405,27 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         Optional
                 .ofNullable(context.getProperty(SERVER_NAME_PROPERTY_NAME))
                 .ifPresent(HostName::setCurrent);
+    }
+
+    private void updatePortNumber(BundleContext context) {
+        String portNumber = Optional
+                .ofNullable(context.getProperty(PORT_PROPERTY_NUMBER))
+                .orElse("80");
+        transactionService.execute(() -> {
+            updatePortNumberForComServer(portNumber);
+            return null;
+        });
+    }
+
+    private void updatePortNumberForComServer(String portNumber) {
+        engineConfigurationService.findAllOnlineComServers()
+                .stream()
+                .filter(onlineComServer -> onlineComServer.getServerName().equals(HostName.getCurrent()))
+                .findAny()
+                .ifPresent(onlineComServer1 -> {
+                    onlineComServer1.setStatusPort(Integer.valueOf(portNumber));
+                    onlineComServer1.update();
+                });
     }
 
     private void tryStartComServer() {
