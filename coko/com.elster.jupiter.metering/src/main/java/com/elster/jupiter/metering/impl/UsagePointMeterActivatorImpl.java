@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -93,7 +94,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             throw new IllegalArgumentException("Meter and meter role can't be null");
         }
         start = checkTimeBounds(generalizeDatesToMinutes(start));
-        this.activationChanges.add(new Activation(start, meter, meterRole));
+        this.activationChanges.add(new ActivationImpl(start, this.usagePoint, meter, meterRole));
         updateMeterDefaultLocation(meter);
         return this;
     }
@@ -106,7 +107,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     @Override
     public UsagePointMeterActivator clear(Instant from, MeterRole meterRole) {
         from = checkTimeBounds(generalizeDatesToMinutes(from));
-        this.deactivationChanges.add(new Activation(from, meterRole));
+        this.deactivationChanges.add(new ActivationImpl(from, meterRole));
         return this;
     }
 
@@ -114,7 +115,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         TimeLine<Activation, Instant> timeLine = meterTimeLines.get(meter);
         if (timeLine == null) {
             timeLine = new TimeLine<>(Activation::getRange, RangeComparatorFactory.INSTANT_DEFAULT);
-            timeLine.addAll(meter.getMeterActivations().stream().map(Activation::new).collect(Collectors.toList()));
+            timeLine.addAll(meter.getMeterActivations().stream().map(ActivationWrapper::new).collect(Collectors.toList()));
             meterTimeLines.put(meter, timeLine);
         }
         return timeLine;
@@ -134,14 +135,14 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 .forEach(meter -> getMeterTimeLine(meter, this.meterTimeLines));
         AdjustActionVisitor<Activation> clearVisitor = new MeterActivationClearVisitor();
         this.deactivationChanges.forEach(activation ->
-                convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations(activation.meterRole))
+                convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations(activation.getMeterRole()))
                         .forEach(meter -> getMeterTimeLine(meter, this.meterTimeLines).adjust(activation, clearVisitor)));
 
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), this);
 
         AdjustActionVisitor<Activation> activateVisitor = new MeterActivationModificationVisitor();
         this.activationChanges.forEach(activation ->
-                getMeterTimeLine(activation.meter, this.meterTimeLines).adjust(activation, activateVisitor));
+                getMeterTimeLine(activation.getMeter(), this.meterTimeLines).adjust(activation, activateVisitor));
         this.usagePoint.touch();
         this.usagePoint.refreshMeterActivations();
 
@@ -153,7 +154,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         context.disableDefaultConstraintViolation();
         FormValidationActivationVisitor formValidationVisitor = new FormValidationActivationVisitor(context);
         this.activationChanges.forEach(activation ->
-                getMeterTimeLine(activation.meter, this.meterTimeLines).adjust(activation, formValidationVisitor));
+                getMeterTimeLine(activation.getMeter(), this.meterTimeLines).adjust(activation, formValidationVisitor));
         boolean result = formValidationVisitor.getResult();
         result &= validateMetersCapabilities(context);
         result &= validateByCustomValidators(context);
@@ -165,10 +166,10 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         List<EffectiveMetrologyConfigurationOnUsagePoint> emcList = this.usagePoint.getEffectiveMetrologyConfigurations();
         Map<Meter, Map<UsagePointMetrologyConfiguration, Set<MeterRole>>> processedMap = new HashMap<>();
         for (Activation activation : activationChanges) {
-            Map<UsagePointMetrologyConfiguration, Set<MeterRole>> processedMeterRolesMap = processedMap.get(activation.meter);
+            Map<UsagePointMetrologyConfiguration, Set<MeterRole>> processedMeterRolesMap = processedMap.get(activation.getMeter());
             if (processedMeterRolesMap == null) {
                 processedMeterRolesMap = new HashMap<>();
-                processedMap.put(activation.meter, processedMeterRolesMap);
+                processedMap.put(activation.getMeter(), processedMeterRolesMap);
             }
             for (EffectiveMetrologyConfigurationOnUsagePoint emc : emcList) {
                 if (!emc.getRange().isConnected(activation.getRange())) {
@@ -180,9 +181,10 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                     processedMeterRoles = new HashSet<>();
                     processedMeterRolesMap.put(metrologyConfiguration, processedMeterRoles);
                 }
-                if (processedMeterRoles.add(activation.meterRole)) {
+                if (processedMeterRoles.add(activation.getMeterRole())) {
                     List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = metrologyConfiguration.getMandatoryReadingTypeRequirements();
-                    List<ReadingTypeRequirement> unmatchedRequirements = getUnmatchedMeterReadingTypeRequirements(metrologyConfiguration, mandatoryReadingTypeRequirements, activation.meter, activation.meterRole);
+                    List<ReadingTypeRequirement> unmatchedRequirements = getUnmatchedMeterReadingTypeRequirements(metrologyConfiguration, mandatoryReadingTypeRequirements, activation.getMeter(), activation
+                            .getMeterRole());
                     if (!unmatchedRequirements.isEmpty()) {
                         result = false;
                         String messageTemplate = this.metrologyConfigurationService.getThesaurus()
@@ -192,7 +194,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                                 .map(ReadingTypeRequirement::getDescription)
                                 .collect(Collectors.joining(", ")));
                         context.buildConstraintViolationWithTemplate(errorMessage)
-                                .addPropertyNode(activation.meterRole.getKey())
+                                .addPropertyNode(activation.getMeterRole().getKey())
                                 .addConstraintViolation();
                     }
                 }
@@ -219,11 +221,11 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         boolean result = true;
         for (Activation activation : this.activationChanges) {
             try {
-                this.metrologyConfigurationService.validateUsagePointMeterActivation(activation.meterRole, activation.meter, this.usagePoint);
+                this.metrologyConfigurationService.validateUsagePointMeterActivation(activation.getMeterRole(), activation.getMeter(), this.usagePoint);
             } catch (CustomUsagePointMeterActivationValidationException ex) {
                 result = false;
                 context.buildConstraintViolationWithTemplate(ex.getLocalizedMessage())
-                        .addPropertyNode(activation.meterRole.getKey())
+                        .addPropertyNode(activation.getMeterRole().getKey())
                         .addConstraintViolation();
             }
         }
@@ -262,37 +264,171 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         return this.usagePoint.hashCode();
     }
 
-    private static final class Activation {
+    private interface Activation {
+        Range<Instant> getRange();
+
+        Meter getMeter();
+
+        MeterRole getMeterRole();
+
+        UsagePoint getUsagePoint();
+
+        void endAt(Instant end);
+
+        void startAt(Instant start);
+
+        void setUsagePoint(UsagePoint usagePoint);
+
+        void setMeterRole(MeterRole meterRole);
+
+        void setMeter(Meter meter);
+
+        Activation split(Instant breakTime);
+
+        void save();
+    }
+
+
+    private static final class ActivationImpl implements Activation {
         private Instant start;
         private Instant end;
         private Meter meter;
         private MeterRole meterRole;
-        private MeterActivationImpl meterActivation;
+        private UsagePoint usagePoint;
 
-        Activation(Instant start, MeterRole meterRole) {
+        public ActivationImpl(Instant start, MeterRole meterRole) {
             this.start = start;
             this.meterRole = meterRole;
         }
 
-        Activation(Instant start, Meter meter, MeterRole meterRole) {
+        public ActivationImpl(Instant start, UsagePoint usagePoint, Meter meter, MeterRole meterRole) {
             this.start = start;
             this.meterRole = meterRole;
+            this.usagePoint = usagePoint;
             this.meter = meter;
         }
 
-        Activation(MeterActivation meterActivation) {
-            this.start = meterActivation.getStart();
-            this.end = meterActivation.getEnd();
-            this.meter = meterActivation.getMeter().orElse(null);
-            this.meterRole = meterActivation.getMeterRole().orElse(null);
+        public Range<Instant> getRange() {
+            return this.end == null ? Range.atLeast(this.start) : Range.closedOpen(this.start, this.end);
+        }
+
+        @Override
+        public Meter getMeter() {
+            return meter;
+        }
+
+        @Override
+        public MeterRole getMeterRole() {
+            return meterRole;
+        }
+
+        @Override
+        public UsagePoint getUsagePoint() {
+            return usagePoint;
+        }
+
+        @Override
+        public void endAt(Instant end) {
+            this.end = end;
+        }
+
+        @Override
+        public void startAt(Instant start) {
+            this.start = start;
+        }
+
+        @Override
+        public void setUsagePoint(UsagePoint usagePoint) {
+            this.usagePoint = usagePoint;
+        }
+
+        @Override
+        public void setMeterRole(MeterRole meterRole) {
+            this.meterRole = meterRole;
+        }
+
+        @Override
+        public void setMeter(Meter meter) {
+            this.meter = meter;
+        }
+
+        @Override
+        public Activation split(Instant breakTime) {
+            ActivationImpl activation = new ActivationImpl(breakTime, this.usagePoint, this.meter, this.meterRole);
+            endAt(breakTime);
+            return activation;
+        }
+
+        @Override
+        public void save() {
+            // do nothing
+        }
+    }
+
+    private static final class ActivationWrapper implements Activation {
+        private final MeterActivationImpl meterActivation;
+
+        public ActivationWrapper(MeterActivation meterActivation) {
             this.meterActivation = (MeterActivationImpl) meterActivation;
         }
 
-        Range<Instant> getRange() {
-            if (this.meterActivation != null) {
-                return this.meterActivation.getRange();
+        @Override
+        public Range<Instant> getRange() {
+            return this.meterActivation.getRange();
+        }
+
+        @Override
+        public Meter getMeter() {
+            return this.meterActivation.getMeter().orElse(null);
+        }
+
+        @Override
+        public MeterRole getMeterRole() {
+            return this.meterActivation.getMeterRole().orElse(null);
+        }
+
+        @Override
+        public UsagePoint getUsagePoint() {
+            return this.meterActivation.getUsagePoint().orElse(null);
+        }
+
+        @Override
+        public void endAt(Instant end) {
+            this.meterActivation.doEndAt(end);
+        }
+
+        @Override
+        public void startAt(Instant start) {
+            this.meterActivation.advanceStartDate(start);
+        }
+
+        @Override
+        public void setUsagePoint(UsagePoint usagePoint) {
+            if (usagePoint == null) {
+                this.meterActivation.detachUsagePoint();
+            } else {
+                this.meterActivation.doSetUsagePoint(usagePoint);
             }
-            return this.end == null ? Range.atLeast(this.start) : Range.closedOpen(this.start, this.end);
+        }
+
+        @Override
+        public void setMeterRole(MeterRole meterRole) {
+            this.meterActivation.doSetMeterRole(meterRole);
+        }
+
+        @Override
+        public void setMeter(Meter meter) {
+            this.meterActivation.setMeter(meter);
+        }
+
+        @Override
+        public Activation split(Instant breakTime) {
+            return new ActivationWrapper(this.meterActivation.split(breakTime));
+        }
+
+        @Override
+        public void save() {
+            this.meterActivation.save();
         }
     }
 
@@ -425,92 +561,84 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     class MeterActivationModificationVisitor extends AdjustActionVisitor<Activation> {
 
-        protected MeterActivationImpl createNewMeterActivation(Meter meter, MeterRole meterRole, Range<Instant> range) {
+        private MeterActivationImpl createNewMeterActivation(Activation activation) {
             MeterActivationImpl meterActivation = metrologyConfigurationService.getDataModel()
                     .getInstance(MeterActivationImpl.class)
-                    .init(meter, meterRole, usagePoint, range);
+                    .init(activation.getMeter(), activation.getMeterRole(), activation.getUsagePoint(), activation.getRange());
             meterActivation.save();
             return meterActivation;
         }
 
-        protected void copyMultipliers(MeterActivation target, MeterActivation source) {
-            source.getMultipliers().entrySet().stream()
-                    .forEach(entry -> target.setMultiplier(entry.getKey(), entry.getValue()));
-        }
-
-        protected boolean extendActivationEnd(Activation last, Activation modifier, ElementPosition position) {
+        private void extendActivationEnd(Activation last, Activation modifier, ElementPosition position) {
             if (position == ElementPosition.LAST || position == ElementPosition.SINGLE) {
-                last.meterActivation.doEndAt(modifier.getRange().hasUpperBound() ? modifier.getRange().upperEndpoint() : null);
-                return true;
+                last.endAt(modifier.getRange().hasUpperBound() ? modifier.getRange().upperEndpoint() : null);
             }
-            return false;
         }
 
-        protected void extendActivationStart(Activation first, Activation modifier, ElementPosition position) {
+        private void extendActivationStart(Activation first, Activation modifier, ElementPosition position) {
             if ((position == ElementPosition.FIRST || position == ElementPosition.SINGLE)
-                    && modifier.getRange().lowerEndpoint().isBefore(first.meterActivation.getRange().lowerEndpoint())) {
-                first.meterActivation.advanceStartDate(modifier.getRange().lowerEndpoint());
+                    && modifier.getRange().lowerEndpoint().isBefore(first.getRange().lowerEndpoint())) {
+                first.startAt(modifier.getRange().lowerEndpoint());
             }
         }
 
         @Override
         public List<Activation> before(Activation first, Activation modifier, ElementPosition position) {
-            Activation activation = new Activation(createNewMeterActivation(modifier.meter, modifier.meterRole, modifier.getRange()));
+            Activation activation = new ActivationWrapper(createNewMeterActivation(modifier));
             if (first != null) {
-                first.meterActivation.advanceStartDate(modifier.getRange().upperEndpoint());
-                first.meterActivation.save();
+                first.startAt(modifier.getRange().upperEndpoint());
+                first.save();
             }
             return Collections.singletonList(activation);
         }
 
         @Override
         public List<Activation> after(Activation last, Activation modifier, ElementPosition position) {
-            last.meterActivation.doEndAt(modifier.getRange().lowerEndpoint());
-            MeterActivationImpl ma = createNewMeterActivation(modifier.meter, modifier.meterRole, modifier.getRange());
-            copyMultipliers(ma, last.meterActivation);
-            return Collections.singletonList(new Activation(ma));
+            last.endAt(modifier.getRange().hasUpperBound() ? modifier.getRange().upperEndpoint() : null);
+            Activation activation = last.split(modifier.getRange().lowerEndpoint());
+            activation.setUsagePoint(modifier.getUsagePoint());
+            activation.save();
+            return Collections.singletonList(activation);
         }
 
         @Override
         public List<Activation> replace(Activation element, Activation modifier, ElementPosition position) {
-            element.meterActivation.doSetMeterRole(modifier.meterRole);
-            element.meterActivation.doSetUsagePoint(usagePoint);
+            element.setMeterRole(modifier.getMeterRole());
+            element.setUsagePoint(modifier.getUsagePoint());
+            element.save();
             extendActivationStart(element, modifier, position);
-            if (!extendActivationEnd(element, modifier, position)) {
-                element.meterActivation.save();
-            }
+            extendActivationEnd(element, modifier, position);
             return null;
         }
 
         @Override
         public List<Activation> split(Activation element, Activation modifier, ElementPosition position) {
             List<Activation> activations = new ArrayList<>();
-            activations.add(new Activation(element.meterActivation.split(modifier.getRange().upperEndpoint())));
-            Activation activation = new Activation(element.meterActivation.split(modifier.getRange().upperEndpoint()));
-            activation.meterActivation.doSetMeterRole(modifier.meterRole);
-            activation.meterActivation.doSetUsagePoint(usagePoint);
-            activation.meterActivation.save();
+            activations.add(element.split(modifier.getRange().upperEndpoint()));
+            Activation activation = element.split(modifier.getRange().upperEndpoint());
+            activation.setMeterRole(modifier.getMeterRole());
+            activation.setUsagePoint(modifier.getUsagePoint());
+            activation.save();
             activations.add(activation);
             return activations;
         }
 
         @Override
         public List<Activation> cropStart(Activation element, Activation modifier, ElementPosition position) {
-            MeterActivation ma = element.meterActivation.split(modifier.getRange().upperEndpoint());
-            element.meterActivation.doSetMeterRole(modifier.meterRole);
-            element.meterActivation.doSetUsagePoint(usagePoint);
-            element.meterActivation.save();
+            Activation activation = element.split(modifier.getRange().upperEndpoint());
+            element.setMeterRole(modifier.getMeterRole());
+            element.setUsagePoint(usagePoint);
+            element.save();
             extendActivationStart(element, modifier, position);
-            return Collections.singletonList(new Activation(ma));
+            return Collections.singletonList(activation);
         }
 
         @Override
         public List<Activation> cropEnd(Activation element, Activation modifier, ElementPosition position) {
-            MeterActivation ma = element.meterActivation.split(modifier.getRange().lowerEndpoint());
-            Activation activation = new Activation(ma);
-            activation.meterActivation.doSetMeterRole(modifier.meterRole);
-            activation.meterActivation.doSetUsagePoint(usagePoint);
-            activation.meterActivation.save();
+            Activation activation = element.split(modifier.getRange().lowerEndpoint());
+            activation.setMeterRole(modifier.getMeterRole());
+            activation.setUsagePoint(usagePoint);
+            activation.save();
             extendActivationEnd(activation, modifier, position);
             return Collections.singletonList(activation);
         }
@@ -529,32 +657,35 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         @Override
         public List<Activation> replace(Activation element, Activation modifier, ElementPosition position) {
-            element.meterActivation.detachUsagePoint();
+            element.setUsagePoint(null);
+            element.save();
             return null;
         }
 
         @Override
         public List<Activation> split(Activation element, Activation modifier, ElementPosition position) {
             List<Activation> activations = new ArrayList<>();
-            activations.add(new Activation(element.meterActivation.split(modifier.getRange().upperEndpoint())));
-            Activation activation = new Activation(element.meterActivation.split(modifier.getRange().upperEndpoint()));
-            activation.meterActivation.detachUsagePoint();
+            activations.add(element.split(modifier.getRange().upperEndpoint()));
+            Activation activation = element.split(modifier.getRange().upperEndpoint());
+            activation.setUsagePoint(null);
+            activation.save();
             activations.add(activation);
             return activations;
         }
 
         @Override
         public List<Activation> cropStart(Activation element, Activation modifier, ElementPosition position) {
-            MeterActivation ma = element.meterActivation.split(modifier.getRange().upperEndpoint());
-            element.meterActivation.detachUsagePoint();
-            return Collections.singletonList(new Activation(ma));
+            Activation activation = element.split(modifier.getRange().upperEndpoint());
+            element.setUsagePoint(null);
+            element.save();
+            return Collections.singletonList(activation);
         }
 
         @Override
         public List<Activation> cropEnd(Activation element, Activation modifier, ElementPosition position) {
-            MeterActivation ma = element.meterActivation.split(modifier.getRange().lowerEndpoint());
-            Activation activation = new Activation(ma);
-            activation.meterActivation.detachUsagePoint();
+            Activation activation = element.split(modifier.getRange().lowerEndpoint());
+            activation.setUsagePoint(null);
+            activation.save();
             return Collections.singletonList(activation);
         }
     }
@@ -572,23 +703,22 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         }
 
         private List<Activation> compareActivations(Activation element, Activation modifier) {
-            if (element.meterActivation.getMeterRole().isPresent()
-                    && element.meterActivation.getUsagePoint().isPresent()
-                    && !element.meterActivation.getUsagePoint().get().equals(usagePoint)) {
+            if (element.getMeterRole() != null
+                    && element.getUsagePoint() != null
+                    && !element.getUsagePoint().equals(modifier.getUsagePoint())) {
                 this.result = false;
                 String errorMessage = metrologyConfigurationService.getThesaurus()
                         .getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
-                        .format(element.meterActivation.getMeter().get(), element.meterActivation.getUsagePoint().get().getMRID(),
-                                element.meterActivation.getMeterRole().get().getDisplayName());
-                context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(modifier.meterRole.getKey()).addConstraintViolation();
+                        .format(element.getMeter(), element.getUsagePoint().getMRID(), element.getMeterRole().getDisplayName());
+                context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(modifier.getMeterRole().getKey()).addConstraintViolation();
             }
-            if (element.meterActivation.getUsagePoint().isPresent()
-                    && element.meterActivation.getUsagePoint().get().equals(usagePoint)
-                    && element.meterActivation.getMeterRole().isPresent()
-                    && !element.meterActivation.getMeterRole().get().equals(modifier.meterRole)) {
+            if (element.getUsagePoint() != null
+                    && element.getUsagePoint().equals(usagePoint)
+                    && element.getMeterRole() != null
+                    && !element.getMeterRole().equals(modifier.getMeterRole())) {
                 this.result = false;
                 this.context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT + "}")
-                        .addPropertyNode(modifier.meterRole.getKey()).addConstraintViolation();
+                        .addPropertyNode(modifier.getMeterRole().getKey()).addConstraintViolation();
             }
             return null;
         }
