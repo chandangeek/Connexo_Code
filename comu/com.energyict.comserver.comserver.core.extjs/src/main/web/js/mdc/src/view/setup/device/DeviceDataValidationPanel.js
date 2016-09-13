@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                         itemId: 'deviceDataValidationForm',
                         layout: {
                             type: 'vbox',
-                            align: 'stretchmax'
+                            align: 'stretch'
                         },
                         defaults: {
                             xtype: 'displayfield',
