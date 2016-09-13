@@ -223,7 +223,7 @@ class ActiveCustomPropertySet {
         String[] columnNames = propertyColumnNames.toArray(new String[propertyColumnNames.size()]);
         return this.customPropertySetDataModel
                     .query(persistenceSupport.persistenceClass())
-                    .asFragment(condition, columnNames);
+                    .asFragment(condition, columnNames, Order.NOORDER);
     }
 
     @SuppressWarnings("unchecked")
@@ -241,7 +241,7 @@ class ActiveCustomPropertySet {
         columnNames[propertyColumnNames.size() + 1] = "endtime";
         return this.customPropertySetDataModel
                     .query(persistenceSupport.persistenceClass())
-                    .asFragment(condition, columnNames);
+                    .asFragment(condition, columnNames, Order.NOORDER);
     }
 
     <T extends PersistentDomainExtension<D>, D> void setNonVersionedValuesEntityFor(D businessObject, CustomPropertySetValues values, Object... additionalPrimaryKeyColumns) {

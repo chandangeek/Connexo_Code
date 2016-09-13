@@ -9,6 +9,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.util.ArrayList;
@@ -23,8 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -102,7 +102,8 @@ public class CustomPropertySetSearchDomainExtensionTest {
         verify(searchDomain).getDomainClass();
         verify(this.customPropertySet).getDomainClass();
         verify(this.customPropertySet, never()).isSearchableByDefault();
-        verify(this.customPropertySetService, never()).isSearchEnabledForCustomPropertySet(eq(this.customPropertySet), anyList());
+        verify(this.customPropertySetService, never())
+                .isSearchEnabledForCustomPropertySet(eq(this.customPropertySet), anyListOf(SearchablePropertyConstriction.class));
     }
 
     @Test
@@ -133,7 +134,9 @@ public class CustomPropertySetSearchDomainExtensionTest {
     public void testGetDynamicPropertiesIfNotSearchableByDefault() {
         List<SearchableProperty> constrictions = new ArrayList<>();
         when(this.customPropertySet.isSearchableByDefault()).thenReturn(false);
-        when(this.customPropertySetService.getConstrainingPropertiesForCustomPropertySet(eq(this.customPropertySet), anyList())).thenReturn(constrictions);
+        when(this.customPropertySetService.getConstrainingPropertiesForCustomPropertySet(
+                eq(this.customPropertySet), anyListOf(SearchablePropertyConstriction.class)))
+                .thenReturn(constrictions);
         CustomPropertySetSearchDomainExtension instance = spy(getTestInstance());
         List<SearchablePropertyConstriction> basePropConstrictions = Collections.emptyList();
 
@@ -141,7 +144,8 @@ public class CustomPropertySetSearchDomainExtensionTest {
         assertThat(properties).hasSize(1);
         assertThat(properties.get(0).getConstraints()).isEqualTo(constrictions);
 
-        verify(this.customPropertySetService).getConstrainingPropertiesForCustomPropertySet(eq(this.customPropertySet), anyList());
+        verify(this.customPropertySetService)
+                .getConstrainingPropertiesForCustomPropertySet(eq(this.customPropertySet), anyListOf(SearchablePropertyConstriction.class));
     }
 
     @Test
@@ -152,11 +156,11 @@ public class CustomPropertySetSearchDomainExtensionTest {
         when(this.customPropertySet.getPersistenceSupport()).thenReturn(persistenceSupport);
         QueryExecutor queryExecutor = mock(QueryExecutor.class);
         SqlFragment fragment = mock(SqlFragment.class);
-        doReturn(fragment).when(queryExecutor).asFragment(any(Condition.class), anyString());
+        doReturn(fragment).when(queryExecutor).asFragment(any(Condition.class), any(String[].class), any(Order[].class));
         when(this.dataModel.query(any())).thenReturn(queryExecutor);
 
         assertThat(getTestInstance().asFragment(Collections.emptyList())).isEqualTo(fragment);
         verify(this.dataModel).query(eq(Object.class));
-        verify(queryExecutor).asFragment(any(Condition.class), eq("id"));
+        verify(queryExecutor).asFragment(any(Condition.class), eq(new String[]{"id"}), eq(Order.NOORDER));
     }
 }
