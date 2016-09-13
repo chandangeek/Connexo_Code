@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-
 public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 
     private final JoinTreeNode<T> root;
@@ -67,22 +66,22 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
     }
 
     @Override
-    public Subquery asSubquery(Condition condition, String... fieldNames) {
-        return new SubqueryImpl(asFragment(condition, fieldNames));
+    public Subquery asSubquery(Condition condition, String[] fieldNames, Order[] orderBy) {
+        return new SubqueryImpl(asFragment(condition, fieldNames, orderBy));
     }
 
     @Override
-    public Subquery asSubquery(Condition condition, int from, int to, String... fieldNames) {
-        return new SubqueryImpl(asFragment(condition, from, to, fieldNames));
+    public Subquery asSubquery(Condition condition, int from, int to, String[] fieldNames, Order[] orderBy) {
+        return new SubqueryImpl(asFragment(condition, from, to, fieldNames, orderBy));
     }
 
     @Override
-    public SqlFragment asFragment(Condition condition, String... fieldNames) {
-        return new JoinExecutor<>(root.copy(), getEffectiveDate()).getSqlBuilder(condition, fieldNames);
+    public SqlFragment asFragment(Condition condition, String[] fieldNames, Order[] orderBy) {
+        return new JoinExecutor<>(root.copy(), getEffectiveDate()).getSqlBuilder(condition, fieldNames, orderBy);
     }
 
-    public SqlFragment asFragment(Condition condition, int from, int to, String... fieldNames) {
-        return new JoinExecutor<>(root.copy(), getEffectiveDate(), from, to).getSqlBuilder(condition, fieldNames);
+    public SqlFragment asFragment(Condition condition, int from, int to, String[] fieldNames, Order[] orderBy) {
+        return new JoinExecutor<>(root.copy(), getEffectiveDate(), from, to).getSqlBuilder(condition, fieldNames, orderBy);
     }
 
     public Object convert(String fieldName, String value) {
@@ -155,5 +154,3 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
         return select(condition, orders, eager, exceptions, 0, 0);
     }
 }
-
-

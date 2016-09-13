@@ -31,7 +31,7 @@ final class JoinExecutor<T> {
 		this.to = to;
 	}
 
-	SqlBuilder getSqlBuilder(Condition condition , String[] fieldNames) {
+	SqlBuilder getSqlBuilder(Condition condition, String[] fieldNames, Order[] orderBy) {
 		builder = new SqlBuilder();
 		JoinTreeMarker.on(root).visit(condition);
 		List<String> selectColumns = new ArrayList<>();
@@ -49,7 +49,7 @@ final class JoinExecutor<T> {
 		JoinTreeMarker.on(root).visit(condition);
 		appendSelectClause(selectColumns);
 		appendWhereClause(builder, condition , " where ");
-		appendOrderByClause(builder, null);
+		appendOrderByClause(builder, orderBy);
 		return from == 0 ? builder : builder.asPageBuilder(from, to, fieldNames);
 	}
 
