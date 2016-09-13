@@ -833,8 +833,8 @@
 }
 
 .x-btn-icon-toolbar-small .x-btn-glyph {
-    font-size: 17px;
-    line-height: 17px;
+    font-size: 16px;
+    line-height: 16px;
     color: white;
     opacity: .5
 }
@@ -849,11 +849,11 @@
 }
 
 .x-btn-icon-toolbar-small-icon .x-btn-button, .x-btn-icon-toolbar-small-noicon .x-btn-button {
-    height: 17px
+    height: 16px
 }
 
 .x-btn-icon-toolbar-small-icon .x-btn-inner, .x-btn-icon-toolbar-small-noicon .x-btn-inner {
-    line-height: 17px
+    line-height: 16px
 }
 
 .x-btn-icon-toolbar-small-icon .x-btn-arrow-right .x-btn-inner, .x-btn-icon-toolbar-small-noicon .x-btn-arrow-right .x-btn-inner, .x-btn-icon-toolbar-small-icon-text-left .x-btn-arrow-right .x-btn-inner {
@@ -866,40 +866,40 @@
 }
 
 .x-btn-icon-toolbar-small-icon .x-btn-inner {
-    width: 17px;
+    width: 16px;
     padding: 0
 }
 
 .x-btn-icon-toolbar-small-icon .x-btn-icon-el {
-    width: 17px;
-    height: 17px
+    width: 16px;
+    height: 16px
 }
 
 .x-btn-icon-toolbar-small-icon-text-left .x-btn-button {
-    height: 17px
+    height: 16px
 }
 
 .x-btn-icon-toolbar-small-icon-text-left .x-btn-inner {
-    line-height: 17px;
-    padding-left: 22px
+    line-height: 16px;
+    padding-left: 21px
 }
 
 .x-btn-icon-toolbar-small-icon-text-left .x-rtl.x-btn-inner {
     padding-left: 4px;
-    padding-right: 22px
+    padding-right: 21px
 }
 
 .x-btn-icon-toolbar-small-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
-    padding-right: 22px
+    padding-right: 21px
 }
 
 .x-btn-icon-toolbar-small-icon-text-left .x-btn-icon-el {
-    width: 17px;
+    width: 16px;
     right: auto
 }
 
 .x-ie6 .x-btn-icon-toolbar-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-icon-toolbar-small-icon-text-left .x-btn-icon-el {
-    height: 17px
+    height: 16px
 }
 
 .x-btn-icon-toolbar-small-icon-text-left .x-rtl.x-btn-icon-el {
@@ -908,26 +908,26 @@
 }
 
 .x-btn-icon-toolbar-small-icon-text-right .x-btn-button {
-    height: 17px
+    height: 16px
 }
 
 .x-btn-icon-toolbar-small-icon-text-right .x-btn-inner {
-    line-height: 17px;
-    padding-right: 22px
+    line-height: 16px;
+    padding-right: 21px
 }
 
 .x-btn-icon-toolbar-small-icon-text-right .x-rtl.x-btn-inner {
     padding-right: 4px;
-    padding-left: 22px
+    padding-left: 21px
 }
 
 .x-btn-icon-toolbar-small-icon-text-right .x-btn-icon-el {
-    width: 17px;
+    width: 16px;
     left: auto
 }
 
 .x-ie6 .x-btn-icon-toolbar-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-icon-toolbar-small-icon-text-right .x-btn-icon-el {
-    height: 17px
+    height: 16px
 }
 
 .x-btn-icon-toolbar-small-icon-text-right .x-rtl.x-btn-icon-el {
@@ -936,11 +936,11 @@
 }
 
 .x-btn-icon-toolbar-small-icon-text-top .x-btn-inner {
-    padding-top: 22px
+    padding-top: 21px
 }
 
 .x-btn-icon-toolbar-small-icon-text-top .x-btn-icon-el {
-    height: 17px;
+    height: 16px;
     bottom: auto
 }
 
@@ -949,11 +949,11 @@
 }
 
 .x-btn-icon-toolbar-small-icon-text-bottom .x-btn-inner {
-    padding-bottom: 22px
+    padding-bottom: 21px
 }
 
 .x-btn-icon-toolbar-small-icon-text-bottom .x-btn-icon-el {
-    height: 17px;
+    height: 16px;
     top: auto
 }
 
@@ -5680,7 +5680,9 @@
 
 .x-panel-tile .x-form-display-field {
     height: auto;
-    min-height: 20px
+    min-height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis
 }
 
 .x-panel-tile2 {
@@ -11821,6 +11823,16 @@ div.x-form-spinner-down {
     background-position: 0 -15px
 }
 
+.x-boundlist-item .x-combo-list-item .x-form-checkbox {
+    position: absolute !important;
+    top: 3px !important
+}
+
+.x-boundlist-item .x-combo-list-item {
+    padding-left: 18px;
+    position: relative
+}
+
 .combo-limit-notification {
     color: #828282;
     font-size: 11px
@@ -14311,13 +14323,4 @@ a.x-datepicker-date:hover {
 
 .x-tab-bar-medium-right .x-box-scroller {
     margin-left: 0
-}
-
-.x-rtl.x-tab-bar-medium-right .x-box-scroller {
-    margin-left: 0;
-    margin-right: 0
-}
-
-.x-tab-bar-medium .x-tabbar-scroll-left {
-    background-image: url(images/tab-bar/medium-scroll-left.png)
 }

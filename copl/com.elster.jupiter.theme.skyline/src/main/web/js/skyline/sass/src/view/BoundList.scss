@@ -1,3 +1,13 @@
 .#{$prefix}boundlist-selected .#{$prefix}combo-list-item .#{$prefix}form-checkbox {
     background-position: 0px -15px;
 }
+
+.#{$prefix}boundlist-item .#{$prefix}combo-list-item .#{$prefix}form-checkbox {
+    position: absolute !important;
+    top: 3px !important
+}
+
+.#{$prefix}boundlist-item .#{$prefix}combo-list-item {
+    padding-left: 18px;
+    position: relative;
+}

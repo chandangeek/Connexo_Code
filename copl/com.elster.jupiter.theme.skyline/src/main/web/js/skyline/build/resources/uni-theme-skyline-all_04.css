@@ -2127,7 +2127,9 @@
 
 .x-panel-tile .x-form-display-field {
     height: auto;
-    min-height: 20px
+    min-height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis
 }
 
 .x-panel-tile2 {
@@ -8051,6 +8053,16 @@ div.x-form-spinner-down {
 
 .x-boundlist-selected .x-combo-list-item .x-form-checkbox {
     background-position: 0 -15px
+}
+
+.x-boundlist-item .x-combo-list-item .x-form-checkbox {
+    position: absolute !important;
+    top: 3px !important
+}
+
+.x-boundlist-item .x-combo-list-item {
+    padding-left: 18px;
+    position: relative
 }
 
 .combo-limit-notification {

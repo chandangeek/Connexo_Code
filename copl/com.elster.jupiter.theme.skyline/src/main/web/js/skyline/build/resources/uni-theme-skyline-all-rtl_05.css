@@ -1,3 +1,12 @@
+.x-rtl.x-tab-bar-medium-right .x-box-scroller {
+    margin-left: 0;
+    margin-right: 0
+}
+
+.x-tab-bar-medium .x-tabbar-scroll-left {
+    background-image: url(images/tab-bar/medium-scroll-left.png)
+}
+
 .x-tab-bar-medium .x-tabbar-scroll-right {
     background-image: url(images/tab-bar/medium-scroll-right.png)
 }

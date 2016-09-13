@@ -3029,7 +3029,6 @@ div.x-form-spinner-down {
   height: auto;
   min-height: 28px;
 }
-
 /* line 34, ../../sass/src/form/field/Base.scss */
 .x-form-display-field .application {
   color: #a0a0a0;
@@ -10313,6 +10312,18 @@ div.x-form-spinner-down {
 /* line 1, ../../sass/src/view/BoundList.scss */
 .x-boundlist-selected .x-combo-list-item .x-form-checkbox {
   background-position: 0px -15px;
+}
+
+/* line 5, ../../sass/src/view/BoundList.scss */
+.x-boundlist-item .x-combo-list-item .x-form-checkbox {
+  position: absolute !important;
+  top: 3px !important;
+}
+
+/* line 10, ../../sass/src/view/BoundList.scss */
+.x-boundlist-item .x-combo-list-item {
+  padding-left: 18px;
+  position: relative;
 }
 
 /* line 1, ../../sass/src/form/field/Combobox.scss */
