@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 public final class RangeComparatorFactory<T extends Comparable<? super T>> {
     public static final Comparator<Range<Instant>> INSTANT_DEFAULT
-            = RangeComparatorFactory.withLimits(Instant.EPOCH, Instant.MAX).comparing(Instant::toEpochMilli).defaultComparator();
+            = RangeComparatorFactory.withLimits(Instant.EPOCH, Instant.ofEpochMilli(Long.MAX_VALUE)).comparing(Instant::toEpochMilli).defaultComparator();
 
     private T min, max;
     private Comparator<? super T> referenceComparator = (o1, o2) -> o1.compareTo(o2);
