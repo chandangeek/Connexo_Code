@@ -12,7 +12,9 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,6 +32,8 @@ public class DeviceCacheMarshallingServiceImpl implements DeviceCacheMarshalling
     private static final int CLASS_NAME_INDEX = 0;
     private static final int JSON_PAYLOAD_INDEX = 1;
 
+    private volatile Map<Class, JAXBContext> jaxbContextCache = new ConcurrentHashMap<>();
+
     @Override
     public Optional<Object> unMarshallCache(String marshalledCache) {
         String[] cacheElements = marshalledCache.split(REGEX);
@@ -37,7 +41,7 @@ public class DeviceCacheMarshallingServiceImpl implements DeviceCacheMarshalling
             String className = cacheElements[CLASS_NAME_INDEX];
             String jsonPayload = cacheElements[JSON_PAYLOAD_INDEX];
             try {
-                JAXBContext jc = JAXBContext.newInstance(Class.forName(className));
+                JAXBContext jc = getJaxbContext(Class.forName(className));
                 Unmarshaller unmarshaller = jc.createUnmarshaller();
                 return Optional.of(unmarshaller.unmarshal(new StringReader(jsonPayload)));
             }
@@ -56,6 +60,27 @@ public class DeviceCacheMarshallingServiceImpl implements DeviceCacheMarshalling
         }
     }
 
+    private static class WrappingException extends RuntimeException {
+        public WrappingException(Throwable cause) {
+            super(cause);
+        }
+    }
+
+    private JAXBContext getJaxbContext(Class<?> aClass) throws JAXBException, ClassNotFoundException {
+
+        try {
+            return jaxbContextCache.computeIfAbsent(aClass, (clazz) -> {
+                try {
+                    return JAXBContext.newInstance(clazz);
+                } catch (JAXBException e) {
+                    throw new WrappingException(e);
+                }
+            });
+        } catch (WrappingException e) {
+            throw (JAXBException) e.getCause();
+        }
+    }
+
     @Override
     public String marshall(Object cache) {
         Class<?> cacheClass = cache.getClass();
@@ -64,7 +89,7 @@ public class DeviceCacheMarshallingServiceImpl implements DeviceCacheMarshalling
             Class.forName(className);   // Try to load the class to check if the cache is created/managed by this bundle
             StringWriter stringWriter = new StringWriter();
             stringWriter.append(className).append(REGEX);
-            JAXBContext jc = JAXBContext.newInstance(cacheClass);
+            JAXBContext jc = getJaxbContext(cacheClass);
             Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(cache, stringWriter);
