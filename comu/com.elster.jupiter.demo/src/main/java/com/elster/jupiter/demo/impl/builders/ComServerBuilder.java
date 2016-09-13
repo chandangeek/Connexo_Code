@@ -46,7 +46,6 @@ public class ComServerBuilder extends NamedBuilder<ComServer, ComServerBuilder> 
         comServer.numberOfStoreTaskThreads(5);
         comServer.storeTaskThreadPriority(5);
         comServer.serverName(getName());
-        comServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         comServer.queryApiPort(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
         comServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return comServer.create();
