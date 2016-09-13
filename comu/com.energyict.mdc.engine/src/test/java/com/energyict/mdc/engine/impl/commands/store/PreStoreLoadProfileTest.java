@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -100,6 +101,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     private IdentificationService identificationService;
     @Mock
     private ComServerDAOImpl.ServiceProvider serviceProvider;
+    @Mock
+    private User comServerUser;
 
     protected ComServerDAOImpl.ServiceProvider getComServerDAOServiceProvider() {
         return serviceProvider;
@@ -895,7 +898,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     }
 
     protected ComServerDAO mockComServerDAOWithOfflineLoadProfile(OfflineLoadProfile offlineLoadProfile) {
-        ComServerDAO comServerDAO = spy(new ComServerDAOImpl(this.serviceProvider));
+        ComServerDAO comServerDAO = spy(new ComServerDAOImpl(this.serviceProvider, comServerUser));
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
         doAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform()).when(comServerDAO).executeTransaction(any());
         doReturn(Optional.of(offlineLoadProfile)).when(comServerDAO).findOfflineLoadProfile(any(LoadProfileIdentifier.class));

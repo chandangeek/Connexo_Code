@@ -3,13 +3,10 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
 import java.util.Locale;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,14 +22,14 @@ class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor implements 
 
     private static final Logger LOGGER = Logger.getLogger(MultiThreadedScheduledJobExecutor.class.getName());
     private final ThreadPrincipalService threadPrincipalService;
-    private final UserService userService;
     private final ScheduledJob scheduledJob;
+    private final User comServerUser;
 
-    MultiThreadedScheduledJobExecutor(ScheduledJob scheduledJob, TransactionService transactionExecutor, ComServer.LogLevel communicationLogLevel, DeviceCommandExecutor deviceCommandExecutor, ThreadPrincipalService threadPrincipalService, UserService userService) {
+    MultiThreadedScheduledJobExecutor(ScheduledJob scheduledJob, TransactionService transactionExecutor, ComServer.LogLevel communicationLogLevel, DeviceCommandExecutor deviceCommandExecutor, ThreadPrincipalService threadPrincipalService, User comServerUser) {
         super(transactionExecutor, communicationLogLevel, deviceCommandExecutor);
         this.threadPrincipalService = threadPrincipalService;
-        this.userService = userService;
         this.scheduledJob = scheduledJob;
+        this.comServerUser = comServerUser;
     }
 
     @Override
@@ -47,7 +44,6 @@ class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor implements 
     }
 
     private void setThreadPrinciple() {
-        Optional<User> user = userService.findUser(EngineServiceImpl.COMSERVER_USER);
-        user.ifPresent(u -> threadPrincipalService.set(u, "MultiThreadedComPort", "Executing", u.getLocale().orElse(Locale.ENGLISH)));
+        threadPrincipalService.set(comServerUser, "MultiThreadedComPort", "Executing", comServerUser.getLocale().orElse(Locale.ENGLISH));
     }
 }

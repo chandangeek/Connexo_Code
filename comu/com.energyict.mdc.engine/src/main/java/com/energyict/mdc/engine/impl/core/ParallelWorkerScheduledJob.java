@@ -1,8 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -15,11 +18,15 @@ public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup i
 
     private final ParallelRootScheduledJob parallelRootScheduledJob;
     private final CountDownLatch start;
+    private final ThreadPrincipalService threadPrincipalService;
+    private final User comServerUser;
 
     private Boolean connectionEstablished = null;
 
-    public ParallelWorkerScheduledJob(ParallelRootScheduledJob parallelRootScheduledJob, CountDownLatch start) {
+    public ParallelWorkerScheduledJob(ParallelRootScheduledJob parallelRootScheduledJob, CountDownLatch start, ThreadPrincipalService threadPrincipalService, User comServerUser) {
         super(((OutboundComPort) parallelRootScheduledJob.getComPort()), parallelRootScheduledJob.getComServerDAO(), parallelRootScheduledJob.getDeviceCommandExecutor(), parallelRootScheduledJob.getConnectionTask(), parallelRootScheduledJob.getServiceProvider());
+        this.threadPrincipalService = threadPrincipalService;
+        this.comServerUser = comServerUser;
         this.parallelRootScheduledJob = parallelRootScheduledJob;
         this.start = start;
     }
@@ -32,6 +39,7 @@ public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup i
     @Override
     public void execute() {
         Thread.currentThread().setName("ComPort schedule worker for " + getComPort().getName());
+        this.setThreadPrinciple();
 
         /*
         1/ Connect to the device
@@ -77,5 +85,9 @@ public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup i
             connectionEstablished = this.establishConnectionFor(this.getComPort());
         }
         return connectionEstablished;
+    }
+
+    private void setThreadPrinciple() {
+        threadPrincipalService.set(comServerUser, "MultiThreadedComPort", "Executing", comServerUser.getLocale().orElse(Locale.ENGLISH));
     }
 }

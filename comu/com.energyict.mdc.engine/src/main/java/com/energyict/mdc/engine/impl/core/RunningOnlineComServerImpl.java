@@ -1,15 +1,13 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
-import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.monitor.ServerQueryAPIStatistics;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiService;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.RemoteComServer;
 
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
@@ -25,11 +23,7 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
 
     private EmbeddedWebServer remoteQueryApi;
 
-    public RunningOnlineComServerImpl(OnlineComServer comServer, ServiceProvider serviceProvider) {
-        this(comServer, new ComServerDAOImpl(serviceProvider), serviceProvider);
-    }
-
-    private RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ServiceProvider serviceProvider) {
+    public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, null, null, new ComServerThreadFactory(comServer), serviceProvider);
     }
 

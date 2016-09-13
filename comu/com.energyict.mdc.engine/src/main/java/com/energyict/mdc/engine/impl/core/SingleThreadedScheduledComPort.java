@@ -4,13 +4,11 @@ import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -34,8 +32,8 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
 
     @Override
     protected void setThreadPrinciple() {
-        Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        user.ifPresent(u -> getServiceProvider().threadPrincipalService().set(u, "SingleThreadedComPort", "Executing", u.getLocale().orElse(Locale.ENGLISH)));
+        User comServerUser = getComServerDAO().getComServerUser();
+        getServiceProvider().threadPrincipalService().set(comServerUser, "SingleThreadedComPort", "Executing", comServerUser.getLocale().orElse(Locale.ENGLISH));
     }
 
     @Override

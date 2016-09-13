@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -457,4 +458,5 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     List<Pair<OfflineLoadProfile,Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile loadProfile, String readingTypeMRID, Range<Instant> dataPeriod);
 
+    User getComServerUser();
 }

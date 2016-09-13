@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Clock;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -159,12 +161,13 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     }
 
     private void startOnlineComServer() {
-        ComServerDAO comServerDAO = new ComServerDAOImpl(new ComServerDaoServiceProvider());
+        Optional<User> user = serviceProvider.userService().findUser(EngineServiceImpl.COMSERVER_USER);
+        ComServerDAO comServerDAO = new ComServerDAOImpl(new ComServerDaoServiceProvider(), user.get()); // we should always have the comserver user
         this.comServer = comServerDAO.getThisComServer();
-        this.doStartOnlineComServer();
+        this.doStartOnlineComServer(comServerDAO);
     }
 
-    private void doStartOnlineComServer() {
+    private void doStartOnlineComServer(ComServerDAO comServerDAO) {
         if (this.comServer == null) {
             this.logger.comServerNotFound(HostName.getCurrent());
         } else if (!this.comServer.isActive()) {
@@ -173,7 +176,7 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
             if (this.comServer.isOnline()) {
                 if (this.validateServices((OnlineComServer) this.comServer)) {
                     this.logger.starting(this.comServer.getName());
-                    this.runningComServer = new RunningOnlineComServerImpl((OnlineComServer) this.comServer, serviceProvider);
+                    this.runningComServer = new RunningOnlineComServerImpl((OnlineComServer) this.comServer, comServerDAO, serviceProvider);
                     this.runningComServer.start();
                 }
             } else {
