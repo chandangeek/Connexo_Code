@@ -176,12 +176,7 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
 
     private Stream<EndDevice> getMemberStream(Instant instant) {
         return getMemberships().stream()
-                .sorted(new Comparator<EndDeviceMembership>() {
-                    @Override
-                    public int compare(EndDeviceMembership o1, EndDeviceMembership o2) {
-                        return o1.getEndDevice().getName().compareToIgnoreCase(o2.getEndDevice().getName());
-                    }
-                })
+                .sorted(Comparator.comparing(m -> m.getEndDevice().getName()))
                 .filter(Active.at(instant))
                 .map(To.END_DEVICE);
     }
@@ -237,13 +232,14 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
         Query<EndDevice> endDeviceQuery = service.getEndDeviceQuery();
 
         QueryExecutor<EntryImpl> query = getDataModel().query(EntryImpl.class);
-        Subquery subQueryEndDeviceIdInGroup = query.asSubquery(where("endDeviceGroup").isEqualTo(this), "endDevice");
+        Subquery subQueryEndDeviceIdInGroup = query.asSubquery(where("endDeviceGroup").isEqualTo(this),
+                new String[]{"endDevice"}, Order.NOORDER);
         Condition condition = ListOperator.IN.contains(subQueryEndDeviceIdInGroup, "id");
         if (amrSystems.length > 0) {
             condition = condition.and(ListOperator.IN.contains("amrSystem", Arrays.asList(amrSystems)));
         }
 
-        return endDeviceQuery.asSubquery(condition, "amrId");
+        return endDeviceQuery.asSubquery(condition, new String[]{"amrId"}, Order.NOORDER);
     }
 
     private EndDeviceMembershipImpl forEndDevice(EndDevice endDevice) {
