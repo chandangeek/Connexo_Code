@@ -1,48 +1,3 @@
-/* line 644, ../../sass/src/fonts/Icomoon.scss */
-.icon-stack:before {
-  content: "\e9cd";
-}
-
-/* line 647, ../../sass/src/fonts/Icomoon.scss */
-.icon-stack2:before {
-  content: "\e9ce";
-}
-
-/* line 650, ../../sass/src/fonts/Icomoon.scss */
-.icon-stack3:before {
-  content: "\e9cf";
-}
-
-/* line 653, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder:before {
-  content: "\e9d0";
-}
-
-/* line 656, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-search:before {
-  content: "\e9d1";
-}
-
-/* line 659, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-download:before {
-  content: "\e9d2";
-}
-
-/* line 662, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-upload:before {
-  content: "\e9d3";
-}
-
-/* line 665, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-plus:before {
-  content: "\e9d4";
-}
-
-/* line 668, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-plus2:before {
-  content: "\e9d5";
-}
-
 /* line 671, ../../sass/src/fonts/Icomoon.scss */
 .icon-folder-minus:before {
   content: "\e9d6";
@@ -8008,7 +7963,7 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 
 /* line 4, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-remove-small .x-btn-icon-el {
-  font-size: 15px;
+  font-size: 16px;
   margin: auto;
 }
 /* line 11, ../../sass/src/button/Icons.scss */
@@ -8022,7 +7977,7 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 
 /* line 4, ../../sass/src/button/Icons.scss */
 .x-btn.x-btn-link-small .x-btn-icon-el {
-  font-size: 15px;
+  font-size: 16px;
   margin: auto;
 }
 /* line 11, ../../sass/src/button/Icons.scss */
@@ -8219,8 +8174,8 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 }
 /* line 293, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small .x-btn-glyph {
-  font-size: 17px;
-  line-height: 17px;
+  font-size: 16px;
+  line-height: 16px;
   color: white;
   opacity: 0.5;
 }
@@ -8238,12 +8193,12 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 /* line 346, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon .x-btn-button,
 .x-btn-remove-small-noicon .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 350, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon .x-btn-inner,
 .x-btn-remove-small-noicon .x-btn-inner {
-  line-height: 17px;
+  line-height: 16px;
 }
 
 /* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -8255,60 +8210,60 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 
 /* line 375, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon .x-btn-inner {
-  width: 17px;
+  width: 16px;
   padding: 0;
 }
 /* line 381, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon .x-btn-icon-el {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
 }
 
 /* line 388, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon-text-left .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 393, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon-text-left .x-btn-inner {
-  line-height: 17px;
-  padding-left: 22px;
+  line-height: 16px;
+  padding-left: 21px;
 }
 /* line 409, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon-text-left .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   right: auto;
 }
 /* line 415, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-remove-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-remove-small-icon-text-left .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 430, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon-text-right .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 435, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon-text-right .x-btn-inner {
-  line-height: 17px;
-  padding-right: 22px;
+  line-height: 16px;
+  padding-right: 21px;
 }
 /* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon-text-right .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   left: auto;
 }
 /* line 453, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-remove-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-remove-small-icon-text-right .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 468, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon-text-top .x-btn-inner {
-  padding-top: 22px;
+  padding-top: 21px;
 }
 /* line 472, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon-text-top .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   bottom: auto;
 }
 /* line 480, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -8318,11 +8273,11 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 
 /* line 488, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon-text-bottom .x-btn-inner {
-  padding-bottom: 22px;
+  padding-bottom: 21px;
 }
 /* line 492, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-icon-text-bottom .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   top: auto;
 }
 /* line 500, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -9608,8 +9563,8 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 }
 /* line 293, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small .x-btn-glyph {
-  font-size: 17px;
-  line-height: 17px;
+  font-size: 16px;
+  line-height: 16px;
   color: white;
   opacity: 0.5;
 }
@@ -9627,12 +9582,12 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 /* line 346, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon .x-btn-button,
 .x-btn-remove-toolbar-small-noicon .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 350, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon .x-btn-inner,
 .x-btn-remove-toolbar-small-noicon .x-btn-inner {
-  line-height: 17px;
+  line-height: 16px;
 }
 
 /* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -9644,60 +9599,60 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 
 /* line 375, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon .x-btn-inner {
-  width: 17px;
+  width: 16px;
   padding: 0;
 }
 /* line 381, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon .x-btn-icon-el {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
 }
 
 /* line 388, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon-text-left .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 393, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon-text-left .x-btn-inner {
-  line-height: 17px;
-  padding-left: 22px;
+  line-height: 16px;
+  padding-left: 21px;
 }
 /* line 409, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon-text-left .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   right: auto;
 }
 /* line 415, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-remove-toolbar-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-remove-toolbar-small-icon-text-left .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 430, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon-text-right .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 435, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon-text-right .x-btn-inner {
-  line-height: 17px;
-  padding-right: 22px;
+  line-height: 16px;
+  padding-right: 21px;
 }
 /* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon-text-right .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   left: auto;
 }
 /* line 453, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-remove-toolbar-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-remove-toolbar-small-icon-text-right .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 468, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon-text-top .x-btn-inner {
-  padding-top: 22px;
+  padding-top: 21px;
 }
 /* line 472, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon-text-top .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   bottom: auto;
 }
 /* line 480, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -9707,11 +9662,11 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 
 /* line 488, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon-text-bottom .x-btn-inner {
-  padding-bottom: 22px;
+  padding-bottom: 21px;
 }
 /* line 492, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-toolbar-small-icon-text-bottom .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   top: auto;
 }
 /* line 500, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -9865,12 +9820,6 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 .x-btn-remove-toolbar-small .x-btn-split-bottom {
   background-image: url(images/button/remove-toolbar-small-s-arrow-b.png);
   padding-bottom: 20px;
-}
-
-/* line 758, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-remove-toolbar-small-disabled {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  opacity: 0.5;
 }
 
 /*<if slicer>*/
@@ -10336,12 +10285,6 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
   padding-bottom: 28px;
 }
 
-/* line 758, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-remove-toolbar-medium-disabled {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  opacity: 0.5;
-}
-
 /*<if slicer>*/
 /* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
 .x-btn-remove-toolbar-medium-focus:after {
@@ -10805,12 +10748,6 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
   padding-bottom: 34px;
 }
 
-/* line 758, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-remove-toolbar-large-disabled {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  opacity: 0.5;
-}
-
 /*<if slicer>*/
 /* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
 .x-btn-remove-toolbar-large-focus:after {
@@ -11029,8 +10966,8 @@ a:hover, a.x-btn:hover {
 }
 /* line 293, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small .x-btn-glyph {
-  font-size: 17px;
-  line-height: 17px;
+  font-size: 16px;
+  line-height: 16px;
   color: #686868;
   opacity: 0.5;
 }
@@ -11052,12 +10989,12 @@ a:hover, a.x-btn:hover {
 /* line 346, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon .x-btn-button,
 .x-btn-link-small-noicon .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 350, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon .x-btn-inner,
 .x-btn-link-small-noicon .x-btn-inner {
-  line-height: 17px;
+  line-height: 16px;
 }
 
 /* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -11069,60 +11006,60 @@ a:hover, a.x-btn:hover {
 
 /* line 375, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon .x-btn-inner {
-  width: 17px;
+  width: 16px;
   padding: 0;
 }
 /* line 381, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon .x-btn-icon-el {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
 }
 
 /* line 388, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon-text-left .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 393, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon-text-left .x-btn-inner {
-  line-height: 17px;
-  padding-left: 22px;
+  line-height: 16px;
+  padding-left: 21px;
 }
 /* line 409, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon-text-left .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   right: auto;
 }
 /* line 415, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-link-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-link-small-icon-text-left .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 430, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon-text-right .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 435, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon-text-right .x-btn-inner {
-  line-height: 17px;
-  padding-right: 22px;
+  line-height: 16px;
+  padding-right: 21px;
 }
 /* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon-text-right .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   left: auto;
 }
 /* line 453, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-link-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-link-small-icon-text-right .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 468, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon-text-top .x-btn-inner {
-  padding-top: 22px;
+  padding-top: 21px;
 }
 /* line 472, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon-text-top .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   bottom: auto;
 }
 /* line 480, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -11132,11 +11069,11 @@ a:hover, a.x-btn:hover {
 
 /* line 488, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon-text-bottom .x-btn-inner {
-  padding-bottom: 22px;
+  padding-bottom: 21px;
 }
 /* line 492, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-small-icon-text-bottom .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   top: auto;
 }
 /* line 500, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -12490,8 +12427,8 @@ a:hover, a.x-btn:hover {
 }
 /* line 293, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small .x-btn-glyph {
-  font-size: 17px;
-  line-height: 17px;
+  font-size: 16px;
+  line-height: 16px;
   color: #686868;
   opacity: 0.5;
 }
@@ -12513,12 +12450,12 @@ a:hover, a.x-btn:hover {
 /* line 346, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon .x-btn-button,
 .x-btn-link-toolbar-small-noicon .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 350, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon .x-btn-inner,
 .x-btn-link-toolbar-small-noicon .x-btn-inner {
-  line-height: 17px;
+  line-height: 16px;
 }
 
 /* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -12530,60 +12467,60 @@ a:hover, a.x-btn:hover {
 
 /* line 375, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon .x-btn-inner {
-  width: 17px;
+  width: 16px;
   padding: 0;
 }
 /* line 381, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon .x-btn-icon-el {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
 }
 
 /* line 388, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon-text-left .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 393, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon-text-left .x-btn-inner {
-  line-height: 17px;
-  padding-left: 22px;
+  line-height: 16px;
+  padding-left: 21px;
 }
 /* line 409, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon-text-left .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   right: auto;
 }
 /* line 415, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-link-toolbar-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-link-toolbar-small-icon-text-left .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 430, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon-text-right .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 435, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon-text-right .x-btn-inner {
-  line-height: 17px;
-  padding-right: 22px;
+  line-height: 16px;
+  padding-right: 21px;
 }
 /* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon-text-right .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   left: auto;
 }
 /* line 453, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-link-toolbar-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-link-toolbar-small-icon-text-right .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 468, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon-text-top .x-btn-inner {
-  padding-top: 22px;
+  padding-top: 21px;
 }
 /* line 472, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon-text-top .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   bottom: auto;
 }
 /* line 480, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -12593,11 +12530,11 @@ a:hover, a.x-btn:hover {
 
 /* line 488, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon-text-bottom .x-btn-inner {
-  padding-bottom: 22px;
+  padding-bottom: 21px;
 }
 /* line 492, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-link-toolbar-small-icon-text-bottom .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   top: auto;
 }
 /* line 500, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -12764,12 +12701,6 @@ a:hover, a.x-btn:hover {
 .x-btn-link-toolbar-small .x-btn-split-bottom {
   background-image: url(images/button/s-arrow-b.png);
   padding-bottom: 20px;
-}
-
-/* line 758, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-link-toolbar-small-disabled {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  opacity: 0.5;
 }
 
 /*<if slicer>*/
@@ -13262,12 +13193,6 @@ a:hover, a.x-btn:hover {
   padding-bottom: 28px;
 }
 
-/* line 758, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-link-toolbar-medium-disabled {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  opacity: 0.5;
-}
-
 /*<if slicer>*/
 /* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
 .x-btn-link-toolbar-medium-focus:after {
@@ -13756,12 +13681,6 @@ a:hover, a.x-btn:hover {
 .x-btn-link-toolbar-large .x-btn-split-bottom {
   background-image: url(images/button/s-arrow-b.png);
   padding-bottom: 34px;
-}
-
-/* line 758, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-link-toolbar-large-disabled {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  opacity: 0.5;
 }
 
 /*<if slicer>*/
@@ -14555,8 +14474,8 @@ a:hover, a.x-btn:hover {
 }
 /* line 293, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small .x-btn-glyph {
-  font-size: 17px;
-  line-height: 17px;
+  font-size: 16px;
+  line-height: 16px;
   color: white;
   opacity: 0.5;
 }
@@ -14574,12 +14493,12 @@ a:hover, a.x-btn:hover {
 /* line 346, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon .x-btn-button,
 .x-btn-action-small-noicon .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 350, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon .x-btn-inner,
 .x-btn-action-small-noicon .x-btn-inner {
-  line-height: 17px;
+  line-height: 16px;
 }
 
 /* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -14591,60 +14510,60 @@ a:hover, a.x-btn:hover {
 
 /* line 375, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon .x-btn-inner {
-  width: 17px;
+  width: 16px;
   padding: 0;
 }
 /* line 381, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon .x-btn-icon-el {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
 }
 
 /* line 388, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon-text-left .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 393, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon-text-left .x-btn-inner {
-  line-height: 17px;
-  padding-left: 22px;
+  line-height: 16px;
+  padding-left: 21px;
 }
 /* line 409, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon-text-left .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   right: auto;
 }
 /* line 415, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-action-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-action-small-icon-text-left .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 430, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon-text-right .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 435, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon-text-right .x-btn-inner {
-  line-height: 17px;
-  padding-right: 22px;
+  line-height: 16px;
+  padding-right: 21px;
 }
 /* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon-text-right .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   left: auto;
 }
 /* line 453, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-action-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-action-small-icon-text-right .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 468, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon-text-top .x-btn-inner {
-  padding-top: 22px;
+  padding-top: 21px;
 }
 /* line 472, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon-text-top .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   bottom: auto;
 }
 /* line 480, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -14654,11 +14573,11 @@ a:hover, a.x-btn:hover {
 
 /* line 488, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon-text-bottom .x-btn-inner {
-  padding-bottom: 22px;
+  padding-bottom: 21px;
 }
 /* line 492, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-small-icon-text-bottom .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   top: auto;
 }
 /* line 500, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -15944,8 +15863,8 @@ a:hover, a.x-btn:hover {
 }
 /* line 293, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small .x-btn-glyph {
-  font-size: 17px;
-  line-height: 17px;
+  font-size: 16px;
+  line-height: 16px;
   color: white;
   opacity: 0.5;
 }
@@ -15963,12 +15882,12 @@ a:hover, a.x-btn:hover {
 /* line 346, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon .x-btn-button,
 .x-btn-action-toolbar-small-noicon .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 350, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon .x-btn-inner,
 .x-btn-action-toolbar-small-noicon .x-btn-inner {
-  line-height: 17px;
+  line-height: 16px;
 }
 
 /* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -15980,60 +15899,60 @@ a:hover, a.x-btn:hover {
 
 /* line 375, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon .x-btn-inner {
-  width: 17px;
+  width: 16px;
   padding: 0;
 }
 /* line 381, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon .x-btn-icon-el {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
 }
 
 /* line 388, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon-text-left .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 393, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon-text-left .x-btn-inner {
-  line-height: 17px;
-  padding-left: 22px;
+  line-height: 16px;
+  padding-left: 21px;
 }
 /* line 409, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon-text-left .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   right: auto;
 }
 /* line 415, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-action-toolbar-small-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-action-toolbar-small-icon-text-left .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 430, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon-text-right .x-btn-button {
-  height: 17px;
+  height: 16px;
 }
 /* line 435, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon-text-right .x-btn-inner {
-  line-height: 17px;
-  padding-right: 22px;
+  line-height: 16px;
+  padding-right: 21px;
 }
 /* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon-text-right .x-btn-icon-el {
-  width: 17px;
+  width: 16px;
   left: auto;
 }
 /* line 453, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-action-toolbar-small-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-action-toolbar-small-icon-text-right .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
 }
 
 /* line 468, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon-text-top .x-btn-inner {
-  padding-top: 22px;
+  padding-top: 21px;
 }
 /* line 472, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon-text-top .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   bottom: auto;
 }
 /* line 480, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -16043,11 +15962,11 @@ a:hover, a.x-btn:hover {
 
 /* line 488, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon-text-bottom .x-btn-inner {
-  padding-bottom: 22px;
+  padding-bottom: 21px;
 }
 /* line 492, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-icon-text-bottom .x-btn-icon-el {
-  height: 17px;
+  height: 16px;
   top: auto;
 }
 /* line 500, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -16201,12 +16120,6 @@ a:hover, a.x-btn:hover {
 .x-btn-action-toolbar-small .x-btn-split-bottom {
   background-image: url(images/button/action-toolbar-small-s-arrow-b.png);
   padding-bottom: 20px;
-}
-
-/* line 758, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-action-toolbar-small-disabled {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  opacity: 0.5;
 }
 
 /*<if slicer>*/
@@ -16672,12 +16585,6 @@ a:hover, a.x-btn:hover {
   padding-bottom: 28px;
 }
 
-/* line 758, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-action-toolbar-medium-disabled {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  opacity: 0.5;
-}
-
 /*<if slicer>*/
 /* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
 .x-btn-action-toolbar-medium-focus:after {
@@ -16879,4 +16786,69 @@ a:hover, a.x-btn:hover {
 /* line 289, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-large .x-btn-arrow-bottom {
   padding-bottom: 32px;
+}
+/* line 293, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-action-toolbar-large .x-btn-glyph {
+  font-size: 32px;
+  line-height: 32px;
+  color: white;
+  opacity: 0.5;
+}
+/* line 313, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie8m .x-btn-action-toolbar-large .x-btn-glyph {
+  color: #b7dda8;
+}
+
+/* line 320, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-action-toolbar-large-disabled {
+  background-image: none;
+  background-color: #d4d4d4;
+}
+
+/* line 346, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-action-toolbar-large-icon .x-btn-button,
+.x-btn-action-toolbar-large-noicon .x-btn-button {
+  height: 32px;
+}
+/* line 350, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-action-toolbar-large-icon .x-btn-inner,
+.x-btn-action-toolbar-large-noicon .x-btn-inner {
+  line-height: 32px;
+}
+
+/* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-action-toolbar-large-icon .x-btn-arrow-right .x-btn-inner,
+.x-btn-action-toolbar-large-noicon .x-btn-arrow-right .x-btn-inner,
+.x-btn-action-toolbar-large-icon-text-left .x-btn-arrow-right .x-btn-inner {
+  padding-right: 0;
+}
+
+/* line 375, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-action-toolbar-large-icon .x-btn-inner {
+  width: 32px;
+  padding: 0;
+}
+/* line 381, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-action-toolbar-large-icon .x-btn-icon-el {
+  width: 32px;
+  height: 32px;
+}
+
+/* line 388, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-action-toolbar-large-icon-text-left .x-btn-button {
+  height: 32px;
+}
+/* line 393, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-action-toolbar-large-icon-text-left .x-btn-inner {
+  line-height: 32px;
+  padding-left: 37px;
+}
+/* line 409, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-action-toolbar-large-icon-text-left .x-btn-icon-el {
+  width: 32px;
+  right: auto;
+}
+/* line 415, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-action-toolbar-large-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-action-toolbar-large-icon-text-left .x-btn-icon-el {
+  height: 32px;
 }
