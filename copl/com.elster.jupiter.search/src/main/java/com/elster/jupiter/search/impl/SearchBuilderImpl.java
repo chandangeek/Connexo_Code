@@ -295,14 +295,17 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             this.searchMonitor = searchMonitor;
         }
 
+        @Override
         public Finder<T> paged(int start, int pageSize) {
             return this.actualFinder.paged(start, pageSize);
         }
 
+        @Override
         public Finder<T> sorted(String sortColumn, boolean ascending) {
             return this.actualFinder.sorted(sortColumn, ascending);
         }
 
+        @Override
         public List<T> find() {
             try {
                 return this.searchMonitor.searchTimer(searchDomain).time(actualFinder::find);
@@ -313,10 +316,12 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             }
         }
 
+        @Override
         public Subquery asSubQuery(String... fieldNames) {
             return this.actualFinder.asSubQuery(fieldNames);
         }
 
+        @Override
         public SqlFragment asFragment(String... fieldNames) {
             return this.actualFinder.asFragment(fieldNames);
         }
