@@ -4,21 +4,23 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
+
 import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Generic finder interfaces adding pagability and sortability to any query.
+ * Generic finder interfaces adding pageability and sortability to any query.
  */
 public interface Finder<T> {
 
     /**
-     * adds paging information to the query. Paging information will be automatically
+     * Adds paging information to the query. Paging information will be automatically
      * set when using the from(QueryParameters) method. One additional element will be
-     * returned to indicate a next page exists.
+     * returned to indicate the next page exists.
      *
-     * @param start first line from the query to return
-     * @param pageSize the number of lines to return.
+     * @param start First line to return.
+     * @param pageSize The number of lines in page (i.e. number of lines to return minus one:
+     * one additional is returned to know if the next page exists).
      * @return A Finder that will return the requested page when asked.
      */
     Finder<T> paged(int start, int pageSize);
