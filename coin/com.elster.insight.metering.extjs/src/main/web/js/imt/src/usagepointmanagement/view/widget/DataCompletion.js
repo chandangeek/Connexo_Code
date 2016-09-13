@@ -70,21 +70,25 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
                 xtype: 'toolbar',
                 itemId: 'comboTool',
                 layout: 'hbox',
+                defaults: {
+                    margin: '0 10 0 0'
+                },
                 items: [
                     {
+                        xtype: 'label',
+                        text: Uni.I18n.translate('general.purpose', 'IMT', 'Purpose')
+                    },
+                    {
                         xtype: 'combobox',
-                        fieldLabel: Uni.I18n.translate('general.purpose', 'IMT', 'Purpose'),
                         itemId: 'purposes-combo',
                         valueField: 'id',
                         store: purposesStore,
                         displayField: 'name',
                         editable: false,
-                        labelWidth: 60,
-                        width: 250,
+                        width: 150,
                         labelPad: 2,
                         forceSelection: true,
                         value: defaultPurposeId,
-                        margin: '0 10 0 0',
                         listeners: {
                             change: function (combo, newvalue) {
                                 me.setPurpose(purposesStore.getById(newvalue));
@@ -96,16 +100,18 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
                         }
                     },
                     {
+                        xtype: 'label',
+                        text: Uni.I18n.translate('general.period', 'IMT', 'Period')
+                    },
+                    {
                         xtype: 'combobox',
-                        fieldLabel: Uni.I18n.translate('general.period', 'IMT', 'Period'),
                         itemId: 'periods-combo',
                         valueField: 'id',
                         store: 'Imt.usagepointmanagement.store.Periods',
                         displayField: 'name',
                         queryMode: 'local',
                         editable: false,
-                        labelWidth: 60,
-                        width: 250,
+                        width: 150,
                         labelPad: 2,
                         forceSelection: true,
                         listeners: {
