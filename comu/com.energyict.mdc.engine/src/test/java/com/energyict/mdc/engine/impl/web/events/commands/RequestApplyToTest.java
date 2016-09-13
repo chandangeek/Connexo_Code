@@ -9,7 +9,10 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OutboundCapableComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.events.Category;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventReceiver;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -22,8 +25,9 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -61,7 +65,17 @@ public class RequestApplyToTest {
     @Mock
     private EngineConfigurationService engineConfigurationService;
     @Mock
+    private RunningComServer runningComServer;
+    @Mock
+    private OutboundCapableComServer comServer;
+    @Mock
     private IdentificationService identificationService;
+
+    @Before
+    public void initializeMocks() {
+        when(this.runningComServer.getComServer()).thenReturn(this.comServer);
+        when(this.comServer.getComPorts()).thenReturn(Collections.emptyList());
+    }
 
     @Test
     public void testCategoryRequest() {
@@ -124,7 +138,7 @@ public class RequestApplyToTest {
     @Test
     public void testComPortRequest() {
         ComPort comPort = this.mockComPort();
-        ComPortRequest request = new ComPortRequest(engineConfigurationService, COM_PORT_ID);
+        ComPortRequest request = new ComPortRequest(this.runningComServer, COM_PORT_ID);
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method
@@ -178,9 +192,11 @@ public class RequestApplyToTest {
     }
 
     private ComPort mockComPort() {
-        ComPort comPort = mock(ComPort.class);
+        OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getId()).thenReturn(COM_PORT_ID);
-        doReturn(Optional.of(comPort)).when(this.engineConfigurationService).findComPort(COM_PORT_ID);
+        when(this.comServer.getComPorts()).thenReturn(Collections.singletonList(comPort));
+        when(this.comServer.getOutboundComPorts()).thenReturn(Collections.singletonList(comPort));
+        when(comPort.getId()).thenReturn(COM_PORT_ID);
         return comPort;
     }
 

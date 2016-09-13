@@ -9,7 +9,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:45)
  */
-public class DebugLoggingRequestType extends LoggingRequestType {
+class DebugLoggingRequestType extends LoggingRequestType {
 
     @Override
     protected String getLogLevelName () {

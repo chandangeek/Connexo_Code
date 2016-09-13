@@ -7,6 +7,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventReceiver;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -34,11 +35,11 @@ class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocke
     private Connection connection;
     private RequestParser parser;
 
-    WebSocketEventPublisher(RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, WebSocketCloseEventListener closeEventListener) {
+    WebSocketEventPublisher(RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, WebSocketCloseEventListener closeEventListener) {
         super();
         this.closeEventListener = closeEventListener;
         this.eventPublisher = eventPublisher;
-        this.parser = new RequestParser(serviceProvider);
+        this.parser = new RequestParser(comServer, serviceProvider);
     }
 
     @Override

@@ -8,9 +8,9 @@ package com.energyict.mdc.engine.impl.web.events.commands;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (10:40)
  */
-public class RequestTypeParseException extends RequestParseException {
+class RequestTypeParseException extends RequestParseException {
 
-    public RequestTypeParseException (String requestType, int requestTypeOffsetInMessage) {
+    RequestTypeParseException(String requestType, int requestTypeOffsetInMessage) {
         super("Unrecognized request type:" + requestType + " at index " + requestTypeOffsetInMessage);
     }
 

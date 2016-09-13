@@ -9,13 +9,8 @@ package com.energyict.mdc.engine.impl.web.events.commands;
  * @author sva
  * @since 25/05/2016 - 9:45
  */
-public class BusinessObjectParseException extends RequestParseException {
-
-    public BusinessObjectParseException(String message) {
-        super(message);
-    }
-
-    public BusinessObjectParseException(String message, Throwable cause) {
+class BusinessObjectParseException extends RequestParseException {
+    BusinessObjectParseException(String message, Throwable cause) {
         super(message, cause);
     }
 }

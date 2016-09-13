@@ -11,11 +11,11 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:59)
  */
-public class ConnectionTaskRequestType extends IdBusinessObjectRequestType {
+class ConnectionTaskRequestType extends IdBusinessObjectRequestType {
 
     private final ConnectionTaskService connectionTaskService;
 
-    public ConnectionTaskRequestType(ConnectionTaskService connectionTaskService) {
+    ConnectionTaskRequestType(ConnectionTaskService connectionTaskService) {
         this.connectionTaskService = connectionTaskService;
     }
 

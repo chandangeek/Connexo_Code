@@ -11,11 +11,11 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:58)
  */
-public class ComTaskExecutionRequestType extends IdBusinessObjectRequestType {
+class ComTaskExecutionRequestType extends IdBusinessObjectRequestType {
 
     private final CommunicationTaskService communicationTaskService;
 
-    public ComTaskExecutionRequestType(CommunicationTaskService communicationTaskService) {
+    ComTaskExecutionRequestType(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
     }
 

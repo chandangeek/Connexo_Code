@@ -13,7 +13,7 @@ import java.util.StringTokenizer;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:50)
  */
-public abstract class IdBusinessObjectRequestType implements RequestType {
+abstract class IdBusinessObjectRequestType implements RequestType {
 
     @Override
     public boolean canParse (String name) {

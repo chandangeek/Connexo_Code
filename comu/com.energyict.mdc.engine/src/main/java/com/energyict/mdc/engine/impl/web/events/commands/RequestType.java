@@ -19,7 +19,7 @@ public interface RequestType {
      * @param name The name as it appears in the client application event registration request
      * @return A flag that indicates if this RequestType can parse the client application event registration request
      */
-    public boolean canParse (String name);
+    boolean canParse(String name);
 
     /**
      * Parses a {@link Request} from the specified string representation
@@ -29,6 +29,6 @@ public interface RequestType {
      * @return The Request
      * @throws RequestParseException Indicates a failure to parse the request
      */
-    public Request parse (String parameterString) throws RequestParseException;
+    Request parse(String parameterString) throws RequestParseException;
 
 }

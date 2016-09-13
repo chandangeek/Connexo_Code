@@ -7,8 +7,8 @@ package com.energyict.mdc.engine.impl.web.events;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-15 (10:42)
  */
-public interface WebSocketCloseEventListener {
+interface WebSocketCloseEventListener {
 
-    public void closedFrom(WebSocketEventPublisher webSocketEventPublisher);
+    void closedFrom(WebSocketEventPublisher webSocketEventPublisher);
 
 }

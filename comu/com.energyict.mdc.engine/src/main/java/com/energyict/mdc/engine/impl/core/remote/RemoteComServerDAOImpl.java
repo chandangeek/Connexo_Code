@@ -8,18 +8,45 @@ import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
-import com.energyict.mdc.engine.impl.core.*;
-import com.energyict.mdc.protocol.api.device.data.*;
-import com.energyict.mdc.protocol.api.device.data.identifiers.*;
+import com.energyict.mdc.engine.impl.core.ComJob;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
+import com.energyict.mdc.engine.impl.core.ServerProcess;
+import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
+import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.*;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import com.google.common.collect.Range;
@@ -35,7 +62,12 @@ import java.net.URISyntaxException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -56,9 +88,9 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     public interface ServiceProvider {
 
-        public Clock clock();
+        Clock clock();
 
-        public EngineConfigurationService engineConfigurationService();
+        EngineConfigurationService engineConfigurationService();
 
     }
 
@@ -422,7 +454,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     private ComServer toComServer (JSONObject response) {
         try {
-            return new ComServerParser(this.serviceProvider.engineConfigurationService()).parse(response);
+            return new ComServerParser().parse(response);
         }
         catch (JSONException e) {
             throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
@@ -431,7 +463,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     private ComPort toComPort (JSONObject response) {
         try {
-            return new ComPortParser(this.serviceProvider.engineConfigurationService()).parse(response);
+            return new ComPortParser().parse(response);
         }
         catch (JSONException e) {
             throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);

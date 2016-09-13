@@ -7,9 +7,9 @@ package com.energyict.mdc.engine.impl.web.events.commands;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (13:45)
  */
-public class UnknownCategoryParseException extends RequestParseException {
+class UnknownCategoryParseException extends RequestParseException {
 
-    public UnknownCategoryParseException (String eventCategoryName) {
+    UnknownCategoryParseException(String eventCategoryName) {
         super("Unrecognized event category name " + eventCategoryName);
     }
 

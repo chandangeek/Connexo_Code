@@ -9,11 +9,11 @@ package com.energyict.mdc.engine.impl.web.events.commands;
  */
 public class RequestParseException extends Exception {
 
-    public RequestParseException (String message) {
+    RequestParseException(String message) {
         super(message);
     }
 
-    public RequestParseException (String message, Throwable cause) {
+    RequestParseException(String message, Throwable cause) {
         super(message, cause);
     }
 

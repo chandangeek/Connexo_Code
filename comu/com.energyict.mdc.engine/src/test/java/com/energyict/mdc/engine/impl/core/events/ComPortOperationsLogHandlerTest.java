@@ -2,17 +2,18 @@ package com.energyict.mdc.engine.impl.core.events;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.*;
-import com.energyict.mdc.engine.events.Category;
-import com.energyict.mdc.engine.events.ConnectionEvent;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;
-import com.energyict.mdc.engine.impl.events.*;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
@@ -21,18 +22,18 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import java.time.Clock;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.*;
-
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -70,11 +71,8 @@ public class ComPortOperationsLogHandlerTest {
     @Mock
     private EventService eventService;
 
-    private ComPortOperationsLogHandler comportOperationsLogHandler;
     private ComPortOperationsLogger comPortOperationsLogger;
-    private EmbeddedWebServerFactory embeddedWebServerFactory;
-    private final static String eventRegistrationURL = "ws://localhost:8282/events/registration";
-
+    private static final String eventRegistrationURL = "ws://localhost:8282/events/registration";
 
     @Before
     public void setupEmbeddedWebServerFactory() {
@@ -82,19 +80,20 @@ public class ComPortOperationsLogHandlerTest {
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(serviceProvider.eventPublisher()).thenReturn(eventPublisher);
 
-        comportOperationsLogHandler = new ComPortOperationsLogHandler(comPort, serviceProvider.eventPublisher(), serviceProvider);
+        ComPortOperationsLogHandler comportOperationsLogHandler = new ComPortOperationsLogHandler(comPort, serviceProvider.eventPublisher(), serviceProvider);
         comPortOperationsLogger = LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, this.getAnonymousLogger(comportOperationsLogHandler));
 
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
                 new WebSocketEventPublisherFactoryImpl(
+                        this.runningComServer,
                         this.connectionTaskService,
                         this.communicationTaskService,
                         this.deviceService,
                         this.engineConfigurationService,
                         this.identificationService,
                         serviceProvider.eventPublisher());
-        this.embeddedWebServerFactory = new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory);
-        this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
+        EmbeddedWebServerFactory embeddedWebServerFactory = new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory);
+        embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
     }
 
     @Test
@@ -108,7 +107,6 @@ public class ComPortOperationsLogHandlerTest {
         logger.addHandler(handler);
         return logger;
     }
-
 
     private class ServiceProvider implements ExecutionContext.ServiceProvider,  AbstractComServerEventImpl.ServiceProvider  {
 
