@@ -73,6 +73,22 @@ Ext.define('Ddv.controller.Validations', {
     },
 
     updateApplyButtonState: function (view, queryString) {
-        view.down('button[action=clearAll]').setDisabled(Object.keys(queryString).length == 0);
+        var startDate = Ext.Date.add(new Date(), Ext.Date.DAY, 1),
+            endDate = Ext.Date.add(new Date(), Ext.Date.MONTH, -1),
+            between = (new Date(endDate)).setHours(0, 0, 0, 0) + '-' + (new Date(startDate)).setHours(0, 0, 0, 0),
+            topfilterBetween = view.down('#validations-topfilter-between'),
+            clearButton = (topfilterBetween == undefined) ? undefined : topfilterBetween.down('button[action=clear]')
+
+        if (clearButton) {
+            clearButton.setDisabled(queryString.between == between);
+        }
+
+        if (((Object.keys(queryString).length) == 1) &&
+            (queryString.between == between)) {
+            view.down('button[action=clearAll]').setDisabled(true);
+        }
+        else {
+            view.down('button[action=clearAll]').setDisabled(false);
+        }
     }
 });
