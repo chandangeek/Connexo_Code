@@ -43,6 +43,7 @@ import com.elster.jupiter.validation.DataValidationAssociationProvider;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
+import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -79,6 +80,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -610,7 +612,10 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        Collections.addAll(keys, TranslationKeys.values());
+        Collections.addAll(keys, DataValidationTaskStatus.DataValidationTaskStatusTranslationKeys.values());
+        return keys;
     }
 
     @Override
@@ -763,11 +768,9 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
     @Override
     public List<Long> getDevicesIdsList(long endDeviceGroupId) {
-        Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
-        if(endDeviceGroup.isPresent()){
-            return endDeviceGroup.get().getMembers(Instant.now()).stream().map(EndDevice::getId).collect(Collectors.toList());
-        }
-        return new ArrayList<>();
+        return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId)
+                .map(endDeviceGroup -> endDeviceGroup.getMembers(clock.instant()).stream().map(EndDevice::getId).collect(Collectors.toList()))
+                .orElseGet(Collections::emptyList);
     }
 
     @Override
