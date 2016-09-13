@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -58,7 +58,7 @@ public class ComPortResource {
                 }
             }
         } else {
-            for (ComPort comPort : engineConfigurationService.findAllComPortsWithDeleted()) {
+            for (ComPort comPort : engineConfigurationService.findAllComPortsIncludingObsolete()) {
                 comPortInfos.add(comPortInfoFactory.asInfo(comPort, engineConfigurationService));
             }
         }

@@ -6,9 +6,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
@@ -22,6 +20,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.TranslationKeys;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -29,11 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-import org.assertj.core.data.MapEntry;
-import org.junit.Test;
-import org.mockito.Matchers;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -43,8 +38,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.assertj.core.data.MapEntry;
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
 
@@ -71,7 +72,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
 
         List<ComPort> comPorts = new ArrayList<>();
         comPorts.add(tcpBasedInboundComPort);
-        when(engineConfigurationService.findAllComPortsWithDeleted()).thenReturn(comPorts);
+        when(engineConfigurationService.findAllComPortsIncludingObsolete()).thenReturn(comPorts);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).describedAs("Should contain field 'data'").containsKey("data").containsKey("total").hasSize(2);
         List<Map<String, Object>> comports = (List<Map<String, Object>>) response.get("data");
@@ -430,7 +431,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         comPorts.add(udpBasedInboundComPort);
         comPorts.add(modemBasedInboundComPort);
         comPorts.add(outboundComPort);
-        when(engineConfigurationService.findAllComPortsWithDeleted()).thenReturn(comPorts);
+        when(engineConfigurationService.findAllComPortsIncludingObsolete()).thenReturn(comPorts);
         when(engineConfigurationService.findAllInboundComPorts()).thenReturn(Arrays.asList(tcpBasedInboundComPort, udpBasedInboundComPort, modemBasedInboundComPort));
         when(engineConfigurationService.findAllOutboundComPorts()).thenReturn(Arrays.asList(outboundComPort));
         when(engineConfigurationService.findComPortsByComServer(comServerA)).thenReturn(Arrays.asList(tcpBasedInboundComPort, outboundComPort));
