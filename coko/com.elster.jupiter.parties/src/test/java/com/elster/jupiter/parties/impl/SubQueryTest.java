@@ -24,6 +24,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -42,7 +43,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-
 
 public class SubQueryTest {
 
@@ -78,7 +78,7 @@ public class SubQueryTest {
                 new TransactionModule(printSql),
                 new NlsModule()
         );
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(PartyService.class);
             ctx.commit();
         }
@@ -96,24 +96,25 @@ public class SubQueryTest {
     private TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
-    
+
     @Test
-    public void testSubQuery()  {
-    	PartyServiceImpl partyService = (PartyServiceImpl) getPartyService();
-    	DataModel dataModel = partyService.getDataModel();
+    public void testSubQuery() {
+        PartyServiceImpl partyService = (PartyServiceImpl) getPartyService();
+        DataModel dataModel = partyService.getDataModel();
         try (TransactionContext context = getTransactionService().getContext()) {
-         	Organization organization = partyService.newOrganization("Melrose")
+            Organization organization = partyService.newOrganization("Melrose")
                     .setAliasName("Melrose Place")
                     .setDescription("Buy and Improve")
                     .create();
-        	partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
-        	PartyRole role = partyService.getPartyRoles().get(0);
-        	organization.assumeRole(role, Instant.now());
-        	context.commit();
+            partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
+            PartyRole role = partyService.getPartyRoles().get(0);
+            organization.assumeRole(role, Instant.now());
+            context.commit();
         }
-        Subquery subquery = dataModel.query(Party.class,PartyInRole.class).asSubquery(Where.where("aliasName").isEqualTo("Melrose Place"),"partyInRoles.role");
+        Subquery subquery = dataModel.query(Party.class, PartyInRole.class)
+                .asSubquery(Where.where("aliasName").isEqualTo("Melrose Place"), new String[]{"partyInRoles.role"}, Order.NOORDER);
         QueryExecutor<PartyRole> query = dataModel.query(PartyRole.class);
         assertThat(query.select(ListOperator.IN.contains(subquery, "mRID"))).hasSize(1);
     }
-    
+
 }
