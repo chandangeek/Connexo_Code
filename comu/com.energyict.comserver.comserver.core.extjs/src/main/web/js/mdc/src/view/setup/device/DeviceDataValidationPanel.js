@@ -16,7 +16,6 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
             {
                 xtype: 'container',
                 layout: 'fit',
-                minWidth: 300,
                 items: [
                     {
                         xtype: 'form',
