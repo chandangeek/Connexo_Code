@@ -11,12 +11,9 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -25,19 +22,17 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UsagePointFinder implements Finder<UsagePoint> {
-    private Finder<UsagePoint> finder;
-    private List<Order> orders = new ArrayList<>();
+    private DefaultFinder<UsagePoint> finder;
     private final ServerMeteringService meteringService;
 
     UsagePointFinder(ServerMeteringService meteringService, List<SearchablePropertyCondition> conditions) {
         this.meteringService = meteringService;
         this.finder = DefaultFinder
                 .of(UsagePoint.class, toCondition(conditions), meteringService.getDataModel(),
-                        EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, UsagePointDetail.class, ServiceCategory.class, UsagePointConnectionState.class)
+                        EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, UsagePointDetail.class, ServiceCategory.class, UsagePointConnectionState.class, Location.class, LocationMember.class)
                 .defaultSortColumn("mRID");
     }
 
@@ -72,25 +67,19 @@ public class UsagePointFinder implements Finder<UsagePoint> {
 
     @Override
     public Finder<UsagePoint> paged(int start, int pageSize) {
-        this.finder = this.finder.paged(start, pageSize);
+        finder = finder.paged(start, pageSize);
         return this;
     }
 
     @Override
     public Finder<UsagePoint> sorted(String sortColumn, boolean ascending) {
-        this.finder = this.finder.sorted(sortColumn, ascending);
-        orders.add(ascending ? Order.ascending(sortColumn) : Order.descending(sortColumn));
+        finder = finder.sorted(sortColumn, ascending);
         return this;
     }
 
     @Override
     public List<UsagePoint> find() {
-        QueryExecutor<UsagePoint> query = meteringService.getDataModel().query(UsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, Location.class, LocationMember.class);
-        if (orders.isEmpty()) {
-            orders.add(Order.ascending("mRID"));
-        }
-        return query.select(ListOperator.IN.contains(this.finder.asSubQuery("id"), "id"), orders.toArray(new Order[orders.size()]));
-
+        return finder.find();
     }
 
     @Override
