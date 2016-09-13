@@ -14,6 +14,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,9 @@ public class DataLoggerReferenceMeterActivationHandler implements TopicHandler {
     public DataLoggerReferenceMeterActivationHandler() {
     }
 
+    @Inject
     public DataLoggerReferenceMeterActivationHandler(TopologyService topologyService) {
+        this();
         this.topologyService = topologyService;
     }
 
@@ -52,48 +55,62 @@ public class DataLoggerReferenceMeterActivationHandler implements TopicHandler {
             //Do it for the case where it is the dataLogger
             List<Device> dataLoggerSlaves = topologyService.findDataLoggerSlaves(device);
             dataLoggerSlaves.forEach(slave -> topologyService.findLastDataloggerReference(slave)
-                    .ifPresent(dataLoggerReference -> createNewDataLoggerReferenceIfApplicable(dataLoggerReference, currentMeterActivation)));
+                    .ifPresent(dataLoggerReference -> createNewDataLoggerReferenceIfApplicable(dataLoggerReference, currentMeterActivation, SourceDeviceType.DATALOGGER)));
 
             //Do it for the case where it is a slave
             topologyService.findDataloggerReference(device, currentMeterActivation.getStart())
-                    .ifPresent(dataLoggerReference -> createNewDataLoggerReferenceIfApplicable(dataLoggerReference, currentMeterActivation));
+                    .ifPresent(dataLoggerReference -> createNewDataLoggerReferenceIfApplicable(dataLoggerReference, currentMeterActivation, SourceDeviceType.SLAVE));
         });
     }
 
-    private void createNewDataLoggerReferenceIfApplicable(DataLoggerReference dataLoggerReference, MeterActivation currentMeterActivation) {
+    private void createNewDataLoggerReferenceIfApplicable(DataLoggerReference dataLoggerReference, MeterActivation currentMeterActivation, SourceDeviceType deviceType) {
         if (!dataLoggerReference.isTerminated()) {
             Map<Channel, Channel> channelMap = new HashMap<>();
             Map<Register, Register> registerMap = new HashMap<>();
-            dataLoggerReference.getDataLoggerChannelUsages().forEach(dataLoggerChannelUsage -> {
-
-                Optional<com.elster.jupiter.metering.Channel> newDataLoggerChannel = currentMeterActivation.getChannelsContainer().getChannels().stream().filter(channel -> {
-                    ArrayList<ReadingType> commonReadingTypes = new ArrayList<>(channel.getReadingTypes());
-                    commonReadingTypes.retainAll(dataLoggerChannelUsage.getDataLoggerChannel().getReadingTypes());
-                    return commonReadingTypes.size() > 0;
-                }).findAny();
-
-                if (newDataLoggerChannel.isPresent()) {
-                    mapToProperMdcChannelsAndRegisters(dataLoggerReference.getGateway(), dataLoggerReference.getOrigin(), channelMap, registerMap, dataLoggerChannelUsage, newDataLoggerChannel);
-                }
-
-            });
+            dataLoggerReference
+                .getDataLoggerChannelUsages()
+                .forEach(dataLoggerChannelUsage ->
+                    currentMeterActivation
+                        .getChannelsContainer()
+                        .getChannels()
+                        .stream()
+                        .filter(channel -> {
+                                List<ReadingType> commonReadingTypes = new ArrayList<>(channel.getReadingTypes());
+                                commonReadingTypes.retainAll(deviceType.getReadingTypes(dataLoggerChannelUsage));
+                                return !commonReadingTypes.isEmpty();
+                            })
+                        .findAny()
+                        .ifPresent(newChannel ->
+                                mapToProperMdcChannelsAndRegisters(
+                                        dataLoggerReference.getGateway(),
+                                        dataLoggerReference.getOrigin(),
+                                        channelMap,
+                                        registerMap,
+                                        dataLoggerChannelUsage,
+                                        newChannel,
+                                        deviceType)));
             topologyService.clearDataLogger(dataLoggerReference.getOrigin(), currentMeterActivation.getStart());
-            topologyService.setDataLogger(dataLoggerReference.getOrigin(), dataLoggerReference.getGateway(), currentMeterActivation.getStart(), channelMap, registerMap);
+            topologyService.setDataLogger(
+                    dataLoggerReference.getOrigin(),
+                    dataLoggerReference.getGateway(),
+                    currentMeterActivation.getStart(),
+                    channelMap,
+                    registerMap);
         }
     }
 
-    private void mapToProperMdcChannelsAndRegisters(Device device, Device slave, Map<Channel, Channel> channelMap, Map<Register, Register> registerMap, DataLoggerChannelUsage dataLoggerChannelUsage, Optional<com.elster.jupiter.metering.Channel> newDataLoggerChannel) {
-        if (newDataLoggerChannel.get().isRegular()) {
-            Optional<Channel> dataLoggerChannel = findMdcChannel(device, newDataLoggerChannel.get());
-            Optional<Channel> slaveChannel = findMdcChannel(slave, dataLoggerChannelUsage.getSlaveChannel());
+    private void mapToProperMdcChannelsAndRegisters(Device dataLogger, Device slave, Map<Channel, Channel> channelMap, Map<Register, Register> registerMap, DataLoggerChannelUsage dataLoggerChannelUsage, com.elster.jupiter.metering.Channel newChannel, SourceDeviceType deviceType) {
+        if (newChannel.isRegular()) {
+            Optional<Channel> dataLoggerChannel = findMdcChannel(dataLogger, deviceType.pickDataLoggerChannelFrom(newChannel, dataLoggerChannelUsage));
+            Optional<Channel> slaveChannel = findMdcChannel(slave, deviceType.pickSlaveChannelFrom(newChannel, dataLoggerChannelUsage));
             if (dataLoggerChannel.isPresent() && slaveChannel.isPresent()) {
-                channelMap.put(dataLoggerChannel.get(), slaveChannel.get());
+                channelMap.put(slaveChannel.get(), dataLoggerChannel.get());
             }
         } else {
-            Optional<Register> dataLoggerRegister = findMdcRegister(device, newDataLoggerChannel.get());
-            Optional<Register> slaveRegister = findMdcRegister(slave, dataLoggerChannelUsage.getSlaveChannel());
+            Optional<Register> dataLoggerRegister = findMdcRegister(dataLogger, deviceType.pickDataLoggerChannelFrom(newChannel, dataLoggerChannelUsage));
+            Optional<Register> slaveRegister = findMdcRegister(slave, deviceType.pickSlaveChannelFrom(newChannel, dataLoggerChannelUsage));
             if (dataLoggerRegister.isPresent() && slaveRegister.isPresent()) {
-                registerMap.put(dataLoggerRegister.get(), slaveRegister.get());
+                registerMap.put(slaveRegister.get(), dataLoggerRegister.get());
             }
         }
     }
@@ -110,4 +127,53 @@ public class DataLoggerReferenceMeterActivationHandler implements TopicHandler {
     public String getTopicMatcher() {
         return TOPIC;
     }
+
+    /**
+     * Contains behavior that extracts data from {@link DataLoggerChannelUsage}
+     * that will be different when the source of the event
+     * is a data logger or a slave device.
+     */
+    private enum SourceDeviceType {
+        DATALOGGER {
+            @Override
+            List<? extends ReadingType> getReadingTypes(DataLoggerChannelUsage dataLoggerChannelUsage) {
+                return dataLoggerChannelUsage.getDataLoggerChannel().getReadingTypes();
+            }
+
+            @Override
+            com.elster.jupiter.metering.Channel pickDataLoggerChannelFrom(com.elster.jupiter.metering.Channel newChannel, DataLoggerChannelUsage dataLoggerChannelUsage) {
+                return newChannel;
+            }
+
+            @Override
+            com.elster.jupiter.metering.Channel pickSlaveChannelFrom(com.elster.jupiter.metering.Channel newChannel, DataLoggerChannelUsage dataLoggerChannelUsage) {
+                return dataLoggerChannelUsage.getSlaveChannel();
+            }
+        },
+
+        SLAVE {
+            @Override
+            List<? extends ReadingType> getReadingTypes(DataLoggerChannelUsage dataLoggerChannelUsage) {
+                return dataLoggerChannelUsage.getSlaveChannel().getReadingTypes();
+            }
+
+            @Override
+            com.elster.jupiter.metering.Channel pickDataLoggerChannelFrom(com.elster.jupiter.metering.Channel newChannel, DataLoggerChannelUsage dataLoggerChannelUsage) {
+                return dataLoggerChannelUsage.getDataLoggerChannel();
+            }
+
+            @Override
+            com.elster.jupiter.metering.Channel pickSlaveChannelFrom(com.elster.jupiter.metering.Channel newChannel, DataLoggerChannelUsage dataLoggerChannelUsage) {
+                return newChannel;
+            }
+        };
+
+        abstract List<? extends ReadingType> getReadingTypes(DataLoggerChannelUsage dataLoggerChannelUsage);
+
+        abstract com.elster.jupiter.metering.Channel pickDataLoggerChannelFrom(com.elster.jupiter.metering.Channel newChannel, DataLoggerChannelUsage dataLoggerChannelUsage);
+
+        abstract com.elster.jupiter.metering.Channel pickSlaveChannelFrom(com.elster.jupiter.metering.Channel newChannel, DataLoggerChannelUsage dataLoggerChannelUsage);
+
+    }
+
 }

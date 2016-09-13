@@ -5,7 +5,6 @@ import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.stream.Collectors;
 
 /**
  * Validates that the DataLoggerReference includes all slave channels.
@@ -14,8 +13,7 @@ import java.util.stream.Collectors;
  * Date: 3/14/14
  * Time: 3:57 PM
  */
-public class AllSlaveChannelsIncludedValidator implements ConstraintValidator<AllSlaveChannelsIncluded, DataLoggerReferenceImpl> {
-
+class AllSlaveChannelsIncludedValidator implements ConstraintValidator<AllSlaveChannelsIncluded, DataLoggerReferenceImpl> {
 
     @Override
     public void initialize(AllSlaveChannelsIncluded allSlaveChannelsIncluded) {
@@ -25,7 +23,10 @@ public class AllSlaveChannelsIncludedValidator implements ConstraintValidator<Al
     @Override
     public boolean isValid(DataLoggerReferenceImpl dataLoggerReference, ConstraintValidatorContext constraintValidatorContext) {
         Device slave = dataLoggerReference.getOrigin();
-        return dataLoggerReference.getDataLoggerChannelUsages().stream().map(DataLoggerChannelUsage::getSlaveChannel).collect(Collectors.toSet()).size() ==
-               slave.getChannels().size()+slave.getRegisters().size();
+        long numberOfChannelUsages = dataLoggerReference.getDataLoggerChannelUsages().stream().map(DataLoggerChannelUsage::getSlaveChannel).count();
+        int numberOfSlaveChannels = slave.getChannels().size();
+        int numberOfSlaveRegisters = slave.getRegisters().size();
+        return numberOfChannelUsages == numberOfSlaveChannels + numberOfSlaveRegisters;
     }
+
 }
