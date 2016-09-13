@@ -82,6 +82,8 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
+        getLogger().info("-version: "+getVersion());
         initDlmsSession(comChannel);
         getLogger().info("Protocol initialization phase ended, executing tasks ...");
     }
