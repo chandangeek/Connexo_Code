@@ -87,10 +87,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 });
             } else {
                 me.setDataQuality(detailRecord.get('readingQualities'));
-                me.down('#readingDataValidated').setValue(detailRecord.get('dataValidated'));
+                me.down('#readingDataValidated').setValue(record.get('dataValidated'));
                 var dataLoggerSlaveField = me.down('#mdc-channel-data-preview-data-logger-slave');
                 if (dataLoggerSlaveField) {
-                    dataLoggerSlaveField.setValue(detailRecord.get('slaveChannel'));
+                    dataLoggerSlaveField.setValue(record.get('slaveChannel'));
                 }
             }
 
