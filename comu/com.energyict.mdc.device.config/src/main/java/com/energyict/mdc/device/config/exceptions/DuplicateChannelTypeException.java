@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.config.exceptions;
 
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.masterdata.MeasurementType;
-
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.masterdata.MeasurementType;
 
 import javax.validation.constraints.NotNull;
 
@@ -38,13 +38,15 @@ public class DuplicateChannelTypeException extends LocalizedException {
      * @param loadProfileSpec the LoadProfileSpec
      * @param thesaurus       the Thesaurus
      * @param messageSeed The MessageSeed
+     * @param duplicateReadingType
      * @return the newly created DuplicateChannelTypeException
      */
-    public static DuplicateChannelTypeException forChannelSpecInLoadProfileSpec(@NotNull ChannelSpec channelSpec, @NotNull MeasurementType measurementType, LoadProfileSpec loadProfileSpec, Thesaurus thesaurus, MessageSeed messageSeed) {
-        DuplicateChannelTypeException duplicateChannelTypeException = new DuplicateChannelTypeException(thesaurus, messageSeed, loadProfileSpec, channelSpec, measurementType.getReadingType().getAliasName());
+    public static DuplicateChannelTypeException duplicateChannelSpecOnDeviceConfiguration(@NotNull ChannelSpec channelSpec, @NotNull MeasurementType measurementType, LoadProfileSpec loadProfileSpec, Thesaurus thesaurus, MessageSeed messageSeed, ReadingType duplicateReadingType) {
+        DuplicateChannelTypeException duplicateChannelTypeException = new DuplicateChannelTypeException(thesaurus, messageSeed, loadProfileSpec.getDeviceConfiguration().getName(), channelSpec, duplicateReadingType.getFullAliasName());
         duplicateChannelTypeException.set("loadProfileSpec", loadProfileSpec);
         duplicateChannelTypeException.set("measurementType", measurementType);
         duplicateChannelTypeException.set("channelSpec", channelSpec);
+        duplicateChannelTypeException.set("duplicateReadingType", duplicateReadingType);
         return duplicateChannelTypeException;
     }
 
