@@ -80,7 +80,7 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
     @Override
     public SqlFragment toFragment(SqlFragment sqlFragment, String columnName) {
         Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(() -> sqlFragment, "amrId"));
-        return meteringService.getEndDeviceQuery().asSubquery(amrCondition, columnName).toFragment();
+        return meteringService.getEndDeviceQuery().asSubquery(amrCondition, new String[]{columnName}, Order.NOORDER).toFragment();
     }
 }
 
