@@ -842,15 +842,15 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
         HashMap<Register, Register> registerMapping = new HashMap<>();
-        Register slaveRegister1 = slave.getRegisters().get(0);
-        Register slaveRegister2 = slave.getRegisters().get(1);
+        Register slaveRegister1 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
+        Register slaveRegister2 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
         registerMapping.put(slaveRegister1, dataLoggerR1);
-        Register slaveRegister3 = slave.getRegisters().get(2);
+        Register slaveRegister3 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
         registerMapping.put(slaveRegister2, dataLoggerR2);
         registerMapping.put(slaveRegister3, dataLoggerR3);
 
         dataLoggerR2.startEditingData()
-                .editReading(ReadingImpl.of(dataLoggerR2.getReadingType().getMRID(), new BigDecimal(0), readingsDataLoggerR2.get(readingsDataLoggerR2.size() / 2).getTimeStamp()))
+                .editReading(ReadingImpl.of(dataLoggerR2.getReadingType().getMRID(), new BigDecimal(0), readingsDataLoggerR2.get(readingsDataLoggerR2.size()-2).getTimeStamp()))
                 .complete();
 
         inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
