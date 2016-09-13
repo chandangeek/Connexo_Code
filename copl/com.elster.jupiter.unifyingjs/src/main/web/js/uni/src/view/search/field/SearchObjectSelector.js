@@ -1,9 +1,6 @@
 Ext.define('Uni.view.search.field.SearchObjectSelector', {
     extend: 'Ext.button.Button',
     xtype: 'search-object-selector',
-    style: {
-        'background-color': '#71adc7'
-    },
     mixins: [
         'Ext.util.Bindable'
     ],

@@ -1,9 +1,6 @@
 Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     extend: 'Ext.button.Button',
     xtype: 'search-criteria-selector',
-    style: {
-        'background-color': '#71adc7'
-    },
     mixins: [
         'Ext.util.Bindable'
     ],
