@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -45,6 +46,8 @@ public class MicroActionFactoryImplTest {
     private IssueService issueService;
     @Mock
     private NlsService nlsService;
+    @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
 
 
     @Test
@@ -62,7 +65,7 @@ public class MicroActionFactoryImplTest {
     }
 
     private MicroActionFactoryImpl getTestInstance() {
-        return new MicroActionFactoryImpl(this.nlsService, this.meteringService, this.meteringGroupsService, this.topologyService, this.validationService, this.estimationService, this.issueService);
+        return new MicroActionFactoryImpl(this.nlsService, this.meteringService, this.meteringGroupsService, this.topologyService, this.validationService, this.estimationService, this.issueService, this.metrologyConfigurationService);
     }
 
 }

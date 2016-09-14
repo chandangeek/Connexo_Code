@@ -39,8 +39,6 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.MeterActivationBuilder;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.MeterActivationBuilderImpl;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
@@ -106,7 +104,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.setMicroActionFactory(microActionFactory);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.setUserService(userService);
-        setClock(clock);
+        this.setClock(clock);
     }
 
     @Reference
@@ -178,22 +176,21 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Override
     public List<ExecutableAction> getExecutableActions(Device device) {
         return device
-            .getDeviceType()
-            .getDeviceLifeCycle()
-            .getAuthorizedActions(device.getState())
-            .stream()
-            .filter(this::isExecutable)
-            .filter(this::userHasExecutePrivilege)
-            .map(a -> this.toExecutableAction(a, device))
-            .collect(Collectors.toList());
+                .getDeviceType()
+                .getDeviceLifeCycle()
+                .getAuthorizedActions(device.getState())
+                .stream()
+                .filter(this::isExecutable)
+                .filter(this::userHasExecutePrivilege)
+                .map(a -> this.toExecutableAction(a, device))
+                .collect(Collectors.toList());
     }
 
     private ExecutableAction toExecutableAction(AuthorizedAction authorizedAction, Device device) {
         if (authorizedAction instanceof AuthorizedTransitionAction) {
             AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
             return new ExecutableTransitionActionImpl(device, transitionAction, this);
-        }
-        else {
+        } else {
             AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) authorizedAction;
             return new ExecutableBusinessProcessActionImpl(device, businessProcessAction, this, clock);
         }
@@ -212,8 +209,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         if (executableAction.getAction() instanceof AuthorizedTransitionAction) {
             AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) executableAction.getAction();
             return transitionAction.getStateTransition().getEventType().getId() == eventType.getId();
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -230,7 +226,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     @Override
-    public void execute(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException {
+    public void execute(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws
+            SecurityException, DeviceLifeCycleActionViolationException {
         this.validateTriggerExecution(action, device, effectiveTimestamp, properties);
         this.triggerExecution(action, device, effectiveTimestamp, properties);
     }
@@ -251,8 +248,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
             if (action instanceof AuthorizedTransitionAction) {
                 AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) action;
                 throw new ActionDoesNotRelateToDeviceStateException(transitionAction, device, this.thesaurus, MessageSeeds.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
-            }
-            else {
+            } else {
                 AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) action;
                 throw new ActionDoesNotRelateToDeviceStateException(businessProcessAction, device, this.thesaurus, MessageSeeds.BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
             }
@@ -280,10 +276,10 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private void valueAvailableForAllRequiredProperties(AuthorizedTransitionAction action, List<ExecutableActionProperty> properties) {
         Set<String> propertySpecNames =
                 properties
-                    .stream()
-                    .map(ExecutableActionProperty::getPropertySpec)
-                    .map(PropertySpec::getName)
-                    .collect(Collectors.toSet());
+                        .stream()
+                        .map(ExecutableActionProperty::getPropertySpec)
+                        .map(PropertySpec::getName)
+                        .collect(Collectors.toSet());
         Set<String> missingRequiredPropertySpecNames = action
                 .getActions()
                 .stream()
@@ -312,8 +308,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         if (stateTimeSlices.isEmpty()) {
             // MDC device always have at least one state
             return Optional.empty();
-        }
-        else {
+        } else {
             return Optional.of(stateTimeSlices.get(stateTimeSlices.size() - 1));
         }
     }
@@ -347,7 +342,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      */
     private boolean isExecutable(AuthorizedAction action) {
         return action instanceof AuthorizedStandardTransitionAction
-            || action instanceof AuthorizedBusinessProcessAction;
+                || action instanceof AuthorizedBusinessProcessAction;
     }
 
     private boolean userHasExecutePrivilege(AuthorizedAction action) throws SecurityException {
@@ -371,7 +366,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return new SecurityException(this.thesaurus.getFormat(messageSeed).format());
     }
 
-    private void triggerExecution(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws DeviceLifeCycleActionViolationException {
+    private void triggerExecution(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws
+            DeviceLifeCycleActionViolationException {
         this.executeMicroChecks(action, device, effectiveTimestamp);
         this.executeMicroActions(action, device, effectiveTimestamp, properties);
         this.triggerEvent((CustomStateTransitionEventType) action.getStateTransition().getEventType(), device, effectiveTimestamp);
@@ -383,12 +379,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private void executeMicroChecks(AuthorizedTransitionAction check, Device device, Instant effectiveTimestamp) throws DeviceLifeCycleActionViolationException {
         List<DeviceLifeCycleActionViolation> violations =
-            check.getChecks()
-                .stream()
-                .map(this.microCheckFactory::from)
-                .map(microCheck -> this.execute(microCheck, device, effectiveTimestamp))
-                .flatMap(Functions.asStream())
-                .collect(Collectors.toList());
+                check.getChecks()
+                        .stream()
+                        .map(this.microCheckFactory::from)
+                        .map(microCheck -> this.execute(microCheck, device, effectiveTimestamp))
+                        .flatMap(Functions.asStream())
+                        .collect(Collectors.toList());
         if (!violations.isEmpty()) {
             throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
         }
@@ -409,16 +405,10 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void executeMicroActions(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        List<ServerMicroAction> serverMicroActions = action.getActions()
+        action.getActions()
                 .stream()
                 .map(this.microActionFactory::from)
-                .collect(Collectors.toList());
-        MeterActivationBuilder meterActivationBuilder = new MeterActivationBuilderImpl(device);
-        serverMicroActions
-                .forEach(microAction -> microAction.buildMeterActivation(meterActivationBuilder, device, effectiveTimestamp, properties));
-        meterActivationBuilder.build();
-        serverMicroActions
-            .forEach(a -> this.execute(a, device, effectiveTimestamp, properties));
+                .forEach(a -> this.execute(a, device, effectiveTimestamp, properties));
     }
 
     private void execute(ServerMicroAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
@@ -428,13 +418,13 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Override
     public void triggerEvent(CustomStateTransitionEventType eventType, Device device, Instant effectiveTimestamp) {
         eventType
-            .newInstance(
-                    device.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine(),
-                    String.valueOf(device.getId()),
-                    Device.class.getName(),
-                    device.getState().getName(),
-                    effectiveTimestamp,
-                    Collections.emptyMap())
+                .newInstance(
+                        device.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine(),
+                        String.valueOf(device.getId()),
+                        Device.class.getName(),
+                        device.getState().getName(),
+                        effectiveTimestamp,
+                        Collections.emptyMap())
                 .publish();
     }
 

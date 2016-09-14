@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -25,8 +27,11 @@ import java.util.Optional;
  */
 public class LinkToUsagePoint extends TranslatableServerMicroAction {
 
-    public LinkToUsagePoint(Thesaurus thesaurus) {
+    private final MetrologyConfigurationService metrologyConfigurationService;
+
+    public LinkToUsagePoint(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService) {
         super(thesaurus);
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Override
@@ -40,14 +45,20 @@ public class LinkToUsagePoint extends TranslatableServerMicroAction {
     }
 
     @Override
-    public void buildMeterActivation(MeterActivationBuilder builder, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-            getUsagePointValue(properties)
-                    .ifPresent(point -> builder.startingAt(effectiveTimestamp).onUsagePoint(point));
-    }
-
-    @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        // nothing more to do than what the MeterActivationBuilder already did.
+        Optional<UsagePoint> usagePoint = getUsagePointValue(properties);
+        if (usagePoint.isPresent()) {
+            try {
+                device.activate(effectiveTimestamp, usagePoint.get(), this.metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+            } catch (LocalizedException e) {
+                throw new DeviceLifeCycleActionViolationException() {
+                    @Override
+                    public String getLocalizedMessage() {
+                        return e.getLocalizedMessage();
+                    }
+                };
+            }
+        }
     }
 
     private PropertySpec usagePointPropertySpec(PropertySpecService service) {

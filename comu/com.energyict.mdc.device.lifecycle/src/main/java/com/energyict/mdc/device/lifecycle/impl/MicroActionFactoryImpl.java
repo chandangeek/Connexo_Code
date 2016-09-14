@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -58,6 +59,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     private volatile IssueService issueService;
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile ServiceCallService serviceCallService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     // For OSGi purposes only
     public MicroActionFactoryImpl() {
@@ -66,7 +68,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
 
     // For unit testing purposes
     @Inject
-    public MicroActionFactoryImpl(NlsService nlsService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, TopologyService topologyService, ValidationService validationService, EstimationService estimationService, IssueService issueService) {
+    public MicroActionFactoryImpl(NlsService nlsService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, TopologyService topologyService, ValidationService validationService, EstimationService estimationService, IssueService issueService, MetrologyConfigurationService metrologyConfigurationService) {
         this();
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
@@ -179,7 +181,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
                 return new CancelAllServiceCalls(thesaurus, serviceCallService);
             }
             case LINK_TO_USAGE_POINT: {
-                return new LinkToUsagePoint(thesaurus);
+                return new LinkToUsagePoint(thesaurus, metrologyConfigurationService);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());

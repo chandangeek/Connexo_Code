@@ -9,8 +9,6 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 
-import com.google.common.collect.Range;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -18,8 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -49,16 +45,6 @@ public class CreateMeterActivationTest {
     @Mock
     private Thesaurus thesaurus;
 
-    @Before
-    public void setUp() {
-        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
-    }
-
-    @After
-    public void tearDown() {
-
-    }
-
     @Test
     public void testGetPropertySpecsDelegatesToPropertySpecService() {
         CreateMeterActivation microAction = this.getTestInstance();
@@ -78,9 +64,6 @@ public class CreateMeterActivationTest {
         CreateMeterActivation microAction = this.getTestInstance();
 
         // Business method
-        MeterActivationBuilderImpl meterActivationBuilder = new MeterActivationBuilderImpl(device);
-        microAction.buildMeterActivation(meterActivationBuilder, device, now, Collections.emptyList());
-        List<MeterActivation> meterActivations = meterActivationBuilder.build();
         microAction.execute(this.device, now, Collections.emptyList());
 
         // Asserts
@@ -100,14 +83,9 @@ public class CreateMeterActivationTest {
         ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
         when(newMeterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         doReturn(Optional.of(currentMeterActivation)).when(device).getCurrentMeterActivation();
-        doReturn(Optional.empty()).when(currentMeterActivation).getUsagePoint();
-        when(currentMeterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(device.activate(lastDataTimestamp)).thenReturn(newMeterActivation);
 
         // Business method
-        MeterActivationBuilderImpl meterActivationBuilder = new MeterActivationBuilderImpl(device);
-        microAction.buildMeterActivation(meterActivationBuilder, device, now, Collections.emptyList());
-        List<MeterActivation> meterActivations = meterActivationBuilder.build();
         microAction.execute(this.device, now, Collections.emptyList());
 
         // Asserts
