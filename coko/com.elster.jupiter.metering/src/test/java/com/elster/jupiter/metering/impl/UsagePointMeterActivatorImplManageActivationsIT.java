@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -299,57 +300,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.plus(45, ChronoUnit.MINUTES), BigDecimal.valueOf(2045, 2)));
         meterReading.addIntervalBlock(intervalBlock);
         meter.store(QualityCodeSystem.MDC, meterReading);
-        inMemoryBootstrapModule.getMeteringDataModelService().addHeadEndInterface(new HeadEndInterface() {
-            @Override
-            public Optional<URL> getURLForEndDevice(EndDevice endDevice) {
-                return Optional.empty();
-            }
-
-            @Override
-            public EndDeviceCapabilities getCapabilities(EndDevice endDevice) {
-                return new EndDeviceCapabilities(Collections.singletonList(readingType), Collections.emptyList());
-            }
-
-            @Override
-            public CommandFactory getCommandFactory() {
-                return null;
-            }
-
-            @Override
-            public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant) {
-                return null;
-            }
-
-            @Override
-            public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall serviceCall) {
-                return null;
-            }
-
-            @Override
-            public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes) {
-                return null;
-            }
-
-            @Override
-            public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes, ServiceCall serviceCall) {
-                return null;
-            }
-
-            @Override
-            public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate) {
-                return null;
-            }
-
-            @Override
-            public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall) {
-                return null;
-            }
-
-            @Override
-            public String getAmrSystem() {
-                return KnownAmrSystem.MDC.getName();
-            }
-        });
+        inMemoryBootstrapModule.getMeteringDataModelService().addHeadEndInterface(new TestHeadEndInterface(readingType));
         usagePoint.linkMeters().activate(meter, meterRole).complete();
         reloadObjects();
 
@@ -368,5 +319,108 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         assertThat(readings.stream().map(reading -> reading.getQuantity(0).getValue()).collect(Collectors.toList()))
                 .containsExactly(BigDecimal.valueOf(2030, 2), BigDecimal.valueOf(2045, 2));
         assertThat(meterActivations.get(2).getRange()).isEqualTo(Range.atLeast(TWO_DAYS_AFTER));
+    }
+
+    @Test
+    @Transactional
+    public void testClearActivationsInTheMiddle() {
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", ONE_DAY_BEFORE).create();
+        AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter2 = system.newMeter("Meter2").create();
+        MeterRole meterRole2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+
+        usagePoint2.linkMeters().activate(meter, meterRole).complete();
+        usagePoint2.linkMeters().clear(ONE_DAY_AFTER, meterRole).complete();
+        reloadObjects();
+        usagePoint.linkMeters().activate(ONE_DAY_AFTER, meter, meterRole)
+                .activate(INSTALLATION_TIME, meter2, meterRole2).complete();
+        UsagePointMeterActivatorImpl activator = (UsagePointMeterActivatorImpl) usagePoint.linkMeters();
+        activator.clear(Range.closedOpen(INSTALLATION_TIME, THREE_DAYS_AFTER), meterRole);
+        activator.clear(Range.closedOpen(INSTALLATION_TIME, THREE_DAYS_AFTER), meterRole2).complete();
+        reloadObjects();
+        usagePoint2 = inMemoryBootstrapModule.getMeteringService().findUsagePoint(usagePoint2.getId()).get();
+        meter2 = inMemoryBootstrapModule.getMeteringService().findMeter(meter2.getId()).get();
+
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
+        assertThat(meterActivations).hasSize(3);
+        assertThat(meterActivations.get(0).getRange()).isEqualTo(Range.closedOpen(ONE_DAY_BEFORE, ONE_DAY_AFTER));
+        assertThat(meterActivations.get(1).getRange()).isEqualTo(Range.closedOpen(ONE_DAY_AFTER, THREE_DAYS_AFTER));
+        assertThat(meterActivations.get(2).getRange()).isEqualTo(Range.atLeast(THREE_DAYS_AFTER));
+
+        List<MeterActivation> usagePointActivations = usagePoint.getMeterActivations();
+        assertThat(usagePointActivations).hasSize(2);
+        assertThat(usagePointActivations.get(0).getRange()).isEqualTo(Range.atLeast(THREE_DAYS_AFTER));
+        assertThat(usagePointActivations.get(0).getMeter().get()).isEqualTo(meter2);
+        assertThat(usagePointActivations.get(1).getRange()).isEqualTo(Range.atLeast(THREE_DAYS_AFTER));
+        assertThat(usagePointActivations.get(1).getMeter().get()).isEqualTo(meter);
+
+        meterActivations = meter2.getMeterActivations();
+        assertThat(meterActivations).hasSize(2);
+        assertThat(meterActivations.get(0).getRange()).isEqualTo(Range.closedOpen(INSTALLATION_TIME, THREE_DAYS_AFTER));
+        assertThat(meterActivations.get(1).getRange()).isEqualTo(Range.atLeast(THREE_DAYS_AFTER));
+
+        usagePointActivations = usagePoint2.getMeterActivations();
+        assertThat(usagePointActivations).hasSize(1);
+        assertThat(usagePointActivations.get(0).getRange()).isEqualTo(Range.closedOpen(ONE_DAY_BEFORE, ONE_DAY_AFTER));
+        assertThat(usagePointActivations.get(0).getMeter().get()).isEqualTo(meter);
+    }
+
+    private static class TestHeadEndInterface implements HeadEndInterface {
+        private List<ReadingType> supportedReadingTypes;
+
+        public TestHeadEndInterface(ReadingType... supported) {
+            this.supportedReadingTypes = Arrays.stream(supported).collect(Collectors.toList());
+        }
+
+        @Override
+        public Optional<URL> getURLForEndDevice(EndDevice endDevice) {
+            return Optional.empty();
+        }
+
+        @Override
+        public EndDeviceCapabilities getCapabilities(EndDevice endDevice) {
+            return new EndDeviceCapabilities(this.supportedReadingTypes, Collections.emptyList());
+        }
+
+        @Override
+        public CommandFactory getCommandFactory() {
+            return null;
+        }
+
+        @Override
+        public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant) {
+            return null;
+        }
+
+        @Override
+        public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall serviceCall) {
+            return null;
+        }
+
+        @Override
+        public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes) {
+            return null;
+        }
+
+        @Override
+        public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes, ServiceCall serviceCall) {
+            return null;
+        }
+
+        @Override
+        public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate) {
+            return null;
+        }
+
+        @Override
+        public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall) {
+            return null;
+        }
+
+        @Override
+        public String getAmrSystem() {
+            return KnownAmrSystem.MDC.getName();
+        }
     }
 }

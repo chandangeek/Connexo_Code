@@ -17,5 +17,8 @@ public interface UsagePointMeterActivator {
 
     UsagePointMeterActivator clear(Instant from, MeterRole meterRole);
 
+    /**
+     * Apply changes. Note that after this operation some meters may have obsolete info regarding meter activations.
+     */
     void complete();
 }

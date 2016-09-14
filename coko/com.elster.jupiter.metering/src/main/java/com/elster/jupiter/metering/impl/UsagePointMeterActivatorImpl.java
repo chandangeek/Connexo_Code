@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -71,9 +72,8 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private Instant generalizeDatesToMinutes(Instant when) {
         if (when != null) {
             return when.truncatedTo(ChronoUnit.MINUTES);
-        } else {
-            return when;
         }
+        return null;
     }
 
     private Instant checkTimeBounds(Instant time) {
@@ -94,7 +94,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             throw new IllegalArgumentException("Meter and meter role can't be null");
         }
         start = checkTimeBounds(generalizeDatesToMinutes(start));
-        this.activationChanges.add(new ActivationImpl(start, this.usagePoint, meter, meterRole));
+        this.activationChanges.add(new VirtualActivation(start, this.usagePoint, meter, meterRole));
         updateMeterDefaultLocation(meter);
         return this;
     }
@@ -107,15 +107,29 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     @Override
     public UsagePointMeterActivator clear(Instant from, MeterRole meterRole) {
         from = checkTimeBounds(generalizeDatesToMinutes(from));
-        this.deactivationChanges.add(new ActivationImpl(from, meterRole));
+        this.deactivationChanges.add(new VirtualActivation(from, this.usagePoint, meterRole));
+        return this;
+    }
+
+    public UsagePointMeterActivator clear(Range<Instant> range, MeterRole meterRole) {
+        Instant start = checkTimeBounds(generalizeDatesToMinutes(range.lowerEndpoint()));
+        VirtualActivation activation = new VirtualActivation(start, this.usagePoint, meterRole);
+        if (range.hasUpperBound()) {
+            activation.endAt(generalizeDatesToMinutes(range.upperEndpoint()));
+        }
+        this.deactivationChanges.add(activation);
         return this;
     }
 
     private TimeLine<Activation, Instant> getMeterTimeLine(Meter meter, Map<Meter, TimeLine<Activation, Instant>> meterTimeLines) {
+        return getMeterTimeLine(meter, meterTimeLines, WrappedActivation::new);
+    }
+
+    private TimeLine<Activation, Instant> getMeterTimeLine(Meter meter, Map<Meter, TimeLine<Activation, Instant>> meterTimeLines, Function<MeterActivation, Activation> mapper) {
         TimeLine<Activation, Instant> timeLine = meterTimeLines.get(meter);
         if (timeLine == null) {
             timeLine = new TimeLine<>(Activation::getRange, RangeComparatorFactory.INSTANT_DEFAULT);
-            timeLine.addAll(meter.getMeterActivations().stream().map(ActivationWrapper::new).collect(Collectors.toList()));
+            timeLine.addAll(meter.getMeterActivations().stream().map(mapper).collect(Collectors.toList()));
             meterTimeLines.put(meter, timeLine);
         }
         return timeLine;
@@ -130,21 +144,29 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     @Override
     public void complete() {
+        if (this.activationChanges.isEmpty() && this.deactivationChanges.isEmpty()) {
+            return;
+        }
         this.meterTimeLines = new HashMap<>();
         convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations())
                 .forEach(meter -> getMeterTimeLine(meter, this.meterTimeLines));
-        AdjustActionVisitor<Activation> clearVisitor = new MeterActivationClearVisitor();
+        ElementVisitor<Activation> clearVisitor = new MeterActivationClearVisitor();
         this.deactivationChanges.forEach(activation ->
                 convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations(activation.getMeterRole()))
                         .forEach(meter -> getMeterTimeLine(meter, this.meterTimeLines).adjust(activation, clearVisitor)));
 
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), this);
 
-        AdjustActionVisitor<Activation> activateVisitor = new MeterActivationModificationVisitor();
+        ElementVisitor<Activation> activateVisitor = new MeterActivationModificationVisitor();
         this.activationChanges.forEach(activation ->
                 getMeterTimeLine(activation.getMeter(), this.meterTimeLines).adjust(activation, activateVisitor));
         this.usagePoint.touch();
         this.usagePoint.refreshMeterActivations();
+        this.activationChanges.stream()
+                .map(Activation::getMeter)
+                .filter(Objects::nonNull)
+                .map(MeterImpl.class::cast)
+                .forEach(MeterImpl::refreshMeterActivations);
 
         eventService.postEvent(EventType.METER_ACTIVATED.topic(), this.usagePoint);
     }
@@ -155,12 +177,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         Map<Meter, TimeLine<Activation, Instant>> validationTimeLines = new HashMap<>();
         this.meterTimeLines.entrySet().forEach(entry -> {
             TimeLine<Activation, Instant> timeLine = new TimeLine<>(Activation::getRange, RangeComparatorFactory.INSTANT_DEFAULT);
-            timeLine.addAll(entry.getValue().getElements(ActivationImpl::new));
+            timeLine.addAll(entry.getValue().getElements(VirtualActivation::new));
             validationTimeLines.put(entry.getKey(), timeLine);
         });
         FormValidationActivationVisitor formValidationVisitor = new FormValidationActivationVisitor(context);
         this.activationChanges.forEach(activation ->
-                getMeterTimeLine(activation.getMeter(), validationTimeLines).adjust(activation, formValidationVisitor));
+                getMeterTimeLine(activation.getMeter(), validationTimeLines, VirtualActivation::new).adjust(activation, formValidationVisitor));
         boolean result = formValidationVisitor.getResult();
         result &= validateMetersCapabilities(context);
         result &= validateByCustomValidators(context);
@@ -295,30 +317,41 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
 
-    private static final class ActivationImpl implements Activation {
+    private static final class VirtualActivation implements Activation {
         private Instant start;
         private Instant end;
         private Meter meter;
         private MeterRole meterRole;
         private UsagePoint usagePoint;
 
-        public ActivationImpl(Instant start, MeterRole meterRole) {
+        public VirtualActivation(Instant start, UsagePoint usagePoint, MeterRole meterRole) {
             this.start = start;
             this.meterRole = meterRole;
+            this.usagePoint = usagePoint;
         }
 
-        public ActivationImpl(Instant start, UsagePoint usagePoint, Meter meter, MeterRole meterRole) {
+        public VirtualActivation(Instant start, UsagePoint usagePoint, Meter meter, MeterRole meterRole) {
             this.start = start;
             this.meterRole = meterRole;
             this.usagePoint = usagePoint;
             this.meter = meter;
         }
 
-        public ActivationImpl(Activation activation) {
-            this.start = activation.getRange().lowerEndpoint();
+        public VirtualActivation(Activation activation) {
+            Range<Instant> activationRange = activation.getRange();
+            this.start = activationRange.lowerEndpoint();
             this.meterRole = activation.getMeterRole();
             this.usagePoint = activation.getUsagePoint();
             this.meter = activation.getMeter();
+            this.end = activationRange.hasUpperBound() ? activationRange.upperEndpoint() : null;
+        }
+
+        public VirtualActivation(MeterActivation meterActivation) {
+            this.start = meterActivation.getStart();
+            this.meterRole = meterActivation.getMeterRole().orElse(null);
+            this.usagePoint = meterActivation.getUsagePoint().orElse(null);
+            this.meter = meterActivation.getMeter().orElse(null);
+            this.end = meterActivation.getEnd();
         }
 
         public Range<Instant> getRange() {
@@ -367,7 +400,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         @Override
         public Activation split(Instant breakTime) {
-            ActivationImpl activation = new ActivationImpl(breakTime, this.usagePoint, this.meter, this.meterRole);
+            VirtualActivation activation = new VirtualActivation(breakTime, this.usagePoint, this.meter, this.meterRole);
             endAt(breakTime);
             return activation;
         }
@@ -378,10 +411,10 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         }
     }
 
-    private static final class ActivationWrapper implements Activation {
+    private static final class WrappedActivation implements Activation {
         private final MeterActivationImpl meterActivation;
 
-        public ActivationWrapper(MeterActivation meterActivation) {
+        public WrappedActivation(MeterActivation meterActivation) {
             this.meterActivation = (MeterActivationImpl) meterActivation;
         }
 
@@ -436,7 +469,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         @Override
         public Activation split(Instant breakTime) {
-            return new ActivationWrapper(this.meterActivation.split(breakTime));
+            return new WrappedActivation(this.meterActivation.split(breakTime));
         }
 
         @Override
@@ -452,39 +485,27 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     /**
      * Methods of this class will be called based on position which modifier takes relative to an object from timeline.
      * <p></p>
-     * For example: if in timeline we have an object with range {@code [10..17)} and we call {@link TimeLine#adjust(Object, AdjustActionVisitor)}
+     * For example: if in timeline we have an object with range {@code [10..17)} and we call {@link TimeLine#adjust(Object, ElementVisitor)}
      * method with modifier with range {@code [3..7)}, then the {@link #before(Object, Object, ElementPosition)} method will be called,
      * because modifier is located on timeline before the original object.
      * <p></p>
-     * All of these methods can return a list with new objects which should be added to timeline after the {@link TimeLine#adjust(Object, AdjustActionVisitor)}
+     * All of these methods can return a list with new objects which should be added to timeline after the {@link TimeLine#adjust(Object, ElementVisitor)}
      * operation.
      *
      * @param <T> type of objects in timeline
      */
-    static abstract class AdjustActionVisitor<T> {
-        public List<T> before(T first, T modifier, ElementPosition position) {
-            return null;
-        }
+    interface ElementVisitor<T> {
+        List<T> before(T first, T modifier, ElementPosition position);
 
-        public List<T> after(T last, T modifier, ElementPosition position) {
-            return null;
-        }
+        List<T> after(T last, T modifier, ElementPosition position);
 
-        public List<T> replace(T element, T modifier, ElementPosition position) {
-            return null;
-        }
+        List<T> replace(T element, T modifier, ElementPosition position);
 
-        public List<T> split(T element, T modifier, ElementPosition position) {
-            return null;
-        }
+        List<T> split(T element, T modifier, ElementPosition position);
 
-        public List<T> cropStart(T element, T modifier, ElementPosition position) {
-            return null;
-        }
+        List<T> cropStart(T element, T modifier, ElementPosition position);
 
-        public List<T> cropEnd(T element, T modifier, ElementPosition position) {
-            return null;
-        }
+        List<T> cropEnd(T element, T modifier, ElementPosition position);
     }
 
     /**
@@ -493,7 +514,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
      * @param <T>
      * @param <I>
      */
-    static class TimeLine<T, I extends Comparable> {
+    static class TimeLine<T, I extends Comparable<? super I>> {
         private final Function<T, Range<I>> rangeExtractor;
         private final Comparator<T> comparator;
         private List<T> ranges;
@@ -535,11 +556,11 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             return this.ranges.stream().map(mapper).collect(Collectors.toList());
         }
 
-        public void adjust(T modifier, AdjustActionVisitor<T> actionVisitor) {
+        public void adjust(T modifier, ElementVisitor<T> elementVisitor) {
             Iterator<T> rangesIterator = this.ranges.iterator();
             List<T> newElementsAccumulator = new ArrayList<>();
             if (!rangesIterator.hasNext()) {
-                addAll(actionVisitor.before(null, modifier, ElementPosition.FIRST), newElementsAccumulator);
+                addAll(elementVisitor.before(null, modifier, ElementPosition.FIRST), newElementsAccumulator);
             } else {
                 ElementPosition elementPosition = ElementPosition.FIRST;
                 Range<I> modifierRange = this.rangeExtractor.apply(modifier);
@@ -548,47 +569,57 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                     if (!rangesIterator.hasNext()) {
                         elementPosition = elementPosition == ElementPosition.FIRST ? ElementPosition.SINGLE : ElementPosition.LAST;
                     }
-                    adjustElement(element, elementPosition, modifier, modifierRange, actionVisitor, newElementsAccumulator);
+                    adjustElement(element, elementPosition, modifier, modifierRange, elementVisitor, newElementsAccumulator);
                     elementPosition = ElementPosition.MIDDLE;
                 }
             }
             addAll(newElementsAccumulator);
         }
 
-        private void adjustElement(T element, ElementPosition elementPosition, T modifier, Range<I> modifierRange, AdjustActionVisitor<T> actionVisitor, List<T> newElementsAccumulator) {
+        private void adjustElement(T element, ElementPosition elementPosition, T modifier, Range<I> modifierRange, ElementVisitor<T> elementVisitor, List<T> newElementsAccumulator) {
             Range<I> elementRange = this.rangeExtractor.apply(element);
             if (!elementRange.isConnected(modifierRange)) {
                 int comparison = this.comparator.compare(element, modifier);
                 if (comparison > 0 && (elementPosition == ElementPosition.FIRST || elementPosition == ElementPosition.SINGLE)) {
-                    addAll(actionVisitor.before(element, modifier, elementPosition), newElementsAccumulator);
+                    addAll(elementVisitor.before(element, modifier, elementPosition), newElementsAccumulator);
                 } else if (comparison < 0 && (elementPosition == ElementPosition.LAST || elementPosition == ElementPosition.SINGLE)) {
-                    addAll(actionVisitor.after(element, modifier, elementPosition), newElementsAccumulator);
+                    addAll(elementVisitor.after(element, modifier, elementPosition), newElementsAccumulator);
                 }
             } else if (modifierRange.encloses(elementRange)) {
-                addAll(actionVisitor.replace(element, modifier, elementPosition), newElementsAccumulator);
-            } else if (elementRange.encloses(modifierRange)) {
-                addAll(actionVisitor.split(element, modifier, elementPosition), newElementsAccumulator);
+                addAll(elementVisitor.replace(element, modifier, elementPosition), newElementsAccumulator);
+            } else if (elementRange.lowerEndpoint().compareTo(modifierRange.lowerEndpoint()) < 0
+                    && modifierRange.hasUpperBound()
+                    && (!elementRange.hasUpperBound() || elementRange.upperEndpoint().compareTo(modifierRange.upperEndpoint()) > 0)) {
+                addAll(elementVisitor.split(element, modifier, elementPosition), newElementsAccumulator);
             } else {
                 Range<I> intersection = elementRange.intersection(modifierRange);
                 if (!intersection.isEmpty()) {
                     if (intersection.lowerEndpoint().compareTo(elementRange.lowerEndpoint()) > 0) {
-                        addAll(actionVisitor.cropEnd(element, modifier, elementPosition), newElementsAccumulator);
+                        addAll(elementVisitor.cropEnd(element, modifier, elementPosition), newElementsAccumulator);
                     } else {
-                        addAll(actionVisitor.cropStart(element, modifier, elementPosition), newElementsAccumulator);
+                        addAll(elementVisitor.cropStart(element, modifier, elementPosition), newElementsAccumulator);
                     }
                 }
             }
         }
     }
 
-    class MeterActivationModificationVisitor extends AdjustActionVisitor<Activation> {
+    class MeterActivationModificationVisitor implements ElementVisitor<Activation> {
 
         protected Activation createNewMeterActivation(Activation activation) {
             MeterActivationImpl meterActivation = metrologyConfigurationService.getDataModel()
                     .getInstance(MeterActivationImpl.class)
                     .init(activation.getMeter(), activation.getMeterRole(), activation.getUsagePoint(), activation.getRange());
             meterActivation.save();
-            return new ActivationWrapper(meterActivation);
+            return new WrappedActivation(meterActivation);
+        }
+
+        protected boolean theSameUsagePoint(Activation element, Activation modifier) {
+            return element.getUsagePoint() != null && element.getUsagePoint().equals(modifier.getUsagePoint());
+        }
+
+        protected boolean theSameMeterRole(Activation element, Activation modifier) {
+            return element.getMeterRole() != null && element.getMeterRole().equals(modifier.getMeterRole());
         }
 
         private void extendActivationEnd(Activation last, Activation modifier, ElementPosition position) {
@@ -679,6 +710,9 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         @Override
         public List<Activation> replace(Activation element, Activation modifier, ElementPosition position) {
+            if (!theSameUsagePoint(element, modifier) || !theSameMeterRole(element, modifier)) {
+                return null;
+            }
             element.setUsagePoint(null);
             element.save();
             return null;
@@ -686,9 +720,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         @Override
         public List<Activation> split(Activation element, Activation modifier, ElementPosition position) {
+            if (!theSameUsagePoint(element, modifier) || !theSameMeterRole(element, modifier)) {
+                return null;
+            }
             List<Activation> activations = new ArrayList<>();
             activations.add(element.split(modifier.getRange().upperEndpoint()));
-            Activation activation = element.split(modifier.getRange().upperEndpoint());
+            Activation activation = element.split(modifier.getRange().lowerEndpoint());
             activation.setUsagePoint(null);
             activation.save();
             activations.add(activation);
@@ -697,6 +734,9 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         @Override
         public List<Activation> cropStart(Activation element, Activation modifier, ElementPosition position) {
+            if (!theSameUsagePoint(element, modifier) || !theSameMeterRole(element, modifier)) {
+                return null;
+            }
             Activation activation = element.split(modifier.getRange().upperEndpoint());
             element.setUsagePoint(null);
             element.save();
@@ -705,6 +745,9 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         @Override
         public List<Activation> cropEnd(Activation element, Activation modifier, ElementPosition position) {
+            if (!theSameUsagePoint(element, modifier) || !theSameMeterRole(element, modifier)) {
+                return null;
+            }
             Activation activation = element.split(modifier.getRange().lowerEndpoint());
             activation.setUsagePoint(null);
             activation.save();
@@ -726,23 +769,19 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         @Override
         protected Activation createNewMeterActivation(Activation activation) {
-            return new ActivationImpl(activation.getRange().lowerEndpoint(), activation.getUsagePoint(), activation.getMeter(), activation.getMeterRole());
+            return new VirtualActivation(activation.getRange().lowerEndpoint(), activation.getUsagePoint(), activation.getMeter(), activation.getMeterRole());
         }
 
         private List<Activation> compareActivations(Activation element, Activation modifier) {
-            if (element.getMeterRole() != null
-                    && element.getUsagePoint() != null
-                    && !element.getUsagePoint().equals(modifier.getUsagePoint())) {
+            if (element.getMeterRole() != null && element.getUsagePoint() != null && !theSameUsagePoint(element, modifier)) {
                 this.result = false;
                 String errorMessage = metrologyConfigurationService.getThesaurus()
                         .getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
-                        .format(element.getMeter(), element.getUsagePoint().getMRID(), element.getMeterRole().getDisplayName());
+                        .format(element.getMeter().getMRID(), element.getUsagePoint().getMRID(), element.getMeterRole().getDisplayName());
                 context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(modifier.getMeterRole().getKey()).addConstraintViolation();
             }
-            if (element.getUsagePoint() != null
-                    && element.getUsagePoint().equals(usagePoint)
-                    && element.getMeterRole() != null
-                    && !element.getMeterRole().equals(modifier.getMeterRole())) {
+            if (element.getUsagePoint() != null && theSameUsagePoint(element, modifier)
+                    && element.getMeterRole() != null && !theSameMeterRole(element, modifier)) {
                 this.result = false;
                 this.context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT + "}")
                         .addPropertyNode(modifier.getMeterRole().getKey()).addConstraintViolation();
