@@ -11,15 +11,15 @@ import java.util.Base64;
  */
 public class ProcessDeployer {
 
-    private static final String defaultRepoPayload = "{\"name\":\"connexoRepo\",\"description\":\"repository for the new Connexo project\",\"userName\":null,\"password\":null,\"requestType\":\"new\",\"gitURL\":null,\"organizationalUnitName\":\"connexoGroup\"}";
-    private static final String defaultOrgUnitPayload = "{\"name\":\"connexoGroup\",\"description\":\"default Connexo organizational unit\",\"owner\":\"rootUsr\",\"defaultGroupId\":\"connexoGroup\"}";
-    private static final String orgUnitName = "connexoGroup";
+    private static final String defaultRepoPayload = "{\"name\":\"Connexo\",\"description\":\"Repository for Connexo projects\",\"userName\":null,\"password\":null,\"requestType\":\"new\",\"gitURL\":null,\"organizationalUnitName\":\"Honeywell\"}";
+    private static final String defaultOrgUnitPayload = "{\"name\":\"Honeywell\",\"description\":\"Default Connexo organizational unit\",\"owner\":\"admin\",\"defaultGroupId\":\"Honeywell\"}";
+    private static final String orgUnitName = "Honeywell";
 
     public static void main(String args[]) {
         if ((args.length < 4) || (args[0].equals("deployProcess") && (args.length < 5))) {
             System.out.println("Incorrect syntax. The following parameters are required:");
             System.out.println("command -- command identifier");
-            System.out.println("user -- a Conenxo Flow user with administrative privileges");
+            System.out.println("user -- a Connexo Flow user with administrative privileges");
             System.out.println("password -- password for the provided user");
             System.out.println("url -- url to the Connexo Flow installation");
             System.out.println("deploymentId -- deployment identifier for deploy process");
@@ -40,21 +40,22 @@ public class ProcessDeployer {
 
     private static void createRepository(String arg, String authString, String payload) {
         String url = arg + "/rest/repositories/";
-        doPost(url, authString, payload);
+        doPostAndWait(url, authString, payload);
     }
 
     private static void createOrganizationalUnit(String arg, String authString, String payload) {
         String url = arg + "/rest/organizationalunits/";
-        doPost(url, authString, payload);
+        doPostAndWait(url, authString, payload);
         doVerify(url + orgUnitName, authString);
     }
 
     private static void deployProcess(String deploymentId, String arg, String authString) {
         String url = arg + "/rest/deployment/" + deploymentId + "/deploy?strategy=SINGLETON";
-        doPost(url, authString, null);
+        doPostAndWait(url, authString, null);
     }
 
-    private static void doPost(String url, String authString, String payload) {
+    private static boolean doPost(String url, String authString, String payload) {
+        int responseCode = 404;
         HttpURLConnection httpConnection = null;
         try {
 
@@ -73,7 +74,8 @@ public class ProcessDeployer {
                 httpConnection.setRequestProperty("Content-Type", "text/plain;charset=UTF-8");
             }
 
-            if (httpConnection.getResponseCode() != 202) {
+            responseCode = httpConnection.getResponseCode();
+            if (responseCode != 202 && responseCode != 404) {
                 throw new RuntimeException("Failed : HTTP error code : "
                         + httpConnection.getResponseCode());
             }
@@ -85,6 +87,11 @@ public class ProcessDeployer {
                 httpConnection.disconnect();
             }
         }
+
+        if(responseCode == 404){
+            return false;
+        }
+        return true;
     }
 
     private static boolean doGet(String url, String authString) {
@@ -127,4 +134,18 @@ public class ProcessDeployer {
 
     }
 
+    private static void doPostAndWait(String url, String authString, String payload) {
+        int maxSteps = 12;
+        int timeout = 5 * 1000;
+
+        while ((maxSteps != 0) && (doPost(url, authString, payload) == false)) {
+            try {
+                maxSteps--;
+                Thread.sleep(timeout);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+    }
 }
