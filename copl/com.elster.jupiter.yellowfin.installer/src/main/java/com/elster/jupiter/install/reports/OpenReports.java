@@ -5,6 +5,7 @@ import com.hof.mi.web.service.AdministrationServiceResponse;
 import com.hof.mi.web.service.AdministrationServiceService;
 import com.hof.mi.web.service.AdministrationServiceServiceLocator;
 import com.hof.mi.web.service.AdministrationServiceSoapBindingStub;
+import com.hof.mi.web.service.ImportOption;
 import com.hof.util.Base64;
 
 import javax.xml.rpc.ServiceException;
@@ -79,6 +80,11 @@ public class OpenReports {
             rsr.setPassword(password);
             rsr.setOrgId(1);
             rsr.setFunction("IMPORTCONTENT");
+            ImportOption option = new ImportOption();
+            option.setItemIndex(-1);
+            option.setOptionKey("OPTION");
+            option.setOptionValue("REPLACE");
+            rsr.setImportOptions(new ImportOption[]{option});
             rsr.setParameters(new String[]{Base64.encodeBytes(data)});
 
             if (rssbs != null) {
