@@ -436,17 +436,10 @@ Ext.define('Fwc.controller.Firmware', {
                     view.setLoading(true);
                     view.suspendLayouts();
                     me.reconfigureMenu(deviceType, view);
-                    var activeTab = view.down('tabpanel').getActiveTab(),
-                        versionsTab = view.down('#mdc-versions-tab'),
-                        topFilter = view.down('#firmware-versions').down('fwc-view-firmware-versions-topfilter');
-                    if (activeTab && versionsTab && topFilter && activeTab === versionsTab) {
-                        topFilter.applyFilters();
-                    }
+                    firmwareStore.getProxy().setUrl(deviceType.getId());
+                    firmwareStore.load();
                 }
             });
-
-            firmwareStore.getProxy().setUrl(deviceType.getId());
-            firmwareStore.load();
         });
     },
 
