@@ -110,6 +110,7 @@ public class ChannelsContainerValidationImplTest {
         when(readingType2.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(DATE1));
         when(channelsContainer.getStart()).thenReturn(DATE1);
+        when(channelsContainer.getMeter()).thenReturn(Optional.empty());
 
         channelsContainerValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(channelsContainer);
         channelsContainerValidation.setRuleSet(validationRuleSet);

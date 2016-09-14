@@ -248,13 +248,7 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
 
     @Override
     public void activate() {
-        Instant firstMeterActivation = getChannelsContainer().getMeter().flatMap(meter -> {
-            List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
-            Collections.reverse(meterActivations);
-            return Optional.of(meterActivations.get(0).getStart());
-        }).orElseGet(() -> null);
-        lastRun = getMinLastChecked().equals(firstMeterActivation) ? null : getMinLastChecked();
-        save();
+        updateLastRun();
         setActive(true);
         getChannelsContainer().getChannels().stream()
                 .filter(c -> !getRuleSet().getRules(c.getReadingTypes()).isEmpty())
@@ -287,5 +281,19 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     public void moveLastCheckedBefore(Instant date) {
         channelValidations.stream()
                 .forEach(channelValidation -> channelValidation.moveLastCheckedBefore(date));
+    }
+
+    private void updateLastRun(){
+        if(getMinLastChecked() != null) {
+            Instant firstMeterActivation = getChannelsContainer().getMeter().flatMap(meter -> {
+                List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
+                Collections.reverse(meterActivations);
+                return Optional.of(meterActivations.get(0).getStart());
+            }).orElseGet(() -> null);
+            lastRun = getMinLastChecked().equals(firstMeterActivation) ? null : getMinLastChecked();
+        }else{
+            lastRun = null;
+        }
+        save();
     }
 }
