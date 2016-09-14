@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
 
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('device.lastValidation', 'MDC', 'Last validation'),
+                                fieldLabel: Uni.I18n.translate('device.lastValidation1', 'MDC', 'Last validation run'),
                                 itemId: 'lastValidationCont',
                                 name: 'lastChecked',
                                 renderer: function (value) {
