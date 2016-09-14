@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
@@ -328,7 +329,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", ONE_DAY_BEFORE).create();
         AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter2 = system.newMeter("Meter2").create();
-        MeterRole meterRole2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        MeterRole meterRole2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN);
 
         usagePoint2.linkMeters().activate(meter, meterRole).complete();
         usagePoint2.linkMeters().clear(ONE_DAY_AFTER, meterRole).complete();
@@ -351,9 +352,9 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         List<MeterActivation> usagePointActivations = usagePoint.getMeterActivations();
         assertThat(usagePointActivations).hasSize(2);
         assertThat(usagePointActivations.get(0).getRange()).isEqualTo(Range.atLeast(THREE_DAYS_AFTER));
-        assertThat(usagePointActivations.get(0).getMeter().get()).isEqualTo(meter2);
+        assertThat(usagePointActivations.get(0).getMeter().get()).isEqualTo(meter);
         assertThat(usagePointActivations.get(1).getRange()).isEqualTo(Range.atLeast(THREE_DAYS_AFTER));
-        assertThat(usagePointActivations.get(1).getMeter().get()).isEqualTo(meter);
+        assertThat(usagePointActivations.get(1).getMeter().get()).isEqualTo(meter2);
 
         meterActivations = meter2.getMeterActivations();
         assertThat(meterActivations).hasSize(2);
@@ -364,6 +365,19 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         assertThat(usagePointActivations).hasSize(1);
         assertThat(usagePointActivations.get(0).getRange()).isEqualTo(Range.closedOpen(ONE_DAY_BEFORE, ONE_DAY_AFTER));
         assertThat(usagePointActivations.get(0).getMeter().get()).isEqualTo(meter);
+    }
+
+    @Test(expected = UsagePointMeterActivationException.UsagePointHasMeterOnThisRole.class)
+    @Transactional
+    public void testCanNotLinkTwoMetersOnTheSameMeterRole() {
+        AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter2 = system.newMeter("Meter2").create();
+
+        usagePoint.linkMeters()
+                .activate(meter, meterRole)
+                .activate(meter2, meterRole)
+                .throwingValidation()
+                .complete();
     }
 
     private static class TestHeadEndInterface implements HeadEndInterface {

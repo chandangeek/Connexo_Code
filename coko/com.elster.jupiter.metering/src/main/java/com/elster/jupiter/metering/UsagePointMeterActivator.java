@@ -18,6 +18,13 @@ public interface UsagePointMeterActivator {
     UsagePointMeterActivator clear(Instant from, MeterRole meterRole);
 
     /**
+     * Indicates that activator should throw successor of {@link UsagePointMeterActivationException} in case of incorrect activation as soon as any violation occurs.
+     * (By default it produces javax constraint violations).
+     * @return the activator
+     */
+    UsagePointMeterActivator throwingValidation();
+
+    /**
      * Apply changes. Note that after this operation some meters may have obsolete info regarding meter activations.
      */
     void complete();
