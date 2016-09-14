@@ -191,7 +191,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             msg: Uni.I18n.translate(
                 'metrologyconfiguration.general.activate.msg',
                 'IMT',
-                'You will be able to link this metrology configuration to usage points, but you will not be able to modify this metrology configuration anymore'
+                'You will be able to define this metrology configuration for usage points. After that, you can\'t change the metrology configuration anymore.'
             ),
             title: Uni.I18n.translate('metrologyconfiguration.general.activate.title', 'IMT', "Activate '{0}'?", record.get('name')),
             config: {},
