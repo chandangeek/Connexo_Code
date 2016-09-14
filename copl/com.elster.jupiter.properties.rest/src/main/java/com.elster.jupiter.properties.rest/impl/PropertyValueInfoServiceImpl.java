@@ -131,7 +131,9 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         if (possibleValues == null) {
             return null;
         }
-        if (possibleValues.getAllValues().size() <= 1 && propertyType != SimplePropertyType.DEVICECONFIGURATIONLIST) {
+        if (possibleValues.getAllValues().size() <= 1
+                && propertyType != SimplePropertyType.DEVICECONFIGURATIONLIST
+                && propertyType != SimplePropertyType.QUANTITY) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;
         }
