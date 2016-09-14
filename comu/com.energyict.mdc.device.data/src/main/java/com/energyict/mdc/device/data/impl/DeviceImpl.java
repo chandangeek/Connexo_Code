@@ -39,7 +39,9 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -70,6 +72,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -114,6 +117,8 @@ import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
+import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
+import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
@@ -128,7 +133,6 @@ import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForRemoval;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForSimpleUpdate;
 import com.energyict.mdc.device.data.impl.sync.SynchDeviceWithKoreForConfigurationChange;
 import com.energyict.mdc.device.data.impl.sync.SynchDeviceWithKoreForMultiplierChange;
-import com.energyict.mdc.device.data.impl.sync.SynchDeviceWithKoreForUsagePointChange;
 import com.energyict.mdc.device.data.impl.sync.SynchNewDeviceWithKore;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
@@ -197,6 +201,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
@@ -1702,19 +1707,28 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public MeterActivation activate(Instant start, UsagePoint usagePoint) {
-        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(this, start, usagePoint, deviceService, readingTypeUtilService, thesaurus, userPreferencesService, threadPrincipalService, eventService);
-        //All actions to take to sync with Kore once a Device is created
-        usagePointChange.syncWithKore(this);
+    public MeterActivation activate(Instant start, UsagePoint usagePoint, MeterRole meterRole) {
+        if (start == null || usagePoint == null || meterRole == null) {
+            throw new IllegalArgumentException("All arguments are mandatory and can't be null.");
+        }
+        try {
+            usagePoint.linkMeters().activate(start, getMeter().get(), meterRole).throwingValidation().complete();
+        } catch (UsagePointMeterActivationException.MeterHasUnsatisfiedRequirements badRequirementsEx) {
+            throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(this.thesaurus, badRequirementsEx.getUnsatisfiedRequirements());
+        } catch (UsagePointMeterActivationException.UsagePointHasMeterOnThisRole upActiveEx) {
+            throw new UsagePointAlreadyLinkedToAnotherDeviceException(this.thesaurus, getLongDateFormatForCurrentUser(),
+                    upActiveEx.getMeter().getMeterActivations(upActiveEx.getConflictActivationRange()).get(0));
+        }
+        this.koreHelper.reloadCurrentMeterActivation();
         return getCurrentMeterActivation().get();
     }
 
-    @Override
-    public MeterActivation forceActivate(Instant start, UsagePoint usagePoint) {
-        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(this, start, usagePoint, deviceService, readingTypeUtilService, thesaurus, userPreferencesService, threadPrincipalService, eventService, true);
-        //All actions to take to sync with Kore once a Device is created
-        usagePointChange.syncWithKore(this);
-        return getCurrentMeterActivation().get();
+    private DateTimeFormatter getLongDateFormatForCurrentUser() {
+        return DateTimeFormatGenerator.getDateFormatForUser(
+                DateTimeFormatGenerator.Mode.LONG,
+                DateTimeFormatGenerator.Mode.LONG,
+                this.userPreferencesService,
+                this.threadPrincipalService.getPrincipal());
     }
 
     @Override
