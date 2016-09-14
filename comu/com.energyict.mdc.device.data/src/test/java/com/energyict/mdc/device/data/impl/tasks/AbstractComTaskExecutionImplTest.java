@@ -242,7 +242,6 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
         onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServerBuilder.serverName(name);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         onlineComServerBuilder.numberOfStoreTaskThreads(2);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
@@ -263,7 +262,6 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServerBuilder.numberOfStoreTaskThreads(2);
         onlineComServerBuilder.serverName(name);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         InboundComPort.InboundComPortBuilder inboundComPortBuilder = onlineComServer.newTCPBasedInboundComPort("ComPort", 1, 80);
