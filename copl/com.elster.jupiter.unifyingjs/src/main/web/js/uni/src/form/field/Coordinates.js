@@ -124,11 +124,11 @@ Ext.define('Uni.form.field.Coordinates', {
                 fieldStyle: "text-align:center;"
             },
             invalidCoordinate = {
-                xtype: 'panel',
+                xtype: 'component',
                 itemId: 'pnl-invalid-coordinate',
-                width: '100%',
-                bodyStyle: {
-                    color: '#eb5642'
+                style: {
+                    color: '#eb5642',
+                    margin: '-10px 0 10px 0'
                 },
                 hidden: true,
                 html: ''
@@ -352,12 +352,20 @@ Ext.define('Uni.form.field.Coordinates', {
         }
 
         var errorMsg = this.down('#pnl-invalid-coordinate');
+        Ext.suspendLayouts();
         errorMsg.update(fields);
         errorMsg.show();
+        me.down('#txtNote').hide();
+        Ext.resumeLayouts(true);
 
     },
     clearInvalid: function () {
-        this.down('#pnl-invalid-coordinate').hide();
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.down('#pnl-invalid-coordinate').hide();
+        me.down('#txtNote').show();
+        Ext.resumeLayouts(true);
     },
 
     recurrenceNumberFieldValidation: function (field) {
