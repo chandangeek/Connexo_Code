@@ -211,16 +211,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                 },
                 {
                     xtype: 'numberfield',
-                    itemId: 'num-monitor-port',
-                    fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.monitor.port', 'MDC', 'Monitor port'),
-                    name: 'statusPort',
-                    required: true,
-                    blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
-                    minValue: 0,
-                    width: 415
-                },
-                {
-                    xtype: 'numberfield',
                     itemId: 'num-event-uri-port',
                     fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.event.registration.port', 'MDC', 'Event registration port'),
                     name: 'eventRegistrationPort',

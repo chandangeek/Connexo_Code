@@ -118,6 +118,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
         ];
         me.callParent(arguments);
         me.mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+        me.on('beforedestroy', me.onBeforeDestroy, me);
     },
 
     getStoreListeners: function () {
@@ -203,6 +204,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
                 });
                 loadProfilesGrid.bindStore(record.detailedValidationLoadProfile());
                 loadProfilesGrid.show();
+            } else {
+                loadProfilesGrid.hide();
             }
 
             registers = record.get('detailedValidationRegister');
@@ -221,6 +224,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
                 });
                 registerssGrid.bindStore(record.detailedValidationRegister());
                 registerssGrid.show();
+            } else {
+                registerssGrid.hide();
             }
             Ext.resumeLayouts(true);
         }
