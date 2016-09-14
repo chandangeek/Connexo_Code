@@ -82,7 +82,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 queryMode: 'local',
                                 triggerAction: 'all',
                                 fieldLabel: Uni.I18n.translate('relativeperiod.category', 'TME', 'Category'),
-                                emptyText: Uni.I18n.translate('relativeperiod.form.selectcategory', 'TME', 'Select 1 or more categories'),
+                                emptyText: Uni.I18n.translate('relativeperiod.form.selectCategory', 'TME', 'Select one or more categories...'),
                                 displayField: 'name',
                                 valueField: 'id',
                                 listConfig: {
