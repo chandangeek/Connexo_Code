@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
     ],
 
     store: 'Mdc.store.ValidationRuleSetsForDeviceConfig',
+    autoLoadStore: true,
 
     deviceTypeId: null,
     deviceConfigId: null,
