@@ -71,13 +71,15 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
                     step2Page.handleSuccessRequest(Ext.decode(operation.response.responseText), router, deviceRemoved);
                 },
                 failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
+                    var json = Ext.decode(operation.response.responseText, true);
                     Ext.suspendLayouts();
                     layout.setActiveItem(layout.getPrev());
                     me.showWizardBtns();
                     me.getNavigationMenu().movePrevStep();
-                    me.getDeviceTransitionExecuteWizard().down('#transitionDateField').setActiveError(json.errors[0].msg);
-                    propertyForm.markInvalid(json.errors);
+                    if (json && !Ext.isEmpty(json.errors)) {
+                        me.getDeviceTransitionExecuteWizard().down('#transitionDateField').setActiveError(json.errors[0].msg);
+                        propertyForm.markInvalid(json.errors);
+                    }
                     Ext.resumeLayouts(true);
                 }
             });
