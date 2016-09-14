@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.streams.Currying.perform;
+
 /**
  * Builds the custom sql that supports the {@link com.energyict.mdc.device.data.validation.ValidationOverviews}.
  * The sql uses "WITH" clauses which will make it impossible to unit test this against H2 :-(
@@ -38,7 +40,7 @@ class ValidationOverviewSqlBuilder {
     private final int to;
 
     enum KpiType {
-        TOTAL("totalSuspectValues", "totalSuspectsKpi", "SUSPECT") {
+        TOTAL("totalSuspectValues", "totalSuspectsKpi", "SUSPECT", "sum") {
             @Override
             protected void appendJoinTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append(" join ");
@@ -52,15 +54,20 @@ class ValidationOverviewSqlBuilder {
 
             @Override
             protected void appendSelectTo(SqlBuilder sqlBuilder) {
-                sqlBuilder.append(", ");
+                sqlBuilder.append(", max(");
                 sqlBuilder.append(this.kpiTableName());
-                sqlBuilder.append(".timestamp");
+                sqlBuilder.append(".timestamp)");
                 super.appendSelectTo(sqlBuilder);
+            }
+
+            @Override
+            public void appendHavingTo(SqlBuilder sqlBuilder, DeviceDataValidationServiceImpl.SuspectsRange suspectsRange) {
+                suspectsRange.appendHavingTo(sqlBuilder, "sum(totalSuspectsKpi.value)");
             }
         },
         ALL_DATA_VALIDATED("allDataValidatedValues", "allDataValidatedKpi", "ALLDATAVALIDATED"),
-        REGISTER("registerSuspectValues", "registerSuspectsKpi", "REGISTER"),
-        CHANNEL("channelSuspectValues", "channelSuspectsKpi", "CHANNEL"),
+        REGISTER("registerSuspectValues", "registerSuspectsKpi", "REGISTER", "sum"),
+        CHANNEL("channelSuspectValues", "channelSuspectsKpi", "CHANNEL", "sum"),
         THRESHOLD("thresholdValues", "thresholdKpi", "THRESHOLDVALIDATOR"),
         MISSING_VALUES("missingValues", "missingsKpi", "MISSINGVALUESVALIDATOR"),
         READING_QUALITIES("readingQualitiesValues", "readingQualitiesKpi", "READINGQUALITIESVALIDATOR"),
@@ -69,11 +76,17 @@ class ValidationOverviewSqlBuilder {
         private final String withClauseAliasName;
         private final String kpiTableName;
         private final String kpiType;
+        private final String aggregationFunction;
 
         KpiType(String withClauseAliasName, String kpiTableName, String kpiType) {
+            this(withClauseAliasName, kpiTableName, kpiType, "max");
+        }
+
+        KpiType(String withClauseAliasName, String kpiTableName, String kpiType, String aggregationFunction) {
             this.withClauseAliasName = withClauseAliasName;
             this.kpiTableName = kpiTableName;
             this.kpiType = kpiType;
+            this.aggregationFunction = aggregationFunction;
         }
 
         protected String withClauseAliasName() {
@@ -88,12 +101,6 @@ class ValidationOverviewSqlBuilder {
             return kpiType;
         }
 
-        private void appendWithIfIncluded(Set<KpiType> options, SqlBuilder sqlBuilder) {
-            if (options.contains(this)) {
-                this.appendWithTo(sqlBuilder);
-            }
-        }
-
         private void appendWithTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(", ");
             sqlBuilder.append(this.withClauseAliasName);
@@ -102,26 +109,20 @@ class ValidationOverviewSqlBuilder {
             sqlBuilder.append("')");
         }
 
-        private void appendSelectIfIncluded (Set<KpiType> options, SqlBuilder sqlBuilder) {
-            if (options.contains(this)) {
-                this.appendSelectTo(sqlBuilder);
-            } else {
-                sqlBuilder.append(", -1 as ");
-                sqlBuilder.append(this.withClauseAliasName);
-            }
-        }
-
         protected void appendSelectTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(", ");
+            sqlBuilder.append(this.aggregationFunction);
+            sqlBuilder.append("(");
             sqlBuilder.append(this.kpiTableName);
-            sqlBuilder.append(".value as ");
+            sqlBuilder.append(".value) as ");
             sqlBuilder.append(this.withClauseAliasName);
         }
 
         private void appendJoinIfIncluded(Set<KpiType> options, SqlBuilder sqlBuilder) {
-            if (options.contains(this)) {
-                this.appendJoinTo(sqlBuilder);
+            if (!options.contains(this)) {
+                sqlBuilder.append(" left");
             }
+            this.appendJoinTo(sqlBuilder);
         }
 
         protected void appendJoinTo(SqlBuilder sqlBuilder) {
@@ -138,9 +139,8 @@ class ValidationOverviewSqlBuilder {
             sqlBuilder.append(".devicegroup");
         }
 
-        private void appendJoinTo(SqlBuilder sqlBuilder, DeviceDataValidationServiceImpl.SuspectsRange suspectsRange) {
-            this.appendJoinTo(sqlBuilder);
-            suspectsRange.appendJoinTo(sqlBuilder, this.kpiTableName);
+        public void appendHavingTo(SqlBuilder sqlBuilder, DeviceDataValidationServiceImpl.SuspectsRange suspectsRange) {
+            throw new UnsupportedOperationException(this.name() + " does not support HAVING clause");
         }
     }
 
@@ -212,10 +212,9 @@ class ValidationOverviewSqlBuilder {
         this.sqlBuilder.append(", ");
         this.appendAllValidatedWithClause();
         this.appendKpiTypeWithClauses();
-        if (!this.kpiTypes.isEmpty()) {
-            this.appendOptionalKpiTypeWithClauses();
-        }
         this.appendActualQuery();
+        this.appendGroupByClause();
+        this.appendHavingClause();
         this.appendOrderByClause();
         this.sqlBuilder = this.sqlBuilder.asPageBuilder(this.from, this.to);
     }
@@ -233,7 +232,7 @@ class ValidationOverviewSqlBuilder {
             .forEach(kpiType -> kpiType.appendSelectTo(this.sqlBuilder));
         Stream
             .of(KpiType.THRESHOLD, KpiType.MISSING_VALUES, KpiType.READING_QUALITIES, KpiType.REGISTER_INCREASE)
-            .forEach(kpiType -> kpiType.appendSelectIfIncluded(this.kpiTypes, this.sqlBuilder));
+            .forEach(kpiType -> kpiType.appendSelectTo(this.sqlBuilder));
     }
 
     private void appendFromClause() {
@@ -243,7 +242,7 @@ class ValidationOverviewSqlBuilder {
     private void appendJoinClauses() {
         this.sqlBuilder.append(" join dtc_devicetype dt on dev.devicetype = dt.id");
         this.sqlBuilder.append(" join dtc_deviceconfig dc on dev.deviceconfigid = dc.id");
-        KpiType.TOTAL.appendJoinTo(this.sqlBuilder, this.suspectsRange);
+        KpiType.TOTAL.appendJoinTo(this.sqlBuilder);
         this.sqlBuilder.append(" join registerSuspectValues registerSuspectsKpi ");
         this.sqlBuilder.append("   on registerSuspectsKpi.device = dev.meterid");
         this.sqlBuilder.append("  and registerSuspectsKpi.devicegroup = ");
@@ -259,13 +258,18 @@ class ValidationOverviewSqlBuilder {
         this.sqlBuilder.append("  and allDataValidatedKpi.devicegroup = ");
         this.sqlBuilder.append(KpiType.TOTAL.kpiTableName);
         this.sqlBuilder.append(".devicegroup");
-        this.appendOptionalJoinClauses();
-    }
-
-    private void appendOptionalJoinClauses() {
         Stream
             .of(KpiType.THRESHOLD, KpiType.MISSING_VALUES, KpiType.READING_QUALITIES, KpiType.REGISTER_INCREASE)
             .forEach(kpiType -> kpiType.appendJoinIfIncluded(this.kpiTypes, this.sqlBuilder));
+    }
+
+    private void appendGroupByClause() {
+        this.sqlBuilder.append(" group by dev.mRID, totalSuspectsKpi.devicegroup, dev.serialnumber, dt.name, dc.name");
+    }
+
+    private void appendHavingClause() {
+        this.sqlBuilder.append(" having ");
+        KpiType.TOTAL.appendHavingTo(this.sqlBuilder, this.suspectsRange);
     }
 
     private void appendOrderByClause() {
@@ -273,9 +277,9 @@ class ValidationOverviewSqlBuilder {
     }
 
     private void appendKpiTypeWithClauses() {
-        KpiType.TOTAL.appendWithTo(this.sqlBuilder);
-        KpiType.REGISTER.appendWithTo(this.sqlBuilder);
-        KpiType.CHANNEL.appendWithTo(this.sqlBuilder);
+        Stream
+            .of(KpiType.TOTAL, KpiType.REGISTER, KpiType.CHANNEL, KpiType.THRESHOLD, KpiType.MISSING_VALUES, KpiType.READING_QUALITIES, KpiType.REGISTER_INCREASE)
+            .forEach(perform(KpiType::appendWithTo).with(this.sqlBuilder));
     }
 
     private void appendAllDataWithClause() {
@@ -341,10 +345,6 @@ class ValidationOverviewSqlBuilder {
     }
 
     private void appendOptionalKpiTypeWithClauses() {
-        KpiType.THRESHOLD.appendWithIfIncluded(this.kpiTypes, this.sqlBuilder);
-        KpiType.MISSING_VALUES.appendWithIfIncluded(this.kpiTypes, this.sqlBuilder);
-        KpiType.READING_QUALITIES.appendWithIfIncluded(this.kpiTypes, this.sqlBuilder);
-        KpiType.REGISTER_INCREASE.appendWithIfIncluded(this.kpiTypes, this.sqlBuilder);
     }
 
     private static class IdAppender {

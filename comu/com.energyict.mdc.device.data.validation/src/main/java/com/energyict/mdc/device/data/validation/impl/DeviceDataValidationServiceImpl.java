@@ -185,13 +185,14 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
     }
 
     interface SuspectsRange {
-        void appendJoinTo(SqlBuilder sqlBuilder, String alias);
+        void appendHavingTo(SqlBuilder sqlBuilder, String expression);
     }
 
     private class IgnoreSuspectRange implements SuspectsRange {
         @Override
-        public void appendJoinTo(SqlBuilder sqlBuilder, String alias) {
-            // Ignoring suspects range is done by not generating any sql condition
+        public void appendHavingTo(SqlBuilder sqlBuilder, String expression) {
+            sqlBuilder.append(expression);
+            sqlBuilder.append(" > 0");
         }
     }
 
@@ -203,10 +204,9 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
         }
 
         @Override
-        public void appendJoinTo(SqlBuilder sqlBuilder, String alias) {
-            sqlBuilder.append(" and ");
-            sqlBuilder.append(alias);
-            sqlBuilder.append(".value =");
+        public void appendHavingTo(SqlBuilder sqlBuilder, String expression) {
+            sqlBuilder.append(expression);
+            sqlBuilder.append(" =");
             sqlBuilder.addLong(this.match);
         }
     }
@@ -219,17 +219,16 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
         }
 
         @Override
-        public void appendJoinTo(SqlBuilder sqlBuilder, String alias) {
-            sqlBuilder.append(" and ");
-            sqlBuilder.append(alias);
-            sqlBuilder.append(".value >");
+        public void appendHavingTo(SqlBuilder sqlBuilder, String expression) {
+            sqlBuilder.append(expression);
+            sqlBuilder.append(" >");
             if (this.range.hasLowerBound() && this.range.lowerBoundType() == BoundType.CLOSED) {
                 sqlBuilder.append("=");
             }
             sqlBuilder.addLong(this.range.hasLowerBound() ? this.range.lowerEndpoint() : Integer.MIN_VALUE);
             sqlBuilder.append("AND ");
-            sqlBuilder.append(alias);
-            sqlBuilder.append(".value <");
+            sqlBuilder.append(expression);
+            sqlBuilder.append(" <");
             if (this.range.hasUpperBound() && this.range.upperBoundType() == BoundType.CLOSED) {
                 sqlBuilder.append("=");
             }
