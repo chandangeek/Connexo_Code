@@ -12,6 +12,7 @@ import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageVal
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -114,7 +115,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(UnicastClientWPort, BigDecimal.valueOf(2)),
             PropertySpecFactory.bigDecimalPropertySpec(MulticastClientWPort, BigDecimal.valueOf(3)),
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(UnicastFrameCounterType, "auth_hmac_sha256", "default", "auth_hmac_sha256"),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(TimeZone, "Europe/Vienna", java.util.TimeZone.getAvailableIDs()),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(MeterTimeZone, "Europe/Vienna", TimeZone.getAvailableIDs()),
             PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelMulticast, BigDecimal.ZERO),
             PropertySpecFactory.bigDecimalPropertySpec(SecurityPolicyMulticastV0, BigDecimal.ZERO),
             PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayBetweenBlockSentFast, new TimeDuration(20, TimeDuration.MILLISECONDS))

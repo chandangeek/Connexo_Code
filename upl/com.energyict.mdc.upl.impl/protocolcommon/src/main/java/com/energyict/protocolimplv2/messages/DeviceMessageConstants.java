@@ -56,7 +56,7 @@ public class DeviceMessageConstants {
     public static final String SkipStepVerify = "FirmwareDeviceMessage.SkipStepVerify";
     public static final String SkipStepActivate = "FirmwareDeviceMessage.SkipStepActivate";
     public static final String UnicastFrameCounterType = "FirmwareDeviceMessage.UnicastFrameCounterType";
-    public static final String TimeZone = "FirmwareDeviceMessage.TimeZone";
+    public static final String MeterTimeZone = "FirmwareDeviceMessage.TimeZone";
     public static final String SecurityLevelMulticast = "FirmwareDeviceMessage.SecurityLevelMulticast";
     public static final String SecurityPolicyMulticastV0 = "FirmwareDeviceMessage.SecurityPolicyMulticastV0";
 
