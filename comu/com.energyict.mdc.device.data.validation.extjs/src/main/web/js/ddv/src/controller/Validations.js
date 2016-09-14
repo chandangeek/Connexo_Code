@@ -44,9 +44,6 @@ Ext.define('Ddv.controller.Validations', {
             return;
         }
 
-        // invoke first filter panel to create store listeners
-        Ext.widget('ddv-validations-filter', {router: router});
-
         view = Ext.widget('ddv-validations-setup', {router: router});
         me.getApplication().fireEvent('changecontentevent', view);
         me.updateApplyButtonState(view, queryString);
