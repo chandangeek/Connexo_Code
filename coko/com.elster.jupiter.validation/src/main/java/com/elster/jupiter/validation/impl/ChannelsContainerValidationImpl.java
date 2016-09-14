@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -247,6 +248,13 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
 
     @Override
     public void activate() {
+        Instant firstMeterActivation = getChannelsContainer().getMeter().flatMap(meter -> {
+            List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
+            Collections.reverse(meterActivations);
+            return Optional.of(meterActivations.get(0).getStart());
+        }).orElseGet(() -> null);
+        lastRun = getMinLastChecked().equals(firstMeterActivation) ? null : getMinLastChecked();
+        save();
         setActive(true);
         getChannelsContainer().getChannels().stream()
                 .filter(c -> !getRuleSet().getRules(c.getReadingTypes()).isEmpty())
