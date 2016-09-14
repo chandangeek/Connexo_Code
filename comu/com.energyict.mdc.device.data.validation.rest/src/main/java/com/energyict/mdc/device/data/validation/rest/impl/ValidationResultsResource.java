@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.streams.Currying.perform;
 import static com.elster.jupiter.util.streams.Currying.test;
 
 @Path("/validationresults")
@@ -43,16 +44,38 @@ public class ValidationResultsResource {
     private final ExceptionFactory exceptionFactory;
 
     private enum Validator {
-        THRESHOLDVALIDATOR("thresholdViolation"),
-        MISSINGVALUESVALIDATOR("checkMissing"),
-        READINGQUALITIESVALIDATOR("intervalState"),
-        REGISTERINCREASEVALIDATOR("registerIncrease");
+        THRESHOLDVALIDATOR("thresholdViolation") {
+            @Override
+            protected void applyTo(DeviceDataValidationService.ValidationOverviewBuilder builder) {
+                builder.includeThresholdValidator();
+            }
+        },
+        MISSINGVALUESVALIDATOR("checkMissing") {
+            @Override
+            protected void applyTo(DeviceDataValidationService.ValidationOverviewBuilder builder) {
+                builder.includeMissingValuesValidator();
+            }
+        },
+        READINGQUALITIESVALIDATOR("intervalState") {
+            @Override
+            protected void applyTo(DeviceDataValidationService.ValidationOverviewBuilder builder) {
+                builder.includeReadingQualitiesValidator();
+            }
+        },
+        REGISTERINCREASEVALIDATOR("registerIncrease") {
+            @Override
+            protected void applyTo(DeviceDataValidationService.ValidationOverviewBuilder builder) {
+                builder.includeRegisterIncreaseValidator();
+            }
+        };
 
         private final String abbreviation;
 
         Validator(String abbreviation) {
             this.abbreviation = abbreviation;
         }
+
+        protected abstract void applyTo(DeviceDataValidationService.ValidationOverviewBuilder builder);
 
         static Validator fromAbbreviation(String abbreviation) {
             return Stream
@@ -134,6 +157,7 @@ public class ValidationResultsResource {
                     .forAllGroups(this.endDevicesFromIds(deviceGroupIds))
                     .in(range);
         suspectsRange.applyTo(builder);
+        validators.forEach(perform(Validator::applyTo).with(builder));
         ValidationOverviews validationOverviews =
             builder
                 .paged(
