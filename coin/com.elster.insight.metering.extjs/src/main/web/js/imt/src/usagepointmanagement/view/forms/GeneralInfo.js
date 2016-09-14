@@ -66,7 +66,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                             errorchange: {
                                 fn: function (field, error) {
                                     if (field.rendered) {
-                                        field.getEl().down('.field-additional-info').setDisplayed(Ext.isEmpty(error));
+                                        field.next().setVisible(Ext.isEmpty(error));
                                     }
                                 }
                             }
