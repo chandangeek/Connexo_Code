@@ -7,14 +7,15 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
     mRID: null,
     ui: 'tile',
     title: Uni.I18n.translate('device.dataValidation', 'MDC', 'Data validation'),
+    layout: 'fit',
 
     initComponent: function () {
         var me = this;
 
-        me.items = [
+        me.items =
             {
                 xtype: 'container',
-                layout: 'hbox',
+                layout: 'fit',
                 items: [
                     {
                         xtype: 'form',
@@ -26,7 +27,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                         },
                         defaults: {
                             xtype: 'displayfield',
-                            labelWidth: 150,
+                            labelWidth: 130,
                             style: {
                                 marginRight: '20px',
                                 padding: '20px'
@@ -39,7 +40,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                 name: 'isActive',
                                 renderer: function (value) {
-                                    return value ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
+                                    return value ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                                 }
                             },
                             {
@@ -54,28 +55,27 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 }
                             },
                             {
-                                xtype: 'fieldcontainer',
-                                layout: 'hbox',
                                 itemId: 'fld-validation-result',
                                 fieldLabel: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
-                                style: {
-                                    marginBottom: '18px'
-                                },
-                                items: [
-                                    {
-                                        xtype: 'button',
-                                        name: 'validationResultName',
-                                        text: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
-                                        itemId: 'lnk-validation-result',
-                                        ui: 'link',
-                                        href: '#',
-                                        style: {
-                                            padding: '3px 0 0 0'
+                                renderer: function (record) {
+                                    if (record) {
+                                        this.show();
+                                        var route = me.router.getRoute('devices/device/validationresultsdata'),
+                                            url = route.buildUrl(),
+                                            msg;
+
+                                        if (record.get('loadProfileSuspectCount') != 0 || record.get('registerSuspectCount') != 0) {
+                                            msg = Uni.I18n.translate('device.dataValidation.recentsuspects', 'MDC', 'Recent suspects');
+                                        } else {
+                                            msg = Uni.I18n.translate('device.dataValidation.nosuspects', 'MDC', 'No suspects');
                                         }
+
+                                        return '<a href="' + url + '">' + Ext.String.htmlEncode(msg) + '</a>';
+                                    } else {
+                                        this.hide();
+                                        return null;
                                     }
-
-                                ]
-
+                                }
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('device.lastValidation1', 'MDC', 'Last validation run'),
@@ -93,8 +93,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                         ]
                     }
                 ]
-            }
-        ];
+            };
 
         me.callParent();
 
