@@ -43,6 +43,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -438,6 +439,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook);
 
+    void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> lastReadings, Map<LogBookIdentifier, Instant> lastLogBooks);
+
     void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments);
 
     void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours);
@@ -459,4 +462,5 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     List<Pair<OfflineLoadProfile,Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile loadProfile, String readingTypeMRID, Range<Instant> dataPeriod);
 
     User getComServerUser();
+
 }

@@ -246,6 +246,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> lastReadings, Map<LogBookIdentifier, Instant> lastLogBooks) {
+
+    }
+
+    @Override
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegment) {
 
     }

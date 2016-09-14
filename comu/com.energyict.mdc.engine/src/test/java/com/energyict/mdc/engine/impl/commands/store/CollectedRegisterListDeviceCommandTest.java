@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -29,11 +28,12 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;

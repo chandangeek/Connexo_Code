@@ -61,6 +61,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
@@ -94,10 +95,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 
 /**
@@ -818,6 +822,58 @@ public class ComServerDAOImpl implements ComServerDAO {
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
         loadProfileUpdater.setLastReadingIfLater(lastReading);
         loadProfileUpdater.update();
+    }
+
+    public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> loadProfileUpdate, Map<LogBookIdentifier, Instant> logBookUpdate){
+        Map<DeviceIdentifier<?>, List<Function<Device, Void>>> updateMap = new HashMap<>();
+
+        // first do the loadprofiles
+        loadProfileUpdate.entrySet().stream().forEach(entrySet -> {
+            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
+            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
+            if(functionList == null) {
+                functionList = new ArrayList<>();
+                updateMap.put(deviceIdentifier, functionList);
+            }
+            functionList.add(updateLoadProfile(entrySet.getKey().findLoadProfile(), entrySet.getValue()));
+        });
+        // then do the logbooks
+        logBookUpdate.entrySet().stream().forEach(entrySet -> {
+            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
+            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
+            if(functionList == null) {
+                functionList = new ArrayList<>();
+                updateMap.put(deviceIdentifier, functionList);
+            }
+            functionList.add(updateLogBook(entrySet.getKey().getLogBook(), entrySet.getValue()));
+        });
+
+        // then do your thing
+        updateMap.entrySet().stream().forEach(entrySet -> {
+            Device oldDevice = (Device) entrySet.getKey().findDevice();
+            Device device = this.serviceProvider.deviceService().findDeviceById(oldDevice.getId()).get();
+            entrySet.getValue().stream().forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
+        });
+    }
+
+    private Function<Device, Void> updateLoadProfile(BaseLoadProfile<?> loadProfile, Instant lastReading){
+        return device -> {
+            LoadProfile refreshedLoadProfile = device.getLoadProfiles().stream().filter(each -> each.getId() == loadProfile.getId()).findAny().get();
+            LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
+            loadProfileUpdater.setLastReadingIfLater(lastReading);
+            loadProfileUpdater.update();
+            return null;
+        };
+    }
+
+    private Function<Device, Void> updateLogBook(BaseLogBook logBook, Instant lastLogBook){
+        return device -> {
+            LogBook refreshedLogBook = device.getLogBooks().stream().filter(each -> each.getId() == logBook.getId()).findAny().get();
+            LogBook.LogBookUpdater logBookUpdater = device.getLogBookUpdaterFor(refreshedLogBook);
+            logBookUpdater.setLastReadingIfLater(lastLogBook);
+            logBookUpdater.update();
+            return null;
+        };
     }
 
     @Override
