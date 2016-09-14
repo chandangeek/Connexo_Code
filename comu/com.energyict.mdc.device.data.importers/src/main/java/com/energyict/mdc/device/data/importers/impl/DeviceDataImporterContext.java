@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -12,6 +13,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -31,6 +33,7 @@ public class DeviceDataImporterContext {
     private volatile UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     public DeviceDataImporterContext() {
     }
@@ -46,7 +49,8 @@ public class DeviceDataImporterContext {
                                      FiniteStateMachineService finiteStateMachineService,
                                      UserService userService,
                                      ThreadPrincipalService threadPrincipalService,
-                                     Clock clock) {
+                                     Clock clock,
+                                     MetrologyConfigurationService metrologyConfigurationService) {
         setPropertySpecService(propertySpecService);
         setNlsService(nlsService);
         setDeviceConfigurationService(deviceConfigurationService);
@@ -58,6 +62,7 @@ public class DeviceDataImporterContext {
         setUserService(userService);
         setThreadPrincipalService(threadPrincipalService);
         setClock(clock);
+        setMetrologyConfigurationService(metrologyConfigurationService);
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -157,5 +162,14 @@ public class DeviceDataImporterContext {
     @Reference
     public final void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    public MetrologyConfigurationService getMetrologyConfigurationService() {
+        return this.metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 }

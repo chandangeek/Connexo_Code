@@ -17,6 +17,9 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.LocationTemplateImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -111,6 +114,10 @@ public class DeviceInstallationImporterFactoryTest {
     private Logger logger;
     @Mock
     private Clock clock;
+    @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    private MeterRole defaultMeterRole;
 
     private EndDevice endDevice;
 
@@ -135,8 +142,8 @@ public class DeviceInstallationImporterFactoryTest {
         when(dataModel.getInstance(LocationTemplateImpl.class)).thenReturn(new LocationTemplateImpl(dataModel));
         endDevice = mock(EndDevice.class, Mockito.RETURNS_DEEP_STUBS);
         when(endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder()).thenReturn(locationBuilder);
-        locationTemplate =  LocationTemplateImpl.from(dataModel, templateMembers, templateMembers);
-        locationTemplate.parseTemplate(templateMembers,templateMembers);
+        locationTemplate = LocationTemplateImpl.from(dataModel, templateMembers, templateMembers);
+        locationTemplate.parseTemplate(templateMembers, templateMembers);
         when(context.getMeteringService().getLocationTemplate()).thenReturn(locationTemplate);
         when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
         when(locationBuilder.getMemberBuilder("locale")).thenReturn(Optional.empty());
@@ -156,6 +163,8 @@ public class DeviceInstallationImporterFactoryTest {
         when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
+        when(context.getMetrologyConfigurationService()).thenReturn(metrologyConfigurationService);
+        when(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT)).thenReturn(defaultMeterRole);
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -218,7 +227,7 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
     }
 
@@ -230,19 +239,19 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
     }
 
     @Test
     public void testMissingMandatoryInstallationDateValueCase() {
-        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n"  +
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
                 "VPB0002;  ;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
     }
 
@@ -477,7 +486,7 @@ public class DeviceInstallationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-       Device device = mock(Device.class);
+        Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
@@ -637,7 +646,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1,1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
         verify(logger, times(1)).info(thesaurus.getFormat(MessageSeeds.USELESS_MULTIPLIER_CONFIGURED).format(2, 5.6));
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
@@ -777,7 +786,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(alreadyLinkedMeter.getMRID()).thenReturn("VPB0003");
         when(ma.getMeter()).thenReturn(Optional.of(alreadyLinkedMeter));
         when(ex.getMeterActivation()).thenReturn(ma);
-        when(device.activate(installationTime, usagePoint)).thenThrow(ex);
+        when(device.activate(installationTime, usagePoint, defaultMeterRole)).thenThrow(ex);
 
         importer.process(importOccurrence);
 
@@ -822,7 +831,7 @@ public class DeviceInstallationImporterFactoryTest {
         Instant installationTime = dateParser.parse("01/08/2015 00:30").toInstant();
         UnsatisfiedReadingTypeRequirementsOfUsagePointException ex = mock(UnsatisfiedReadingTypeRequirementsOfUsagePointException.class);
         when(ex.getUnsatisfiedRequirements()).thenReturn(Collections.emptyMap());
-        when(device.activate(installationTime, usagePoint)).thenThrow(ex);
+        when(device.activate(installationTime, usagePoint, defaultMeterRole)).thenThrow(ex);
 
         importer.process(importOccurrence);
 
