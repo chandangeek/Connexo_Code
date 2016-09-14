@@ -1,7 +1,5 @@
 package com.elster.jupiter.validation.impl.kpi;
 
-import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;

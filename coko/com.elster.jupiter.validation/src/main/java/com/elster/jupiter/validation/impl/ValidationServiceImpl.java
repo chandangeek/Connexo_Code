@@ -97,9 +97,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public class ValidationServiceImpl implements ServerValidationService, MessageSeedProvider, TranslationKeyProvider {
 
-    public static final String DESTINATION_NAME = "DataValidation";
+    static final String DESTINATION_NAME = "DataValidation";
     public static final String SUBSCRIBER_NAME = "DataValidation";
-    public static final String VALIDATION_USER = "validation";
+    static final String VALIDATION_USER = "validation";
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
@@ -411,20 +411,20 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Override
     public void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType) {
-        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer).setReadingType(readingType));
+        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer, readingType));
     }
 
     @Override
-    public void validate(ValidationContextImpl validationContext, Instant date) {
+    public void validate(ValidationContext validationContext, Instant date) {
         ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(validationContext);
         container.moveLastCheckedBefore(date);
         container.validate();
     }
 
-    public void validate(ValidationContextImpl validationContext) {
+    public void validate(ValidationContext validationContext) {
         Set<QualityCodeSystem> allowedQualityCodeSystems = getQualityCodeSystemsWithAllowedValidation(validationContext);
         if (!allowedQualityCodeSystems.isEmpty()) {
-            // Update the list of requested quality systems, because it is possible that some of them was restricted
+            // Update the list of requested quality systems, because it is possible that some of them were restricted
             validationContext.setQualityCodeSystems(allowedQualityCodeSystems);
             if (validationContext.getReadingType().isPresent()) {
                 updatedChannelsContainerValidationsFor(validationContext).validate(validationContext.getReadingType().get());
@@ -735,7 +735,9 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     @Override
     public DataValidationOccurrence createValidationOccurrence(TaskOccurrence taskOccurrence) {
         DataValidationTask task = getDataValidationTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
-        return DataValidationOccurrenceImpl.from(dataModel, taskOccurrence, task);
+        DataValidationOccurrenceImpl occurrence = DataValidationOccurrenceImpl.from(dataModel, taskOccurrence, task);
+        occurrence.persist();
+        return occurrence;
     }
 
     @Override

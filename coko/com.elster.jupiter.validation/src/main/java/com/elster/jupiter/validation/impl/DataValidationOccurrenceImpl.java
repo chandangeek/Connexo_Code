@@ -6,20 +6,16 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
 
 import javax.inject.Inject;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-
-public class DataValidationOccurrenceImpl implements DataValidationOccurrence {
-
+class DataValidationOccurrenceImpl implements DataValidationOccurrence {
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
     private Reference<DataValidationTask> dataValidationTask = ValueReference.absent();
@@ -27,13 +23,12 @@ public class DataValidationOccurrenceImpl implements DataValidationOccurrence {
     private DataValidationTaskStatus status = DataValidationTaskStatus.BUSY;
 
     private final DataModel dataModel;
-    private final Clock clock;
 
     @Inject
-    DataValidationOccurrenceImpl(DataModel dataModel, Clock clock) {
+    DataValidationOccurrenceImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.clock = clock;
     }
+
     static DataValidationOccurrenceImpl from(DataModel model, TaskOccurrence occurrence, DataValidationTask task) {
         return model.getInstance(DataValidationOccurrenceImpl.class).init(occurrence, task);
     }
@@ -94,13 +89,11 @@ public class DataValidationOccurrenceImpl implements DataValidationOccurrence {
         return taskOccurrence.get().wasScheduled();
     }
 
-    @Override
-    public void persist() {
+    void persist() {
         dataModel.persist(this);
     }
 
-    @Override
-    public void update() {
+    void update() {
         dataModel.update(this);
     }
 
@@ -113,11 +106,12 @@ public class DataValidationOccurrenceImpl implements DataValidationOccurrence {
         this.status = status;
         this.failureReason = message;
         getTask().updateLastRun(getTriggerTime());
+        this.update();
     }
 
     @Override
     public void end(DataValidationTaskStatus status) {
         end(status, null);
     }
-}
 
+}

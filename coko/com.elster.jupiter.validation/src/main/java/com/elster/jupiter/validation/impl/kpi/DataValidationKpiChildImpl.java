@@ -5,7 +5,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
-import com.elster.jupiter.validation.kpi.DataValidationKpiChild;
 
 import com.google.inject.Inject;
 
@@ -47,11 +46,6 @@ public class DataValidationKpiChildImpl implements DataValidationKpiChild {
     static DataValidationKpiChildImpl from(DataModel dataModel,
                                    DataValidationKpi dataValidationKpi, Kpi childKpi) {
         return dataModel.getInstance(DataValidationKpiChildImpl.class).init(dataValidationKpi, childKpi);
-    }
-
-    @Override
-    public DataValidationKpi getDataValidationKpi() {
-        return dataValidationKpi.get();
     }
 
     @Override

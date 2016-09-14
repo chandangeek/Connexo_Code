@@ -1,11 +1,12 @@
-package com.elster.jupiter.validation.kpi;
+/*
+ * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ */
 
-import aQute.bnd.annotation.ProviderType;
+package com.elster.jupiter.validation.impl.kpi;
 
 import java.time.Instant;
 
-@ProviderType
-public interface DataValidationKpiScore extends Comparable<DataValidationKpiScore> {
+interface DataValidationKpiScore extends Comparable<DataValidationKpiScore> {
 
     long getTotalSuspects();
 

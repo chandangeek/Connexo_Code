@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
 import aQute.bnd.annotation.ProviderType;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
@@ -109,7 +108,7 @@ public interface ValidationService {
      */
     void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType);
 
-    void validate(ValidationContextImpl validationContext, Instant date);
+    void validate(ValidationContext validationContext, Instant date);
 
     ValidationEvaluator getEvaluator();
 

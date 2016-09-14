@@ -4,11 +4,9 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
-import java.util.List;
 import java.util.Optional;
 
 @ProviderType
@@ -24,11 +22,7 @@ public interface DataValidationKpi extends HasId {
 
     void delete();
 
-    Optional<DataValidationKpiScore> getDataValidationKpiScores(long deviceId, Range<Instant> interval);
-
     Optional<Instant> getLatestCalculation();
-
-    List<DataValidationKpiChild> getDataValidationKpiChildren();
 
     void dropDataValidationKpi();
 
