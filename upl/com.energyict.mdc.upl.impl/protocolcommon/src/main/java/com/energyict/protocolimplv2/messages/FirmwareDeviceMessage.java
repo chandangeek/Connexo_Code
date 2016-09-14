@@ -101,9 +101,27 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName, true)),
+    ENABLE_IMAGE_TRANSFER(22),
+    TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR(23,
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)
+    ),
+    CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES(24,
+            PropertySpecFactory.stringPropertySpec(deviceIdsAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(SkipStepEnable, true),
+            PropertySpecFactory.notNullableBooleanPropertySpec(SkipStepVerify, true),
+            PropertySpecFactory.notNullableBooleanPropertySpec(SkipStepActivate, true),
+            PropertySpecFactory.bigDecimalPropertySpec(UnicastClientWPort, BigDecimal.valueOf(2)),
+            PropertySpecFactory.bigDecimalPropertySpec(MulticastClientWPort, BigDecimal.valueOf(3)),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(UnicastFrameCounterType, "auth_hmac_sha256", "default", "auth_hmac_sha256"),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(TimeZone, "Europe/Vienna", java.util.TimeZone.getAvailableIDs()),
+            PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelMulticast, BigDecimal.ZERO),
+            PropertySpecFactory.bigDecimalPropertySpec(SecurityPolicyMulticastV0, BigDecimal.ZERO),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayBetweenBlockSentFast, new TimeDuration(20, TimeDuration.MILLISECONDS))
+    ),
+    START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES(25),
+
     ;
-
-
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
