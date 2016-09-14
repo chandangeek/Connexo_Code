@@ -165,6 +165,11 @@ class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
+    public Optional<Instant> getLastValidationRun() {
+        return getLastValidationRun(fetchKoreMeter());
+    }
+
+    @Override
     public Optional<Instant> getLastChecked(Channel channel) {
         return getLastChecked(channel.getReadingType());
     }
@@ -273,6 +278,15 @@ class DeviceValidationImpl implements DeviceValidation {
                 .sorted(MOST_RECENT_FIRST)
                 .map(MeterActivation::getChannelsContainer)
                 .map(validationService::getLastChecked)  // may be use evaluator to allow caching this
+                .flatMap(asStream())
+                .findFirst();
+    }
+
+    private Optional<Instant> getLastValidationRun(Meter meter) {
+        return meter.getMeterActivations().stream()
+                .sorted(MOST_RECENT_FIRST)
+                .map(MeterActivation::getChannelsContainer)
+                .map(validationService::getLastValidationRun)  // may be use evaluator to allow caching this
                 .flatMap(asStream())
                 .findFirst();
     }
