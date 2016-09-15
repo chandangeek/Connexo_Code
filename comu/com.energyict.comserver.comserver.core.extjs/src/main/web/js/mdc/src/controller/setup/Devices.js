@@ -285,9 +285,6 @@ Ext.define('Mdc.controller.setup.Devices', {
                 if (!Ext.isEmpty(me.getDeviceOpenIssuesPanel())) {
                     me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
                 }
-                if (!Ext.isEmpty(me.getDeviceValidationResultFieldLink())) {
-                    me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
-                }
                 if ( (device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
                      && Cfg.privileges.Validation.canUpdateDeviceValidation() ) {
                     me.updateDataValidationStatusSection(mRID, widget);
