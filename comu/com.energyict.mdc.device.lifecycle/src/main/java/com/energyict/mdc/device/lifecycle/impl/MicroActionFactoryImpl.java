@@ -77,6 +77,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
         this.setValidationService(validationService);
         this.setEstimationService(estimationService);
         this.setIssueService(issueService);
+        this.setMetrologyConfigurationService(metrologyConfigurationService);
     }
 
     @Reference
@@ -118,6 +119,11 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Override
