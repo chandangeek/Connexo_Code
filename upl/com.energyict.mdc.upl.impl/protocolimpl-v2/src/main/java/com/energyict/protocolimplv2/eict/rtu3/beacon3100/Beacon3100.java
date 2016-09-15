@@ -110,6 +110,8 @@ public class Beacon3100 extends AbstractDlmsProtocol {
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        getLogger().info("Start protocol for "+offlineDevice.getSerialNumber());
+        getLogger().info("-version: "+getVersion());
         readFrameCounter(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
