@@ -1,20 +1,21 @@
 package com.energyict.mdc.device.data.importers.impl;
 
-import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
-
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
+import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
+
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -299,7 +300,7 @@ public class DeviceDataCsvImporterTest {
         DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());

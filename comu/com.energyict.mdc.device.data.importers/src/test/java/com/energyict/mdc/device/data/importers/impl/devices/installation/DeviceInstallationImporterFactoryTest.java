@@ -218,7 +218,7 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
     }
 
@@ -230,7 +230,7 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
     }
 
@@ -242,7 +242,7 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
     }
 
@@ -255,7 +255,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.empty());
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_DEVICE).format(2, "VPB0002"));
         verify(logger, never()).severe(Matchers.anyString());
@@ -353,7 +353,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(executableAction.getAction()).thenReturn(authorizedAction);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_MASTER_DEVICE).format(2, "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());
@@ -463,7 +463,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED).format(2, "Usage MRID"));
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_USAGE_POINT)
                 .format(2, "Usage MRID", Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));
@@ -502,7 +502,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED).format(2, "Usage MRID"));
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_USAGE_POINT)
                 .format(2, "Usage MRID", Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));
@@ -660,7 +660,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.empty());
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE).format(2, DefaultState.ACTIVE.getKey(), DefaultState.IN_STOCK.getKey()));
         verify(logger, never()).severe(Matchers.anyString());
@@ -680,7 +680,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(deviceState.getName()).thenReturn(DefaultState.ACTIVE.getKey());
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.DEVICE_ALREADY_IN_THAT_STATE).format(2, DefaultState.ACTIVE.getKey()));
         verify(logger, never()).severe(Matchers.anyString());
@@ -708,7 +708,7 @@ public class DeviceInstallationImporterFactoryTest {
                 .when(executableAction).execute(Matchers.any(Instant.class), Matchers.anyList());
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(Matchers.startsWith("Can't process line 2: Pre-transition check(s) failed: "));
         verify(logger, never()).severe(Matchers.anyString());
@@ -733,7 +733,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
                 .format(2, DefaultState.ACTIVE.getKey(), DefaultState.INACTIVE.getKey(), DefaultState.IN_STOCK.getKey() + ", " + DefaultState.COMMISSIONING.getKey()));
@@ -781,7 +781,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE)
                 .format(2, "Usage MRID", "VPB0003", DeviceInstallationImportProcessor.getFormattedInstant(installationTime)));
@@ -826,7 +826,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT).format(2, "VPB0002", "Usage MRID", ""));
         verify(logger, never()).severe(Matchers.anyString());

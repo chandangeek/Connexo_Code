@@ -105,7 +105,7 @@ public class SecurityAttributesImporterFactoryTest {
         importer.process(importOccurrence);
 
         verify(logger, never()).info(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
     @Test
@@ -120,7 +120,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.NO_DEVICE).format(2, "VPB0001"));
         verify(logger, never()).severe(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
     @Test
@@ -138,7 +138,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.NO_SECURITY_SETTINGS_ON_DEVICE).format(2, "MD5"));
         verify(logger, never()).severe(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
     @Test
@@ -160,7 +160,8 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.NO_SECURITY_SETTINGS_ON_DEVICE).format(2, "set1"));
         verify(logger).severe(thesaurus.getFormat(MessageSeeds.SECURITY_SETTINGS_NAME_IS_NOT_UNIQUE_IN_FILE).format(3));
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS)
+                .format(0, 2));
     }
 
     @Test
@@ -249,7 +250,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.LINE_FORMAT_ERROR).format(2, "attr2", "123456789.012"));
         verify(logger, never()).severe(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
     @Test
@@ -275,7 +276,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.SECURITY_ATTRIBUTE_INVALID_VALUE).format(2, "string", "attr1"));
         verify(logger, never()).severe(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
     private Device mockDevice(String mRID) {
