@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
@@ -12,7 +8,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
+import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -23,11 +23,11 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-12 (13:23)
  */
-public abstract class AuthorizedTransitionActionImpl extends AuthorizedActionImpl implements AuthorizedTransitionAction {
+public class AuthorizedTransitionActionImpl extends AuthorizedActionImpl implements AuthorizedTransitionAction {
 
     private final Thesaurus thesaurus;
 
-    @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
+    @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
     private Reference<StateTransition> stateTransition = ValueReference.absent();
     @SuppressWarnings("unused")
     private long checkBits;
@@ -36,9 +36,16 @@ public abstract class AuthorizedTransitionActionImpl extends AuthorizedActionImp
     private long actionBits;
     private EnumSet<MicroAction> actions = EnumSet.noneOf(MicroAction.class);
 
-    protected AuthorizedTransitionActionImpl(DataModel dataModel, Thesaurus thesaurus) {
+    @Inject
+    public AuthorizedTransitionActionImpl(DataModel dataModel, Thesaurus thesaurus) {
         super(dataModel);
         this.thesaurus = thesaurus;
+    }
+
+    public AuthorizedTransitionActionImpl initialize(DeviceLifeCycleImpl deviceLifeCycle, StateTransition stateTransition) {
+        this.setDeviceLifeCycle(deviceLifeCycle);
+        this.stateTransition.set(stateTransition);
+        return this;
     }
 
     @Override
@@ -78,10 +85,6 @@ public abstract class AuthorizedTransitionActionImpl extends AuthorizedActionImp
     @Override
     public StateTransition getStateTransition() {
         return this.stateTransition.get();
-    }
-
-    protected void setStateTransition(StateTransition stateTransition) {
-        this.stateTransition.set(stateTransition);
     }
 
     @Override

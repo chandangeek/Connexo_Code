@@ -12,6 +12,6 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface AuthorizedBusinessProcessAction extends AuthorizedAction {
 
-    public TransitionBusinessProcess getTransitionBusinessProcess();
+    TransitionBusinessProcess getTransitionBusinessProcess();
 
 }

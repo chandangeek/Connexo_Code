@@ -1,14 +1,13 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+
 import com.google.common.collect.ImmutableMap;
 
 import java.time.Instant;
@@ -33,8 +32,7 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
         STATE_TRANSITION("stateTransition"),
         CHECKS("checkBits"),
         ACTIONS("actionBits"),
-        // AuthorizedStandardTransitionAction
-        TYPE("type"),
+        TYPE("type"), // field was removed in version 10.2
         // AuthorizedBusinessProcessAction
         STATE("state"),
         NAME("name"),
@@ -49,16 +47,13 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
         public String fieldName() {
             return javaFieldName;
         }
-
     }
-    public static final String STANDARD_TRANSITION = "0";
 
-    public static final String CUSTOM_TRANSITION = "1";
+    public static final String TRANSITION = "0";
     public static final String CUSTOM = "2";
     public static final Map<String, Class<? extends AuthorizedAction>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends AuthorizedAction>>of(
-                    STANDARD_TRANSITION, AuthorizedStandardTransitionActionImpl.class,
-                    CUSTOM_TRANSITION, AuthorizedCustomTransitionActionImpl.class,
+                    TRANSITION, AuthorizedTransitionActionImpl.class,
                     CUSTOM, AuthorizedBusinessProcessActionImpl.class);
 
     private final DataModel dataModel;

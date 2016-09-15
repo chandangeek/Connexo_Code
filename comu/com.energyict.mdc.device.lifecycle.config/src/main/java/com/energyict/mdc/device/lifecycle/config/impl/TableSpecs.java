@@ -76,7 +76,7 @@ public enum TableSpecs {
             table.column("ACTIONBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.ACTIONS.fieldName()).add();
             // AuthorizedStandardTransitionAction
             Column stateTransition = table.column("STATETRANSITION").number().add();
-            table.column("TRANSITIONTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(AuthorizedActionImpl.Fields.TYPE.fieldName()).add();
+            table.column("TRANSITIONTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(AuthorizedActionImpl.Fields.TYPE.fieldName()).upTo(version(10, 2)).add();
             // AuthorizedBusinessProcessAction
             Column state = table.column("STATE").number().add();
             table.column("NAME").varChar().map(AuthorizedActionImpl.Fields.NAME.fieldName()).add();
