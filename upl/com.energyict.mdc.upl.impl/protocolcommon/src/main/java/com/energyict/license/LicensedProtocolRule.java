@@ -321,6 +321,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     T210D(281, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.T210D"),
 
+    QUAD4(282, "com.elster.us.protocolimpl.landisgyr.quad4.Quad4"),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),
