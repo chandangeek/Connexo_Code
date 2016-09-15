@@ -12,6 +12,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -95,6 +96,7 @@ public class InMemoryPersistence {
     private PropertySpecService propertySpecService;
     private TopologyService topologyService;
     private DataVaultService dataVaultService;
+    private MetrologyConfigurationService metrologyConfigurationService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -175,6 +177,7 @@ public class InMemoryPersistence {
         this.propertySpecService = mock(PropertySpecService.class);
         this.topologyService = mock(TopologyService.class);
         this.dataVaultService = mock(DataVaultService.class);
+        this.metrologyConfigurationService = mock(MetrologyConfigurationService.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -212,6 +215,7 @@ public class InMemoryPersistence {
             bind(TopologyService.class).toInstance(topologyService);
             bind(DataVaultService.class).toInstance(dataVaultService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
         }
 
     }
