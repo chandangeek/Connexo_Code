@@ -34,6 +34,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ComSchedule> table = dataModel.addTable(name(), ComSchedule.class);
             table.map(ComScheduleImpl.class);
+            table.cache();
             Column idColumn = table.addAutoIdColumn();
             table.addAuditColumns();
             table.column("NAME").varChar().map(ComScheduleImpl.Fields.NAME.fieldName()).add();
