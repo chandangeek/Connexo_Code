@@ -126,7 +126,7 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
 //        getRegisters().add(new HoldingRegister(0xC68C, 1, ObisCode.fromString("1.0.1.5.0.255"), Unit.get(BaseUnit.WATT), "Last average (P+) (not affected by CT and VT)").setParser(UnsignedValueCheckNotAvailableParser));
 
         //CurrentDateTime
-        getRegisters().add(new HoldingRegister(0x72D, 6, CurrentDateTime));
+        getRegisters().add(new HoldingRegister(0x735, 4, CurrentDateTime));
         getRegisters().add(new InputRegister(0x1387, 9, ChangeDateTime));
         getRegisters().add(new HoldingRegister(0x162F, 1, CommandSemaphore).setParser(UnsignedValueParser));
         getRegisters().add(new HoldingRegister(0x1404, 1, CommandParameter).setParser(CommandParameter));

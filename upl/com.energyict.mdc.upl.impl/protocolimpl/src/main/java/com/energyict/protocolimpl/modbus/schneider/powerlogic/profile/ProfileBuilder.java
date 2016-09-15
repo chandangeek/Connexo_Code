@@ -132,8 +132,6 @@ public class ProfileBuilder {
     private int getRecordLength() throws IOException {
         if(recordLength == -1) {
             recordLength = ((BigDecimal) protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_ALLOCATED_RECORD_SIZE).value()).intValue();
-            System.out.println(recordLength);
-            recordLength = 38;
         }
         return recordLength;
     }

@@ -48,6 +48,9 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
         setTimeZone(properties.getProperty(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, "UTC"));
         setConnectionMode(Integer.parseInt(properties.getProperty("Connection", "1").trim()));
         setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty("PhysicalLayer", "1").trim()));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","10000").trim()));
+        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","30").trim()));
+
     }
 
     private void setTimeZone(String timeZone) {

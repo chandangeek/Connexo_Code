@@ -50,7 +50,7 @@ public class DateTime {
      */
     public DateTime parseDateTime(int[] dateTimeRegisters) {
         if (dateTimeRegisters.length != 4) {
-            throw new IllegalArgumentException("The dateTime did not contain 8 values but " + dateTimeRegisters.length);
+            throw new IllegalArgumentException("The dateTime did not contain 4 values but " + dateTimeRegisters.length);
         }
 
         year = 2000 + (dateTimeRegisters[0] & 0x007F);
