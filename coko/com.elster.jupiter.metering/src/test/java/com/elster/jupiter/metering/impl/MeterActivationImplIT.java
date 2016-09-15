@@ -418,7 +418,7 @@ public class MeterActivationImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "main", messageId = "{the.same.meter.activated.twice.on.usage.point}", strict = true)
+    @ExpectedConstraintViolation(property = "meter.role.main", messageId = "{the.same.meter.activated.twice.on.usage.point}", strict = true)
     public void testMeterCanNotBeAssignedTwiceForTheSameUsagePoint() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
@@ -436,7 +436,7 @@ public class MeterActivationImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "main", messageId = "{the.same.meter.activated.twice.on.usage.point}", strict = true)
+    @ExpectedConstraintViolation(property = "meter.role.main", messageId = "{the.same.meter.activated.twice.on.usage.point}", strict = true)
     public void testMeterCanNotBeAssignedTwiceForTheSameUsagePointCase2() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
@@ -461,7 +461,7 @@ public class MeterActivationImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "default", messageId = "This meter does not provide reading types matching to [15-minute] Secondary Delta 0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0 (kWh).", strict = true)
+    @ExpectedConstraintViolation(property = "meter.role.default", messageId = "This meter does not provide reading types matching to [15-minute] Secondary Delta 0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0 (kWh).", strict = true)
     public void testMeterDoesNotSatisfyMetrologyRequirements() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
