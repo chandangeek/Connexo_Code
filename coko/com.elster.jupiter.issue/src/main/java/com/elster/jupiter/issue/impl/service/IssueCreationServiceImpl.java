@@ -96,16 +96,12 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public Optional<CreationRule> findCreationRuleById(long id) {
-        return find(CreationRule.class, id);
+        return dataModel.mapper(CreationRule.class).getOptional(id);
     }
 
     @Override
     public Optional<CreationRule> findAndLockCreationRuleByIdAndVersion(long id, long version) {
         return dataModel.mapper(CreationRule.class).lockObjectIfVersion(version, id);
-    }
-
-    private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {
-        return queryService.wrap(dataModel.query(clazz)).get(key);
     }
 
     @Override
