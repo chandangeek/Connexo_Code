@@ -35,7 +35,6 @@ import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -111,7 +110,7 @@ public class DeviceLifeCycleServiceImplTest {
     @Mock
     private Device device;
     @Mock
-    private AuthorizedStandardTransitionAction action;
+    private AuthorizedTransitionAction action;
     @Mock
     private User user;
     @Mock
@@ -219,7 +218,7 @@ public class DeviceLifeCycleServiceImplTest {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         State state = mock(State.class);
         when(state.getId()).thenReturn(STATE_ID + 1);
-        AuthorizedStandardTransitionAction action = mock(AuthorizedStandardTransitionAction.class);
+        AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
         when(action.getState()).thenReturn(state);
         StateTransitionEventType eventType = mock(StateTransitionEventType.class);
         when(eventType.getSymbol()).thenReturn("executeTransitionActionThatDoesNotRelateToDeviceState");
@@ -230,8 +229,7 @@ public class DeviceLifeCycleServiceImplTest {
         try {
             // Business method
             service.execute(action, this.device, Instant.now(), Collections.emptyList());
-        }
-        catch (ActionDoesNotRelateToDeviceStateException e) {
+        } catch (ActionDoesNotRelateToDeviceStateException e) {
             // Asserts: see also expected exception rule
             assertThat(e.getMessage()).isEqualTo(MessageSeeds.Keys.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
             throw e;
@@ -256,8 +254,7 @@ public class DeviceLifeCycleServiceImplTest {
             // Business method
             service.execute(action, this.device, Instant.now());
 
-        }
-        catch (ActionDoesNotRelateToDeviceStateException e) {
+        } catch (ActionDoesNotRelateToDeviceStateException e) {
             // Asserts: see also expected exception rule
             assertThat(e.getMessage()).isEqualTo(MessageSeeds.Keys.BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
             throw e;
@@ -276,8 +273,7 @@ public class DeviceLifeCycleServiceImplTest {
             service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
             // Asserts: see expected exception rule
-        }
-        catch (SecurityException e) {
+        } catch (SecurityException e) {
             // Asserts: see also expected exception rule
             assertThat(e.getMessage()).isEqualTo(MessageSeeds.Keys.NOT_ALLOWED_2_EXECUTE);
             throw e;
@@ -294,8 +290,7 @@ public class DeviceLifeCycleServiceImplTest {
             service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
             // Asserts: see expected exception rule
-        }
-        catch (SecurityException e) {
+        } catch (SecurityException e) {
             // Asserts: see also expected exception rule
             assertThat(e.getMessage()).isEqualTo(MessageSeeds.Keys.NOT_ALLOWED_2_EXECUTE);
             throw e;
@@ -312,8 +307,7 @@ public class DeviceLifeCycleServiceImplTest {
         try {
             service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
-        }
-        catch (SecurityException e) {
+        } catch (SecurityException e) {
             // Asserts: see also expected exception rule
             assertThat(e.getMessage()).isEqualTo(MessageSeeds.Keys.NOT_ALLOWED_2_EXECUTE);
             throw e;
@@ -396,8 +390,7 @@ public class DeviceLifeCycleServiceImplTest {
         try {
             // Business method
             service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
-        }
-        catch (MultipleMicroCheckViolationsException e) {
+        } catch (MultipleMicroCheckViolationsException e) {
             // Asserts
             assertThat(e.getLocalizedMessage()).contains("Violation 1");
             assertThat(e.getLocalizedMessage()).contains("Violation 2");
@@ -760,12 +753,12 @@ public class DeviceLifeCycleServiceImplTest {
         StateTransitionEventType eventType1 = mock(StateTransitionEventType.class);
         when(eventType1.getId()).thenReturn(1L);
         when(stateTransition1.getEventType()).thenReturn(eventType1);
-        AuthorizedStandardTransitionAction action1 = mock(AuthorizedStandardTransitionAction.class);
+        AuthorizedTransitionAction action1 = mock(AuthorizedTransitionAction.class);
         when(action1.getStateTransition()).thenReturn(stateTransition1);
         when(action1.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         StateTransition stateTransition2 = mock(StateTransition.class);
         when(stateTransition2.getEventType()).thenReturn(this.eventType);
-        AuthorizedStandardTransitionAction action2 = mock(AuthorizedStandardTransitionAction.class);
+        AuthorizedTransitionAction action2 = mock(AuthorizedTransitionAction.class);
         when(action2.getStateTransition()).thenReturn(stateTransition2);
         when(action2.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         List<AuthorizedAction> actions = Arrays.asList(action1, action2);
@@ -861,9 +854,11 @@ public class DeviceLifeCycleServiceImplTest {
 
     public static class TranslationArgumentsOnly implements NlsMessageFormat {
 
-        TranslationArgumentsOnly(TranslationKey translationKey) {}
+        TranslationArgumentsOnly(TranslationKey translationKey) {
+        }
 
-        TranslationArgumentsOnly(MessageSeed messageSeed) {}
+        TranslationArgumentsOnly(MessageSeed messageSeed) {
+        }
 
         @Override
         public String format(Object... args) {
@@ -874,7 +869,5 @@ public class DeviceLifeCycleServiceImplTest {
         public String format(Locale locale, Object... args) {
             return this.format(args);
         }
-
     }
-
 }

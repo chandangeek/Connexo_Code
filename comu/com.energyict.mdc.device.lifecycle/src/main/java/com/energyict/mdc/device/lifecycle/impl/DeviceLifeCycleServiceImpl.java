@@ -32,7 +32,6 @@ import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -346,8 +345,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      * @return A flag that indicates if the AuthorizedAction is compatible with one of the triggerExecution methods
      */
     private boolean isExecutable(AuthorizedAction action) {
-        return action instanceof AuthorizedStandardTransitionAction
-            || action instanceof AuthorizedBusinessProcessAction;
+        return action instanceof AuthorizedTransitionAction
+                || action instanceof AuthorizedBusinessProcessAction;
     }
 
     private boolean userHasExecutePrivilege(AuthorizedAction action) throws SecurityException {
