@@ -330,7 +330,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
 
         Ext.Array.each(rules, function (rule) {
             var application = rule.application
-                ? '<span class="application">'+ Uni.I18n.translate('general.application', 'IMT', '({0})', [rule.application.name]) + '</span>'
+                ? '<span class="application">(' + rule.application.name + ')</span>'
                 : '';
             if (!Ext.isEmpty(rule.properties)) {
                 switch (rule.implementation) {
