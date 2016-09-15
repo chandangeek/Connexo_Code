@@ -127,7 +127,10 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
         List<List<Long>> lists = splitListToSublists(deviceIds).collect(Collectors.toList());
         if (lists.size() <= 1) {
             sqlBuilder.append(" WHERE DEV.id IN (");
-            sqlBuilder.append(lists.size() == 0 ? "0" : lists.stream().sorted().map(id -> String.valueOf(id)).collect(Collectors.joining(", ")));
+            sqlBuilder.append(lists.size() == 0 ? "0" : lists.stream()
+                    .flatMap(list -> list.stream().sorted())
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", ")));
             sqlBuilder.append(")");
         } else {
             List<Long> lastElement = lists.get(lists.size() - 1);
