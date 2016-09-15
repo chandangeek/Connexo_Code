@@ -70,6 +70,18 @@ Ext.define('Uni.view.container.ContentContainer', {
      */
     content: null,
 
+    listeners: {
+        resize: function() {
+            var element = this.getEl(), domElement = element.dom;
+            if (domElement.scrollHeight > domElement.clientHeight) {
+                element.setStyle('padding-right', '16px');
+            } else {
+                element.setStyle('padding-right', '0px');
+            }
+            this.doLayout();
+        }
+    },
+
     items: [
         {
             xtype: 'container',
