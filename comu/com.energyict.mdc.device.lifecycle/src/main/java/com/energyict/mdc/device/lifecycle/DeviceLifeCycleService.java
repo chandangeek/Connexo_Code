@@ -117,13 +117,13 @@ public interface DeviceLifeCycleService {
      * <ul>
      * <li>Only the system is allowed to execute the action when no levels are configured</li>
      * <li>A value must be specified for all required {@link PropertySpec}s of all the
-     * {@link MicroAction}s that are configured on the AuthorizedStandardTransitionAction</li>
+     * {@link MicroAction}s that are configured on the AuthorizedTransitionAction</li>
      * </ul>
      *
      * @param action The AuthorizedTransitionAction
      * @param device The Device
      * @param effectiveTimestamp The point in time when this transition will become effective, i.e. when the resulting state change will become effective
-     * @param properties The properties for all the MicroAction that are configured on the AuthorizedStandardTransitionAction  @see AuthorizedTransitionAction#getLevels()
+     * @param properties The properties for all the MicroAction that are configured on the AuthorizedTransitionAction  @see AuthorizedTransitionAction#getLevels()
      * @throws SecurityException Thrown when the current user is not allowed to execute this action
      * @see AuthorizedTransitionAction#getActions()
      * @see DeviceLifeCycleService#getPropertySpecsFor(MicroAction)
