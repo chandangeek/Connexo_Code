@@ -97,7 +97,6 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         model.set('numberOfStoreTaskThreads', 1);
         model.set('storeTaskThreadPriority', 5);
 
-        model.set('statusPort', 8080);
         model.set('eventRegistrationPort', 8888);
 
         model.endEdit();
@@ -130,8 +129,6 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
                         var json = Ext.decode(operation.response.responseText);
                         if (json && json.errors) {
 
-                            if(form.down('#num-monitor-port').value == null)
-                                form.down('#num-monitor-port').markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
                             if(form.down('#num-event-uri-port').value == null)
                                 form.down('#num-event-uri-port').markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
 

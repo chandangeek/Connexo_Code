@@ -27,15 +27,9 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             ui: 'large',
             itemId: 'deviceSetupPanel',
             layout: {
-                type: 'fit',
+                type: 'vbox',
                 align: 'stretch'
-            },
-            items: [
-                {
-                    xtype: 'container',
-                    itemId: 'DeviceContainer'
-                }
-            ]
+            }
         }
     ],
 
@@ -255,7 +249,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         ];
         me.callParent(arguments);
 
-        me.down('#DeviceContainer').add(
+        me.down('#deviceSetupPanel').add(
             {
                 xtype: 'container',
                 layout: {
@@ -305,6 +299,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                         xtype: 'device-data-validation-panel',
                                         privileges: Mdc.privileges.Device.deviceOperator,
                                         mRID: me.device.get('mRID'),
+                                        router: me.router,
                                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationWidget
                                     }
                                 ]
@@ -315,6 +310,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         xtype: 'deviceGeneralInformationPanel',
                         dataLoggerSlave: me.device.get('isDataLoggerSlave') ? me.device : undefined,
                         router: me.router,
+                        minWidth: 300,
                         style: {
                             marginRight: '20px'
                         }
