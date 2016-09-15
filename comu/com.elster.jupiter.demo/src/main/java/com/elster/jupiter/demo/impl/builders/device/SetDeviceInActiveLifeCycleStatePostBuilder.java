@@ -1,19 +1,18 @@
 package com.elster.jupiter.demo.impl.builders.device;
 
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.streams.DecoratedStream;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -36,7 +35,7 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     private final Clock clock;
 
     private Optional<DeviceLifeCycle> defaultLifeCycle;
-    private List<AuthorizedStandardTransitionAction> authorizedActions;
+    private List<AuthorizedTransitionAction> authorizedActions;
     private DeviceType deviceType;
 
     @Inject
@@ -62,7 +61,7 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
         }
         if (!authorizedActions.isEmpty()) {
             Long now = Clock.systemDefaultZone().millis();
-            AuthorizedStandardTransitionAction authorizedActionToExecute = authorizedActions.get(0);
+            AuthorizedTransitionAction authorizedActionToExecute = authorizedActions.get(0);
             List<ExecutableActionProperty> properties =
                     DecoratedStream
                             .decorate(authorizedActionToExecute.getActions().stream())
@@ -83,8 +82,8 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     private void initAuthorizedActionsToExecute() {
         authorizedActions = defaultLifeCycle.get().getAuthorizedActions(defaultLifeCycle.get().getFiniteStateMachine().getInitialState())
                 .stream()
-                .filter(action -> action instanceof AuthorizedStandardTransitionAction)
-                .map(action -> (AuthorizedStandardTransitionAction) action)
+                .filter(action -> action instanceof AuthorizedTransitionAction)
+                .map(action -> (AuthorizedTransitionAction) action)
                 .filter(action -> action.getStateTransition().getTo().getName().equals(DefaultState.ACTIVE.getKey()))
                 .collect(Collectors.toList());
     }
@@ -103,7 +102,7 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
         }
     }
 
-    private void executeAuthorizedAction(AuthorizedStandardTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
+    private void executeAuthorizedAction(AuthorizedTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
         long now = Clock.systemDefaultZone().millis();
         try {
             DLCService.execute(authorizedActionToExecute, device, clock.instant(), properties);
