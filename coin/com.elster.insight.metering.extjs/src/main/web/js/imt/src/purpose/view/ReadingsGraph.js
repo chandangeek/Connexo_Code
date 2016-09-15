@@ -335,8 +335,8 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
             if (!Ext.isEmpty(rule.properties)) {
                 switch (rule.implementation) {
                     case 'com.elster.jupiter.validators.impl.ThresholdValidator':
-                        prop = ' - ' + rule.properties[0].key.charAt(0).toUpperCase() + rule.properties[0].key.substring(1) + ': ' + rule.properties[0].propertyValueInfo.value + ', ' +
-                            rule.properties[1].key.charAt(0).toUpperCase() + rule.properties[1].key.substring(1) + ': ' + rule.properties[1].propertyValueInfo.value;
+                        prop = ' - ' + Ext.String.capitalize(rule.properties[0].name) + ': ' + rule.properties[0].propertyValueInfo.value + ', ' +
+                            Ext.String.capitalize(rule.properties[1].name) + ': ' + rule.properties[1].propertyValueInfo.value;
                         break;
                     case 'com.elster.jupiter.validators.impl.RegisterIncreaseValidator':
                         if (rule.properties[0].propertyValueInfo.value) {
