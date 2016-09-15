@@ -15,7 +15,6 @@ import java.util.Optional;
 public class OnDemandReadServiceCallDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private BigDecimal expectedTasks;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
@@ -30,7 +29,7 @@ public class OnDemandReadServiceCallDomainExtension extends AbstractPersistentDo
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public Reference<ServiceCall> getServiceCall() {
