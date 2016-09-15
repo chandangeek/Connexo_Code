@@ -200,6 +200,10 @@ abstract class ComTaskImpl implements ComTask {
         Save.action(getId()).save(this.dataModel, this);
     }
 
+    void touch() {
+        this.dataModel.touch(this);
+    }
+
     @Override
     public BasicCheckTask.BasicCheckTaskBuilder createBasicCheckTask() {
         return new BasicCheckTaskBuilderImpl(this);

@@ -34,6 +34,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ComTask> table = dataModel.addTable(name(), ComTask.class);
             table.map(ComTaskImpl.IMPLEMENTERS);
+            table.cache();
             Column idColumn = table.addAutoIdColumn();
             table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
