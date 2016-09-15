@@ -1,5 +1,8 @@
 package com.elster.jupiter.demo.impl.builders.device;
 
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -11,13 +14,10 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.streams.DecoratedStream;
-
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -68,7 +68,7 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
                             .decorate(authorizedActionToExecute.getActions().stream())
                             .flatMap(ma -> this.DLCService.getPropertySpecsFor(ma).stream())
                             .distinct(PropertySpec::getName)
-                            .map(ps -> this.toExecutableActionProperty(ps, clock.instant()))
+                            .map(ps -> this.toExecutableActionProperty(ps, clock.instant().plus(5, ChronoUnit.MINUTES)))
                             .collect(Collectors.toList());
 
             System.out.println(" ==> Finding the executable action propertiessetting took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
@@ -106,7 +106,7 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     private void executeAuthorizedAction(AuthorizedStandardTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
         long now = Clock.systemDefaultZone().millis();
         try {
-            DLCService.execute(authorizedActionToExecute, device, clock.instant(), properties);
+            DLCService.execute(authorizedActionToExecute, device, clock.instant().plus(5, ChronoUnit.MINUTES), properties);
             System.out.println(" ==> Setting the 'Active' State for device " + device.getmRID() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
         } catch (DeviceLifeCycleActionViolationException e) {
             e.printStackTrace();

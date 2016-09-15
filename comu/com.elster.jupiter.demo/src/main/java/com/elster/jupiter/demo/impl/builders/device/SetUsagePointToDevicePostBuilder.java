@@ -1,6 +1,5 @@
 package com.elster.jupiter.demo.impl.builders.device;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.builders.UsagePointBuilder;
@@ -8,6 +7,8 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.util.units.Unit;
 import com.energyict.mdc.device.data.Device;
 
@@ -30,11 +31,13 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
     private MeteringService meteringService;
     private Clock clock;
     private UsagePointBuilder usagePointBuilder;
+    private MetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
-    SetUsagePointToDevicePostBuilder(MeteringService meteringService, Clock clock) {
+    SetUsagePointToDevicePostBuilder(MeteringService meteringService, Clock clock, MetrologyConfigurationService metrologyConfigurationService) {
         this.meteringService = meteringService;
         this.clock = clock;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.usagePointBuilder = new UsagePointBuilder(meteringService);
     }
 
@@ -77,7 +80,9 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
                 .flatMap(amrSystem -> amrSystem.findMeter("" + device.getId()));
         meter.ifPresent(mtr -> {
             System.out.println("==> activating usage point for meter " + mtr.getMRID());
-            usagePoint.activate(mtr, device.getCurrentMeterActivation().get().getStart());
+            usagePoint.linkMeters()
+                    .activate(mtr, this.metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                    .complete();
         });
     }
 
