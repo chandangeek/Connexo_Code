@@ -100,7 +100,7 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannels(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters, topologyService);
+        return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters);
     }
 
     @GET
@@ -110,7 +110,7 @@ public class ChannelResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannel(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        return channelHelper.get().getChannel(() -> channel, topologyService);
+        return channelHelper.get().getChannel(() -> channel);
     }
 
     @PUT
@@ -597,7 +597,7 @@ public class ChannelResource {
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationStatusPreview(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        return channelHelper.get().getChannelValidationInfo(() -> channel, topologyService);
+        return channelHelper.get().getChannelValidationInfo(() -> channel);
     }
 
     @PUT

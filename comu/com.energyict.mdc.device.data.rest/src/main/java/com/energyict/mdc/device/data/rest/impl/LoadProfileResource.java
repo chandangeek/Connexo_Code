@@ -58,14 +58,21 @@ public class LoadProfileResource {
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final ValidationInfoFactory validationInfoFactory;
     private final TopologyService topologyService;
+    private final ChannelInfoFactory channelInfoFactory;
 
     @Inject
-    public LoadProfileResource(ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, TopologyService topologyService) {
+    public LoadProfileResource(ResourceHelper resourceHelper,
+                               Clock clock,
+                               DeviceDataInfoFactory deviceDataInfoFactory,
+                               ValidationInfoFactory validationInfoFactory,
+                               TopologyService topologyService,
+                               ChannelInfoFactory channelInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.clock = clock;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.validationInfoFactory = validationInfoFactory;
         this.topologyService = topologyService;
+        this.channelInfoFactory = channelInfoFactory;
     }
 
     @GET @Transactional
@@ -75,7 +82,7 @@ public class LoadProfileResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<LoadProfile> allLoadProfiles = device.getLoadProfiles();
         List<LoadProfile> loadProfilesOnPage = ListPager.of(allLoadProfiles, LOAD_PROFILE_COMPARATOR_BY_NAME).from(queryParameters).find();
-        List<LoadProfileInfo> loadProfileInfos = LoadProfileInfo.from(loadProfilesOnPage);
+        List<LoadProfileInfo> loadProfileInfos = LoadProfileInfo.from(loadProfilesOnPage, channelInfoFactory);
         return Response.ok(PagedInfoList.fromPagedList("loadProfiles", loadProfileInfos.stream().sorted((o1, o2) -> o1.name.compareToIgnoreCase(o2.name)).collect(Collectors.toList()), queryParameters)).build();
     }
 
@@ -85,7 +92,7 @@ public class LoadProfileResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getLoadProfile(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
-        LoadProfileInfo loadProfileInfo = LoadProfileInfo.from(loadProfile, clock, topologyService);
+        LoadProfileInfo loadProfileInfo = LoadProfileInfo.from(loadProfile, channelInfoFactory);
 
         addValidationInfo(loadProfile, loadProfileInfo);
 

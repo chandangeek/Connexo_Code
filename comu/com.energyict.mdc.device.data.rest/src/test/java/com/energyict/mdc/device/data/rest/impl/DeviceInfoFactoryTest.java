@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
@@ -197,10 +198,14 @@ public class DeviceInfoFactoryTest {
     @Mock
     private DeviceService deviceService;
     private Clock clock = Clock.systemDefaultZone();
+    protected ChannelInfoFactory channelInfoFactory;
+    ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Before
     public void initMocks() {
-
+        when(thesaurus.getString(any(), any())).thenReturn("");
+        readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
+        channelInfoFactory = new ChannelInfoFactory(clock, topologyService, readingTypeInfoFactory);
         when(readingTypeForChannel1.getMRID()).thenReturn(READING_TYPE_MRID_1);
         when(readingTypeForChannel2.getMRID()).thenReturn(READING_TYPE_MRID_2);
         when(readingTypeForChannel3.getMRID()).thenReturn(READING_TYPE_MRID_3);
@@ -469,7 +474,7 @@ public class DeviceInfoFactoryTest {
 
     @Test
     public void fromDataLoggerTest() {
-        DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService, deviceDataInfoFactory, batchService);
+        DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService, deviceDataInfoFactory, batchService, channelInfoFactory);
 
         DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService, clock);
         DeviceInfo info = deviceInfoFactory.deviceInfo(dataLogger);
