@@ -2,6 +2,7 @@ package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -73,7 +74,8 @@ public class EstimationApplication extends Application implements MessageSeedPro
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(EstimationApplication.COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(EstimationApplication.COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus("MTR", Layer.DOMAIN));
     }
 
     @Reference
@@ -121,6 +123,8 @@ public class EstimationApplication extends Application implements MessageSeedPro
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(timeService).to(TimeService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
+            bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
+            bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
         }
     }
 }

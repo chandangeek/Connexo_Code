@@ -81,10 +81,18 @@ public class EstimationResource {
     private final MeteringGroupsService meteringGroupsService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final PropertyValueInfoService propertyValueInfoService;
+    private final EstimationRuleInfoFactory estimationRuleInfoFactory;
 
     @Inject
-    public EstimationResource(RestQueryService queryService, EstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService,
-                              MeteringGroupsService meteringGroupsService, ConcurrentModificationExceptionFactory conflictFactory, PropertyValueInfoService propertyValueInfoService) {
+    public EstimationResource(RestQueryService queryService,
+                              EstimationService estimationService,
+                              TransactionService transactionService,
+                              Thesaurus thesaurus,
+                              TimeService timeService,
+                              MeteringGroupsService meteringGroupsService,
+                              ConcurrentModificationExceptionFactory conflictFactory,
+                              PropertyValueInfoService propertyValueInfoService,
+                              EstimationRuleInfoFactory estimationRuleInfoFactory) {
         this.queryService = queryService;
         this.estimationService = estimationService;
         this.transactionService = transactionService;
@@ -93,6 +101,7 @@ public class EstimationResource {
         this.meteringGroupsService = meteringGroupsService;
         this.conflictFactory = conflictFactory;
         this.propertyValueInfoService = propertyValueInfoService;
+        this.estimationRuleInfoFactory = estimationRuleInfoFactory;
     }
 
     private QualityCodeSystem getQualityCodeSystemFromApplicationName(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
@@ -136,7 +145,7 @@ public class EstimationResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         Optional<? extends EstimationRuleSet> optional = estimationService.getEstimationRuleSet(ruleSetId);
         if (optional.isPresent()) {
-            EstimationRuleInfos infos = new EstimationRuleInfos(propertyValueInfoService);
+            EstimationRuleInfos infos = new EstimationRuleInfos();
             EstimationRuleSet set = optional.get();
             List<? extends EstimationRule> rules;
             if ((params.getLimit() > 0) && (params.getStartInt() >= 0)) {
@@ -145,12 +154,12 @@ public class EstimationResource {
                 rules = set.getRules();
             }
             for (EstimationRule rule : rules) {
-                infos.add(rule);
+                infos.add(estimationRuleInfoFactory.createEstimationRuleInfo(rule));
             }
             infos.total = set.getRules().size();
             return infos;
         } else {
-            return new EstimationRuleInfos(propertyValueInfoService);
+            return new EstimationRuleInfos();
         }
     }
 
@@ -200,7 +209,7 @@ public class EstimationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
     public EstimationRuleSetInfo getEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId) {
         EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId);
-        return EstimationRuleSetInfo.withRules(estimationRuleSet, propertyValueInfoService);
+        return EstimationRuleSetInfo.withRules(estimationRuleSet, estimationRuleInfoFactory);
     }
 
     private EstimationRuleSet fetchEstimationRuleSet(long id) {
@@ -271,7 +280,7 @@ public class EstimationResource {
                             });
                     estimationRuleBuilder.active(false);
                     EstimationRule rule = estimationRuleBuilder.create();
-                    return new EstimationRuleInfo(rule, propertyValueInfoService);
+                    return estimationRuleInfoFactory.createEstimationRuleInfo(rule);
                 });
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
@@ -281,8 +290,8 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public EstimationRuleInfos editRule(final EstimationRuleInfo info, @Context SecurityContext securityContext) {
-        EstimationRuleInfos result = new EstimationRuleInfos(propertyValueInfoService);
-        result.add(transactionService.execute(() -> {
+        EstimationRuleInfos result = new EstimationRuleInfos();
+        result.add(estimationRuleInfoFactory.createEstimationRuleInfo(transactionService.execute(() -> {
             EstimationRule rule = findAndLockRule(info);
             List<String> mRIDs = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList());
             Map<String, Object> propertyMap = new HashMap<>();
@@ -296,7 +305,7 @@ public class EstimationResource {
             }
 
             return rule;
-        }));
+        })));
         return result;
     }
 
@@ -311,7 +320,7 @@ public class EstimationResource {
 
             return getEstimationRuleFromSetOrThrowException(ruleSet, ruleId);
         });
-        return Response.ok(new EstimationRuleInfo(rule, propertyValueInfoService)).build();
+        return Response.ok(estimationRuleInfoFactory.createEstimationRuleInfo(rule)).build();
     }
 
     @DELETE

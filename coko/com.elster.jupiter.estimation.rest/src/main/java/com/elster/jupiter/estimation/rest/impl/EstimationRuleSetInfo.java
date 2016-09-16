@@ -2,7 +2,6 @@ package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -34,11 +33,12 @@ public class EstimationRuleSetInfo {
         version = estimationRuleSet.getVersion();
     }
 
-    public static EstimationRuleSetInfo withRules(EstimationRuleSet estimationRuleSet, PropertyValueInfoService propertyValueInfoService) {
+    public static EstimationRuleSetInfo withRules(EstimationRuleSet estimationRuleSet,
+                                                  EstimationRuleInfoFactory estimationRuleInfoFactory) {
         EstimationRuleSetInfo estimationRuleSetInfo = new EstimationRuleSetInfo(estimationRuleSet);
         estimationRuleSetInfo.rules = new ArrayList<>();
         estimationRuleSet.getRules().stream()
-                .map(rule -> new EstimationRuleInfo(rule, propertyValueInfoService))
+                .map(estimationRuleInfoFactory::createEstimationRuleInfo)
                 .forEach(estimationRuleSetInfo.rules::add);
         return estimationRuleSetInfo;
     }
