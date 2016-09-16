@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -277,6 +278,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(licenseService).to(LicenseService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
