@@ -4,7 +4,8 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
     itemId: 'output-specifications-form',
     requires: [
         'Uni.form.field.ReadingTypeDisplay',
-        'Imt.util.CommonFields'
+        'Imt.util.CommonFields',
+        'Uni.store.Periods'
     ],
     defaults: {
         xtype: 'displayfield',
@@ -12,14 +13,11 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
     },
     router: null,
 
-    defaults: {
-        xtype: 'displayfield',
-        labelWidth: 200
-    },
     padding: '10 0 0 0',
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            periods = Ext.create('Uni.store.Periods');
 
         me.items = [
             {
@@ -40,7 +38,8 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
                 renderer: function (interval, field) {
                     if (Ext.isObject(interval)) {
                         field.show();
-                        return interval.count + ' ' + interval.timeUnit;
+                        var period = periods.findRecord('value', interval.timeUnit);
+                        return period.get('translate').call(period, interval.count);
                     } else {
                         field.hide();
                         return '';
