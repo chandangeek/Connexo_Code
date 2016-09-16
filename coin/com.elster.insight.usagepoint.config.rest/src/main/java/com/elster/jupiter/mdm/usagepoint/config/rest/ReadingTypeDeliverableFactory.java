@@ -17,9 +17,10 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +29,11 @@ import java.util.stream.Stream;
 
 public class ReadingTypeDeliverableFactory {
 
-    public ReadingTypeDeliverableFactory() {
+    private final ReadingTypeInfoFactory readingTypeInfoFactory;
+
+    @Inject
+    public ReadingTypeDeliverableFactory(ReadingTypeInfoFactory readingTypeInfoFactory) {
+        this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
     public ReadingTypeDeliverablesInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable) {
@@ -39,7 +44,7 @@ public class ReadingTypeDeliverableFactory {
         ReadingTypeDeliverablesInfo info = new ReadingTypeDeliverablesInfo();
         info.id = readingTypeDeliverable.getId();
         info.name = readingTypeDeliverable.getName();
-        info.readingType = readingTypeDeliverable.getReadingType() != null ? new ReadingTypeInfo(readingTypeDeliverable.getReadingType()) : null;
+        info.readingType = readingTypeDeliverable.getReadingType() != null ? readingTypeInfoFactory.from(readingTypeDeliverable.getReadingType()) : null;
         info.formula = readingTypeDeliverable.getFormula() != null ? asInfo(readingTypeDeliverable.getFormula(), metrologyConfiguration) : null;
         return info;
     }
@@ -70,7 +75,7 @@ public class ReadingTypeDeliverableFactory {
                 .orElse(null);
         if (requirement instanceof FullySpecifiedReadingTypeRequirement) {
             FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = (FullySpecifiedReadingTypeRequirement) requirement;
-            info.readingType = new ReadingTypeInfo(fullySpecifiedReadingTypeRequirement.getReadingType());
+            info.readingType = readingTypeInfoFactory.from(fullySpecifiedReadingTypeRequirement.getReadingType());
             info.type = "fullySpecified";
         } else if (requirement instanceof PartiallySpecifiedReadingTypeRequirement) {
             PartiallySpecifiedReadingTypeRequirement partiallySpecified = (PartiallySpecifiedReadingTypeRequirement) requirement;

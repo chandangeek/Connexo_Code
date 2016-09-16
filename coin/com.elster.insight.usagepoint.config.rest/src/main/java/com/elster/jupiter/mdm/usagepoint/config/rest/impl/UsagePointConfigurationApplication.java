@@ -6,6 +6,7 @@ import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -159,6 +160,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
+            bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ReadingTypeDeliverableFactory.class).to(ReadingTypeDeliverableFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
