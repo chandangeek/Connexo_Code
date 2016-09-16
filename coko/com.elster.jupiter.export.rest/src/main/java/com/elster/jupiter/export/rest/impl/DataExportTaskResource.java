@@ -74,10 +74,11 @@ public class DataExportTaskResource {
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final PropertyValueInfoService propertyValueInfoService;
+    private final DataSourceInfoFactory dataSourceInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory) {
+    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory, DataSourceInfoFactory dataSourceInfoFactory) {
         this.queryService = queryService;
         this.dataExportService = dataExportService;
         this.timeService = timeService;
@@ -86,6 +87,7 @@ public class DataExportTaskResource {
         this.transactionService = transactionService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
+        this.dataSourceInfoFactory = dataSourceInfoFactory;
     }
 
     @GET
@@ -347,7 +349,7 @@ public class DataExportTaskResource {
         ExportTask task = fetchDataExportTask(id);
         return task.getReadingTypeDataSelector()
                 .map(readingTypeDataSelector -> buildDataSourceInfos(readingTypeDataSelector, uriInfo))
-                .orElse(new DataSourceInfos(Collections.emptyList()));
+                .orElse(dataSourceInfoFactory.asInfoList(Collections.emptyList()));
     }
 
     private DataSourceInfos buildDataSourceInfos(StandardDataSelector standardDataSelector, @Context UriInfo uriInfo) {
@@ -358,7 +360,7 @@ public class DataExportTaskResource {
                 .filter(item -> item.getLastRun().isPresent())
                 .collect(Collectors.toList());
         List<? extends ReadingTypeDataExportItem> exportItems = ListPager.of(activeExportItems).paged(queryParameters.getStartInt(), queryParameters.getLimit()).find();
-        DataSourceInfos dataSourceInfos = new DataSourceInfos(exportItems.subList(0, Math.min(queryParameters.getLimit(), exportItems.size())));
+        DataSourceInfos dataSourceInfos = dataSourceInfoFactory.asInfoList(exportItems.subList(0, Math.min(queryParameters.getLimit(), exportItems.size())));
         dataSourceInfos.total = activeExportItems.size();
 
         return dataSourceInfos;

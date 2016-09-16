@@ -4,6 +4,7 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -81,7 +82,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
         this.nlsService = nlsService;
         Thesaurus domainThesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.DOMAIN);
         Thesaurus restThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
-        this.thesaurus = domainThesaurus.join(restThesaurus);
+        this.thesaurus = domainThesaurus.join(restThesaurus).join(nlsService.getThesaurus("MTR", Layer.DOMAIN));
     }
 
     @Reference
@@ -122,6 +123,8 @@ public class DataExportApplication extends Application implements MessageSeedPro
                 bind(meteringService).to(MeteringService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(appService).to(AppService.class);
+                bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
+                bind(DataSourceInfoFactory.class).to(DataSourceInfoFactory.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
