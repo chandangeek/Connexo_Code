@@ -32,7 +32,7 @@ public class RegisterTypeOnDeviceTypeInfoFactory {
         info.obisCode = measurementType.getObisCode();
         info.isLinkedByDeviceType = isLinkedByDeviceType;
         ReadingType readingType = measurementType.getReadingType();
-        info.readingType = new ReadingTypeInfo(readingType);
+        info.readingType = readingTypeInfoFactory.from(readingType);
         info.isCumulative = readingType.isCumulative();
         info.collectedReadingType = readingTypeInfoFactory.from(collectedReadingType);
         multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> info.possibleCalculatedReadingTypes.add(readingTypeInfoFactory
