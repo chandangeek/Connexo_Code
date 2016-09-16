@@ -77,7 +77,7 @@ public class BpmApplication extends Application implements MessageSeedProvider, 
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST).join(nlsService.getThesaurus("BPM", Layer.DOMAIN));
     }
 
     @Reference
