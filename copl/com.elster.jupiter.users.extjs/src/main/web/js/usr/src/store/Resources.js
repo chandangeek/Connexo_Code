@@ -3,7 +3,7 @@ Ext.define('Usr.store.Resources', {
     requires: [
         'Usr.model.Resource'
     ],
-    pageSize: 100,
+    pageSize: 1000,
     model: 'Usr.model.Resource',
     groupField: 'componentName',
     remoteSort: false,
