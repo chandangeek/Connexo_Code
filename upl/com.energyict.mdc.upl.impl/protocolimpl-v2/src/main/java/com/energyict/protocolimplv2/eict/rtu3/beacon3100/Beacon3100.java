@@ -88,13 +88,13 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     // https://confluence.eict.vpdc/display/G3IntBeacon3100/DLMS+management
     // https://jira.eict.vpdc/browse/COMMUNICATION-1552
-    private static final ObisCode FRAMECOUNTER_OBISCODE_1_MNG = ObisCode.fromString("0.0.43.1.1.255");
-    private static final ObisCode FRAMECOUNTER_OBISCODE_32_RW = ObisCode.fromString("0.0.43.1.2.255");
-    private static final ObisCode FRAMECOUNTER_OBISCODE_64_FW = ObisCode.fromString("0.0.43.1.3.255");
+    public static final ObisCode FRAMECOUNTER_OBISCODE_1_MNG = ObisCode.fromString("0.0.43.1.1.255");
+    public static final ObisCode FRAMECOUNTER_OBISCODE_32_RW = ObisCode.fromString("0.0.43.1.2.255");
+    public static final ObisCode FRAMECOUNTER_OBISCODE_64_FW = ObisCode.fromString("0.0.43.1.3.255");
 
-    private static final int CLIENT_1_MNG = 1;
-    private static final int CLIENT_32_RW = 32;
-    private static final int CLIENT_64_MNG = 64;
+    public static final int CLIENT_1_MNG = 1;
+    public static final int CLIENT_32_RW = 32;
+    public static final int CLIENT_64_MNG = 64;
 
     private static final String MIRROR_LOGICAL_DEVICE_PREFIX = "ELS-MIR-";
     private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
@@ -110,7 +110,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-        getLogger().info("Start protocol for "+offlineDevice.getSerialNumber());
+        getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
         getLogger().info("-version: "+getVersion());
         readFrameCounter(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
@@ -324,9 +324,16 @@ public class Beacon3100 extends AbstractDlmsProtocol {
                     BigDecimal gatewayLogicalDeviceId = BigDecimal.valueOf(sapAssignmentItem.getSap());
                     BigDecimal mirrorLogicalDeviceId = BigDecimal.valueOf(findMatchingMirrorLogicalDevice(macAddress, sapAssignmentList));
                     BigDecimal lastSeenDate = BigDecimal.valueOf(g3Node.getLastSeenDate().getTime());
-                    BigDecimal persistedGatewayLogicalDeviceId = getGeneralProperty(macAddress, AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
-                    BigDecimal persistedMirrorLogicalDeviceId = getGeneralProperty(macAddress, AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
-                    BigDecimal persistedLastSeenDate = getGeneralProperty(macAddress, G3Properties.PROP_LASTSEENDATE);
+                    BigDecimal persistedGatewayLogicalDeviceId = null;
+                    BigDecimal persistedMirrorLogicalDeviceId = null;
+                    BigDecimal persistedLastSeenDate = null;
+                    try{
+                        getGeneralProperty(macAddress, AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
+                        getGeneralProperty(macAddress, AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
+                        getGeneralProperty(macAddress, G3Properties.PROP_LASTSEENDATE);
+
+                    }catch (Exception ex){
+                    }
 
                     DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);  //Using callHomeId as a general property
                     LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, lastSeenDate);

@@ -7,6 +7,7 @@ import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
@@ -119,7 +120,12 @@ public class AM540Properties extends IDISProperties {
 
     public boolean useBeaconMirrorDeviceDialect() {
         String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
-        return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_MIRROR_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+        if (dialectName == null) {
+            return false;
+        }
+        MirrorTcpDeviceProtocolDialect dialect = new MirrorTcpDeviceProtocolDialect();
+        // for compatibility with ProtocolTester - here the protocol dialect is the "display name"
+        return dialect.getDisplayName().equals(dialectName) || dialect.getDeviceProtocolDialectName().equals(dialectName);
     }
 
     public boolean useBeaconGatewayDeviceDialect() {

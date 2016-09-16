@@ -48,7 +48,6 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * The AM540 is a PLC E-meter designed according to IDIS package 2 specifications <br/>
@@ -84,7 +83,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
-        getLogger().info("-version: "+getVersion());
+        getLogger().info("-version: " + getVersion());
         initDlmsSession(comChannel);
         getLogger().info("Protocol initialization phase ended, executing tasks ...");
     }
@@ -330,7 +329,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, publicProperties));    //SecurityLevel 0:0
 
         final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
-        final ObisCode frameCounterObisCode = getFrameCounterForClient(PUBLIC_CLIENT);
+        final ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
         final long frameCounter;
 
         publicDlmsSession.getDlmsV2Connection().connectMAC();
@@ -358,11 +357,6 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         switch (clientId){
             case EVN_CLIENT_DATA_READOUT:
                 return EVN_FRAMECOUNTER_DATA_READOUT;
-            case PUBLIC_CLIENT:
-                if(getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()){
-                    return EVN_FRAMECOUNTER_DATA_READOUT;
-                }
-                break;
             case EVN_CLIENT_INSTALLATION:
                 return EVN_FRAMECOUNTER_INSTALLATION;
             case EVN_CLIENT_MAINTENANCE:
