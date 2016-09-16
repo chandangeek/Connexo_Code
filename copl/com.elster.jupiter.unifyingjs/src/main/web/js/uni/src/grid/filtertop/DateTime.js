@@ -70,7 +70,7 @@ Ext.define('Uni.grid.filtertop.DateTime', {
                         allowExponential: false,
                         allowDecimals: false,
                         editable: true,
-                        emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
+                        emptyText: '00',
                         flex: 1,
                         valueToRaw: function (value) {
                             if (!Ext.isDefined(value)) {
@@ -102,7 +102,7 @@ Ext.define('Uni.grid.filtertop.DateTime', {
                         allowExponential: false,
                         allowDecimals: false,
                         editable: true,
-                        emptyText: Uni.I18n.translate('grid.filter.date.minutefield.emptytext', 'UNI', '00'),
+                        emptyText: '00',
                         flex: 1,
                         valueToRaw: function (value) {
                             if (!Ext.isDefined(value)) {

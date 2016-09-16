@@ -49,7 +49,7 @@ Ext.define('Uni.grid.column.Action', {
                 item.hasActionConfiguration = true;
             }
 
-            ret += '<span style="font-size: 18px;" class="' + me.iconCls + ' ' + me.actionIconCls + ' ' + prefix + 'action-col-' + String(i) + ' ' + (disabled ? prefix + 'item-disabled ' : ' ') +
+            ret += '<span style="font-size: 18px; line-height: 17px" class="' + me.iconCls + ' ' + me.actionIconCls + ' ' + prefix + 'action-col-' + String(i) + ' ' + (disabled ? prefix + 'item-disabled ' : ' ') +
                 (Ext.isFunction(item.getClass) ? item.getClass.apply(item.scope || scope, arguments) : (item.iconCls || me.iconCls || '')) + '"' +
                 (tooltip ? ' data-qtip="' + tooltip + '"' : '') + ' ></span>';
         }
