@@ -18,6 +18,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.streams.Currying.perform;
+import static com.elster.jupiter.util.streams.Currying.use;
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 class TableDdlGenerator implements PartitionMethod.Visitor {
@@ -357,36 +360,34 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
                     .ifPresent(result::add);
         }
 
-        //Constraints
-        Set<TableConstraintImpl> unmatched = new HashSet<>();
-        for (TableConstraintImpl constraint : table.getConstraints(version)) {
-            unmatched.add(constraint);
-        }
+        // Constraints
+        Set<TableConstraintImpl> unmatched = table.getConstraints()
+                .stream()
+                .collect(Collectors.toCollection(HashSet::new));
+
         List<Difference> addOrChangeConstraintDiffs = new ArrayList<>();
-        for (TableConstraintImpl toConstraint : toTable.getConstraints()) {
 
-            TableConstraintImpl fromConstraint = table.getConstraint(toConstraint.getName());
-            if (fromConstraint == null) {
-                fromConstraint = table.findMatchingConstraint(toConstraint);
-                if (fromConstraint == null) {
-                    addOrChangeConstraintDiffs.add(getAddConstraintDifference(toConstraint));
+        toTable.getConstraints()
+                .stream()
+                .map(use(this::upgradeConstraintDdl).on(addOrChangeConstraintDiffs))
+                .flatMap(Functions.asStream())
+                .forEach(unmatched::remove);
 
-                } else {
-                    unmatched.remove(fromConstraint);
-                    Difference difference = dialect.allowsConstraintRename()
-                            ? getRenameConstraintDifference(fromConstraint, toConstraint)
-                            : getDropRecreateConstraintDifference(fromConstraint, toConstraint);
-                    addOrChangeConstraintDiffs.add(difference);
-                }
-            } else {
-                unmatched.remove(fromConstraint);
-                getUpgradeDifference(fromConstraint, toConstraint).ifPresent(addOrChangeConstraintDiffs::add);
-            }
-        }
         for (TableConstraintImpl each : unmatched) {
             result.add(getDropConstraintDifference(each));
         }
         result.addAll(addOrChangeConstraintDiffs);
+
+        // Constraints delayed by this table
+        decorate(toTable.getDataModel().getTables()
+                .stream())
+                .takeWhile(not(toTable::equals))
+                .map(table1 -> table1.getConstraints(version))
+                .flatMap(List::stream)
+                .filter(TableConstraintImpl::delayDdl)
+                .filterSubType(ForeignKeyConstraintImpl.class)
+                .filter(foreignKeyConstraint -> foreignKeyConstraint.getReferencedTable().equals(toTable))
+                .forEach(perform(this::upgradeDelayedConstraintDdl).on(addOrChangeConstraintDiffs));
 
         if (toTable.hasJournal(version) && !table.hasJournal()) {
             result.add(getJournalTableDifference(toTable));
@@ -400,6 +401,49 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         }
 
         return result;
+    }
+
+    private Optional<TableConstraintImpl> upgradeConstraintDdl(List<Difference> addOrChangeConstraintDiffs, TableConstraintImpl toConstraint) {
+        TableConstraintImpl fromConstraint = table.getConstraint(toConstraint.getName());
+        if (fromConstraint == null) {
+            fromConstraint = table.findMatchingConstraint(toConstraint);
+            if (fromConstraint == null) {
+                if (!toConstraint.delayDdl()) {
+                    addOrChangeConstraintDiffs.add(getAddConstraintDifference(toConstraint));
+                }
+                return Optional.empty();
+            } else {
+                if (!toConstraint.delayDdl()) {
+                    Difference difference = dialect.allowsConstraintRename()
+                            ? getRenameConstraintDifference(fromConstraint, toConstraint)
+                            : getDropRecreateConstraintDifference(fromConstraint, toConstraint);
+                    addOrChangeConstraintDiffs.add(difference);
+                }
+                return Optional.of(fromConstraint);
+            }
+        } else {
+            if (!toConstraint.delayDdl()) {
+                getUpgradeDifference(fromConstraint, toConstraint).ifPresent(addOrChangeConstraintDiffs::add);
+            }
+            return Optional.of(fromConstraint);
+        }
+    }
+
+    private void upgradeDelayedConstraintDdl(List<Difference> addOrChangeConstraintDiffs, TableConstraintImpl toConstraint) {
+        TableConstraintImpl fromConstraint = toConstraint.getTable().getConstraint(toConstraint.getName());
+        if (fromConstraint == null) {
+            fromConstraint = toConstraint.getTable().findMatchingConstraint(toConstraint);
+            if (fromConstraint == null) {
+                addOrChangeConstraintDiffs.add(getAddConstraintDifference(toConstraint));
+            } else {
+                Difference difference = dialect.allowsConstraintRename()
+                        ? getRenameConstraintDifference(fromConstraint, toConstraint)
+                        : getDropRecreateConstraintDifference(fromConstraint, toConstraint);
+                addOrChangeConstraintDiffs.add(difference);
+            }
+        } else {
+            getUpgradeDifference(fromConstraint, toConstraint).ifPresent(addOrChangeConstraintDiffs::add);
+        }
     }
 
     private Optional<Difference> removeColumnDifference(ColumnImpl column) {
