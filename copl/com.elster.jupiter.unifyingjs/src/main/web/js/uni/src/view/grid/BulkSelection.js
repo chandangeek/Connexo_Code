@@ -317,7 +317,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
                 if (rowElement !== null) {
                     gridHeight = count * rowElement.getHeight();
                 } else {
-                    gridHeight = (count * 29) + 1;
+                    gridHeight = count * 29;
                 }
             }
 
