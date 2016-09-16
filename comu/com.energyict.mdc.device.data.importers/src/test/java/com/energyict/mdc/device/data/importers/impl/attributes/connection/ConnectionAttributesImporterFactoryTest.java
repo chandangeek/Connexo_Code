@@ -110,7 +110,7 @@ public class ConnectionAttributesImporterFactoryTest {
         importer.process(importOccurrence);
 
         verify(logger, never()).info(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0,1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(contains(thesaurus.getFormat(MessageSeeds.NO_DEVICE).format(2, "VPB0001")));
         verify(logger, never()).severe(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
     @Test
@@ -143,7 +143,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(contains(thesaurus.getFormat(MessageSeeds.NO_CONNECTION_METHOD_ON_DEVICE).format(2, "Outbound TCP")));
         verify(logger, never()).severe(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
     @Test
@@ -165,7 +165,8 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(contains(thesaurus.getFormat(MessageSeeds.NO_CONNECTION_METHOD_ON_DEVICE).format(2, "Outbound TCP1")));
         verify(logger).severe(contains(thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_IS_NOT_UNIQUE_IN_FILE).format(3)));
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS)
+                .format(0, 2));
     }
 
     @Test
@@ -242,7 +243,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(contains(thesaurus.getFormat(MessageSeeds.LINE_FORMAT_ERROR).format(2, "attr2", "123456789.012")));
         verify(logger, never()).severe(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
 
         verify(connectionTask).setProperty("attr1", "string");
         verify(connectionTask, never()).save();
@@ -269,7 +270,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(contains(thesaurus.getFormat(MessageSeeds.CONNECTION_ATTRIBUTE_INVALID_VALUE).format(2, "string", "attr1")));
         verify(logger, never()).severe(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
 
         verify(connectionTask, never()).save();
     }
@@ -368,7 +369,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(contains(thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_NOT_CREATED).format(2, "Outbound TCP", "VPB0001", "constraint violation")));
         verify(logger, never()).severe(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
     @Test
@@ -462,7 +463,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(anyString());
         verify(logger).warning(contains(thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_NOT_CREATED).format(2, "Outbound TCP", "VPB0001", "constraint violation")));
         verify(logger, never()).severe(anyString());
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
     @Test

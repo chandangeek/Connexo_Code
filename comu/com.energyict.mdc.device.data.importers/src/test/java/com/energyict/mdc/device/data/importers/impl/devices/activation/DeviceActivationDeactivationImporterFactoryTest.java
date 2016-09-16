@@ -1,5 +1,14 @@
 package com.energyict.mdc.device.data.importers.impl.devices.activation;
 
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -13,16 +22,6 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
 
-import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.FileImporter;
-import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import java.io.ByteArrayInputStream;
 import java.time.Clock;
 import java.util.HashMap;
@@ -30,8 +29,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -128,7 +128,7 @@ public class DeviceActivationDeactivationImporterFactoryTest {
 
         createDeviceActivationDeactivationImporter().process(importOccurrence);
 
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(contains(thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
                 .format(2, DefaultState.ACTIVE.getKey(), DefaultState.IN_STOCK.getKey(), DefaultState.INACTIVE.getKey())));
@@ -161,7 +161,7 @@ public class DeviceActivationDeactivationImporterFactoryTest {
 
         createDeviceActivationDeactivationImporter().process(importOccurrence);
 
-        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(contains(thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
                 .format(2, DefaultState.INACTIVE.getKey(), DefaultState.COMMISSIONING.getKey(), DefaultState.ACTIVE.getKey())));
