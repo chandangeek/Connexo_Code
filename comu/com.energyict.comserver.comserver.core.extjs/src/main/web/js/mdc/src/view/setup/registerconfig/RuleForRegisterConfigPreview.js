@@ -6,8 +6,7 @@ Ext.define('Mdc.view.setup.registerconfig.RuleForRegisterConfigPreview', {
     frame: true,
 
     requires: [
-        'Cfg.model.ValidationRule',
-        'Mdc.view.setup.registerconfig.RulesForRegisterConfigActionMenu'
+        'Cfg.model.ValidationRule'
     ],
 
     title: Uni.I18n.translate('general.details','MDC','Details'),
@@ -15,15 +14,6 @@ Ext.define('Mdc.view.setup.registerconfig.RuleForRegisterConfigPreview', {
     layout: {
         type: 'vbox'
     },
-
-    tools: [
-        {
-            xtype: 'uni-button-action',
-            menu: {
-                xtype: 'rules-for-registerconfig-actionmenu'
-            }
-        }
-    ],
 
     defaults: {
         xtype: 'displayfield',
