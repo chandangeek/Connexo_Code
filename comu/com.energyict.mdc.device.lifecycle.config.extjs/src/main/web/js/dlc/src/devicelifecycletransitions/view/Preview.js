@@ -10,6 +10,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Preview', {
     tools: [
         {
             xtype: 'uni-button-action',
+            privileges: Dlc.privileges.DeviceLifeCycle.configure,
             menu: {
                 xtype: 'transitions-action-menu',
                 itemId: 'transitions-action-menu'

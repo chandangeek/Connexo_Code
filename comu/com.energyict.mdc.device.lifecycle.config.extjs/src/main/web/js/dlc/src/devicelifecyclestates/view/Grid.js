@@ -27,6 +27,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Grid', {
             {
                 xtype: 'uni-actioncolumn',
                 dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
+                privileges: Dlc.privileges.DeviceLifeCycle.configure,
                 menu: {
                     xtype: 'device-life-cycle-states-action-menu',
                     itemId: 'statesActionMenu'
@@ -48,7 +49,8 @@ Ext.define('Dlc.devicelifecyclestates.view.Grid', {
                         itemId: 'add-state-button',
                         text: Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'),
                         action: 'addState',
-                        dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
+                        dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
+                        privileges: Dlc.privileges.DeviceLifeCycle.configure
                     }
                 ]
             },

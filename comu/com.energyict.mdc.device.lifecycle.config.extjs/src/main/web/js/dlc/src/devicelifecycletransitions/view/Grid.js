@@ -33,6 +33,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                privileges: Dlc.privileges.DeviceLifeCycle.configure,
                 menu: {
                     xtype: 'transitions-action-menu',
                     itemId: 'transitions-action-menu'
@@ -51,6 +52,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Grid', {
                 items: [
                     {
                         xtype: 'button',
+                        privileges: Dlc.privileges.DeviceLifeCycle.configure,
                         itemId: 'toolbar-button',
                         text: Uni.I18n.translate('general.addTransition', 'DLC', 'Add transition'),
                         href: me.router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/add').buildUrl()

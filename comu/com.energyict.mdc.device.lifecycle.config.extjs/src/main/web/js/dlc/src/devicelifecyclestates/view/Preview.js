@@ -12,6 +12,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Preview', {
         {
             xtype: 'uni-button-action',
             dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
+            privileges: Dlc.privileges.DeviceLifeCycle.configure,
             menu: {
                 xtype: 'device-life-cycle-states-action-menu',
                 itemId: 'statesActionMenu'

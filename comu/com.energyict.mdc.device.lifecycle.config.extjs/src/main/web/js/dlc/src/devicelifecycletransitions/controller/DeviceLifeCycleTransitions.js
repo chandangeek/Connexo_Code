@@ -81,12 +81,15 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
         var me = this,
             page = me.getPage(),
             preview = page.down('device-life-cycle-transitions-preview'),
-            previewForm = page.down('device-life-cycle-transitions-preview-form');
+            previewForm = page.down('device-life-cycle-transitions-preview-form'),
+            actionMenu = preview.down('transitions-action-menu');
 
         Ext.suspendLayouts();
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.loadRecord(record);
-        preview.down('transitions-action-menu').record = record;
+        if (actionMenu) {
+            actionMenu.record = record;
+        }
         Ext.resumeLayouts(true);
     },
 
