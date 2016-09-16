@@ -380,4 +380,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     List<ComTaskExecutionTrigger> getComTaskExecutionTriggers();
 
     void addNewComTaskExecutionTrigger(Instant triggerTimeStamp);
+
+    long getConnectionTaskId(); // for performance reasons, approved by program architect
 }
