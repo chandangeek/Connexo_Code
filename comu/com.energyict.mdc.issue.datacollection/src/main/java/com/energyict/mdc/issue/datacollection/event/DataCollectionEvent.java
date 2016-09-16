@@ -108,9 +108,13 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         this.timestamp = timestamp;
     }
 
-    public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription){
+    public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription, Device device){
         this.eventDescription = eventDescription;
-        getEventDevice(rawEvent);
+        if(device != null){
+            this.device = device;
+        } else {
+            getEventDevice(rawEvent);
+        }
         getEventTimestamp(rawEvent);
         wrapInternal(rawEvent, eventDescription);
     }
