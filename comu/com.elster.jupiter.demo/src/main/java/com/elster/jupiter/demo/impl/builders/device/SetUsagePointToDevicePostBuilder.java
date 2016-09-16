@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.util.units.Unit;
 import com.energyict.mdc.device.data.Device;
@@ -16,6 +15,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -80,9 +80,7 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
                 .flatMap(amrSystem -> amrSystem.findMeter("" + device.getId()));
         meter.ifPresent(mtr -> {
             System.out.println("==> activating usage point for meter " + mtr.getMRID());
-            usagePoint.linkMeters()
-                    .activate(mtr, this.metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT))
-                    .complete();
+            usagePoint.activate(mtr, device.getCurrentMeterActivation().get().getStart().plus(5, ChronoUnit.MINUTES));
         });
     }
 
