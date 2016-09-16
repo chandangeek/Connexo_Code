@@ -124,6 +124,10 @@ public class SingleThreadedScheduledComPortTest {
     private static final long DEVICE_ID = 1;
     private static final long COM_PORT_POOL_ID = 2;
     private static final long PROTOCOL_DIALECT_PROPERTIES = 456;
+    private static final long SIMULTANEOUS_CONNECTION_TASK_ID_1 = 4456;
+    private static final long SIMULTANEOUS_CONNECTION_TASK_ID_2 = 1416;
+    private static final long SERIAL_CONNECTION_TASK_ID_1 = 444;
+    private static final long SERIAL_CONNECTION_TASK_ID_2 = 7778;
 
     /**
      * The number of milliseconds that is waited to assert stuff after
@@ -219,6 +223,14 @@ public class SingleThreadedScheduledComPortTest {
 
     @Before
     public void setupServiceProvider() {
+        when(outboundConnectionTask1.getId()).thenReturn(SIMULTANEOUS_CONNECTION_TASK_ID_1);
+        when(outboundConnectionTask1.getId()).thenReturn(SIMULTANEOUS_CONNECTION_TASK_ID_2);
+        when(serialConnectionTask1.getId()).thenReturn(SERIAL_CONNECTION_TASK_ID_1);
+        when(serialConnectionTask2.getId()).thenReturn(SERIAL_CONNECTION_TASK_ID_2);
+        when(connectionTaskService.findConnectionTask(SIMULTANEOUS_CONNECTION_TASK_ID_1)).thenReturn(Optional.of(outboundConnectionTask1));
+        when(connectionTaskService.findConnectionTask(SIMULTANEOUS_CONNECTION_TASK_ID_2)).thenReturn(Optional.of(outboundConnectionTask2));
+        when(connectionTaskService.findConnectionTask(SERIAL_CONNECTION_TASK_ID_1)).thenReturn(Optional.of(serialConnectionTask1));
+        when(connectionTaskService.findConnectionTask(SERIAL_CONNECTION_TASK_ID_2)).thenReturn(Optional.of(serialConnectionTask2));
         when(this.serviceProvider.hexService()).thenReturn(this.hexService);
         when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
         when(this.serviceProvider.issueService()).thenReturn(this.issueService);
@@ -660,14 +672,14 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     private ComJob toComJob(ComTaskExecution comTask) {
-        ComTaskExecutionGroup comTaskExecutionGroup = new ComTaskExecutionGroup((OutboundConnectionTask) comTask.getConnectionTask().get());
+        ComTaskExecutionGroup comTaskExecutionGroup = new ComTaskExecutionGroup(((OutboundConnectionTask) comTask.getConnectionTask().get()).getId());
         comTaskExecutionGroup.add(comTask);
         return comTaskExecutionGroup;
     }
 
     private List<ComJob> toComJob(List<ComTaskExecution> serialComTasks) {
         ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) serialComTasks.get(0).getConnectionTask().get();
-        ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask);
+        ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask.getId());
         serialComTasks.forEach(group::add);
         return Arrays.asList(group);
     }

@@ -131,6 +131,12 @@ public class MultiThreadedScheduledComPortTest {
     private static final long DEVICE_ID = 1;
     private static final long COM_PORT_POOL_ID = 2;
     private static final long PROTOCOL_DIALECT_PROPERTIES = 651;
+    private static final long SIMULTANEOUS_CONNECTION_TASK_ID_1 = 4456;
+    private static final long SIMULTANEOUS_CONNECTION_TASK_ID_2 = 1416;
+    private static final long SIMULTANEOUS_CONNECTION_TASK_ID_3 = 12313;
+    private static final long SERIAL_CONNECTION_TASK_ID_1 = 444;
+    private static final long SERIAL_CONNECTION_TASK_ID_2 = 7778;
+    private static final long SERIAL_CONNECTION_TASK_ID_3 = 6541;
 
     /**
      * The default number of attempts to verify assertion on method invocation.
@@ -260,6 +266,18 @@ public class MultiThreadedScheduledComPortTest {
 
     @Before
     public void setupServiceProvider() {
+        when(simultaneousConnectionTask.getId()).thenReturn(SIMULTANEOUS_CONNECTION_TASK_ID_1);
+        when(simultaneousConnectionTask1.getId()).thenReturn(SIMULTANEOUS_CONNECTION_TASK_ID_2);
+        when(simultaneousConnectionTask2.getId()).thenReturn(SIMULTANEOUS_CONNECTION_TASK_ID_3);
+        when(serialConnectionTask1.getId()).thenReturn(SERIAL_CONNECTION_TASK_ID_1);
+        when(serialConnectionTask2.getId()).thenReturn(SERIAL_CONNECTION_TASK_ID_2);
+        when(serialConnectionTask3.getId()).thenReturn(SERIAL_CONNECTION_TASK_ID_3);
+        when(connectionTaskService.findConnectionTask(SIMULTANEOUS_CONNECTION_TASK_ID_1)).thenReturn(Optional.of(simultaneousConnectionTask));
+        when(connectionTaskService.findConnectionTask(SIMULTANEOUS_CONNECTION_TASK_ID_2)).thenReturn(Optional.of(simultaneousConnectionTask1));
+        when(connectionTaskService.findConnectionTask(SIMULTANEOUS_CONNECTION_TASK_ID_3)).thenReturn(Optional.of(simultaneousConnectionTask2));
+        when(connectionTaskService.findConnectionTask(SERIAL_CONNECTION_TASK_ID_1)).thenReturn(Optional.of(serialConnectionTask1));
+        when(connectionTaskService.findConnectionTask(SERIAL_CONNECTION_TASK_ID_2)).thenReturn(Optional.of(serialConnectionTask2));
+        when(connectionTaskService.findConnectionTask(SERIAL_CONNECTION_TASK_ID_3)).thenReturn(Optional.of(serialConnectionTask3));
         when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
         when(this.serviceProvider.eventService()).thenReturn(this.eventService);
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
@@ -1175,14 +1193,14 @@ public class MultiThreadedScheduledComPortTest {
     }
 
     private ComJob toComJob(ComTaskExecution comTask) {
-        ComTaskExecutionGroup comTaskExecutionGroup = new ComTaskExecutionGroup((OutboundConnectionTask) comTask.getConnectionTask().get());
+        ComTaskExecutionGroup comTaskExecutionGroup = new ComTaskExecutionGroup(((OutboundConnectionTask) comTask.getConnectionTask().get()).getId());
         comTaskExecutionGroup.add(comTask);
         return comTaskExecutionGroup;
     }
 
     private List<ComJob> toComJob(List<ComTaskExecution> serialComTasks) {
         ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) serialComTasks.get(0).getConnectionTask().get();
-        ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask);
+        ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask.getId());
         for (ComTaskExecution comTask : serialComTasks) {
             group.add(comTask);
         }

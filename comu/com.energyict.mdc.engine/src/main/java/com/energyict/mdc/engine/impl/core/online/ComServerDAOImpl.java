@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -258,11 +259,15 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, final ComServer comServer) {
-        Optional reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            return getConnectionTaskService().attemptLockConnectionTask((ScheduledConnectionTask) reloaded.get(), comServer);
+        try {
+            return getConnectionTaskService().attemptLockConnectionTask(connectionTask, comServer);
+        } catch (OptimisticLockException e) {
+            Optional reloaded = refreshConnectionTask(connectionTask);
+            if (reloaded.isPresent()) {
+                return getConnectionTaskService().attemptLockConnectionTask((ScheduledConnectionTask) reloaded.get(), comServer);
+            }
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -312,10 +317,15 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
-        Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            reloaded.get().setProperty(connectionTaskPropertyName, ipAddress);
-            reloaded.get().save();
+        try {
+            connectionTask.setProperty(connectionTaskPropertyName, ipAddress);
+            connectionTask.save();
+        } catch (OptimisticLockException e) {
+            Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+            if (reloaded.isPresent()) {
+                reloaded.get().setProperty(connectionTaskPropertyName, ipAddress);
+                reloaded.get().save();
+            }
         }
     }
 
@@ -358,9 +368,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     public void unlock(final OutboundConnectionTask connectionTask) {
-        Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            getConnectionTaskService().unlockConnectionTask(reloaded.get());
+        try {
+            getConnectionTaskService().unlockConnectionTask(connectionTask);
+        } catch (OptimisticLockException e) {
+            Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+            if (reloaded.isPresent()) {
+                getConnectionTaskService().unlockConnectionTask(reloaded.get());
+            }
         }
     }
 
@@ -384,17 +398,25 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionCompleted(final ConnectionTask connectionTask) {
-        final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            reloaded.get().executionCompleted();
+        try {
+            connectionTask.executionCompleted();
+        } catch (OptimisticLockException e) {
+            final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+            if (reloaded.isPresent()) {
+                reloaded.get().executionCompleted();
+            }
         }
     }
 
     @Override
     public void executionFailed(final ConnectionTask connectionTask) {
-        final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            reloaded.get().executionFailed();
+        try {
+            connectionTask.executionFailed();
+        } catch (OptimisticLockException e) {
+            final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+            if (reloaded.isPresent()) {
+                reloaded.get().executionFailed();
+            }
         }
     }
 

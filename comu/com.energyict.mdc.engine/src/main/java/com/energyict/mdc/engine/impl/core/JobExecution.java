@@ -301,7 +301,6 @@ public abstract class JobExecution implements ScheduledJob {
         this.getExecutionContext().completeSuccessful();
 
         this.getExecutionContext().getStoreCommand().add(new RescheduleSuccessfulExecution(this));
-        this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
         doExecuteStoreCommand();
     }
 
@@ -311,7 +310,6 @@ public abstract class JobExecution implements ScheduledJob {
             this.addCompletionEvent();
             this.getExecutionContext().completeFailure(reason);
             this.getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this));
-            this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
             doExecuteStoreCommand();
         } else {
             /* Failure was in the preparation that creates the ExecutionContext.

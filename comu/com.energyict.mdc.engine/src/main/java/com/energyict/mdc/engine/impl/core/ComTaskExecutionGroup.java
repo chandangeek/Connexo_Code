@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class ComTaskExecutionGroup implements ComJob {
 
-    private OutboundConnectionTask<?> connectionTask;
+    private long connectionTaskId;
     private List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
 
     // For xml serialization purposes only
@@ -25,14 +25,14 @@ public class ComTaskExecutionGroup implements ComJob {
         super();
     }
 
-    public ComTaskExecutionGroup(OutboundConnectionTask<?> connectionTask) {
+    public ComTaskExecutionGroup(long connectionTaskId) {
         this();
-        this.connectionTask = connectionTask;
+        this.connectionTaskId = connectionTaskId;
     }
 
     @Override
-    public ScheduledConnectionTask getConnectionTask() {
-        return (ScheduledConnectionTask) this.connectionTask;
+    public long getConnectionTaskId() {
+        return connectionTaskId;
     }
 
     public void add(ComTaskExecution comTask) {

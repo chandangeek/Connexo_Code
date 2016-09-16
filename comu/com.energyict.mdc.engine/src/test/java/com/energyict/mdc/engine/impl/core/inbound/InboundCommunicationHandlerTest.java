@@ -511,13 +511,12 @@ public class InboundCommunicationHandlerTest {
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(ComSessionRootDeviceCommand.class);
         ComSessionRootDeviceCommand compositeDeviceCommand = (ComSessionRootDeviceCommand) deviceCommand;
-        assertThat(compositeDeviceCommand.getChildren()).hasSize(7);
+        assertThat(compositeDeviceCommand.getChildren()).hasSize(6);
         assertThat(compositeDeviceCommand.getChildren()).hasAtLeastOneElementOfType(CreateInboundComSession.class);
         assertThat(compositeDeviceCommand.getChildren()).hasAtLeastOneElementOfType(InboundDataProcessMeterDataStoreCommandImpl.class);
         assertThat(compositeDeviceCommand.getChildren()).hasAtLeastOneElementOfType(ProvideInboundResponseDeviceCommand.class);
         assertThat(compositeDeviceCommand.getChildren()).hasAtLeastOneElementOfType(PublishConnectionCompletionEvent.class);
         assertThat(compositeDeviceCommand.getChildren()).hasAtLeastOneElementOfType(RescheduleSuccessfulExecution.class);
-        assertThat(compositeDeviceCommand.getChildren()).hasAtLeastOneElementOfType(UnlockScheduledJobDeviceCommand.class);
     }
 
     @Test

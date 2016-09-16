@@ -26,7 +26,7 @@ public interface ComJob {
      *
      * @return The ConnectionTask
      */
-    ScheduledConnectionTask getConnectionTask();
+    long getConnectionTaskId();
 
     /**
      * Gets the {@link ComTaskExecution}s that need to be executed as part of this ComJob.

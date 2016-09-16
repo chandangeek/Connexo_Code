@@ -58,11 +58,6 @@ public abstract class CompositeDeviceCommandImpl implements CompositeDeviceComma
         this.addDeviceCommand(command);
     }
 
-    @Override
-    public void add (UnlockScheduledJobDeviceCommand command) {
-        this.addDeviceCommand(command);
-    }
-
     protected void addDeviceCommand (DeviceCommand command) {
         this.commands.add(command);
     }

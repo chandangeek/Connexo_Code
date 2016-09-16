@@ -267,8 +267,8 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     ScheduledComTaskExecutionGroup newComTaskGroup(ComJob groupComJob) {
-        ScheduledConnectionTask connectionTask = groupComJob.getConnectionTask();
-        ScheduledComTaskExecutionGroup group = newComTaskGroup(connectionTask);
+        long connectionTask = groupComJob.getConnectionTaskId();
+        ScheduledComTaskExecutionGroup group = newComTaskGroup((ScheduledConnectionTask) serviceProvider.connectionTaskService().findConnectionTask(connectionTask).get());
         groupComJob.getComTaskExecutions().forEach(group::add);
         return group;
     }
