@@ -99,6 +99,7 @@ public class DeviceTypeResource {
     private final CalendarService calendarService;
     private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
+    private final RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory;
 
     @Inject
     public DeviceTypeResource(
@@ -112,7 +113,8 @@ public class DeviceTypeResource {
             ConcurrentModificationExceptionFactory conflictFactory, CalendarInfoFactory calendarInfoFactory,
             CalendarService calendarService,
             ExceptionFactory exceptionFactory,
-            Thesaurus thesaurus) {
+            Thesaurus thesaurus,
+            RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -125,6 +127,7 @@ public class DeviceTypeResource {
         this.calendarService = calendarService;
         this.exceptionFactory = exceptionFactory;
         this.thesaurus = thesaurus;
+        this.registerTypeOnDeviceTypeInfoFactory = registerTypeOnDeviceTypeInfoFactory;
     }
 
     @GET
@@ -479,7 +482,7 @@ public class DeviceTypeResource {
                                                                  @PathParam("registerTypeId") long registerTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         RegisterType registerType = resourceHelper.findRegisterTypeByIdOrThrowException(registerTypeId);
-        return new RegisterTypeOnDeviceTypeInfo(registerType,
+        return registerTypeOnDeviceTypeInfoFactory.asInfo(registerType,
                 false, false, false,
                 deviceType.getRegisterTypeTypeCustomPropertySet(registerType),
                 masterDataService.getOrCreatePossibleMultiplyReadingTypesFor(registerType.getReadingType()),
@@ -813,7 +816,7 @@ public class DeviceTypeResource {
                     .isEmpty();
             boolean isLinkedByInactiveRegisterSpec = !deviceConfigurationService.findInactiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType)
                     .isEmpty();
-            RegisterTypeOnDeviceTypeInfo info = new RegisterTypeOnDeviceTypeInfo(
+            RegisterTypeOnDeviceTypeInfo info = registerTypeOnDeviceTypeInfoFactory.asInfo(
                     registerType,
                     isLinkedByDeviceType,
                     isLinkedByActiveRegisterSpec,

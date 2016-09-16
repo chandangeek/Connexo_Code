@@ -7,6 +7,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -192,7 +193,8 @@ public class DeviceConfigurationApplication extends Application implements Messa
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
-        this.thesaurus = this.thesaurus.join(nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN));
+        this.thesaurus = this.thesaurus.join(nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Override
@@ -301,6 +303,11 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(RegisterConfigInfoFactory.class).to(RegisterConfigInfoFactory.class);
+            bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
+            bind(RegisterTypeOnDeviceTypeInfoFactory.class).to(RegisterTypeOnDeviceTypeInfoFactory.class);
+            bind(ChannelSpecInfoFactory.class).to(ChannelSpecInfoFactory.class);
+            bind(LoadProfileSpecInfoFactory.class).to(LoadProfileSpecInfoFactory.class);
         }
     }
 }

@@ -8,6 +8,7 @@ import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -51,6 +52,7 @@ public class RegisterConfigInfo {
     public RegisterConfigInfo() {
     }
 
+    @Deprecated //use RegisterConfigInfoFactory
     public RegisterConfigInfo(NumericalRegisterSpec registerSpec, List<ReadingType> multipliedCalculatedRegisterTypes) {
         this.id = registerSpec.getId();
         this.name = registerSpec.getRegisterType().getReadingType().getFullAliasName();
@@ -72,6 +74,7 @@ public class RegisterConfigInfo {
         multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
     }
 
+    @Deprecated //use RegisterConfigInfoFactory
     public RegisterConfigInfo(TextualRegisterSpec registerSpec, List<ReadingType> multipliedCalculatedRegisterTypes) {
         this.id = registerSpec.getId();
         this.name = registerSpec.getRegisterType().getReadingType().getFullAliasName();
@@ -89,6 +92,7 @@ public class RegisterConfigInfo {
         multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
     }
 
+    @Deprecated //use RegisterConfigInfoFactory
     public static RegisterConfigInfo from(RegisterSpec registerSpec, List<ReadingType> multipliedCalculatedRegisterTypes) {
         if (registerSpec.isTextual()) {
             return new RegisterConfigInfo((TextualRegisterSpec) registerSpec, multipliedCalculatedRegisterTypes);

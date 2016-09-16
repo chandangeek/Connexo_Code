@@ -23,6 +23,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -96,8 +97,13 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     @Mock
     PropertyValueInfoService propertyValueInfoService;
 
+    ReadingTypeInfoFactory readingTypeInfoFactory;
+    RegisterConfigInfoFactory registerConfigInfoFactory;
+
     @Before
     public void setup() {
+        readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
+        registerConfigInfoFactory = new RegisterConfigInfoFactory(readingTypeInfoFactory);
         when(thesaurus.getStringBeyondComponent(any(String.class), any(String.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
     }
 
