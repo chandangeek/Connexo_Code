@@ -35,6 +35,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -60,6 +61,7 @@ public class ReadingTypeDeliverableFactoryImpl implements ReadingTypeDeliverable
         this.thesaurus = thesaurus;
     }
 
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(UsagePointConfigurationApplication.COMPONENT_NAME, Layer.REST);
     }
