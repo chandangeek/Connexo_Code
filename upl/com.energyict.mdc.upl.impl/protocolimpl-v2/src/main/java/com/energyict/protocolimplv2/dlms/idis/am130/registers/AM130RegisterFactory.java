@@ -249,16 +249,21 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                     if (attributeValue.getOctetString() != null) {
                         registerValue = new RegisterValue(offlineRegister, attributeValue.getOctetString().stringValue());
                     } else {
-                        registerValue = new RegisterValue(offlineRegister,
-                                new Quantity(attributeValue.toBigDecimal(), unit),
-                                captureTime
-                        );
 
                         if (captureTime!=null) {
                             // for composed registers:
                             // - readTime is the value stored in attribute#5=captureTime = the metrological date
                             // - eventTime is the communication time -> not used in metrology
-                            registerValue.setTimes(captureTime, null, captureTime, registerValue.getReadTime());
+                            registerValue = new RegisterValue(offlineRegister, new Quantity(attributeValue.toBigDecimal(), unit),
+                                                        new Date(), // eventTime = read-out time
+                                                        null,       // fromTime
+                                                        null,       // toTime
+                                                        captureTime); // readTime
+                        } else {
+                            registerValue = new RegisterValue(offlineRegister,
+                                    new Quantity(attributeValue.toBigDecimal(), unit),
+                                    captureTime //eventTime
+                            );
                         }
 
                     }
