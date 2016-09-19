@@ -115,7 +115,14 @@ public final class MeterActivationImpl implements IMeterActivation {
             throw new IllegalArgumentException("You are trying to activate meter on usage point, but you didn't specified a meter role" +
                     " or you specified a meter role, but forgot about meter.");
         }
-        return initInternal(meter, meterRole, usagePoint, range);
+        initInternal(meter, meterRole, usagePoint, range);
+        if (meter != null) {
+            meter.getHeadEndInterface()
+                    .map(headEndInterface -> headEndInterface.getCapabilities(meter))
+                    .map(EndDeviceCapabilities::getConfiguredReadingTypes)
+                    .ifPresent(this::createChannels);
+        }
+        return this;
     }
 
     private MeterActivationImpl initInternal(Meter meter, MeterRole meterRole, UsagePoint usagePoint, Range<Instant> range) {
@@ -124,12 +131,6 @@ public final class MeterActivationImpl implements IMeterActivation {
         this.usagePoint.set(usagePoint);
         this.interval = Interval.of(range);
         this.channelsContainer.set(this.dataModel.getInstance(MeterActivationChannelsContainerImpl.class).init(this));
-        if (meter != null) {
-            meter.getHeadEndInterface()
-                    .map(headEndInterface -> headEndInterface.getCapabilities(meter))
-                    .map(EndDeviceCapabilities::getConfiguredReadingTypes)
-                    .ifPresent(this::createChannels);
-        }
         return this;
     }
 
@@ -495,6 +496,16 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .initInternal(this.meter.orElse(null), this.meterRole.orElse(null), this.usagePoint.orElse(null), newRange);
         getMultipliers().entrySet().stream()
                 .forEach(entry -> newActivation.setMultiplier(entry.getKey(), entry.getValue()));
+        // create the same channels for the new activation
+        getChannelsContainer().getChannels().forEach(channel -> {
+            ReadingType[] readingTypesArray = {};
+            List<? extends ReadingType> readingTypes = channel.getReadingTypes();
+            if (readingTypes.size() > 1) {
+                readingTypesArray = new ReadingType[readingTypes.size() - 1];
+                System.arraycopy(readingTypes.toArray(readingTypesArray), 1, readingTypesArray, 0, readingTypes.size() - 1); // skip main channel
+            }
+            newActivation.getChannelsContainer().createChannel(channel.getMainReadingType(), readingTypesArray);
+        });
         newActivation.moveAllChannelsData(this, newRange);
         newActivation.save();
         doEndAt(breakTime);
