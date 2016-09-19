@@ -100,6 +100,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
         supportedMessages.add(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade);
         supportedMessages.add(FirmwareDeviceMessage.ReadMulticastProgress);
+        supportedMessages.add(FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR);
+        supportedMessages.add(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
+        supportedMessages.add(FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
 
         supportedMessages.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
         supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION);
@@ -264,6 +267,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             return MasterDataSerializer.serializeMasterDataForOneConfig(configId);
         } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade)) {
             return MulticastSerializer.serialize(offlineDevice, deviceMessage);
+        } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
+            return MulticastSerializer.serialize(offlineDevice, deviceMessage);
         } else {
             return "";
         }
@@ -388,6 +393,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = new BroadcastUpgrade(this).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                         upgradeFirmware(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
+                        collectedMessage = configurePartialMulticastBlockTransfer(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR)) {
+                        collectedMessage = transferSlaveFirmwareFileToDC(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
+                        collectedMessage = startMulticastBlockTransferToSlaveDevices(collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1)) {
                         changePasswordUser1(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2)) {
@@ -582,6 +593,102 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
             it.upgrade(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, true);
             it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
+            it.imageActivation();
+        } catch (DataAccessResultException e) {
+            if (isTemporaryFailure(e)) {
+                getProtocol().getLogger().log(Level.INFO, "Received 'temporary failure', meaning that the multicast upgrade will start. Moving on.");
+            } else {
+                throw e;
+            }
+        }
+
+        return collectedMessage;
+    }
+
+
+
+    private CollectedMessage configurePartialMulticastBlockTransfer(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+
+        String skipStepEnable = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepEnable).getDeviceMessageAttributeValue();
+        String skipStepVerify = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepVerify).getDeviceMessageAttributeValue();
+        String skipStepActivate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepActivate).getDeviceMessageAttributeValue();
+        String unicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastClientWPort).getDeviceMessageAttributeValue();
+        String multicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MulticastClientWPort).getDeviceMessageAttributeValue();
+        String unicastFrameCounterType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastFrameCounterType).getDeviceMessageAttributeValue();
+        String timeZone = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MeterTimeZone).getDeviceMessageAttributeValue();
+        String securityLevelMulticast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelMulticast).getDeviceMessageAttributeValue();
+        String securityPolicyMulticastV0 = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityPolicyMulticastV0).getDeviceMessageAttributeValue();
+        String delayBetweenBlockSentFast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentFast).getDeviceMessageAttributeValue();
+
+        ArrayList<MulticastProperty> multicastProperties = new ArrayList<>();
+        multicastProperties.add(new MulticastProperty("SkipStepEnable", skipStepEnable));
+        multicastProperties.add(new MulticastProperty("SkipStepVerify", skipStepVerify));
+        multicastProperties.add(new MulticastProperty("SkipStepActivate", skipStepActivate));
+        multicastProperties.add(new MulticastProperty("UnicastClientWPort", unicastClientWPort));
+        multicastProperties.add(new MulticastProperty("MulticastClientWPort", multicastClientWPort));
+        multicastProperties.add(new MulticastProperty("UnicastFrameCounterType", unicastFrameCounterType));
+        multicastProperties.add(new MulticastProperty("TimeZone", timeZone));
+        multicastProperties.add(new MulticastProperty("SecurityLevelMulticast", securityLevelMulticast));
+        multicastProperties.add(new MulticastProperty("SecurityPolicyMulticastV0", securityPolicyMulticastV0));
+        multicastProperties.add(new MulticastProperty("DelayBetweenBlockSentFast", delayBetweenBlockSentFast));
+
+        MulticastProtocolConfiguration protocolConfiguration;
+        try {
+            final JSONObject jsonObject = new JSONObject(pendingMessage.getPreparedContext());  //This context field contains the serialized version of the protocol configuration
+            protocolConfiguration = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), MulticastProtocolConfiguration.class);
+        } catch (JSONException | IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getMessage());
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+            return collectedMessage;
+        }
+        protocolConfiguration.getMulticastProperties().addAll(multicastProperties);
+
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE);
+
+        //Write the full description of all AM540 slaves that needs to be upgraded using the DC multicast
+        it.writeMulticastProtocolConfiguration(protocolConfiguration.toStructure());
+
+        return collectedMessage;
+    }
+
+    private CollectedMessage transferSlaveFirmwareFileToDC(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
+
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE);
+
+        it.setUsePollingVerifyAndActivate(true);    //Poll verification
+        it.setPollingDelay(10000);
+        it.setPollingRetries(60);
+        it.setDelayBeforeSendingBlocks(5000);
+
+        try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
+            it.initializeAndTransferBlocks(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier);
+        } catch (DataAccessResultException e) {
+            if (isTemporaryFailure(e)) {
+                getProtocol().getLogger().log(Level.INFO, "Received 'temporary failure', meaning that the multicast upgrade will start. Moving on.");
+            } else {
+                throw e;
+            }
+        }
+
+        return collectedMessage;
+    }
+
+    private CollectedMessage startMulticastBlockTransferToSlaveDevices(CollectedMessage collectedMessage) throws IOException {
+
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE);
+
+        it.setUsePollingVerifyAndActivate(true);    //Poll verification
+        it.setPollingDelay(10000);
+        it.setPollingRetries(60);
+        it.setDelayBeforeSendingBlocks(5000);
+
+        try  {//by activating the image we trigger the multicast block transfer to slave devices
+            it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
+            it.imageVerification();
             it.imageActivation();
         } catch (DataAccessResultException e) {
             if (isTemporaryFailure(e)) {

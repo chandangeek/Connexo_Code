@@ -50,6 +50,7 @@ public class AM540Messaging extends AM130Messaging {
 
     private void addAdditionalDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
         supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmware);
+        supportedMessages.add(FirmwareDeviceMessage.ENABLE_IMAGE_TRANSFER);
     }
 
     @Override

@@ -52,6 +52,14 @@ public class DeviceMessageConstants {
     public static final String resumeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.resume";
     public static final String plcTypeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.plc";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
+    public static final String SkipStepEnable = "FirmwareDeviceMessage.SkipStepEnable";
+    public static final String SkipStepVerify = "FirmwareDeviceMessage.SkipStepVerify";
+    public static final String SkipStepActivate = "FirmwareDeviceMessage.SkipStepActivate";
+    public static final String UnicastFrameCounterType = "FirmwareDeviceMessage.UnicastFrameCounterType";
+    public static final String MeterTimeZone = "FirmwareDeviceMessage.TimeZone";
+    public static final String SecurityLevelMulticast = "FirmwareDeviceMessage.SecurityLevelMulticast";
+    public static final String SecurityPolicyMulticastV0 = "FirmwareDeviceMessage.SecurityPolicyMulticastV0";
+
     public static final String contractAttributeName = "contract";
     public static final String defaultTariffCodeAttrributeName = "ActivityCalendarDeviceMessage.default.tariff";
     public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";

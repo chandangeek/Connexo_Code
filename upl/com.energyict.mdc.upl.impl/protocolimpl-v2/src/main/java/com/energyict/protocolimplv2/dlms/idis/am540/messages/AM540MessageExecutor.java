@@ -49,12 +49,26 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         } else { // if it was not a PLC message
             if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.VerifyAndActivateFirmware)) {
                 collectedMessage = verifyAndActivateFirmware(pendingMessage, collectedMessage);
+            } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ENABLE_IMAGE_TRANSFER)) {
+                collectedMessage = enableImageTransfer(collectedMessage, pendingMessage);
             }  else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR)) {
                 collectedMessage = updateSupervisionMonitor(collectedMessage, pendingMessage);
             }
             else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
+        }
+        return collectedMessage;
+    }
+
+    private CollectedMessage enableImageTransfer(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        try {
+            ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
+            imageTransfer.enableImageTransfer();
+        } catch (IOException e) {
+            String errorMsg = "Failed to enable image transfer: " + e.getMessage();
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, errorMsg));
         }
         return collectedMessage;
     }
