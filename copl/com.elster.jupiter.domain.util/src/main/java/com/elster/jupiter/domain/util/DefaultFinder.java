@@ -48,46 +48,42 @@ public final class DefaultFinder<T> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> paged(int start, int pageSize) {
+    public DefaultFinder<T> paged(int start, int pageSize) {
         this.start = start;
         this.pageSize = pageSize;
         return this;
     }
 
     @Override
-    public Finder<T> sorted(String fieldName, boolean ascending) {
+    public DefaultFinder<T> sorted(String fieldName, boolean ascending) {
         if (fieldName != null && !fieldName.isEmpty()) {
             this.sortingColumns.add(ascending ? Order.ascending(fieldName) : Order.descending(fieldName));
         }
         return this;
     }
 
-    public Finder<T> defaultSortColumn(String sortColumn) {
+    public DefaultFinder<T> defaultSortColumn(String sortColumn) {
         this.defaultSort = Order.ascending(sortColumn).toLowerCase();
         return this;
     }
 
     @Override
     public List<T> find() {
-        if (sortingColumns.isEmpty() && defaultSort != null) {
-            sortingColumns.add(defaultSort);
-        }
         if (start == null || pageSize == null) {
             if (maxPageSize != null) {
                 throw new UnpagedNotAllowed(thesaurus, maxPageSize);
             }
-            return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]));
+            return query.select(condition, getActualSortingColumns());
         } else {
             if (maxPageSize != null && pageSize > this.maxPageSize) {
                 throw new MaxPageSizeExceeded(thesaurus, maxPageSize);
             }
-
-            return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]), true, new String[0], this.start + 1, this.start + this.pageSize + 1);
+            return query.select(condition, getActualSortingColumns(), true, new String[0], this.start + 1, this.start + this.pageSize + 1);
         }
     }
 
     @Override
-    public Finder<T> from(QueryParameters queryParameters) {
+    public DefaultFinder<T> from(QueryParameters queryParameters) {
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             this.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
         }
@@ -99,7 +95,7 @@ public final class DefaultFinder<T> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) {
+    public DefaultFinder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) {
         this.thesaurus = thesaurus;
         if (this.maxPageSize != null) {
             throw new IllegalArgumentException("Maximum page size has already been set");
@@ -114,15 +110,15 @@ public final class DefaultFinder<T> implements Finder<T> {
     @Override
     public Subquery asSubQuery(String... fieldNames) {
         if (start == null || pageSize == null) {
-            return query.asSubquery(condition, fieldNames);
+            return query.asSubquery(condition, fieldNames, getActualSortingColumns());
         } else {
-            return query.asSubquery(condition, start + 1, start + pageSize + 1, fieldNames);
+            return query.asSubquery(condition, start + 1, start + pageSize + 1, fieldNames, getActualSortingColumns());
         }
     }
 
     @Override
     public SqlFragment asFragment(String... fieldNames) {
-        return query.asFragment(condition, fieldNames);
+        return query.asFragment(condition, fieldNames, getActualSortingColumns());
     }
 
     @Override
@@ -132,6 +128,13 @@ public final class DefaultFinder<T> implements Finder<T> {
         }
         Iterable<T> iterable = PagingIterator::new;
         return StreamSupport.stream(iterable.spliterator(), false);
+    }
+
+    public Order[] getActualSortingColumns() {
+        int sortingColumnsCount = sortingColumns.size();
+        return sortingColumnsCount == 0 && defaultSort != null ?
+                new Order[]{defaultSort} :
+                sortingColumns.toArray(new Order[sortingColumnsCount]);
     }
 
     /**
@@ -165,7 +168,7 @@ public final class DefaultFinder<T> implements Finder<T> {
         }
 
         private void loadNextPage() {
-            items = (List<E>) query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]), true, new String[0], currentPage + 1, currentPage + pageSize + 1);
+            items = (List<E>) query.select(condition, getActualSortingColumns(), true, new String[0], currentPage + 1, currentPage + pageSize + 1);
             currentPage += pageSize;
             currentItemInPage = 0;
         }

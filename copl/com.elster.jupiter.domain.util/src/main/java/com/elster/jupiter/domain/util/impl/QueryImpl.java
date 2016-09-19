@@ -21,26 +21,14 @@ class QueryImpl<T> implements Query<T> {
     }
 
     @Override
-    @Deprecated
-    public List<T> select(Condition condition, String order, String... orders) {
-        return select(condition, Order.from(order,orders));
-    }
-
-    @Override
-    @Deprecated
-    public List<T> select(Condition condition, int from, int to, String order, String... orders) {
-        return select(condition, from, to, Order.from(order,orders));
-    }
-
-    @Override
     public Optional<T> get(Object... key) {
         // override default eager behavior
         return queryExecutor.get(key, eager == null ? true : eager, exceptions);
     }
 
     @Override
-    public Subquery asSubquery(Condition condition, String... fieldNames) {
-        return queryExecutor.asSubquery(condition, fieldNames);
+    public Subquery asSubquery(Condition condition, String[] fieldNames, Order[] orderBy) {
+        return queryExecutor.asSubquery(condition, fieldNames, orderBy);
     }
 
     @Override
@@ -57,7 +45,6 @@ class QueryImpl<T> implements Query<T> {
     public void setLazy(String... includes) {
         this.eager = false;
         this.exceptions = includes;
-
     }
 
     @Override
@@ -82,29 +69,26 @@ class QueryImpl<T> implements Query<T> {
 
     @Override
     public Instant getEffectiveDate() {
-    	return queryExecutor.getEffectiveDate();
+        return queryExecutor.getEffectiveDate();
     }
-    
+
     @Override
     public void setEffectiveDate(Instant instant) {
-    	queryExecutor.setEffectiveDate(instant);
+        queryExecutor.setEffectiveDate(instant);
     }
 
-	@Override
-	public List<T> select(Condition condition, Order... orders) {
-		return queryExecutor.select(condition, orders, isEager(), exceptions);
-	}
+    @Override
+    public List<T> select(Condition condition, Order... orders) {
+        return queryExecutor.select(condition, orders, isEager(), exceptions);
+    }
 
-	@Override
-	public List<T> select(Condition condition, int from, int to, Order... orders) {
-		return  queryExecutor.select(condition, orders, isEager(), exceptions, from, to);
-	}
+    @Override
+    public List<T> select(Condition condition, int from, int to, Order... orders) {
+        return queryExecutor.select(condition, orders, isEager(), exceptions, from, to);
+    }
 
-	@Override
-	public void setRestriction(Condition condition) {
-		queryExecutor.setRestriction(condition);
-		
-	}
-	
-
+    @Override
+    public void setRestriction(Condition condition) {
+        queryExecutor.setRestriction(condition);
+    }
 }
