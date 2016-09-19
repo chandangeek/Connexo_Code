@@ -77,6 +77,6 @@ public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMe
         }
         return this.dataModel
                 .query(UsagePointMetrologyConfiguration.class)
-                .asFragment(condition, fieldNames);
+                .asFragment(condition, fieldNames, Order.NOORDER);
     }
 }

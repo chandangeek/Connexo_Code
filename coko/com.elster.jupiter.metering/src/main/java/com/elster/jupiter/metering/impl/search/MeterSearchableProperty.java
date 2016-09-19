@@ -13,6 +13,7 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -96,8 +97,11 @@ public class MeterSearchableProperty implements SearchableUsagePointProperty {
     }
 
     public Condition toCondition(Condition specification) {
-        return ListOperator.IN.contains(meteringService.getDataModel().query(MeterActivation.class)
-                .asSubquery(Where.where("meter").isEqualTo(((Comparison) specification).getValues()[0]), "usagePoint"), "id");
+        return ListOperator.IN.contains(
+                meteringService.getDataModel().query(MeterActivation.class)
+                        .asSubquery(Where.where("meter").isEqualTo(((Comparison) specification).getValues()[0]),
+                                new String[]{"usagePoint"}, Order.NOORDER),
+                "id");
     }
 
     private class MeterValueFactory implements ValueFactory<Meter> {
