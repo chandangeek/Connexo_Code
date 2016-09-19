@@ -172,7 +172,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             panel = me.content[0],
             isGateway = me.device.get('isGateway'),
             isDirectlyAddressable = me.device.get('isDirectlyAddressed'),
-            disableChangeConfigSinceDataLoggerOrSlave = me.device.get('isDataLogger') || me.device.get('isDataLoggerSlave');
+            disableChangeConfigSinceDataLoggerOrSlave = me.device.get('isDataLogger') || me.device.get('isDataLoggerSlave'),
+            hasValidationRules = me.device.get('hasValidationRules');
 
         panel.tools = [
             {
@@ -300,7 +301,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                         privileges: Mdc.privileges.Device.deviceOperator,
                                         mRID: me.device.get('mRID'),
                                         router: me.router,
-                                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationWidget
+                                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationWidget,
+                                        hidden: !hasValidationRules
                                     }
                                 ]
                             }
