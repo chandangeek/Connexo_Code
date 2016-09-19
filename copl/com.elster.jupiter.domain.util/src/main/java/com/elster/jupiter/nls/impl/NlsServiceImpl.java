@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.NestedTransactionException;
@@ -73,6 +74,8 @@ public class NlsServiceImpl implements NlsService {
 
     private final Object translationLock = new Object();
     private final Map<Pair<String, Layer>, IThesaurus> thesauri = new HashMap<>();
+
+    private Map<NlsKey, NlsKeyImpl> uninstalledKeysMap = new HashMap<>();
 
     @Activate
     public final void activate() {
@@ -247,6 +250,21 @@ public class NlsServiceImpl implements NlsService {
         Layer layer = provider.getLayer();
         ThesaurusImpl thesaurus = (ThesaurusImpl) getThesaurus(componentName, layer);
         thesaurus.createNewTranslationKeys(provider);
+        new HashMap<>(uninstalledKeysMap).entrySet()
+                .stream()
+                .filter(mapEntry -> mapEntry.getKey().getComponent().equals(componentName))
+                .filter(mapEntry -> thesaurus.hasKey(mapEntry.getValue().getKey()))
+                .forEach(mapEntry -> {
+                    NlsKey key = mapEntry.getKey();
+                    Condition condition = where("nlsKey.componentName").isEqualTo(key.getComponent())
+                            .and(where("nlsKey.layer").isEqualTo(key.getLayer()))
+                            .and(where("nlsKey.key").isEqualTo(key.getKey()));
+                    this.dataModel
+                            .stream(NlsEntry.class).join(NlsKey.class)
+                            .filter(condition)
+                            .forEach(entry -> mapEntry.getValue().add(entry.getLocale(), entry.getTranslation()));
+                    uninstalledKeysMap.remove(mapEntry);
+                });
     }
 
     private void doInstallProvider(MessageSeedProvider provider) {
@@ -299,10 +317,17 @@ public class NlsServiceImpl implements NlsService {
         Condition condition = where("nlsKey.componentName").isEqualTo(key.getComponent())
                 .and(where("nlsKey.layer").isEqualTo(key.getLayer()))
                 .and(where("nlsKey.key").isEqualTo(key.getKey()));
-        this.dataModel
-                .stream(NlsEntry.class).join(NlsKey.class)
+
+        QueryStream<NlsEntry> nlsEntryQueryStream = this.dataModel
+                .stream(NlsEntry.class).join(NlsKey.class);
+        List<NlsEntry> select = nlsEntryQueryStream
                 .filter(condition)
-                .forEach(entry -> newKey.add(entry.getLocale(), entry.getTranslation()));
+                .select();
+        if (select.isEmpty()) {
+            this.uninstalledKeysMap.put(key, newKey);
+        } else {
+            select.forEach(entry -> newKey.add(entry.getLocale(), entry.getTranslation()));
+        }
         this.dataModel.mapper(NlsKey.class).persist(newKey);
         this.invalidate(targetComponent, targetLayer);
     }
