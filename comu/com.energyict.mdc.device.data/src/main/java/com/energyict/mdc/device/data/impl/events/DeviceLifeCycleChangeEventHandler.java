@@ -1,5 +1,12 @@
 package com.energyict.mdc.device.data.impl.events;
 
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
@@ -7,12 +14,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.conditions.Subquery;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -81,16 +82,16 @@ public class DeviceLifeCycleChangeEventHandler implements TopicHandler {
                 .dataModel()
                 .query(Device.class)
                 .asSubquery(
-                    where(DeviceFields.DEVICETYPE.name()).isEqualTo(event.getDeviceType().getId()),
-                    "id");  // Selects only the id field
+                        where(DeviceFields.DEVICETYPE.name()).isEqualTo(event.getDeviceType().getId()),
+                        new String[]{"id"}, // Selects only the id field
+                        Order.NOORDER);
         try {
             this.meteringService.changeStateMachine(
                     event.getTimestamp(),
                     event.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine(),
                     event.getDeviceLifeCycle().getFiniteStateMachine(),
                     matchDeviceType);
-        }
-        catch (IncompatibleFiniteStateMachineChangeException e) {
+        } catch (IncompatibleFiniteStateMachineChangeException e) {
             throw IncompatibleDeviceLifeCycleChangeException.wrapping(e);
         }
     }
