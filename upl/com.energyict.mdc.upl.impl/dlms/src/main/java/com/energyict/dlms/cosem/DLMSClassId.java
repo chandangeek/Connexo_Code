@@ -101,7 +101,8 @@ public enum DLMSClassId {
     OPERATION_MODE(20017),
     CONCENTRATOR_SETUP(20018),
     MEMORY_MANAGEMENT(20021),
-    MULTICAST_IC(20022);
+    MULTICAST_IC(20022),
+    USB_SETUP(20028);
 
     /**
      * The dlms class identifier
