@@ -82,14 +82,14 @@ public class CreateDefaultDeviceLifeCycleCommand {
         System.out.println(" ==> changing device life cycle for deviceType " + deviceType.getName() + " and activating all devices of this type");
 
         deviceConfigurationService.changeDeviceLifeCycle(deviceType, defaultLifeCycle);
-        System.out.println(" ==> changing device life cycle for deviceType " + deviceType.getName() + " took "+ (Clock.systemDefaultZone().millis() - now) + " ms.");
+        System.out.println(" ==> changing device life cycle for deviceType " + deviceType.getName() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
         List<AuthorizedTransitionAction> authorizedActions =
                 defaultLifeCycle.getAuthorizedActions(defaultLifeCycle.getFiniteStateMachine().getInitialState()).stream()
                         .filter(action -> action instanceof AuthorizedTransitionAction)
                         .map(action -> (AuthorizedTransitionAction) action)
-                    .filter(action -> action.getStateTransition().getTo().getName().equals(DefaultState.ACTIVE.getKey()))
-                    .collect(Collectors.toList());
-        if (!authorizedActions.isEmpty()){
+                        .filter(action -> action.getStateTransition().getTo().getName().equals(DefaultState.ACTIVE.getKey()))
+                        .collect(Collectors.toList());
+        if (!authorizedActions.isEmpty()) {
             now = Clock.systemDefaultZone().millis();
             AuthorizedTransitionAction authorizedActionToExecute = authorizedActions.get(0);
             List<ExecutableActionProperty> properties =
@@ -115,7 +115,7 @@ public class CreateDefaultDeviceLifeCycleCommand {
         }
     }
 
-     private ExecutableActionProperty toExecutableActionProperty(PropertySpec propertySpec, Instant effectiveTimestamp) {
+    private ExecutableActionProperty toExecutableActionProperty(PropertySpec propertySpec, Instant effectiveTimestamp) {
         try {
             if (DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key().equals(propertySpec.getName())) {
                 return this.deviceLifeCycleService.toExecutableActionProperty(effectiveTimestamp, propertySpec);
