@@ -1409,11 +1409,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             // does a lazy load (database access) we collect all readingqualities here;
             List<? extends ReadingQualityRecord> readingQualities = meter.getReadingQualities(meterActivationInterval);
             for (IntervalReadingRecord meterReading : meterReadings) {
+                List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, meterReading.getTimeStamp());
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 loadProfileReading.setChannelData(mdcChannel, meterReading);
                 //Previously collected readingqualities are filtered and added to the loadProfile Reading
                 loadProfileReading.setReadingQualities(mdcChannel, readingQualities.stream().filter(rq -> rq.getReadingTimestamp().equals(meterReading.getTimeStamp()))
-                        .filter(rq -> meterReading.getReadingTypes().contains(rq.getReadingType())).collect(Collectors.toList()));
+                        .filter(rq -> channelReadingTypes.contains(rq.getReadingType())).collect(Collectors.toList()));
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
 
@@ -1438,6 +1439,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return meterHasData;
+    }
+
+    private List<ReadingType> getChannelReadingTypes(Channel channel, Instant instant) {
+        ArrayList<ReadingType> readingTypes = new ArrayList<>();
+        readingTypes.add(channel.getReadingType());
+        channel.getCalculatedReadingType(instant).ifPresent(calculatedReadingType -> readingTypes.add(calculatedReadingType));
+        return readingTypes;
     }
 
     /**
