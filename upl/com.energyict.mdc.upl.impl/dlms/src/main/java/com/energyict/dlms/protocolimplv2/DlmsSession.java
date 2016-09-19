@@ -151,6 +151,9 @@ public class DlmsSession implements ProtocolLink {
      * Build a new ApplicationServiceObject, using the DlmsSessionProperties and a specific calledSystemTitle
      */
     protected ApplicationServiceObjectV2 buildAso(String calledSystemTitle){
+        if (calledSystemTitle == null && getProperties().isNtaSimulationTool()){
+            calledSystemTitle = getProperties().getSerialNumber();
+        }
         if (calledSystemTitle!=null)
             return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), calledSystemTitle.getBytes(), null);
         else
