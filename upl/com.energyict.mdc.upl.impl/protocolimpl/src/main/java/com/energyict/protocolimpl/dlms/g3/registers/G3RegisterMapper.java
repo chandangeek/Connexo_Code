@@ -192,6 +192,35 @@ public class G3RegisterMapper {
     private static final ObisCode WWAN_PRIMARY_DNS_ADDRESS = ObisCode.fromString("0.3.25.1.9.255");
     private static final ObisCode WWAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.3.25.1.10.255");
 
+    private static final ObisCode USB_SETUP_ATTR1 = ObisCode.fromString("0.1.128.0.28.255");
+    private static final ObisCode USB_SETUP_ATTR2 = ObisCode.fromString("0.2.128.0.28.255");
+    private static final ObisCode USB_SETUP_ATTR3 = ObisCode.fromString("0.3.128.0.28.255");
+    private static final ObisCode USB_SETUP_ATTR4 = ObisCode.fromString("0.4.128.0.28.255");
+
+    public static final ObisCode DISCONNECT_CONTROL_ATTR1 = ObisCode.fromString("0.1.96.3.10.255");
+    public static final ObisCode DISCONNECT_CONTROL_ATTR2 = ObisCode.fromString("0.2.96.3.10.255");
+    public static final ObisCode DISCONNECT_CONTROL_ATTR3 = ObisCode.fromString("0.3.96.3.10.255");
+    public static final ObisCode DISCONNECT_CONTROL_ATTR4 = ObisCode.fromString("0.4.96.3.10.255");
+
+    public static final ObisCode GPRS_MODEM_SETUP_ATTR1 = ObisCode.fromString("0.1.25.4.0.255");
+    public static final ObisCode GPRS_MODEM_SETUP_ATTR2 = ObisCode.fromString("0.2.25.4.0.255");
+    public static final ObisCode GPRS_MODEM_SETUP_ATTR3 = ObisCode.fromString("0.3.25.4.0.255");
+    public static final ObisCode GPRS_MODEM_SETUP_ATTR4 = ObisCode.fromString("0.4.25.4.0.255");
+    public static final ObisCode GPRS_MODEM_SETUP_ATTR5 = ObisCode.fromString("0.5.25.4.0.255");
+    public static final ObisCode GPRS_MODEM_SETUP_ATTR6 = ObisCode.fromString("0.6.25.4.0.255");
+    public static final ObisCode GPRS_MODEM_SETUP_ATTR7 = ObisCode.fromString("0.7.25.4.0.255");
+    public static final ObisCode GPRS_MODEM_SETUP_ATTR8 = ObisCode.fromString("0.8.25.4.0.255");
+    public static final ObisCode GPRS_MODEM_SETUP_ATTR9 = ObisCode.fromString("0.9.25.4.0.255");
+    public static final ObisCode GPRS_MODEM_SETUP_ATTR10 = ObisCode.fromString("0.10.25.4.0.255");
+    public static final ObisCode GPRS_MODEM_SETUP_ATTR11 = ObisCode.fromString("0.11.25.4.0.255");
+
+    public static final ObisCode PPP_SETUP_ATTR1 = ObisCode.fromString("0.1.25.3.0.255");
+    public static final ObisCode PPP_SETUP_ATTR2 = ObisCode.fromString("0.2.25.3.0.255");
+    public static final ObisCode PPP_SETUP_ATTR3 = ObisCode.fromString("0.3.25.3.0.255");
+    public static final ObisCode PPP_SETUP_ATTR4 = ObisCode.fromString("0.4.25.3.0.255");
+    public static final ObisCode PPP_SETUP_ATTR5 = ObisCode.fromString("0.5.25.3.0.255");
+    public static final ObisCode PPP_SETUP_ATTR6 = ObisCode.fromString("0.6.25.3.0.255");
+
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
     private final Logger logger;
     private final CosemObjectFactory cosemObjectFactory;
@@ -224,6 +253,10 @@ public class G3RegisterMapper {
         this.mappings.addAll(getRatedEnergyRegistering());
         this.mappings.addAll(getVoltageQualityMeasurements());
         this.mappings.addAll(getPLCStatisticsMappings());
+        this.mappings.addAll(getUsbSetupRegistering());
+        this.mappings.addAll(getDisconnectControlRegistering());
+        this.mappings.addAll(getGprsModemSetupRegistering());
+        this.mappings.addAll(getPPPSetupRegistering());
     }
 
     /**
@@ -232,7 +265,9 @@ public class G3RegisterMapper {
      */
     public G3Mapping getG3Mapping(ObisCode obisCode) {
         for (G3Mapping g3Mapping : getMappings()) {
+            System.out.println("Obis code: "+g3Mapping.getObisCode());
             if (g3Mapping.getObisCode().equals(obisCode)) {
+                System.out.println("Found mapped Obis code: "+g3Mapping.getObisCode());
                 return g3Mapping;
             }
         }
@@ -397,6 +432,51 @@ public class G3RegisterMapper {
         voltageMappings.add(new DataValueMapping(VOLTAGE_CUT_MINIMUM_DURATION));
         voltageMappings.add(new ExtendedRegisterMapping(PH_WITH_ABNORMAL_VOLTAGE));
         return voltageMappings;
+    }
+
+    protected final List<G3Mapping> getUsbSetupRegistering() {
+        final List<G3Mapping> usbSetupMappings = new ArrayList<G3Mapping>();
+        usbSetupMappings.add(new RegisterMapping(USB_SETUP_ATTR1));
+        usbSetupMappings.add(new RegisterMapping(USB_SETUP_ATTR2));
+        usbSetupMappings.add(new RegisterMapping(USB_SETUP_ATTR3));
+        usbSetupMappings.add(new RegisterMapping(USB_SETUP_ATTR4));
+        return usbSetupMappings;
+    }
+
+    protected final List<G3Mapping> getDisconnectControlRegistering() {
+        final List<G3Mapping> disconnectControlMappings = new ArrayList<G3Mapping>();
+        disconnectControlMappings.add(new RegisterMapping(DISCONNECT_CONTROL_ATTR1));
+        disconnectControlMappings.add(new RegisterMapping(DISCONNECT_CONTROL_ATTR2));
+        disconnectControlMappings.add(new RegisterMapping(DISCONNECT_CONTROL_ATTR3));
+        disconnectControlMappings.add(new RegisterMapping(DISCONNECT_CONTROL_ATTR4));
+        return disconnectControlMappings;
+    }
+
+    protected final List<G3Mapping> getGprsModemSetupRegistering() {
+        final List<G3Mapping> gprsModemSetupMappings = new ArrayList<G3Mapping>();
+        gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR1));
+        gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR2));
+        gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR3));
+        gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR4));
+        gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR5));
+        gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR6));
+        gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR7));
+        gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR8));
+        gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR9));
+        gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR10));
+        gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR11));
+        return gprsModemSetupMappings;
+    }
+
+    protected final List<G3Mapping> getPPPSetupRegistering() {
+        final List<G3Mapping> pppSetupMappings = new ArrayList<G3Mapping>();
+        pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR1));
+        pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR2));
+        pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR3));
+        pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR4));
+        pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR5));
+        pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR6));
+        return pppSetupMappings;
     }
 
     protected final List<G3Mapping> getPLCStatisticsMappings() {

@@ -327,6 +327,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new PPPSetup(protocolLink, getObjectReference(PPPSETUP, protocolLink.getMeterConfig().getPPPSetupSN()));
     }
 
+    public PPPSetup getPPPSetup(final ObisCode obisCode) throws NotInObjectListException {
+        return new PPPSetup(protocolLink, getObjectReference(obisCode));
+    }
+
     public GPRSModemSetup getGPRSModemSetup() throws NotInObjectListException {
         return new GPRSModemSetup(protocolLink, getObjectReference(GPRSMODEMSETUP, protocolLink.getMeterConfig().getGPRSModemSetupSN()));
     }
