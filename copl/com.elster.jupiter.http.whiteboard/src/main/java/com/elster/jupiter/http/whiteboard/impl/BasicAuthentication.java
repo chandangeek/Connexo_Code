@@ -218,7 +218,10 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (isCachedResource(request.getRequestURL().toString())) {
             response.setHeader("Cache-Control", "max-age=86400");
         } else {
-            response.setHeader("Cache-Control", "no-cache");
+            // Proper way to ensure the page is not cached accross all browsers
+            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+            response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+            response.setDateHeader("Expires", 0); // Proxies
         }
 
         String authentication = request.getHeader("Authorization");
@@ -296,7 +299,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
         Optional<User> user = userService.authenticateBase64(authentication, request.getRemoteAddr());
-        //securityToken.removeCookie(request, response);
         if (isAuthenticated(user)) {
             String token = securityToken.createToken(user.get(), 0, request.getRemoteAddr());
             response.addCookie(createTokenCookie(token, "/"));
