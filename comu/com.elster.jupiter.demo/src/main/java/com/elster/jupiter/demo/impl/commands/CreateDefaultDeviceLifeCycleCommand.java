@@ -13,7 +13,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -83,15 +83,15 @@ public class CreateDefaultDeviceLifeCycleCommand {
 
         deviceConfigurationService.changeDeviceLifeCycle(deviceType, defaultLifeCycle);
         System.out.println(" ==> changing device life cycle for deviceType " + deviceType.getName() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
-        List<AuthorizedStandardTransitionAction> authorizedActions =
+        List<AuthorizedTransitionAction> authorizedActions =
                 defaultLifeCycle.getAuthorizedActions(defaultLifeCycle.getFiniteStateMachine().getInitialState()).stream()
-                        .filter(action -> action instanceof AuthorizedStandardTransitionAction)
-                        .map(action -> (AuthorizedStandardTransitionAction) action)
+                        .filter(action -> action instanceof AuthorizedTransitionAction)
+                        .map(action -> (AuthorizedTransitionAction) action)
                         .filter(action -> action.getStateTransition().getTo().getName().equals(DefaultState.ACTIVE.getKey()))
                         .collect(Collectors.toList());
         if (!authorizedActions.isEmpty()) {
             now = Clock.systemDefaultZone().millis();
-            AuthorizedStandardTransitionAction authorizedActionToExecute = authorizedActions.get(0);
+            AuthorizedTransitionAction authorizedActionToExecute = authorizedActions.get(0);
             List<ExecutableActionProperty> properties =
                     DecoratedStream
                             .decorate(authorizedActionToExecute.getActions().stream())
@@ -105,7 +105,7 @@ public class CreateDefaultDeviceLifeCycleCommand {
         }
     }
 
-    private void executeAuthorizedAction(AuthorizedStandardTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
+    private void executeAuthorizedAction(AuthorizedTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
         long now = Clock.systemDefaultZone().millis();
         try {
             deviceLifeCycleService.execute(authorizedActionToExecute, device, clock.instant(), properties);
