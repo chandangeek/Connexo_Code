@@ -7,7 +7,8 @@ import com.energyict.obis.ObisCode;
 public enum MemoryManagementAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
-    MEMORY_STATISTICS(2, 0x08);
+    MEMORY_STATISTICS(2, 0x08),
+    FLASH_DEVICES(3, 0x10);
 
     private final int attributeNumber;
     private final int shortName;
