@@ -33,6 +33,7 @@ public class LoadProfileTypeInfo {
     public LoadProfileTypeInfo() {
     }
 
+    @Deprecated
     public static List<LoadProfileTypeInfo> from(Iterable<? extends LoadProfileType> loadProfileTypes) {
         List<LoadProfileTypeInfo> loadProfileTypeInfos = new ArrayList<>();
         for (LoadProfileType loadProfileType : loadProfileTypes) {
@@ -41,6 +42,7 @@ public class LoadProfileTypeInfo {
         return loadProfileTypeInfos;
     }
 
+    @Deprecated
     public static LoadProfileTypeInfo from(LoadProfileType loadProfileType, Boolean isInUse) {
         LoadProfileTypeInfo info = new LoadProfileTypeInfo();
         info.id = loadProfileType.getId();

@@ -17,6 +17,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -54,13 +55,15 @@ public class LoadProfileTypeResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final Thesaurus thesaurus;
     private final ResourceHelper resourceHelper;
+    private final RegisterTypeInfoFactory registerTypeInfoFactory;
 
     @Inject
-    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, ResourceHelper resourceHelper) {
+    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, ResourceHelper resourceHelper, RegisterTypeInfoFactory registerTypeInfoFactory) {
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
         this.resourceHelper = resourceHelper;
+        this.registerTypeInfoFactory = registerTypeInfoFactory;
     }
 
     @GET
@@ -177,7 +180,7 @@ public class LoadProfileTypeResource {
                 .limit(queryParameters.getLimit().get() + 1);
 
         List<RegisterTypeInfo> registerTypeInfos = registerTypeStream
-                .map(registerType -> new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
+                .map(registerType -> registerTypeInfoFactory.asInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
                 .collect(toList());
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
@@ -199,7 +202,7 @@ public class LoadProfileTypeResource {
                 .limit(queryParameters.getLimit().get() + 1);
 
         List<RegisterTypeInfo> registerTypeInfos = registerTypeStream
-                .map(registerType -> new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
+                .map(registerType -> registerTypeInfoFactory.asInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
                 .collect(toList());
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }

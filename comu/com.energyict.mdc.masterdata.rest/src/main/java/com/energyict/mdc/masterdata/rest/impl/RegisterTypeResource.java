@@ -12,6 +12,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -38,14 +39,16 @@ public class RegisterTypeResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final MeteringService meteringService;
     private final ResourceHelper resourceHelper;
+    private final RegisterTypeInfoFactory registerTypeInfoFactory;
 
     @Inject
-    public RegisterTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, ResourceHelper resourceHelper) {
+    public RegisterTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, ResourceHelper resourceHelper, RegisterTypeInfoFactory registerTypeInfoFactory) {
         super();
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
         this.resourceHelper = resourceHelper;
+        this.registerTypeInfoFactory = registerTypeInfoFactory;
     }
 
     /**
@@ -68,7 +71,7 @@ public class RegisterTypeResource {
             registerTypeStream = this.masterDataService.findAllRegisterTypes().from(queryParameters).stream();
         }
         List<RegisterTypeInfo> registerTypeInfos = registerTypeStream
-            .map(registerType -> new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
+            .map(registerType -> registerTypeInfoFactory.asInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
             .collect(toList());
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
@@ -79,7 +82,7 @@ public class RegisterTypeResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public RegisterTypeInfo getRegisterType(@PathParam("id") long id) {
         RegisterType registerType = resourceHelper.findRegisterTypeOrThrowException(id);
-        return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
+        return registerTypeInfoFactory.asInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
     }
 
     @DELETE @Transactional
@@ -101,7 +104,7 @@ public class RegisterTypeResource {
         MeasurementType measurementType = this.masterDataService.newRegisterType(readingType, registerTypeInfo.obisCode);
         registerTypeInfo.writeTo(measurementType, findReadingType(registerTypeInfo));
         measurementType.save();
-        return new RegisterTypeInfo(measurementType, false, false); // It's a new one so cannot be used yet in a DeviceType right
+        return registerTypeInfoFactory.asInfo(measurementType, false, false); // It's a new one so cannot be used yet in a DeviceType right
     }
 
     @PUT @Transactional
@@ -113,7 +116,7 @@ public class RegisterTypeResource {
         RegisterType registerType = resourceHelper.lockRegisterTypeOrThrowException(registerTypeInfo);
         registerTypeInfo.writeTo(registerType, findReadingType(registerTypeInfo));
         registerType.save();
-        return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
+        return registerTypeInfoFactory.asInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
     }
 
     private ReadingType findReadingType(RegisterTypeInfo registerTypeInfo) {

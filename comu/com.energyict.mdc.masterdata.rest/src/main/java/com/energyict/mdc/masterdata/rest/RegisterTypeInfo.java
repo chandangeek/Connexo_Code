@@ -34,6 +34,7 @@ public class RegisterTypeInfo {
     public RegisterTypeInfo() {
     }
 
+    @Deprecated
     public RegisterTypeInfo(MeasurementType measurementType, boolean isLinkedByDeviceType, boolean inLoadProfileType) {
         if (inLoadProfileType) {
             measurementType = ((ChannelType) measurementType).getTemplateRegister();
@@ -51,6 +52,7 @@ public class RegisterTypeInfo {
         this.version = measurementType.getVersion();
     }
 
+    @Deprecated
     public RegisterTypeInfo(MeasurementType measurementType, boolean isLinkedByDeviceType, boolean isLinkedByActiveRegisterSpec, boolean isLinkedByInactiveRegisterSpec) {
         this(measurementType, isLinkedByDeviceType, false);
         this.isLinkedByActiveRegisterConfig = isLinkedByActiveRegisterSpec;

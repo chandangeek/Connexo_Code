@@ -2,6 +2,7 @@ package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -15,6 +16,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -91,7 +93,7 @@ public class MasterDataApplication extends Application implements TranslationKey
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST).join(nlsService.getThesaurus(MeteringService.COMPONENTNAME,Layer.DOMAIN));
     }
 
     @Override
@@ -138,6 +140,8 @@ public class MasterDataApplication extends Application implements TranslationKey
             bind(thesaurus).to(Thesaurus.class);
             bind(mdcReadingTypeUtilService).to(MdcReadingTypeUtilService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
+            bind(RegisterTypeInfoFactory.class).to(RegisterTypeInfoFactory.class);
         }
     }
 }
