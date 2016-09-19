@@ -11,9 +11,11 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -32,7 +34,7 @@ public class UsagePointFinder implements Finder<UsagePoint> {
         this.meteringService = meteringService;
         this.finder = DefaultFinder
                 .of(UsagePoint.class, toCondition(conditions), meteringService.getDataModel(),
-                        EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, UsagePointDetail.class, ServiceCategory.class, UsagePointConnectionState.class, Location.class, LocationMember.class)
+                        EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, UsagePointDetail.class, ServiceCategory.class, UsagePointConnectionState.class)
                 .defaultSortColumn("mRID");
     }
 
@@ -79,7 +81,8 @@ public class UsagePointFinder implements Finder<UsagePoint> {
 
     @Override
     public List<UsagePoint> find() {
-        return finder.find();
+        QueryExecutor<UsagePoint> query = meteringService.getDataModel().query(UsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, Location.class, LocationMember.class);
+        return query.select(ListOperator.IN.contains(this.finder.asSubQuery("id"), "id"), finder.getActualSortingColumns());
     }
 
     @Override
