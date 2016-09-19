@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * Purpose for this command is to install the Default life cycle in the demo system.
  * All devicetypes should have this lifecycle and all devices should be in the 'Active' State.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 8/09/2015
  * Time: 15:16
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class CreateDefaultDeviceLifeCycleCommand {
 
     private final ThreadPrincipalService threadPrincipalService;
-    private final DeviceLifeCycleConfigurationService DLCconfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleService deviceLifeCycleService;
     private final DeviceService deviceService;
@@ -51,7 +51,7 @@ public class CreateDefaultDeviceLifeCycleCommand {
                                                DeviceService deviceService,
                                                ThreadPrincipalService threadPrincipalService,
                                                Clock clock) {
-        this.DLCconfigurationService = DLCconfigurationService;
+        this.deviceLifeCycleConfigurationService = DLCconfigurationService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.deviceService = deviceService;
@@ -64,17 +64,20 @@ public class CreateDefaultDeviceLifeCycleCommand {
     }
 
     public void run() {
-        if (this.lastCheckedDate == null){
+        if (this.lastCheckedDate == null) {
             throw new UnableToCreate("Please specify at which date the validation of devices need to start");
         }
         // Make sure the default device life cycle exists
-        defaultLifeCycle = DLCconfigurationService.findDefaultDeviceLifeCycle().orElseGet(()->DLCconfigurationService.newDefaultDeviceLifeCycle("dlc.standard.device.life.cycle"));
+        defaultLifeCycle = deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle()
+                .orElseGet(() -> deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle("dlc.standard.device.life.cycle"));
         // Use this one as device life cycle for each existing device type
         // And set all devices of this type to the 'Active State'
-        deviceConfigurationService.findAllDeviceTypes().stream().forEach(type -> changeDeviceLifeCycle(type, deviceService.findAllDevices(Where.where("deviceType").isEqualTo(type)).paged(0, 1000).find()));
+        deviceConfigurationService.findAllDeviceTypes()
+                .stream()
+                .forEach(type -> changeDeviceLifeCycle(type, deviceService.findAllDevices(Where.where("deviceType").isEqualTo(type)).paged(0, 1000).find()));
     }
 
-    private void changeDeviceLifeCycle(DeviceType deviceType, List<Device> devices){
+    private void changeDeviceLifeCycle(DeviceType deviceType, List<Device> devices) {
         long now = Clock.systemDefaultZone().millis();
         System.out.println(" ==> changing device life cycle for deviceType " + deviceType.getName() + " and activating all devices of this type");
 
@@ -91,15 +94,15 @@ public class CreateDefaultDeviceLifeCycleCommand {
             AuthorizedTransitionAction authorizedActionToExecute = authorizedActions.get(0);
             List<ExecutableActionProperty> properties =
                     DecoratedStream
-                        .decorate(authorizedActionToExecute.getActions().stream())
-                        .flatMap(ma -> this.deviceLifeCycleService.getPropertySpecsFor(ma).stream())
-                        .distinct(PropertySpec::getName)
-                        .map(ps -> this.toExecutableActionProperty(ps, clock.instant()))
-                        .collect(Collectors.toList());
+                            .decorate(authorizedActionToExecute.getActions().stream())
+                            .flatMap(ma -> this.deviceLifeCycleService.getPropertySpecsFor(ma).stream())
+                            .distinct(PropertySpec::getName)
+                            .map(ps -> this.toExecutableActionProperty(ps, clock.instant()))
+                            .collect(Collectors.toList());
 
             System.out.println(" ==> Finding the executable action propertiessetting took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
             devices.stream().forEach(x -> executeAuthorizedAction(authorizedActionToExecute, x, properties));
-         }
+        }
     }
 
     private void executeAuthorizedAction(AuthorizedTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
@@ -107,7 +110,7 @@ public class CreateDefaultDeviceLifeCycleCommand {
         try {
             deviceLifeCycleService.execute(authorizedActionToExecute, device, clock.instant(), properties);
             System.out.println(" ==> Setting the 'Active' State for device " + device.getmRID() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
-        }catch(DeviceLifeCycleActionViolationException e){
+        } catch (DeviceLifeCycleActionViolationException e) {
             e.printStackTrace();
         }
     }

@@ -17,6 +17,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -67,7 +68,7 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
                             .decorate(authorizedActionToExecute.getActions().stream())
                             .flatMap(ma -> this.DLCService.getPropertySpecsFor(ma).stream())
                             .distinct(PropertySpec::getName)
-                            .map(ps -> this.toExecutableActionProperty(ps, clock.instant()))
+                            .map(ps -> this.toExecutableActionProperty(ps, clock.instant().plus(5, ChronoUnit.MINUTES)))
                             .collect(Collectors.toList());
 
             System.out.println(" ==> Finding the executable action propertiessetting took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
@@ -105,7 +106,7 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     private void executeAuthorizedAction(AuthorizedTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
         long now = Clock.systemDefaultZone().millis();
         try {
-            DLCService.execute(authorizedActionToExecute, device, clock.instant(), properties);
+            DLCService.execute(authorizedActionToExecute, device, clock.instant().plus(5, ChronoUnit.MINUTES), properties);
             System.out.println(" ==> Setting the 'Active' State for device " + device.getmRID() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
         } catch (DeviceLifeCycleActionViolationException e) {
             e.printStackTrace();
