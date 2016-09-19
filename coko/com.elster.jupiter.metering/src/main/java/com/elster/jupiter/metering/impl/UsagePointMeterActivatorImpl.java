@@ -673,7 +673,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         public List<Activation> split(Activation element, Activation modifier, ElementPosition position) {
             List<Activation> activations = new ArrayList<>();
             activations.add(element.split(modifier.getEnd()));
-            Activation activation = element.split(modifier.getEnd());
+            Activation activation = element.split(modifier.getStart());
             activation.setMeterRole(modifier.getMeterRole());
             activation.setUsagePoint(modifier.getUsagePoint());
             activation.save();
