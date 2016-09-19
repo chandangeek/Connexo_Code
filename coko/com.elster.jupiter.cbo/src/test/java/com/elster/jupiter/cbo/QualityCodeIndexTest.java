@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.Test;
@@ -34,5 +35,19 @@ public class QualityCodeIndexTest {
     @Test
     public void testCustomValidation() {
         assertThat(QualityCodeIndex.get(QualityCodeCategory.VALIDATION, 1001).isPresent()).isFalse();
+    }
+
+    @Test
+    public void getGenericEstimatedIndexTest() {
+        Optional<QualityCodeIndex> qualityCodeIndex = QualityCodeCategory.ESTIMATED.qualityCodeIndex(1001);
+        assertThat(qualityCodeIndex).isPresent();
+        assertThat(qualityCodeIndex.get()).isEqualTo(QualityCodeIndex.ESTIMATEGENERIC);
+    }
+
+    @Test
+    public void getGenericValidationIndexTest() {
+        Optional<QualityCodeIndex> qualityCodeIndex = QualityCodeCategory.VALIDATION.qualityCodeIndex(1001);
+        assertThat(qualityCodeIndex).isPresent();
+        assertThat(qualityCodeIndex.get()).isEqualTo(QualityCodeIndex.VALIDATIONGENERIC);
     }
 }

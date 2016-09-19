@@ -9,9 +9,19 @@ public enum QualityCodeCategory {
     TAMPER(TranslationKeys.CATEGORY_TAMPER),
     DATACOLLECTION(TranslationKeys.CATEGORY_DATACOLLECTION),
     REASONABILITY(TranslationKeys.CATEGORY_REASONABILITY),
-    VALIDATION(TranslationKeys.CATEGORY_VALIDATION),
+    VALIDATION(TranslationKeys.CATEGORY_VALIDATION) {
+                @Override
+                public Optional<QualityCodeIndex> qualityCodeIndex(int index) {
+                    return Optional.of(QualityCodeIndex.VALIDATIONGENERIC);
+                }
+            },
     EDITED(TranslationKeys.CATEGORY_EDITED),
-    ESTIMATED(TranslationKeys.CATEGORY_ESTIMATED),
+    ESTIMATED(TranslationKeys.CATEGORY_ESTIMATED){
+        @Override
+        public Optional<QualityCodeIndex> qualityCodeIndex(int index) {
+            return Optional.of(QualityCodeIndex.ESTIMATEGENERIC);
+        }
+    },
     OBSOLETE_OSCILLATORY(TranslationKeys.CATEGORY_OBSOLETE_OSCILLATORY),
     QUESTIONABLE(TranslationKeys.CATEGORY_QUESTIONABLE),
     DERIVED(TranslationKeys.CATEGORY_DERIVED),
