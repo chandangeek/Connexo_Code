@@ -21,35 +21,46 @@ Ext.define('Ddv.view.validations.Preview', {
                     },
                     items: [
                         {
-                            fieldLabel: Uni.I18n.translate('validations.serialNumber', 'DDV', 'Serial number'),
-                            name: 'serialNumber',
-                            itemId: 'serial-number-validations-preview',
-                            renderer: function (value) {
-                                return value ? Ext.String.htmlEncode(value) : null;
-                            }
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('validations.deviceType', 'DDV', 'Device type'),
-                            name: 'deviceType',
-                            itemId: 'deviceType-validations-preview'
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('validations.deviceConfig', 'DDV', 'Configuration'),
-                            name: 'deviceConfig',
-                            itemId: 'deviceConfiguration-validations-preview'
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('validations.allDataValidated', 'DDV', 'All data validated'),
-                            name: 'allDataValidated',
-                            itemId: 'allDataValidated-validations-preview',
-                            renderer: function (value) {
-                                if (value===true) {
-                                    return 'Yes';
-                                } else {
-                                    return 'No';
-                                }
-                            }
+                            xtype: 'fieldcontainer',
+                            labelAlign: 'top',
+                            layout: 'vbox',
+                            defaults: {
+                                xtype: 'displayfield',
+                                labelWidth: 250
+                            },
+                            items: [
+                                {
+                                    fieldLabel: Uni.I18n.translate('validations.serialNumber', 'DDV', 'Serial number'),
+                                    name: 'serialNumber',
+                                    itemId: 'serial-number-validations-preview',
+                                    renderer: function (value) {
+                                        return value ? Ext.String.htmlEncode(value) : '-';
+                                    }
+                                },
+                                {
+                                    fieldLabel: Uni.I18n.translate('validations.deviceType', 'DDV', 'Device type'),
+                                    name: 'deviceType',
+                                    itemId: 'deviceType-validations-preview'
+                                },
+                                {
+                                    fieldLabel: Uni.I18n.translate('validations.deviceConfig', 'DDV', 'Configuration'),
+                                    name: 'deviceConfig',
+                                    itemId: 'deviceConfiguration-validations-preview'
+                                },
+                                {
+                                    fieldLabel: Uni.I18n.translate('validations.allDataValidated', 'DDV', 'All data validated'),
+                                    name: 'allDataValidated',
+                                    itemId: 'allDataValidated-validations-preview',
+                                    renderer: function (value) {
+                                        if (value === true) {
+                                            return 'Yes';
+                                        } else {
+                                            return 'No';
+                                        }
+                                    }
 
+                                }
+                            ]
                         },
                         {
                             xtype: 'fieldcontainer',
@@ -119,7 +130,7 @@ Ext.define('Ddv.view.validations.Preview', {
                             },
                             items: [
                                 {
-                                    fieldLabel: Uni.I18n.translate('validations.thresholdValidator', 'DDV', 'Treshold Violation'),
+                                    fieldLabel: Uni.I18n.translate('validations.thresholdValidator', 'DDV', 'Treshold violation'),
                                     name: 'thresholdValidator',
                                     itemId: 'thresholdValidator-validations-preview',
                                     renderer: function (value) {
@@ -131,7 +142,7 @@ Ext.define('Ddv.view.validations.Preview', {
                                     }
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('validations.missingValuesValidator', 'DDV', 'Missing Values'),
+                                    fieldLabel: Uni.I18n.translate('validations.missingValuesValidator', 'DDV', 'Missing values'),
                                     name: 'missingValuesValidator',
                                     itemId: 'missingValuesValidator-validations-preview',
                                     renderer: function (value) {
@@ -143,7 +154,7 @@ Ext.define('Ddv.view.validations.Preview', {
                                     }
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('validations.readingQualitiesValidator', 'DDV', 'Interval State'),
+                                    fieldLabel: Uni.I18n.translate('validations.readingQualitiesValidator', 'DDV', 'Interval state'),
                                     name: 'readingQualitiesValidator',
                                     itemId: 'readingQualitiesValidator-validations-preview',
                                     renderer: function (value) {
@@ -155,7 +166,7 @@ Ext.define('Ddv.view.validations.Preview', {
                                     }
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('validations.registerIncreaseValidator', 'DDV', 'Register Increase'),
+                                    fieldLabel: Uni.I18n.translate('validations.registerIncreaseValidator', 'DDV', 'Register increase'),
                                     name: 'registerIncreaseValidator',
                                     itemId: 'registerIncreaseValidator-validations-preview',
                                     renderer: function (value) {

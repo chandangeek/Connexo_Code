@@ -59,16 +59,16 @@ Ext.define('Ddv.view.validations.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('validations.pagingtoolbartop.displayMsg', 'DDV', '{0} - {1} of {2} device with suspects'),
-                displayMoreMsg: Uni.I18n.translate('validations.pagingtoolbartop.displayMoreMsg', 'DDV', '{0} - {1} of more than {2} device with suspects'),
-                emptyMsg: Uni.I18n.translate('validations.pagingtoolbartop.emptyMsg', 'DDV', 'There are no data device with suspects to display'),
+                displayMsg: Uni.I18n.translate('validations.pagingtoolbartop.displayMsg', 'DDV', '{0} - {1} of {2} devices with suspects'),
+                displayMoreMsg: Uni.I18n.translate('validations.pagingtoolbartop.displayMoreMsg', 'DDV', '{0} - {1} of more than {2} devices with suspects'),
+                emptyMsg: Uni.I18n.translate('validations.pagingtoolbartop.emptyMsg', 'DDV', 'There are no data devices with suspects to display'),
                 items: []
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('validations.pagingtoolbarbottom.deviceWithSuspects', 'DDV', 'Device with suspects per page')
+                itemsPerPageMsg: Uni.I18n.translate('validations.pagingtoolbarbottom.deviceWithSuspects', 'DDV', 'Devices with suspects per page')
             }
         ];
 

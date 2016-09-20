@@ -29,7 +29,7 @@ Ext.define('Ddv.view.validations.Setup', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'ctr-no-validations',
-                            title: Uni.I18n.translate('validations.empty.title', 'DDV', 'No device with suspects found'),
+                            title: Uni.I18n.translate('validations.empty.title', 'DDV', 'No devices with suspects found'),
                             reasons: [
                                 Uni.I18n.translate('validations.empty.list.item1', 'DDV', 'Data has not been validated yet'),
                                 Uni.I18n.translate('validations.empty.list.item2', 'DDV', 'Data has been successfully validated'),
