@@ -38,6 +38,7 @@ import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.ValidationProviderResolver;
 import javax.validation.metadata.ConstraintDescriptor;
+import java.io.InputStream;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -116,6 +117,16 @@ public class NlsServiceImpl implements NlsService {
     @Override
     public TranslationBuilder translate(NlsKey key) {
         return new TranslationBuilderImpl(key);
+    }
+
+    @Override
+    public void addTranslations(InputStream in, Locale locale) {
+        new TranslationBatchCreator(locale, this).addTranslations(in);
+    }
+
+    @Override
+    public void updateTranslations(InputStream in, Locale locale) {
+        new TranslationBatchUpdater(locale, this).addTranslations(in);
     }
 
     @Reference
@@ -354,7 +365,7 @@ public class NlsServiceImpl implements NlsService {
         return parameter.substring(1, parameter.length() - 1);
     }
 
-    private void invalidate(String component, Layer layer) {
+    void invalidate(String component, Layer layer) {
         Optional.ofNullable(thesauri.get(Pair.of(component, layer)))
                 .ifPresent(IThesaurus::invalidate);
     }
@@ -393,6 +404,7 @@ public class NlsServiceImpl implements NlsService {
             translations.put(locale, translation);
             return this;
         }
+
         @Override
         public void add() {
             NlsKeyImpl nlsKey = dataModel.mapper(NlsKeyImpl.class).getOptional(key.getComponent(), key.getLayer(), key.getKey())
@@ -475,4 +487,5 @@ public class NlsServiceImpl implements NlsService {
         }
 
     }
+
 }
