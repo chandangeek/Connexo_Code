@@ -2,20 +2,22 @@ package com.elster.jupiter.domain.util;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 /**
@@ -27,7 +29,7 @@ public class DefaultFinderTest {
     @Mock
     DataModel dataModel;
     @Mock
-    QueryExecutor queryExecutor;
+    QueryExecutor<Integer> queryExecutor;
 
     @Test
     public void testPaging() throws Exception {
@@ -91,7 +93,7 @@ public class DefaultFinderTest {
 
     private void mockQuery(List<Integer> integers) {
         when(queryExecutor.select(any(), any(), anyBoolean(), any(), anyInt(), anyInt())).thenAnswer(invocationOnMock -> integers.subList((int)invocationOnMock.getArguments()[4]-1, Math.min((int)invocationOnMock.getArguments()[5], integers.size())));
-        when(dataModel.query(any(Class.class))).thenReturn(queryExecutor);
+        doReturn(queryExecutor).when(dataModel).query(any());
     }
 
     private void assertList(List<Integer> results, int max) {
@@ -108,6 +110,4 @@ public class DefaultFinderTest {
         }
         return integers;
     }
-
-
 }
