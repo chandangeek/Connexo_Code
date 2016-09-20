@@ -5,6 +5,7 @@ import com.hof.mi.web.service.AdministrationServiceResponse;
 import com.hof.mi.web.service.AdministrationServiceService;
 import com.hof.mi.web.service.AdministrationServiceServiceLocator;
 import com.hof.mi.web.service.AdministrationServiceSoapBindingStub;
+import com.hof.mi.web.service.ContentResource;
 import com.hof.mi.web.service.ImportOption;
 import com.hof.util.Base64;
 
@@ -14,6 +15,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,7 +50,7 @@ public class OpenReports {
                     useSecureConnection = true;
                 }
 
-                if (importContent(args[0], host, port, root, args[2], args[3], useSecureConnection)) {
+                if (importOrUpgradeContent(args[0], host, port, root, args[2], args[3], useSecureConnection)) {
                     System.out.println("Content imported successfully in Connexo Facts.");
                 } else {
                     System.out.println("Error importing content in Connexo Facts.");
@@ -60,7 +63,114 @@ public class OpenReports {
         }
     }
 
-    private static boolean importContent(String filePath, String host, int port, String root, String user, String password, boolean useSecureConnection) {
+    private static boolean importOrUpgradeContent(String filePath, String host, int port, String root, String user, String password, boolean useSecureConnection) {
+        List<String> existingItems = null;
+        List<String> itemsToImport = null;
+
+        try {
+            existingItems = getExportContent(host, port, root, user, password, useSecureConnection);
+            itemsToImport = getItemsToImport(filePath, host, port, root, user, password, useSecureConnection);
+        } catch (RuntimeException e) {
+            return false;
+        }
+
+        return importContent(filePath, existingItems, itemsToImport, host, port, root, user, password, useSecureConnection);
+    }
+
+    private static List<String> getExportContent(String host, int port, String root, String user, String password, boolean useSecureConnection) {
+        List<String> existingItems = new ArrayList<>();
+
+        AdministrationServiceResponse rs = null;
+        AdministrationServiceRequest rsr = new AdministrationServiceRequest();
+        AdministrationServiceService ts = new AdministrationServiceServiceLocator(host, port, root + "/services/AdministrationService", useSecureConnection);
+        AdministrationServiceSoapBindingStub rssbs = null;
+        try {
+            rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+
+        rsr.setLoginId(user);
+        rsr.setPassword(password);
+        rsr.setOrgId(1);
+        rsr.setFunction("GETCONTENT");
+
+        if (rssbs != null) {
+            try {
+                rs = rssbs.remoteAdministrationCall(rsr);
+                if (rs != null) {
+                    if ("SUCCESS".equals(rs.getStatusCode())) {
+                        ContentResource[] resources = rs.getContentResources();
+                        for (ContentResource resource : resources) {
+                            existingItems.add(resource.getResourceName());
+                        }
+                    }
+                }
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                throw new RuntimeException();
+            }
+        }
+
+        return existingItems;
+    }
+
+    private static List<String> getItemsToImport(String filePath, String host, int port, String root, String user, String password, boolean useSecureConnection) {
+        List<String> itemsToImport = new ArrayList<>();
+        File file = new File(filePath);
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            byte[] data = new byte[(int) file.length()];
+            inputStream.read(data);
+
+            AdministrationServiceResponse rs = null;
+            AdministrationServiceRequest rsr = new AdministrationServiceRequest();
+            AdministrationServiceService ts = new AdministrationServiceServiceLocator(host, port, root + "/services/AdministrationService", useSecureConnection);
+            AdministrationServiceSoapBindingStub rssbs = null;
+            try {
+                rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
+            } catch (ServiceException e) {
+                e.printStackTrace();
+                throw new RuntimeException();
+            }
+
+            rsr.setLoginId(user);
+            rsr.setPassword(password);
+            rsr.setOrgId(1);
+            rsr.setFunction("GETIMPORTCONTENT");
+
+            rsr.setParameters(new String[]{Base64.encodeBytes(data)});
+
+            if (rssbs != null) {
+                try {
+                    rs = rssbs.remoteAdministrationCall(rsr);
+                    if (rs != null) {
+                        if ("SUCCESS".equals(rs.getStatusCode())) {
+                            ContentResource[] resources = rs.getContentResources();
+                            for (ContentResource resource : resources) {
+                                itemsToImport.add(resource.getResourceName());
+                            }
+                        }
+                    }
+
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException();
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+
+        return itemsToImport;
+    }
+
+    private static boolean importContent(String filePath, List<String> existingItems, List<String> itemsToImport, String host, int port, String root, String user, String password, boolean useSecureConnection) {
         File file = new File(filePath);
         try (FileInputStream inputStream = new FileInputStream(file)) {
             byte[] data = new byte[(int) file.length()];
@@ -80,11 +190,16 @@ public class OpenReports {
             rsr.setPassword(password);
             rsr.setOrgId(1);
             rsr.setFunction("IMPORTCONTENT");
-            ImportOption option = new ImportOption();
-            option.setItemIndex(-1);
-            option.setOptionKey("OPTION");
-            option.setOptionValue("REPLACE");
-            rsr.setImportOptions(new ImportOption[]{option});
+
+            int index = 0;
+            ImportOption[] importOptions = new ImportOption[itemsToImport.size()];
+            for (String item : itemsToImport) {
+                ImportOption option = new ImportOption();
+                option.setItemIndex(index++);
+                option.setOptionKey("OPTION");
+                option.setOptionValue(existingItems.contains(item) ? "REPLACE" : "ADD");
+            }
+            rsr.setImportOptions(importOptions);
             rsr.setParameters(new String[]{Base64.encodeBytes(data)});
 
             if (rssbs != null) {
