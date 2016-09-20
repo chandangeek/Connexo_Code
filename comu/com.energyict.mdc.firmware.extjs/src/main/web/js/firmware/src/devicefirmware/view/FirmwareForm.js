@@ -14,6 +14,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         'Uni.DateTime'
     ],
     record: null,
+    device: null,
     hydrator: 'Fwc.form.Hydrator',
     header: {
         titlePosition: 0,
@@ -260,8 +261,11 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
 
             formFailed.down('#retryBtn').setVisible(status === 'failedVersion' || status === 'failedActivatingVersion');
             formFailed.down('#checkBtn').setVisible(status === 'failedVerificationVersion');
-            formFailed.down('#deviceEventsBtn').setVisible(status === 'wrongVerificationVersion');
             formFailed.down('#logBtn').setVisible(record.get('firmwareComTaskId') && record.get('firmwareComTaskSessionId'));
+            if(status === 'wrongVerificationVersion'){
+                formFailed.down('#deviceEventsBtn').setVisible(true);
+                formFailed.down('#deviceEventsBtn').setDisabled(!me.device.get('hasLogBooks'));
+            }
         }
 
         if (status === 'ongoingVersion') {
