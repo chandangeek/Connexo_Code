@@ -24,10 +24,10 @@ regexesPlural = [
     ]
 
 regexes = [
-		/Uni\.I18n\.translate\(\s*'(\S*)'\s*,\s*'(\S*)'\s*,\s*'(.+?[^\\])'.*?\)/m,  # translate('xxx', 'xxx', 'xxx')
-		/Uni\.I18n\.translate\(\s*'(\S*)'\s*,\s*'(\S*)'\s*,\s*"(.+?[^\\])".*?\)/m,  # translate('xxx', 'xxx', "xxx")
-		/Uni\.I18n\.translate\(\s*"(\S*)"\s*,\s*"(\S*)"\s*,\s*'(.+?[^\\])'.*?\)/m,  # translate("xxx", "xxx", 'xxx')
-		/Uni\.I18n\.translate\(\s*"(\S*)"\s*,\s*"(\S*)"\s*,\s*"(.+?[^\\])".*?\)/m   # translate("xxx", "xxx", "xxx")
+		/Uni\.I18n\.translate\(\s*'(\S*)'\s*,\s*'(\S*)'\s*,\s*'(.*?[^\\])'.*?\)/m,  # translate('xxx', 'xxx', 'xxx')
+		/Uni\.I18n\.translate\(\s*'(\S*)'\s*,\s*'(\S*)'\s*,\s*"(.*?[^\\])".*?\)/m,  # translate('xxx', 'xxx', "xxx")
+		/Uni\.I18n\.translate\(\s*"(\S*)"\s*,\s*"(\S*)"\s*,\s*'(.*?[^\\])'.*?\)/m,  # translate("xxx", "xxx", 'xxx')
+		/Uni\.I18n\.translate\(\s*"(\S*)"\s*,\s*"(\S*)"\s*,\s*"(.*?[^\\])".*?\)/m   # translate("xxx", "xxx", "xxx")
 	]
 
 duplicates = Hash.new
