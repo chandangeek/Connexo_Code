@@ -24,8 +24,7 @@ public enum TranslationKeys implements TranslationKey {
     CPS_TECHNICAL_PROPERTIES_CABLE_TYPE("usage.point.cps.tech.cable.type", "Cable type"),
     //CPS_TECHNICAL_PROPERTIES_CABLE_TYPE_DESCRIPTION("usage.point.cps.tech.cable.type.descr", ""),
     CPS_TECHNICAL_PROPERTIES_PIPE_TYPE("usage.point.cps.tech.pipe.type", "Pipe type"),
-    CPS_TECHNICAL_PROPERTIES_PIPE_TYPE_DESCRIPTION("usage.point.cps.tech.pipe.type.descr", "Material of the type.\n" +
-            "Eg. Lead pipes or asbetos pipes were used in the past but need to be replaced due to health concerns."),
+    CPS_TECHNICAL_PROPERTIES_PIPE_TYPE_DESCRIPTION("usage.point.cps.tech.pipe.type.descr", "Type of the material. Eg. Lead pipes or asbetos pipes were used in the past but need to be replaced due to health concerns."),
     CPS_TECHNICAL_PROPERTIES_CABLE_LOCATION("usage.point.cps.tech.cable.location", "Cable location"),
     CPS_TECHNICAL_PROPERTIES_CABLE_LOCATION_DESCRIPTION("usage.point.cps.tech.cable.location.descr", "x meters above/under ground"),
     CPS_TECHNICAL_PROPERTIES_PIPE_LOCATION("usage.point.cps.tech.pipe.location", "Pipe location"),
@@ -107,23 +106,17 @@ public enum TranslationKeys implements TranslationKey {
     CPS_METER_TECH_CONVERSION_METROLOGY("usage.point.cps.meter.tech.information.conversion.mtr", "Herleidingsmethodiek"),
     CPS_METER_TECH_CONVERSION_METROLOGY_DESCRIPTION("usage.point.cps.meter.tech.information.conversion.mtr.descr", "Geeft aan op welke manier de te versturen meetdata van deze meter achteraf gecorrigeerd moet worden voor druk en temperatuur."),
     CPS_METER_TECH_CAPACITY_MINIMAL("usage.point.cps.meter.tech.information.capacity.minimal", "Capacity minimal"),
-    CPS_METER_TECH_CAPACITY_MINIMAL_DESCRIPTION("usage.point.cps.meter.tech.information.capacity.minimal.descr", "Qmin\n" +
-            "De minimaal benodigde doorstroom om een meting van voldoende kwaliteit te krijgen."),
+    CPS_METER_TECH_CAPACITY_MINIMAL_DESCRIPTION("usage.point.cps.meter.tech.information.capacity.minimal.descr", "Qmin: De minimaal benodigde doorstroom om een meting van voldoende kwaliteit te krijgen."),
     CPS_METER_TECH_CAPACITY_NOMINAL("usage.point.cps.meter.tech.information.capacity.nominal", "Capacity nominal"),
-    CPS_METER_TECH_CAPACITY_NOMINAL_DESCRIPTION("\"usage.point.cps.meter.tech.information.capacity.nominal.descr", "Qnom\n" +
-            "De maximale doorstroom, die de meter continu aankan.(Kan afwijken van de G-waarde, met name bij oudere meters)"),
+    CPS_METER_TECH_CAPACITY_NOMINAL_DESCRIPTION("usage.point.cps.meter.tech.information.capacity.nominal.descr", "Qnom: De maximale doorstroom, die de meter continu aankan.(Kan afwijken van de G-waarde, met name bij oudere meters)"),
     CPS_METER_TECH_CAPACITY_MAXIMAL("usage.point.cps.meter.tech.information.capacity.maximal", "Capacity maximal"),
-    CPS_METER_TECH_CAPACITY_MAXIMAL_DESCRIPTION("usage.point.cps.meter.tech.information.capacity.maximal.descr", "Qmax\n" +
-            "De maximale piek doorstroom waarbij de meting nog van voldoende kwaliteit is."),
+    CPS_METER_TECH_CAPACITY_MAXIMAL_DESCRIPTION("usage.point.cps.meter.tech.information.capacity.maximal.descr", "Qmax: De maximale piek doorstroom waarbij de meting nog van voldoende kwaliteit is."),
     CPS_METER_TECH_PRESSURE_MAXIMAL("usage.point.cps.meter.tech.information.pressure.maximal", "Pressure maximal"),
-    CPS_METER_TECH_PRESSURE_MAXIMAL_DESCRIPTION("usage.point.cps.meter.tech.information.pressure.maximal.descr", "Pmax\n" +
-            "De maximale druk, die de meter aankan."),
+    CPS_METER_TECH_PRESSURE_MAXIMAL_DESCRIPTION("usage.point.cps.meter.tech.information.pressure.maximal.descr", "Pmax: De maximale druk, die de meter aankan."),
     CPS_METER_TECH_CURRENT_NOMINAL("usage.point.cps.meter.tech.information.nominal", "Stroomsterkte nominaal"),
-    CPS_METER_TECH_CURRENT_NOMINAL_DESCRIPTION("usage.point.cps.meter.tech.information.nominal.descr", "Inom\n" +
-            " De maximale stroomsterkte, die het apparaat continu aankan."),
+    CPS_METER_TECH_CURRENT_NOMINAL_DESCRIPTION("usage.point.cps.meter.tech.information.nominal.descr", "Inom: De maximale stroomsterkte, die het apparaat continu aankan."),
     CPS_METER_TECH_CURRENT_MAXIMAL("usage.point.cps.meter.tech.information.maximal", "Stroomsterkte maximaal"),
-    CPS_METER_TECH_CURRENT_MAXIMAL_DESCRIPTION("usage.point.cps.meter.tech.information.maximal.descr", "Imax\n" +
-            " De maximale piek stroomsterkte, die het apparaat aan kan."),
+    CPS_METER_TECH_CURRENT_MAXIMAL_DESCRIPTION("usage.point.cps.meter.tech.information.maximal.descr", "Imax: De maximale piek stroomsterkte, die het apparaat aan kan."),
     CPS_METER_TECH_MECHANISM("usage.point.cps.meter.tech.information.mechanism", "Meter mechanizm"),
     CPS_METER_TECH_MECHANISM_DESCRIPTION("usage.point.cps.meter.tech.information.mechanism.descr", "The coded value of the description of the Meter Mechanism"),
     CPS_METER_TECH_TYPE("usage.point.cps.meter.tech.information.type", "Meter type"),
