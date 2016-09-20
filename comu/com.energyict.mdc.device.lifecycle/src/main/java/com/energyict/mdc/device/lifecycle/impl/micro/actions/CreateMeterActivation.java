@@ -53,7 +53,13 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
 
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        Optional<Instant> lastDataTimestamp = maxEffectiveTimestampAfterLastData(effectiveTimestamp, device);
+        Instant newEffectiveTimestamp = device.getMeterActivationsMostRecentFirst() // it is possible that we already have activations after effectiveTimestamp
+                .stream()
+                .map(MeterActivation::getStart)
+                .filter(start -> start.isAfter(effectiveTimestamp))
+                .findFirst()
+                .orElse(effectiveTimestamp);
+        Optional<Instant> lastDataTimestamp = maxEffectiveTimestampAfterLastData(newEffectiveTimestamp, device);
         if (lastDataTimestamp.isPresent()) {
             List<Channel> channels = device.getCurrentMeterActivation()
                     .map(MeterActivation::getChannelsContainer)
@@ -61,10 +67,12 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
                     .orElse(Collections.emptyList());
             MeterActivation newMeterActivation = device.activate(lastDataTimestamp.get());
             List<Channel> newChannels = createNewChannelsForNewMeterActivation(newMeterActivation, channels);
-            newMeterActivation.advanceStartDate(effectiveTimestamp);
+            if (newEffectiveTimestamp.isBefore(lastDataTimestamp.get())) {
+                newMeterActivation.advanceStartDate(newEffectiveTimestamp);
+            }
             removeReadingQualities(newChannels);
         } else {
-            device.activate(effectiveTimestamp);
+            device.activate(newEffectiveTimestamp);
         }
     }
 
