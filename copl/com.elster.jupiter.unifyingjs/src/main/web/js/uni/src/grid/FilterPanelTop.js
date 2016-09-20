@@ -403,7 +403,6 @@ Ext.define('Uni.grid.FilterPanelTop', {
                 }
             }
             me.fireEvent('change', params);
-            // Uni.util.History.setParsePath(true);
         }
     },
 
