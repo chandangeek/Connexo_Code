@@ -110,7 +110,7 @@ public final class DefaultFinder<T> implements Finder<T> {
     @Override
     public Subquery asSubQuery(String... fieldNames) {
         if (start == null || pageSize == null) {
-            return query.asSubquery(condition, fieldNames, getActualSortingColumns());
+            return query.asSubquery(condition, fieldNames, Order.NOORDER);
         } else {
             return query.asSubquery(condition, start + 1, start + pageSize + 1, fieldNames, getActualSortingColumns());
         }
@@ -118,7 +118,7 @@ public final class DefaultFinder<T> implements Finder<T> {
 
     @Override
     public SqlFragment asFragment(String... fieldNames) {
-        return query.asFragment(condition, fieldNames, getActualSortingColumns());
+        return query.asFragment(condition, fieldNames, Order.NOORDER);
     }
 
     @Override
