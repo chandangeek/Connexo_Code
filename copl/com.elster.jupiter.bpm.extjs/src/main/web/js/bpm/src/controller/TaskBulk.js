@@ -409,6 +409,7 @@ Ext.define('Bpm.controller.TaskBulk', {
             groupStore = tasksGroupGrid.getStore();
             groupStore.each(function(record) {
                 for (var i = 0; i < record.get('tasksForm').properties.length; i++) {
+
                     if (record.tasksForm.propertiesStore.data.items[i].getPropertyValue().get('value')) {
                         if (typeof record.get('tasksForm').properties[i].propertyValueInfo == 'undefined' || record.get('tasksForm').properties[i].propertyValueInfo === null) {
                             var propertyValueInfoTest = Ext.create('Uni.property.model.PropertyValue');
@@ -419,12 +420,14 @@ Ext.define('Bpm.controller.TaskBulk', {
                     }
                     else
                     if (record.tasksForm.propertiesStore.data.items[i].getPropertyType().get('simplePropertyType') == 'BOOLEAN') {
+                        if (typeof record.get('tasksForm').properties[i].propertyValueInfo == 'undefined' || record.get('tasksForm').properties[i].propertyValueInfo === null) {
+                            var propertyValueInfoTest = Ext.create('Uni.property.model.PropertyValue');
+                            record.get('tasksForm').properties[i].propertyValueInfo = propertyValueInfoTest.data;
+                        }
                         record.get('tasksForm').properties[i].propertyValueInfo.value = false;
                     }
 
                 }
-
-
 
 
             });
