@@ -39,7 +39,7 @@ import java.util.Optional;
         property = "name=DeviceProcessAssociationProvider", immediate = true)
 public class DeviceProcessAssociationProvider implements ProcessAssociationProvider, TranslationKeyProvider {
     public static final String APP_KEY = "MDC";
-    public static final String COMPONENT_NAME = "BPM";
+    public static final String COMPONENT_NAME = "CBP";
     public static final String ASSOCIATION_TYPE = "device";
 
     private volatile License license;
