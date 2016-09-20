@@ -7,14 +7,12 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
+
+import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -72,25 +69,21 @@ public class CreateMeterActivationTest {
 
     @Test
     public void executeCreatesMeterActivationIfDeviceHasDataAfterTimestamp() {
-        Instant now = Instant.ofEpochSecond(97L);
-        Instant lastDataTimestamp = now.plus(10, ChronoUnit.MINUTES);
         CreateMeterActivation microAction = this.getTestInstance();
-        LoadProfile loadProfile = mock(LoadProfile.class);
-        when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
-        when(loadProfile.getLastReading()).thenReturn(Optional.of(lastDataTimestamp));
-        MeterActivation currentMeterActivation = mock(MeterActivation.class);
+        Instant now = Instant.ofEpochSecond(10000L);
+        ChannelsContainer newChannelsContainer = mock(ChannelsContainer.class);
         MeterActivation newMeterActivation = mock(MeterActivation.class);
-        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
-        when(newMeterActivation.getChannelsContainer()).thenReturn(channelsContainer);
-        doReturn(Optional.of(currentMeterActivation)).when(device).getCurrentMeterActivation();
-        when(device.activate(lastDataTimestamp)).thenReturn(newMeterActivation);
+        when(newMeterActivation.getChannelsContainer()).thenReturn(newChannelsContainer);
+        MeterActivation existingMeterActivation = mock(MeterActivation.class);
+        when(existingMeterActivation.split(now)).thenReturn(newMeterActivation);
+        when(existingMeterActivation.getRange()).thenReturn(Range.atLeast(Instant.ofEpochSecond(5000L)));
+        when(device.getMeterActivationsMostRecentFirst()).thenReturn(Collections.singletonList(existingMeterActivation));
 
         // Business method
         microAction.execute(this.device, now, Collections.emptyList());
 
         // Asserts
-        verify(device).activate(lastDataTimestamp);
-        verify(newMeterActivation).advanceStartDate(now);
+        verify(existingMeterActivation).split(now);
     }
 
     private CreateMeterActivation getTestInstance() {
