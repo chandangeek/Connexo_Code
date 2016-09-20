@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -13,18 +13,20 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import org.junit.Test;
-import org.junit.runner.*;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link OfflineLoadProfileImpl} component
@@ -71,18 +73,25 @@ public class OfflineLoadProfileImplTest {
 
     private LoadProfile getMockedLoadProfileWithTwoChannels(long loadProfileId, ObisCode loadProfileObisCode, TopologyService topologyService) {
         LoadProfile newMockedLoadProfile = getNewMockedLoadProfile(loadProfileId, loadProfileObisCode);
-        Channel channel1 = mockChannel();
-        Channel channel2 = mockChannel();
-        Channel channel3 = mockChannel();
-        Channel channel4 = mockChannel();
+        Channel channel1 = mockChannel(newMockedLoadProfile);
+        Channel channel2 = mockChannel(newMockedLoadProfile);
+        Channel channel3 = mockChannel(newMockedLoadProfile);
+        Channel channel4 = mockChannel(newMockedLoadProfile);
+        Device device1 = mock(Device.class);
+        when(device1.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
+        Device device2 = mock(Device.class);
+        when(device2.getChannels()).thenReturn(Arrays.asList(channel3, channel4));
+        when(device2.isLogicalSlave()).thenReturn(true);
+        when(newMockedLoadProfile.getDevice()).thenReturn(device1);
+        when(topologyService.findPhysicalConnectedDevices(device1)).thenReturn(Arrays.asList(device2));
         when(newMockedLoadProfile.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
-        when(topologyService.getAllChannels(newMockedLoadProfile)).thenReturn(Arrays.asList(channel1, channel2, channel3, channel4));
         return newMockedLoadProfile;
     }
 
-    private Channel mockChannel() {
+    private Channel mockChannel(LoadProfile loadProfile) {
         Channel channel = mock(Channel.class, RETURNS_DEEP_STUBS);
         when(channel.getOverflow()).thenReturn(Optional.empty());
+        when(channel.getLoadProfile()).thenReturn(loadProfile);
         return channel;
     }
 

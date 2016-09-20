@@ -29,7 +29,9 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -37,7 +39,7 @@ import java.util.stream.Collectors;
 /**
  * An offline implementation version of an {@link com.energyict.mdc.protocol.api.device.BaseDevice}
  * mainly containing information which is relevant to use at offline-time.
- * <p>
+ * <p/>
  *
  * @author gna
  * @since 12/04/12 - 13:58
@@ -119,6 +121,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     private List<OfflineCalendar> calendars = Collections.emptyList();
 
+    private Map<Device, List<Device>> deviceTopologies = new HashMap<>();
+
     public interface ServiceProvider {
 
         Thesaurus thesaurus();
@@ -151,7 +155,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setDeviceProtocolPluggableClass(this.device.getDeviceProtocolPluggableClass().get());
         }
         if (context.needsSlaveDevices()) {
-            List<Device> downstreamDevices = serviceProvider.topologyService().findPhysicalConnectedDevices(this.device);
+            List<Device> downstreamDevices = getPhysicalConnectedDevices(this.device);
             List<Device> downStreamEndDevices = new ArrayList<>(downstreamDevices.size());
             downStreamEndDevices.addAll(downstreamDevices.stream().collect(Collectors.toList()));
             setSlaveDevices(convertToOfflineRtus(downStreamEndDevices));
@@ -160,13 +164,13 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setMasterLoadProfiles(convertToOfflineLoadProfiles(this.device.getLoadProfiles(), serviceProvider.topologyService()));
         }
         if (context.needsAllLoadProfiles()) {
-            setAllLoadProfiles(convertToOfflineLoadProfiles(getAllLoadProfilesIncludingDownStreams(this.device, serviceProvider.topologyService()), serviceProvider.topologyService()));
+            setAllLoadProfiles(convertToOfflineLoadProfiles(getAllLoadProfilesIncludingDownStreams(this.device), serviceProvider.topologyService()));
         }
         if (context.needsLogBooks()) {
             setAllLogBooks(convertToOfflineLogBooks(this.device.getLogBooks()));
         }
         if (context.needsRegisters()) {
-            setAllRegisters(convertToOfflineRegister(createCompleteRegisterList(serviceProvider.topologyService())));
+            setAllRegisters(convertToOfflineRegister(createCompleteRegisterList()));
         }
         if (context.needsPendingMessages()) {
             PendingMessagesValidator validator = new PendingMessagesValidator(this.device);
@@ -198,6 +202,15 @@ public class OfflineDeviceImpl implements OfflineDevice {
         this.setCalendars();
     }
 
+    private List<Device> getPhysicalConnectedDevices(Device device) {
+        List<Device> connectedDevices = deviceTopologies.get(device);
+        if (connectedDevices == null) {
+            connectedDevices = serviceProvider.topologyService().findPhysicalConnectedDevices(device);
+            deviceTopologies.put(device, connectedDevices);
+        }
+        return connectedDevices;
+    }
+
     /**
      * We get the cache from the DataBase. The object will only be set if it is an instance of {@link DeviceProtocolCache}.
      * Otherwise an nullObject will be provided to the {@link DeviceProtocol} so it can
@@ -221,12 +234,11 @@ public class OfflineDeviceImpl implements OfflineDevice {
      *
      * @return the list of all RtuRegisters
      */
-    private List<Register> createCompleteRegisterList(TopologyService topologyService) {
+    private List<Register> createCompleteRegisterList() {
         List<Register> registers = new ArrayList<>();
         registers.addAll(this.device.getRegisters());
         registers.addAll(
-                topologyService
-                        .findPhysicalConnectedDevices(device)
+                getPhysicalConnectedDevices(device)
                         .stream()
                         .filter(this::checkTheNeedToGoOffline)
                         .flatMap(slave -> slave.getRegisters().stream())
@@ -242,11 +254,11 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * @param device the <CODE>Device</CODE> to collect the <CODE>LoadProfiles</CODE> from
      * @return a List of <CODE>LoadProfiles</CODE>
      */
-    private List<LoadProfile> getAllLoadProfilesIncludingDownStreams(Device device, TopologyService topologyService) {
+    private List<LoadProfile> getAllLoadProfilesIncludingDownStreams(Device device) {
         List<LoadProfile> allLoadProfiles = new ArrayList<>(device.getLoadProfiles());
-        topologyService.findPhysicalConnectedDevices(device).stream().
+        getPhysicalConnectedDevices(device).stream().
                 filter(this::checkTheNeedToGoOffline).
-                forEach(slave -> allLoadProfiles.addAll(getAllLoadProfilesIncludingDownStreams(slave, topologyService)));
+                forEach(slave -> allLoadProfiles.addAll(getAllLoadProfilesIncludingDownStreams(slave)));
         return allLoadProfiles;
     }
 
@@ -274,7 +286,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private List<OfflineLoadProfile> convertToOfflineLoadProfiles(final List<LoadProfile> loadProfiles, TopologyService topologyService) {
         return loadProfiles
                 .stream()
-                .map(lp -> new OfflineLoadProfileImpl(lp, topologyService, serviceProvider.identificationService()))
+                .map(lp -> new OfflineLoadProfileImpl(lp, topologyService, serviceProvider.identificationService(), deviceTopologies))
                 .collect(Collectors.toList());
     }
 
@@ -393,8 +405,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private List<DeviceMessage<Device>> getAllPendingMessagesIncludingSlaves(Device device) {
         List<DeviceMessage<Device>> allDeviceMessages = new ArrayList<>();
         allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.PENDING));
-        TopologyService topologyService = serviceProvider.topologyService();
-        topologyService.findPhysicalConnectedDevices(device).stream().
+        getPhysicalConnectedDevices(device).stream().
                 filter(this::checkTheNeedToGoOffline).
                 forEach(slave -> allDeviceMessages.addAll(getAllPendingMessagesIncludingSlaves(slave)));
         return allDeviceMessages;
@@ -411,8 +422,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private List<DeviceMessage<Device>> getAllSentMessagesIncludingSlaves(Device device) {
         List<DeviceMessage<Device>> allDeviceMessages = new ArrayList<>();
         allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.SENT));
-        TopologyService topologyService = serviceProvider.topologyService();
-        topologyService.findPhysicalConnectedDevices(device).stream().
+        getPhysicalConnectedDevices(device).stream().
                 filter(this::checkTheNeedToGoOffline).
                 forEach(slave -> allDeviceMessages.addAll(getAllSentMessagesIncludingSlaves(slave)));
         return allDeviceMessages;
