@@ -1,4 +1,4 @@
-package com.elster.jupiter.bpm.impl;
+package com.elster.jupiter.bpm.install;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,11 +37,17 @@ public class FlowUpgrader {
         } else {
             try {
                 connection = getConnection(jdbc, user, password);
-                connection.setAutoCommit(true);
+                connection.setAutoCommit(false);
                 statement = connection.prepareStatement(sql);
                 statement.execute();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                connection.commit();
+            } catch (SQLException exCommit) {
+                try {
+                    connection.rollback();
+                } catch (SQLException exRollback) {
+                    exRollback.printStackTrace();
+                }
+                exCommit.printStackTrace();
                 exitCode = 1;
             } finally {
                 if (statement != null) {

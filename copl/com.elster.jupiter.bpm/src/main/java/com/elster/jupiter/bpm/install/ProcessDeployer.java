@@ -1,4 +1,4 @@
-package com.elster.jupiter.bpm.impl;
+package com.elster.jupiter.bpm.install;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -50,8 +50,11 @@ public class ProcessDeployer {
     }
 
     private static void deployProcess(String deploymentId, String arg, String authString) {
-        String url = arg + "/rest/deployment/" + deploymentId + "/deploy?strategy=SINGLETON";
-        doPostAndWait(url, authString, null);
+        String baseUrl = "/rest/deployment/" + deploymentId;
+        if (!doGet(baseUrl, authString)) {
+            String url = arg + baseUrl + "/deploy?strategy=SINGLETON";
+            doPostAndWait(url, authString, null);
+        }
     }
 
     private static boolean doPost(String url, String authString, String payload) {
