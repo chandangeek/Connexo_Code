@@ -1,6 +1,5 @@
 package com.elster.jupiter.prepayment.export.redknee.impl;
 
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -27,7 +26,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return DataExportService.COMPONENTNAME;
+        return "RKN";
     }
 
     @Override
