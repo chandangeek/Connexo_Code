@@ -296,6 +296,7 @@
                 <module>../com.elster.jupiter.issue</module>
                 <module>../com.elster.jupiter.issue.extjs</module>
                 <module>../com.elster.jupiter.issue.rest</module>
+                <module>../com.elster.jupiter.kore.api.rest</module>
                 <module>../com.elster.jupiter.kpi</module>
                 <module>../com.elster.jupiter.metering</module>
                 <module>../com.elster.jupiter.metering.bpm</module>
@@ -306,7 +307,7 @@
                 <module>../com.elster.jupiter.metering.extjs</module>
                 <module>../com.elster.jupiter.parties</module>
                 <module>../com.elster.jupiter.parties.rest</module>
-                <module>../com.elster.jupiter.kore.api.rest</module>
+                <module>../com.elster.jupiter.pulse.nls.de</module>
                 <module>../com.elster.jupiter.system.app</module>
                 <module>../com.elster.jupiter.system.app.help</module>
                 <module>../com.elster.jupiter.systemadmin.extjs</module>
