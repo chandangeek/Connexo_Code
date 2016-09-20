@@ -484,6 +484,7 @@ public final class MeterActivationImpl implements IMeterActivation {
         }
     }
 
+    @Override
     public MeterActivation split(Instant breakTime) {
         Range<Instant> sourceRange = getRange();
         if (breakTime == null || !sourceRange.contains(breakTime)) {
