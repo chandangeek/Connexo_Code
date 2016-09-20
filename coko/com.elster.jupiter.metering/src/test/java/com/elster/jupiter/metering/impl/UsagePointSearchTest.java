@@ -61,7 +61,10 @@ import org.osgi.service.event.EventAdmin;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
@@ -153,7 +156,7 @@ public class UsagePointSearchTest {
                 .setMainAddress(new StreetAddress(new StreetDetail("Spinnerijstraat", "101"), new TownDetail("8500", "Kortrijk", "BE")))
                 .setName("EnergyICT")
                 .create();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).withServiceLocation(location).create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID0", Instant.EPOCH).withServiceLocation(location).create();
         usagePoint.setServiceLocation(location);
         ElectricityDetailImpl detail = (ElectricityDetailImpl) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
         detail.setRatedPower(Unit.WATT.amount(BigDecimal.valueOf(1000), 3));
@@ -182,18 +185,27 @@ public class UsagePointSearchTest {
         party = partyService.getParty("Electrabel").get();
         usagePoint.addAccountability(role, party, Instant.now());
         assertThat(query.select(meteringService.hasAccountability())).isNotEmpty();
-        assertThat(query.select(Condition.TRUE, Order.descending("mRID").toUpperCase(), Order.ascending("id")).get(0).getMRID()).isEqualTo("mrID9");
+
+        List<String> sortedResult = Arrays.asList("mrID0", "mrID1", "mrID10", "mrID2", "mrID3", "mrID4", "mrID5", "mrID6", "mrID7", "mrID8", "mrID9");
+        assertThat(query.select(Condition.TRUE, Order.descending("mRID").toUpperCase(), Order.ascending("id"))
+                .stream()
+                .map(UsagePoint::getMRID)
+                .collect(Collectors.toList()))
+                .containsOnlyElementsOf(sortedResult)
+                .isSortedAccordingTo(Comparator.<String>naturalOrder().reversed());
         assertThat(usagePoint.getCustomer(Instant.now()).get().getMRID()).isEqualTo("Electrabel");
 
         Finder<UsagePoint> finder = (Finder<UsagePoint>)usagePointSearchDomain.finderFor(Collections.emptyList());
+        assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
+                .isEqualTo(sortedResult);
         finder.paged(0, 5);
         assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
-                .containsExactly("mrID", "mrID1", "mrID10", "mrID2", "mrID3", "mrID4");
+                .isEqualTo(sortedResult.subList(0, 6));
         finder.paged(5, 5);
         assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
-                .containsExactly("mrID4", "mrID5", "mrID6", "mrID7", "mrID8", "mrID9");
+                .isEqualTo(sortedResult.subList(5, 11));
         finder.paged(10, 5);
         assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
-                .containsExactly("mrID9");
+                .isEqualTo(sortedResult.subList(10, 11));
     }
 }
