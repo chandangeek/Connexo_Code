@@ -39,6 +39,7 @@ my $ACTIVATE_SSO="no";
 my $APACHE_PATH;
 my $UPGRADE="no";
 my $UPGRADE_PATH;
+my $UPGRADE_OLD_SERVICE_VERSION="";
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
@@ -782,6 +783,7 @@ sub start_tomcat {
 
 			chdir "$CONNEXO_DIR";
             system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
+            system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
 			unlink("$CONNEXO_DIR/datasource.xml");
 		}
 
@@ -799,13 +801,13 @@ sub start_tomcat {
 
             chdir "$CONNEXO_DIR";
 			if ("$ACTIVATE_SSO" eq "yes") {
-			    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+			    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
                 sleep 5;
-                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
             } else {
-                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
                 sleep 5;
-                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
             }
 
             print "\nDeploy MDC processes...\n";
@@ -819,9 +821,11 @@ sub start_tomcat {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
                     if ("$ACTIVATE_SSO" eq "yes") {
-                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
                     } else {
-                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
                     }
                     sleep 2;
                 }
@@ -839,9 +843,9 @@ sub start_tomcat {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
                     if ("$ACTIVATE_SSO" eq "yes") {
-                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
                     } else {
-                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid") == 0 or die "Installing Connexo Flow content failed: $?";
                     }
                     sleep 2;
                 }
@@ -863,6 +867,23 @@ sub final_steps {
         print "3. Start Apache HTTP 2.4 service:\n";
         print "   -> sc start Apache2.4\n";
     }
+}
+
+sub uninstall_tomcat_for_upgrade() {
+	if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+		print "Stop and remove ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION service";
+		system("\"$CONNEXO_DIR/partners/tomcat/bin/service.bat\" remove ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
+		while ((`sc query ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION` =~ m/STATE.*:.*/) ne "") {
+			sleep 3;
+		}
+    } else {
+		print "Stop and remove ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION service";
+		system("/sbin/service ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION stop");
+		sleep 3;
+		system("userdel -r tomcat");
+        system("/sbin/chkconfig --del ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
+		unlink("/etc/init.d/ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
+	}
 }
 
 sub uninstall_all {
@@ -956,11 +977,13 @@ sub perform_upgrade {
     }
 
     # stop connexo
-    print "Stopping Connexo service\n";
+    print "Stopping Connexo services\n";
     if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-        system("sc stop Connexo$SERVICE_VERSION");
+        system("sc stop Connexo$UPGRADE_OLD_SERVICE_VERSION");
+		system("sc stop ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
     } else {
-        system("/sbin/service Connexo$SERVICE_VERSION stop");
+        system("/sbin/service Connexo$UPGRADE_OLD_SERVICE_VERSION stop");
+		system("/sbin/service ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION stop");
     }
 
     #rename bundles folder
@@ -1069,6 +1092,16 @@ sub perform_upgrade {
         close($upgrade_log);
         rmtree("$CONNEXO_DIR/bundles");
         rename("$CONNEXO_DIR/bundles_obsolete","$CONNEXO_DIR/bundles");
+		
+		# start connexo & tomcat
+		print "\nStarting Connexo & ConnexoTomcat services\n";
+		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+			system("sc start Connexo$UPGRADE_OLD_SERVICE_VERSION");
+			system("sc start ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
+		} else {
+			system("/sbin/service Connexo$UPGRADE_OLD_SERVICE_VERSION start");
+			system("/sbin/service ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION start");
+		}
     } else {
         #also start copying all other folders
 
@@ -1086,8 +1119,24 @@ sub perform_upgrade {
 
         #rename partners folder
         print "Copying partners to partners_obsolete\n";
-        dircopy("$CONNEXO_DIR/partners","$CONNEXO_DIR/partners_obsolete");
+        rename("$CONNEXO_DIR/partners","$CONNEXO_DIR/partners_obsolete");
+		make_path("$CONNEXO_DIR/partners");
 
+		#uninstall old Connexo service version
+		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+			print "Stop and remove Connexo$UPGRADE_OLD_SERVICE_VERSION service";
+			system("\"$CONNEXO_DIR/bin/ConnexoService.exe\" /uninstall Connexo$UPGRADE_OLD_SERVICE_VERSION");
+		} else {
+			print "Stop and remove Connexo$UPGRADE_OLD_SERVICE_VERSION service";
+			system("/sbin/service Connexo$UPGRADE_OLD_SERVICE_VERSION stop");
+			sleep 3;
+			system("pgrep -u connexo | xargs kill -9");
+			sleep 3;
+			system("userdel -r connexo");
+			system("/sbin/chkconfig --del Connexo$UPGRADE_OLD_SERVICE_VERSION");
+			unlink("/etc/init.d/Connexo$UPGRADE_OLD_SERVICE_VERSION");
+		}
+	
         #rename bin folder
         print "Renaming bin to bin_obsolete\n";
         make_path("$CONNEXO_DIR/bin_obsolete");
@@ -1157,52 +1206,25 @@ sub perform_upgrade {
                     }
                 }
             }
-            rmtree("$UPGRADE_PATH/temp");
-        }
-        print "Removing felix-cache\n";
-        rmtree("$CONNEXO_DIR/felix-cache");
-    }
-
-    # start connexo
-    print "\nStarting Connexo service\n";
-    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-        system("sc start Connexo$SERVICE_VERSION");
-    } else {
-        system("/sbin/service Connexo$SERVICE_VERSION start");
-    }
-
-    if ("$CONT_UPG" eq "yes") {
-    #upgrade partners
-        foreach my $zipfile (@ZIPfiles) {
-            print "Extracting $zipfile\n";
-            my $zip = Archive::Zip->new($zipfile);
-            $zip->extractTree("","$UPGRADE_PATH/temp/");
-
-            #execute partners upgrade
+			
+			#uninstall old tomcat service version
+			uninstall_tomcat_for_upgrade();
+			
+			#copy content of partners folder
             if (! -d "$UPGRADE_PATH/temp/partners") {
                 print "No partners folder found in $zipfile.\n";
             } else {
-                print "Starting upgrade of partners\n";
+                print "Copying upgrade partners\n";
+                dircopy("$UPGRADE_PATH/temp/partners","$CONNEXO_DIR/partners");
+				
+				print "Starting upgrade of partners\n";
                 open(my $FH,"> $UPGRADE_PATH/temp/partners/upgrade.cmd") or die "Could not open $UPGRADE_PATH/temp/partners/upgrade.cmd: $!";
                 print $FH "set JAVA_HOME=$JAVA_HOME\n";
-                print $FH "set HOST_NAME=$HOST_NAME\n";
-                print $FH "set TOMCAT_HTTP_PORT=$TOMCAT_HTTP_PORT\n";
-                print $FH "set jdbcUrl=$jdbcUrl\n";
-                print $FH "set dbUserName=$dbUserName\n";
-                print $FH "set dbPassword=$dbPassword\n";
-                print $FH "set FACTS_DB_HOST=$FACTS_DB_HOST\n";
-                print $FH "set FACTS_DB_PORT=$FACTS_DB_PORT\n";
-                print $FH "set FACTS_DB_NAME=$FACTS_DB_NAME\n";
-                print $FH "set FACTS_DBUSER=$FACTS_DBUSER\n";
-                print $FH "set FACTS_DBPASSWORD=$FACTS_DBPASSWORD\n";
                 print $FH "set FLOW_JDBC_URL=$FLOW_JDBC_URL\n";
                 print $FH "set FLOW_DB_USER=$FLOW_DB_USER\n";
                 print $FH "set FLOW_DB_PASSWORD=$FLOW_DB_PASSWORD\n";
-                print $FH "set CONNEXO_ADMIN_ACCOUNT=$CONNEXO_ADMIN_ACCOUNT\n";
-                print $FH "set CONNEXO_ADMIN_PASSWORD=$CONNEXO_ADMIN_PASSWORD\n";
-                print $FH "set TOMCAT_ADMIN_PASSWORD=$TOMCAT_ADMIN_PASSWORD\n";
-                print $FH "set ACTIVATE_SSO=$ACTIVATE_SSO\n";
-                print $FH "set SERVICE_VERSION=$SERVICE_VERSION\n";
+                print $FH "set UPGRADE_FROM=$UPGRADE_OLD_SERVICE_VERSION\n";
+                print $FH "set UPGRADE_TO=$SERVICE_VERSION\n";
                 close $FH;
 
                 my $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.pl";
@@ -1210,14 +1232,33 @@ sub perform_upgrade {
                     $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.exe";
                 }
                 if (-e "$upgrade_exe") {
-                    system($upgrade_exe);
+                    system($upgrade_exe) or die "Could not execute partners upgrade script!";
                 } else {
                     print "No upgrade of facts/flow found.\n";
                 }
             }
-
-            rmtree("$UPGRADE_PATH/temp");
+			
+			#install new Connexo service version
+			install_connexo();
+			
+			#install new versions for tomcat and partner apps
+			install_tomcat();
+			install_facts();
+			install_flow();
+			
+			#copy existing flow repository
+			print "Copying Flow repository\n";
+            dircopy("$UPGRADE_PATH/partners_obsolete/tomcat/repositories","$CONNEXO_DIR/partners/tomcat/repositories");
+				
+			activate_sso();
+			change_owner();
+			start_connexo();
+			start_tomcat(); #will also upgrade Flow processes & Facts reports
+			
+			rmtree("$UPGRADE_PATH/temp");
         }
+        print "Removing felix-cache\n";
+        rmtree("$CONNEXO_DIR/felix-cache");
     }
 }
 
