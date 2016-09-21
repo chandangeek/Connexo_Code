@@ -58,11 +58,6 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     }
 
     @Override
-    public void add(UnlockScheduledJobDeviceCommand command) {
-        this.finalCommands.add(command);
-    }
-
-    @Override
     public List<DeviceCommand> getChildren () {
         List<DeviceCommand> deviceCommands = super.getChildren();
         deviceCommands.addAll(this.finalCommands);

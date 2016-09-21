@@ -44,13 +44,7 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
                 comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
             }
 
-            for (Map.Entry<LoadProfileIdentifier, Instant> loadProfileDateEntry : lastReadings.entrySet()) {
-                comServerDAO.updateLastReadingFor(loadProfileDateEntry.getKey(), loadProfileDateEntry.getValue());
-            }
-
-            for (Map.Entry<LogBookIdentifier, Instant> logBookDateEntry : lastLogBooks.entrySet()) {
-                comServerDAO.updateLastLogBook(logBookDateEntry.getKey(), logBookDateEntry.getValue());
-            }
+            comServerDAO.updateLastDataSourceReadingsFor(lastReadings, lastLogBooks);
         }
         catch (RuntimeException e) {
             handleUnexpectedExecutionException(e);

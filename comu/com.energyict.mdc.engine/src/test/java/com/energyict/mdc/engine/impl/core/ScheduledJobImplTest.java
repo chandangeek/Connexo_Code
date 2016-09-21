@@ -191,7 +191,7 @@ public class ScheduledJobImplTest {
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).
                 thenReturn(comSessionBuilder);
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
-        when(comSessionBuilder.addComTaskExecutionSession(Matchers.<ComTaskExecution>any(), any(ComTask.class), any(Device.class), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
+        when(comSessionBuilder.addComTaskExecutionSession(Matchers.<ComTaskExecution>any(), any(ComTask.class), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
     }
 
     @Before

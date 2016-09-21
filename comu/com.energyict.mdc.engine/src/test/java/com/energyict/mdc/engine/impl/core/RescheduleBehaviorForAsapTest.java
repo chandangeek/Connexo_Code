@@ -7,25 +7,31 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
+
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.RescheduleBehaviorForAsap} component
@@ -117,7 +123,7 @@ public class RescheduleBehaviorForAsapTest extends AbstractRescheduleBehaviorTes
     @Test
     public void rescheduleDueToConnectionSetupErrorTest() {
         ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = mock(ComTaskExecutionSessionBuilder.class);
-        when(this.comSessionBuilder.addComTaskExecutionSession(eq(comTaskExecution), eq(comTask), eq(device), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
+        when(this.comSessionBuilder.addComTaskExecutionSession(eq(comTaskExecution), eq(comTask), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
 
         SimpleComCommand successfulComCommand = mockSuccessfulComCommand();
         CommandRootImpl mockedCommandRoot = createMockedCommandRootWithCommands(successfulComCommand);

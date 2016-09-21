@@ -47,6 +47,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -275,6 +276,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> lastReadings, Map<LogBookIdentifier, Instant> lastLogBooks) {
+        this.actual.updateLastDataSourceReadingsFor(lastReadings, lastLogBooks);
+    }
+
+    @Override
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegment) {
         this.actual.storePathSegments(sourceDeviceIdentifier, topologyPathSegment);
     }
@@ -372,6 +378,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
+
+        }
+
+        @Override
+        public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> lastReadings, Map<LogBookIdentifier, Instant> lastLogBooks) {
 
         }
 
