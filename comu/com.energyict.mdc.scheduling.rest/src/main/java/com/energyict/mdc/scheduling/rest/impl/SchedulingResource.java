@@ -4,9 +4,9 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.common.rest.IdListBuilder;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -91,7 +91,7 @@ public class SchedulingResource {
 
     private void filterAvailableSchedulesOnly(String mrid, List<ComSchedule> comSchedules) {
         deviceService
-            .findByUniqueMrid(mrid)
+                .findDeviceByMrid(mrid)
             .ifPresent(device -> {
                 List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
                 List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
