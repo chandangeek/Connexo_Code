@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
 import com.google.common.collect.Range;
@@ -90,6 +91,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             }
             UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint(mRID, data.getInstallationTime().orElse(context.getClock().instant())).validate();
             createDetails(dummyUsagePoint, data, logger).validate();
+            validateMandatoryCustomProperties(dummyUsagePoint, data);
             validateCustomPropertySetValues(dummyUsagePoint, data);
         }
     }
@@ -321,6 +323,24 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                             .getCustomPropertySet()));
                 } else {
                     createOrUpdateNonVersionedSet(propertySet, customPropertySetValues.get(propertySet.getCustomPropertySet()));
+                }
+            }
+        }
+    }
+
+    private void validateMandatoryCustomProperties(UsagePoint usagePoint, UsagePointImportRecord data){
+        Map<CustomPropertySet, CustomPropertySetRecord> customPropertySetValues = data.getCustomPropertySets();
+
+        for (UsagePointPropertySet propertySet : usagePoint.forCustomProperties().getAllPropertySets()) {
+            for (PropertySpec propertySpec : propertySet.getCustomPropertySet().getPropertySpecs()) {
+                if(propertySpec.isRequired()){
+                    Optional.ofNullable(customPropertySetValues.get(propertySet.getCustomPropertySet()))
+                            .filter(customPropertySetRecord -> customPropertySetRecord.getCustomPropertySetValues().getProperty(propertySpec.getName()) != null)
+                            .orElseThrow(() -> new ProcessorException(
+                            MessageSeeds.NO_SUCH_MANDATORY_CPS_VALUE,
+                            data.getLineNumber(),
+                            propertySpec.getDisplayName(),
+                            propertySet.getCustomPropertySet().getName()));
                 }
             }
         }
