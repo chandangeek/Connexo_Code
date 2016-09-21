@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
@@ -7,8 +8,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -38,7 +37,7 @@ public class ComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoFactory
             info.comTasks.add(new IdWithNameInfo(comTask));
         }
         Device device = comTaskExecution.getDevice();
-        info.device = new IdWithNameInfo(device.getmRID(), device.getName());
+        info.device = new IdWithNameInfo(device.getId(), device.getName());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
         if (comTaskExecutionSession.isPresent()) {

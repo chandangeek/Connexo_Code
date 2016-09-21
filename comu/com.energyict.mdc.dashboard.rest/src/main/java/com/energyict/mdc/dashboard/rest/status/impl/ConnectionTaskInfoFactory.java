@@ -80,7 +80,7 @@ public class ConnectionTaskInfoFactory {
             info.nextExecution=scheduledConnectionTask.getNextExecutionTimestamp();
         }
         Device device = connectionTask.getDevice();
-        info.device = new IdWithNameInfo(device.getmRID(), device.getName());
+        info.device = new IdWithNameInfo(device.getId(), device.getName());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
         if (connectionTask.isDefault()) {
