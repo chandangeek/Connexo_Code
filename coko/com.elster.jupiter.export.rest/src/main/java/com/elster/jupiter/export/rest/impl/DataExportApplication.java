@@ -82,7 +82,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
         this.nlsService = nlsService;
         Thesaurus domainThesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.DOMAIN);
         Thesaurus restThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
-        this.thesaurus = domainThesaurus.join(restThesaurus).join(nlsService.getThesaurus("MTR", Layer.DOMAIN));
+        this.thesaurus = domainThesaurus.join(restThesaurus).join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
