@@ -130,7 +130,7 @@ Ext.define('Ddv.view.validations.Preview', {
                             },
                             items: [
                                 {
-                                    fieldLabel: Uni.I18n.translate('validations.thresholdValidator', 'DDV', 'Treshold violation'),
+                                    fieldLabel: Uni.I18n.translate('validations.thresholdValidator', 'DDV', 'Threshold violation'),
                                     name: 'thresholdValidator',
                                     itemId: 'thresholdValidator-validations-preview',
                                     renderer: function (value) {
