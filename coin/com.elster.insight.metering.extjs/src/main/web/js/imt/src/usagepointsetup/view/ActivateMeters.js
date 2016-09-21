@@ -1,7 +1,6 @@
 Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usagePointActivateMeters',
-    itemId: 'usage-point-activate-meters',
     router: null,
     usagePoint: null,
     meterRoles: null,
