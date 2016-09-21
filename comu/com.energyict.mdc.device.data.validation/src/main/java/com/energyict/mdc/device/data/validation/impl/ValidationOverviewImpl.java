@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.validation.impl;
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.device.data.validation.ValidationOverview;
 
 import java.sql.ResultSet;
@@ -13,7 +12,6 @@ import java.sql.SQLException;
  * @since 2015-02-07
  */
 public class ValidationOverviewImpl implements ValidationOverview {
-    private final EndDeviceGroup deviceGroup;
     private final String mRID;
     private final String serialNumber;
     private final String deviceTypeName;
@@ -22,26 +20,20 @@ public class ValidationOverviewImpl implements ValidationOverview {
 
     static ValidationOverviewImpl from(ResultSet resultSet, DeviceDataValidationServiceImpl.ValidationOverviewSpecificationImpl specification) throws SQLException {
         return new ValidationOverviewImpl(
-                specification.group(resultSet.getLong(2)),
                 resultSet.getString(1),
+                resultSet.getString(2),
                 resultSet.getString(3),
                 resultSet.getString(4),
-                resultSet.getString(5),
                 DeviceValidationKpiResultsImpl.from(resultSet));
     }
 
     // For testing purposes
-    public ValidationOverviewImpl(EndDeviceGroup deviceGroup, String mRID, String serialNumber, String deviceTypeName, String deviceConfigurationName, DeviceValidationKpiResultsImpl deviceValidationKpiResults) {
-        this.deviceGroup = deviceGroup;
+    public ValidationOverviewImpl(String mRID, String serialNumber, String deviceTypeName, String deviceConfigurationName, DeviceValidationKpiResultsImpl deviceValidationKpiResults) {
         this.mRID = mRID;
         this.serialNumber = serialNumber;
         this.deviceTypeName = deviceTypeName;
         this.deviceConfigurationName = deviceConfigurationName;
         this.deviceValidationKpiResults = deviceValidationKpiResults;
-    }
-
-    EndDeviceGroup getDeviceGroup() {
-        return deviceGroup;
     }
 
     @Override

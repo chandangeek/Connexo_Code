@@ -20,26 +20,6 @@ import java.util.List;
 @ProviderType
 public interface ValidationOverviews {
 
-    /**
-     * Returns the List of {@link EndDeviceGroup}s
-     * for which a {@link ValidationOverview} is available.
-     *
-     * @return The List of ValidationOverview
-     */
-    List<EndDeviceGroup> getGroups();
-
-    /**
-     * Gets the {@link ValidationOverview}s for all the {@link com.energyict.mdc.device.data.Device}s
-     * in the specified {@link EndDeviceGroup}.
-     * This will throw an {@link IllegalArgumentException} if the specified
-     * EndDeviceGroup was not previously returned by {@link #getGroups()}.
-     *
-     * @param group The {@link EndDeviceGroup}
-     * @return The ValidationOverview
-     * @throws IllegalArgumentException Thrown if the specified group was not previously returned by getGroups()
-     */
-    List<ValidationOverview> getDeviceOverviews(EndDeviceGroup group);
-
     List<ValidationOverview> allOverviews();
 
 }

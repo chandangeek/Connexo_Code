@@ -40,7 +40,7 @@ class ValidationOverviewSqlBuilder {
     private final int to;
 
     enum KpiType {
-        TOTAL("totalSuspectValues", "totalSuspectsKpi", "SUSPECT", "sum") {
+        TOTAL("totalSuspectValues", "totalSuspectsKpi", "SUSPECT") {
             @Override
             protected void appendJoinTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append(" join ");
@@ -66,8 +66,8 @@ class ValidationOverviewSqlBuilder {
             }
         },
         ALL_DATA_VALIDATED("allDataValidatedValues", "allDataValidatedKpi", "ALLDATAVALIDATED"),
-        REGISTER("registerSuspectValues", "registerSuspectsKpi", "REGISTER", "sum"),
-        CHANNEL("channelSuspectValues", "channelSuspectsKpi", "CHANNEL", "sum"),
+        REGISTER("registerSuspectValues", "registerSuspectsKpi", "REGISTER"),
+        CHANNEL("channelSuspectValues", "channelSuspectsKpi", "CHANNEL"),
         THRESHOLD("thresholdValues", "thresholdKpi", "THRESHOLDVALIDATOR"),
         MISSING_VALUES("missingValues", "missingsKpi", "MISSINGVALUESVALIDATOR"),
         READING_QUALITIES("readingQualitiesValues", "readingQualitiesKpi", "READINGQUALITIESVALIDATOR"),
@@ -152,6 +152,11 @@ class ValidationOverviewSqlBuilder {
             }
 
             @Override
+            public void appendSelectSlot0To(SqlBuilder sqlBuilder) {
+                sqlBuilder.append("            max(slot0),");
+            }
+
+            @Override
             String operator() {
                 return "=";
             }
@@ -167,6 +172,11 @@ class ValidationOverviewSqlBuilder {
             public void appendSelectValueTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append("substr(kpim.name, 1, instr(kpim.name, '_') - 1)");
                 sqlBuilder.append(",");
+            }
+
+            @Override
+            public void appendSelectSlot0To(SqlBuilder sqlBuilder) {
+                sqlBuilder.append("            sum(slot0),");
             }
 
             @Override
@@ -188,6 +198,8 @@ class ValidationOverviewSqlBuilder {
         abstract String operator();
 
         public abstract void appendSelectValueTo(SqlBuilder sqlBuilder);
+
+        public abstract void appendSelectSlot0To(SqlBuilder sqlBuilder);
 
         public abstract void appendGroupByTo(SqlBuilder sqlBuilder);
     }
@@ -226,7 +238,7 @@ class ValidationOverviewSqlBuilder {
     }
 
     private void appendSelectClause() {
-        this.sqlBuilder.append(" select dev.mRID, totalSuspectsKpi.devicegroup, dev.serialnumber, dt.name as devtypename, dc.name as devconfigname");
+        this.sqlBuilder.append(" select dev.mRID, dev.serialnumber, dt.name as devtypename, dc.name as devconfigname");
         Stream
             .of(KpiType.TOTAL, KpiType.CHANNEL, KpiType.REGISTER, KpiType.ALL_DATA_VALIDATED)
             .forEach(kpiType -> kpiType.appendSelectTo(this.sqlBuilder));
@@ -264,7 +276,7 @@ class ValidationOverviewSqlBuilder {
     }
 
     private void appendGroupByClause() {
-        this.sqlBuilder.append(" group by dev.mRID, totalSuspectsKpi.devicegroup, dev.serialnumber, dt.name, dc.name");
+        this.sqlBuilder.append(" group by dev.mRID, dev.serialnumber, dt.name, dc.name");
     }
 
     private void appendHavingClause() {
@@ -296,7 +308,7 @@ class ValidationOverviewSqlBuilder {
         this.sqlBuilder.append("     select dvkpi.enddevicegroup,");
         this.sqlBuilder.append("            to_number(substr(kpim.name, instr(kpim.name, '_') + 1)),");
         allDataType.appendSelectValueTo(this.sqlBuilder);
-        this.sqlBuilder.append("            max(slot0),");
+        allDataType.appendSelectSlot0To(this.sqlBuilder);
         this.sqlBuilder.append("            max(UTCSTAMP)");
         this.sqlBuilder.append("       from VAL_DATA_VALIDATION_KPI dvkpi,");
         this.sqlBuilder.append("            VAL_DATAVALIDATIONKPICHILDREN dvkpim,");

@@ -50,8 +50,13 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
     }
 
     @Reference
+    public void setValidationService(ValidationService validationService) {
+        // dependency order only
+    }
+
+    @Reference
     public void setOrmService(OrmService ormService) {
-        this.validationDataModel = ormService.getDataModel(ValidationService.COMPONENTNAME).orElse(null);
+        this.validationDataModel = ormService.getDataModel(ValidationService.COMPONENTNAME).orElseThrow(IllegalStateException::new);
     }
 
     @Reference
@@ -247,16 +252,6 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
         private ValidationOverviewSpecificationImpl(List<EndDeviceGroup> deviceGroups) {
             this.deviceGroups = deviceGroups;
             this.excludeAllValidators();
-        }
-
-        EndDeviceGroup group(long id) {
-            /* Will be called by a component that fetches results from
-             * a query that only contains devices from the list of device groups. */
-            return this.deviceGroups
-                    .stream()
-                    .filter(deviceGroup -> deviceGroup.getId() == id)
-                    .findFirst()
-                    .orElseGet(() -> DeviceDataValidationServiceImpl.this.findGroup(id));
         }
 
         void setRange(Range<Instant> range) {
