@@ -298,6 +298,10 @@
             <artifactId>mdc.usagepoint.data.rest</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.nls.de</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>system</artifactId>
         </dependency>
