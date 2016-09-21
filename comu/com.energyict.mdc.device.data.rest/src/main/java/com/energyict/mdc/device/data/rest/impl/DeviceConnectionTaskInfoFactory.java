@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ComWindow;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
@@ -90,7 +90,7 @@ public class DeviceConnectionTaskInfoFactory {
         }
         info.version = connectionTask.getVersion();
         Device device = connectionTask.getDevice();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return info;
     }
 

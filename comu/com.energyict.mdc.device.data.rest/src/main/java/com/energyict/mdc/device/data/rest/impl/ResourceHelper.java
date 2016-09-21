@@ -123,37 +123,37 @@ public class ResourceHelper {
         return deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, version);
     }
 
-    public Device findDeviceByMrIdOrThrowException(String mRID) {
-        return deviceService.findByUniqueMrid(mRID).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mRID));
+    public Device findDeviceByNameOrThrowException(String deviceName) {
+        return deviceService.findDeviceByName(deviceName).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, deviceName));
     }
 
-    public Long getCurrentDeviceVersion(String mRID) {
-        return deviceService.findByUniqueMrid(mRID).map(Device::getVersion).orElse(null);
+    public Long getCurrentDeviceVersion(String deviceName) {
+        return deviceService.findDeviceByName(deviceName).map(Device::getVersion).orElse(null);
     }
 
-    public Optional<Device> getLockedDevice(String mRID, long version) {
-        return deviceService.findAndLockDeviceBymRIDAndVersion(mRID, version);
+    public Optional<Device> getLockedDevice(String deviceName, long version) {
+        return deviceService.findAndLockDeviceByNameAndVersion(deviceName, version);
     }
 
     public Device lockDeviceOrThrowException(DeviceVersionInfo info) {
         Optional<DeviceConfiguration> deviceConfiguration = getLockedDeviceConfiguration(info.parent.id, info.parent.version);
         if (deviceConfiguration.isPresent()) {
-            return getLockedDevice(info.mRID, info.version)
-                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
+            return getLockedDevice(info.name, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                             .withActualParent(() -> getCurrentDeviceConfigurationVersion(info.parent.id), info.parent.id)
-                            .withActualVersion(() -> getCurrentDeviceVersion(info.mRID))
+                            .withActualVersion(() -> getCurrentDeviceVersion(info.name))
                             .supplier());
         }
-        throw conflictFactory.contextDependentConflictOn(info.mRID)
+        throw conflictFactory.contextDependentConflictOn(info.name)
                 .withActualParent(() -> getCurrentDeviceConfigurationVersion(info.parent.id), info.parent.id)
-                .withActualVersion(() -> getCurrentDeviceVersion(info.mRID))
+                .withActualVersion(() -> getCurrentDeviceVersion(info.name))
                 .build();
     }
 
-    public Device lockDeviceOrThrowException(long deviceId, String mRID, long deviceVersion) {
+    public Device lockDeviceOrThrowException(long deviceId, String name, long deviceVersion) {
         return deviceService.findAndLockDeviceByIdAndVersion(deviceId, deviceVersion)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(mRID)
-                        .withActualVersion(() -> getCurrentDeviceVersion(mRID))
+                .orElseThrow(conflictFactory.contextDependentConflictOn(name)
+                        .withActualVersion(() -> getCurrentDeviceVersion(name))
                         .supplier());
     }
 
@@ -343,29 +343,29 @@ public class ResourceHelper {
                 .stream()
                 .filter(lp -> lp.getId() == loadProfileId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, device.getmRID(), loadProfileId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, device.getName(), loadProfileId));
     }
 
-    public Channel findChannelOnDeviceOrThrowException(String mRID, long channelId) {
-        Device device = this.findDeviceByMrIdOrThrowException(mRID);
+    public Channel findChannelOnDeviceOrThrowException(String deviceName, long channelId) {
+        Device device = this.findDeviceByNameOrThrowException(deviceName);
         return this.findChannelOnDeviceOrThrowException(device, channelId);
     }
 
     public Channel findChannelOnDeviceOrThrowException(Device device, long channelId) {
         return device.getChannels().stream().filter(c -> c.getId() == channelId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getmRID(), channelId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getName(), channelId));
     }
 
-    public Register findRegisterOnDeviceOrThrowException(String mRID, long registerId) {
-        Device device = this.findDeviceByMrIdOrThrowException(mRID);
+    public Register findRegisterOnDeviceOrThrowException(String deviceName, long registerId) {
+        Device device = this.findDeviceByNameOrThrowException(deviceName);
         return this.findRegisterOnDeviceOrThrowException(device, registerId);
     }
 
     public Register findRegisterOnDeviceOrThrowException(Device device, long registerId) {
         return device.getRegisters().stream().filter(r -> r.getRegisterSpecId() == registerId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_REGISTER_ON_DEVICE, device.getmRID(), registerId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_REGISTER_ON_DEVICE, device.getName(), registerId));
     }
 
 
@@ -500,7 +500,7 @@ public class ResourceHelper {
                 .stream()
                 .filter(ct -> ct.getId() == connectionMethodId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_METHOD, device.getmRID(), connectionMethodId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_METHOD, device.getName(), connectionMethodId));
     }
 
     public Condition getQueryConditionForDevice(MultivaluedMap<String, String> uriParams) {

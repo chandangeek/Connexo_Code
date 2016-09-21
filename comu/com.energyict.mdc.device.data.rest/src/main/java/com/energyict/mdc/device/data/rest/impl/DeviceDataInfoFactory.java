@@ -395,7 +395,7 @@ public class DeviceDataInfoFactory {
         registerInfo.overruledObisCode = register.getDeviceObisCode();
         registerInfo.obisCodeDescription = register.getDeviceObisCode().getDescription();
         registerInfo.isCumulative = register.getReadingType().isCumulative();
-        registerInfo.mRID = device.getmRID();
+        registerInfo.deviceName = device.getName();
         registerInfo.version = device.getVersion();
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         registerInfo.parent = new VersionInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
@@ -405,7 +405,7 @@ public class DeviceDataInfoFactory {
         } else {
             Register<?, ?> register1 = slaveRegister.get();
             register1.getLastReading().ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register1, false, null));
-            registerInfo.dataloggerSlavemRID = register1.getDevice().getmRID();
+            registerInfo.dataloggerSlaveName = register1.getDevice().getName();
         }
     }
 

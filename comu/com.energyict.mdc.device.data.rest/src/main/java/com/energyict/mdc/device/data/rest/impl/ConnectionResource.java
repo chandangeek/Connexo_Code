@@ -49,8 +49,8 @@ public class ConnectionResource {
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response getConnectionMethods(@PathParam("mRID") String mRID, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response getConnectionMethods(@PathParam("name") String name, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<ConnectionTask<?, ?>> connectionTasks = device.getConnectionTasks();
         List<DeviceConnectionTaskInfo> infos = connectionTasks.stream()
                 .map((ct) -> connectionTaskInfoFactory.from(ct, ct.getLastComSession()))
@@ -64,7 +64,7 @@ public class ConnectionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response activateDeactivateConnection(@PathParam("mRID") String mrid, @PathParam("id") long connectionTaskId, @Context UriInfo uriInfo, DeviceConnectionTaskInfo connectionTaskInfo) {
+    public Response activateDeactivateConnection(@PathParam("name") String name, @PathParam("id") long connectionTaskId, @Context UriInfo uriInfo, DeviceConnectionTaskInfo connectionTaskInfo) {
         connectionTaskInfo.id = connectionTaskId;
         ConnectionTask<?, ?> task = resourceHelper.lockConnectionTaskOrThrowException(connectionTaskInfo);
         switch (connectionTaskInfo.connectionMethod.status) {
@@ -85,7 +85,7 @@ public class ConnectionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response runConnectionTask(@PathParam("mRID") String mrid, @PathParam("id") long connectionTaskId, @Context UriInfo uriInfo, DeviceConnectionTaskInfo connectionTaskInfo) {
+    public Response runConnectionTask(@PathParam("name") String name, @PathParam("id") long connectionTaskId, @Context UriInfo uriInfo, DeviceConnectionTaskInfo connectionTaskInfo) {
         ConnectionTask task = resourceHelper.getLockedConnectionTask(connectionTaskId, connectionTaskInfo.version)
                 .orElseThrow(conflictFactory.conflict()
                         .withActualVersion(() -> resourceHelper.getCurrentConnectionTaskVersion(connectionTaskId))

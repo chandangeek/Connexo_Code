@@ -5,10 +5,8 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -16,6 +14,10 @@ import javax.ws.rs.core.Response.Status;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -36,10 +38,10 @@ public class DeviceEstimationResourceTest extends DeviceDataRestApplicationJerse
         when(device.getId()).thenReturn(1L);
         when(device.getVersion()).thenReturn(22L);
         when(device.forEstimation()).thenReturn(deviceEstimation);
-        when(device.getmRID()).thenReturn("mrid");
+        when(device.getName()).thenReturn("name");
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("mrid", 22l)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("name", 22l)).thenReturn(Optional.of(device));
     }
 
     @Test
@@ -47,15 +49,15 @@ public class DeviceEstimationResourceTest extends DeviceDataRestApplicationJerse
         DeviceEstimationRuleSetActivation rsa1 = mockEstimationRuleSetActivation(1L, "RS1", true);
         DeviceEstimationRuleSetActivation rsa2 = mockEstimationRuleSetActivation(123L, "RS2", false);
         when(deviceEstimation.getEstimationRuleSetActivations()).thenReturn(Arrays.asList(rsa1, rsa2));
-        
-        String response = target("/devices/mrid/estimationrulesets").request().get(String.class);
+
+        String response = target("/devices/name/estimationrulesets").request().get(String.class);
         
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(2);
         assertThat(model.<List<Number>>get("$.estimationRuleSets[*].id")).containsExactly(1, 123);
         assertThat(model.<List<String>>get("$.estimationRuleSets[*].name")).containsExactly("RS1", "RS2");
         assertThat(model.<List<Boolean>>get("$.estimationRuleSets[*].active")).containsExactly(true, false);
-        assertThat(model.<List<String>>get("$.estimationRuleSets[*].parent.id")).containsExactly("mrid", "mrid");
+        assertThat(model.<List<String>>get("$.estimationRuleSets[*].parent.id")).containsExactly("name", "name");
         assertThat(model.<List<Number>>get("$.estimationRuleSets[*].parent.version")).containsExactly(22, 22);
     }
     
@@ -69,9 +71,9 @@ public class DeviceEstimationResourceTest extends DeviceDataRestApplicationJerse
         info.id = 1L;
         info.active = true;
         info.version = 1L;
-        info.parent = new VersionInfo<>("mrid", 22L);
-        
-        Response response = target("/devices/mrid/estimationrulesets/1").request().put(Entity.json(info));
+        info.parent = new VersionInfo<>("name", 22L);
+
+        Response response = target("/devices/name/estimationrulesets/1").request().put(Entity.json(info));
         
         assertThat(response.getStatus()).isEqualTo(Status.OK.getStatusCode());
         verify(deviceEstimation).activateEstimationRuleSet(ruleSet);
@@ -87,9 +89,9 @@ public class DeviceEstimationResourceTest extends DeviceDataRestApplicationJerse
         info.id = 1L;
         info.active = false;
         info.version = 1L;
-        info.parent = new VersionInfo<>("mrid", 22L);
-        
-        Response response = target("/devices/mrid/estimationrulesets/1").request().put(Entity.json(info));
+        info.parent = new VersionInfo<>("name", 22L);
+
+        Response response = target("/devices/name/estimationrulesets/1").request().put(Entity.json(info));
         
         assertThat(response.getStatus()).isEqualTo(Status.OK.getStatusCode());
         verify(deviceEstimation).deactivateEstimationRuleSet(ruleSet);
@@ -105,5 +107,4 @@ public class DeviceEstimationResourceTest extends DeviceDataRestApplicationJerse
         when(rsa.isActive()).thenReturn(active);
         return rsa;
     }
-
 }

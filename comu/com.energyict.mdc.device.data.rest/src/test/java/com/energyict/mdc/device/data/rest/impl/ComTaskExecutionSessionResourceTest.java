@@ -14,13 +14,15 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -49,13 +51,16 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         when(deviceType.getName()).thenReturn("type AX1");
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
-        when(deviceService.findByUniqueMrid("0c53c750-4d5a-11e4-916c-0800200c9a66")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("0c53c750-4d5a-11e4-916c-0800200c9a66")).thenReturn(Optional.of(device));
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");
         ComSession comSession1 = mockComSession(connectionTask, 61L, device);
         when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
-        String response = target("/devices/0c53c750-4d5a-11e4-916c-0800200c9a66/connectionmethods/3/comsessions/61/comtaskexecutionsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        String response = target("/devices/AX1/connectionmethods/3/comsessions/61/comtaskexecutionsessions").queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<String>get("$.device")).isEqualTo("AX1");

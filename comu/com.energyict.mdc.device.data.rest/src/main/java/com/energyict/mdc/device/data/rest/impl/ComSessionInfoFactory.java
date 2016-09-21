@@ -30,7 +30,7 @@ public class ComSessionInfoFactory {
         ConnectionTask<?,?> connectionTask = comSession.getConnectionTask();
         PartialConnectionTask partialConnectionTask = connectionTask.getPartialConnectionTask();
         info.id = comSession.getId();
-        info.device = new IdWithNameInfo(comSession.getConnectionTask().getDevice().getmRID(), comSession.getConnectionTask().getDevice().getName());
+        info.device = new IdWithNameInfo(comSession.getConnectionTask().getDevice().getId(), comSession.getConnectionTask().getDevice().getName());
         info.deviceType = new IdWithNameInfo(comSession.getConnectionTask().getDevice().getDeviceType());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(comSession.getConnectionTask().getDevice().getDeviceConfiguration());
         info.connectionMethod = new IdWithNameInfo(connectionTask);

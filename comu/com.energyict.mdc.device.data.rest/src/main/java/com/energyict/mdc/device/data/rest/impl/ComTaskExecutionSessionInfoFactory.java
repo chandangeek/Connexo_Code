@@ -36,7 +36,7 @@ public class ComTaskExecutionSessionInfoFactory {
         info.comTasks = Collections.singletonList(new IdWithNameInfo(comTaskExecutionSession.getComTask()));
         info.name = comTaskExecutionSession.getComTask().getName();
         info.id = comTaskExecutionSession.getId();
-        info.device = new IdWithNameInfo(device.getmRID(), device.getName());
+        info.device = new IdWithNameInfo(device.getId(), device.getName());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(device.getDeviceType());
         if (comTaskExecution instanceof ScheduledComTaskExecution) {

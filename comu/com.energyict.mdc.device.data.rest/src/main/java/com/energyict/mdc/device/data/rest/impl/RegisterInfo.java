@@ -38,10 +38,10 @@ public abstract class RegisterInfo {
     @JsonProperty("lastReading")
     public ReadingInfo lastReading;
     public boolean isCumulative;
-    public String mRID;
+    public String deviceName;
     public long version;
     public VersionInfo<Long> parent;
-    public String dataloggerSlavemRID;
+    public String dataloggerSlaveName;
 
     public RegisterInfo() {}
 

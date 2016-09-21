@@ -42,7 +42,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,10 +55,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -72,7 +69,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     @Rule
     public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
 
-    private static final String DEVICE_MRID = "MRID";
+    private static final String DEVICE_NAME = "name";
     private static final long DEVICE_ID = 56854L;
     private static final Instant NOW = ZonedDateTime.of(2014, 6, 14, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
 
@@ -127,9 +124,9 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
 
     @Before
     public void setUp1() {
-        when(device.getmRID()).thenReturn(DEVICE_MRID);
+        when(device.getName()).thenReturn(DEVICE_NAME);
         deviceVersion = 0;
-        when(deviceService.findByUniqueMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(DEVICE_NAME)).thenReturn(Optional.of(device));
         when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(mdcAmrSystem));
         when(device.getId()).thenReturn(DEVICE_ID);
         when(device.getVersion()).thenAnswer(invocationOnMock -> deviceVersion);
@@ -147,14 +144,14 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetValidationFeatureStatusCheckRegisterCount() {
-        DeviceValidationStatusInfo response = target("devices/MRID/validationrulesets/validationstatus").request().get(DeviceValidationStatusInfo.class);
+        DeviceValidationStatusInfo response = target("devices/" + DEVICE_NAME + "/validationrulesets/validationstatus").request().get(DeviceValidationStatusInfo.class);
 
         assertThat(response.registerSuspectCount).isEqualTo(5);
     }
 
     @Test
     public void testGetValidationFeatureStatusCheckLoadProfileCount() {
-        DeviceValidationStatusInfo response = target("devices/MRID/validationrulesets/validationstatus").request().get(DeviceValidationStatusInfo.class);
+        DeviceValidationStatusInfo response = target("devices/" + DEVICE_NAME + "/validationrulesets/validationstatus").request().get(DeviceValidationStatusInfo.class);
 
         assertThat(response.loadProfileSuspectCount).isEqualTo(4);
     }
@@ -176,7 +173,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
                 "]},{\"property\":\"intervalRegisterStart\",\"value\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() +
                 "},{\"property\":\"intervalRegisterEnd\",\"value\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "}]";
 
-        MonitorValidationInfo response = target("devices/MRID/validationrulesets/validationmonitoring/configurationview")
+        MonitorValidationInfo response = target("devices/" + DEVICE_NAME + "/validationrulesets/validationmonitoring/configurationview")
                 .queryParam("filter", URLEncoder.encode(filter))
                 .request().get(MonitorValidationInfo.class);
 
@@ -203,7 +200,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
                 "]},{\"property\":\"intervalRegisterStart\",\"value\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() +
                 "},{\"property\":\"intervalRegisterEnd\",\"value\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "}]";
 
-        MonitorValidationInfo response = target("devices/MRID/validationrulesets/validationmonitoring/dataview")
+        MonitorValidationInfo response = target("devices/" + DEVICE_NAME + "/validationrulesets/validationmonitoring/dataview")
                 .queryParam("filter", URLEncoder.encode(filter))
                 .request().get(MonitorValidationInfo.class);
 
@@ -218,10 +215,10 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(deviceConfigurationId), anyLong()))
                 .thenReturn(Optional.of(deviceConfiguration));
         ArgumentCaptor<Long> versionCaptor = ArgumentCaptor.forClass(long.class);
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(DEVICE_MRID), versionCaptor.capture()))
+        when(deviceService.findAndLockDeviceByNameAndVersion(eq(DEVICE_NAME), versionCaptor.capture()))
                 .thenAnswer(invocationOnMock -> versionCaptor.getValue() == deviceVersion ? Optional.of(device) : Optional.empty());
         doAnswer(invocationOnMock -> deviceVersion++).when(device).save();
-        Response response = target("devices/" + DEVICE_MRID + "/validationrulesets/" + ruleSet.getId() + "/status")
+        Response response = target("devices/" + DEVICE_NAME + "/validationrulesets/" + ruleSet.getId() + "/status")
                 .request()
                 .buildPut(Entity.json(new DeviceValidationRuleSetInfo(ruleSet, device, true)))
                 .invoke();
@@ -231,7 +228,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         assertThat(responseInfo.isActive).isTrue();
         assertThat(responseInfo.device.version).isEqualTo(1);
         responseInfo.isActive = false;
-        response = target("devices/" + DEVICE_MRID + "/validationrulesets/" + ruleSet.getId() + "/status")
+        response = target("devices/" + DEVICE_NAME + "/validationrulesets/" + ruleSet.getId() + "/status")
                 .request()
                 .buildPut(Entity.json(responseInfo))
                 .invoke();

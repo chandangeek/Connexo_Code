@@ -83,9 +83,9 @@ public class DeviceAttributesInfoFactory {
         info.location.displayValue = editLocationInfo;
         fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
 
-        info.mrid = new DeviceAttributeInfo<>();
-        info.mrid.displayValue = device.getmRID();
-        fillAvailableAndEditable(info.mrid, DeviceAttribute.MRID, state);
+        info.name = new DeviceAttributeInfo<>();
+        info.name.displayValue = device.getName();
+        fillAvailableAndEditable(info.name, DeviceAttribute.NAME, state);
 
         info.deviceType = new DeviceAttributeInfo<>();
         info.deviceType.displayValue = device.getDeviceType().getName();
@@ -263,8 +263,8 @@ public class DeviceAttributesInfoFactory {
         if (DeviceAttribute.MULTIPLIER.isEditableForState(state) && info.multiplier != null) {
             device.setMultiplier(info.multiplier.displayValue);
         }
-        if (DeviceAttribute.MRID.isEditableForState(state) && !Objects.equals(info.mrid.displayValue, device.getmRID())) {
-            device.setmRID(info.mrid.displayValue);
+        if (DeviceAttribute.NAME.isEditableForState(state) && !Objects.equals(info.name.displayValue, device.getName())) {
+            device.setName(info.name.displayValue);
         }
 
         CIMLifecycleDates lifecycleDates = device.getLifecycleDates();

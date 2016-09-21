@@ -122,12 +122,12 @@ public class DeviceInfoFactoryTest {
     private final static String SLAVE_DEVICE_CONFIGURATION_NAME_2 = "Slave2DeviceConfiguration";
 
     private final static long DATALOGGER_ID = 397L;
-    private final static String DATALOGGER_MRID = "TheDataLoggersMrid";
+    private final static String DATALOGGER_NAME = "TheDataLoggersName";
     private final static String DATALOGGER_SERIAL = "TheDataLoggersSerialNumber";
     private final static int DATALOGGER_YEAR_OF_CERTIFICATION = 1960;
     private final static long DATALOGGER_VERSION = 1L;
-    private final static String SLAVE_MRID_1 = "TheFirstSlavesMrid";
-    private final static String SLAVE_MRID_2 = "TheSecondSlavesMrid";
+    private final static String SLAVE_1 = "TheFirstSlave";
+    private final static String SLAVE_2 = "TheSecondSlave";
     private final static String SLAVE_CHANNEL_NAME_1 = "slaveChannel1";
     private final static String SLAVE_CHANNEL_NAME_2 = "slaveChannel2";
 
@@ -231,7 +231,7 @@ public class DeviceInfoFactoryTest {
         OpenIssue dataValidationIssue = mockIssue(dataValidationIssueType);
         when(dataValidationIssue.getId()).thenReturn(ISSUE_DATA_VALIDATION_ID);
         when(issueFinder.find()).thenReturn(Arrays.asList(dataCollectionIssue1, dataCollectionIssue2, dataValidationIssue));
-        when(issueService.findOpenIssuesForDevice(DATALOGGER_MRID)).thenReturn(issueFinder);
+        when(issueService.findOpenIssuesForDevice(DATALOGGER_NAME)).thenReturn(issueFinder);
         when(issueService.findStatus(IssueStatus.OPEN)).thenReturn(Optional.of(issueStatusOpen));
         when(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME)).thenReturn(Optional.of(dataValidationIssueType));
         when(issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE)).thenReturn(Optional.of(dataCollectionIssueType));
@@ -267,7 +267,7 @@ public class DeviceInfoFactoryTest {
         when(slave1.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration1);
         when(slaveDeviceConfiguration1.getName()).thenReturn(SLAVE_DEVICE_CONFIGURATION_NAME_1);
         when(slave1.getId()).thenReturn(1L);
-        when(slave1.getmRID()).thenReturn(SLAVE_MRID_1);
+        when(slave1.getName()).thenReturn(SLAVE_1);
         when(slave1.getVersion()).thenReturn(1L);
         when(slave1.getBatch()).thenReturn(Optional.empty());
         CIMLifecycleDates lifecycleDatesSlave1 = mock(CIMLifecycleDates.class);
@@ -280,7 +280,7 @@ public class DeviceInfoFactoryTest {
         when(slave2.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration2);
         when(slaveDeviceConfiguration2.getName()).thenReturn(SLAVE_DEVICE_CONFIGURATION_NAME_2);
         when(slave2.getId()).thenReturn(2L);
-        when(slave2.getmRID()).thenReturn(SLAVE_MRID_2);
+        when(slave2.getName()).thenReturn(SLAVE_2);
         when(slave2.getVersion()).thenReturn(2L);
         when(slave2.getBatch()).thenReturn(Optional.empty());
         CIMLifecycleDates lifecycleDatesSlave2 = mock(CIMLifecycleDates.class);
@@ -401,7 +401,7 @@ public class DeviceInfoFactoryTest {
         when(dataLogger.getDeviceType()).thenReturn(dataLoggerDeviceType);
         when(dataLogger.getDeviceConfiguration()).thenReturn(dateLoggerDeviceConfiguration);
         when(dataLogger.getId()).thenReturn(DATALOGGER_ID);
-        when(dataLogger.getmRID()).thenReturn(DATALOGGER_MRID);
+        when(dataLogger.getName()).thenReturn(DATALOGGER_NAME);
         when(dataLogger.getSerialNumber()).thenReturn(DATALOGGER_SERIAL);
         when(dataLogger.getYearOfCertification()).thenReturn(DATALOGGER_YEAR_OF_CERTIFICATION);
         when(dataLogger.getConfigurationGatewayType()).thenReturn(GatewayType.NONE);
@@ -475,7 +475,7 @@ public class DeviceInfoFactoryTest {
         DeviceInfo info = deviceInfoFactory.deviceInfo(dataLogger);
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);
-        assertThat(info.mRID).isEqualTo(DATALOGGER_MRID);
+        assertThat(info.mRID).isEqualTo(DATALOGGER_NAME);
         assertThat(info.deviceTypeId).isEqualTo(DATA_LOGGER_DEVICE_TYPE_ID);
         assertThat(info.deviceTypeName).isEqualTo(DATA_LOGGER_DEVICE_TYPE_NAME);
         assertThat(info.deviceConfigurationId).isEqualTo(DATALOGGER_DEVICE_CONFIGURATION_ID);
@@ -484,7 +484,7 @@ public class DeviceInfoFactoryTest {
         assertThat(info.yearOfCertification).isEqualTo(DATALOGGER_YEAR_OF_CERTIFICATION);
         assertThat(info.batch).isEqualTo(BATCH_NAME);
         assertThat(info.masterDeviceId).isNull();
-        assertThat(info.masterDevicemRID).isNull();
+        assertThat(info.masterDeviceName).isNull();
         assertThat(info.gatewayType).isEqualTo(GatewayType.NONE);
         assertThat(info.slaveDevices).isEmpty();
         assertThat(info.nbrOfDataCollectionIssues).isEqualTo(ISSUE_COUNT);
@@ -506,7 +506,7 @@ public class DeviceInfoFactoryTest {
         // Data logger stuff
         assertThat(info.dataLoggerSlaveDevices).hasSize(3);  // 2 slaves + 1 for unlinked channels
 
-        assertThat(info.dataLoggerSlaveDevices.get(0).mRID).isEqualTo(SLAVE_MRID_1);
+        assertThat(info.dataLoggerSlaveDevices.get(0).name).isEqualTo(SLAVE_1);
         assertThat(info.dataLoggerSlaveDevices.get(0).dataLoggerSlaveChannelInfos).hasSize(1);
         assertThat(info.dataLoggerSlaveDevices.get(0).dataLoggerSlaveChannelInfos.get(0).slaveChannel.name).isEqualTo(SLAVE_CHANNEL_NAME_1);
         assertThat(info.dataLoggerSlaveDevices.get(0).dataLoggerSlaveChannelInfos.get(0).dataLoggerChannel.name).isEqualTo("dataLoggerChn1");
@@ -514,7 +514,7 @@ public class DeviceInfoFactoryTest {
         assertThat(info.dataLoggerSlaveDevices.get(1).placeHolderForUnlinkedDataLoggerChannelsAndRegisters()).isTrue();
         assertThat(info.dataLoggerSlaveDevices.get(1).dataLoggerSlaveChannelInfos).hasSize(4);
 
-        assertThat(info.dataLoggerSlaveDevices.get(2).mRID).isEqualTo(SLAVE_MRID_2);
+        assertThat(info.dataLoggerSlaveDevices.get(2).name).isEqualTo(SLAVE_2);
         assertThat(info.dataLoggerSlaveDevices.get(2).dataLoggerSlaveChannelInfos).hasSize(1);
         assertThat(info.dataLoggerSlaveDevices.get(2).dataLoggerSlaveChannelInfos.get(0).slaveChannel.name).isEqualTo(SLAVE_CHANNEL_NAME_2);
         assertThat(info.dataLoggerSlaveDevices.get(2).dataLoggerSlaveChannelInfos.get(0).dataLoggerChannel.name).isEqualTo("dataLoggerChn3");

@@ -172,7 +172,7 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<List<Integer>>get("$.devices[*].id")).containsExactly(1, 2);
-        assertThat(jsonModel.<List<String>>get("$.devices[*].mRID")).containsExactly("MRID1", "MRID2");
+        assertThat(jsonModel.<List<String>>get("$.devices[*].name")).containsExactly("Name-1", "Name-2");
         assertThat(jsonModel.<List<String>>get("$.devices[*].serialNumber")).containsExactly("001", "002");
         assertThat(jsonModel.<List<String>>get("$.devices[*].deviceTypeName")).containsExactly("Elster AS1440", "Iskra 001");
         assertThat(jsonModel.<List<String>>get("$.devices[*].deviceConfigurationName")).containsExactly("Default", "Default");
@@ -200,7 +200,7 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<List<Integer>>get("$.devices[*].id")).containsExactly(1, 2);
-        assertThat(jsonModel.<List<String>>get("$.devices[*].mRID")).containsExactly("MRID1", "MRID2");
+        assertThat(jsonModel.<List<String>>get("$.devices[*].name")).containsExactly("Name-1", "Name-2");
         assertThat(jsonModel.<List<String>>get("$.devices[*].serialNumber")).containsExactly("001", "002");
         assertThat(jsonModel.<List<String>>get("$.devices[*].deviceTypeName")).containsExactly("Elster AS1440", "Iskra 001");
         assertThat(jsonModel.<List<String>>get("$.devices[*].deviceConfigurationName")).containsExactly("Default", "Default");
@@ -209,7 +209,7 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
     private Device mockDevice(long id, String serialNumber, String deviceType, String deviceConfig) {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(id);
-        when(device.getmRID()).thenReturn("MRID" + id);
+        when(device.getName()).thenReturn("Name-" + id);
         when(device.getSerialNumber()).thenReturn(serialNumber);
         DeviceType type = mock(DeviceType.class);
         when(device.getDeviceType()).thenReturn(type);

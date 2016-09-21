@@ -80,8 +80,8 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         when(device.getDeviceProtocolProperties()).thenReturn(typedProperties);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getVersion()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
 
     }
 
@@ -98,7 +98,7 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
 
     @Test
     public void testGetDeviceProtocolPropertiesNonExistingDevice() {
-        when(this.deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.<Device>empty());
+        when(this.deviceService.findDeviceByName(anyString())).thenReturn(Optional.<Device>empty());
         Response response = target("/devices/FAKE/protocols/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }

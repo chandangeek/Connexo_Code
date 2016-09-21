@@ -80,7 +80,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.type = ScheduleType.SCHEDULED;
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         Device device = comTaskExecution.getDevice();
-        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return deviceSchedulesInfo;
     }
 
@@ -95,7 +95,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.comTaskInfos.addAll(ComTaskInfo.from(comTaskExecution.getComTasks()));
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         Device device = comTaskExecution.getDevice();
-        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return deviceSchedulesInfo;
     }
 
@@ -109,7 +109,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.comTaskInfos.addAll(ComTaskInfo.from(comTaskExecution.getComTasks()));
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         Device device = comTaskExecution.getDevice();
-        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return deviceSchedulesInfo;
     }
 

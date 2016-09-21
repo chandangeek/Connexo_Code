@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class DeviceGroupMemberInfo {
 
     public long id;
-    public String mRID;
+    public String name;
     public String serialNumber;
     public String deviceTypeName;
     public String deviceConfigurationName;
@@ -18,7 +18,7 @@ public class DeviceGroupMemberInfo {
     public static DeviceGroupMemberInfo from(Device device, EndDeviceGroup endDeviceGroup) {
         DeviceGroupMemberInfo deviceInfo = new DeviceGroupMemberInfo();
         deviceInfo.id = device.getId();
-        deviceInfo.mRID = device.getmRID();
+        deviceInfo.name = device.getName();
         deviceInfo.serialNumber = device.getSerialNumber();
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
         deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
@@ -32,7 +32,7 @@ public class DeviceGroupMemberInfo {
     public static DeviceGroupMemberInfo from(Device device) {
         DeviceGroupMemberInfo deviceInfo = new DeviceGroupMemberInfo();
         deviceInfo.id = device.getId();
-        deviceInfo.mRID = device.getmRID();
+        deviceInfo.name = device.getName();
         deviceInfo.serialNumber = device.getSerialNumber();
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
         deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
@@ -40,6 +40,6 @@ public class DeviceGroupMemberInfo {
     }
     
     public static List<DeviceGroupMemberInfo> from(List<Device> devices) {
-        return devices.stream().map((d) -> from(d)).collect(Collectors.toList());
+        return devices.stream().map(DeviceGroupMemberInfo::from).collect(Collectors.toList());
     }
 }

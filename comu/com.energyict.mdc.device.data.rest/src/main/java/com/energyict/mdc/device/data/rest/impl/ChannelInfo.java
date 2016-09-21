@@ -47,7 +47,7 @@ public class ChannelInfo {
     public VersionInfo<String> parent;
     public Boolean useMultiplier;
     public BigDecimal multiplier;
-    public String dataloggerSlavemRID;
+    public String dataloggerSlaveName;
 
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
@@ -79,10 +79,10 @@ public class ChannelInfo {
         Device device = channel.getDevice();
         info.useMultiplier = channel.getChannelSpec().isUseMultiplier();
         info.multiplier = channel.getMultiplier(clock.instant()).orElseGet(() -> null);
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.atLeast(clock.instant()));
         if (!dataLoggerChannelUsages.isEmpty()) {
-            info.dataloggerSlavemRID = dataLoggerChannelUsages.get(0).getDataLoggerReference().getOrigin().getmRID();
+            info.dataloggerSlaveName = dataLoggerChannelUsages.get(0).getDataLoggerReference().getOrigin().getName();
         }
         return info;
     }

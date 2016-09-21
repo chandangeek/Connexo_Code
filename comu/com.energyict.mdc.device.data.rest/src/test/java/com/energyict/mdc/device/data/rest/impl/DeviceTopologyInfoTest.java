@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 public class DeviceTopologyInfoTest {
 
     private final static long DEVICE_ID = 222L;
-    private final static String DEVICE_MRID  = "mRID";
+    private final static String DEVICE_NAME = "name";
     private final static String DEVICE_SERIAL_NUMBER = "serialNumber";
     private final static String DEVICE_TYPE_NAME = "deviceTypeName";
     private final static String DEVICE_CONFIGURATION_NAME = "deviceConfigurarionName";
@@ -60,7 +60,6 @@ public class DeviceTopologyInfoTest {
     @Before
     public void setup() {
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
-
     }
 
     @Test
@@ -85,7 +84,7 @@ public class DeviceTopologyInfoTest {
         when(device.getState()).thenReturn(state);
 
         when(device.getId()).thenReturn(DEVICE_ID);
-        when(device.getmRID()).thenReturn(DEVICE_MRID);
+        when(device.getName()).thenReturn(DEVICE_NAME);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getSerialNumber()).thenReturn(DEVICE_SERIAL_NUMBER);
         when(deviceType.getName()).thenReturn(DEVICE_TYPE_NAME);
@@ -97,7 +96,7 @@ public class DeviceTopologyInfoTest {
         DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp), thesaurus);
 
         assertThat(info.id).isEqualTo(DEVICE_ID);
-        assertThat(info.mRID).isEqualTo(DEVICE_MRID);
+        assertThat(info.name).isEqualTo(DEVICE_NAME);
         assertThat(info.serialNumber).isEqualTo(DEVICE_SERIAL_NUMBER);
         assertThat(info.deviceTypeName).isEqualTo(DEVICE_TYPE_NAME);
         assertThat(info.deviceConfigurationName).isEqualTo(DEVICE_CONFIGURATION_NAME);

@@ -45,7 +45,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     @Test
     public void testGetComTaskExecutionsForComTaskExecutionWithoutEnablement() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
@@ -59,7 +59,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     @Test
     public void testGetComTaskExecutionsForEnablement() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
@@ -80,7 +80,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     @Test
     public void testGetComTaskExecutionsForEnablementWhichHasAdHocExecution() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
@@ -106,7 +106,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     @Test
     public void testGetComTaskExecutionsForEnablementWhichHasManualExecution() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
@@ -135,7 +135,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     @Test
     public void testGetComTaskExecutionsForEnablementWhichHasScheduledExecution() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
@@ -191,7 +191,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         schedulingInfo.schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -226,8 +226,8 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("1", 1L)).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
@@ -267,8 +267,8 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         info.parent = new VersionInfo<>("1", 1L);
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("1", 1L)).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
@@ -304,7 +304,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         schedulingInfo.id = comTaskId;
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -331,9 +331,9 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     @Test
     public void testDeleteComTaskExecution() throws Exception {
         Device device = mock(Device.class);
-        String deviceMrid = "ZAFB001";
-        when(deviceService.findByUniqueMrid(deviceMrid)).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(deviceMrid, 1L)).thenReturn(Optional.of(device));
+        String deviceName = "ZAFB001";
+        when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, 1L)).thenReturn(Optional.of(device));
         long comTaskId = 12L;
         long comTaskExecution1Id = 14L;
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
@@ -354,7 +354,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         DeviceSchedulesInfo info = new DeviceSchedulesInfo();
         info.id = comTaskExecution1Id;
         info.version = 1L;
-        info.parent = new VersionInfo<>(deviceMrid, 1L);
+        info.parent = new VersionInfo<>(deviceName, 1L);
         Response response = target("/devices/ZAFB001/schedules/" + comTaskExecution1Id).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device).removeComTaskExecution(comTaskExecution);
@@ -363,9 +363,9 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     @Test
     public void testDeleteNonExistingComTaskExecution() throws Exception {
         Device device = mock(Device.class);
-        String deviceMrid = "ZAFB001";
-        when(deviceService.findByUniqueMrid(deviceMrid)).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(deviceMrid, 1L)).thenReturn(Optional.of(device));
+        String deviceName = "ZAFB001";
+        when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, 1L)).thenReturn(Optional.of(device));
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(12L);
@@ -378,7 +378,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         DeviceSchedulesInfo info = new DeviceSchedulesInfo();
         info.id = 12L;
         info.version = 1L;
-        info.parent = new VersionInfo<>(deviceMrid, 1L);
+        info.parent = new VersionInfo<>(deviceName, 1L);
         Response response = target("/devices/ZAFB001/schedules/12").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         verify(device, never()).removeComTaskExecution(comTaskExecution);
@@ -389,7 +389,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         schedulingInfo.id = firmwareComTaskId;
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -428,7 +428,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         schedulingInfo.id = firmwareComTaskExecutionId;
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);

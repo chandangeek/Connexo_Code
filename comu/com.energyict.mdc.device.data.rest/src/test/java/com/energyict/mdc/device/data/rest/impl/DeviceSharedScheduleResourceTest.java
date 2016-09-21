@@ -5,12 +5,13 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -25,8 +26,8 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
     public void testAddSharedSchedulesToDevice() throws Exception {
         DeviceSharedScheduleResource.ScheduleIdsInfo scheduleIdsInfo = new DeviceSharedScheduleResource.ScheduleIdsInfo();
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("XAF")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("XAF", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("XAF")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("XAF", 1L)).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(1L, 1L)).thenReturn(Optional.of(deviceConfiguration));
         ComSchedule schedule33 = mock(ComSchedule.class);
@@ -50,8 +51,8 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
     public void testAddSharedSchedulesToDeviceBadVersion() throws Exception {
         DeviceSharedScheduleResource.ScheduleIdsInfo scheduleIdsInfo = new DeviceSharedScheduleResource.ScheduleIdsInfo();
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("XAF")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("XAF", 1L)).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("XAF")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("XAF", 1L)).thenReturn(Optional.empty());
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(1L, 1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));

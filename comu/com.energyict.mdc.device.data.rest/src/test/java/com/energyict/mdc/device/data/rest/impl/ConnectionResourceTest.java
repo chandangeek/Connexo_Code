@@ -21,11 +21,8 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionType.Direction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.internal.verification.VerificationModeFactory;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -37,6 +34,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.internal.verification.VerificationModeFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -58,10 +60,10 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        when(device.getmRID()).thenReturn("ZABF0000000");
+        when(device.getName()).thenReturn("ZABF0000000");
         when(device.getVersion()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(device.getName(), device.getVersion())).thenReturn(Optional.of(device));
     }
 
     @Test

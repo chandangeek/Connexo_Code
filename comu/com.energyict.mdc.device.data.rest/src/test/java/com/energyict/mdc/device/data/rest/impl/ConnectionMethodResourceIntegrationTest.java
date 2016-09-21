@@ -360,7 +360,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     public void testCreateScheduledConnectionMethodWithoutPropertiesFromIncompleteConfig() {
         Device device;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device7", "AGENT007", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT007", Instant.now());
             device.save();
             transactionContext.commit();
         }
@@ -374,11 +374,11 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = 0L;
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/AGENT007/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
@@ -389,7 +389,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     public void testCreateScheduledConnectionMethodActiveWithoutProperties() throws IOException {
         Device device;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device9", "AGENT009", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT009", Instant.now());
             device.save();
             transactionContext.commit();
         }
@@ -403,7 +403,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = 0L;
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/AGENT009/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -415,7 +415,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     public void testCreateScheduledConnectionMethodActiveWithOnlyRequiredPropertiesFromIncompleteConfig() throws IOException {
         Device device;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device10", "AGENT010", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT010", Instant.now());
             device.save();
             transactionContext.commit();
         }
@@ -431,11 +431,11 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/AGENT010/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
@@ -446,7 +446,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     public void testCreateScheduledConnectionMethodWithPropertiesFromIncompleteConfig() {
         Device device;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device8", "AGENT008", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT008", Instant.now());
             device.save();
             transactionContext.commit();
         }
@@ -460,14 +460,14 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = 0L;
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Response response = target("/devices/AGENT008/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
@@ -479,7 +479,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device11", "AGENT011", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT011", Instant.now());
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
@@ -500,13 +500,13 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
         Response response = target("/devices/AGENT011/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
@@ -520,7 +520,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device12", "AGENT012", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT012", Instant.now());
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
@@ -542,14 +542,14 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null),
                 new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
         Response response = target("/devices/AGENT012/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
@@ -562,7 +562,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device13", "AGENT013", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT013", Instant.now());
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
@@ -582,14 +582,14 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null),
                 new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
         Response response = target("/devices/AGENT013/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
@@ -601,7 +601,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     public void testCreateScheduledConnectionMethodActiveWithNullRequiredPropertyFromCompleteConfig() throws IOException {
         Device device;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device14", "AGENT014", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT014", Instant.now());
             device.save();
             transactionContext.commit();
         }
@@ -617,11 +617,11 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/AGENT014/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
@@ -636,7 +636,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         Device device;
         ConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device15", "AGENT015", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT015", Instant.now());
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithProperties).
                     setComPortPool(whirlpool).
@@ -661,11 +661,11 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.comPortPool = "Whirlpool";
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/AGENT015/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
@@ -679,14 +679,13 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device16", "AGENT016", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT016", Instant.now());
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
                     setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                     setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.INCOMPLETE).
                     setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
-
                     add();
             transactionContext.commit();
         }
@@ -700,7 +699,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
@@ -717,7 +716,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device17", "AGENT017", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT017", Instant.now());
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
@@ -739,7 +738,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
@@ -755,7 +754,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device18", "AGENT018", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT018", Instant.now());
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
@@ -777,9 +776,9 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
-        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
+        info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Response response = target("/devices/AGENT018/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
@@ -794,7 +793,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device19", "AGENT019", Instant.now());
+            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT019", Instant.now());
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
@@ -816,14 +815,14 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
         Response response = target("/devices/AGENT019/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);

@@ -99,8 +99,8 @@ public class ChannelResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response getChannels(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters, topologyService);
+    public Response getChannels(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        return channelHelper.get().getChannels(name, (d -> this.getFilteredChannels(d, filter)), queryParameters, topologyService);
     }
 
     @GET
@@ -108,8 +108,8 @@ public class ChannelResource {
     @Path("/{channelid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response getChannel(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public Response getChannel(@PathParam("name") String name, @PathParam("channelid") long channelId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         return channelHelper.get().getChannel(() -> channel, topologyService);
     }
 
@@ -119,9 +119,9 @@ public class ChannelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE})
-    public Response updateChannel(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, ChannelInfo channelInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public Response updateChannel(@PathParam("name") String name, @PathParam("channelid") long channelId, ChannelInfo channelInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
         channelUpdater.setNumberOfFractionDigits(channelInfo.overruledNbrOfFractionDigits);
         channelUpdater.setOverflowValue(channelInfo.overruledOverflowValue);
@@ -135,8 +135,8 @@ public class ChannelResource {
     @Path("/{channelId}/customproperties")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getChannelCustomProperties(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @BeanParam JsonQueryParameters queryParameters) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public PagedInfoList getChannelCustomProperties(@PathParam("name") String name, @PathParam("channelId") long channelId, @BeanParam JsonQueryParameters queryParameters) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel, this.clock.instant());
         return PagedInfoList
                 .fromCompleteList(
@@ -150,8 +150,8 @@ public class ChannelResource {
     @Path("/{channelId}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public CustomPropertySetInfo getChannelCustomProperties(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public CustomPropertySetInfo getChannelCustomProperties(@PathParam("name") String name, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel, this.clock.instant());
         if (customPropertySetInfo.id != cpsId) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
@@ -164,8 +164,8 @@ public class ChannelResource {
     @Path("/{channelId}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public CustomPropertySetInfo getChannelCustomProperties(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public CustomPropertySetInfo getChannelCustomProperties(@PathParam("name") String name, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel, Instant.ofEpochMilli(timeStamp));
         if (customPropertySetInfo.id != cpsId) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
@@ -178,8 +178,8 @@ public class ChannelResource {
     @Path("/{channelId}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getChannelCustomPropertiesHistory(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @BeanParam JsonQueryParameters queryParameters) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public PagedInfoList getChannelCustomPropertiesHistory(@PathParam("name") String name, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @BeanParam JsonQueryParameters queryParameters) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         return PagedInfoList.fromCompleteList("versions", resourceHelper.getVersionedCustomPropertySetHistoryInfos(channel, cpsId), queryParameters);
     }
 
@@ -188,8 +188,8 @@ public class ChannelResource {
     @Path("/{channelId}/customproperties/{cpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public IntervalInfo getCurrentTimeInterval(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public IntervalInfo getCurrentTimeInterval(@PathParam("name") String name, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         Interval interval = Interval.of(resourceHelper.getCurrentTimeInterval(channel, cpsId));
 
         return IntervalInfo.from(interval.toClosedOpenRange());
@@ -200,8 +200,8 @@ public class ChannelResource {
     @Path("/{channelId}/customproperties/{cpsId}/conflicts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public PagedInfoList getOverlaps(@PathParam("name") String name, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenCreate(channel, cpsId, resourceHelper.getTimeRange(startTime, endTime));
         Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
@@ -212,8 +212,8 @@ public class ChannelResource {
     @Path("/{channelId}/customproperties/{cpsId}/conflicts/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public PagedInfoList getOverlaps(@PathParam("name") String name, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenUpdate(channel, cpsId, resourceHelper.getTimeRange(startTime, endTime), Instant.ofEpochMilli(timeStamp));
         Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
@@ -225,8 +225,8 @@ public class ChannelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response changeRegisterCustomProperty(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public Response changeRegisterCustomProperty(@PathParam("name") String name, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         resourceHelper.lockLoadProfileTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
         resourceHelper.lockChannelSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, channel);
         resourceHelper.setChannelCustomPropertySet(channel, customPropertySetInfo);
@@ -238,8 +238,8 @@ public class ChannelResource {
     @Path("/{channelId}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response addChannelCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public Response addChannelCustomAttributeVersioned(@PathParam("name") String name, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         resourceHelper.lockLoadProfileTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
         resourceHelper.lockChannelSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, channel);
         Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
@@ -266,8 +266,8 @@ public class ChannelResource {
     @Path("/{channelId}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response editChannelCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public Response editChannelCustomAttributeVersioned(@PathParam("name") String name, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         resourceHelper.lockLoadProfileTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
         resourceHelper.lockChannelSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, channel);
         Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
@@ -346,11 +346,11 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
     public Response getChannelData(
-            @PathParam("mRID") String mRID,
+            @PathParam("name") String name,
             @PathParam("channelid") long channelId,
             @BeanParam JsonQueryFilter filter,
             @BeanParam JsonQueryParameters queryParameters) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
@@ -382,10 +382,10 @@ public class ChannelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{channelid}/data/{epochMillis}/validation")
     public Response getValidationData(
-            @PathParam("mRID") String mRID,
+            @PathParam("name") String name,
             @PathParam("channelid") long channelId,
             @PathParam("epochMillis") long epochMillis) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         Instant to = Instant.ofEpochMilli(epochMillis);
         Instant from = to.minus(channel.getInterval().asTemporalAmount());
         Range<Instant> range = Ranges.openClosed(from, to);
@@ -437,8 +437,8 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
-    public Response editChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response editChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         List<BaseReading> editedReadings = new ArrayList<>();
         List<BaseReading> editedBulkReadings = new ArrayList<>();
@@ -488,10 +488,10 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public List<ChannelDataInfo> previewEstimateChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId,
+    public List<ChannelDataInfo> previewEstimateChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId,
                                                             @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
                                                             EstimateChannelDataInfo estimateChannelDataInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         return previewEstimate(QualityCodeSystem.MDC, device, channel, estimateChannelDataInfo);
     }
@@ -534,8 +534,8 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response saveEstimatesChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, EstimateChannelDataInfo estimateChannelDataInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response saveEstimatesChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, EstimateChannelDataInfo estimateChannelDataInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         return saveEstimates(device, channel, estimateChannelDataInfo);
     }
@@ -584,8 +584,8 @@ public class ChannelResource {
     @Path("{channelid}/validationstatus")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationFeatureStatus(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public Response getValidationFeatureStatus(@PathParam("name") String name, @PathParam("channelid") long channelId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         ValidationStatusInfo deviceValidationStatusInfo = channelHelper.get().determineStatus(channel);
         return Response.ok(deviceValidationStatusInfo).build();
     }
@@ -595,8 +595,8 @@ public class ChannelResource {
     @Path("{channelid}/validationpreview")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationStatusPreview(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public Response getValidationStatusPreview(@PathParam("name") String name, @PathParam("channelid") long channelId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         return channelHelper.get().getChannelValidationInfo(() -> channel, topologyService);
     }
 
@@ -606,8 +606,8 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
-    public Response validateDeviceData(LoadProfileTriggerValidationInfo info, @PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response validateDeviceData(LoadProfileTriggerValidationInfo info, @PathParam("name") String name, @PathParam("channelid") long channelId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         info.id = channel.getLoadProfile().getId();
         LoadProfile loadProfile = resourceHelper.lockLoadProfileOrThrowException(info);
@@ -625,8 +625,8 @@ public class ChannelResource {
     @Path("{channelid}/datavalidationissues/{issueid}/validationblocks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getValidationBlocksOfIssue(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, @PathParam("issueid") long issueId, @BeanParam JsonQueryParameters parameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public PagedInfoList getValidationBlocksOfIssue(@PathParam("name") String name, @PathParam("channelid") long channelId, @PathParam("issueid") long issueId, @BeanParam JsonQueryParameters parameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         IssueDataValidation issue = issueDataValidationService.findIssue(issueId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
@@ -665,8 +665,8 @@ public class ChannelResource {
     @Path("/{channelid}/history")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public ChannelHistoryInfos getDataLoggerSlaveChannelHistory(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+    public ChannelHistoryInfos getDataLoggerSlaveChannelHistory(@PathParam("name") String name, @PathParam("channelid") long channelId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         return ChannelHistoryInfos.from(topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.atMost(clock.instant())));
     }
 }

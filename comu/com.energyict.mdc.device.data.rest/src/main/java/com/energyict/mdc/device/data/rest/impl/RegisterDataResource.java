@@ -71,11 +71,11 @@ public class RegisterDataResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getRegisterData(
-            @PathParam("mRID") String mRID,
+            @PathParam("name") String name,
             @PathParam("registerId") long registerId,
             @BeanParam JsonQueryFilter filter,
             @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
 
         Range<Instant> intervalReg = Range.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
@@ -135,8 +135,8 @@ public class RegisterDataResource {
     @Path("/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public ReadingInfo getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public ReadingInfo getRegisterData(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Reading reading = register.getReading(Instant.ofEpochMilli(timeStamp)).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp));
         return deviceDataInfoFactory.createReadingInfo(
@@ -152,8 +152,8 @@ public class RegisterDataResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
-    public Response editRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response editRegisterData(@PathParam("name") String name, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         BaseReading reading = readingInfo.createNew(register);
         validateLinkedToSlave(register, reading.getTimeStamp());
@@ -172,8 +172,8 @@ public class RegisterDataResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
-    public Response addRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response addRegisterData(@PathParam("name") String name, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         try {
             BaseReading reading = readingInfo.createNew(register);
@@ -210,8 +210,8 @@ public class RegisterDataResource {
     @Path("/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
-    public Response deleteRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response deleteRegisterData(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         try {
             Instant removalDate = Instant.ofEpochMilli(timeStamp);
@@ -234,5 +234,4 @@ public class RegisterDataResource {
         }
         return result;
     }
-
 }

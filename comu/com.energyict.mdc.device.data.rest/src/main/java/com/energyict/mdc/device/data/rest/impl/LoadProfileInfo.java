@@ -54,7 +54,7 @@ public class LoadProfileInfo {
         info.lastReading = loadProfile.getLastReading().orElse(null);
         info.version = loadProfile.getVersion();
         Device device = loadProfile.getDevice();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return info;
     }
 

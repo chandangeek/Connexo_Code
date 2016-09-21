@@ -70,9 +70,8 @@ public class GoingOnResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
-
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getGoingOn(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
 
         GoingOnInfoFactory goingOnInfoFactory = new GoingOnInfoFactory(null);
         if (securityContext.getUserPrincipal() instanceof User) {

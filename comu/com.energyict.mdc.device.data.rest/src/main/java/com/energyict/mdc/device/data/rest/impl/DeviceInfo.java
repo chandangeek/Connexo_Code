@@ -27,6 +27,7 @@ import java.util.Optional;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceInfo extends DeviceVersionInfo {
     public long id;
+    public String mRID;
     public String serialNumber;
     public String deviceTypeName;
     public long deviceTypeId;
@@ -35,9 +36,9 @@ public class DeviceInfo extends DeviceVersionInfo {
     public Long deviceProtocolPluggeableClassId;
     public Integer yearOfCertification;
     public String batch;
-    public String masterDevicemRID;
-    public String dataloggermRID; // only available when we are a dataloggerslave
+    public String masterDeviceName;
     public Long masterDeviceId;
+    public String dataloggerName; // only available when we are a dataloggerslave
     public List<DeviceTopologyInfo> slaveDevices;
     public int nbrOfDataCollectionIssues;
     public Long openDataValidationIssue;
@@ -69,13 +70,14 @@ public class DeviceInfo extends DeviceVersionInfo {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
+        deviceInfo.version = device.getVersion();
+        deviceInfo.name = device.getName();
         deviceInfo.mRID = device.getmRID();
         deviceInfo.serialNumber = device.getSerialNumber();
         deviceInfo.deviceTypeId = device.getDeviceType().getId();
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
         deviceInfo.deviceConfigurationId = deviceConfiguration.getId();
         deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
-        deviceInfo.version = device.getVersion();
         deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         deviceInfo.shipmentDate = device.getLifecycleDates().getReceivedDate().orElse(null);
         deviceInfo.hasEstimationRules = !deviceConfiguration.getEstimationRuleSets().isEmpty();
@@ -99,11 +101,12 @@ public class DeviceInfo extends DeviceVersionInfo {
         Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
         if (physicalGateway.isPresent()) {
             deviceInfo.masterDeviceId = physicalGateway.get().getId();
-            deviceInfo.masterDevicemRID = physicalGateway.get().getmRID();
+            deviceInfo.masterDeviceName = physicalGateway.get().getName();
         }
 
         if (device.getDeviceType().isDataloggerSlave()) {
-            topologyService.findDataloggerReference(device, clock.instant()).ifPresent(dataLoggerReference -> deviceInfo.dataloggermRID = dataLoggerReference.getGateway().getmRID());
+            topologyService.findDataloggerReference(device, clock.instant())
+                    .ifPresent(dataLoggerReference -> deviceInfo.dataloggerName = dataLoggerReference.getGateway().getName());
         }
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
         deviceInfo.slaveDevices = slaveDevices;

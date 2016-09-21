@@ -71,10 +71,10 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
     public void setUp() throws Exception {
         super.setUp();
         device = mock(Device.class);
-        when(device.getmRID()).thenReturn("ZABF0000000");
+        when(device.getName()).thenReturn("ZABF0000000");
         when(device.getVersion()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(device.getName(), device.getVersion())).thenReturn(Optional.of(device));
         connectionTask = mockConnectionTask(9);
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);

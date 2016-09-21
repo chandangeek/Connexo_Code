@@ -161,8 +161,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(meterActivation.getStart()).thenReturn(NOW);
         Interval intervalActivation = Interval.of(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
         when(meterActivation.getInterval()).thenReturn(intervalActivation);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("1", 1L)).thenReturn(Optional.of(device));
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
         when(device.getVersion()).thenReturn(1L);
         when(device.getmRID()).thenReturn("1");
@@ -662,7 +662,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findAndLockChannelSpecByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(channelSpec));
         when(masterDataService.findLoadProfileType(anyLong())).thenReturn(Optional.of(loadProfileType));

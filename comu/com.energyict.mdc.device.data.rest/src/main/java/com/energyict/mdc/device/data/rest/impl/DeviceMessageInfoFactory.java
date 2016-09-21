@@ -95,7 +95,7 @@ public class DeviceMessageInfoFactory {
         );
 
         info.version = deviceMessage.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return info;
     }
 
