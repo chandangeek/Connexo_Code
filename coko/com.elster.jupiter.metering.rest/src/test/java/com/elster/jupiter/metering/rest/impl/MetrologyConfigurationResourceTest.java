@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import com.jayway.jsonpath.JsonModel;
@@ -28,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +42,11 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
     private static final ServiceKind SERVICE_KIND_ELECTRICITY = ServiceKind.ELECTRICITY;
     private static final MetrologyConfigurationStatus STATUS_INACTIVE = MetrologyConfigurationStatus.INACTIVE;
     private static final String READING_TYPE_MRID = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+
+    @Before
+    public void setup() {
+        readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
+    }
 
     private UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name, ServiceKind serviceKind, MetrologyConfigurationStatus status, String readingTypeMRID) {
         UsagePointMetrologyConfiguration mock = mock(UsagePointMetrologyConfiguration.class);
@@ -105,7 +112,7 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         info.description = description;
         info.status = new IdWithNameInfo(STATUS_INACTIVE, STATUS_INACTIVE.getTranslationKey().getDefaultFormat());
         info.serviceCategory = new IdWithNameInfo(SERVICE_KIND_ELECTRICITY, SERVICE_KIND_ELECTRICITY.getDefaultFormat());
-        info.readingTypes = Collections.singletonList(new ReadingTypeInfo(readingType));
+        info.readingTypes = Collections.singletonList(readingTypeInfoFactory.from(readingType));
         info.version = version;
 
         return info;
