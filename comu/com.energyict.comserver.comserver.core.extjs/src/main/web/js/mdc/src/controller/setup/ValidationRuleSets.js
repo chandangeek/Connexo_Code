@@ -142,15 +142,13 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 deviceConfigRuleSetsStore.load({
                     callback: function () {
                         ruleSetsStore = me.getAddValidationRuleSetsGrid().getStore();
-                        ruleSetsStore.getProxy().extraParams =
-                            ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
-                        ruleSetsStore.load(
-                            {
-                                callback: function () {
-                                    ruleSetsStore.remove(deviceConfigRuleSetsStore.data.items);
-                                }
+                        ruleSetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
+                        ruleSetsStore.load({
+                            callback: function () {
+                                ruleSetsStore.remove(deviceConfigRuleSetsStore.data.items);
+                                widget.down('validation-add-rulesets-grid').onChangeSelectionGroupType();
                             }
-                        );
+                        });
                     }
                 });
 

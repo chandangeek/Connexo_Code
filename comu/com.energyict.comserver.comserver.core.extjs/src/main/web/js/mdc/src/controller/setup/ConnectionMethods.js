@@ -620,19 +620,21 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 } else if (me.connectionStoreLoaded === 1) {
                     me.connectionStoreLoaded = 0;
                     if(me.inboundVisible && me.outboundVisible) {
-                        inboundButton.hide();
-                        outboundButton.hide();
-                        menuButton.show();
-                        menuButton.down('#createInboundConnectionMenuItem').show();
-                        menuButton.down('#createOutboundConnectionMenuItem').show();
+                        if (inboundButton) inboundButton.hide();
+                        if (outboundButton) outboundButton.hide();
+                        if (menuButton) {
+                            menuButton.show();
+                            menuButton.down('#createInboundConnectionMenuItem').show();
+                            menuButton.down('#createOutboundConnectionMenuItem').show();
+                        }
                     } else if (me.inboundVisible) {
-                        inboundButton.show();
-                        outboundButton.hide();
-                        menuButton.hide();
+                        if (inboundButton) inboundButton.show();
+                        if (outboundButton) outboundButton.hide();
+                        if (menuButton) menuButton.hide();
                     } else if (me.outboundVisible) {
-                        outboundButton.show();
-                        inboundButton.hide();
-                        menuButton.hide();
+                        if (outboundButton) outboundButton.show();
+                        if (inboundButton) inboundButton.hide();
+                        if (menuButton) menuButton.hide();
                     }
                     me.outboundVisible = false;
                     me.inboundVisible = false;
@@ -656,9 +658,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 toPerformWhenBothLoaded();
             };
         loadmaskView.setLoading(true);
-        inboundButton.hide();
-        outboundButton.hide();
-        menuButton.hide();
+        if (inboundButton) inboundButton.hide();
+        if (outboundButton) outboundButton.hide();
+        if (menuButton) menuButton.hide();
         me.loadConnectionTypesStore(connectionTypesStore, deviceType, 'Inbound', toPerformAfterInboundLoad);
         me.loadConnectionTypesStore(connectionTypesStore, deviceType, 'Outbound', toPerformAfterOutboundLoad);
     },
