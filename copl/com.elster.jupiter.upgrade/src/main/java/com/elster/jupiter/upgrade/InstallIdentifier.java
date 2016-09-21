@@ -15,7 +15,7 @@ public final class InstallIdentifier {
         this.application = application;
         Matcher matcher = IDENTIFIER_VALID_PATTERN.matcher(identifier);
         if (!matcher.matches()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Install identifier '" + identifier + "' does not match pattern " + IDENTIFIER_VALID_PATTERN.toString());
         }
         this.identifier = identifier;
     }
