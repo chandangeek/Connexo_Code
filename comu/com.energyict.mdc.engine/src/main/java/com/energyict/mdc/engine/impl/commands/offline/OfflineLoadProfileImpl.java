@@ -14,8 +14,11 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,6 +36,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     private final LoadProfile loadProfile;
     private final Device device;
     private final TopologyService topologyService;
+    private final Map<Device, List<Device>> deviceTopologies;
     private IdentificationService identificationService;
 
     /**
@@ -82,11 +86,16 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     private String deviceMRID;
 
     public OfflineLoadProfileImpl(final LoadProfile loadProfile, TopologyService topologyService, IdentificationService identificationService) {
+        this(loadProfile, topologyService, identificationService, new HashMap<>());
+    }
+
+    OfflineLoadProfileImpl(LoadProfile loadProfile, TopologyService topologyService, IdentificationService identificationService, Map<Device, List<Device>> deviceTopologies) {
         super();
         this.loadProfile = loadProfile;
         this.topologyService = topologyService;
         this.identificationService = identificationService;
         this.device = loadProfile.getDevice();
+        this.deviceTopologies = deviceTopologies;
         goOffline();
     }
 
@@ -104,8 +113,29 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
         setLoadProfileInterval(this.loadProfile.getLoadProfileSpec().getInterval());
         setLoadProfileObisCode(this.loadProfile.getLoadProfileSpec().getDeviceObisCode());
         setLoadProfileChannels(convertToOfflineChannels(this.loadProfile.getChannels()));
-        setAllLoadProfileChannels(convertToOfflineChannels(this.topologyService.getAllChannels(this.loadProfile)));
+        setAllLoadProfileChannels(convertToOfflineChannels(getAllChannelsForLoadProfile(this.loadProfile)));
         setDeviceMRID(this.loadProfile.getDevice().getmRID());
+    }
+
+    private List<Channel> getAllChannelsForLoadProfile(LoadProfile loadProfile) {
+        List<Channel> channels = new ArrayList<>(loadProfile.getChannels());
+        channels.addAll(
+                getPhysicalConnectedDevices(loadProfile.getDevice())
+                        .stream()
+                        .filter(Device::isLogicalSlave)
+                        .flatMap(slave -> slave.getChannels().stream())
+                        .filter(c -> c.getLoadProfile().getLoadProfileTypeId() == loadProfile.getLoadProfileTypeId())
+                        .collect(Collectors.toList()));
+        return channels;
+    }
+
+    private List<Device> getPhysicalConnectedDevices(Device device) {
+        List<Device> connectedDevices = deviceTopologies.get(device);
+        if (connectedDevices == null) {
+            connectedDevices = this.topologyService.findPhysicalConnectedDevices(device);
+            deviceTopologies.put(device, connectedDevices);
+        }
+        return connectedDevices;
     }
 
     /**
