@@ -336,12 +336,6 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.nls.de</artifactId>
-                <version>1.0.0${revision}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
                 <artifactId>mdc.pluggable</artifactId>
                 <version>2.1.0${revision}</version>
                 <scope>provided</scope>
@@ -633,7 +627,6 @@
                 <module>../com.energyict.mdc.masterdata</module>
                 <module>../com.energyict.mdc.masterdata.rest</module>
                 <module>../com.energyict.mdc.metering</module>
-                <module>../com.energyict.mdc.nls.de</module>
                 <module>../com.energyict.mdc.pluggable</module>
                 <module>../com.energyict.mdc.pluggable.rest</module>
                 <module>../com.energyict.mdc.protocol.api</module>
