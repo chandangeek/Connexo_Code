@@ -1315,10 +1315,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .setMRID(getmRID())
                 .setStateMachine(stateMachine)
                 .setSerialNumber(getSerialNumber())
+                .setReceivedDate(koreHelper.getInitialMeterActivationStartDate().get()) // date should be present
                 .create();
-        newMeter.getLifecycleDates()
-                .setReceivedDate(koreHelper.getInitialMeterActivationStartDate().get()); // date should be present
-        newMeter.update();
         return newMeter;
     }
 
