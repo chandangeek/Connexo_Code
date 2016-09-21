@@ -88,7 +88,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             {
                 itemId: 'up-metrology-config-more-details-link',
                 ui: 'link',                
-                text: Uni.I18n.translate('general.moreDetails', 'IMT', 'More details'),
+                text: Uni.I18n.translate('general.metrologyConfiguration.manage', 'IMT', 'Manage metrology configuration'),
                 href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl()
             }
         ];

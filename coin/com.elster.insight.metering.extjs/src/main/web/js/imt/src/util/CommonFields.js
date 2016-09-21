@@ -55,7 +55,7 @@ Ext.define('Imt.util.CommonFields', {
 
                     field.value = pattern.value;
                     field.value += '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; margin-left: 10px;" data-qtip="'
-                        + Uni.I18n.translate('general.tooltip.readingTypePattern', 'IMT', 'This reading type pattern matches to reading types with:{0}', [patternTooltip], false)
+                        + Uni.I18n.translate('general.tooltip.readingTypePattern', 'IMT', 'This reading type pattern matches a reading types with:{0}', [patternTooltip], false)
                         + '"></span>';
                     break;
             }

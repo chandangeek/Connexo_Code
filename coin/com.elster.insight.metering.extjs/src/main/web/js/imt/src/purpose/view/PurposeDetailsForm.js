@@ -12,17 +12,6 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
         xtype: 'container',
         flex: 1
     },
-    tools: [
-        {
-            xtype: 'uni-button-action',
-            itemId: 'purpose-actions-button',
-            privileges: Imt.privileges.UsagePoint.canAdministrate,
-            menu: {
-                xtype: 'purpose-actions-menu',
-                itemId: 'purpose-actions-menu'
-            }
-        }
-    ],
 
     router: null,
 
