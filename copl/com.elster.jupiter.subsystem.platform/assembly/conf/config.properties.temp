@@ -91,6 +91,16 @@ com.elster.jupiter.gasday.start=OCT@05AM
 # Property to specify the directory in which the webservice trace files will be put on the connexo server(s)
 com.elster.jupiter.webservices.log.directory=logs
 
+# Sets the separator character that will be used by the NlsService to parse CSV files containing translations
+com.elster.jupiter.nls.csv.separator=;
+
+# Sets the languages to which new NlsKeys will automatically be translated when created
+# Leaving this property empty will not automatically translate NlsKeys
+com.elster.jupiter.nls.install=
+
+# Sets the directory that contains the CSV language files
+com.elster.jupiter.nls.config.directory=.
+
 # When manually updating this file, uncomment and change the following lines
 # The install script will append these properties automatically
 # com.elster.jupiter.datasource.jdbcurl=jdbc:oracle:thin:@yourHost:yourPort:yourSID
