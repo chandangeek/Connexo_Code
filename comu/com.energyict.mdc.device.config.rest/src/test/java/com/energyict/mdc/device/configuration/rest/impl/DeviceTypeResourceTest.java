@@ -1496,7 +1496,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("updater", 31);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(32, deviceType);
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("Z666")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByMrid("Z666")).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask1 = mockConnectionTask(101L);
         ConnectionTask<?, ?> connectionTask2 = mockConnectionTask(102L);
         ConnectionTask<?, ?> connectionTask3 = mockConnectionTask(103L);

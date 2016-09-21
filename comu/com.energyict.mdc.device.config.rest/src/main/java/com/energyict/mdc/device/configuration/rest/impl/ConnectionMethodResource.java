@@ -83,7 +83,7 @@ public class ConnectionMethodResource {
         List<ConnectionMethodInfo<?>> connectionMethodInfos = new ArrayList<>();
         List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
         if (available != null) {
-            Device device = deviceService.findByUniqueMrid(mrId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mrId));
+            Device device = deviceService.findDeviceByMrid(mrId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mrId));
             if (device.getDeviceConfiguration().getId() != deviceConfigurationId) {
                 throw exceptionFactory.newException(MessageSeeds.DEVICE_DOES_NOT_MATCH_CONFIG);
             }
