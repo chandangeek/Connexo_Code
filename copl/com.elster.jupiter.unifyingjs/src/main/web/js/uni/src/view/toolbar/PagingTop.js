@@ -113,12 +113,13 @@ Ext.define('Uni.view.toolbar.PagingTop', {
                     totalCount = me.totalCount;
                     msg = me.displayMsg;
                 }
-                msg = Ext.String.format(
-                    msg,
-                    pageData.fromRecord,
-                    !!me.noBottomPaging ? store.getTotalCount() : pageData.toRecord,
-                    totalCount
-                );
+                var countFrom = pageData.fromRecord,
+                    countTo = !!me.noBottomPaging ? store.getTotalCount() : pageData.toRecord,
+                    countTotal = totalCount;
+                if (countFrom === countTo && countTotal !== countFrom) {
+                    countTotal = countFrom;
+                }
+                msg = Ext.String.format(msg, countFrom, countTo, countTotal);
             }
             displayItem.setText(msg);
         }

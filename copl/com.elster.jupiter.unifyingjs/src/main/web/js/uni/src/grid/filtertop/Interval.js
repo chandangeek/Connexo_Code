@@ -37,21 +37,21 @@ Ext.define('Uni.grid.filtertop.Interval', {
                             type: 'vbox',
                             align: 'stretchmax'
                         },
-                        defaults: {
-                            labelWidth: 48,
-                            labelStyle: 'font-weight: normal;',
-                            margins: '8 8 0 8',
-                            fieldLabel: '&nbsp;'
-                        },
                         items: [
                             {
                                 xtype: 'fieldcontainer',
+                                margins: '4 8 0 10',
                                 layout: {
-                                    type: 'hbox',
+                                    type: 'column',
                                     align: 'stretch',
-                                    pack: 'left'
+                                    pack: 'center'
                                 },
                                 items: [
+                                    {
+                                        xtype: 'label',
+                                        html: '&nbsp;',
+                                        width: 48
+                                    },
                                     {
                                         xtype: 'label',
                                         html: me.text
@@ -60,13 +60,19 @@ Ext.define('Uni.grid.filtertop.Interval', {
                             },
                             {
                                 xtype: 'fieldcontainer',
+                                margins: '8 8 0 8',
                                 layout: {
-                                    type: 'vbox',
-                                    align: 'stretchmax',
-                                    pack: 'left'
+                                    type: 'hbox',
+                                    align: 'stretch',
+                                    pack: 'center'
                                 },
-                                fieldLabel: Uni.I18n.translate('general.from', 'UNI', 'From'),
                                 items: [
+                                    {
+                                        xtype: 'label',
+                                        html: Uni.I18n.translate('general.from', 'UNI', 'From'),
+                                        width: 48,
+                                        style: 'font-weight: normal;'
+                                    },
                                     {
                                         xtype: 'datefield',
                                         itemId: 'fromDate',
@@ -75,69 +81,82 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         margins: '0 1 0 0',
                                         format: Uni.util.Preferences.lookup(Uni.DateTime.dateLongKey, Uni.DateTime.dateLongDefault),
                                         emptyText: Uni.I18n.translate('grid.filter.date.datefield.emptytext', 'UNI', 'Select a date'),
-                                    },
-                                    {
-                                        xtype: 'fieldcontainer',
-                                        layout: {
-                                            type: 'column'
-                                        },
-                                        defaults: {
-                                            flex: 1
-                                        },
-                                        items: [
-                                            {
-                                                xtype: 'numberfield',
-                                                itemId: 'fromHour',
-                                                value: me.defaultFromDate?me.defaultFromDate.getHours():undefined,
-                                                minValue: 0,
-                                                maxValue: 23,
-                                                editable: false,
-                                                emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
-                                                valueToRaw: function (value) {
-                                                    if (!Ext.isDefined(value)) {
-                                                        return null;
-                                                    }
-
-                                                    value = value || 0;
-                                                    return (value < 10 ? '0' : '') + value;
-                                                }
-                                            },
-                                            {
-                                                xtype: 'label',
-                                                html: '&nbsp;:&nbsp;',
-                                                padding: '0 3 0 3',
-                                                width: 14
-                                            },
-                                            {
-                                                xtype: 'numberfield',
-                                                itemId: 'fromMinute',
-                                                value: me.defaultFromDate?me.defaultFromDate.getMinutes():undefined,
-                                                minValue: 0,
-                                                maxValue: 59,
-                                                editable: false,
-                                                emptyText: Uni.I18n.translate('grid.filter.date.minutefield.emptytext', 'UNI', '00'),
-                                                valueToRaw: function (value) {
-                                                    if (!Ext.isDefined(value)) {
-                                                        return null;
-                                                    }
-
-                                                    value = value || 0;
-                                                    return (value < 10 ? '0' : '') + value;
-                                                }
-                                            }
-                                        ]
+                                        flex: 1
                                     }
                                 ]
                             },
                             {
                                 xtype: 'fieldcontainer',
+                                margins: '0 8 0 8',
                                 layout: {
-                                    type: 'vbox',
-                                    align: 'stretchmax',
-                                    pack: 'left'
+                                    type: 'column',
+                                    align: 'stretch',
+                                    pack: 'center'
                                 },
-                                fieldLabel: Uni.I18n.translate('general.to', 'UNI', 'To'),
                                 items: [
+                                    {
+                                        xtype: 'label',
+                                        html: '&nbsp;',
+                                        width: 48
+                                    },
+                                    {
+                                        xtype: 'numberfield',
+                                        itemId: 'fromHour',
+                                        value: me.defaultFromDate?me.defaultFromDate.getHours():undefined,
+                                        minValue: 0,
+                                        maxValue: 23,
+                                        editable: false,
+                                        emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
+                                        flex: 1,
+                                        valueToRaw: function (value) {
+                                            if (!Ext.isDefined(value)) {
+                                                return null;
+                                            }
+
+                                            value = value || 0;
+                                            return (value < 10 ? '0' : '') + value;
+                                        }
+                                    },
+                                    {
+                                        xtype: 'label',
+                                        text: ':',
+                                        margin: '6 6 0 6'
+                                    },
+                                    {
+                                        xtype: 'numberfield',
+                                        itemId: 'fromMinute',
+                                        value: me.defaultFromDate?me.defaultFromDate.getMinutes():undefined,
+                                        minValue: 0,
+                                        maxValue: 59,
+                                        editable: false,
+                                        emptyText: Uni.I18n.translate('grid.filter.date.minutefield.emptytext', 'UNI', '00'),
+                                        flex: 1,
+                                        valueToRaw: function (value) {
+                                            if (!Ext.isDefined(value)) {
+                                                return null;
+                                            }
+
+                                            value = value || 0;
+                                            return (value < 10 ? '0' : '') + value;
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'fieldcontainer',
+                                margins: '0 8 0 8',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch',
+                                    pack: 'center'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'label',
+                                        html: Uni.I18n.translate('general.to', 'UNI', 'To'),
+                                        width: 48,
+                                        style: 'font-weight: normal;'
+                                    },
                                     {
                                         xtype: 'datefield',
                                         itemId: 'toDate',
@@ -146,62 +165,70 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         margins: '0 1 0 0',
                                         format: Uni.util.Preferences.lookup(Uni.DateTime.dateLongKey, Uni.DateTime.dateLongDefault),
                                         emptyText: Uni.I18n.translate('grid.filter.date.datefield.emptytext', 'UNI', 'Select a date'),
-                                    },
-                                    {
-                                        xtype: 'fieldcontainer',
-                                        layout: {
-                                            type: 'column'
-                                        },
-                                        defaults: {
-                                            flex: 1
-                                        },
-                                        items: [
-                                            {
-                                                xtype: 'numberfield',
-                                                itemId: 'toHour',
-                                                value: me.defaultToDate?me.defaultToDate.getHours():undefined,
-                                                minValue: 0,
-                                                maxValue: 23,
-                                                editable: false,
-                                                emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
-                                                valueToRaw: function (value) {
-                                                    if (!Ext.isDefined(value)) {
-                                                        return null;
-                                                    }
-
-                                                    value = value || 0;
-                                                    return (value < 10 ? '0' : '') + value;
-                                                }
-                                            },
-                                            {
-                                                xtype: 'label',
-                                                html: '&nbsp;:&nbsp;',
-                                                padding: '0 3 0 3',
-                                                width: 14
-                                            },
-                                            {
-                                                xtype: 'numberfield',
-                                                itemId: 'toMinute',
-                                                value: me.defaultToDate?me.defaultToDate.getMinutes():undefined,
-                                                minValue: 0,
-                                                maxValue: 59,
-                                                editable: false,
-                                                emptyText: Uni.I18n.translate('grid.filter.date.minutefield.emptytext', 'UNI', '00'),
-                                                valueToRaw: function (value) {
-                                                    if (!Ext.isDefined(value)) {
-                                                        return null;
-                                                    }
-
-                                                    value = value || 0;
-                                                    return (value < 10 ? '0' : '') + value;
-                                                }
-                                            }
-                                        ]
+                                        flex: 1
                                     }
                                 ]
                             },
                             {
                                 xtype: 'fieldcontainer',
+                                margins: '0 8 0 8',
+                                layout: {
+                                    type: 'column',
+                                    align: 'stretch',
+                                    pack: 'center'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'label',
+                                        html: '&nbsp;',
+                                        width: 48
+                                    },
+                                    {
+                                        xtype: 'numberfield',
+                                        itemId: 'toHour',
+                                        value: me.defaultToDate?me.defaultToDate.getHours():undefined,
+                                        minValue: 0,
+                                        maxValue: 23,
+                                        editable: false,
+                                        emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
+                                        flex: 1,
+                                        valueToRaw: function (value) {
+                                            if (!Ext.isDefined(value)) {
+                                                return null;
+                                            }
+
+                                            value = value || 0;
+                                            return (value < 10 ? '0' : '') + value;
+                                        }
+                                    },
+                                    {
+                                        xtype: 'label',
+                                        text: ':',
+                                        margin: '6 6 0 6'
+                                    },
+                                    {
+                                        xtype: 'numberfield',
+                                        itemId: 'toMinute',
+                                        value: me.defaultToDate?me.defaultToDate.getMinutes():undefined,
+                                        minValue: 0,
+                                        maxValue: 59,
+                                        editable: false,
+                                        emptyText: Uni.I18n.translate('grid.filter.date.minutefield.emptytext', 'UNI', '00'),
+                                        flex: 1,
+                                        valueToRaw: function (value) {
+                                            if (!Ext.isDefined(value)) {
+                                                return null;
+                                            }
+
+                                            value = value || 0;
+                                            return (value < 10 ? '0' : '') + value;
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'fieldcontainer',
+                                margins: '0 8 0 60',
                                 itemId: 'interval-error-msg',
                                 cls: 'x-form-invalid-under',
                                 hidden: true,
@@ -209,12 +236,18 @@ Ext.define('Uni.grid.filtertop.Interval', {
                             },
                             {
                                 xtype: 'fieldcontainer',
+                                margins: '0 8 0 8',
                                 layout: {
                                     type: 'column',
                                     align: 'stretch',
                                     pack: 'center'
                                 },
                                 items: [
+                                    {
+                                        xtype: 'label',
+                                        html: '&nbsp;',
+                                        width: 48
+                                    },
                                     {
                                         xtype: 'button',
                                         ui: 'action',

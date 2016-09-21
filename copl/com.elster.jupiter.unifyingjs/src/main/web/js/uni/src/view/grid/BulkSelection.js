@@ -288,6 +288,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
             currentGridHeaderHeight,
             noBorderCls = 'force-no-border';
 
+        Ext.suspendLayouts();
         me.getTopToolbarContainer().setVisible(visible);
 
         if (me.rendered) {
@@ -324,6 +325,8 @@ Ext.define('Uni.view.grid.BulkSelection', {
             me.headerCt.height = gridHeaderHeight;
             me.doLayout();
         }
+
+        Ext.resumeLayouts(true);
     },
 
     onClickAddButton: function () {

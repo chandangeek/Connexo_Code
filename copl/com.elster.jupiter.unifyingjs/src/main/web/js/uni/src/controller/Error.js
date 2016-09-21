@@ -20,6 +20,10 @@ Ext.define('Uni.controller.Error', {
         window: null
     },
 
+    unhandledErrorMessages: [
+        Uni.I18n.translate('error.communication.failure', 'UNI', 'Communication failure')
+    ],
+
     routeConfig: {
         notfound: {
             title: Uni.I18n.translate('error.pageNotFound', 'UNI', 'Page not found'),
@@ -124,7 +128,7 @@ Ext.define('Uni.controller.Error', {
         }
         else {
             title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
-            message = Uni.I18n.translate(message, 'UNI', message);
+            message = Uni.I18n.translate('error.' + message.replace(' ', '.'), 'UNI', message);
         }
 
         switch (response.status) {
