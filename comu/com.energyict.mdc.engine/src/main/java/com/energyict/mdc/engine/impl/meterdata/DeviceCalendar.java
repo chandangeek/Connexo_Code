@@ -37,7 +37,7 @@ class DeviceCalendar extends CollectedDeviceData implements CollectedCalendar {
 
     @Override
     public boolean isEmpty() {
-        return this.activeCalendarName == null || this.passiveCalendarName == null;
+        return this.activeCalendarName == null && this.passiveCalendarName == null;
     }
 
     @Override

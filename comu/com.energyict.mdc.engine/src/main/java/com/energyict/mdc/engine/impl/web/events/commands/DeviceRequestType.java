@@ -30,9 +30,10 @@ public class DeviceRequestType extends IdBusinessObjectRequestType {
     @Override
     protected Request newRequestAccording(String parameterString) throws BusinessObjectParseException {
         try{
+            parameterString = parameterString.replaceAll("\\s*,\\s*", ",");
             //As the parameterString could not be parsed to a List of long,
             // We consider the parameterString being a comma separated list of MRID's
-            StringTokenizer tokenizer = new StringTokenizer(parameterString, ", ", false);
+            StringTokenizer tokenizer = new StringTokenizer(parameterString, ",", false);
             String[] mrids = new String[tokenizer.countTokens()];
             int i= 0;
             while (tokenizer.hasMoreTokens()) {
