@@ -31,34 +31,6 @@ public class RegisterTypeInfo {
     public long version;
     public VersionInfo<Long> parent;
 
-    public RegisterTypeInfo() {
-    }
-
-    @Deprecated
-    public RegisterTypeInfo(MeasurementType measurementType, boolean isLinkedByDeviceType, boolean inLoadProfileType) {
-        if (inLoadProfileType) {
-            measurementType = ((ChannelType) measurementType).getTemplateRegister();
-        }
-        this.id = measurementType.getId();
-        this.obisCode = measurementType.getObisCode();
-        this.isLinkedByDeviceType = isLinkedByDeviceType;
-        ReadingType readingType = measurementType.getReadingType();
-        this.readingType = new ReadingTypeInfo(readingType);
-        if (readingType.isCumulative()){
-            readingType.getCalculatedReadingType().ifPresent(
-                    rt -> this.calculatedReadingType = new ReadingTypeInfo(rt)
-            );
-        }
-        this.version = measurementType.getVersion();
-    }
-
-    @Deprecated
-    public RegisterTypeInfo(MeasurementType measurementType, boolean isLinkedByDeviceType, boolean isLinkedByActiveRegisterSpec, boolean isLinkedByInactiveRegisterSpec) {
-        this(measurementType, isLinkedByDeviceType, false);
-        this.isLinkedByActiveRegisterConfig = isLinkedByActiveRegisterSpec;
-        this.isLinkedByInactiveRegisterConfig = isLinkedByInactiveRegisterSpec;
-    }
-
     public void writeTo(MeasurementType measurementType, ReadingType readingType) {
         measurementType.setObisCode(this.obisCode);
         measurementType.setReadingType(readingType);

@@ -29,35 +29,4 @@ public class LoadProfileTypeInfo {
     public Boolean isLinkedToActiveDeviceConf;
     public long version;
     public VersionInfo<Long> parent;
-
-    public LoadProfileTypeInfo() {
-    }
-
-    @Deprecated
-    public static List<LoadProfileTypeInfo> from(Iterable<? extends LoadProfileType> loadProfileTypes) {
-        List<LoadProfileTypeInfo> loadProfileTypeInfos = new ArrayList<>();
-        for (LoadProfileType loadProfileType : loadProfileTypes) {
-            loadProfileTypeInfos.add(LoadProfileTypeInfo.from(loadProfileType, null));
-        }
-        return loadProfileTypeInfos;
-    }
-
-    @Deprecated
-    public static LoadProfileTypeInfo from(LoadProfileType loadProfileType, Boolean isInUse) {
-        LoadProfileTypeInfo info = new LoadProfileTypeInfo();
-        info.id = loadProfileType.getId();
-        info.name = loadProfileType.getName();
-        info.obisCode = loadProfileType.getObisCode();
-        info.timeDuration=loadProfileType.getInterval();
-
-        info.registerTypes = new ArrayList<>(loadProfileType.getChannelTypes().size());
-        for (MeasurementType measurementType : loadProfileType.getChannelTypes()) {
-            info.registerTypes.add(new RegisterTypeInfo(measurementType, false, true));
-        }
-
-        info.isLinkedToActiveDeviceConf = isInUse;
-        info.version = loadProfileType.getVersion();
-
-        return info;
-    }
 }

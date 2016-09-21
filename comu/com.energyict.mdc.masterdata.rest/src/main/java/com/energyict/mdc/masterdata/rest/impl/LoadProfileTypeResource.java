@@ -15,6 +15,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
+import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
@@ -56,14 +57,16 @@ public class LoadProfileTypeResource {
     private final Thesaurus thesaurus;
     private final ResourceHelper resourceHelper;
     private final RegisterTypeInfoFactory registerTypeInfoFactory;
+    private final LoadProfileTypeInfoFactory loadProfileTypeInfoFactory;
 
     @Inject
-    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, ResourceHelper resourceHelper, RegisterTypeInfoFactory registerTypeInfoFactory) {
+    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, ResourceHelper resourceHelper, RegisterTypeInfoFactory registerTypeInfoFactory, LoadProfileTypeInfoFactory loadProfileTypeInfoFactory) {
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
         this.resourceHelper = resourceHelper;
         this.registerTypeInfoFactory = registerTypeInfoFactory;
+        this.loadProfileTypeInfoFactory = loadProfileTypeInfoFactory;
     }
 
     @GET
@@ -90,7 +93,7 @@ public class LoadProfileTypeResource {
         List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
 
         allProfileTypes = ListPager.of(allProfileTypes, (lp1, lp2) -> lp1.getName().compareToIgnoreCase(lp2.getName())).from(queryParameters).find();
-        return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileTypeInfo.from(allProfileTypes), queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", loadProfileTypeInfoFactory.from(allProfileTypes), queryParameters)).build();
     }
 
     @GET
@@ -100,7 +103,7 @@ public class LoadProfileTypeResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getLoadProfileType(@PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeOrThrowException(loadProfileId);
-        return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isLoadProfileTypeAlreadyInUse(loadProfileType))).build();
+        return Response.ok(loadProfileTypeInfoFactory.from(loadProfileType, isLoadProfileTypeAlreadyInUse(loadProfileType))).build();
     }
 
     @POST
@@ -127,7 +130,7 @@ public class LoadProfileTypeResource {
         }
         LoadProfileType loadProfileType = masterDataService.newLoadProfileType(request.name, request.obisCode, request.timeDuration, registerTypes);
         loadProfileType.save();
-        return Response.ok(LoadProfileTypeInfo.from(loadProfileType, false)).build();
+        return Response.ok(loadProfileTypeInfoFactory.from(loadProfileType, false)).build();
     }
 
     @PUT
@@ -151,7 +154,7 @@ public class LoadProfileTypeResource {
             }
         }
         loadProfileType.save();
-        return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isInUse)).build();
+        return Response.ok(loadProfileTypeInfoFactory.from(loadProfileType, isInUse)).build();
     }
 
 

@@ -271,7 +271,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         TimeDuration interval = getRandomTimeDuration();
         LoadProfileType loadProfile = mockLoadProfileType(LOADPROFILE_ID, String.format("Load Profile Type %04d", 1), interval,
                 new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
-        LoadProfileTypeInfo info = LoadProfileTypeInfo.from(loadProfile, false);
+        LoadProfileTypeInfo info = loadProfileTypeInfoFactory.from(loadProfile, false);
         info.name = "new name";
         info.version = OK_VERSION;
         Response response = target("/loadprofiles/" + LOADPROFILE_ID).request().build(HttpMethod.PUT, Entity.json(info)).invoke();
@@ -284,7 +284,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         TimeDuration interval = getRandomTimeDuration();
         LoadProfileType loadProfile = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), interval,
                 new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
-        LoadProfileTypeInfo info = LoadProfileTypeInfo.from(loadProfile, false);
+        LoadProfileTypeInfo info = loadProfileTypeInfoFactory.from(loadProfile, false);
         info.name = "new name";
         info.version = BAD_VERSION;
         Response response = target("/loadprofiles/" + LOADPROFILE_ID).request().build(HttpMethod.PUT, Entity.json(info)).invoke();
@@ -297,7 +297,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         TimeDuration interval = getRandomTimeDuration();
         LoadProfileType loadProfile = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), interval,
                 new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
-        LoadProfileTypeInfo info = LoadProfileTypeInfo.from(loadProfile, false);
+        LoadProfileTypeInfo info = loadProfileTypeInfoFactory.from(loadProfile, false);
         info.name = "new name";
         Response response = target("/loadprofiles/" + LOADPROFILE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -309,7 +309,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         TimeDuration interval = getRandomTimeDuration();
         LoadProfileType loadProfile = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), interval,
                 new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
-        LoadProfileTypeInfo info = LoadProfileTypeInfo.from(loadProfile, false);
+        LoadProfileTypeInfo info = loadProfileTypeInfoFactory.from(loadProfile, false);
         info.name = "new name";
         info.version = BAD_VERSION;
         Response response = target("/loadprofiles/" + LOADPROFILE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();

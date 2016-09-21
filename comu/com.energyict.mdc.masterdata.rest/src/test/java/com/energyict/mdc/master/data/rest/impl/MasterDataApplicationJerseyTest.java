@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 import com.energyict.mdc.masterdata.rest.impl.MasterDataApplication;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -29,14 +30,16 @@ public class MasterDataApplicationJerseyTest extends FelixRestApplicationJerseyT
     @Mock
     MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
-    public ReadingTypeInfoFactory readingTypeInfoFactory;
-    public RegisterTypeInfoFactory registerTypeInfoFactory;
+    protected ReadingTypeInfoFactory readingTypeInfoFactory;
+    protected RegisterTypeInfoFactory registerTypeInfoFactory;
+    protected LoadProfileTypeInfoFactory loadProfileTypeInfoFactory;
 
     @Override
     public void setupMocks() {
         super.setupMocks();
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         registerTypeInfoFactory = new RegisterTypeInfoFactory(readingTypeInfoFactory);
+        loadProfileTypeInfoFactory = new LoadProfileTypeInfoFactory(registerTypeInfoFactory);
     }
 
     @Override

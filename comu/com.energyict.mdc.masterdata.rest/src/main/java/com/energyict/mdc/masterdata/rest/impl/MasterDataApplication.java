@@ -16,6 +16,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.collect.ImmutableSet;
@@ -142,6 +143,7 @@ public class MasterDataApplication extends Application implements TranslationKey
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(RegisterTypeInfoFactory.class).to(RegisterTypeInfoFactory.class);
+            bind(LoadProfileTypeInfoFactory.class).to(LoadProfileTypeInfoFactory.class);
         }
     }
 }
