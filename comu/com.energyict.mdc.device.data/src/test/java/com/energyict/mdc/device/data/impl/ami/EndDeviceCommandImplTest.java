@@ -138,7 +138,7 @@ public class EndDeviceCommandImplTest {
             };
         });
         when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
-        when(deviceService.findByUniqueMrid(END_DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(device));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedMessages()).thenReturn(Collections.singleton(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE));
         DeviceProtocolPluggableClass protocolPluggableClass = mock(DeviceProtocolPluggableClass.class);

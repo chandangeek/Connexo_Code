@@ -323,8 +323,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     String getmRID();
 
-    void setmRID(String mrid);
-
     /**
      * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device.
      *

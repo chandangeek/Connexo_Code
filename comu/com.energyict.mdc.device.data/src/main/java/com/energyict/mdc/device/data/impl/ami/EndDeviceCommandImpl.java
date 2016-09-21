@@ -121,7 +121,7 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
     }
 
     private Device findDeviceForEndDevice(EndDevice endDevice) {
-        return deviceService.findByUniqueMrid(endDevice.getMRID()).orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(thesaurus, endDevice.getMRID()));
+        return deviceService.findDeviceByMrid(endDevice.getMRID()).orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(thesaurus, endDevice.getMRID()));
     }
 
     private DeviceMessageSpec findDeviceMessageSpec(DeviceMessageId deviceMessageId) {

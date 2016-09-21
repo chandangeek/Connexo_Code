@@ -116,7 +116,7 @@ public class DeviceSearchDomain implements SearchDomain {
         ConnectionSearchablePropertyGroup connectionGroup = injector.getInstance(ConnectionSearchablePropertyGroup.class);
         TransitionSearchablePropertyGroup transitionGroup = injector.getInstance(TransitionSearchablePropertyGroup.class);
         return Arrays.asList(
-                injector.getInstance(MasterResourceIdentifierSearchableProperty.class).init(this),
+                injector.getInstance(NameSearchableProperty.class).init(this),
                 injector.getInstance(SerialNumberSearchableProperty.class).init(this),
                 deviceTypeSearchableProperty,
                 injector.getInstance(DeviceConfigurationSearchableProperty.class).init(this, deviceTypeSearchableProperty),

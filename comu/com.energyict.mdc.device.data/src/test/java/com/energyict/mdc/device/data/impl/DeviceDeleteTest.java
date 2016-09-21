@@ -341,7 +341,7 @@ public class DeviceDeleteTest {
 
     private DeviceImpl getNewDeviceWithMockedServices() {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService);
-        device.initialize(this.deviceConfiguration, "For testing purposes", "mRID", Instant.now());
+        device.initialize(this.deviceConfiguration, "For testing purposes", Instant.now());
         device.save();
         return device;
     }

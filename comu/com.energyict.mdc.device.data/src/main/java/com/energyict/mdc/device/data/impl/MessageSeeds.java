@@ -161,6 +161,7 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED(2137, Keys.CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED, "You cannot change the configuration to a datalogger enabled device"),
     CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED(2138, Keys.CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED, "You cannot change the configuration of a datalogger enabled device"),
     INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS(2139, Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, "Invalid number of simultaneous connections, should be between 1 and 16"),
+    DUPLICATE_DEVICE_NAME(2140, Keys.DUPLICATE_DEVICE_NAME, "Name must be unique"),
     ;
     private final int number;
     private final String key;
@@ -230,6 +231,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW = "outboundConnectionTask.nextExecutionSpecs.longOffsetNotWithinWindow";
         public static final String VALUE_IS_REQUIRED = "X.value.required";
         public static final String DUPLICATE_DEVICE_MRID = "deviceDuplicateMrid";
+        public static final String DUPLICATE_DEVICE_NAME = "deviceDuplicateName";
         public static final String PHYSICAL_GATEWAY_STILL_IN_USE = "device.delete.linked.physical.gateway";
         public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "device.delete.linked.communication.gateway";
         public static final String PROPERTY_SPEC_DOESNT_EXIST = "device.property.infotype.required";

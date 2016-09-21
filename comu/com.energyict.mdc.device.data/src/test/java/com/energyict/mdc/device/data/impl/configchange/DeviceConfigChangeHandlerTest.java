@@ -187,11 +187,11 @@ public class DeviceConfigChangeHandlerTest {
         devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, getDeviceConfigValueBean());
 
         String deviceMRID1 = "deviceMRDI1";
-        when(deviceService.findByUniqueMrid(deviceMRID1)).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByMrid(deviceMRID1)).thenReturn(Optional.empty());
         String deviceMRID2 = "deviceMRDI2";
-        when(deviceService.findByUniqueMrid(deviceMRID2)).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByMrid(deviceMRID2)).thenReturn(Optional.empty());
         String deviceMRID3 = "deviceMRDI3";
-        when(deviceService.findByUniqueMrid(deviceMRID3)).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByMrid(deviceMRID3)).thenReturn(Optional.empty());
 
         ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(DESTINATION_CONFIG_ID, Arrays.asList(deviceMRID1, deviceMRID2, deviceMRID3), devicesForConfigChangeSearch, DEVICE_CONFIG_CHANGE_REQUEST_ID);
 
@@ -226,15 +226,15 @@ public class DeviceConfigChangeHandlerTest {
         String deviceMRID1 = "deviceMRDI1";
         Device device1 = mock(Device.class);
         when(device1.getState()).thenReturn(activeState);
-        when(deviceService.findByUniqueMrid(deviceMRID1)).thenReturn(Optional.of(device1));
+        when(deviceService.findDeviceByMrid(deviceMRID1)).thenReturn(Optional.of(device1));
         String deviceMRID2 = "deviceMRDI2";
         Device device2 = mock(Device.class);
         when(device2.getState()).thenReturn(activeState);
-        when(deviceService.findByUniqueMrid(deviceMRID2)).thenReturn(Optional.of(device2));
+        when(deviceService.findDeviceByMrid(deviceMRID2)).thenReturn(Optional.of(device2));
         String deviceMRID3 = "deviceMRDI3";
         Device device3 = mock(Device.class);
         when(device3.getState()).thenReturn(activeState);
-        when(deviceService.findByUniqueMrid(deviceMRID3)).thenReturn(Optional.of(device3));
+        when(deviceService.findDeviceByMrid(deviceMRID3)).thenReturn(Optional.of(device3));
 
         List<String> deviceMRIDs = Arrays.asList(deviceMRID1, deviceMRID2, deviceMRID3);
         ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(DESTINATION_CONFIG_ID, deviceMRIDs, devicesForConfigChangeSearch, DEVICE_CONFIG_CHANGE_REQUEST_ID);
@@ -267,7 +267,7 @@ public class DeviceConfigChangeHandlerTest {
         String deviceMRID1 = "deviceMRDI1";
         Device device1 = mock(Device.class);
         when(device1.getState()).thenReturn(decommissionedState);
-        when(deviceService.findByUniqueMrid(deviceMRID1)).thenReturn(Optional.of(device1));
+        when(deviceService.findDeviceByMrid(deviceMRID1)).thenReturn(Optional.of(device1));
 
         List<String> deviceMRIDs = Arrays.asList(deviceMRID1);
         ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(DESTINATION_CONFIG_ID, deviceMRIDs, devicesForConfigChangeSearch, DEVICE_CONFIG_CHANGE_REQUEST_ID);

@@ -254,7 +254,7 @@ public class DeviceImplSecurityPropertiesTest {
                 this.scheduledComTaskExecutionProvider, this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider, this.meteringGroupsService, this.customPropertySetService, this.readingTypeUtilService,
                 this.threadPrincipalService, this.userPreferencesService, this.deviceConfigurationService, deviceService);
-        device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services", null);
+        device.initialize(this.deviceConfiguration, "Not persistent", null);
         return device;
     }
 

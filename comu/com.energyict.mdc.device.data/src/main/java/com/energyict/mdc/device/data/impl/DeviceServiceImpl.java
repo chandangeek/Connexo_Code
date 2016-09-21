@@ -231,17 +231,17 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, Instant startDate) {
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, Instant startDate) {
         Device device = this.deviceDataModelService.dataModel()
                 .getInstance(DeviceImpl.class)
-                .initialize(deviceConfiguration, name, mRID, startDate);
+                .initialize(deviceConfiguration, name, startDate);
         device.save(); // always returns a persisted device
         return device;
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch, Instant startDate) {
-        Device device = newDevice(deviceConfiguration, name, mRID, startDate);
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String batch, Instant startDate) {
+        Device device = newDevice(deviceConfiguration, name, startDate);
         this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
         return device;
     }
@@ -257,8 +257,8 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mRID, long version) {
-        Optional<Device> deviceOptional = this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mRID);
+    public Optional<Device> findAndLockDeviceByNameAndVersion(String name, long version) {
+        Optional<Device> deviceOptional = this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.NAME.fieldName(), name);
         if (deviceOptional.isPresent()) {
             return this.deviceDataModelService.dataModel().mapper(Device.class).lockObjectIfVersion(version, deviceOptional.get().getId());
         } else {
@@ -267,13 +267,18 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Optional<Device> findByUniqueMrid(String mrId) {
+    public Optional<Device> findDeviceByMrid(String mrId) {
         return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrId);
     }
 
     @Override
+    public Optional<Device> findDeviceByName(String name) {
+        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.NAME.fieldName(), name);
+    }
+
+    @Override
     public List<Device> findDevicesBySerialNumber(String serialNumber) {
-        return this.deviceDataModelService.dataModel().mapper(Device.class).find("serialNumber", serialNumber);
+        return this.deviceDataModelService.dataModel().mapper(Device.class).find(DeviceFields.SERIALNUMBER.fieldName(), serialNumber);
     }
 
     @Override

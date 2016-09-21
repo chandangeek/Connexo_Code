@@ -40,7 +40,7 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier<Device> {
     public Device findDevice() {
         // lazyload the device
         if (this.device == null) {
-            this.device = this.deviceService.findByUniqueMrid(this.mrid).orElseThrow(() -> CanNotFindForIdentifier.device(this, MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
+            this.device = this.deviceService.findDeviceByMrid(this.mrid).orElseThrow(() -> CanNotFindForIdentifier.device(this, MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
         }
         return this.device;
     }

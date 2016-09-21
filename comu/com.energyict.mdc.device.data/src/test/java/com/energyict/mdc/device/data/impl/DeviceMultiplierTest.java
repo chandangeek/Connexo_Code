@@ -232,7 +232,7 @@ public class DeviceMultiplierTest {
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider,
                 firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService);
 //        setId(device, ID);
-        device.initialize(deviceConfiguration, "Name", "Mrid", startOfMeterActivation);
+        device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();
         return device;
     }

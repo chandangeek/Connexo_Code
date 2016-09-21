@@ -353,7 +353,7 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.threadPrincipalService,
                 this.userPreferencesService,
                 this.deviceConfigurationService, deviceService)
-                .initialize(this.deviceConfiguration, "Hello world", "mRID", Instant.now());
+                .initialize(this.deviceConfiguration, "Hello world", Instant.now());
         device.save();
         return device;
     }

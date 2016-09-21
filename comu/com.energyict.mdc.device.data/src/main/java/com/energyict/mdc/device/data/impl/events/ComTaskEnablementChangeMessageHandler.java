@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.configchange.SingleComTaskEnablementQueueMessage;
+
 import org.osgi.service.event.EventConstants;
 
 import java.util.HashMap;
@@ -79,7 +80,8 @@ public class ComTaskEnablementChangeMessageHandler implements MessageHandler {
                 SingleComTaskEnablementQueueMessage queueMessage = comTaskEnablementConfig.jsonService.deserialize(((String) properties.get(COMTASK_ENABLEMENT_MESSAGE_VALUE)), SingleComTaskEnablementQueueMessage.class);
                 createComTaskExecutionsForEnablement(
                         getComTaskEnablement(comTaskEnablementConfig, queueMessage.comTaskEnablementId),
-                        comTaskEnablementConfig.deviceService.findByUniqueMrid(queueMessage.deviceMrid).orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(comTaskEnablementConfig.thesaurus, queueMessage.deviceMrid))
+                        comTaskEnablementConfig.deviceService.findDeviceByMrid(queueMessage.deviceMrid)
+                                .orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(comTaskEnablementConfig.thesaurus, queueMessage.deviceMrid))
                 );
             }
 

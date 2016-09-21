@@ -44,7 +44,7 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
             LOGGER.log(Level.SEVERE, thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_SCHEDULE).format(queueMessage.comScheduleId));
             return;
         }
-        Optional<Device> device = deviceService.findByUniqueMrid(queueMessage.mRID);
+        Optional<Device> device = deviceService.findDeviceByMrid(queueMessage.mRID);
         if (!device.isPresent()) {
             LOGGER.log(Level.SEVERE, thesaurus.getFormat(MessageSeeds.NO_SUCH_DEVICE).format(queueMessage.mRID));
             return;

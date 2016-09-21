@@ -159,7 +159,6 @@ public class DeviceImplDoSomethingWithEventsTest {
     private static final String DEVICE_CONFIGURATION_NAME = DeviceImplDoSomethingWithEventsTest.class.getName() + "Config";
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     private static final String DEVICE_NAME = "deviceName";
-    private static final String MRID = "MyUniquemRID";
 
     private DeviceType deviceType;
     private DeviceConfiguration deviceConfiguration;
@@ -212,7 +211,7 @@ public class DeviceImplDoSomethingWithEventsTest {
     }
 
     private Device createSimpleDeviceWithName(String name) {
-        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, MRID, Instant.now());
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, Instant.now());
     }
 
     private Device getReloadedDevice(Device device) {

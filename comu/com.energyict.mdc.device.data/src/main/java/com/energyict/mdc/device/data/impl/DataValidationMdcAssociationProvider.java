@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.validation.DataValidationAssociationProvider;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -12,16 +11,12 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component(name="com.energyict.mdc.device.data.impl.DataValidationMdcAssociationProvider",
         service = { DataValidationAssociationProvider.class },
@@ -42,21 +37,21 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
 
     @Override
     public List<DataValidationStatus> getRegisterSuspects(String mRID, Range<Instant> range) {
-        return deviceService.findByUniqueMrid(mRID)
+        return deviceService.findDeviceByMrid(mRID)
                 .map(device -> getDataValidationStatusForRegister(device, range))
                 .orElse(Collections.emptyList());
     }
 
     @Override
     public List<DataValidationStatus> getChannelsSuspects(String mRID, Range<Instant> range) {
-        return deviceService.findByUniqueMrid(mRID)
+        return deviceService.findDeviceByMrid(mRID)
                 .map(device -> getDataValidationStatusForChannels(device, range))
                 .orElse(Collections.emptyList());
     }
 
     @Override
     public boolean isAllDataValidated(String mRID, Range<Instant> range){
-        return deviceService.findByUniqueMrid(mRID)
+        return deviceService.findDeviceByMrid(mRID)
                 .map(device -> isAllDataValidated(device, range))
                 .orElse(false);
     }

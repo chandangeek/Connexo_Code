@@ -22,14 +22,9 @@ import com.energyict.mdc.device.data.impl.configchange.SingleComTaskEnablementQu
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.event.EventConstants;
 
 import java.util.Collections;
@@ -38,8 +33,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -126,8 +132,8 @@ public class ComTaskEnablementChangeMessageHandlerTest {
 
         when(device_1.getmRID()).thenReturn(DEVICE_1_MRID);
         when(device_2.getmRID()).thenReturn(DEVICE_2_MRID);
-        when(deviceService.findByUniqueMrid(DEVICE_1_MRID)).thenReturn(Optional.of(device_1));
-        when(deviceService.findByUniqueMrid(DEVICE_2_MRID)).thenReturn(Optional.of(device_2));
+        when(deviceService.findDeviceByMrid(DEVICE_1_MRID)).thenReturn(Optional.of(device_1));
+        when(deviceService.findDeviceByMrid(DEVICE_2_MRID)).thenReturn(Optional.of(device_2));
         when(device_1.newManuallyScheduledComTaskExecution(comTaskEnablement, null)).thenReturn(mock(ComTaskExecutionBuilder.class));
     }
 

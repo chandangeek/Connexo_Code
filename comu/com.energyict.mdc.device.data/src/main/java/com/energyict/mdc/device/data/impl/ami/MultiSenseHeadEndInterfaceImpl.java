@@ -170,7 +170,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                     if (!urlText.endsWith("#")) {
                         urlText = urlText + "#";
                     }
-                    urlText = urlText + "/devices/" + device.getmRID();
+                    urlText = urlText + "/devices/" + device.getName();
                     try {
                         return Optional.of(new URL(urlText));
                     } catch (MalformedURLException e) {
@@ -424,7 +424,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     }
 
     private Device findDeviceForEndDevice(EndDevice endDevice) {
-        return deviceService.findByUniqueMrid(endDevice.getMRID()).orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(thesaurus, endDevice.getMRID()));
+        return deviceService.findDeviceByMrid(endDevice.getMRID()).orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(thesaurus, endDevice.getMRID()));
     }
 
     private EndDeviceControlType findEndDeviceControlType(EndDeviceControlTypeMapping controlTypeMapping) {

@@ -160,7 +160,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     }
 
     private Device findDeviceForEndDevice(EndDevice endDevice) {
-        return deviceService.findByUniqueMrid(endDevice.getMRID()).orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(thesaurus, endDevice.getMRID()));
+        return deviceService.findDeviceByMrid(endDevice.getMRID()).orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(thesaurus, endDevice.getMRID()));
     }
 
     private PropertySpec getCommandArgumentSpec(EndDeviceCommand endDeviceCommand, String commandArgumentName) {

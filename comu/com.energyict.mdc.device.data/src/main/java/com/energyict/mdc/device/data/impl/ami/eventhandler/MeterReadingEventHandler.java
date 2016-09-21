@@ -44,7 +44,7 @@ public class MeterReadingEventHandler implements MessageHandler {
             findServiceCallsLinkedTo(meteringService.findMeter(Long.valueOf(messageProperties
                     .get("meterId")
                     .toString()))
-                    .flatMap(meter -> deviceService.findByUniqueMrid(meter.getMRID()))
+                    .flatMap(meter -> deviceService.findDeviceByMrid(meter.getMRID()))
                     .orElseThrow(IllegalStateException::new))
                     .forEach(serviceCall -> handle(serviceCall, messageProperties));
         } else if (messageProperties.get("deviceIdentifier") != null) {

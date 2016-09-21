@@ -119,6 +119,7 @@ import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertySer
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
@@ -215,6 +216,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -229,6 +231,7 @@ import static java.util.stream.Collectors.toList;
 
 @LiteralSql
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_NAME + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
 @DeviceImpl.HasValidShipmentDate(groups = {Save.Create.class})
 @ValidSecurityProperties(groups = {Save.Update.class})
@@ -375,16 +378,20 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.koreHelper.syncWithKore(this);
     }
 
-    DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID, Instant startDate) {
+    DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, Instant startDate) {
         this.createTime = this.clock.instant();
         this.deviceConfiguration.set(deviceConfiguration);
         this.setDeviceTypeFromDeviceConfiguration();
         setName(name);
-        this.setmRID(mRID);
+        this.mRID = generateMRID();
         this.koreHelper.setInitialMeterActivationStartDate(startDate);
         createLoadProfiles();
         createLogBooks();
         return this;
+    }
+
+    private String generateMRID() {
+        return UUID.randomUUID().toString();
     }
 
     boolean syncWithKore(SyncDeviceWithKoreMeter syncDeviceWithKore) {
@@ -761,14 +768,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (name != null) {
             this.name = name.trim();
         }
-    }
-
-    @Override
-    public void setmRID(String mRID) {
-        this.mRID = null;
-        Optional.ofNullable(mRID)
-                .map(String::trim)
-                .ifPresent(trimmed -> this.mRID = trimmed);
     }
 
     public long getId() {
