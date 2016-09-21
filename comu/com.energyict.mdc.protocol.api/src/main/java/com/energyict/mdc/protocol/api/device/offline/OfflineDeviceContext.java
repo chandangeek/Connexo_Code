@@ -23,4 +23,6 @@ public interface OfflineDeviceContext {
 
     boolean needsFirmwareVersions();
 
+    boolean needsTouCalendar();
+
 }

@@ -152,4 +152,8 @@ public interface OfflineDevice extends Offline {
 
     List<OfflineCalendar> getCalendars();
 
+    boolean touCalendarManagementAllowed();
+
+    boolean firmwareVersionManagementAllowed();
+
 }
