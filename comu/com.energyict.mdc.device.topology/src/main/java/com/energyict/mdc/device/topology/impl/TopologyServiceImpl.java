@@ -414,7 +414,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         Condition condition = where(PhysicalGatewayReferenceImpl.Field.GATEWAY.fieldName()).isEqualTo(dataLogger)
                 .and(where("interval.start").in(Range.closed(linkingDate.toEpochMilli(), linkingDate.toEpochMilli())));
         Optional<DataLoggerReference> duplicateReference = this.dataModel.mapper(DataLoggerReference.class).select(condition).stream().collect(Collectors.toList())
-                .stream().filter(reference -> reference.getOrigin().getmRID().equals(slave.getmRID()) && reference.getRange().lowerEndpoint().equals(linkingDate)).findAny();
+                .stream().filter(reference -> reference.getOrigin().getName().equals(slave.getName()) && reference.getRange().lowerEndpoint().equals(linkingDate)).findAny();
         if (duplicateReference.isPresent()) {
             throw DataLoggerLinkException.slaveWasPreviouslyLinkedAtSameTimeStamp(thesaurus, slave, dataLogger, linkingDate);
         }
@@ -1006,7 +1006,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         if (addressInformations.isEmpty()) {
             return Optional.empty();
         } else if (addressInformations.size() > 1) {
-            throw new IllegalStateException("Expecting at most 1 effective G3DeviceAddressInformation entity for device with mRID " + device.getmRID());
+            throw new IllegalStateException("Expecting at most 1 effective G3DeviceAddressInformation entity for device with name " + device.getName());
         } else {
             return Optional.of(addressInformations.get(0));
         }
