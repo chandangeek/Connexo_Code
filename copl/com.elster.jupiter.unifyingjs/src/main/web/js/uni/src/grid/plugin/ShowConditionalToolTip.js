@@ -27,7 +27,7 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
         //do not remove the check below. Only grids with 20 items or less can use conditional tooltips, as this is causing MAJOR
         //performance issues when used on large grids. !!!
         //CXO-3008 - [Performance] Rendering search result of 1000 devices takes ages
-        if(grid.getStore().getCount()<=20){
+        if(!Ext.isEmpty(grid.getStore()) && grid.getStore().getCount()<=20){
             var gridPanel = grid.up('gridpanel');
             if (gridPanel.rendered && !grid.isHidden()) {
                 Ext.suspendLayouts();
@@ -75,7 +75,7 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                 });
 
                 Ext.resumeLayouts(true);
-        }
+            }
 
         }
     }
