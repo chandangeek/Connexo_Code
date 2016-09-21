@@ -440,7 +440,8 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private class CreateInitialState implements StateManager {
         @Override
         public StateManager save() {
-            createNewState(getCreateTime(), getFiniteStateMachine().get().getInitialState());
+            createNewState(AbstractEndDeviceImpl.this.receivedDate != null ? AbstractEndDeviceImpl.this.receivedDate : getCreateTime(),
+                    getFiniteStateMachine().get().getInitialState());
             return new UpdateStateNotSupportedYet();
         }
     }
