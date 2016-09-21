@@ -5,18 +5,17 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
-
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.inject.Inject;
 
 /**
  * Implementation for a {@link com.energyict.mdc.tasks.ProtocolTask}
@@ -157,6 +156,11 @@ abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceCont
     @Override
     public boolean needsFirmwareVersions() {
         return flags.needsFirmwareVersions();
+    }
+
+    @Override
+    public boolean needsTouCalendar() {
+        return flags.needsTouCalendar();
     }
 
     protected <T extends HasId> T getById(List<T> list, long id) {
