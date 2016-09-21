@@ -38,6 +38,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -99,11 +100,17 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
 
     ReadingTypeInfoFactory readingTypeInfoFactory;
     RegisterConfigInfoFactory registerConfigInfoFactory;
+    RegisterTypeInfoFactory registerTypeInfoFactory;
+    RegisterGroupInfoFactory registerGroupInfoFactory;
+    LoadProfileTypeOnDeviceTypeInfoFactory loadProfileTypeOnDeviceTypeInfoFactory;
 
     @Before
     public void setup() {
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         registerConfigInfoFactory = new RegisterConfigInfoFactory(readingTypeInfoFactory);
+        registerTypeInfoFactory = new RegisterTypeInfoFactory(readingTypeInfoFactory);
+        registerGroupInfoFactory = new RegisterGroupInfoFactory(registerTypeInfoFactory);
+        loadProfileTypeOnDeviceTypeInfoFactory = new LoadProfileTypeOnDeviceTypeInfoFactory(registerTypeInfoFactory);
         when(thesaurus.getStringBeyondComponent(any(String.class), any(String.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
     }
 

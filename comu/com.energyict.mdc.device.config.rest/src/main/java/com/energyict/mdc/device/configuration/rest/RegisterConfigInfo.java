@@ -49,58 +49,6 @@ public class RegisterConfigInfo {
     public long version;
     public VersionInfo<Long> parent;
 
-    public RegisterConfigInfo() {
-    }
-
-    @Deprecated //use RegisterConfigInfoFactory
-    public RegisterConfigInfo(NumericalRegisterSpec registerSpec, List<ReadingType> multipliedCalculatedRegisterTypes) {
-        this.id = registerSpec.getId();
-        this.name = registerSpec.getRegisterType().getReadingType().getFullAliasName();
-        this.registerType = registerSpec.getRegisterType().getId();
-        this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
-        this.obisCode = registerSpec.getObisCode();
-        this.overruledObisCode = registerSpec.getDeviceObisCode();
-        this.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        this.asText = registerSpec.isTextual();
-        this.collectedReadingType = new ReadingTypeInfo(registerSpec.getReadingType());
-        this.version = registerSpec.getVersion();
-        this.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration().getId(), registerSpec.getDeviceConfiguration().getVersion());
-        this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
-        registerSpec.getOverflowValue().ifPresent(overflow -> this.overflow = overflow);
-        this.useMultiplier = registerSpec.isUseMultiplier();
-        if(this.useMultiplier){
-            this.calculatedReadingType = new ReadingTypeInfo(registerSpec.getCalculatedReadingType().get());
-        }
-        multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
-    }
-
-    @Deprecated //use RegisterConfigInfoFactory
-    public RegisterConfigInfo(TextualRegisterSpec registerSpec, List<ReadingType> multipliedCalculatedRegisterTypes) {
-        this.id = registerSpec.getId();
-        this.name = registerSpec.getRegisterType().getReadingType().getFullAliasName();
-        this.registerType = registerSpec.getRegisterType().getId();
-        this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
-        this.obisCode = registerSpec.getObisCode();
-        this.overruledObisCode = registerSpec.getDeviceObisCode();
-        this.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        this.asText = registerSpec.isTextual();
-        this.collectedReadingType = new ReadingTypeInfo(registerSpec.getReadingType());
-        this.version = registerSpec.getVersion();
-        this.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration().getId(), registerSpec.getDeviceConfiguration().getVersion());
-        this.numberOfFractionDigits = null;
-        this.overflow = null;
-        multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
-    }
-
-    @Deprecated //use RegisterConfigInfoFactory
-    public static RegisterConfigInfo from(RegisterSpec registerSpec, List<ReadingType> multipliedCalculatedRegisterTypes) {
-        if (registerSpec.isTextual()) {
-            return new RegisterConfigInfo((TextualRegisterSpec) registerSpec, multipliedCalculatedRegisterTypes);
-        } else {
-            return new RegisterConfigInfo((NumericalRegisterSpec) registerSpec, multipliedCalculatedRegisterTypes);
-        }
-    }
-
     public void writeTo(TextualRegisterSpec.Updater textualRegisterSpecUpdater){
         textualRegisterSpecUpdater.overruledObisCode(this.overruledObisCode);
     }

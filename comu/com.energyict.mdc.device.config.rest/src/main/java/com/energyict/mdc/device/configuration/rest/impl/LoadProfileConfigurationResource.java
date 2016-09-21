@@ -17,6 +17,7 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
+import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import javax.annotation.security.RolesAllowed;
@@ -50,9 +51,10 @@ public class LoadProfileConfigurationResource {
     private MdcReadingTypeUtilService readingTypeUtilService;
     private final ChannelSpecInfoFactory channelSpecInfoFactory;
     private final LoadProfileSpecInfoFactory loadProfileSpecInfoFactory;
+    private final LoadProfileTypeInfoFactory loadProfileTypeInfoFactory;
 
     @Inject
-    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus, MdcReadingTypeUtilService readingTypeUtilService, ChannelSpecInfoFactory channelSpecInfoFactory, LoadProfileSpecInfoFactory loadProfileSpecInfoFactory) {
+    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus, MdcReadingTypeUtilService readingTypeUtilService, ChannelSpecInfoFactory channelSpecInfoFactory, LoadProfileSpecInfoFactory loadProfileSpecInfoFactory, LoadProfileTypeInfoFactory loadProfileTypeInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.masterDataService = masterDataService;
@@ -60,6 +62,7 @@ public class LoadProfileConfigurationResource {
         this.readingTypeUtilService = readingTypeUtilService;
         this.channelSpecInfoFactory = channelSpecInfoFactory;
         this.loadProfileSpecInfoFactory = loadProfileSpecInfoFactory;
+        this.loadProfileTypeInfoFactory = loadProfileTypeInfoFactory;
     }
 
     @GET @Transactional
@@ -89,7 +92,7 @@ public class LoadProfileConfigurationResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         Collection<LoadProfileType> loadProfileTypes = findAvailableLoadProfileTypesForDeviceConfiguration(deviceType, deviceConfiguration);
-        return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileTypeInfo.from(loadProfileTypes), queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", loadProfileTypeInfoFactory.from(loadProfileTypes), queryParameters)).build();
     }
 
     @GET @Transactional

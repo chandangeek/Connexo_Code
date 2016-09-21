@@ -32,6 +32,8 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -305,9 +307,13 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(RegisterConfigInfoFactory.class).to(RegisterConfigInfoFactory.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
+            bind(RegisterTypeInfoFactory.class).to(RegisterTypeInfoFactory.class);
+            bind(RegisterGroupInfoFactory.class).to(RegisterGroupInfoFactory.class);
             bind(RegisterTypeOnDeviceTypeInfoFactory.class).to(RegisterTypeOnDeviceTypeInfoFactory.class);
             bind(ChannelSpecInfoFactory.class).to(ChannelSpecInfoFactory.class);
             bind(LoadProfileSpecInfoFactory.class).to(LoadProfileSpecInfoFactory.class);
+            bind(LoadProfileTypeInfoFactory.class).to(LoadProfileTypeInfoFactory.class);
+            bind(LoadProfileTypeOnDeviceTypeInfoFactory.class).to(LoadProfileTypeOnDeviceTypeInfoFactory.class);
         }
     }
 }
