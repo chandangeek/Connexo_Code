@@ -15,6 +15,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -28,6 +29,7 @@ import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlready
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -132,7 +134,10 @@ public class OfflineDeviceImplTest {
     private OrmService ormService;
     @Mock
     DataModel dataModel;
-
+    @Mock
+    private FirmwareService firmwareService;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private TypedProperties getDeviceProtocolProperties() {
@@ -191,10 +196,14 @@ public class OfflineDeviceImplTest {
         when(this.offlineDeviceServiceProvider.thesaurus()).thenReturn(this.thesaurus);
         when(this.offlineDeviceServiceProvider.topologyService()).thenReturn(this.topologyService);
         when(this.offlineDeviceServiceProvider.identificationService()).thenReturn(this.identificationService);
+        when(this.offlineDeviceServiceProvider.firmwareService()).thenReturn(this.firmwareService);
+        when(this.offlineDeviceServiceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
         when(this.topologyService.getPhysicalGateway(any(Device.class))).thenReturn(Optional.empty());
         when(this.topologyService.getPhysicalGateway(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(this.topologyService.findPhysicalConnectedDevices(any(Device.class))).thenReturn(Collections.<Device>emptyList());
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
+        when(this.firmwareService.findFirmwareManagementOptions(any(DeviceType.class))).thenReturn(Optional.empty());
+        when(this.deviceConfigurationService.findTimeOfUseOptions(any(DeviceType.class))).thenReturn(Optional.empty());
     }
 
     private int getTotalSizeOfProperties() {

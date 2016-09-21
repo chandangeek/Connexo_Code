@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
@@ -9,6 +10,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -119,6 +121,9 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     private List<OfflineCalendar> calendars = Collections.emptyList();
 
+    private boolean firmwareManagementAllowed = false;
+    private boolean touCalendarAllowed = false;
+
     public interface ServiceProvider {
 
         Thesaurus thesaurus();
@@ -128,6 +133,10 @@ public class OfflineDeviceImpl implements OfflineDevice {
         Optional<DeviceCache> findProtocolCacheByDevice(Device device);
 
         IdentificationService identificationService();
+
+        DeviceConfigurationService deviceConfigurationService();
+
+        FirmwareService firmwareService();
 
     }
 
@@ -193,6 +202,12 @@ public class OfflineDeviceImpl implements OfflineDevice {
         }
         if (context.needsSentMessages()) {
             setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device)));
+        }
+        if(context.needsFirmwareVersions()){
+            this.firmwareManagementAllowed = serviceProvider.firmwareService().findFirmwareManagementOptions(device.getDeviceType()).isPresent();
+        }
+        if(context.needsTouCalendar()){
+            this.touCalendarAllowed = serviceProvider.deviceConfigurationService().findTimeOfUseOptions(device.getDeviceType()).isPresent();
         }
         setDeviceCache(serviceProvider);
         this.setCalendars();
@@ -499,6 +514,16 @@ public class OfflineDeviceImpl implements OfflineDevice {
     @Override
     public List<OfflineCalendar> getCalendars() {
         return Collections.unmodifiableList(this.calendars);
+    }
+
+    @Override
+    public boolean touCalendarManagementAllowed() {
+        return touCalendarAllowed;
+    }
+
+    @Override
+    public boolean firmwareVersionManagementAllowed() {
+        return firmwareManagementAllowed;
     }
 
     private void setCalendars() {

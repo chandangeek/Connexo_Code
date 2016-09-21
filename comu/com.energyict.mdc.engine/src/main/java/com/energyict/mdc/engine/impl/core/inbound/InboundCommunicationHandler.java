@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.StopWatch;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -20,8 +21,17 @@ import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
-import com.energyict.mdc.engine.impl.commands.store.*;
-import com.energyict.mdc.engine.impl.core.*;
+import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.Counters;
+import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
+import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
+import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
@@ -41,6 +51,7 @@ import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonit
 import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonitoringHttpServletResponse;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
@@ -611,6 +622,16 @@ public class InboundCommunicationHandler {
         @Override
         public IdentificationService identificationService() {
             return serviceProvider.identificationService();
+        }
+
+        @Override
+        public DeviceConfigurationService deviceConfigurationService() {
+            return serviceProvider.deviceConfigurationService();
+        }
+
+        @Override
+        public FirmwareService firmwareService() {
+            return serviceProvider.firmwareService();
         }
 
     }

@@ -13,6 +13,7 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -967,6 +968,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         IdentificationService identificationService();
 
         FirmwareService firmwareService();
+
+        DeviceConfigurationService deviceConfigurationService();
     }
 
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
@@ -989,6 +992,16 @@ public class ComServerDAOImpl implements ComServerDAO {
         @Override
         public IdentificationService identificationService() {
             return serviceProvider.identificationService();
+        }
+
+        @Override
+        public DeviceConfigurationService deviceConfigurationService() {
+            return serviceProvider.deviceConfigurationService();
+        }
+
+        @Override
+        public FirmwareService firmwareService() {
+            return serviceProvider.firmwareService();
         }
 
     }
