@@ -32,6 +32,7 @@ class TranslationBatchUpdater extends TranslationBatchExecutor {
 
     @Override
     protected void addTranslations(BufferedReader reader, Connection connection) throws SQLException {
+        this.cacheAllNlsKeys();
         try (PreparedStatement insertStatement = connection.prepareStatement(BATCH_INSERT_SQL);
              PreparedStatement updateStatement = connection.prepareStatement(BATCH_UPDATE_SQL)) {
             this.insertStatement = insertStatement;
@@ -47,9 +48,11 @@ class TranslationBatchUpdater extends TranslationBatchExecutor {
     }
 
     private void upsertNlsEntry(String csvLine) {
-        TranslationCsvEntry entry = TranslationCsvEntry.parseFrom(csvLine, this.getLocale());
+        TranslationCsvEntry entry = TranslationCsvEntry.parseFrom(csvLine, this.getLocale(), this.getCsvSeparator());
         // We ignore translation for NlsKeys that don't exist
-        entry.findKey(this.nlsKeyDataMapper()).ifPresent(key -> this.upsertNlsEntry(entry));
+        if (this.keyExists(entry)) {
+            this.upsertNlsEntry(entry);
+        }
     }
 
     private void upsertNlsEntry(TranslationCsvEntry csvEntry) {

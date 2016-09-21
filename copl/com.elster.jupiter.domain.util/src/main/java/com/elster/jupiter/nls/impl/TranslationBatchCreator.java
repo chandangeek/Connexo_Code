@@ -26,6 +26,7 @@ class TranslationBatchCreator extends TranslationBatchExecutor {
 
     @Override
     protected void addTranslations(BufferedReader reader, Connection connection) throws SQLException {
+        this.cacheAllNlsKeys();
         try (PreparedStatement statement = connection.prepareStatement(BATCH_INSERT_SQL)) {
             reader.lines().forEach(each -> this.insertNlsEntry(each, statement));
             statement.executeBatch();
@@ -34,9 +35,17 @@ class TranslationBatchCreator extends TranslationBatchExecutor {
 
     private void insertNlsEntry(String csvLine, PreparedStatement statement) throws UnderlyingSQLFailedException {
         try {
-            TranslationCsvEntry entry = TranslationCsvEntry.parseFrom(csvLine, this.getLocale());
-            entry.bindToInsertBatch(statement);
-            this.addImpactedThesaurus(entry);
+            TranslationCsvEntry entry = TranslationCsvEntry.parseFrom(csvLine, this.getLocale(), this.getCsvSeparator());
+            if (this.keyExists(entry)) {
+                if (entry.validate(this.getLogger())) {
+                    entry.bindToInsertBatch(statement);
+                    this.addImpactedThesaurus(entry);
+                } else {
+                    this.getLogger().warning(() -> "Ignored entry " + entry + " because it is not valid (see messages above)");
+                }
+            } else {
+                this.getLogger().warning(() -> "Ignored entry " + entry + " because key does not exist");
+            }
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
