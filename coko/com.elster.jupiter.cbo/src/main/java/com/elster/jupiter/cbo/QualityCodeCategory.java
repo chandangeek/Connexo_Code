@@ -12,7 +12,8 @@ public enum QualityCodeCategory {
     VALIDATION(TranslationKeys.CATEGORY_VALIDATION) {
                 @Override
                 public Optional<QualityCodeIndex> qualityCodeIndex(int index) {
-                    return Optional.of(QualityCodeIndex.VALIDATIONGENERIC);
+                    Optional superQualityCodeIndex = super.qualityCodeIndex(index);
+                    return superQualityCodeIndex.isPresent() ? superQualityCodeIndex : Optional.of(QualityCodeIndex.VALIDATIONGENERIC);
                 }
             },
     EDITED(TranslationKeys.CATEGORY_EDITED),
