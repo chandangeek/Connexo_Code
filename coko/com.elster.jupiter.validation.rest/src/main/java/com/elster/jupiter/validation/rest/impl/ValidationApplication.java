@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
@@ -122,7 +123,7 @@ public class ValidationApplication extends Application implements TranslationKey
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST)
                 .join(nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus("MTR", Layer.DOMAIN));
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
