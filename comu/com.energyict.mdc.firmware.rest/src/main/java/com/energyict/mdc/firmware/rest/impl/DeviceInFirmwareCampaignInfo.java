@@ -9,7 +9,7 @@ import java.time.Instant;
 public class DeviceInFirmwareCampaignInfo {
 
     public long campaignId;
-    public String mrid;
+    public String deviceName;
     public IdWithNameInfo status;
     public Instant startedOn;
     public Instant finishedOn;
@@ -19,7 +19,7 @@ public class DeviceInFirmwareCampaignInfo {
 
     public DeviceInFirmwareCampaignInfo(DeviceInFirmwareCampaign deviceInFirmwareCampaign, Thesaurus thesaurus) {
         this.campaignId = deviceInFirmwareCampaign.getFirmwareCampaign().getId();
-        this.mrid = deviceInFirmwareCampaign.getDevice().getmRID();
+        this.deviceName = deviceInFirmwareCampaign.getDevice().getName();
         if (deviceInFirmwareCampaign.getStatus() != null) {
             this.status = new IdWithNameInfo();
             this.status.id = deviceInFirmwareCampaign.getStatus().key();

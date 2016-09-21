@@ -93,7 +93,7 @@ public class DeviceFirmwareVersionInfoFactory {
     public DeviceFirmwareVersionInfos from(Device device) {
         Set<FirmwareType> supportedFirmwareTypes = getSupportedFirmwareTypesFor(device);
         DeviceFirmwareVersionInfos info = new DeviceFirmwareVersionInfos(thesaurus, supportedFirmwareTypes);
-        info.mrid = device.getmRID();
+        info.deviceName = device.getName();
         info.version = device.getVersion();
         supportedFirmwareTypes
                 .stream()

@@ -55,7 +55,7 @@ public class DeviceInFirmwareCampaignInfoTest {
         DeviceInFirmwareCampaignInfo info = new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign, thesaurus);
 
         assertThat(info.campaignId).isEqualTo(6598L);
-        assertThat(info.mrid).isEqualTo("MridOfDevice");
+        assertThat(info.deviceName).isEqualTo("MridOfDevice");
         assertThat(info.status.id).isEqualTo(FirmwareManagementDeviceStatus.UPLOAD_PENDING.key());
         assertThat(info.status.name).isEqualTo("someTranslatedFirmwareManagementDeviceStatus");
         assertThat(info.startedOn).isEqualTo(startedOn);
