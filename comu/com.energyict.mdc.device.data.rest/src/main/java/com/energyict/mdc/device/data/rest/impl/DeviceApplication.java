@@ -259,7 +259,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(CboTranslationProvider.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus("MTR", Layer.DOMAIN));
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
