@@ -173,6 +173,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         TimeLine<Activation, Instant> timeLine = meterTimeLines.get(meter);
         if (timeLine == null) {
             timeLine = new TimeLine<>(Activation::getRange, RangeComparatorFactory.INSTANT_DEFAULT);
+            ((MeterImpl) meter).refreshMeterActivations();
             timeLine.addAll(meter.getMeterActivations().stream().map(mapper).collect(Collectors.toList()));
             meterTimeLines.put(meter, timeLine);
         }
