@@ -42,7 +42,7 @@ Ext.define('Ddv.view.validations.Filter', {
                 valueField: 'id',
                 store: 'Ddv.store.Validators'
             }
-        ]
+        ];
         me.callParent(arguments);
     }
 });
