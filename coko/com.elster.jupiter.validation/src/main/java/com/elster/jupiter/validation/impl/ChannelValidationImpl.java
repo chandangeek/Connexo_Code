@@ -124,7 +124,7 @@ final class ChannelValidationImpl implements ChannelValidation {
         if (lastChecked.isAfter(newValue)) {
             getChannel().findReadingQualities()
                     .ofQualitySystem(channelsContainerValidation.get().getRuleSet().getQualityCodeSystem())
-                    .inTimeInterval(Range.greaterThan(newValue))
+                    .inTimeInterval(Range.greaterThan(newValue.minusMillis(1)))
                     .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.REASONABILITY, QualityCodeCategory.VALIDATION))
                     .collect()
                     .forEach(ReadingQualityRecord::delete);
