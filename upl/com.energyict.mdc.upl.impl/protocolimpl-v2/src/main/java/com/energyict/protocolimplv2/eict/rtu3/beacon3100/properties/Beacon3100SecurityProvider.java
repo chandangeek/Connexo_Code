@@ -3,16 +3,17 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 import com.energyict.cbo.CertificateAlias;
 import com.energyict.cbo.PrivateKeyAlias;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.mdw.core.ECCCurve;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler;
 
 import java.security.PrivateKey;
 import java.security.SecureRandom;
@@ -23,7 +24,6 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECPoint;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Random;
 
 /**
  * Copyrights EnergyICT

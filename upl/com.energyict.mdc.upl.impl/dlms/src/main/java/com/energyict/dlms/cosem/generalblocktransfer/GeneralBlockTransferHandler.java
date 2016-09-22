@@ -354,7 +354,12 @@ public class GeneralBlockTransferHandler {
     }
 
     private byte[] decryptGeneralCiphering(SecureConnection secureConnection, byte[] securedResponse) {
-        return SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+        try {
+            return SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+        } catch (DLMSConnectionException e) {
+            //Invalid frame counter
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
     }
 
     private byte[] unwrapGeneralSigning(SecureConnection secureConnection, byte[] securedResponse) {

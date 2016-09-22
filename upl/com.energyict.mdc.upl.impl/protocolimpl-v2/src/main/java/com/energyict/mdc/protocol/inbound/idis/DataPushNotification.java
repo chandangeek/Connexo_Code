@@ -43,7 +43,7 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
     @Override
     public DiscoverResultType doDiscovery() {
         parser = new DataPushNotificationParser(comChannel, getContext());
-        parser.readAndParseInboundFrame();
+        parser.parseInboundFrame();
 
         return DiscoverResultType.DATA;
     }

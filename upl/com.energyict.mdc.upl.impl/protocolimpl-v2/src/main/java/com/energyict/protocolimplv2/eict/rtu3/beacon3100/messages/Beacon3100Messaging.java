@@ -170,8 +170,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1);
         supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2);
         supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD);
-        supportedMessages.add(SecurityMessage.IMPORT_CLIENT_CERTIFICATE);
-        supportedMessages.add(SecurityMessage.REMOVE_CLIENT_CERTIFICATE);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);

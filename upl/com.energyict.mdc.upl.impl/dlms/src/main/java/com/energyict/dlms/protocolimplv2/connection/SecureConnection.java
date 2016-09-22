@@ -5,8 +5,8 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
@@ -183,9 +183,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
                 // send the encrypted request to the DLMSConnection
                 byte[] securedResponse = communicate(securedRequest, send, receive);
-
                 byte[] decryptedResponse = null;
-                byte cipheredTag;
 
                 /**
                  * Decrypt the received APDU.

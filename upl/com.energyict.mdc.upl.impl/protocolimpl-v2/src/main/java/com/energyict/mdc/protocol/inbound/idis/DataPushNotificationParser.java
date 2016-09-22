@@ -117,45 +117,6 @@ public class DataPushNotificationParser {
         }
     }
 
-
-    public ByteBuffer readInboundFrame() {
-        byte[] header = new byte[8];
-        getComChannel().startReading();
-        int readBytes = getComChannel().read(header);
-        if (readBytes != 8) {
-            throw DataParseException.ioException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
-        }
-
-        int length = ProtocolTools.getIntFromBytes(header, 6, 2);
-
-        byte[] frame = new byte[length];
-        readBytes = getComChannel().read(frame);
-        if (readBytes != length) {
-            throw DataParseException.ioException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
-        }
-        return ByteBuffer.wrap(ProtocolTools.concatByteArrays(header, frame));
-    }
-
-    public DeviceIdentifier getDeviceIdentifier() {
-        return deviceIdentifier;
-    }
-
-    public void parseInboundFrame() {
-        ByteBuffer inboundFrame = readInboundFrame();
-        byte[] header = new byte[8];
-        inboundFrame.get(header);
-        byte tag = inboundFrame.get();
-        if (tag == getCosemNotificationAPDUTag()) {
-            parseAPDU(inboundFrame);
-        } else if (tag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING) {
-            parseEncryptedFrame(inboundFrame);
-        } else {
-            //TODO support general ciphering & general signing (suite 0, 1 and 2)
-            throw DataParseException.ioException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" + getCosemNotificationAPDUTag() + "' or '" + DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "'"));
-        }
-    }
-
-
     public ByteBuffer readInboundFrame() {
         byte[] header = new byte[8];
         getComChannel().startReading();
