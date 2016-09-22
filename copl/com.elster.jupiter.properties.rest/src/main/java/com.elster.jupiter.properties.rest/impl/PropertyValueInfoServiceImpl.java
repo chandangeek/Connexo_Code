@@ -123,7 +123,12 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         if (possibleValues == null) {
             return null;
         }
-        return getConverter(propertySpec).convertValueToInfo(propertySpec, possibleValues.getDefault());
+        Object defaultValue = possibleValues.getDefault();
+        if(defaultValue != null){
+            return getConverter(propertySpec).convertValueToInfo(propertySpec, defaultValue);
+        } else {
+            return null;
+        }
     }
 
     private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec, PropertyType propertyType) {
