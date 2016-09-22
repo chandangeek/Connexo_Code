@@ -10,6 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -34,10 +35,11 @@ public class FlowUpgrader {
             System.out.println("password -- password for the provided user");
             System.out.println("file -- upgrade sql file to execute");
             System.out.println("action -- upgrade or rollback");
-            return;
+            throw new RuntimeException();
         }
 
         executeSql(args[0], args[1], args[2], args[3], args[4], args[5]);
+        System.out.println("Flow upgrader finished.");
     }
 
     private static void executeSql(String versionUpgradeTo, String jdbc, String user, String password, String path_to_file, String action) {
@@ -54,27 +56,39 @@ public class FlowUpgrader {
                 connection.setAutoCommit(true);
                 statement = connection.createStatement();
 
-                /*String versionUpgradeFrom = "10.1";
+                String versionUpgradeFrom = "10.1";
                 ResultSet version = null;
                 try {
-                    version = statement.executeQuery("select version from VERSION");
-                    versionUpgradeFrom = version.getString(0);
-                } catch (SQLException e) {
-
-                }*/
-
-                for (SQLCommand command : commands) {
-                    String sql = action.equals("upgrade") ? command.sqlStatement : command.sqlRollback;
-                    if (!sql.isEmpty()) {
-                        statement.execute(sql);
+                    version = statement.executeQuery("select version from CONNEXO_VERSION");
+                    if (version.next()) {
+                        versionUpgradeFrom = version.getString(1);
                     }
-                    marker++;
+                } catch (SQLException exRead) {
+                    try {
+                        statement.execute("create table CONNEXO_VERSION (version VARCHAR2(16))");
+                        statement.execute("insert into CONNEXO_VERSION values ('10.1') ");
+                    } catch (SQLException exCreate) {
+                        throw new RuntimeException("Exception creating version table: " + exCreate.getMessage());
+                    }
+                }
+
+                if (!versionUpgradeFrom.equals(versionUpgradeTo)) {
+                    for (SQLCommand command : commands) {
+                        String sql = action.equals("upgrade") ? command.sqlStatement : command.sqlRollback;
+                        if (!sql.isEmpty()) {
+                            statement.execute(sql);
+                        }
+                        marker++;
+                    }
+                    if (action.equals("upgrade")) {
+                        statement.execute("update CONNEXO_VERSION set version='10.2'");
+                    }
                 }
             } catch (SQLException exCommit) {
+                int rollbackMarker = 0;
                 try {
                     if (connection != null) {
                         if (action.equals("upgrade")) {
-                            int rollbackMarker = 0;
                             for (SQLCommand command : commands) {
                                 if (rollbackMarker < marker) {
                                     if (!command.sqlRollback.isEmpty()) {
@@ -86,23 +100,23 @@ public class FlowUpgrader {
                         }
                     }
                 } catch (SQLException exRollback) {
-                    throw new RuntimeException(exRollback.getMessage());
+                    throw new RuntimeException("Exception at rollback line " + rollbackMarker + ":" + exRollback.getMessage());
                 }
 
-                throw new RuntimeException(exCommit.getMessage());
+                throw new RuntimeException("Exception at statement line " + marker + ":" + exCommit.getMessage());
             } finally {
                 if (statement != null) {
                     try {
                         statement.close();
                     } catch (SQLException e) {
-                        throw new RuntimeException(e.getMessage());
+                        throw new RuntimeException("Exception closing statement: " + e.getMessage());
                     }
                 }
                 if (connection != null) {
                     try {
                         connection.close();
                     } catch (SQLException e) {
-                        throw new RuntimeException(e.getMessage());
+                        throw new RuntimeException("Exception closing connection: " + e.getMessage());
                     }
                 }
             }
@@ -111,9 +125,6 @@ public class FlowUpgrader {
 
     private static List<SQLCommand> getSqlFromFile(String path_to_file) {
         try {
-            //List<String> lines = Files.readAllLines(Paths.get(path_to_file));
-            //return lines.stream().filter(line -> !(line.startsWith("--") || line.isEmpty())).collect(Collectors.joining());
-
             List<SQLCommand> sqlCommands = new ArrayList<>();
             File fXmlFile = new File(path_to_file);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -135,7 +146,7 @@ public class FlowUpgrader {
 
             return sqlCommands;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("Exception reading SQL XML file: " + e.getMessage());
         }
     }
 
@@ -148,7 +159,7 @@ public class FlowUpgrader {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e.getStackTrace().toString());
+            throw new RuntimeException("Oracle database driver not found!");
         }
         return DriverManager.getConnection(jdbc, connectionProps);
     }
