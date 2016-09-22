@@ -54,7 +54,7 @@ sub upgrade_flow {
     chdir "$SCRIPT_DIR/..";
 
     # For upgrading from 10.1 to 10.2, Flow database needs to be upgraded
-    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.FlowUpgrader $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $SCRIPT_DIR/flow/flow-upgrade-10.1-to-10.2.sql") or die "Cannot execute Flow upgrade script!";
+    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.install.FlowUpgrader $UPGRADE_TO $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $SCRIPT_DIR/flow/flow-upgrade-10.1-to-10.2.xml upgrade") or die "Cannot execute Flow upgrade script!";
 }
 
 # Main

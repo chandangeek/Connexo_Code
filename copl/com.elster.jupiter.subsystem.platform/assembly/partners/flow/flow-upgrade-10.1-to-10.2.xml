@@ -1,0 +1,138 @@
+<upgrade description='Upgrade Connexo Flow database from version 10.1 to version 10.2'>
+    <block>
+        <statement>ALTER TABLE SessionInfo MODIFY ( id NUMBER(19, 0) )</statement>
+        <!--rollback>ALTER TABLE SessionInfo MODIFY ( id NUMBER(10, 0) )</rollback-->
+        <rollback></rollback>
+    </block>
+    <block>
+        <statement>ALTER TABLE AuditTaskImpl MODIFY ( processSessionId NUMBER(19, 0) )</statement>
+        <!--rollback>ALTER TABLE AuditTaskImpl MODIFY ( processSessionId NUMBER(10, 0) )</rollback-->
+        <rollback></rollback>
+    </block>
+    <block>
+        <statement>ALTER TABLE AuditTaskImpl MODIFY ( activationTime TIMESTAMP )</statement>
+        <rollback>ALTER TABLE AuditTaskImpl MODIFY ( activationTime DATE )</rollback>
+    </block>
+    <block>
+        <statement>ALTER TABLE AuditTaskImpl MODIFY ( createdOn TIMESTAMP )</statement>
+        <rollback>ALTER TABLE AuditTaskImpl MODIFY ( createdOn DATE )</rollback>
+    </block>
+    <block>
+        <statement>ALTER TABLE AuditTaskImpl MODIFY ( dueDate TIMESTAMP )</statement>
+        <rollback>ALTER TABLE AuditTaskImpl MODIFY ( dueDate DATE )</rollback>
+    </block>
+    <block>
+        <statement>ALTER TABLE ContextMappingInfo MODIFY ( KSESSION_ID NUMBER(19, 0) )</statement>
+        <!--rollback>ALTER TABLE ContextMappingInfo MODIFY ( KSESSION_ID NUMBER(10, 0) )</rollback-->
+        <rollback></rollback>
+    </block>
+    <block>
+        <statement>ALTER TABLE Task MODIFY ( processSessionId NUMBER(19, 0) )</statement>
+        <!--rollback>ALTER TABLE Task MODIFY ( processSessionId NUMBER(10, 0) )</rollback-->
+        <rollback></rollback>
+    </block>
+
+    <block>
+        <statement>CREATE TABLE DeploymentStore (id NUMBER(19, 0) NOT NULL, attributes VARCHAR2(255 CHAR), DEPLOYMENT_ID
+            VARCHAR2(255 CHAR), deploymentUnit CLOB, state NUMBER(10, 0), updateDate TIMESTAMP, PRIMARY KEY (id))
+        </statement>
+        <rollback>DROP TABLE DeploymentStore</rollback>
+    </block>
+    <block>
+        <statement>ALTER TABLE DeploymentStore ADD CONSTRAINT UK_DeploymentStore_1 UNIQUE (DEPLOYMENT_ID)</statement>
+        <rollback></rollback>
+    </block>
+    <block>
+        <statement>CREATE SEQUENCE DEPLOY_STORE_ID_SEQ</statement>
+        <rollback>DROP SEQUENCE DEPLOY_STORE_ID_SEQ</rollback>
+    </block>
+
+    <block>
+        <statement>ALTER TABLE ProcessInstanceLog ADD processInstanceDescription VARCHAR2(255 CHAR)</statement>
+        <rollback>ALTER TABLE ProcessInstanceLog DROP COLUMN processInstanceDescription</rollback>
+    </block>
+    <block>
+        <statement>ALTER TABLE RequestInfo ADD owner VARCHAR2(255 CHAR)</statement>
+        <rollback>ALTER TABLE RequestInfo DROP COLUMN owner</rollback>
+    </block>
+
+    <!--block>
+        <statement>INSERT INTO AuditTaskImpl (id, activationTime, actualOwner, createdBy, createdOn, deploymentId, description, dueDate, name, parentId, priority, processId, processInstanceId, processSessionId, status, taskId) &#13;
+        SELECT AUDIT_ID_SEQ.nextval, activationTime, actualOwner_id, createdBy_id, createdOn, deploymentId, description, expirationTime, name, parentId, priority, processId, processInstanceId, processSessionId, status, id FROM Task</statement>
+        <rollback>Do we need this statement at all?</rollback>
+    </block-->
+
+    <block>
+        <statement>ALTER TABLE TaskEvent ADD workItemId NUMBER(19, 0)</statement>
+        <rollback>ALTER TABLE TaskEvent DROP COLUMN workItemId</rollback>
+    </block>
+    <block>
+        <statement>ALTER TABLE TaskEvent ADD processInstanceId NUMBER(19, 0)</statement>
+        <rollback>ALTER TABLE TaskEvent DROP COLUMN processInstanceId</rollback>
+    </block>
+    <block>
+        <statement>UPDATE TaskEvent t SET workItemId = (SELECT workItemId FROM Task WHERE id = t.taskId)</statement>
+        <rollback></rollback>
+    </block>
+    <block>
+        <statement>UPDATE TaskEvent t SET processInstanceId = (SELECT processInstanceId FROM Task WHERE id = t.taskId)
+        </statement>
+        <rollback></rollback>
+    </block>
+
+
+    <block>
+        <statement>ALTER TABLE ProcessInstanceLog ADD correlationKey VARCHAR2(255 CHAR)</statement>
+        <rollback>ALTER TABLE ProcessInstanceLog DROP COLUMN correlationKey</rollback>
+    </block>
+    <block>
+        <statement>ALTER TABLE TaskEvent ADD message VARCHAR2(255 CHAR)</statement>
+        <rollback>ALTER TABLE TaskEvent DROP COLUMN message</rollback>
+    </block>
+
+    <block>
+        <statement>ALTER TABLE AuditTaskImpl ADD workItemId NUMBER(19, 0)</statement>
+        <rollback>ALTER TABLE AuditTaskImpl DROP COLUMN workItemId</rollback>
+    </block>
+    <block>
+        <statement>UPDATE AuditTaskImpl a SET workItemId = (SELECT workItemId FROM Task WHERE id = a.taskId)</statement>
+        <rollback></rollback>
+    </block>
+
+    <block>
+        <statement>CREATE INDEX IDX_PInstLog_correlation ON ProcessInstanceLog (correlationKey)</statement>
+        <!--rollback>DROP INDEX IDX_PInstLog_correlation</rollback-->
+        <rollback></rollback>
+    </block>
+
+    <block>
+        <statement>CREATE TABLE TaskVariableImpl ( id NUMBER(19, 0) NOT NULL, modificationDate TIMESTAMP, name
+            VARCHAR2(255 CHAR), processId VARCHAR2(255 CHAR), processInstanceId NUMBER(19, 0), taskId NUMBER(19, 0),
+            type NUMBER(10, 0), value VARCHAR2(4000 CHAR), PRIMARY KEY (id) )
+        </statement>
+        <rollback>DROP TABLE TaskVariableImpl</rollback>
+    </block>
+    <block>
+        <statement>CREATE SEQUENCE TASK_VAR_ID_SEQ</statement>
+        <rollback>DROP SEQUENCE TASK_VAR_ID_SEQ</rollback>
+    </block>
+
+    <block>
+        <statement>CREATE TABLE QueryDefinitionStore ( id NUMBER(19, 0) NOT NULL, qExpression CLOB, qName VARCHAR2(255
+            CHAR), qSource VARCHAR2(255 CHAR), qTarget VARCHAR2(255 CHAR), PRIMARY KEY (id) )
+        </statement>
+        <rollback>DROP TABLE QueryDefinitionStore</rollback>
+    </block>
+
+    <block>
+        <statement>ALTER TABLE QueryDefinitionStore ADD CONSTRAINT UK_4ry5gt77jvq0orfttsoghta2j UNIQUE (qName)
+        </statement>
+        <rollback></rollback>
+    </block>
+
+    <block>
+        <statement>CREATE SEQUENCE QUERY_DEF_ID_SEQ</statement>
+        <rollback>DROP SEQUENCE QUERY_DEF_ID_SEQ</rollback>
+    </block>
+
+</upgrade>
