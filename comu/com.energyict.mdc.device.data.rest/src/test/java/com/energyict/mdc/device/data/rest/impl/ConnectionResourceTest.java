@@ -119,7 +119,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.ACTIVE;
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         Entity<?> payload = Entity.entity(info, MediaType.APPLICATION_JSON);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);
 
@@ -136,7 +136,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.INACTIVE;
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         Entity<?> payload = Entity.entity(info, MediaType.APPLICATION_JSON);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);
 
@@ -153,7 +153,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Entity<?> payload = Entity.json(info);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);

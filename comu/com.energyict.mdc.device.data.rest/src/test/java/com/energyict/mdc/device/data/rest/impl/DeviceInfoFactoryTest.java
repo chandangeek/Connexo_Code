@@ -475,7 +475,7 @@ public class DeviceInfoFactoryTest {
         DeviceInfo info = deviceInfoFactory.deviceInfo(dataLogger);
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);
-        assertThat(info.mRID).isEqualTo(DATALOGGER_NAME);
+        assertThat(info.name).isEqualTo(DATALOGGER_NAME);
         assertThat(info.deviceTypeId).isEqualTo(DATA_LOGGER_DEVICE_TYPE_ID);
         assertThat(info.deviceTypeName).isEqualTo(DATA_LOGGER_DEVICE_TYPE_NAME);
         assertThat(info.deviceConfigurationId).isEqualTo(DATALOGGER_DEVICE_CONFIGURATION_ID);

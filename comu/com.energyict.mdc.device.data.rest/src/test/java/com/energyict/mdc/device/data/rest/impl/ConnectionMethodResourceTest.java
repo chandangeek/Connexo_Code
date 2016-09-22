@@ -116,7 +116,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.nextExecutionSpecs.every.count= 15;
         info.nextExecutionSpecs.every.timeUnit= "minutes";
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -136,7 +136,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.nextExecutionSpecs.every.count= 15;
         info.nextExecutionSpecs.every.timeUnit= ""; // ILLEGAL
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -157,7 +157,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.nextExecutionSpecs.offset.count= 13;
         info.nextExecutionSpecs.offset.timeUnit= "illegal"; // ILLEGAL
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -176,7 +176,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
                         new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
                         false));
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         doThrow(new LocalizedFieldValidationException(MessageSeeds.BAD_REQUEST, "properties.connectionTimeout", null)).when(propertyValueInfoService).findPropertyValue(any(), any());
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -237,7 +237,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
                 false);
         info.properties = Collections.singletonList(propertyInfo);
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -258,7 +258,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
                 false);
         info.properties = Collections.singletonList(propertyInfo);
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

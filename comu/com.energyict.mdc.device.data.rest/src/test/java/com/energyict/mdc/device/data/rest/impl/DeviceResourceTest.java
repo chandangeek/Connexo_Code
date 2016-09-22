@@ -466,7 +466,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.isDefault = false;
         info.comPortPool = "cpp";
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/" + deviceName + "/connectionmethods/5").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -1148,7 +1148,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testGetCommunicationTopologyFilter() throws Exception {
         when(clock.instant()).thenReturn(NOW);
         Device gateway = mockDeviceForTopologyTest("gateway");
-        Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid", gateway);
+        Device slave1 = mockDeviceForTopologyTest("SimpleStringName", gateway);
         Device slave2 = mockDeviceForTopologyTest("123456789", gateway);
         when(slave2.getSerialNumber()).thenReturn(null);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
@@ -1170,53 +1170,52 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         Map<?, ?> response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"*\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"%\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"%\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"Simple%Mrid\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"Simple%Name\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"Simple?Mrid\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"Simple?Name\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(0);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"1234*\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"1234*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"*789\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"*789\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"%34*7?9\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"%34*7?9\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
     }
-
 
     @Test
     public void testGetCommunicationTopologyFilterOnSerialNumber() throws Exception {
         when(clock.instant()).thenReturn(NOW);
         Device gateway = mockDeviceForTopologyTest("gateway");
-        Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid", gateway);
+        Device slave1 = mockDeviceForTopologyTest("SimpleStringName", gateway);
         Device slave2 = mockDeviceForTopologyTest("123456789", gateway);
         when(slave2.getSerialNumber()).thenReturn(null);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
@@ -1343,7 +1342,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.version = 13L;
         info.masterDeviceId = gateway.getId();
         info.masterDeviceName = gateway.getName();
-        info.mRID = "device";
+        info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
@@ -1366,7 +1365,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.version = 13l;
         info.masterDeviceId = 2L;
         info.masterDeviceName = "2";
-        info.mRID = "device";
+        info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
 
         Response response = target("/devices/1").request().put(Entity.json(info));
@@ -1395,7 +1394,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.id = 1L;
         info.version = 13l;
         info.masterDeviceName = null;
-        info.mRID = "device";
+        info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
@@ -1450,7 +1449,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -1492,7 +1491,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -1540,7 +1539,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -1597,7 +1596,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -1718,7 +1717,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
 
         Device slave1 = mockDeviceForTopologyTest("slave1");
-        when(deviceService.newDevice(any(DeviceConfiguration.class), eq("firstSlave"), eq("firstSlave"), any(Instant.class))).thenReturn(slave1);
+        when(deviceService.newDevice(any(DeviceConfiguration.class), eq("firstSlave"), any(Instant.class))).thenReturn(slave1);
         when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.of(slave1));
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
         when(slaveChannel1.getDevice()).thenReturn(slave1);
@@ -1756,7 +1755,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -1768,7 +1767,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         // A slave device need to be created
-        verify(deviceService).newDevice(eq(slaveDeviceConfig), eq("firstSlave"), eq("firstSlave"), any(Instant.class));
+        verify(deviceService).newDevice(eq(slaveDeviceConfig), eq("firstSlave"), any(Instant.class));
     }
 
     @Test
@@ -1811,7 +1810,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);   //no linked channels
 
@@ -1859,7 +1858,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);   //no linked channels
 
@@ -1940,7 +1939,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -2041,7 +2040,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -2128,7 +2127,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -2192,7 +2191,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);   //no linked channels
 
@@ -2245,7 +2244,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.version = 13l;
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = true;
-        info.mRID = "device";
+        info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
 
         Response response = target("/devices/device/estimationrulesets/esimationstatus").request().put(Entity.json(info));
@@ -2266,10 +2265,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
-        info.version = 13l;
+        info.version = 13L;
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = false;
-        info.mRID = "device";
+        info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
 
         Response response = target("/devices/device/estimationrulesets/esimationstatus").request().put(Entity.json(info));
@@ -2765,10 +2764,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(device.getCreateTime()).thenReturn(Instant.EPOCH);
-        String mrid = "mrid";
-        when(deviceService.newDevice(deviceConfiguration, mrid, mrid, shipmentDate)).thenReturn(device);
+        String deviceName = "name";
+        when(deviceService.newDevice(deviceConfiguration, deviceName, shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.mRID = mrid;
+        deviceInfo.name = deviceName;
         deviceInfo.deviceConfigurationId = deviceConfigId;
         deviceInfo.serialNumber = "MySerialNumber";
         deviceInfo.yearOfCertification = 1970;

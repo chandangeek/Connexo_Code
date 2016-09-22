@@ -16,6 +16,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +45,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         when(device.getId()).thenReturn(100L);
         when(device.getName()).thenReturn("name");
         when(device.getVersion()).thenReturn(1L);
-        when(deviceService.findDeviceByName(device.getmRID())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByIdAndVersion(device.getId(), device.getVersion())).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByNameAndVersion(device.getName(), device.getVersion())).thenReturn(Optional.of(device));
 
@@ -55,8 +56,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
 
     @Test
     public void testNoDeviceLabels() {
-        List<DeviceLabel> deviceLabels = new ArrayList<>();
-        when(favoritesService.getDeviceLabels(device, user)).thenReturn(deviceLabels);
+        when(favoritesService.getDeviceLabels(device, user)).thenReturn(Collections.emptyList());
 
         String response = target("/devices/name/devicelabels").request().get(String.class);
 
@@ -167,8 +167,8 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         ConcurrentModificationInfo concurrentModificationInfo = response.readEntity(ConcurrentModificationInfo.class);
-        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_TITLE).format("mrid"));
-        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("mrid"));
+        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_TITLE).format("name"));
+        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("name"));
         assertThat(concurrentModificationInfo.parent.id).isEqualTo((int)device.getId());
         assertThat(concurrentModificationInfo.parent.version).isEqualTo(device.getVersion());
     }
@@ -185,8 +185,8 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         ConcurrentModificationInfo concurrentModificationInfo = response.readEntity(ConcurrentModificationInfo.class);
-        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getFormat(MessageSeeds.REMOVE_FLAG_DEVICE_CONCURRENT_TITLE).format("mrid"));
-        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("mrid"));
+        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getFormat(MessageSeeds.REMOVE_FLAG_DEVICE_CONCURRENT_TITLE).format("name"));
+        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("name"));
         assertThat(concurrentModificationInfo.parent.id).isEqualTo((int)device.getId());
         assertThat(concurrentModificationInfo.parent.version).isEqualTo(device.getVersion());
     }

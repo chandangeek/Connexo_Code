@@ -36,7 +36,7 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
         when(schedulingService.findSchedule(44L)).thenReturn(Optional.of(schedule44));
         scheduleIdsInfo.scheduleIds = Arrays.asList(33L,44L);
         scheduleIdsInfo.device = new DeviceInfo();
-        scheduleIdsInfo.device.mRID = "XAF";
+        scheduleIdsInfo.device.name = "XAF";
         scheduleIdsInfo.device.version = 1L;
         scheduleIdsInfo.device.parent = new VersionInfo<>(1L, 1L);
 
@@ -58,7 +58,7 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         scheduleIdsInfo.scheduleIds = Arrays.asList(33L,44L);
         scheduleIdsInfo.device = new DeviceInfo();
-        scheduleIdsInfo.device.mRID = "XAF";
+        scheduleIdsInfo.device.name = "XAF";
         scheduleIdsInfo.device.version = 1L;
         scheduleIdsInfo.device.parent = new VersionInfo<>(1L, 1L);
 

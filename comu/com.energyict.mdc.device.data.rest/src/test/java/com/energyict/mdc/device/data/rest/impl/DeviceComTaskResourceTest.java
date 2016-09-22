@@ -99,7 +99,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     public DeviceInfo getDeviceInfo(){
         DeviceInfo info = new DeviceInfo();
-        info.mRID = DEVICE_NAME;
+        info.name = DEVICE_NAME;
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(DEVICE_CONFIGURATION_ID, OK_VERSION);
         return info;
@@ -585,6 +585,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testGetDeviceComTaskHistory() throws Exception {
         Device device = mock(Device.class);
+        when(device.getId()).thenReturn(13L);
         when(device.getName()).thenReturn("X9");
         when(deviceService.findDeviceByName("X9")).thenReturn(Optional.of(device));
 
@@ -672,8 +673,8 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.comTaskExecutionSessions")).hasSize(1);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].name")).isEqualTo("Read all");
-        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.id")).isEqualTo("X9");
-        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.name")).isEqualTo("device name");
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].device.id")).isEqualTo(13);
+        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.name")).isEqualTo("X9");
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].deviceConfiguration.id")).isEqualTo(10);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].deviceConfiguration.name")).isEqualTo("device config");
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].deviceConfiguration.deviceTypeId")).isEqualTo(11);

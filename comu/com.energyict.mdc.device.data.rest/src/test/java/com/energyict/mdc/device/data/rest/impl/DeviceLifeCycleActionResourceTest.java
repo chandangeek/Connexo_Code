@@ -185,7 +185,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.device = new DeviceInfo();
-        info.device.mRID = MAIN_DEVICE_NAME;
+        info.device.name = MAIN_DEVICE_NAME;
         info.device.version = 56L;
         info.device.parent = new VersionInfo<>(1L, 1L);
 
@@ -238,7 +238,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.device = new DeviceInfo();
-        info.device.mRID = MAIN_DEVICE_NAME;
+        info.device.name = MAIN_DEVICE_NAME;
         info.device.version = 56L;
         info.device.parent = new VersionInfo<>(1L, 1L);
 
@@ -292,7 +292,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.device = new DeviceInfo();
-        info.device.mRID = MAIN_DEVICE_NAME;
+        info.device.name = MAIN_DEVICE_NAME;
         info.device.version = 56L;
         info.device.parent = new VersionInfo<>(1L, 1L);
 
@@ -340,7 +340,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
         info.id = 1L;
         info.device = new DeviceInfo();
-        info.device.mRID = MAIN_DEVICE_NAME;
+        info.device.name = MAIN_DEVICE_NAME;
         info.device.version = 56L;
         info.device.parent = new VersionInfo<>(1L, 1L);
 

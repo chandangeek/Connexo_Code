@@ -1146,7 +1146,7 @@ public class DeviceResource {
 
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {
         Predicate<Device> predicate = d -> true;
-        predicate = addPropertyStringFilterIfAvailabale(filter, "mrid", predicate, Device::getmRID);
+        predicate = addPropertyStringFilterIfAvailabale(filter, "name", predicate, Device::getName);
         predicate = addPropertyStringFilterIfAvailabale(filter, "serialNumber", predicate, Device::getSerialNumber);
         predicate = addPropertyListFilterIfAvailable(filter, "deviceTypeId", predicate, d -> d.getDeviceType()
                 .getId());
@@ -1181,7 +1181,7 @@ public class DeviceResource {
 
     /**
      * <ul>
-     * <li>Filter a device on the full MRID (e.g. 123456789)</li>
+     * <li>Filter a device on the full name (e.g. 123456789)</li>
      * <li>Filter a device ending with a certain set of characters (e.g. *6789)</li>
      * <li>Filter a device beginning with a certain set of characters (e.g. 1234*)</li>
      * <li>Filter a device containing a certain set of characters (e.g. *456*) - Not needed, but we implemented it</li>
