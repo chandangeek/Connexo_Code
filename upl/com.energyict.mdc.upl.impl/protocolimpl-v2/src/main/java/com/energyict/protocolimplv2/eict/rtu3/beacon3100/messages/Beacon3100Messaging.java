@@ -1,9 +1,5 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.CertificateAlias;
-import com.energyict.cbo.Password;
-import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.*;
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.ObjectMapperFactory;
@@ -35,8 +31,8 @@ import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -1020,7 +1016,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
 
-
     private CollectedMessage configurePartialMulticastBlockTransfer(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
 
         String skipStepEnable = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepEnable).getDeviceMessageAttributeValue();
@@ -1100,7 +1095,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         it.setPollingRetries(60);
         it.setDelayBeforeSendingBlocks(5000);
 
-        try  {//by activating the image we trigger the multicast block transfer to slave devices
+        try {//by activating the image we trigger the multicast block transfer to slave devices
             it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
             it.imageVerification();
             it.imageActivation();

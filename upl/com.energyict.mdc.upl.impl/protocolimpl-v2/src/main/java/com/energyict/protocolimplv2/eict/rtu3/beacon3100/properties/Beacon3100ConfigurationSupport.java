@@ -8,7 +8,6 @@ import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
-import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
 import java.util.ArrayList;
@@ -55,6 +54,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     private PropertySpec requestAuthenticatedFrameCounter() {
         return PropertySpecFactory.booleanPropertySpec(REQUEST_AUTHENTICATED_FRAME_COUNTER);
     }
+
     private PropertySpec pollingDelayPropertySpec() {
         return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(POLLING_DELAY, new TimeDuration(0));
     }
