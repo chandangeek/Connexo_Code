@@ -16,7 +16,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,7 +66,7 @@ public class OpenReports {
     }
 
     private static boolean importOrUpgradeContent(String filePath, String host, int port, String root, String user, String password, boolean useSecureConnection) {
-        List<String> existingItems = null;
+        Map<String, String> existingItems = null;
         List<String> itemsToImport = null;
 
         try {
@@ -77,8 +79,9 @@ public class OpenReports {
         return importContent(filePath, existingItems, itemsToImport, host, port, root, user, password, useSecureConnection);
     }
 
-    private static List<String> getExportContent(String host, int port, String root, String user, String password, boolean useSecureConnection) {
-        List<String> existingItems = new ArrayList<>();
+    private static Map<String, String> getExportContent(String host, int port, String root, String user, String password, boolean useSecureConnection) {
+        String value;
+        Map<String, String> existingItems = new HashMap<>();
 
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
@@ -103,7 +106,16 @@ public class OpenReports {
                     if ("SUCCESS".equals(rs.getStatusCode())) {
                         ContentResource[] resources = rs.getContentResources();
                         for (ContentResource resource : resources) {
-                            existingItems.add(resource.getResourceName());
+                            if (resource.getResourceType().equals("VIEW") || resource.getResourceType()
+                                    .equals("REPORT") || resource.getResourceType().equals("DATASOURCE")) {
+                                value = resource.getResourceId().toString();
+                            } else if (resource.getResourceType().equals("RPTCATEGORY") || resource.getResourceType()
+                                    .equals("RPTSUBCATEGORY")) {
+                                value = resource.getResourceCode();
+                            } else {
+                                value = resource.getResourceUUID();
+                            }
+                            existingItems.put(resource.getResourceType() + ":" + resource.getResourceName(), value);
                         }
                     }
                 }
@@ -149,7 +161,7 @@ public class OpenReports {
                         if ("SUCCESS".equals(rs.getStatusCode())) {
                             ContentResource[] resources = rs.getContentResources();
                             for (ContentResource resource : resources) {
-                                itemsToImport.add(resource.getResourceName());
+                                itemsToImport.add(resource.getResourceType() + ":" + resource.getResourceName());
                             }
                         }
                     }
@@ -170,7 +182,7 @@ public class OpenReports {
         return itemsToImport;
     }
 
-    private static boolean importContent(String filePath, List<String> existingItems, List<String> itemsToImport, String host, int port, String root, String user, String password, boolean useSecureConnection) {
+    private static boolean importContent(String filePath, Map<String, String> existingItems, List<String> itemsToImport, String host, int port, String root, String user, String password, boolean useSecureConnection) {
         File file = new File(filePath);
         try (FileInputStream inputStream = new FileInputStream(file)) {
             byte[] data = new byte[(int) file.length()];
@@ -192,14 +204,28 @@ public class OpenReports {
             rsr.setFunction("IMPORTCONTENT");
 
             int index = 0;
-            ImportOption[] importOptions = new ImportOption[itemsToImport.size()];
+            List<ImportOption> importOptions = new ArrayList<>();
             for (String item : itemsToImport) {
                 ImportOption option = new ImportOption();
-                option.setItemIndex(index++);
+                option.setItemIndex(index);
                 option.setOptionKey("OPTION");
-                option.setOptionValue(existingItems.contains(item) ? "REPLACE" : "ADD");
+                if (existingItems.containsKey(item)) {
+                    option.setOptionValue("REPLACE");
+
+                    ImportOption optionReplace = new ImportOption();
+                    optionReplace.setItemIndex(index);
+                    optionReplace.setOptionKey("EXISTING");
+                    optionReplace.setOptionValue(existingItems.get(item));
+                    importOptions.add(optionReplace);
+                } else {
+                    option.setOptionValue("ADD");
+                }
+                importOptions.add(option);
+                index++;
             }
-            rsr.setImportOptions(importOptions);
+
+            ImportOption[] options = new ImportOption[importOptions.size()];
+            rsr.setImportOptions(importOptions.toArray(options));
             rsr.setParameters(new String[]{Base64.encodeBytes(data)});
 
             if (rssbs != null) {
