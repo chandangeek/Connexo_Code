@@ -4,29 +4,14 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ObjectReference;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -183,9 +168,9 @@ public class LoadProfileBuilder {
         int index = 0;
         HashMap<ObisCode, ScalerUnit> channelInfoMap = new HashMap<ObisCode, ScalerUnit>();
         while (dataStructure.isOctetString(index) && dataStructure.isStructure(index + 1)) {
-             ObisCode obisCode = dataStructure.getOctetString(index).toObisCode();
-             ScalerUnit scalerUnit = new ScalerUnit(dataStructure.getStructure(index + 1).getInteger(0),
-                     dataStructure.getStructure(index + 1).getInteger(1));
+            ObisCode obisCode = dataStructure.getOctetString(index).toObisCode();
+            ScalerUnit scalerUnit = new ScalerUnit(dataStructure.getStructure(index + 1).getInteger(0),
+                    dataStructure.getStructure(index + 1).getInteger(1));
             channelInfoMap.put(obisCode, scalerUnit);
             index = index + 2;
         }
@@ -219,20 +204,20 @@ public class LoadProfileBuilder {
                 profile = this.meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
                 profileData = new ProfileData(lpr.getLoadProfileId());
                 profileData.setChannelInfos(this.channelInfoMap.get(lpr));
-                ProfileLimiter limiter = new ProfileLimiter(lpr.getStartReadingTime(), lpr.getEndReadingTime() == null ? new Date() : lpr.getEndReadingTime(), getLimitMaxNrOfDays());
+                ProfileLimiter limiter = new ProfileLimiter(lpr.getStartReadingTime(), lpr.getEndReadingTime() == null ? new Date() : lpr.getEndReadingTime(), getLimitMaxNrOfDays(), meterProtocol.getTimeZone());
                 this.meterProtocol.getLogger().log(Level.INFO, "Retrieving LoadProfile data for profile " + lpr.getProfileObisCode() +
                         " for period [" + DATE_FORMATTER.format(limiter.getFromDate()) + " - " + DATE_FORMATTER.format(limiter.getToDate()) + "].");
 
-                DataContainer dataContainer = profile.getBuffer(limiter.getFromCalendar(meterProtocol.getTimeZone()), limiter.getToCalendar(meterProtocol.getTimeZone()));
+                DataContainer dataContainer = profile.getBuffer(limiter.getFromCalendar(), limiter.getToCalendar());
                 buildProfileData(dataContainer, profileData, lpr, lpc);
 
                 // If there are no intervals in the profile, read the profile data again, but now with limitMaxNrOfDays increased with the value of Custom Property limitMaxNrOfDays property
                 // This way we can prevent the profile to be stuck at a certain date if there is a gap in the profile bigger than the limitMaxNrOfDays.
                 while ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0) && (limiter.getOriginalToDate().getTime() >= limiter.getToDate().getTime())) {
-                    limiter = new ProfileLimiter(lpr.getStartReadingTime(), lpr.getEndReadingTime() == null ? new Date() : lpr.getEndReadingTime(), limiter.getLimitMaxNrOfDays() + getLimitMaxNrOfDays());
+                    limiter = new ProfileLimiter(lpr.getStartReadingTime(), lpr.getEndReadingTime() == null ? new Date() : lpr.getEndReadingTime(), limiter.getLimitMaxNrOfDays() + getLimitMaxNrOfDays(), meterProtocol.getTimeZone());
                     this.meterProtocol.getLogger().log(Level.INFO, "Retrieved no LoadProfile data for profile " + lpr.getProfileObisCode() +
                             " - re-retrieving data for period [" + DATE_FORMATTER.format(limiter.getFromDate()) + " - " + DATE_FORMATTER.format(limiter.getToDate()) + "].");
-                    dataContainer = profile.getBuffer(limiter.getFromCalendar(meterProtocol.getTimeZone()), limiter.getToCalendar(meterProtocol.getTimeZone()));
+                    dataContainer = profile.getBuffer(limiter.getFromCalendar(), limiter.getToCalendar());
                     buildProfileData(dataContainer, profileData, lpr, lpc);
                 }
                 profileDataList.add(profileData);
@@ -478,7 +463,7 @@ public class LoadProfileBuilder {
     private IntervalData getIntervalData(DataStructure dataStructure, Calendar calendar, LoadProfileReader lpr) throws IOException {
         // Add interval data...
         IntervalData intervalData = new IntervalData(new Date(((Calendar) calendar.clone()).getTime().getTime()));
-         List<CapturedObject> captureObjects = meterProtocol.getDlmsSession().getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects();
+        List<CapturedObject> captureObjects = meterProtocol.getDlmsSession().getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects();
         for (int i = 0; i < captureObjects.size(); i++) {
             if ((captureObjects.get(i).getClassId() == DLMSClassId.REGISTER.getClassId() ||
                     captureObjects.get(i).getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId() ||
