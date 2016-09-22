@@ -33,7 +33,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionEvent;
 import com.energyict.mdc.engine.impl.commands.store.RescheduleFailedExecution;
 import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecution;
-import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.BasicComCommandBehavior;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
