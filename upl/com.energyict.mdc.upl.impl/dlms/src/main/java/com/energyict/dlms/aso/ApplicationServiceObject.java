@@ -82,6 +82,10 @@ public class ApplicationServiceObject {
         this.associationStatus = ASSOCIATION_DISCONNECTED;
     }
 
+    public ProtocolLink getProtocolLink() {
+        return protocolLink;
+    }
+
     public SecurityContext getSecurityContext() {
         return this.securityContext;
     }

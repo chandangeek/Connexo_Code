@@ -88,7 +88,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final BigDecimal DEFAULT_CONFORMANCE_BLOCK_VALUE_SN = new BigDecimal(ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK);
     public static final String DEFAULT_SYSTEM_IDENTIFIER = "EICTCOMM";
     public static final BigDecimal DEFAULT_INVOKE_ID_AND_PRIORITY = new BigDecimal(66); // 0x42, 0b01000010 -> [invoke-id = 1, service_class = 1 (confirmed), priority = 0 (normal)]
-    public static final Boolean DEFAULT_VALIDATE_INVOKE_ID = false;
+    public static final Boolean DEFAULT_VALIDATE_INVOKE_ID = true;
     public static final BigDecimal DEFAULT_MAX_REC_PDU_SIZE = new BigDecimal(4096);
     public static final BigDecimal DEFAULT_PROPOSED_DLMS_VERSION = new BigDecimal(6);
     public static final BigDecimal DEFAULT_PROPOSED_QOS = new BigDecimal(-1);

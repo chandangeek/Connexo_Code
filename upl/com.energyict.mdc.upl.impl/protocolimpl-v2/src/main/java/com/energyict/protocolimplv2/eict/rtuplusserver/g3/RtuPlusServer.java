@@ -56,7 +56,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -87,7 +86,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-06-20 13:47:38 +0200 (Mon, 20 Jun 2016)$";
+        return "$Date: 2016-03-24 17:55:37 +0100 (Thu, 24 Mar 2016)$";
     }
 
     public DlmsSession getDlmsSession() {
@@ -143,7 +142,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
         } catch (DataAccessResultException | ProtocolException e) {
             frameCounter = new SecureRandom().nextInt();
         } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries()+ 1);
+            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
 
         //Read out the frame counter using the public client, it has a pre-established association
@@ -171,7 +170,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
         try {
             return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries()+ 1);
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
     }
 
@@ -183,7 +182,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
             cal.setTime(currentTime);
             getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(cal));
         } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries()+ 1);
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
     }
 
@@ -224,34 +223,28 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
                 final G3Topology.G3Node g3Node = findG3Node(sapAssignmentItem.getLogicalDeviceName(), g3Nodes);
 
                 if (g3Node != null) {
-                    long configuredLastSeenDate = getConfiguredLastSeenDate(sapAssignmentItem.getLogicalDeviceName());
+                    //Always include the slave information if it is present in the SAP assignment list and the G3 node list.
+                    //It is the ComServer framework that will then do a smart update in EIServer, taking the readout LastSeenDate into account.
 
-                    //G3 node that was read out has a newer link to a DC, update allowed.
-                    //Else: this device is no longer considered a slave device of the gateway.
-                    if (hasNewerLastSeenDate(g3Node, configuredLastSeenDate)) {
-                        getLogger().log(Level.FINEST, "hasNewerLastSeenDate returns true");
-                        getLogger().log(Level.FINEST, "g3node macAddress = "+g3Node.getMacAddressString() +" g3node lastSeenDate = "+ g3Node.getLastSeenDate().toString() +" configuredLastSeenDate = "+configuredLastSeenDate);
-                        DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName());
-                        deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
-                        deviceTopology.addAdditionalCollectedDeviceInfo(
-                                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                        slaveDeviceIdentifier,
-                                        MeterProtocol.NODEID,
-                                        sapAssignmentItem.getSap()
-                                )
-                        );
-                        deviceTopology.addAdditionalCollectedDeviceInfo(
-                                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                        slaveDeviceIdentifier,
-                                        G3Properties.PROP_LASTSEENDATE,
-                                        BigDecimal.valueOf(g3Node.getLastSeenDate().getTime())
-                                )
-                        );
-                        getLogger().log(Level.FINEST, "g3node with macAddress = "+g3Node.getMacAddressString() + " was added");
-                    } else {
-                        getLogger().log(Level.FINEST, "hasNewerLastSeenDate returns false");
-                        getLogger().log(Level.FINEST, "g3node macAddress = " + g3Node.getMacAddressString() + " g3node lastSeenDate = " + g3Node.getLastSeenDate().toString() + " configuredLastSeenDate = " + configuredLastSeenDate);
-                    }
+                    //getLogger().log(Level.FINEST, "hasNewerLastSeenDate returns true");
+                    //getLogger().log(Level.FINEST, "g3node macAddress = "+g3Node.getMacAddressString() +" g3node lastSeenDate = "+ g3Node.getLastSeenDate().toString() +" configuredLastSeenDate = "+configuredLastSeenDate);
+                    DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName());
+                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
+                    deviceTopology.addAdditionalCollectedDeviceInfo(
+                            MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                    slaveDeviceIdentifier,
+                                    MeterProtocol.NODEID,
+                                    sapAssignmentItem.getSap()
+                            )
+                    );
+                    deviceTopology.addAdditionalCollectedDeviceInfo(
+                            MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                    slaveDeviceIdentifier,
+                                    G3Properties.PROP_LASTSEENDATE,
+                                    BigDecimal.valueOf(g3Node.getLastSeenDate().getTime())
+                            )
+                    );
+                    //getLogger().log(Level.FINEST, "g3node with macAddress = "+g3Node.getMacAddressString() + " was added");
                 }
             }
         }

@@ -144,6 +144,16 @@ public final class ProtocolTools {
     }
 
     /**
+     * Check if the n-th bit is set of the value. The bit number is 0 based, so it can range from 0 to 31.
+     *
+     * @param bitNumber The number of the bit to test
+     * @return True if the bit was set, false if not.
+     */
+    public static boolean isBitSet(long value, int bitNumber) {
+        return ((value >> bitNumber) & 0x01) == 1;
+    }
+
+    /**
      * Convert int value to a hexadecimal string with a given byte length.
      * The default separator '$' is used between each byte.
      *

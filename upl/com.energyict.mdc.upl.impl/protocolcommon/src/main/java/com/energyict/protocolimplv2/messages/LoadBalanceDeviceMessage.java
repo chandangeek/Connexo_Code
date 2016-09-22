@@ -86,7 +86,19 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(thresholdInAmpereAttributeName)
     ),
     SET_LOAD_LIMIT_DURATION(13, PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName)),
-    SET_LOAD_LIMIT_THRESHOLD(14, PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName));
+    SET_LOAD_LIMIT_THRESHOLD(14, PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName)),
+    UPDATE_SUPERVISION_MONITOR(15,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(monitorInstanceAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3)),
+            PropertySpecFactory.bigDecimalPropertySpec(thresholdInAmpereAttributeName)
+    ),
+    CONFIGURE_SUPERVISION_MONITOR_FOR_IMPORT_EXPORT(16,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(phaseAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3)),
+            PropertySpecFactory.bigDecimalPropertySpec(positiveThresholdInAmpereAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(negativeThresholdInAmpereAttributeName)
+    ),
+
+    ;
+
 
     private static final DeviceMessageCategory LOAD_BALANCE_CATEGORY = DeviceMessageCategories.LOAD_BALANCE;
 

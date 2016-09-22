@@ -544,12 +544,12 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private void changePasswordUser1(OfflineDeviceMessage pendingMessage) throws IOException {
         String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        this.session.getCosemObjectFactory().getWebPortalPasswordConfig().changeUser1Password(newPassword);
+        this.session.getCosemObjectFactory().getWebPortalConfig().changeUser1Password(newPassword);
     }
 
     private void changePasswordUser2(OfflineDeviceMessage pendingMessage) throws IOException {
         String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        this.session.getCosemObjectFactory().getWebPortalPasswordConfig().changeUser2Password(newPassword);
+        this.session.getCosemObjectFactory().getWebPortalConfig().changeUser2Password(newPassword);
     }
 
     private void writeUplinkPingInterval(OfflineDeviceMessage pendingMessage) throws IOException {

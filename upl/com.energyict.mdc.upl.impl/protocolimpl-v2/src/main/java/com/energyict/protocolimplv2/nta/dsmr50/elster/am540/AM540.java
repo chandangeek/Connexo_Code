@@ -31,10 +31,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.exceptions.*;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -169,6 +166,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         return (Dsmr50Properties) dlmsProperties;
     }
 
+
     /**
      * Add extra retries to the association request.
      * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
@@ -178,6 +176,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         while (true) {
             ProtocolRuntimeException exception;
             try {
+                getDlmsSession().getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
                 if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     getDlmsSession().getDlmsV2Connection().connectMAC();
                     getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
@@ -192,12 +191,14 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
                     throw e;
                 }
                 exception = e;
+            } finally {
+                getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > getDlmsSessionProperties().getAARQRetries()) {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
-                throw ConnectionCommunicationException.protocolConnectFailed(exception);
+                throw CommunicationException.protocolConnectFailed(exception);
             } else {
                 getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
@@ -238,6 +239,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public String getProtocolDescription() {
         return "Elster AM540 DLMS (NTA DSMR5.0) V2";
     }
+
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
@@ -366,7 +368,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-26 15:25:12 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2016-05-03 14:54:30 +0200 (Tue, 03 May 2016)$";
     }
 
     @Override

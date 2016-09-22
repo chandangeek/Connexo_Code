@@ -6,6 +6,7 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
@@ -13,6 +14,7 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedObject;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
@@ -35,17 +37,24 @@ import java.util.Map;
 public class AM540RegisterFactory extends AM130RegisterFactory {
 
     private AM540PLCRegisterMapper plcRegisterMapper;
+    private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
+    private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
 
     public AM540RegisterFactory(AM540 am540) {
         super(am540);
     }
 
     @Override
-    protected void addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
+    protected Boolean addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
         G3Mapping g3Mapping = getPLCRegisterMapper().getG3Mapping(register.getObisCode());
         if (g3Mapping != null) {
             ComposedRegister composedRegister = new ComposedRegister();
             int[] attributeNumbers = g3Mapping.getAttributeNumbers();
+
+            if (dlmsAttributes.size() + attributeNumbers.length > BULK_REQUEST_ATTRIBUTE_LIMIT) {
+                return null; //Don't add the new attributes, no more room
+            }
+
             for (int index = 0; index < attributeNumbers.length; index++) {
                 int attributeNumber = attributeNumbers[index];
                 DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
@@ -61,8 +70,9 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
                 }
             }
             composedObjectMap.put(register.getObisCode(), composedRegister);
+            return true;
         } else {
-            super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
+            return super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
         }
     }
 
@@ -70,6 +80,7 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
      * Filter out the following registers:
      * - MBus devices (by serial number) that are not installed on the e-meter
      * - Obiscode 0.0.128.0.2.255, this register value will be filled in by executing the path request message, not by the register reader
+     * - Obiscode 0.3.44.0.128.255, this register value will be filled in by executing the 'read DC multicast progress' message on the Beacon protocol
      */
     @Override
     protected List<CollectedRegister> filterOutAllInvalidRegistersFromList(List<OfflineRegister> offlineRegisters) {
@@ -80,6 +91,10 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
             OfflineRegister register = it.next();
             if (register.getObisCode().equals(G3NetworkManagement.getDefaultObisCode())) {
                 invalidRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, "Register with obiscode " + register.getObisCode() + " cannot be read out, use the path request message for this."));
+                it.remove();
+            }
+            if (register.getObisCode().equals(MULTICAST_METER_PROGRESS)) {
+                invalidRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, "Register with obiscode " + register.getObisCode() + " cannot be read out, use the 'read DC multicast progress' message on the Beacon protocol for this."));
                 it.remove();
             }
         }

@@ -1,6 +1,8 @@
 package com.energyict.dlms.cosem.generalblocktransfer;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.XdlmsApduTags;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.cosem.AbstractCosemObject;
@@ -360,11 +362,21 @@ public class GeneralBlockTransferHandler {
     }
 
     private byte[] decrypt(SecureConnection secureConnection, byte[] securedResponse) {
-        return SecurityContextV2EncryptionHandler.dataTransportDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+        try {
+            return SecurityContextV2EncryptionHandler.dataTransportDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+        } catch (DLMSConnectionException e) {
+            //Invalid frame counter
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
     }
 
     private byte[] decryptGloOrDedGeneralCiphering(SecureConnection secureConnection, byte[] securedResponse) {
-        return SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+        try {
+            return SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+        } catch (DLMSConnectionException e) {
+            //Invalid frame counter
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
     }
 
     /**

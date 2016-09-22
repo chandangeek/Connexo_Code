@@ -188,4 +188,9 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     public void provideResponse(DiscoverResponseType responseType) {
         //No responses for the I and DoubleI Discover
     }
+
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
+    }
 }

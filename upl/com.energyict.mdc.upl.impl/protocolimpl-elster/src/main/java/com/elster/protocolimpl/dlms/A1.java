@@ -15,11 +15,7 @@ import com.elster.protocolimpl.dlms.messaging.DlmsMessageExecutor;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.A1ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.elster.protocolimpl.dlms.objects.a1.utils.BPValueHist;
-import com.elster.protocolimpl.dlms.objects.a1.utils.BillingProfileReader;
-import com.elster.protocolimpl.dlms.objects.a1.utils.ExtendedRegisterReader;
-import com.elster.protocolimpl.dlms.objects.a1.utils.HistoricRegisterResult;
-import com.elster.protocolimpl.dlms.objects.a1.utils.RegisterReader;
+import com.elster.protocolimpl.dlms.objects.a1.utils.*;
 import com.elster.protocolimpl.dlms.profile.ArchiveProcessorFactory;
 import com.elster.protocolimpl.dlms.profile.DlmsProfile;
 import com.elster.protocolimpl.dlms.profile.ILogProcessor;
@@ -29,18 +25,10 @@ import com.elster.protocolimpl.dlms.util.DlmsUtils;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * User: heuckeg
@@ -104,7 +92,7 @@ public class A1 extends Dlms {
      * @return The version
      */
     public String getProtocolVersion() {
-        return "$Date: 2014-09-17 09:03:19 +0200 (wo, 17 sep 2014) $";
+        return "$Date: 2016-01-26 08:00:00 +0100$";
     }
 
     @Override

@@ -275,7 +275,7 @@ public class VDEWRegister extends VDEWRegisterDataParse {
                     data = getProtocolLink().getFlagIEC1107Connection().receiveRawData();
                 }
                 else {
-                    data = getProtocolLink().getFlagIEC1107Connection().receiveData();
+                    data = getProtocolLink().getFlagIEC1107Connection().receiveData(extractResponseObjectId());
                 }
                 abstractVDEWRegistry.validateData(data);
                 ba.write(data);
@@ -310,7 +310,16 @@ public class VDEWRegister extends VDEWRegisterDataParse {
     public String getDateFormat() {
         return dateFormat;
     }
-    
+
+    private String extractResponseObjectId() {
+        if(objectId == null ){
+            return null;
+        }
+        if(objectId.isEmpty() || !objectId.contains("(")){
+            return null;
+        }
+        return objectId.substring(objectId.indexOf('(') + 1, objectId.length());
+    }
  // private void validateData(byte[] data) throws IOException
     
 } // public class VDEWRegister

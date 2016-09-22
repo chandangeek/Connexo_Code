@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.cbo.Sms;
+import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.meterdata.CollectedData;
@@ -230,7 +231,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
     }
 
     private String getDeviceSerialNumber() {
-        OfflineDevice device = getContext().getInboundDAO().findOfflineDevice(getDeviceIdentifier());
+        OfflineDevice device = getContext().getInboundDAO().getOfflineDevice(getDeviceIdentifier(), new DeviceOfflineFlags());
         if (device != null) {
             return device.getSerialNumber();
         } else {

@@ -10,7 +10,6 @@ import com.energyict.protocol.UnsupportedException;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Properties;
-import java.util.Random;
 
 /**
  * Default implementation of the securityProvider.

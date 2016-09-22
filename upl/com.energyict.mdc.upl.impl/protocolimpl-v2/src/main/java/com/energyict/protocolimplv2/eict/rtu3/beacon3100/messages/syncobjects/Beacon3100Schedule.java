@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
 
 /**
  * Copyrights EnergyICT
@@ -28,6 +30,21 @@ public class Beacon3100Schedule {
 
     //JSon constructor
     private Beacon3100Schedule() {
+    }
+
+    public boolean equals(AbstractDataType anotherScheduleStructure){
+        try {
+            byte[] otherByteArray = anotherScheduleStructure.getBEREncodedByteArray();
+            byte[] thisByteArray = toStructure().getBEREncodedByteArray();
+
+            return Arrays.equals(thisByteArray, otherByteArray);
+        }catch (Exception ex){
+            return false;
+        }
+    }
+
+    public boolean equals(Beacon3100Schedule anotherSchedule){
+        return this.equals(anotherSchedule.toStructure());
     }
 
     public Structure toStructure() {

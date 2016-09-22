@@ -35,13 +35,11 @@ public class SecurityContextV2EncryptionHandler {
     /**
      * Service specific decryption (global or dedicated ciphering)
      */
-    public static byte[] dataTransportDecryption(SecurityContext securityContext, byte[] cipherFrame) {
+    public static byte[] dataTransportDecryption(SecurityContext securityContext, byte[] cipherFrame) throws DLMSConnectionException {
         try {
             return securityContext.dataTransportDecryption(cipherFrame);
         } catch (ConnectionException e) {              //Failed to decrypt data
             throw DataEncryptionException.dataEncryptionException(e);
-        } catch (DLMSConnectionException e) {          //Invalid frame counter
-            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         } catch (UnsupportedException e) {             //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
         } catch (ProtocolException e) {
@@ -65,13 +63,11 @@ public class SecurityContextV2EncryptionHandler {
     /**
      * General-global or general-dedicated decryption.
      */
-    public static byte[] dataTransportGeneralGloOrDedDecryption(SecurityContext securityContext, byte[] securedResponse) {
+    public static byte[] dataTransportGeneralGloOrDedDecryption(SecurityContext securityContext, byte[] securedResponse) throws DLMSConnectionException {
         try {
             return securityContext.dataTransportGeneralGloOrDedDecryption(securedResponse);
         } catch (ConnectionException e) {              //Failed to decrypt data
             throw DataEncryptionException.dataEncryptionException(e);
-        } catch (DLMSConnectionException e) {          //Invalid frame counter
-            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         } catch (UnsupportedException e) {             //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
         } catch (ProtocolException e) {
@@ -95,13 +91,11 @@ public class SecurityContextV2EncryptionHandler {
     /**
      * General-ciphering decryption
      */
-    public static byte[] dataTransportGeneralDecryption(SecurityContext securityContext, byte[] securedResponse) {
+    public static byte[] dataTransportGeneralDecryption(SecurityContext securityContext, byte[] securedResponse) throws DLMSConnectionException {
         try {
             return securityContext.dataTransportGeneralDecryption(securedResponse);
         } catch (ConnectionException e) {              //Failed to decrypt data
             throw DataEncryptionException.dataEncryptionException(e);
-        } catch (DLMSConnectionException e) {          //Invalid frame counter
-            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         } catch (UnsupportedException e) {             //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
         } catch (ProtocolException e) {

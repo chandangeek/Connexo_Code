@@ -15,7 +15,15 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.modbus.core.functioncode.*;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadDeviceIdentification;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadHoldingRegistersRequest;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadInputRegistersRequest;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReportSlaveId;
+import com.energyict.protocolimpl.modbus.core.functioncode.WriteMultipleCoils;
+import com.energyict.protocolimpl.modbus.core.functioncode.WriteMultipleRegisters;
+import com.energyict.protocolimpl.modbus.core.functioncode.WriteSingleCoil;
+import com.energyict.protocolimpl.modbus.core.functioncode.WriteSingleRegister;
 
 import java.io.IOException;
 import java.math.BigDecimal;

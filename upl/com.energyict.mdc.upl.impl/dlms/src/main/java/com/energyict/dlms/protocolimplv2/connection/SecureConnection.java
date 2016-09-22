@@ -1,10 +1,12 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
@@ -99,7 +101,12 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
      * {@inheritDoc}
      */
     public byte[] readResponseWithRetries(byte[] byteRequestBuffer, boolean isAlreadyEncrypted) {
-        return secureCommunicate(byteRequestBuffer, isAlreadyEncrypted, false, true);
+        //framecounter out of sync (it was already incremented in sendRequest, so decrement it)
+        aso.getSecurityContext().decrementFrameCounter();
+        byte[] response = secureCommunicate(byteRequestBuffer, isAlreadyEncrypted, false, true);
+        //response sent, increment the framecounter
+        aso.getSecurityContext().incFrameCounter();
+        return response;
     }
 
     /**
@@ -177,61 +184,82 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                 // send the encrypted request to the DLMSConnection
                 byte[] securedResponse = communicate(securedRequest, send, receive);
 
-                if (!receive || securedResponse == null) {
-                    //Unconfirmed request, exit here.
-                    return null;
-                } else {
+                byte[] decryptedResponse = null;
+                byte cipheredTag;
 
-                    // If it's a general-signing APDU, check its signature and unwrap it.
-                    // Note that its contents can still be a ciphered APDU, it will be decrypted below.
-                    byte cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
-                    if (cipheredTag == DLMSCOSEMGlobals.GENERAL_SIGNING) {
-                        securedResponse = unwrapGeneralSigning(ProtocolUtils.getSubArray(securedResponse, 3));
-                        securedResponse = ProtocolUtils.concatByteArrays(leading, securedResponse);
-                        cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
-                    }
-
-                    //Check if the response tag is know and decrypt the data if necessary
-                    if (cipheredTag == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
-                        //Return any errors as-is
-                        return securedResponse;
-                    } else if (XdlmsApduTags.isPlainTag(cipheredTag)) {
-                        if (this.aso.getSecurityContext().getSecurityPolicy().isResponsePlain()) {
-                            return securedResponse;
+                /**
+                 * Decrypt the received APDU.
+                 * If it turns out the received APDU has an invalid frame counter (not greater than the previous frame counter),
+                 * there's 2 possible scenarios depending on the {@link RespondingFrameCounterHandler} implementation of the protocol:
+                 *  - either reject the received APDU and read in the next APDU (useful in G3PLC UDP networks)
+                 *  - or abort the communication (default behaviour)
+                 */
+                while (decryptedResponse == null) {
+                    try {
+                        if (!receive || securedResponse == null) {
+                            //Unconfirmed request, exit here.
+                            return null;
                         } else {
-                            ProtocolException protocolException = new ProtocolException("Received an unsecured response, this is not allowed according to the configured (minimum) security policy for responses. Aborting.");
-                            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+
+                            // If it's a general-signing APDU, check its signature and unwrap it.
+                            // Note that its contents can still be a ciphered APDU, it will be decrypted below.
+                            byte cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
+
+                            if (cipheredTag == DLMSCOSEMGlobals.GENERAL_SIGNING) {
+                                securedResponse = unwrapGeneralSigning(ProtocolUtils.getSubArray(securedResponse, 3));
+                                securedResponse = ProtocolUtils.concatByteArrays(leading, securedResponse);
+                                cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
+                            }
+
+                            //Check if the response tag is know and decrypt the data if necessary
+                            if (cipheredTag == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
+                                //Return any errors as-is
+                                return securedResponse;
+                            } else if (XdlmsApduTags.isPlainTag(cipheredTag)) {
+                                if (this.aso.getSecurityContext().getSecurityPolicy().isResponsePlain()) {
+                                    return securedResponse;
+                                } else {
+                                    ProtocolException protocolException = new ProtocolException("Received an unsecured response, this is not allowed according to the configured (minimum) security policy for responses. Aborting.");
+                                    throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+                                }
+                            } else if (XdlmsApduTags.contains(cipheredTag)) {
+                                //Service specific ciphering
+                                // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
+                                // Strip the 3 leading bytes before decrypting
+                                decryptedResponse = decrypt(ProtocolUtils.getSubArray(securedResponse, 3));
+                            } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
+                                //General global/dedicated ciphering
+                                // Strip the 3 leading bytes before decrypting
+                                decryptedResponse = decryptGeneralGloOrDedCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
+                            } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
+                                //General ciphering
+                                decryptedResponse = decryptGeneralCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
+                            } else if (cipheredTag == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+                                // Return as-is, content can only be decrypted once all blocks are received
+                                // and thus should be done by the application layer (~ GeneralBlockTransferHandler)
+                                return securedResponse;
+                            } else {
+                                IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
+                                throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
+                            }
+
                         }
-                    } else if (XdlmsApduTags.contains(cipheredTag)) {
-                        //Service specific ciphering
-                        // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
-                        // Strip the 3 leading bytes before decrypting
-                        final byte[] decryptedResponse = decrypt(ProtocolUtils.getSubArray(securedResponse, 3));
+                    } catch (DLMSConnectionException e) {
+                        //Received an invalid frame counter (not greater than the previous frame counter)
+                        if (e.getReason() == DLMSConnectionException.REASON_CONTINUE_INVALID_FRAMECOUNTER) {
+                            getAso().getProtocolLink().getLogger().warning(e.getMessage());
+                            decryptedResponse = null;
 
-                        // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
-                        return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
-                    } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
-                        //General global/dedicated ciphering
-                        // Strip the 3 leading bytes before decrypting
-                        final byte[] decryptedResponse = decryptGeneralGloOrDedCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
-
-                        // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
-                        return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
-                    } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
-                        //General ciphering
-                        final byte[] decryptedResponse = decryptGeneralCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
-
-                        return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
-                    } else if (cipheredTag == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
-                        // Return as-is, content can only be decrypted once all blocks are received
-                        // and thus should be done by the application layer (~ GeneralBlockTransferHandler)
-                        return securedResponse;
-                    } else {
-                        IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
-                        throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
+                            //Try to receive the next APDU and decrypt it.
+                            securedResponse = communicate(securedRequest, false, true);
+                        } else {
+                            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+                        }
                     }
-
                 }
+
+                // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
+                return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
             }
         } else { /* During association request (AARQ and AARE) the request just needs to be forwarded */
             return communicate(byteRequestBuffer, send, receive);
@@ -279,7 +307,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
         return SecurityContextV2EncryptionHandler.dataTransportEncryption(this.aso.getSecurityContext(), securedRequest);
     }
 
-    protected byte[] decrypt(byte[] securedResponse) {
+    protected byte[] decrypt(byte[] securedResponse) throws DLMSConnectionException {
         return SecurityContextV2EncryptionHandler.dataTransportDecryption(this.aso.getSecurityContext(), securedResponse);
     }
 
@@ -295,7 +323,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
         return SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedEncryption(this.aso.getSecurityContext(), request);
     }
 
-    private byte[] decryptGeneralGloOrDedCiphering(byte[] securedResponse) {
+    private byte[] decryptGeneralGloOrDedCiphering(byte[] securedResponse) throws DLMSConnectionException {
         return SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(this.aso.getSecurityContext(), securedResponse);
     }
 
@@ -303,7 +331,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
         return SecurityContextV2EncryptionHandler.dataTransportGeneralEncryption(this.aso.getSecurityContext(), securedRequest);
     }
 
-    private byte[] decryptGeneralCiphering(byte[] securedResponse) {
+    private byte[] decryptGeneralCiphering(byte[] securedResponse) throws DLMSConnectionException {
         return SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(this.aso.getSecurityContext(), securedResponse);
     }
 

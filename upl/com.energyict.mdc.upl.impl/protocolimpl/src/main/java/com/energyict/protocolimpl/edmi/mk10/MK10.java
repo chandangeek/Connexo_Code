@@ -2,7 +2,14 @@ package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -19,7 +26,11 @@ import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -140,7 +151,6 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 		ti.setTime();
 	}
 
-    /** The protocol version **/
 	public String getProtocolVersion() {
 		sendDebug("getProtocolVersion()");
 		return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";

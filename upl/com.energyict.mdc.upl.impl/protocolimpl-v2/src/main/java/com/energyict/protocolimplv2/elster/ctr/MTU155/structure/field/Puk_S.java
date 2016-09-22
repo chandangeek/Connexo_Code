@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * Class for the Puk_S field in a CTR Structure Object
@@ -41,7 +41,7 @@ public class Puk_S extends AbstractField<Puk_S> {
 
     public final void setPuks() {
         puks = new byte[getLength()];
-        new Random().nextBytes(puks);
+        new SecureRandom().nextBytes(puks);
     }
 
 }

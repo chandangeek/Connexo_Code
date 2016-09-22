@@ -131,6 +131,10 @@ public class UniversalObject implements Serializable {
         this.fields[iIndex] = val;
     }
 
+    public void setObisCodeChannelB(long val){
+        this.fields[IOL_LN_B] = val;
+    }
+
     public long getField(int iIndex) {
         return this.fields[iIndex];
     }
@@ -344,6 +348,24 @@ public class UniversalObject implements Serializable {
         }
         if (((getLNA() & 0xFF) == obisCode.getA()) &&
                 ((getLNB() & 0xFF) == obisCode.getB()) &&
+                ((getLNC() & 0xFF) == obisCode.getC()) &&
+                ((getLND() & 0xFF) == obisCode.getD()) &&
+                ((getLNE() & 0xFF) == obisCode.getE())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /*
+    *  Find ObisCode in instantiated object list and checks if equal ignoring the B channel
+    *  All instantiated objects have f=255 and are unique for a classId.
+    */
+    public boolean equalsIgnoreBChannel(ObisCode obisCode) {
+        if (obisCode == null) {
+            return false;
+        }
+        if (((getLNA() & 0xFF) == obisCode.getA()) &&
                 ((getLNC() & 0xFF) == obisCode.getC()) &&
                 ((getLND() & 0xFF) == obisCode.getD()) &&
                 ((getLNE() & 0xFF) == obisCode.getE())) {

@@ -11,11 +11,11 @@ import com.energyict.protocolimpl.generic.MessageParser;
 public class KaifaDsmr40Messaging extends Dsmr40Messaging {
 
     /**
-     * Same like the DSMR4.0 standard messages, but adds one message to reset the MBus client
+     * Same like the DSMR4.0 standard messages, but the message to reset the MBus client using the serial no
      */
     public KaifaDsmr40Messaging(MessageParser messageExecutor) {
         super(messageExecutor);
-        setSupportClearMBusClient(true);
+        setUseSerialNoInClearMBusClientMessage(true);
     }
 
 }

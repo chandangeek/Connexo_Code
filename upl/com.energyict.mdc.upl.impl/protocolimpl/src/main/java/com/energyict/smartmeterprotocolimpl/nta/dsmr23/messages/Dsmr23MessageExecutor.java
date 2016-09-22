@@ -1455,20 +1455,27 @@ public class Dsmr23MessageExecutor extends MessageParser {
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
         String shortId = messageHandler.getMbusShortId();
         MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(),((Dsmr23Properties)getProtocol().getProperties()).getFixMbusHexShortId());
-        mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
-        mbusClient.setIdentificationNumber(mbusProvider.getIdentificationNumber(shortId));
-        mbusClient.setVersion(mbusProvider.getVersion(shortId));
-        mbusClient.setDeviceType(mbusProvider.getDeviceType(shortId));
-        mbusClient.installSlave(physicalAddress);
+        try {
+            mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
+            mbusClient.setIdentificationNumber(mbusProvider.getIdentificationNumber(shortId));
+            mbusClient.setVersion(mbusProvider.getVersion(shortId));
+            mbusClient.setDeviceType(mbusProvider.getDeviceType(shortId));
+        }catch(ProtocolException e){
+            log(Level.SEVERE,"Invalid short id value.");
+        }
     }
 
     private void changeMBusClientAttributes(MessageHandler messageHandler) throws IOException {
         int installChannel = messageHandler.getMbusInstallChannel();
         int physicalAddress = getMBusPhysicalAddress(installChannel);
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(),9);
-        mbusClient.setManufacturerID(messageHandler.getMbusClientManufacturerID());
-        mbusClient.setIdentificationNumber(messageHandler.getMbusClientIdentificationNumber(((Dsmr23Properties)getProtocol().getProperties()).getFixMbusHexShortId()));
-        mbusClient.setDeviceType(messageHandler.getMbusDeviceType());
-        mbusClient.setVersion(messageHandler.getMbusClientVersion());
+        try {
+            mbusClient.setManufacturerID(messageHandler.getMbusClientManufacturerID());
+            mbusClient.setIdentificationNumber(messageHandler.getMbusClientIdentificationNumber(((Dsmr23Properties)getProtocol().getProperties()).getFixMbusHexShortId()));
+            mbusClient.setDeviceType(messageHandler.getMbusDeviceType());
+            mbusClient.setVersion(messageHandler.getMbusClientVersion());
+        }catch(ProtocolException e){
+            log(Level.SEVERE,"Invalid short id value.");
+        }
     }
 }

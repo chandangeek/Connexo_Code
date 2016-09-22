@@ -49,6 +49,11 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     }
 
     @Override
+    public String getVersion() {
+        return "$Date: 2016-04-25 11:28:57 +0200 (Mon, 25 Apr 2016)$";
+    }
+
+    @Override
     public void addProperties(TypedProperties properties) {
         super.addProperties(properties);
         this.provideProtocolJavaClasName = properties.<Boolean>getTypedProperty(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, true);

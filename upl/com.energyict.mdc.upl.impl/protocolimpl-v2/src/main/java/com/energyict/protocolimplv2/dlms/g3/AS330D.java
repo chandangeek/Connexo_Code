@@ -1,5 +1,22 @@
 package com.energyict.protocolimplv2.dlms.g3;
 
+import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
@@ -9,17 +26,6 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.messages.DeviceMessage;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -49,7 +55,10 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Protocol that reads out the G3 e-meter connected to an Beacon3100 gateway / concentrator (for the G3 international project).
@@ -261,7 +270,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > getDlmsSessionProperties().getAARQRetries()) {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
-                throw ConnectionCommunicationException.protocolConnectFailed(exception);
+                throw CommunicationException.protocolConnectFailed(exception);
             } else {
                 getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
@@ -357,6 +366,6 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-06-20 13:47:38 +0200 (Mon, 20 Jun 2016)$";
+        return "$Date: 2016-07-11 09:53:54 +0300 (Mon, 11 Jul 2016)$";
     }
 }

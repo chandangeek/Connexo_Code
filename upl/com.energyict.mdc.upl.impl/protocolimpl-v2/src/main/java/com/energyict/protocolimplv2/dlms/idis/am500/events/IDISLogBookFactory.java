@@ -62,7 +62,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
                 ProfileGeneric profileGeneric = null;
                 try {
                     profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(logBookReader.getLogBookObisCode());
-                    profileGeneric.setDsmr4SelectiveAccessFormat(true);
+                    profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
                 } catch (NotInObjectListException e) {
                     collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                 }
@@ -118,7 +118,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
     protected List<MeterEvent> getMBusControlLog(Calendar fromCal, Calendar toCal, LogBookReader logBookReader) throws IOException {
         ObisCode mBusControlLogObisCode = getMBusControlLogObisCode(logBookReader.getMeterSerialNumber());
         ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(mBusControlLogObisCode);
-        profileGeneric.setDsmr4SelectiveAccessFormat(true);
+        profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
         DataContainer mBusControlLogDC = profileGeneric.getBuffer(fromCal, toCal);
         AbstractEvent mBusControlLog;
         switch (protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber())) {

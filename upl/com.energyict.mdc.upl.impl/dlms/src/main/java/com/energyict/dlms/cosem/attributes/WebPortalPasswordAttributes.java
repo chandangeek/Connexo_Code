@@ -33,7 +33,7 @@ public enum WebPortalPasswordAttributes implements DLMSClassAttributes {
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.WEB_PORTAL_PASSWORDS;
+        return DLMSClassId.WEB_PORTAL_CONFIGURATION;
     }
 
     /**

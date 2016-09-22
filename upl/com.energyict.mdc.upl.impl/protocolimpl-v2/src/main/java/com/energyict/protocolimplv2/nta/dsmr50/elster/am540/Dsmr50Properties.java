@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+
+import com.energyict.cbo.TimeDuration;
+import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
@@ -40,6 +42,14 @@ public class Dsmr50Properties extends DlmsProperties {
 
     public boolean isCumulativeCaptureTimeChannel() {
         return getProperties().getTypedProperty(CumulativeCaptureTimeChannel, false);
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        if (securityProvider == null) {
+            securityProvider = new Dsmr50SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+        }
+        return securityProvider;
     }
 
     public boolean isIgnoreDstStatusCode() {
@@ -98,11 +108,7 @@ public class Dsmr50Properties extends DlmsProperties {
 
     @Override
     public int getClientMacAddress() {
-        if (useBeaconMirrorDeviceDialect() && !usesPublicClient()) {
-            return BigDecimal.ONE.intValue();   // When talking to the Beacon mirrored device, we should always use client address 1 (except for the public client, which is always 16)
-        } else {
-            return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
-        }
+        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
     }
 
     public boolean usesPublicClient() {
@@ -119,13 +125,17 @@ public class Dsmr50Properties extends DlmsProperties {
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 
+    public boolean useSerialDialect() {
+        String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
+        return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.SERIAL_DLMS_PROTOCOL_DIALECT_NAME.getName());
+    }
+
     /**
-     * In case of non-polling for TCP IP communication, frames that have a wrong WPDU source or destination will be fully read & ignored.
-     * After that, the connection layer will attempt to read out the next full frame, so the normal protocol sequence can continue.
+     * The AM540 protocol will also run embedded in the Beacon3100, so by default: avoid polling on the inputstream
      */
     @Override
-    public boolean isUsePolling() {
-        return false;
+    public TimeDuration getPollingDelay() {
+        return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.POLLING_DELAY, new TimeDuration(0));
     }
 
     public boolean getCheckNumberOfBlocksDuringFirmwareResume() {
@@ -134,5 +144,16 @@ public class Dsmr50Properties extends DlmsProperties {
 
     public boolean useEquipmentIdentifierAsSerialNumber() {
         return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, Dsmr50ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
+    }
+
+    /**
+     * A timeout (lack of response from the AM540) should be handled differently according to the context:
+     * - in case of G3 gateway mode, you can still read out the next physical slave devices if one slave device does not reply.
+     * - in case of Beacon DC mode (reading out 'mirror' logical devices), a timeout is fatal, the next physical slaves cannot be read out.
+     * - in case of a serial connection we should fail on a timeout
+     */
+    @Override
+    public boolean timeoutMeansBrokenConnection() {
+        return useBeaconMirrorDeviceDialect() || useSerialDialect();
     }
 }

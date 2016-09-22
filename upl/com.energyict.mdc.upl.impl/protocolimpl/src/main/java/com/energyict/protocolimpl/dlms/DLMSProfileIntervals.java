@@ -154,7 +154,7 @@ public class DLMSProfileIntervals extends Array {
                                 throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
                             }
                         } else if (isStatusIndex(d)) {
-                            profileStatus = profileStatusBits.getEisStatusCode(element.getDataType(d).intValue());
+                            profileStatus = element.getDataType(d).intValue();
                         } else if (isChannelIndex(d)) {
                             final AbstractDataType dataType = element.getDataType(d);
                             final Number value = getValueFromDataType(dataType, timeZone);
@@ -162,13 +162,14 @@ public class DLMSProfileIntervals extends Array {
                         }
                     }
                     if (cal != null) {
-                        currentInterval = new IntervalData(cal.getTime(), profileStatus);
+                        currentInterval = new IntervalData(cal.getTime(), profileStatusBits.getEisStatusCode(profileStatus), profileStatus);
                         currentInterval.addValues(values);
                     } else {
                         throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
                     }
                 } else { // the implementation is different if you have multiple status flags
                     Map<Integer, Integer> statuses = new HashMap<Integer, Integer>();
+                    int protocolStatus = 0;
                     for (int d = 0; d < element.nrOfDataTypes(); d++) {
                         if (isClockIndex(d)) {
                             try {
@@ -177,9 +178,10 @@ public class DLMSProfileIntervals extends Array {
                                 throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
                             }
                         } else if (isStatusIndex(d)) {
-                            statuses.put(values.size(), profileStatusBits.getEisStatusCode(element.getDataType(d).intValue()));
+                            statuses.put(values.size(), element.getDataType(d).intValue());
                             // we add all the statuses on the 'main' profileStatus
                             profileStatus |= profileStatusBits.getEisStatusCode(element.getDataType(d).intValue());
+                            protocolStatus |= element.getDataType(d).intValue();
                         } else if (isChannelIndex(d)) {
                             final AbstractDataType dataType = element.getDataType(d);
                             final Number value = getValueFromDataType(dataType, timeZone);
@@ -188,9 +190,9 @@ public class DLMSProfileIntervals extends Array {
                     }
 
                     if (cal != null) {
-                        currentInterval = new IntervalData(cal.getTime(), profileStatus);
+                        currentInterval = new IntervalData(cal.getTime(), profileStatus, protocolStatus);
                         for (int j = 0; j < values.size(); j++) {
-                            currentInterval.addValue(values.get(j), 0, (statuses.containsKey(j) ? statuses.get(j) : 0));
+                            currentInterval.addValue(values.get(j), statuses.get(j), (statuses.containsKey(j) ? profileStatusBits.getEisStatusCode(statuses.get(j)) : 0));
                         }
                     } else {
                         throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);

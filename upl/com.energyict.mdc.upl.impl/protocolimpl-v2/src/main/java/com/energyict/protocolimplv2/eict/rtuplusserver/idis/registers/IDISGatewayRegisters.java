@@ -13,6 +13,7 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping.GprsModemSetupMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping.LoggerSettingsMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.GatewaySetupMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.IDISGatewaySFSKMacCountersMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.MasterboardSetupMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.NetworkManagementMapping;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
@@ -39,7 +40,8 @@ public class IDISGatewayRegisters {
                 new LoggerSettingsMapping(session.getCosemObjectFactory()),
                 new GatewaySetupMapping(session.getCosemObjectFactory()),
                 new NetworkManagementMapping(session.getCosemObjectFactory()),
-                new MasterboardSetupMapping(session.getCosemObjectFactory())
+                new MasterboardSetupMapping(session.getCosemObjectFactory()),
+                new IDISGatewaySFSKMacCountersMapping(session.getCosemObjectFactory())
         };
     }
 

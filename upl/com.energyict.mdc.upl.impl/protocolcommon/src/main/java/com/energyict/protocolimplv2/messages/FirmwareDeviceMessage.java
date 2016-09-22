@@ -12,6 +12,7 @@ import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageVal
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -70,14 +71,64 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.passwordPropertySpec(broadcastAuthenticationKeyAttributeName),
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.encryptionLevelAttributeName, DlmsEncryptionLevelMessageValues.getNames())
     ),
-    VerifyAndActivateFirmware(17);
+    VerifyAndActivateFirmware(17),
+    DataConcentratorMulticastFirmwareUpgrade(18,
+            PropertySpecFactory.stringPropertySpec(deviceIdsAttributeName),
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(UnicastClientWPort, BigDecimal.ONE),
+            PropertySpecFactory.bigDecimalPropertySpec(BroadcastClientWPort, BigDecimal.valueOf(64)),
+            PropertySpecFactory.bigDecimalPropertySpec(MulticastClientWPort, BigDecimal.valueOf(102)),
+            PropertySpecFactory.bigDecimalPropertySpec(LogicalDeviceLSap, BigDecimal.ONE),
+            PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelUnicast, BigDecimal.valueOf(3)),
+            PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelBroadcast, BigDecimal.valueOf(3)),
+            PropertySpecFactory.bigDecimalPropertySpec(SecurityPolicyBroadcast, BigDecimal.ZERO),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayAfterLastBlock, new TimeDuration(5)),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayPerBlock, new TimeDuration(4)),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayBetweenBlockSentFast, new TimeDuration(250, TimeDuration.MILLISECONDS)),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayBetweenBlockSentSlow, new TimeDuration(500, TimeDuration.MILLISECONDS)),
+            PropertySpecFactory.bigDecimalPropertySpec(BlocksPerCycle, BigDecimal.valueOf(30)),
+            PropertySpecFactory.bigDecimalPropertySpec(MaxCycles, BigDecimal.ONE),
+            PropertySpecFactory.bigDecimalPropertySpec(RequestedBlockSize, BigDecimal.valueOf(1024)),
+            PropertySpecFactory.notNullableBooleanPropertySpec(PadLastBlock, false),
+            PropertySpecFactory.notNullableBooleanPropertySpec(UseTransferredBlockStatus, true)
+    ),
+    ReadMulticastProgress(19),
+    FirmwareUpgradeWithUrlJarJadFileSize(20,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.URL_PATH),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.JAR_FILE_SIZE),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.JAD_FILE_SIZE)),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER(21,
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName, true)),
+    ENABLE_IMAGE_TRANSFER(22),
+    TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR(23,
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)
+    ),
+    CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES(24,
+            PropertySpecFactory.stringPropertySpec(deviceIdsAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(SkipStepEnable, true),
+            PropertySpecFactory.notNullableBooleanPropertySpec(SkipStepVerify, true),
+            PropertySpecFactory.notNullableBooleanPropertySpec(SkipStepActivate, true),
+            PropertySpecFactory.bigDecimalPropertySpec(UnicastClientWPort, BigDecimal.valueOf(2)),
+            PropertySpecFactory.bigDecimalPropertySpec(MulticastClientWPort, BigDecimal.valueOf(3)),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(UnicastFrameCounterType, "auth_hmac_sha256", "default", "auth_hmac_sha256"),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(MeterTimeZone, "Europe/Vienna", TimeZone.getAvailableIDs()),
+            PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelMulticast, BigDecimal.ZERO),
+            PropertySpecFactory.bigDecimalPropertySpec(SecurityPolicyMulticastV0, BigDecimal.ZERO),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayBetweenBlockSentFast, new TimeDuration(20, TimeDuration.MILLISECONDS))
+    ),
+    START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES(25),
 
+    ;
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
 
-    private FirmwareDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    FirmwareDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
         this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }

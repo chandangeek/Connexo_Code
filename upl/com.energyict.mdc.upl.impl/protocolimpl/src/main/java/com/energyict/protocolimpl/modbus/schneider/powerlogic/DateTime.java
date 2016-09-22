@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.modbus.schneider.powerlogic;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -7,7 +9,6 @@ import java.util.TimeZone;
  * @author sva
  * @since 18/03/2015 - 16:52
  *
- * @Deprecated - currently out of scope of the protocol
  */
 public class DateTime {
 
@@ -37,7 +38,7 @@ public class DateTime {
      *
      * @return the metercalendar
      */
-    protected Calendar getMeterCalender() {
+    public Calendar getMeterCalender() {
         return this.meterCalendar;
     }
 
@@ -49,7 +50,7 @@ public class DateTime {
      */
     public DateTime parseDateTime(int[] dateTimeRegisters) {
         if (dateTimeRegisters.length != 4) {
-            throw new IllegalArgumentException("The dateTime did not contain 8 values but " + dateTimeRegisters.length);
+            throw new IllegalArgumentException("The dateTime did not contain 4 values but " + dateTimeRegisters.length);
         }
 
         year = 2000 + (dateTimeRegisters[0] & 0x007F);
@@ -62,6 +63,24 @@ public class DateTime {
     }
 
     /**
+     * Create a DateTime Object for the given byte array, which corresponds to a file record
+     * of the profile data logs
+     * @param bytes the file record
+     * @param offset the offset within the record
+     * @return a DateTime object with the date and time calculated from the input
+     */
+    public DateTime parseProfileEntryDateTime(byte[] bytes, int offset) {
+        year = 2000 + ProtocolTools.getIntFromBytes(bytes, offset, 2);
+        offset += 2;
+        month = (bytes[offset++] & 0xFF);
+        day = (bytes[offset++] & 0xFF);
+        hour = (bytes[offset++] & 0xFF);
+        minutes = (bytes[offset++] & 0xFF);
+        milliSeconds = ProtocolTools.getIntFromBytes(bytes, offset, 2);
+        return createDateTime();
+    }
+
+       /**
      * The DateTime object is created.
      * <b>GMT TimeZone is used because the meter has no knowledge of Timezones</b>
      *
@@ -72,7 +91,6 @@ public class DateTime {
         cal.set(year, (month - 1), day, hour, minutes);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, milliSeconds);
-        System.out.println(cal.getTime());
         return new DateTime(cal);
     }
 }

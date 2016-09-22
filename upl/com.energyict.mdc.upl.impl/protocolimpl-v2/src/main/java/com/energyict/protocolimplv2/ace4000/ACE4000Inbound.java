@@ -4,9 +4,12 @@ import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
 import java.util.ArrayList;
@@ -66,27 +69,34 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     public List<CollectedData> getCollectedData() {
         List<CollectedData> collectedDatas = new ArrayList<CollectedData>();
         collectedDatas.addAll(getCollectedRegisters());
-        collectedDatas.addAll(getObjectFactory().createCollectedLoadProfiles());
+        if (!getObjectFactory().getLoadProfile().getProfileData().getIntervalDatas().isEmpty()) {
+            collectedDatas.addAll(getObjectFactory().createCollectedLoadProfiles(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE));
+        }
 
-        CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
-        collectedDatas.add(deviceLogBook);
+        if (!getObjectFactory().getAllMeterEvents().isEmpty()) {
+            CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+            collectedDatas.add(deviceLogBook);
+        }
 
         return collectedDatas;
     }
 
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return true;
+    }
+
     public String getVersion() {
-        return "$Date: 2015-05-19 16:23:16 +0200 (Tue, 19 May 2015) $";
+        return "$Date: 2016-06-29 13:42:56 +0200 (Wed, 29 Jun 2016)$";
     }
 
     /**
-     * Send an ack for the received frames, if the device has been found in EiServer
+     * Send an ack for the received data, if it was successfully stored in EIServer
      */
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
-        if (responseType == DiscoverResponseType.SUCCESS || responseType == DiscoverResponseType.DATA_ONLY_PARTIALLY_HANDLED) {
+        if (responseType == DiscoverResponseType.SUCCESS) {
             getObjectFactory().provideReponseAfterInbound();
-        } else {
-            //TODO ?
         }
     }
 
@@ -106,5 +116,18 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     @Override
     public void initComChannel(ComChannel comChannel) {
         setAce4000Connection(new ACE4000Connection(comChannel, this, true));
+    }
+
+    public DeviceIdentifier getDeviceIdentifier() {
+        return new DialHomeIdDeviceIdentifier(serialNumber);
+    }
+
+    /**
+     * No configured serial number available at this point (we're still discovering the device)
+     * Return the serial number that was received from the device instead.
+     */
+    @Override
+    public String getConfiguredSerialNumber() {
+        return serialNumber;
     }
 }

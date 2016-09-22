@@ -327,9 +327,12 @@ public class DlmsProperties implements DlmsSessionProperties {
         return properties.getTypedProperty(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE).intValue();
     }
 
+    /**
+     * Return the default value, 100 ms.
+     */
     @Override
-    public boolean isUsePolling() {
-        return true;
+    public TimeDuration getPollingDelay() {
+        return new TimeDuration(100, TimeDuration.MILLISECONDS);
     }
 
     public GeneralCipheringKeyType getGeneralCipheringKeyType() {
@@ -346,5 +349,14 @@ public class DlmsProperties implements DlmsSessionProperties {
     @Override
     public boolean isGeneralSigning() {
         return false;
+    }
+
+    /**
+     * By default, for all protocols, a timeout means that the available connection to the DLMS device is broken and can no longer be used,
+     * not even for other physical slave devices that share the same connection.
+     */
+    @Override
+    public boolean timeoutMeansBrokenConnection() {
+        return true;
     }
 }

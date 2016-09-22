@@ -41,7 +41,7 @@ public class RetryHandler {
 		nrOfRetries++;
 		if (nrOfRetries >= maxRetries) {
 			StringBuffer sb = new StringBuffer();
-			sb.append("Exceeded maximum number of retries: [");
+			sb.append("Exceeded maximum number of tries: [");
 			sb.append(nrOfRetries);
 			sb.append("/");
 			sb.append(maxRetries);

@@ -11,6 +11,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.axrdencoding.util.AXDRTime;
 import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedRegister;
@@ -42,6 +43,8 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
     public static final ObisCode ClockObisCode = ObisCode.fromString("0.0.1.0.0.255");
     public static final ObisCode EndOfBillingPeriod1SchedulerObisCode = ObisCode.fromString("0.0.15.0.0.255");
     public static final ObisCode BillingProfileObisCode = ObisCode.fromString("0.0.98.1.0.255");
+    private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
+    private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
 
     private AM540PLCRegisterMapper plcRegisterMapper;
 
@@ -59,6 +62,9 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
 
             if (obisCode.equals(G3NetworkManagement.getDefaultObisCode())) {
                 final CollectedRegister incompatibleRegister = createIncompatibleRegister(register, "Register with obiscode " + obisCode + " cannot be read out, use the path request message for this.");
+                collectedRegisters.add(incompatibleRegister);
+            } else if (register.getObisCode().equals(MULTICAST_METER_PROGRESS)) {
+                final CollectedRegister incompatibleRegister = createIncompatibleRegister(register, "Register with obiscode " + register.getObisCode() + " cannot be read out, use the 'read DC multicast progress' message on the Beacon protocol for this.");
                 collectedRegisters.add(incompatibleRegister);
             } else if (getPLCRegisterMapper().getG3Mapping(obisCode) != null) {
                 try {

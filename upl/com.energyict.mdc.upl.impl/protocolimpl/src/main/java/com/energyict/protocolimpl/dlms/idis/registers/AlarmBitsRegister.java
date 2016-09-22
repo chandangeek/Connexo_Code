@@ -41,7 +41,7 @@ public class AlarmBitsRegister {
     }
 
     public RegisterValue getRegisterValue() {
-        return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, getAlarmDescription(value));
+        return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date(), null, new Date(), new Date(), 0, getAlarmDescription(value));
     }
 
     private String getAlarmDescription(long value) {

@@ -65,11 +65,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
 
     @Override
     public Date getTime() {
-        try {
-            return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
-        } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
-        }
+        return getMeterInfo().getClock();
     }
 
     @Override
@@ -245,7 +241,11 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
      */
     protected ComposedMeterInfo getMeterInfo() {
         if (meterInfo == null) {
-            meterInfo = new ComposedMeterInfo(getDlmsSession(), getDlmsSessionProperties().isBulkRequest());
+            meterInfo = new ComposedMeterInfo(getDlmsSession(),
+                    getDlmsSessionProperties().isBulkRequest(),
+                    getDlmsSessionProperties().getRoundTripCorrection(),
+                    getDlmsSessionProperties().getRetries()
+            );
         }
         return meterInfo;
     }
@@ -352,5 +352,9 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
 
     public OfflineDevice getOfflineDevice() {
         return offlineDevice;
+    }
+
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return true;
     }
 }

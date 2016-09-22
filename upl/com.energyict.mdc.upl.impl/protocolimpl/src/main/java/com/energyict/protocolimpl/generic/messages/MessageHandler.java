@@ -788,6 +788,7 @@ public class MessageHandler extends DefaultHandler {
 
     private void handleResetMBusClient(Attributes attrbs) {
         this.mbusSerialNumber = attrbs.getValue(RtuMessageConstant.MBUS_SERIAL_NUMBER);
+        this.mbusChannelToInstall = attrbs.getValue(RtuMessageConstant.MBUS_INSTALL_CHANNEL);
     }
 
     public String getMbusSerialNumber() {

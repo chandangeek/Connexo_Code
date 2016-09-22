@@ -47,7 +47,7 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
 
     @Override
     public String getVersion() {
-        return "$Date: 2013-05-28 12:16:55 +0200 (di, 28 mei 2013) $";
+        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
     }
 
     @Override
@@ -90,6 +90,11 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
 
     protected Object getProperty(String propertyName) {
         return this.properties.getProperty(propertyName);
+    }
+
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
     }
 }
 

@@ -35,6 +35,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
     public static final String PROPERTY_IGNORE_DST_STATUS_CODE = "IgnoreDstStatusCode";
     public static final boolean DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = true;
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = true;
+    public static final String POLLING_DELAY = "PollingDelay";
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 
     @Override
@@ -65,8 +66,13 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
                 this.checkNumberOfBlocksDuringFirmwareResumePropertySpec(),
                 this.lastSeenDatePropertySpec(),
                 this.useEquipmentIdentifierAsSerialNumberPropertySpec(),
-                this.ignoreDstStatusCode()
+                this.ignoreDstStatusCode(),
+                this.pollingDelayPropertySpec()
         );
+    }
+
+    private PropertySpec pollingDelayPropertySpec() {
+        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(POLLING_DELAY, new TimeDuration(0));
     }
 
     private PropertySpec mirrorLogicalDeviceIdPropertySpec() {

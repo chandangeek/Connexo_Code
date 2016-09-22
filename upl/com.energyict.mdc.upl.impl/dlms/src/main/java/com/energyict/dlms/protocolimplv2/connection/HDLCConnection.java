@@ -1,5 +1,8 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ServerComChannel;
+
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.HDLC2Connection;
@@ -8,9 +11,8 @@ import com.energyict.dlms.ReceiveBuffer;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
@@ -118,7 +120,7 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
         try {
             super.connectMAC();
         } catch (DataAccessResultException | DLMSConnectionException e) {
-            throw ConnectionCommunicationException.protocolConnectFailed(e);
+            throw CommunicationException.protocolConnectFailed(e);
         } catch (IOException e) {
             throw ConnectionCommunicationException.numberOfRetriesReached(e, getMaxTries());
         }

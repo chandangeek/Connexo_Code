@@ -44,7 +44,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
 
     public Beacon3100SecurityProvider(TypedProperties properties, int authenticationDeviceAccessLevel, int securitySuite) {
         super(properties, authenticationDeviceAccessLevel);
-        setRespondingFrameCounterHandling(new DSMR40RespondingFrameCounterHandler());
+        setRespondingFrameCounterHandling(new G3RespondingFrameCounterHandler(DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER));
         this.securitySuite = securitySuite;
     }
 

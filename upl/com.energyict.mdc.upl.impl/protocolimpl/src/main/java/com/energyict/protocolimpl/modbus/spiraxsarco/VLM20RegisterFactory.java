@@ -57,7 +57,7 @@ public class VLM20RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new InputRegister(27, 2, ObisCode.fromString("1.0.0.6.5.255"), Unit.get(BaseUnit.HERTZ), "Filter setting").setParser(FLOAT));
 
         //The following registers are available with the energy meter firmware:
-        getRegisters().add(new InputRegister(527, 2, ObisCode.fromString("7.1.96.5.1.255"), "Totalizer #2").setParser(FLOAT));
+        getRegisters().add(new InputRegister(527, 2, ObisCode.fromString("7.1.96.5.1.255"), "Totalizer #2").setParser(UNSIGNED_LONG));
         getRegisters().add(new InputRegister(2043, 6, ObisCode.fromString("7.1.96.5.0.255"), "Totalizer #2 units").setParser(STRING));
         getRegisters().add(new InputRegister(3, 2, ObisCode.fromString("7.1.41.0.1.255"), "Temperature #2").setParser(FLOAT));
         getRegisters().add(new InputRegister(11, 2, ObisCode.fromString("7.0.31.0.1.255"), "Energy flow").setParser(FLOAT));

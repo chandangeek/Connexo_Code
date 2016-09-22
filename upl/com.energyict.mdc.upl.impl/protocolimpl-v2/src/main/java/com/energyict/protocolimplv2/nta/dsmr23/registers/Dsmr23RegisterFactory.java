@@ -103,9 +103,17 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                             AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
                             eventTime = attribute.getOctetString().getDateTime(protocol.getDlmsSession().getTimeZone()).getValue().getTime();
                         }
-                        rv = new RegisterValue(register,
-                                new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                        su.getEisUnit()), eventTime);
+                        ComposedRegister composedRegister = this.composedRegisterMap.get(register);
+                        DLMSAttribute attr = composedRegister.getRegisterValueAttribute();
+                        AbstractDataType abstractDataType = registerComposedCosemObject.getAttribute(attr);
+                        if (abstractDataType.isOctetString()){
+                            String text = abstractDataType.getOctetString().stringValue();
+                            rv = new RegisterValue(register, null, eventTime, null, null, new Date(), 0, text );
+                        } else {
+                            BigDecimal amount = abstractDataType.toBigDecimal();
+                            Quantity quantity = new Quantity(amount, su.getEisUnit());
+                            rv = new RegisterValue(register, quantity, eventTime);
+                        }
                     } else {
                         this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit.");
                     }

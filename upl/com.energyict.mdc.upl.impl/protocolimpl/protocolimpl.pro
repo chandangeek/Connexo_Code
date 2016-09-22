@@ -114,6 +114,7 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MbusMessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler
+-keepnames class com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler
 -keep public class com.energyict.protocolimpl.dlms.common.NTASecurityProvider {
 	public *;
 	protected *;
@@ -314,6 +315,8 @@
 
 -keepnames class com.energyict.protocolimpl.sctm.fcl.FCL
 
+-keepnames class com.energyict.protocolimpl.migration.DummyProtocol
+
 -keepnames class com.energyict.protocolimpl.sctm.faf.FAF10
 
 -keepnames class com.energyict.protocolimpl.iec1107.enermete60x.EnermetE60X
@@ -361,6 +364,8 @@
 -keepnames class com.energyict.protocolimpl.edf.trimaran.Trimaran
 
 -keepnames class com.energyict.protocolimpl.landisgyr.maxsys2510.MaxSys
+
+-keepnames class com.elster.us.protocolimpl.landisgyr.quad4.Quad4
 
 -keepnames class com.energyict.protocolimpl.powermeasurement.ion.Ion
 
@@ -416,7 +421,25 @@
 
 -keep public class com.energyict.protocolimpl.mbus.core.* {
 	public *;
+	protected *;
 }
+-keep public class com.energyict.protocolimpl.modbus.core.* {
+    public *;
+    protected *;
+}
+-keep public class com.energyict.protocolimpl.mbus.core.connection.* {
+    public *;
+    protected *;
+}
+-keep public class com.energyict.protocolimpl.modbus.core.functioncode.* {
+    public *;
+    protected *;
+}
+-keep public class com.energyict.protocolimpl.modbus.core.discover.* {
+    public *;
+    protected *;
+}
+
 
 -keep public class com.energyict.protocolimpl.dlms.* {
 	public *;
@@ -719,6 +742,7 @@
 -keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540MbusControlLog { public *; }
 
 -keepnames class com.energyict.protocolimpl.modbus.schneider.powerlogic.PM5560
+-keepnames class com.energyict.protocolimpl.modbus.schneider.powerlogic.PM5561
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.E35C
 
 -keepnames class com.energyict.protocolimpl.modbus.emco.FP93B

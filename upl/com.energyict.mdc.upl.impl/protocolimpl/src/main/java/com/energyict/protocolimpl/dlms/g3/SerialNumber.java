@@ -78,7 +78,7 @@ public class SerialNumber {
             sb.append(rawByte & 0x0F);
         }
 
-        final String euridisADS = sb.toString();
+        final String euridisADS = sb.toString().trim();
 
         return new SerialNumber(manufacturerIdentifier, numberOfPhases, euridisADS);
     }

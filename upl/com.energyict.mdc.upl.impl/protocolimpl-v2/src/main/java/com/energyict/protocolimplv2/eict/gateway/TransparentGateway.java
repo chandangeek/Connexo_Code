@@ -35,7 +35,7 @@ public class TransparentGateway extends AbstractGateway {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT transparent gateway";
+        return "Generic transparent gateway";
     }
 
     @Override

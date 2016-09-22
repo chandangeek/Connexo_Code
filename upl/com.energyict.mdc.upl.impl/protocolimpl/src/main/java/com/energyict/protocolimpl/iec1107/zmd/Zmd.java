@@ -228,6 +228,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         result.add("ExtendedLogging");
         result.add("IgnoreSerialNumberCheck");
         result.add("Software7E1");
+        result.add("ProfileInterval");
         return result;
     }
 

@@ -39,7 +39,7 @@ public class DateTime {
      *
      * @return the meter calendar
      */
-    protected Calendar getMeterCalender() {
+    public Calendar getMeterCalender() {
         return this.meterCalendar;
     }
 

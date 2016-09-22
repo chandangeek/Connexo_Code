@@ -256,9 +256,9 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
 
         final NetworkManagement networkManagement = this.session.getCosemObjectFactory().getNetworkManagement();
         Structure structure = new Structure();
-        structure.addDataType(new Unsigned32(discoverDuration));
-        structure.addDataType(new Unsigned8(discoverInterval));
-        structure.addDataType(new Unsigned32(repeaterCallInterval));
+        structure.addDataType(new Unsigned8(discoverDuration));
+        structure.addDataType(new Unsigned16(discoverInterval));
+        structure.addDataType(new Unsigned16(repeaterCallInterval));
         structure.addDataType(new Unsigned16(repeaterCallThreshold));
         structure.addDataType(new Unsigned8(repeaterCallTimeslots));
 

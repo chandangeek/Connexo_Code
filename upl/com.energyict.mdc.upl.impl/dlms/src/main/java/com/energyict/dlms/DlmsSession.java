@@ -39,6 +39,7 @@ public class DlmsSession implements ProtocolLink {
     private TimeZone timeZone;
     private InputStream in;
     private OutputStream out;
+    private boolean useLegacyHDLCConnection = false;
 
     /**
      * @param in
@@ -203,18 +204,30 @@ public class DlmsSession implements ProtocolLink {
         switch (getProperties().getConnectionMode()) {
             case HDLC:
                 try {
-                    transportConnection = new HDLC2Connection(
-                            in, out,
-                            getProperties().getTimeout(),
-                            getProperties().getForcedDelay(),
-                            getProperties().getRetries(),
-                            getProperties().getClientMacAddress(),
-                            getProperties().getLowerHDLCAddress(),
-                            getProperties().getUpperHDLCAddress(),
-                            getProperties().getAddressingMode(),
-                            getProperties().getInformationFieldSize(),
-                            5
-                    );
+                    if (isUseLegacyHDLCConnection()) {
+                        transportConnection = new HDLCConnection(in, out,
+                                getProperties().getTimeout(),
+                                getProperties().getForcedDelay(),
+                                getProperties().getRetries(),
+                                getProperties().getClientMacAddress(),
+                                getProperties().getLowerHDLCAddress(),
+                                getProperties().getUpperHDLCAddress(),
+                                getProperties().getAddressingMode());
+                    } else {
+                        transportConnection = new HDLC2Connection(
+                                in, out,
+                                getProperties().getTimeout(),
+                                getProperties().getForcedDelay(),
+                                getProperties().getRetries(),
+                                getProperties().getClientMacAddress(),
+                                getProperties().getLowerHDLCAddress(),
+                                getProperties().getUpperHDLCAddress(),
+                                getProperties().getAddressingMode(),
+                                getProperties().getInformationFieldSize(),
+                                5
+                        );
+                    }
+
                 } catch (DLMSConnectionException e) {
                     throw new NestedIOException(e);
                 }
@@ -295,10 +308,23 @@ public class DlmsSession implements ProtocolLink {
      */
     protected ApplicationServiceObject buildAso() {
         if (getProperties().isNtaSimulationTool()) {
-            return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null, null);
+            return buildAso(getProperties().getSerialNumber());
         } else {
             return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId());
         }
+    }
+
+    /**
+     * Build a new ApplicationServiceObject using the DLMSProperties, specific for a calledSystemTitle
+     * This one is used mainly in 2 cases:
+     *    - when using an NTA Simulator (from the calledSystemTitle the simulator will build-up the meter with that serial number
+     *    - when calling a Beacon and invoing get_frame_counter secure method
+     *
+     * @param calledSystemTitle
+     * @return
+     */
+    protected ApplicationServiceObject buildAso(String calledSystemTitle){
+        return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), calledSystemTitle.getBytes(), null, null);
     }
 
     /**
@@ -415,5 +441,13 @@ public class DlmsSession implements ProtocolLink {
      */
     public void updateTimeZone(final TimeZone timeZone) {
         this.timeZone = timeZone;
+    }
+
+    public boolean isUseLegacyHDLCConnection() {
+        return useLegacyHDLCConnection;
+    }
+
+    public void setUseLegacyHDLCConnection(boolean useLegacyHDLCConnection) {
+        this.useLegacyHDLCConnection = useLegacyHDLCConnection;
     }
 }

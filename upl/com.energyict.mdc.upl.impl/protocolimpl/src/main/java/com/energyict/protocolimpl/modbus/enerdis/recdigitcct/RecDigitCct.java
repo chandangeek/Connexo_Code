@@ -5,6 +5,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocolimpl.base.ProfileLimiter;
 import com.energyict.protocolimpl.iec1107.Channel;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
@@ -30,6 +31,7 @@ public class RecDigitCct extends Modbus {
     /* Property Keys */
     private final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
     private final static String PK_CHANNEL_MAP = "ChannelMap";
+    private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
     
     /* Property Defaults */
     private final static String PD_CHANNEL_MAP = "1:1:1:1:1:1:1:1";
@@ -72,7 +74,8 @@ public class RecDigitCct extends Modbus {
     
     private int profileInterval = -1;
     private int nrChannels = -1;
-    
+    private int limitMaxNrOfDays;
+
     public RecDigitCct() { }
     
     
@@ -96,6 +99,8 @@ public class RecDigitCct extends Modbus {
                 "to " + channelMap.getNrOfChannels();
             throw new InvalidPropertyException( msg );
         }
+
+        this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
         
     }
     
@@ -104,107 +109,118 @@ public class RecDigitCct extends Modbus {
     }
     
     protected List doTheGetOptionalKeys() {
-    	return new ArrayList();
+        List result = new ArrayList();
+        result.add(PR_LIMIT_MAX_NR_OF_DAYS);
+        return result;
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2015-09-08 10:39:36 +0200 (Tue, 08 Sep 2015) $";
+        return "$Date: 2016-06-03 12:47:33 +0300 (Fri, 03 Jun 2016)$";
     }
     
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
-    
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) 
-    throws IOException, UnsupportedException {
-	
-		this.interval   = this.getProfileInterval();
-		this.rFactory   = this.getRecFactory();
-	
-	    for (int i = 0; i < channelMap.getNrOfChannels(); i++) {
-	    	
-	    	Channel channel = channelMap.getChannel(i);
-	    	if( ! "0".equals( channel.getRegister() ) ){
-		    	memChannel[i].initMemory(i);
-		    	searchPointer[i] = getPointer(i);
-		    	
-		    	if ( searchPointer[i] == 43690 ){
-		    		String newChannelmap = "";
-		    		Channel chan;
-		    		for( int j = 0; j < channelMap.getNrOfChannels(); j++){
-		    			chan = channelMap.getChannel(j);
-		    			if (i == j) {
-							newChannelmap = newChannelmap + "0";
-						} else {
-							newChannelmap = newChannelmap + chan.getRegister();
-						}
-		    			
-		    			newChannelmap = newChannelmap + ":";
-		    		}
-		    		newChannelmap = newChannelmap.substring(0, newChannelmap.length()-1);
-		    		channelMap = new ChannelMap(newChannelmap);
-		    	}
-	    	}
-		}
-        
-	    
-	    ProfileData profileData = new ProfileData();
-	    profileData.setChannelInfos(newChannelInfo());
-	    
-    	ByteArray dataArray[] = { new ByteArray(), new ByteArray(), new ByteArray(), new ByteArray(),
-    			new ByteArray(), new ByteArray(), new ByteArray(), new ByteArray() };
-    	
+
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+        return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
+    }
+
+    private ProfileData getProfileWithLimiter(ProfileLimiter limiter, boolean includeEvents) throws IOException {
+        Date from = limiter.getFromDate();
+        Date to = limiter.getToDate();
+
+        if (to.before(from)) {
+            return new ProfileData();
+        }
+
+        this.interval   = this.getProfileInterval();
+        this.rFactory   = this.getRecFactory();
+
+        for (int i = 0; i < channelMap.getNrOfChannels(); i++) {
+
+            Channel channel = channelMap.getChannel(i);
+            if( ! "0".equals( channel.getRegister() ) ){
+                memChannel[i].initMemory(i);
+                searchPointer[i] = getPointer(i);
+
+                if ( searchPointer[i] == 43690 ){
+                    String newChannelmap = "";
+                    Channel chan;
+                    for( int j = 0; j < channelMap.getNrOfChannels(); j++){
+                        chan = channelMap.getChannel(j);
+                        if (i == j) {
+                            newChannelmap = newChannelmap + "0";
+                        } else {
+                            newChannelmap = newChannelmap + chan.getRegister();
+                        }
+
+                        newChannelmap = newChannelmap + ":";
+                    }
+                    newChannelmap = newChannelmap.substring(0, newChannelmap.length()-1);
+                    channelMap = new ChannelMap(newChannelmap);
+                }
+            }
+        }
+
+
+        ProfileData profileData = new ProfileData();
+        profileData.setChannelInfos(newChannelInfo());
+
+        ByteArray dataArray[] = { new ByteArray(), new ByteArray(), new ByteArray(), new ByteArray(),
+                new ByteArray(), new ByteArray(), new ByteArray(), new ByteArray() };
+
         IntervalData currentId[] = null;
-    
+
         calendar = Calendar.getInstance( gettimeZone() );
-    	currentTime = Calendar.getInstance( gettimeZone() );
-        
+        currentTime = Calendar.getInstance( gettimeZone() );
+
         if( to != null ) {
-			calendar.setTime( round( to ) );
-		} else {
-			calendar.setTime( round( new Date() ) );
-		}
-        
-		while( currentTime.getTime().after(from) & GO ){
-			
-		    for ( int i = 0; i < channelMap.getNrOfChannels(); i++ ){
-		    	
-		    	Channel channel = channelMap.getChannel(i);
-		    	if( (! "0".equals( channel.getRegister()) && (searchPointer[i] != 43690) ) ){
-			    	dataArray[i] 	= memChannel[i].read(searchPointer[i], READ_STEP);  
-			    	
-			    	searchPointer[i] = searchPointer[i] - ( READ_STEP/2 );   
-				    if ( searchPointer[i] < -2 ) {
-						searchPointer[i] = searchPointer[i] + (VirtualMemory.MEMORY_SIZE) ;
-					}
-		    	} else {
-					dataArray[i] = null;
-				}
-			    
-		    }
-		    
-    		currentId = parse(dataArray);    	
-			
-			if ( ( tempPointer >= 2 ) & ( flagState == 0 ) ){
-				addState = 1;
-			}
-		    
-		    if ( !currentTime.getTime().after(from) ) {
-				addState = 1;
-			}
-            
-		    while( tempPointer > (0 + ( (GO)?1:0 ) + ( !currentTime.getTime().after(from)?-1:0 ) ) ){
-        		
-		    	profileData.addInterval( currentId[0] );
-		    	currentId = intervalShift(currentId);     
-		    }
-		    addState = 0;        			   
-		}
-	    	
-		profileData = dubbelCheck(profileData);
-		
-	    return profileData;
-	}
+            calendar.setTime( round( to ) );
+        } else {
+            calendar.setTime( round( new Date() ) );
+        }
+
+        while( currentTime.getTime().after(from) & GO ){
+
+            for ( int i = 0; i < channelMap.getNrOfChannels(); i++ ){
+
+                Channel channel = channelMap.getChannel(i);
+                if( (! "0".equals( channel.getRegister()) && (searchPointer[i] != 43690) ) ){
+                    dataArray[i] 	= memChannel[i].read(searchPointer[i], READ_STEP);
+
+                    searchPointer[i] = searchPointer[i] - ( READ_STEP/2 );
+                    if ( searchPointer[i] < -2 ) {
+                        searchPointer[i] = searchPointer[i] + (VirtualMemory.MEMORY_SIZE) ;
+                    }
+                } else {
+                    dataArray[i] = null;
+                }
+
+            }
+
+            currentId = parse(dataArray);
+
+            if ( ( tempPointer >= 2 ) & ( flagState == 0 ) ){
+                addState = 1;
+            }
+
+            if ( !currentTime.getTime().after(from) ) {
+                addState = 1;
+            }
+
+            while( tempPointer > (0 + ( (GO)?1:0 ) + ( !currentTime.getTime().after(from)?-1:0 ) ) ){
+
+                profileData.addInterval( currentId[0] );
+                currentId = intervalShift(currentId);
+            }
+            addState = 0;
+        }
+
+        profileData = dubbelCheck(profileData);
+
+        return profileData;
+    }
 
     private ProfileData dubbelCheck(ProfileData profileData) {
 		
@@ -233,9 +249,7 @@ public class RecDigitCct extends Modbus {
     			}
     		}
     		
-    		if (debug) {
-				System.out.println("Next intervalTime: " + profileData.getIntervalData(i).getEndTime() );
-			}
+    	    getLogger().fine("Next intervalTime: " + profileData.getIntervalData(i).getEndTime());
     		
     	}
     	
@@ -654,7 +668,10 @@ public class RecDigitCct extends Modbus {
     }
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;
-    }    
-    
+    }
+
+    public int getLimitMaxNrOfDays() {
+        return limitMaxNrOfDays;
+    }
 }
 

@@ -117,7 +117,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                     rv = convertCustomAbstractObjectsToRegisterValues(register, registerComposedCosemObject.getAttribute(this.registerMap.get(register)));
                 }
             } catch (IOException e) {
-                this.protocol.getLogger().log(Level.WARNING, "Failed to fetch register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "]");
+                this.protocol.getLogger().log(Level.WARNING, "Failed to fetch register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "]" + e.getMessage());
             } catch (IndexOutOfBoundsException e) {
                 this.protocol.getLogger().log(Level.SEVERE, "Parsing error while fetch register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "]");
             }

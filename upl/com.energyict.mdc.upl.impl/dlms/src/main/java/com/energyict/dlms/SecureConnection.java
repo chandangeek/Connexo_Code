@@ -109,7 +109,10 @@ public class SecureConnection implements DLMSConnection {
                 return securedResponse;
             } else {
                 // check if the response tag is know and decrypt the data if necessary
-                if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
+                if (securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG] == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
+                    //Return any errors as-is
+                    return securedResponse;
+                } else if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
                     // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
                     // Strip the 3 leading bytes before encrypting
                     final byte[] decryptedResponse;
@@ -174,7 +177,10 @@ public class SecureConnection implements DLMSConnection {
                 aso.getSecurityContext().incFrameCounter();
 
                 // check if the response tag is know and decrypt the data if necessary
-                if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
+                if (securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG] == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
+                    //Return any errors as-is
+                    return securedResponse;
+                } else if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
                     // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
                     // Strip the 3 leading bytes before encrypting
                     final byte[] decryptedResponse;

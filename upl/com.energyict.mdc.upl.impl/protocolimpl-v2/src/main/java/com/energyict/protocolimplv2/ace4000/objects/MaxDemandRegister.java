@@ -20,7 +20,6 @@ public class MaxDemandRegister extends AbstractActarisObject {
     }
 
     private int peakNumber = 1;
-    private MeterReadingData mdr = new MeterReadingData();
 
     protected String prepareXML() {
         return "";             //No request exists for md registers
@@ -64,7 +63,7 @@ public class MaxDemandRegister extends AbstractActarisObject {
             Unit unit = activeOrReactive == 0 ? Unit.get(BaseUnit.WATT) : Unit.get(BaseUnit.VOLTAMPEREREACTIVE);
             RegisterValue value = new RegisterValue(obisCode, new Quantity(maxDemands.get(i), unit), new Date(), timeStamps.get(i));
             if (value.getToTime().getTime() != 0) {
-                mdr.add(value);
+                mrd.add(value);
             }
             rate++;
         }
@@ -78,7 +77,7 @@ public class MaxDemandRegister extends AbstractActarisObject {
         return String.valueOf(6 + ((peakNumber - 1) * 10));
     }
 
-    public MeterReadingData getMdr() {
-        return mdr;
+    public MeterReadingData getMrd() {
+        return mrd;
     }
 }

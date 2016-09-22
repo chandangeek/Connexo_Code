@@ -8,6 +8,7 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 
 import java.io.IOException;
@@ -17,19 +18,17 @@ import java.util.*;
 public class IDISStoredValues implements StoredValues {
 
     public static final ObisCode OBISCODE_BILLING_PROFILE = ObisCode.fromString("0.0.98.1.0.255");
-
+    protected final AM500 am500;
     private final CosemObjectFactory cosemObjectFactory;
-    private final AM500 am500;
-
+    protected DataContainer buffer = null;
     private ProfileGeneric profileGeneric = null;
-    private DataContainer buffer = null;
 
     public IDISStoredValues(AM500 am500) {
         this.cosemObjectFactory = am500.getDlmsSession().getCosemObjectFactory();
         this.am500 = am500;
     }
 
-    private CosemObjectFactory getCosemObjectFactory() {
+    protected CosemObjectFactory getCosemObjectFactory() {
         return cosemObjectFactory;
     }
 
@@ -41,9 +40,9 @@ public class IDISStoredValues implements StoredValues {
         return getProfileData().getIntervalData(billingPoint).getEndTime();
     }
 
-    private DataContainer getFullBuffer() throws IOException {
+    protected DataContainer getFullBuffer() throws IOException {
         if (buffer == null) {
-            buffer = profileGeneric.getBuffer();
+            buffer = getProfileGeneric().getBuffer();
         }
         return buffer;
     }
@@ -62,7 +61,7 @@ public class IDISStoredValues implements StoredValues {
         return new HistoricalValue(cosemValue, getBillingPointTimeDate(getReversedBillingPoint(billingPoint)), new Date(), 0);
     }
 
-    private int getReversedBillingPoint(int billingPoint) throws IOException {
+    protected int getReversedBillingPoint(int billingPoint) throws IOException {
         return getBillingPointCounter() - billingPoint - 1;
     }
 
@@ -95,11 +94,11 @@ public class IDISStoredValues implements StoredValues {
     }
 
     private Unit getUnit(ObisCode baseObisCode) throws IOException {
-        Map<ObisCode, Unit> unitMap = am500.getIDISProfileDataReader().readUnits(Arrays.asList(baseObisCode));
+        Map<ObisCode, Unit> unitMap = am500.getIDISProfileDataReader().readUnits(null, Arrays.asList(baseObisCode));
         return unitMap.get(baseObisCode);
     }
 
-    private int checkIfObisCodeIsCaptured(ObisCode obisCode) throws IOException {
+    protected int checkIfObisCodeIsCaptured(ObisCode obisCode) throws IOException {
         int channelIndex = 0;
         List<CapturedObject> captureObjects = getProfileGeneric().getCaptureObjects();
         for (CapturedObject capturedObject : captureObjects) {
@@ -128,5 +127,9 @@ public class IDISStoredValues implements StoredValues {
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, am500.getDlmsSession().getProperties().getRetries()+1);
         }
+    }
+
+    protected AbstractDlmsProtocol getProtocol(){
+        return am500;
     }
 }

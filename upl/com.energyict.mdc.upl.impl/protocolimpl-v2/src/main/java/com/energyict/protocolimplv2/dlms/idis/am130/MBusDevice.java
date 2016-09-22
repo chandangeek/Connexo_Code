@@ -22,7 +22,7 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "AM130 DLMS (IDIS P2) MBus slave V2";
+        return "Elster AM130 DLMS (IDIS P2) MBus slave";
     }
 
     @Override

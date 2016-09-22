@@ -8,7 +8,9 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.exceptions.CommunicationException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,17 +56,62 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     public DiscoverResultType doDiscovery() {
         getEventPushNotificationParser().readAndParseInboundFrame();
         collectedLogBook = getEventPushNotificationParser().getCollectedLogBook();
-
-        context.logOnAllLoggerHandlers("Received inbound event notification. Message: '" + getMeterProtocolEvent().getMessage() + "', protocol code: '" + getMeterProtocolEvent().getProtocolCode() + "'", Level.INFO);
-
+        context.logOnAllLoggerHandlers(getLoggingMessage(), Level.INFO);
         if (isJoinAttempt()) {
             G3GatewayPSKProvider pskProvider = getPskProvider();
             String joiningMacAddress = getMeterProtocolEvent().getMessage();
             pskProvider.addJoiningMacAddress(joiningMacAddress);
-            pskProvider.providePSK(joiningMacAddress, getEventPushNotificationParser().getSecurityPropertySet());
+            try {
+                doProvide(pskProvider, joiningMacAddress);
+            } catch (CommunicationException e) {
+                pskProvider.provideError(e.getMessage());
+            }
+        }
+        return DiscoverResultType.DATA;
+    }
+
+    protected void doProvide(G3GatewayPSKProvider pskProvider, String joiningMacAddress) throws CommunicationException {
+        DeviceProtocolSecurityPropertySet securityPropertySet = getEventPushNotificationParser().getSecurityPropertySet();
+        Boolean onHold = getEventPushNotificationParser().getInboundComTaskOnHold();
+        if (onHold) {
+            pskProvider.provideError(getErrorMessage());
+        } else {
+            pskProvider.providePSK(joiningMacAddress, securityPropertySet);
+        }
+    }
+
+    protected String getLoggingMessage() {
+        StringBuilder logMessage = new StringBuilder();
+
+        logMessage.append("Received inbound event notification from [");
+        if (getDeviceIdentifier() != null) {
+            logMessage.append(getDeviceIdentifier().toString());
+        } else {
+            logMessage.append("unknown");
+        }
+        logMessage.append("].  Message: '");
+        if (getMeterProtocolEvent() != null) {
+            logMessage.append(getMeterProtocolEvent().getMessage());
+            logMessage.append("', protocol code: '");
+            logMessage.append(getMeterProtocolEvent().getProtocolCode());
+            logMessage.append("'");
+        } else {
+            logMessage.append("NULL.'");
         }
 
-        return DiscoverResultType.DATA;
+        return logMessage.toString();
+    }
+
+    protected String getErrorMessage() {
+        StringBuilder errMessage = new StringBuilder();
+        errMessage.append("Inbound comm task is configured for [");
+        if (getDeviceIdentifier() != null) {
+            errMessage.append(getDeviceIdentifier().toString());
+        } else {
+            errMessage.append("unknown");
+        }
+        errMessage.append("], but it is set on hold");
+        return errMessage.toString();
     }
 
     private boolean isJoinAttempt() {
@@ -108,7 +155,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-16 09:12:54 +0100 (Wed, 16 Mar 2016)$";
+        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
     }
 
     @Override
@@ -124,5 +171,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     @Override
     public List<PropertySpec> getOptionalProperties() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
     }
 }

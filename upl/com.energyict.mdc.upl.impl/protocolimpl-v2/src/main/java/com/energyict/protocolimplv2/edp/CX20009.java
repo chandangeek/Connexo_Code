@@ -7,6 +7,8 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
@@ -115,7 +117,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-01-25 15:02:12 +0100 (Mon, 25 Jan 2016)$";
+        return "$Date: 2016-05-09 09:38:14 +0300 (Mon, 09 May 2016)$";
     }
 
     /**
@@ -127,6 +129,8 @@ public class CX20009 extends AbstractDlmsProtocol {
         result.add(new OutboundTcpIpConnectionType());
         result.add(new SioSerialConnectionType());
         result.add(new RxTxSerialConnectionType());
+        result.add(new SioAtModemConnectionType());
+        result.add(new RxTxAtModemConnectionType());
         return result;
     }
 

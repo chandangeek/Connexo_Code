@@ -4,12 +4,15 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.CertificateAlias;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.*;
 import com.energyict.cpo.BusinessObject;
+import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
+import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
@@ -23,6 +26,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
@@ -32,24 +36,31 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.CodingException;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.*;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
+import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.util.function.Consumer;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -59,6 +70,8 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -75,13 +88,17 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public class Beacon3100Messaging extends AbstractMessageExecutor implements DeviceMessageSupport {
 
+    private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
+    private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
     private final static List<DeviceMessageSpec> supportedMessages;
     private static final String TEMP_DIR = "java.io.tmpdir";
-
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
-    private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
+    /**
+     * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
+     */
+    private static final Lock firmwareFileLock = new ReentrantLock();
 
     static {
         supportedMessages = new ArrayList<>();
@@ -96,8 +113,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         supportedMessages.add(PLCConfigurationDeviceMessage.PingMeter);
 
-        supportedMessages.add(FirmwareDeviceMessage.BroadcastFirmwareUpgrade);
+        // supportedMessages.add(FirmwareDeviceMessage.BroadcastFirmwareUpgrade);
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
+        supportedMessages.add(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade);
+        supportedMessages.add(FirmwareDeviceMessage.ReadMulticastProgress);
+        supportedMessages.add(FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR);
+        supportedMessages.add(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
+        supportedMessages.add(FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
 
         supportedMessages.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
         supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1);
@@ -126,7 +148,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(NetworkConnectivityMessage.SetModemWatchdogParameters2);
         supportedMessages.add(NetworkConnectivityMessage.SetPrimaryDNSAddress);
         supportedMessages.add(NetworkConnectivityMessage.SetSecondaryDNSAddress);
-        //supportedMessages.add(ConfigurationChangeDeviceMessage.EnableSSL);
+        supportedMessages.add(NetworkConnectivityMessage.EnableNetworkInterfaces);
+        supportedMessages.add(NetworkConnectivityMessage.SetHttpPort);
+        supportedMessages.add(NetworkConnectivityMessage.SetHttpsPort);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.EnableGzipCompression);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.EnableSSL);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.SetAuthenticationMechanism);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.SetMaxLoginAttempts);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.SetLockoutDuration);
         supportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
         supportedMessages.add(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS);
         supportedMessages.add(ConfigurationChangeDeviceMessage.SetDeviceName);
@@ -140,7 +169,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(FirewallConfigurationMessage.ConfigureFWWAN);
         supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1);
         supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2);
-
+        supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD);
+        supportedMessages.add(SecurityMessage.IMPORT_CLIENT_CERTIFICATE);
+        supportedMessages.add(SecurityMessage.REMOVE_CLIENT_CERTIFICATE);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
@@ -178,10 +209,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(PLCConfigurationDeviceMessage.PathRequestWithTimeout);
     }
 
-    /**
-     * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
-     */
-    private final Lock firmwareFileLock = new ReentrantLock();
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
 
@@ -257,6 +284,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 throw new ApplicationException("Certificate with alias '" + alias + "' does not exist in the key store");
             }
             return certificateEncoded;
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.DelayAfterLastBlock)
+                || propertySpec.getName().equals(DeviceMessageConstants.DelayPerBlock)
+                || propertySpec.getName().equals(DeviceMessageConstants.DelayBetweenBlockSentFast)
+                || propertySpec.getName().equals(DeviceMessageConstants.DelayBetweenBlockSentSlow)) {
+            return String.valueOf(((TimeDuration) messageAttribute).getMilliSeconds());
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
         }
@@ -271,6 +303,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
             int configId = ((BigDecimal) deviceMessage.getAttributes().get(0).getValue()).intValue();
             return MasterDataSerializer.serializeMasterDataForOneConfig(configId);
+        } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade)) {
+            return MulticastSerializer.serialize(offlineDevice, deviceMessage);
+        } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
+            return MulticastSerializer.serialize(offlineDevice, deviceMessage);
         } else {
             return "";
         }
@@ -287,7 +323,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         final String fileName = new StringBuilder("beacon-3100-firmware-").append(userFile.getId()).toString();
 
         try {
-            this.firmwareFileLock.lock();
+            firmwareFileLock.lock();
 
             final File tempFile = new File(tempDirectory, fileName);
 
@@ -355,7 +391,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
             throw new IllegalStateException("Error while writing temporary file : [" + e.getMessage() + "]", e);
         } finally {
-            this.firmwareFileLock.unlock();
+            firmwareFileLock.unlock();
         }
     }
 
@@ -395,10 +431,32 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = new BroadcastUpgrade(this).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                         upgradeFirmware(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
+                        collectedMessage = configurePartialMulticastBlockTransfer(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR)) {
+                        collectedMessage = transferSlaveFirmwareFileToDC(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
+                        collectedMessage = startMulticastBlockTransferToSlaveDevices(collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1)) {
                         changePasswordUser1(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2)) {
                         changePasswordUser2(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD)) {
+                        changeUserPassword(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetHttpPort)) {
+                        setHttpPort(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetHttpsPort)) {
+                        setHttpsPort(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.EnableGzipCompression)) {
+                        enableGzipCompression(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.EnableSSL)) {
+                        enableSSL(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetAuthenticationMechanism)) {
+                        setAuthenticationMechanism(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetMaxLoginAttempts)) {
+                        setMaxLoginAttempts(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetLockoutDuration)) {
+                        setLockoutDuration(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.EnableUplinkPing)) {
                         enableUplinkPing(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress)) {
@@ -441,6 +499,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         changeSecuritySuite(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
                         changeAuthKey(pendingMessage);
+/*                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CLIENT_CERTIFICATE)) {
+                        importClientCertificate(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.REMOVE_CLIENT_CERTIFICATE)) {
+                        removeClientCertificate(pendingMessage);*/
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
                         changeEncryptionKey(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD)) {
@@ -492,6 +554,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                             }
                         }
 
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade)) {
+                        collectedMessage = dcMulticastUpgrade(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ReadMulticastProgress)) {
+                        collectedMessage = readMulticastProgress(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfaces)) {
+                        enableNetworkInterfaces(pendingMessage);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -873,6 +941,262 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     /**
+     * Let the Beacon do a multicast firmware upgrade to a number of AM540 slave devices.
+     * https://confluence.eict.vpdc/display/G3IntBeacon3100/Meter+multicast+upgrade
+     */
+    private CollectedMessage dcMulticastUpgrade(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
+
+        String unicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastClientWPort).getDeviceMessageAttributeValue();
+        String broadcastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, BroadcastClientWPort).getDeviceMessageAttributeValue();
+        String multicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MulticastClientWPort).getDeviceMessageAttributeValue();
+        String logicalDeviceLSap = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, LogicalDeviceLSap).getDeviceMessageAttributeValue();
+        String securityLevelUnicast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelUnicast).getDeviceMessageAttributeValue();
+        String securityLevelBroadcast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelBroadcast).getDeviceMessageAttributeValue();
+        String securityPolicyBroadcast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityPolicyBroadcast).getDeviceMessageAttributeValue();
+        String delayAfterLastBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayAfterLastBlock).getDeviceMessageAttributeValue();
+        String delayPerBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayPerBlock).getDeviceMessageAttributeValue();
+        String delayBetweenBlockSentFast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentFast).getDeviceMessageAttributeValue();
+        String delayBetweenBlockSentSlow = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentSlow).getDeviceMessageAttributeValue();
+        String blocksPerCycle = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, BlocksPerCycle).getDeviceMessageAttributeValue();
+        String maxCycles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MaxCycles).getDeviceMessageAttributeValue();
+        String requestedBlockSize = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, RequestedBlockSize).getDeviceMessageAttributeValue();
+        String padLastBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, PadLastBlock).getDeviceMessageAttributeValue();
+        String useTransferredBlockStatus = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UseTransferredBlockStatus).getDeviceMessageAttributeValue();
+
+        ArrayList<MulticastProperty> multicastProperties = new ArrayList<>();
+        multicastProperties.add(new MulticastProperty("UnicastClientWPort", unicastClientWPort));
+        multicastProperties.add(new MulticastProperty("BroadcastClientWPort", broadcastClientWPort));
+        multicastProperties.add(new MulticastProperty("MulticastClientWPort", multicastClientWPort));
+        multicastProperties.add(new MulticastProperty("LogicalDeviceLSap", logicalDeviceLSap));
+        multicastProperties.add(new MulticastProperty("SecurityLevelUnicast", securityLevelUnicast));
+        multicastProperties.add(new MulticastProperty("SecurityLevelBroadcast", securityLevelBroadcast));
+        multicastProperties.add(new MulticastProperty("SecurityPolicyBroadcast", securityPolicyBroadcast));
+        multicastProperties.add(new MulticastProperty("DelayAfterLastBlock", delayAfterLastBlock));
+        multicastProperties.add(new MulticastProperty("DelayPerBlock", delayPerBlock));
+        multicastProperties.add(new MulticastProperty("DelayBetweenBlockSentFast", delayBetweenBlockSentFast));
+        multicastProperties.add(new MulticastProperty("DelayBetweenBlockSentSlow", delayBetweenBlockSentSlow));
+        multicastProperties.add(new MulticastProperty("BlocksPerCycle", blocksPerCycle));
+        multicastProperties.add(new MulticastProperty("MaxCycles", maxCycles));
+        multicastProperties.add(new MulticastProperty("RequestedBlockSize", requestedBlockSize));
+        multicastProperties.add(new MulticastProperty("PadLastBlock", padLastBlock));
+        multicastProperties.add(new MulticastProperty("UseTransferredBlockStatus", useTransferredBlockStatus));
+
+        MulticastProtocolConfiguration protocolConfiguration;
+        try {
+            final JSONObject jsonObject = new JSONObject(pendingMessage.getPreparedContext());  //This context field contains the serialized version of the protocol configuration
+            protocolConfiguration = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), MulticastProtocolConfiguration.class);
+        } catch (JSONException | IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getMessage());
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+            return collectedMessage;
+        }
+        protocolConfiguration.getMulticastProperties().addAll(multicastProperties);
+
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE);
+
+        //Write the full description of all AM540 slaves that needs to be upgraded using the DC multicast
+        it.writeMulticastProtocolConfiguration(protocolConfiguration.toStructure());
+
+        it.setUsePollingVerifyAndActivate(true);    //Poll verification
+        it.setPollingDelay(10000);
+        it.setPollingRetries(60);
+        it.setDelayBeforeSendingBlocks(5000);
+
+        try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
+            it.upgrade(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, true);
+            it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
+            it.imageActivation();
+        } catch (DataAccessResultException e) {
+            if (isTemporaryFailure(e)) {
+                getProtocol().getLogger().log(Level.INFO, "Received 'temporary failure', meaning that the multicast upgrade will start. Moving on.");
+            } else {
+                throw e;
+            }
+        }
+
+        return collectedMessage;
+    }
+
+
+
+    private CollectedMessage configurePartialMulticastBlockTransfer(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+
+        String skipStepEnable = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepEnable).getDeviceMessageAttributeValue();
+        String skipStepVerify = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepVerify).getDeviceMessageAttributeValue();
+        String skipStepActivate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepActivate).getDeviceMessageAttributeValue();
+        String unicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastClientWPort).getDeviceMessageAttributeValue();
+        String multicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MulticastClientWPort).getDeviceMessageAttributeValue();
+        String unicastFrameCounterType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastFrameCounterType).getDeviceMessageAttributeValue();
+        String timeZone = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MeterTimeZone).getDeviceMessageAttributeValue();
+        String securityLevelMulticast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelMulticast).getDeviceMessageAttributeValue();
+        String securityPolicyMulticastV0 = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityPolicyMulticastV0).getDeviceMessageAttributeValue();
+        String delayBetweenBlockSentFast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentFast).getDeviceMessageAttributeValue();
+
+        ArrayList<MulticastProperty> multicastProperties = new ArrayList<>();
+        multicastProperties.add(new MulticastProperty("SkipStepEnable", skipStepEnable));
+        multicastProperties.add(new MulticastProperty("SkipStepVerify", skipStepVerify));
+        multicastProperties.add(new MulticastProperty("SkipStepActivate", skipStepActivate));
+        multicastProperties.add(new MulticastProperty("UnicastClientWPort", unicastClientWPort));
+        multicastProperties.add(new MulticastProperty("MulticastClientWPort", multicastClientWPort));
+        multicastProperties.add(new MulticastProperty("UnicastFrameCounterType", unicastFrameCounterType));
+        multicastProperties.add(new MulticastProperty("TimeZone", timeZone));
+        multicastProperties.add(new MulticastProperty("SecurityLevelMulticast", securityLevelMulticast));
+        multicastProperties.add(new MulticastProperty("SecurityPolicyMulticastV0", securityPolicyMulticastV0));
+        multicastProperties.add(new MulticastProperty("DelayBetweenBlockSentFast", delayBetweenBlockSentFast));
+
+        MulticastProtocolConfiguration protocolConfiguration;
+        try {
+            final JSONObject jsonObject = new JSONObject(pendingMessage.getPreparedContext());  //This context field contains the serialized version of the protocol configuration
+            protocolConfiguration = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), MulticastProtocolConfiguration.class);
+        } catch (JSONException | IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getMessage());
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+            return collectedMessage;
+        }
+        protocolConfiguration.getMulticastProperties().addAll(multicastProperties);
+
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE);
+
+        //Write the full description of all AM540 slaves that needs to be upgraded using the DC multicast
+        it.writeMulticastProtocolConfiguration(protocolConfiguration.toStructure());
+
+        return collectedMessage;
+    }
+
+    private CollectedMessage transferSlaveFirmwareFileToDC(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
+
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE);
+
+        it.setUsePollingVerifyAndActivate(true);    //Poll verification
+        it.setPollingDelay(10000);
+        it.setPollingRetries(60);
+        it.setDelayBeforeSendingBlocks(5000);
+
+        try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
+            it.initializeAndTransferBlocks(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier);
+        } catch (DataAccessResultException e) {
+            if (isTemporaryFailure(e)) {
+                getProtocol().getLogger().log(Level.INFO, "Received 'temporary failure', meaning that the multicast upgrade will start. Moving on.");
+            } else {
+                throw e;
+            }
+        }
+
+        return collectedMessage;
+    }
+
+    private CollectedMessage startMulticastBlockTransferToSlaveDevices(CollectedMessage collectedMessage) throws IOException {
+
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE);
+
+        it.setUsePollingVerifyAndActivate(true);    //Poll verification
+        it.setPollingDelay(10000);
+        it.setPollingRetries(60);
+        it.setDelayBeforeSendingBlocks(5000);
+
+        try  {//by activating the image we trigger the multicast block transfer to slave devices
+            it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
+            it.imageVerification();
+            it.imageActivation();
+        } catch (DataAccessResultException e) {
+            if (isTemporaryFailure(e)) {
+                getProtocol().getLogger().log(Level.INFO, "Received 'temporary failure', meaning that the multicast upgrade will start. Moving on.");
+            } else {
+                throw e;
+            }
+        }
+
+        return collectedMessage;
+    }
+
+    /**
+     * Read out the progress of the multicast FW upgrade.
+     * This contains information on all AM540 slave devices that are currently being upgraded.
+     * <p/>
+     * Note that this information will be stored on the proper AM540 slave devices in EIServer, as register 0.3.44.0.128.255
+     */
+    private CollectedMessage readMulticastProgress(OfflineDeviceMessage pendingMessage) throws IOException {
+        Structure structure = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE).readMulticastUpgradeProgress();
+        if (structure.nrOfDataTypes() != 3) {
+            throw new ProtocolException("The structure describing the upgrade_progress attribute should contain 3 elements");
+        }
+
+        List<CollectedRegister> collectedRegisters = new ArrayList<>();
+
+        //First 2 fields of the structure describe the general progress state and will be stored as a register on the Beacon device.
+        int upgradeState = structure.getDataType(0).intValue();
+        OctetString upgradeProgressInfo = structure.getDataType(1).getOctetString();
+        String description = MulticastUpgradeState.fromValue(upgradeState).getDescription();
+        description = description + (upgradeProgressInfo == null ? "" : (". " + upgradeProgressInfo.stringValue()));
+        RegisterValue registerValue = new RegisterValue(MULTICAST_METER_PROGRESS, new Quantity(upgradeState, Unit.get(BaseUnit.UNITLESS)), null, null, new Date(), new Date(), 0, description);
+        CollectedRegister beaconRegister = createCollectedRegister(registerValue, pendingMessage);
+        collectedRegisters.add(beaconRegister);
+
+        //The third element in the structure is an array, describing the progress of each individual meter. These will be stored as a register value on the proper AM540 slave devices.
+        AbstractDataType dataType = structure.getDataType(2);
+        if (!dataType.isArray()) {
+            throw new ProtocolException("The third element in the upgrade_progress structure should be an array");
+        }
+        Array meterProgresses = dataType.getArray();
+        for (AbstractDataType meterProgress : meterProgresses) {
+            StringBuilder meterProgressDescription = new StringBuilder();
+            if (!meterProgress.isStructure() || meterProgress.getStructure().nrOfDataTypes() != 4) {
+                throw new ProtocolException("The meter_progress should be a structure of 4 elements");
+            }
+            AbstractDataType dataType1 = meterProgress.getStructure().getDataType(0);
+            if (!dataType1.isOctetString()) {
+                throw new ProtocolException("The first element in the meter_progress structure should be an octetstring");
+            }
+            AbstractDataType dataType2 = meterProgress.getStructure().getDataType(1);
+            if (!dataType2.isTypeEnum()) {
+                throw new ProtocolException("The second element in the meter_progress structure should be an enum");
+            }
+            AbstractDataType dataType3 = meterProgress.getStructure().getDataType(2);
+            if (!dataType3.isBitString()) {
+                throw new ProtocolException("The third element in the meter_progress structure should be a bitstring");
+            }
+            AbstractDataType dataType4 = meterProgress.getStructure().getDataType(3);
+            if (!dataType4.isOctetString()) {
+                throw new ProtocolException("The fourth element in the meter_progress structure should be an octetstring");
+            }
+            String macAddress = ProtocolTools.getHexStringFromBytes(dataType1.getOctetString().toByteArray(), "");
+            meterProgressDescription.append("Status: ");
+            meterProgressDescription.append(MulticastMeterState.fromValue(dataType2.intValue()).getDescription());
+            meterProgressDescription.append("\n\r ");
+
+            meterProgressDescription.append("Transferred blocks: ");
+            StringBuilder result = new StringBuilder();
+            BitSet bitSet = dataType3.getBitString().asBitSet();
+            for (int index = 0; index < bitSet.length(); index++) {
+                result.append(bitSet.get(index) ? "1" : "0");
+            }
+            meterProgressDescription.append(result.toString());
+            meterProgressDescription.append("\n\r ");
+
+            meterProgressDescription.append("Info: ");
+            meterProgressDescription.append(dataType4.getOctetString().stringValue());
+
+            CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(MULTICAST_METER_PROGRESS, new DialHomeIdDeviceIdentifier(macAddress)));
+            deviceRegister.setCollectedData(new Quantity(dataType2.intValue(), Unit.get(BaseUnit.UNITLESS)), meterProgressDescription.toString());
+            deviceRegister.setCollectedTimeStamps(new Date(), null, new Date());
+            collectedRegisters.add(deviceRegister);
+        }
+
+        CollectedMessage result = createCollectedMessageWithRegisterData(pendingMessage, collectedRegisters);
+        result.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+        return result;
+    }
+
+
+    /**
      * Trigger the preliminary protocol for a particular meter.
      *
      * @param macAddress   MAC address of the meter (hex).
@@ -1078,7 +1402,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         it.setUsePollingVerifyAndActivate(true);    //Poll verification
         it.setPollingDelay(10000);
-        it.setPollingRetries(30);
+        it.setPollingRetries(60);
         it.setDelayBeforeSendingBlocks(5000);
 
         try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
@@ -1104,6 +1428,37 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         cof.getAssociationLN().changeHLSSecret(ProtocolTools.getBytesFromHexString(hex, ""));
     }
 
+    private void enableNetworkInterfaces(OfflineDeviceMessage pendingMessage) throws IOException {
+        boolean isEthernetWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_WAN).getDeviceMessageAttributeValue());
+        boolean isEthernetLanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_LAN).getDeviceMessageAttributeValue());
+        boolean isWirelessWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.WIRELESS_WAN).getDeviceMessageAttributeValue());
+        boolean isIp6_TunnelEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.IP6_TUNNEL).getDeviceMessageAttributeValue());
+        boolean isPlc_NetworkEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PLC_NETWORK).getDeviceMessageAttributeValue());
+        boolean allInterfacesEnabled = isEthernetWanEnabled && isEthernetLanEnabled && isWirelessWanEnabled && isIp6_TunnelEnabled && isPlc_NetworkEnabled;
+
+        Array interfacesArray = new Array();
+        if (allInterfacesEnabled) {
+            interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ALL.getNetworkType()));
+        } else {
+            if (isEthernetWanEnabled) {
+                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ETHERNET_WAN.getNetworkType()));
+            }
+            if (isEthernetLanEnabled) {
+                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ETHERNET_LAN.getNetworkType()));
+            }
+            if (isWirelessWanEnabled) {
+                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.WIRELESS_WAN.getNetworkType()));
+            }
+            if (isIp6_TunnelEnabled) {
+                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.IP6_TUNNEL.getNetworkType()));
+            }
+            if (isPlc_NetworkEnabled) {
+                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.PLC_NETWORK.getNetworkType()));
+            }
+        }
+        getCosemObjectFactory().getWebPortalConfig().enableInterfaces(interfacesArray);
+    }
+
     protected void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
         String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
         String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
@@ -1112,12 +1467,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         Array encryptionKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey)));
+        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey, "")));
         encryptionKeyArray.addDataType(keyData);
         getSecuritySetup().transferGlobalKey(encryptionKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(plainHexKey));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(plainHexKey, ""));
 
         //Reset frame counter, only if a different key has been written
         if (!oldHexKey.equalsIgnoreCase(plainHexKey)) {
@@ -1136,12 +1491,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         Array authenticationKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey)));
+        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey, "")));
         authenticationKeyArray.addDataType(keyData);
         getSecuritySetup().transferGlobalKey(authenticationKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(plainHexKey));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(plainHexKey, ""));
     }
 
     private void activateAdvancedDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1277,12 +1632,19 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void changePasswordUser1(OfflineDeviceMessage pendingMessage) throws IOException {
         String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getWebPortalPasswordConfig().changeUser1Password(newPassword);
+        getCosemObjectFactory().getWebPortalConfig().changeUser1Password(newPassword);
     }
 
     private void changePasswordUser2(OfflineDeviceMessage pendingMessage) throws IOException {
         String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getWebPortalPasswordConfig().changeUser2Password(newPassword);
+        getCosemObjectFactory().getWebPortalConfig().changeUser2Password(newPassword);
+    }
+
+    private void changeUserPassword(OfflineDeviceMessage pendingMessage) throws IOException {
+        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.usernameAttributeName).getDeviceMessageAttributeValue();
+        String newPassword = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.passwordAttributeName).getDeviceMessageAttributeValue();
+
+        getCosemObjectFactory().getWebPortalConfig().changeUserPassword(userName, newPassword);
     }
 
     private void writeUplinkPingInterval(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1312,6 +1674,43 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void writeSecondaryDNSAddress(OfflineDeviceMessage pendingMessage) throws IOException {
         String address = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
         getCosemObjectFactory().getIPv4Setup().setSecondaryDNSAddress(address);
+    }
+
+    private void setHttpPort(OfflineDeviceMessage pendingMessage) throws IOException {
+        String httpPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpPortAttributeName).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getWebPortalConfig().setHttpPort(httpPort);
+    }
+
+    private void setHttpsPort(OfflineDeviceMessage pendingMessage) throws IOException {
+        String httpsPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpsPortAttributeName).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getWebPortalConfig().setHttpsPort(httpsPort);
+    }
+
+    private void setMaxLoginAttempts(OfflineDeviceMessage pendingMessage) throws IOException {
+        /*final long logAttempts = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS).getDeviceMessageAttributeValue());*/
+        String logAttempts = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getWebPortalConfig().setMaxLoginAttempts(logAttempts);
+    }
+
+    private void setLockoutDuration(OfflineDeviceMessage pendingMessage) throws IOException {
+        String duration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_LOCKOUT_DURATION).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getWebPortalConfig().setLockoutDuration(duration);
+    }
+
+    private void enableGzipCompression(OfflineDeviceMessage pendingMessage) throws IOException {
+        boolean enableGzip = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ENABLE_GZIP_COMPRESSION).getDeviceMessageAttributeValue());
+        getCosemObjectFactory().getWebPortalConfig().enableGzipCompression(enableGzip);
+    }
+
+    private void enableSSL(OfflineDeviceMessage pendingMessage) throws IOException {
+        boolean enableSSL = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.enableSSL).getDeviceMessageAttributeValue());
+        getCosemObjectFactory().getWebPortalConfig().enableSSL(enableSSL);
+    }
+
+    private void setAuthenticationMechanism(OfflineDeviceMessage pendingMessage) throws IOException {
+        String authName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM).getDeviceMessageAttributeValue();
+        int auth = AuthenticationMechanism.fromAuthName(authName);
+        getCosemObjectFactory().getWebPortalConfig().setAuthenticationMechanism(auth);
     }
 
     /**
