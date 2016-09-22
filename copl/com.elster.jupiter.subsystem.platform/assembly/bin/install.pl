@@ -151,34 +151,35 @@ sub read_config {
             chomp($row);
             if ( "$row" ne "") {
                 my @val=split('=',$row);
-                if ( "$val[0]" eq "JAVA_HOME" )         {$JAVA_HOME=$val[1];}
-                if ( "$val[0]" eq "HOST_NAME" )         {$HOST_NAME=$val[1];}
-                if ( "$val[0]" eq "ADMIN_PASSWORD" )    {$CONNEXO_ADMIN_PASSWORD=$val[1];}
-                if ( "$val[0]" eq "CONNEXO_HTTP_PORT" ) {$CONNEXO_HTTP_PORT=$val[1];}
-                if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )  {$TOMCAT_HTTP_PORT=$val[1];}
-                if ( "$val[0]" eq "SERVICE_VERSION" )   {$SERVICE_VERSION=$val[1];}
-                if ( "$val[0]" eq "INSTALL_CONNEXO" )   {$INSTALL_CONNEXO=$val[1];}
-                if ( "$val[0]" eq "UPGRADE" )           {$UPGRADE=$val[1];}
-                if ( "$val[0]" eq "UPGRADE_PATH" )      {$UPGRADE_PATH=$val[1];}
-                if ( "$val[0]" eq "INSTALL_FACTS" )     {$INSTALL_FACTS=$val[1];}
-                if ( "$val[0]" eq "INSTALL_FLOW" )      {$INSTALL_FLOW=$val[1];}
-                if ( "$val[0]" eq "INSTALL_WSO2IS" )    {$INSTALL_WSO2IS=$val[1];}
-                if ( "$val[0]" eq "ACTIVATE_SSO" )      {$ACTIVATE_SSO=$val[1];}
-                if ( "$val[0]" eq "APACHE_PATH" )       {$APACHE_PATH=$val[1];}
-                if ( "$val[0]" eq "HTTPS" )             {$HTTPS=$val[1];}
-                if ( "$val[0]" eq "jdbcUrl" )           {$jdbcUrl=$val[1];}
-                if ( "$val[0]" eq "dbUserName" )        {$dbUserName=$val[1];}
-                if ( "$val[0]" eq "dbPassword" )        {$dbPassword=$val[1];}
-                if ( "$val[0]" eq "CONNEXO_SERVICE" )   {$CONNEXO_SERVICE=$val[1];}
-                if ( "$val[0]" eq "FACTS_DB_HOST" )     {$FACTS_DB_HOST=$val[1];}
-                if ( "$val[0]" eq "FACTS_DB_PORT" )     {$FACTS_DB_PORT=$val[1];}
-                if ( "$val[0]" eq "FACTS_DB_NAME" )     {$FACTS_DB_NAME=$val[1];}
-                if ( "$val[0]" eq "FACTS_DBUSER" )      {$FACTS_DBUSER=$val[1];}
-                if ( "$val[0]" eq "FACTS_DBPASSWORD" )  {$FACTS_DBPASSWORD=$val[1];}
-                if ( "$val[0]" eq "FACTS_LICENSE" )     {$FACTS_LICENSE=$val[1];}
-                if ( "$val[0]" eq "FLOW_JDBC_URL" )     {$FLOW_JDBC_URL=$val[1];}
-                if ( "$val[0]" eq "FLOW_DB_USER" )      {$FLOW_DB_USER=$val[1];}
-                if ( "$val[0]" eq "FLOW_DB_PASSWORD" )  {$FLOW_DB_PASSWORD=$val[1];}
+                if ( "$val[0]" eq "JAVA_HOME" )                     {$JAVA_HOME=$val[1];}
+                if ( "$val[0]" eq "HOST_NAME" )                     {$HOST_NAME=$val[1];}
+                if ( "$val[0]" eq "ADMIN_PASSWORD" )                {$CONNEXO_ADMIN_PASSWORD=$val[1];}
+                if ( "$val[0]" eq "CONNEXO_HTTP_PORT" )             {$CONNEXO_HTTP_PORT=$val[1];}
+                if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )              {$TOMCAT_HTTP_PORT=$val[1];}
+                if ( "$val[0]" eq "SERVICE_VERSION" )               {$SERVICE_VERSION=$val[1];}
+                if ( "$val[0]" eq "INSTALL_CONNEXO" )               {$INSTALL_CONNEXO=$val[1];}
+                if ( "$val[0]" eq "UPGRADE" )                       {$UPGRADE=$val[1];}
+                if ( "$val[0]" eq "UPGRADE_PATH" )                  {$UPGRADE_PATH=$val[1];}
+                if ( "$val[0]" eq "UPGRADE_OLD_SERVICE_VERSION" )   {$UPGRADE_OLD_SERVICE_VERSION=$val[1];}
+                if ( "$val[0]" eq "INSTALL_FACTS" )                 {$INSTALL_FACTS=$val[1];}
+                if ( "$val[0]" eq "INSTALL_FLOW" )                  {$INSTALL_FLOW=$val[1];}
+                if ( "$val[0]" eq "INSTALL_WSO2IS" )                {$INSTALL_WSO2IS=$val[1];}
+                if ( "$val[0]" eq "ACTIVATE_SSO" )                  {$ACTIVATE_SSO=$val[1];}
+                if ( "$val[0]" eq "APACHE_PATH" )                   {$APACHE_PATH=$val[1];}
+                if ( "$val[0]" eq "HTTPS" )                         {$HTTPS=$val[1];}
+                if ( "$val[0]" eq "jdbcUrl" )                       {$jdbcUrl=$val[1];}
+                if ( "$val[0]" eq "dbUserName" )                    {$dbUserName=$val[1];}
+                if ( "$val[0]" eq "dbPassword" )                    {$dbPassword=$val[1];}
+                if ( "$val[0]" eq "CONNEXO_SERVICE" )               {$CONNEXO_SERVICE=$val[1];}
+                if ( "$val[0]" eq "FACTS_DB_HOST" )                 {$FACTS_DB_HOST=$val[1];}
+                if ( "$val[0]" eq "FACTS_DB_PORT" )                 {$FACTS_DB_PORT=$val[1];}
+                if ( "$val[0]" eq "FACTS_DB_NAME" )                 {$FACTS_DB_NAME=$val[1];}
+                if ( "$val[0]" eq "FACTS_DBUSER" )                  {$FACTS_DBUSER=$val[1];}
+                if ( "$val[0]" eq "FACTS_DBPASSWORD" )              {$FACTS_DBPASSWORD=$val[1];}
+                if ( "$val[0]" eq "FACTS_LICENSE" )                 {$FACTS_LICENSE=$val[1];}
+                if ( "$val[0]" eq "FLOW_JDBC_URL" )                 {$FLOW_JDBC_URL=$val[1];}
+                if ( "$val[0]" eq "FLOW_DB_USER" )                  {$FLOW_DB_USER=$val[1];}
+                if ( "$val[0]" eq "FLOW_DB_PASSWORD" )              {$FLOW_DB_PASSWORD=$val[1];}
             }
         }
         close($FH);
