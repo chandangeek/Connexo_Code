@@ -435,13 +435,14 @@ Ext.define('Cfg.controller.Tasks', {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.run', 'CFG', 'Data validation task run'));
             },
             failure: function (response) {
-                if (response.status === 409) {
-                    confWindow.destroy();
-                    return
+                if (response.status === 400) {
+                    var res = Ext.JSON.decode(response.responseText);
+                    confWindow.update(res.errors[0].msg);
+                    confWindow.setVisible(true);
                 }
-                var res = Ext.JSON.decode(response.responseText);
-                confWindow.update(res.errors[0].msg);
-                confWindow.setVisible(true);
+                else {
+                    confWindow.destroy();
+                }
             },
             callback: function() {
                 mainView.setLoading(false);
