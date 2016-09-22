@@ -8,6 +8,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -309,6 +310,11 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         @Override
         public FirmwareService firmwareService() {
             return serviceProvider.firmwareService();
+        }
+
+        @Override
+        public DeviceConfigurationService deviceConfigurationService() {
+            return serviceProvider.deviceConfigurationService();
         }
 
     }

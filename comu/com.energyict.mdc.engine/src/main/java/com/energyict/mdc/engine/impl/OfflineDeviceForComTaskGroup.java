@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.tasks.ProtocolTask;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +44,11 @@ public class OfflineDeviceForComTaskGroup implements OfflineDeviceContext {
     @Override
     public boolean needsFirmwareVersions() {
         return flags.needsFirmwareVersions();
+    }
+
+    @Override
+    public boolean needsTouCalendar() {
+        return flags.needsTouCalendar();
     }
 
     @Override
