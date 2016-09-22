@@ -163,8 +163,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
      */
     bottomToolbarHidden: false,
 
-    gridHeight: 0,
-    gridHeaderHeight: 0,
     autoLoadStore: false,
 
     initComponent: function () {
@@ -281,51 +279,19 @@ Ext.define('Uni.view.grid.BulkSelection', {
     },
 
     setGridVisible: function (visible) {
-        var me = this,
-            gridHeight = me.gridHeight,
-            gridHeaderHeight = me.gridHeaderHeight,
-            currentGridHeight,
-            currentGridHeaderHeight,
-            noBorderCls = 'force-no-border';
+        var noBorderCls = 'force-no-border';
 
         Ext.suspendLayouts();
-        me.getTopToolbarContainer().setVisible(visible);
-
-        if (me.rendered) {
-            currentGridHeight = me.getView().height;
-            currentGridHeaderHeight = me.headerCt.height;
-
-            if (!visible) {
-                gridHeight = 0;
-                gridHeaderHeight = 0;
-
-                me.addCls(noBorderCls);
-            } else {
-                me.removeCls(noBorderCls);
-            }
-
-            if (currentGridHeight !== 0 && currentGridHeaderHeight !== 0) {
-                me.gridHeight = currentGridHeight;
-                me.gridHeaderHeight = currentGridHeaderHeight;
-            }
-
-            if (typeof gridHeight === 'undefined') {
-                var row = me.getView().getNode(0),
-                    rowElement = Ext.get(row),
-                    count = me.store.getCount() > 10 ? 10 : me.store.getCount();
-
-                if (rowElement !== null) {
-                    gridHeight = count * rowElement.getHeight();
-                } else {
-                    gridHeight = count * 29;
-                }
-            }
-
-            me.getView().height = gridHeight;
-            me.headerCt.height = gridHeaderHeight;
-            me.doLayout();
+        this.getTopToolbarContainer().setVisible(visible);
+        this.getView().setVisible(visible);
+        if (this.headerCt) {
+            this.headerCt.setVisible(visible);
         }
 
+        visible
+            ? this.removeCls(noBorderCls)
+            : this.addCls(noBorderCls)
+        ;
         Ext.resumeLayouts(true);
     },
 
