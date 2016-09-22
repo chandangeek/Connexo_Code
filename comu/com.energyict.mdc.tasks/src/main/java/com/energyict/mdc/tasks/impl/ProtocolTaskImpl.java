@@ -159,6 +159,11 @@ abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceCont
         return flags.needsFirmwareVersions();
     }
 
+    @Override
+    public boolean needsTouCalendar() {
+        return flags.needsTouCalendar();
+    }
+
     protected <T extends HasId> T getById(List<T> list, long id) {
         for (T t : list) {
             if (t.getId()==id) {

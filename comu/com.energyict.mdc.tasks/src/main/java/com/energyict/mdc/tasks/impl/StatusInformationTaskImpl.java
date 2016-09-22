@@ -6,8 +6,10 @@ import com.energyict.mdc.tasks.StatusInformationTask;
 
 import javax.inject.Inject;
 
+import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.FIRMWARE_VERSIONS_FLAG;
 import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.REGISTERS_FLAG;
 import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
+import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.TOU_CALENDAR_FLAG;
 
 /**
  * Implementation for a {@link com.energyict.mdc.tasks.StatusInformationTask}.
@@ -17,7 +19,7 @@ import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.S
  */
 class StatusInformationTaskImpl extends ProtocolTaskImpl implements StatusInformationTask {
 
-    private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags(SLAVE_DEVICES_FLAG, REGISTERS_FLAG);
+    private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags(SLAVE_DEVICES_FLAG, REGISTERS_FLAG, TOU_CALENDAR_FLAG, FIRMWARE_VERSIONS_FLAG);
 
     @Inject
     StatusInformationTaskImpl(DataModel dataModel) {
