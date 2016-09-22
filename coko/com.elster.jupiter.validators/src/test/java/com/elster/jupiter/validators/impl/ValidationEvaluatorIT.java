@@ -78,6 +78,7 @@ import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -227,6 +228,7 @@ public class ValidationEvaluatorIT {
         inMemoryBootstrapModule.deactivate();
     }
 
+    @Ignore
     @Test
     public void testValidationFromDifferentApplications() {
         ValidationService validationService = injector.getInstance(ValidationService.class);
