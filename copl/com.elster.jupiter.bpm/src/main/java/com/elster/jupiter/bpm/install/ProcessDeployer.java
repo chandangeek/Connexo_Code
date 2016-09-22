@@ -1,6 +1,10 @@
 package com.elster.jupiter.bpm.install;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -51,9 +55,9 @@ public class ProcessDeployer {
 
     private static void deployProcess(String deploymentId, String arg, String authString) {
         String baseUrl = "/rest/deployment/" + deploymentId;
-        if (!doGet(baseUrl, authString)) {
-            String url = arg + baseUrl + "/deploy?strategy=SINGLETON";
-            doPostAndWait(url, authString, null);
+        if (!doGetDeployment(arg + baseUrl, authString)) {
+            String deployUrl = arg + baseUrl + "/deploy?strategy=SINGLETON";
+            doPostAndWait(deployUrl, authString, null);
         }
     }
 
@@ -97,6 +101,64 @@ public class ProcessDeployer {
         return true;
     }
 
+    private static boolean doGetDeployment(String url, String authString) {
+        HttpURLConnection httpConnection = null;
+        try {
+
+            URL targetUrl = new URL(url);
+            httpConnection = (HttpURLConnection) targetUrl.openConnection();
+            httpConnection.setDoOutput(true);
+            httpConnection.setRequestMethod("GET");
+            httpConnection.setRequestProperty("Authorization", authString);
+            httpConnection.setRequestProperty("Content-Type", "text/plain;charset=UTF-8");
+
+            if (httpConnection.getResponseCode() != 200) {
+                return false;
+            }
+
+            String result = readInputStreamToString(httpConnection);
+            if (result.contains("<status>UNDEPLOYED</status>")) {
+                return false;
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e.getStackTrace().toString());
+        } finally {
+            if (httpConnection != null) {
+                httpConnection.disconnect();
+            }
+        }
+        return true;
+    }
+
+    private static String readInputStreamToString(HttpURLConnection connection) {
+        String result = null;
+        StringBuffer sb = new StringBuffer();
+        InputStream is = null;
+
+        try {
+            is = new BufferedInputStream(connection.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            String inputLine = "";
+            while ((inputLine = br.readLine()) != null) {
+                sb.append(inputLine);
+            }
+            result = sb.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getStackTrace().toString());
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getStackTrace().toString());
+                }
+            }
+        }
+
+        return result;
+    }
+
     private static boolean doGet(String url, String authString) {
         HttpURLConnection httpConnection = null;
         try {
@@ -113,7 +175,7 @@ public class ProcessDeployer {
             }
 
         } catch (IOException e) {
-            return false;
+            throw new RuntimeException(e.getStackTrace().toString());
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
