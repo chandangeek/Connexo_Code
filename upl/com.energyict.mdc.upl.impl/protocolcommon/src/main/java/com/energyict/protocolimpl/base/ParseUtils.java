@@ -6,12 +6,16 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -275,7 +279,7 @@ public class ParseUtils {
      * @throws IOException Thrown when an exception happens
      * @return long value
      */
-    public static long getBCD2Long(byte[] byteBuffer,int offset, int length) throws IOException {
+    public static long getBCD2Long(byte[] byteBuffer,int offset, int length) throws ProtocolException {
         long val=0;
         long multiplier=1;
         try {
@@ -299,7 +303,7 @@ public class ParseUtils {
      * @param length number of bytes to use for calculation (min 1, max 4)
      * @throws IOException thrown when an exception happens
      */
-    public static long getBCD2LongLE(byte[] byteBuffer,int offset, int length) throws IOException {
+    public static long getBCD2LongLE(byte[] byteBuffer,int offset, int length) throws ProtocolException {
         long val=0;
         long multiplier=1;
         try {
@@ -346,7 +350,7 @@ public class ParseUtils {
     }
     
     
-    public static int getNrOfDays(Date from, Date to, TimeZone timeZone) throws IOException {
+    public static int getNrOfDays(Date from, Date to, TimeZone timeZone) throws ProtocolException {
         if (to.getTime() < from.getTime()) {
 			throw new ProtocolException("ParseUtils, getNrOfDays, error ("+from+") > ("+to+")");
 		}

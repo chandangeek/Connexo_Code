@@ -25,10 +25,12 @@ import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +38,7 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
+public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, SerialNumberSupport {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
 
@@ -1156,9 +1158,6 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         } catch (IOException e) {
             throw new IOException(e.getMessage());
         }
-
-        validateSerialNumber(); // KV 19012004
-
     } // public void connect() throws IOException
 
 
@@ -1317,31 +1316,20 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return dc;
     } // public DataContainer doRequestAttribute(short sIC,byte[] LN,byte bAttr ) throws IOException
 
-    private void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)) {
-            return;
-        }
-        String sn = (String) getSerialNumber();
-        if ((sn != null) && (sn.compareTo(serialNumber) == 0)) {
-            return;
-        }
-        throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + serialNumber);
-    }
-
-    public String getSerialNumber() throws IOException {
-        if (serialnr == null) {
+    public String getSerialNumber() {
+        try {
             UniversalObject uo = meterConfig.getSerialNumberObject();
-            serialnr = getCosemObjectFactory().getGenericRead(uo).getString();
+            return getCosemObjectFactory().getGenericRead(uo).getString();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, iProtocolRetriesProperty + 1);
         }
-        return serialnr;
-    } // public String getSerialNumber() throws IOException
+    }
 
     /**
      * Protocol Version *
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

@@ -14,24 +14,12 @@ import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.itron.datastar.basepages.BasePagesFactory;
 import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -117,7 +105,7 @@ public class Datastar extends SchlumbergerProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -126,10 +114,6 @@ public class Datastar extends SchlumbergerProtocol {
                //", options=0x"+Integer.toHexString(getBasePagesFactory().getFirmwareOptionsBasePage().getOptions())+
                //", front end firmware revision="+getBasePagesFactory().getFrontEndFirmwareVersionBasePage().getVersion();
     }
-    
-    public String getSerialNumber() throws IOException {
-        return "getSerialNumber() not implemented yet";
-    }    
 
     /**
      * @param args the command line arguments

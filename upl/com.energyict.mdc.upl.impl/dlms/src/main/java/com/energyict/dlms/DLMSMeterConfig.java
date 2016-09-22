@@ -12,7 +12,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 /**
  * @author Koen
@@ -167,7 +167,7 @@ public class DLMSMeterConfig {
     private void checkEmptyObjectList(String msg) {
         if (IOL == null) {
             ProtocolException protocolException = new ProtocolException(msg);
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         }
     }
 
@@ -473,6 +473,10 @@ public class DLMSMeterConfig {
         return config.getSpecialDaysTable(IOL);
     }
 
+    /**
+     * Returns the MBus client for a provided 0-based physicalAddress
+     *
+     **/
     public UniversalObject getMbusClient(int physicalAddress) throws NotInObjectListException {
         return config.getMbusClient(IOL, manuf, physicalAddress);
     }
@@ -495,6 +499,26 @@ public class DLMSMeterConfig {
         }
         return false;
     }
+
+    /**
+     * Check if a given obisCode exists in the object list of the device ignoring the B Channel
+     *
+     * @param obisCode
+     * @return
+     */
+    public boolean isObisCodeInObjectListIgnoreChannelB(ObisCode obisCode) {
+        UniversalObject[] objectList = getInstantiatedObjectList();
+        if (objectList != null) {
+            for (int i = 0; i < objectList.length; i++) {
+                UniversalObject universalObject = objectList[i];
+                if (universalObject != null && universalObject.getObisCode().equalsIgnoreBChannel(obisCode)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Get the DLMSClassId for a given obisCode from the objectLst.

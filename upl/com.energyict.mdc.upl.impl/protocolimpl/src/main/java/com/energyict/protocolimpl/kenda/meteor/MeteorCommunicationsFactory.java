@@ -12,6 +12,7 @@ import java.util.TimeZone;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.DialerException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -661,7 +662,7 @@ public class MeteorCommunicationsFactory{
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
 		for(int ii=0; ii<b.length; ii++){
 			byte[] bp= b[ii];

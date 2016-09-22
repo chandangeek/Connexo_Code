@@ -13,9 +13,15 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.DSMR50ActivitiyCalendarController;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitorInstanceAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
 
 /**
  * @author sva
@@ -37,18 +43,37 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
 
     @Override
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        boolean messageExecuted = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
-        if (!messageExecuted) { // if it was not a PLC message
+        CollectedMessage plcMessageResult = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
+        if (plcMessageResult != null) {
+            collectedMessage = plcMessageResult;
+        } else { // if it was not a PLC message
             if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.VerifyAndActivateFirmware)) {
                 collectedMessage = verifyAndActivateFirmware(pendingMessage, collectedMessage);
-            } else {
+            } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ENABLE_IMAGE_TRANSFER)) {
+                collectedMessage = enableImageTransfer(collectedMessage, pendingMessage);
+            }  else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR)) {
+                collectedMessage = updateSupervisionMonitor(collectedMessage, pendingMessage);
+            }
+            else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
         }
         return collectedMessage;
     }
 
-    private CollectedMessage verifyAndActivateFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    private CollectedMessage enableImageTransfer(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        try {
+            ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
+            imageTransfer.enableImageTransfer();
+        } catch (IOException e) {
+            String errorMsg = "Failed to enable image transfer: " + e.getMessage();
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, errorMsg));
+        }
+        return collectedMessage;
+    }
+
+    protected CollectedMessage verifyAndActivateFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
 
         ImageTransferStatus imageTransferStatus = imageTransfer.readImageTransferStatus();
@@ -99,7 +124,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         return plcConfigurationDeviceMessageExecutor;
     }
 
-    private boolean isTemporaryFailure(Throwable e) {
+    protected boolean isTemporaryFailure(Throwable e) {
          if (e == null) {
              return false;
          } else if (e instanceof DataAccessResultException) {
@@ -108,4 +133,10 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
              return false;
          }
      }
+
+    private CollectedMessage updateSupervisionMonitor(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        int monitorInstance = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, monitorInstanceAttributeName).getDeviceMessageAttributeValue()).intValue();
+        long threshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, thresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).longValue();
+        return updateThresholds(collectedMessage, offlineDeviceMessage, monitorInstance, threshold);
+    }
 }

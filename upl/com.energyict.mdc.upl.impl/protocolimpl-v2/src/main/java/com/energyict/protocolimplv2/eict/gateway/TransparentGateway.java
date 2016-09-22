@@ -35,12 +35,12 @@ public class TransparentGateway extends AbstractGateway {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT transparent gateway";
+        return "Generic transparent gateway";
     }
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-06-11 16:46:36 +0200 (Thu, 11 Jun 2015) $";
     }
 
     @Override

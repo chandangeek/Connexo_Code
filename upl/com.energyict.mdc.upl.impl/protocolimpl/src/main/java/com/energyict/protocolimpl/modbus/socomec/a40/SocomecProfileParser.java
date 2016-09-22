@@ -90,11 +90,9 @@ public class SocomecProfileParser {
 	 */
 	List parseChannelInfos(int[] channelInfoRegisters, BigDecimal multiplier) {
 		List channelInfos = new ArrayList();
-		int counter = Integer.parseInt("0");
 		for(int i = 0; i < channelInfoRegisters.length; i++){
 			if(channelInfoRegisters[i] == 1){
-				int id = counter++;
-				channelInfos.add(new ChannelInfo(id, channelInfoNames[i], channelInfoUnits[i], 1, id, multiplier));
+				channelInfos.add(new ChannelInfo(channelInfos.size(), channelInfoNames[i], channelInfoUnits[i], 1, channelInfos.size(), multiplier));
 			}
 		}
 		return channelInfos;

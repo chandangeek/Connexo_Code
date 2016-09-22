@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v444.CommandFactory;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 public class CorrectorInformationTable extends AbstractTable {
 	
@@ -38,7 +39,7 @@ public class CorrectorInformationTable extends AbstractTable {
 		return firmwareVersion;
 	}
 	
-	protected void parse(byte[] data) throws IOException {
+	protected void parse(byte[] data) throws ProtocolException {
 		//System.out.println("parse corrector info");
 		//System.out.println(ProtocolUtils.outputHexString(data));
 		int length = data.length;
@@ -109,7 +110,7 @@ public class CorrectorInformationTable extends AbstractTable {
 		Response response = 
 			commandFactory.switchToCorrectorInformation().invoke();
 		if (response == null)
-			throw new IOException("CorrectorInformationTable table switch: No answer from corrector");
+			throw new ProtocolException("CorrectorInformationTable table switch: No answer from corrector");
 		parseStatus(response);
     	readHeaders();
 	}

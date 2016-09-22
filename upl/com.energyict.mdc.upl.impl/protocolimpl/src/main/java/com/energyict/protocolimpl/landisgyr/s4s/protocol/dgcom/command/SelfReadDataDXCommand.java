@@ -10,11 +10,13 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -67,7 +69,7 @@ public class SelfReadDataDXCommand extends AbstractCommand {
             return new byte[]{(byte)0x1A,(byte)getSelfReadIndex(),0,0,0,0,0,0,0};
         }
         else
-            throw new IOException("SelfReadDataDXCommand, only for DX meters!");
+            throw new ProtocolException("SelfReadDataDXCommand, only for DX meters!");
     }
     
     private void parseTimestamp(byte[] data, int offset) throws IOException {

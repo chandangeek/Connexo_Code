@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3;
 
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider;
 
@@ -28,6 +29,10 @@ public class G3SecurityProvider extends Dsmr40SecurityProvider {
     public G3SecurityProvider(Properties properties) {
         super(properties);
         this.g3Properties = new G3Properties(properties);
+    }
+
+    protected void initializeRespondingFrameCounterHandler() {
+        setRespondingFrameCounterHandling(new G3RespondingFrameCounterHandler(DLMSConnectionException.REASON_CONTINUE_INVALID_FRAMECOUNTER));   //Validating that the received FC is higher than the previously received FC.
     }
 
     /**

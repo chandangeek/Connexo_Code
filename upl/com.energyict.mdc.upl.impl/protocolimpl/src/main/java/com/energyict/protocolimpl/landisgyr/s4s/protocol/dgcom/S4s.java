@@ -11,40 +11,27 @@
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command.CommandFactory;
 import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.registermappping.RegisterMapperFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 /**
  *
  * @author Koen
  */
-public class S4s extends AbstractProtocol {
+public class S4s extends AbstractProtocol implements SerialNumberSupport{
     
     private DGCOMConnection dgcomConnection;
     private CommandFactory commandFactory;
@@ -91,21 +78,6 @@ public class S4s extends AbstractProtocol {
         return getCommandFactory().getDemandIntervalCommand().getProfileInterval()*60;
     }
     
-   /*  
-     *  Method must be overridden by the subclass to verify the property 'SerialNumber'
-     *  against the serialnumber read from the meter.
-     *  Use code below as example to implement the method.
-     *  This code has been taken from a real protocol implementation.
-     */
-    protected void validateSerialNumber() throws IOException {
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-        String sn = getSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
-        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
-        
-    }       
-    
     protected void validateDeviceId() throws IOException {
         if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID())==0)) return;
         String devId = getCommandFactory().getDeviceIDExtendedCommand().getDeviceID();
@@ -146,15 +118,19 @@ public class S4s extends AbstractProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "ProductFamily: "+getCommandFactory().getFirmwareVersionCommand().getProductFamily()+"\nFirmware version: "+getCommandFactory().getFirmwareVersionCommand().getFirmwareVersion()+"\nDGCOM version: "+getCommandFactory().getFirmwareVersionCommand().getDgcomVersion()+"\nDSP revision: "+getCommandFactory().getSerialNumberCommand().getDspRevision();
     }
     
-    public String getSerialNumber() throws IOException {
-        return ""+getCommandFactory().getSerialNumberCommand().getSerialNumber();
+    public String getSerialNumber() {
+        try {
+            return String.valueOf(getCommandFactory().getSerialNumberCommand().getSerialNumber());
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
     }
     
 

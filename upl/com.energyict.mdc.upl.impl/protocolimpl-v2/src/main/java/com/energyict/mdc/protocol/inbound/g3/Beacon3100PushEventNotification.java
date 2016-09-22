@@ -1,19 +1,12 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
+import com.energyict.obis.ObisCode;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.GeneralSecurityException;
-import java.security.Key;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Does pretty much the same as the PushEventNotification of the G3 gateway,
@@ -26,57 +19,43 @@ import java.security.Key;
  */
 public class Beacon3100PushEventNotification extends PushEventNotification {
 
-    //TODO: support events from the meter too
-    //TODO junit test with trace from Alex
-
-    protected DeviceProtocol newGatewayProtocol() {
-        return new Beacon3100();
-    }
-
-    protected DlmsSession getDlmsSession(DeviceProtocol gatewayProtocol) {
-        return ((Beacon3100) gatewayProtocol).getDlmsSession();
-    }
+    //TODO junit test with encrypted traces
 
     /**
-     * AES wrap the PSK key with the PSK_ENCRYPTION_KEY
+     * The obiscode of the logbook to store the received events in
+     * Note that this one (Beacon main logbook) is different from the G3 gateway main logbook.
      */
-    @Override
-    protected OctetString wrap(TypedProperties properties, byte[] pskBytes) {
-        final String pskEncryptionKey = properties.getStringProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY);
+    private static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
+    private static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
+    private boolean provideProtocolJavaClasName = true;
 
-        if (pskEncryptionKey == null || pskEncryptionKey.isEmpty()) {
-            throw MdcManager.getComServerExceptionFactory().missingProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY);
-        }
-
-        final byte[] pskEncryptionKeyBytes = parseKey(pskEncryptionKey);
-
-        if (pskEncryptionKeyBytes == null) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY, "(hidden)", "Should be 32 hex characters");
-        }
-
-        return OctetString.fromByteArray(aesWrap(pskBytes, pskEncryptionKeyBytes));
+    protected BeaconPSKProvider getPskProvider() {
+        return BeaconPSKProviderFactory.getInstance(provideProtocolJavaClasName).getPSKProvider(getDeviceIdentifier(), getContext());
     }
 
-    /**
-     * Extension of the structure: also add the protocol java class name of the slave device.
-     * The Beacon3100 then uses this to read out the e-meter serial number using the public client.
-     */
     @Override
-    protected Structure createMacAndKeyPair(OctetString macAddressOctetString, OctetString wrappedPSKKey, DeviceIdentifier slaveDeviceIdentifier) {
-        final Structure macAndKeyPair = super.createMacAndKeyPair(macAddressOctetString, wrappedPSKKey, slaveDeviceIdentifier);
-        macAndKeyPair.addDataType(OctetString.fromString(context.getInboundDAO().findOfflineDevice(slaveDeviceIdentifier).getDeviceProtocolPluggableClass().getJavaClassName()));
-        return macAndKeyPair;
+    protected EventPushNotificationParser getEventPushNotificationParser() {
+        if (parser == null) {
+            parser = new EventPushNotificationParser(comChannel, getContext(), OBIS_STANDARD_EVENT_LOG);
+        }
+        return parser;
     }
 
-    private byte[] aesWrap(byte[] key, byte[] masterKey) {
-        final Key keyToWrap = new SecretKeySpec(key, "AES");
-        final Key kek = new SecretKeySpec(masterKey, "AES");
-        try {
-            final Cipher aesWrap = Cipher.getInstance("AESWrap");
-            aesWrap.init(Cipher.WRAP_MODE, kek);
-            return aesWrap.wrap(keyToWrap);
-        } catch (GeneralSecurityException e) {
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
-        }
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        final List<PropertySpec> optionalProperties = new ArrayList<>(super.getOptionalProperties());
+        optionalProperties.add(PropertySpecFactory.notNullableBooleanPropertySpec(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, true));
+        return optionalProperties;
+    }
+
+    @Override
+    public String getVersion() {
+        return "$Date: 2016-04-25 11:28:57 +0200 (Mon, 25 Apr 2016)$";
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        super.addProperties(properties);
+        this.provideProtocolJavaClasName = properties.<Boolean>getTypedProperty(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, true);
     }
 }

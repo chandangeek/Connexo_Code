@@ -10,6 +10,7 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
@@ -246,7 +247,7 @@ public class LoadProfileBuilder {
                 startOfGasDayParser = new StartOfGasDayParser(meterProtocol.getRequestFactory());
             } catch (CTRException e) {
                 meterProtocol.getLogger().severe("Failed to read DST parameters: " + e.getMessage());
-                throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+                throw CommunicationException.unexpectedResponse(e);
             }
         }
         return startOfGasDayParser;

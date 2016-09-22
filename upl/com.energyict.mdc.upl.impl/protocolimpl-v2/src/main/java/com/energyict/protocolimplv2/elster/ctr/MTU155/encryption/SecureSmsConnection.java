@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
 import com.energyict.mdc.channels.sms.ProximusSmsSender;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CtrConnection;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CtrConnectionState;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
@@ -69,7 +70,7 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
             }
             return null;
         } catch (CTRCipheringException e) {
-            throw MdcManager.getComServerExceptionFactory().createCipheringException(e);
+            throw  ConnectionCommunicationException.cipheringException(e);
         }
     }
 
@@ -78,8 +79,8 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
             doForcedDelay();
             ensureComChannelIsInWritingMode();
             comChannel.write(frame.getBytes());
-        } catch (ComServerExecutionException e) {
-            if (MdcManager.getComServerExceptionFactory().isCommunicationException(e)) {
+        } catch (ProtocolRuntimeException e) {
+            if (e instanceof CommunicationException) {
                 throw new CTRConnectionException("Unable to send frame.", e);
             } else {
                 throw e;

@@ -15,14 +15,8 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -33,16 +27,12 @@ import com.energyict.protocolimpl.edf.trimarandlms.protocol.Connection62056;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
 import com.energyict.protocolimpl.edf.trimaranplus.core.TrimaranObjectFactory;
 import com.energyict.protocolimpl.edf.trimaranplus.core.VDEType;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -54,7 +44,7 @@ import java.util.logging.Logger;
  *@endchanges
  */
 
-public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {  
+public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, SerialNumberSupport {
     
     
     private int t1Timeout;
@@ -96,20 +86,6 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return trimaranPlusProfile.getProfileData(lastReading);
     }
-    
-    protected void validateSerialNumber() throws IOException {
-        
-        boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
-			return;
-		}
-        String sn = getDLMSPDUFactory().getStatusResponse().getSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
-			return;
-		}
-        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
-        
-    }    
     
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setT1Timeout(Integer.parseInt(properties.getProperty("T1Timeout","5000").trim())); // T1 (datalink layer)
@@ -174,8 +150,17 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         return new Date();
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getDLMSPDUFactory().getStatusResponse().getSerialNumber();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:26 +0200 (Thu, 26 Nov 2015)$";
     }
     
     public void setTime() throws IOException {

@@ -11,21 +11,11 @@
 package com.energyict.protocolimpl.elster.alpha.alphabasic;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -38,16 +28,12 @@ import com.energyict.protocolimpl.elster.alpha.core.Alpha;
 import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterFactory;
 import com.energyict.protocolimpl.elster.alpha.core.connection.AlphaConnection;
 import com.energyict.protocolimpl.elster.alpha.core.connection.CommandFactory;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -56,7 +42,7 @@ import java.util.logging.Logger;
  * @beginchanges
  * @endchanges
  */
-public class AlphaBasic extends AbstractProtocol implements Alpha {
+public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberSupport {
     
     public static final int DEBUG=0;
     
@@ -145,7 +131,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:13 +0200 (Thu, 26 Nov 2015)$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -157,9 +143,12 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
         }
     }
     
-    public String getSerialNumber() throws IOException {
-        //return Long.toString(getClassFactory().getClass2IdentificationAndDemandData().getUMTRSN());
-        return Long.toString(getClassFactory().getClass7MeteringFunctionBlock().getXMTRSN());
+    public String getSerialNumber(){
+        try {
+            return Long.toString(getClassFactory().getClass7MeteringFunctionBlock().getXMTRSN());
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
     }
     
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
@@ -247,23 +236,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
         }
         return strBuff.toString();
     }
-    
-    
-   /*  
-     *  Method must be overridden by the subclass to verify the property 'SerialNumber'
-     *  against the serialnumber read from the meter.
-     *  Use code below as example to implement the method.
-     *  This code has been taken from a real protocol implementation.
-     */
-    protected void validateSerialNumber() throws IOException {
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-        String sn = getSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
-        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
-        
-    }    
-    
+
     static public void main(String[] args) {
         AlphaBasic alphaBasic=null;
         Dialer dialer=null;

@@ -79,6 +79,6 @@ public class E35C extends E350 {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-07-03 13:41:47 +0200 (Fri, 03 Jul 2015) $";
     }
 }

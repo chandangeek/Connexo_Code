@@ -6,11 +6,14 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -25,7 +28,7 @@ import java.util.logging.Level;
  * Date: 5/09/11
  * Time: 9:37
  */
-public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, CacheMechanism {
+public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, CacheMechanism, SerialNumberSupport {
 
     public static final String CALLING_AP_TITLE = "CallingAPTitle";
     public static final String CALLING_AP_TITLE_DEFAULT = "0000000000000000";
@@ -80,6 +83,15 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     }
 
     @Override
+    public String getSerialNumber() {
+        try {
+            return String.valueOf(getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.1.24.1.0.255"), MbusClientAttributes.VERSION10).getIdentificationNumber().getValue());
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, retries + 1);
+        }
+    }
+
+    @Override
     public void connect() throws IOException {
         try {
             getDLMSConnection().connectMAC();
@@ -87,7 +99,6 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
         } catch (DLMSConnectionException e) {
             throw new NestedIOException(e);
         }
-        validateSerialNumber();
         checkCacheObjects();
     }
 
@@ -189,11 +200,6 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     }
 
     @Override
-    public void validateSerialNumber() throws IOException {
-        //Not used.
-    }
-
-    @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         readCache = Integer.parseInt(properties.getProperty(READCACHE_PROPERTY, READ_CACHE_DEFAULT_VALUE).trim()) == 1;
         limitMaxNrOfDays = Integer.parseInt(properties.getProperty(LIMITMAXNROFDAYS_PROPERTY, MAX_NR_OF_DAYS_DEFAULT).trim());
@@ -254,7 +260,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
      */
     @Override
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override

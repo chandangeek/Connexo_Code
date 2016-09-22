@@ -9,31 +9,16 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -42,15 +27,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.BillingResetKey;
@@ -59,7 +36,7 @@ import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactor
 /**
  * @author Koen
  */
-public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol { // KV 19012004
+public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol, SerialNumberSupport { // KV 19012004
 
     private static final int BREAK_DELAY = 500;
     private static final int BREAK_BAUDRATE = 9600;
@@ -183,6 +160,15 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         getABBA1700RegisterFactory().setRegister(TimeDateKey, calendar.getTime());
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return (String) getABBA1700RegisterFactory().getRegister("SerialNumber");
+        } catch (IOException e){
+            throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
+        }
+    }
+
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         validateProperties(properties);
     }
@@ -263,7 +249,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
 
     /* Protocol version */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -318,13 +304,6 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         } catch (IOException e) {
             disconnect();
             throw e;
-        }
-
-        try {
-            validateSerialNumber(); // KV 15122003
-        } catch (FlagIEC1107ConnectionException e) {
-            disconnect();
-            throw new IOException(e.getMessage());
         }
 
         if (extendedLogging >= 1) {
@@ -447,21 +426,6 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
 
 
         abba1700RegisterFactory.getProtocolLink().getFlagIEC1107Connection().authenticate();
-    }
-
-    // KV 15122003
-    private void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)) {
-            return;
-        }
-        String sn = (String) getABBA1700RegisterFactory().getRegister("SerialNumber");
-        if (sn.compareTo(serialNumber) == 0) {
-            return;
-        } else if (sn.replace('-', ' ').trim().compareTo(serialNumber.replace('-', ' ').trim()) == 0) {
-            return;
-        }
-        throw new IOException("SerialNumber mismatch! meter sn=" + sn.replace('-', ' ').trim() + ", configured sn=" + serialNumber.replace('-', ' ').trim());
     }
 
     public void disconnect() throws NestedIOException {

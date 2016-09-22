@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.util.Collections;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -9,6 +7,8 @@ import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterFactory;
 import com.energyict.mdw.core.RegisterFactoryProvider;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
+import com.energyict.util.Collections;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -19,8 +19,8 @@ import java.util.List;
  * Implementation of a {@link RegisterIdentifier} that uniquely identifies an {@link com.energyict.mdw.amr.Register} based on the ObisCode
  * of the {@link com.energyict.mdw.amr.RegisterMapping RegisterMapping} or the
  * {@link com.energyict.mdw.amr.RegisterSpec#getDeviceObisCode() RegisterSpec.getDeviceObisCode}
- *
- *
+ * <p/>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 13/05/13
  * Time: 13:24
@@ -47,17 +47,18 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     }
 
     @Override
-    public Register findRegister () {
-        if(this.register == null){
+    public Register findRegister() {
+        if (this.register == null) {
             final List<Register> registers = getRegisterFactory().findByDevice(deviceIdentifier.findDevice());
             for (Register register : registers) {
-                if (register.getDeviceObisCode().equals(registerObisCode)){
+                if (register.getDeviceObisCode().equals(registerObisCode)) {
                     this.register = register;
                     return this.register;
                 }
             }
+            throw NotFoundException.notFound(Register.class, this.toString());
         }
-        throw new NotFoundException("Register " + this.registerObisCode.toString() + " for device with " + this.deviceIdentifier + " not found");
+        return register;
     }
 
     @Override

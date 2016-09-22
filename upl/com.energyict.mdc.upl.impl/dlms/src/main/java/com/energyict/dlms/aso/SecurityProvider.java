@@ -15,12 +15,4 @@ import java.io.IOException;
  */
 public interface SecurityProvider extends com.energyict.dlms.protocolimplv2.SecurityProvider {
 
-    /**
-     * A master key shall be present in each COSEM server logical device configured in the system.
-     * This key is used for wrapping global keys. The MasterKey should not be transfered during a session.
-     *
-     * @throws IOException
-     */
-    byte[] getMasterKey() throws IOException;
-
 }

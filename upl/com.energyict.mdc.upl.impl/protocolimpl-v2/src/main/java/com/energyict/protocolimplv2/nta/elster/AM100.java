@@ -65,7 +65,7 @@ public class AM100 extends WebRTUKP {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-06-12 10:49:37 +0200 (Fri, 12 Jun 2015) $";
     }
 
     /**

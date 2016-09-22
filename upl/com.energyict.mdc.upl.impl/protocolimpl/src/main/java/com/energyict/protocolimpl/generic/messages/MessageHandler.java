@@ -1,8 +1,12 @@
 package com.energyict.protocolimpl.generic.messages;
 
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.xml.sax.Attributes;
@@ -31,7 +35,11 @@ public class MessageHandler extends DefaultHandler {
      * Helper to indicate whether the OldDeviceMessage content contains xml
      */
     private boolean isXmlInContent = false;
-
+    private String mbusClientIdentificationNumber;
+    private String mbusClientManufacturerId;
+    private String mbusClientVersion;
+    private String mbusClientDeviceType;
+    private String mbusShortId;
     /**
      * {@inheritDoc}
      */
@@ -237,12 +245,32 @@ public class MessageHandler extends DefaultHandler {
         } else if (RtuMessageConstant.PREFERRED_NETWORK_OPERATORS_LIST.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.PREFERRED_NETWORK_OPERATORS_LIST);
             handePreferredNetworkOperatorsListParameters(attrbs);
-        } else {
+        } else if (RtuMessageConstant.CHANGE_MBUS_CLIENT_ATTRIBUTES.equals(qName)) {
+            setType(RtuMessageConstant.CHANGE_MBUS_CLIENT_ATTRIBUTES);
+            handleMBusClientAttributes(attrbs);
+        }else if (RtuMessageConstant.MBUS_CLIENT_REMOTE_COMMISSION.equals(qName)) {
+            setType(RtuMessageConstant.MBUS_CLIENT_REMOTE_COMMISSION);
+            handleMbusClientRemoteCommission(attrbs);
+        } else if (RtuMessageConstant.CHANGE_MBUS_CLIENT_ATTRIBUTES.equals(qName)) {
+            setType(RtuMessageConstant.CHANGE_MBUS_CLIENT_ATTRIBUTES);
+            handleChangeMBusClientAttributes(attrbs);
+        }else if (RtuMessageConstant.MBUS_REMOTE_COMMISSION.equals(qName)) {
+            setType(RtuMessageConstant.MBUS_REMOTE_COMMISSION);
+            handleMbusClientRemoteCommission(attrbs);
+        }else {
             if (!isXmlInContent) { // If there is XML in the content, then the protocol will parse it himself ...
                 throw new SAXException("Unknown messageContent : " + qName);
             }
         }
     }
+
+    private void handleMBusClientAttributes(Attributes attrbs) {
+        this.mbusClientIdentificationNumber = attrbs.getValue(RtuMessageConstant.MBUS_CLIENT_IDENTIFICATION_NUMBER);
+        this.mbusClientManufacturerId = attrbs.getValue(RtuMessageConstant.MBUS_CLIENT_MANUFACTURER_ID);
+        this.mbusClientDeviceType = attrbs.getValue(RtuMessageConstant.MBUS_CLIENT_DEVICE_TYPE);
+        this.mbusClientVersion = attrbs.getValue(RtuMessageConstant.MBUS_CLIENT_VERSION);
+    }
+
 
     /**
      * Setter for the {@link MessageHandler#type}
@@ -542,7 +570,7 @@ public class MessageHandler extends DefaultHandler {
             return Integer.parseInt(this.entries);
         } catch (NumberFormatException e) {
             e.printStackTrace();
-            throw new IOException("Number of entries does not contain a non numeric value: " + this.entries);
+            throw new IOException("Number of entries should contain only numeric values: " + this.entries);
         }
     }
 
@@ -760,6 +788,7 @@ public class MessageHandler extends DefaultHandler {
 
     private void handleResetMBusClient(Attributes attrbs) {
         this.mbusSerialNumber = attrbs.getValue(RtuMessageConstant.MBUS_SERIAL_NUMBER);
+        this.mbusChannelToInstall = attrbs.getValue(RtuMessageConstant.MBUS_INSTALL_CHANNEL);
     }
 
     public String getMbusSerialNumber() {
@@ -1070,5 +1099,76 @@ public class MessageHandler extends DefaultHandler {
 
     public int getDefaultResetWindow() {
         return defaultResetWindow;
+    }
+
+    private void handleChangeMBusClientAttributes(Attributes attrbs) {
+        this.mbusChannelToInstall = attrbs.getValue(RtuMessageConstant.MBUS_INSTALL_CHANNEL);
+        this.mbusShortId = attrbs.getValue(RtuMessageConstant.MBUS_SHORT_ID);
+        this.mbusClientManufacturerId = attrbs.getValue(RtuMessageConstant.MBUS_CLIENT_MANUFACTURER_ID);
+        this.mbusClientIdentificationNumber = attrbs.getValue((RtuMessageConstant.MBUS_CLIENT_IDENTIFICATION_NUMBER));
+        this.mbusClientDeviceType = attrbs.getValue(RtuMessageConstant.MBUS_CLIENT_DEVICE_TYPE);
+        this.mbusClientVersion = attrbs.getValue(RtuMessageConstant.MBUS_CLIENT_VERSION);
+    }
+
+    private void handleMbusClientRemoteCommission(Attributes attrbs) {
+        this.mbusShortId = attrbs.getValue(RtuMessageConstant.MBUS_SHORT_ID);
+        this.mbusChannelToInstall = attrbs.getValue(RtuMessageConstant.MBUS_INSTALL_CHANNEL);
+    }
+
+    public Unsigned32 getMbusClientIdentificationNumber(boolean fixMbusHexShortId) throws IOException {
+        try {
+            return getIdentificationNumber(mbusClientIdentificationNumber, fixMbusHexShortId);
+        }catch (NumberFormatException e){
+            throw new ProtocolException("Invalid Client Identification Number. ASCII value expected.");
+        }
+    }
+
+    public Unsigned16 getMbusClientManufacturerID() throws IOException {
+        try {
+            return getManufacturerId(mbusClientManufacturerId);
+        }catch (NumberFormatException e){
+            throw new ProtocolException("Invalid Manufacturer Id value.");
+        }
+    }
+
+    public Unsigned8 getMbusClientVersion() throws IOException {
+        try {
+            return getVersion(mbusClientVersion);
+        }catch (NumberFormatException e){
+            throw new ProtocolException("Invalid Client Version value.");
+        }
+    }
+
+    public Unsigned8 getMbusDeviceType() throws IOException {
+        try {
+            return getDeviceType(mbusClientDeviceType);
+        }catch (NumberFormatException e){
+            throw new ProtocolException("Invalid Client Device type value.");
+        }
+    }
+
+    public String getMbusShortId() {
+        return mbusShortId;
+    }
+
+    private Unsigned16 getManufacturerId(String manufacturerId) throws IOException {
+        char[] chars = manufacturerId.toCharArray();
+        int id =  Integer.parseInt("" + ((chars[2]-64) + (chars[1]-64)*32 + (chars[0]-64)*32*32));
+        return new Unsigned16(id);
+    }
+
+    private Unsigned32 getIdentificationNumber(String indentificationNumber, boolean fixMbusHexShortId) throws IOException {
+        if(fixMbusHexShortId)
+            return new Unsigned32(Integer.parseInt(indentificationNumber));
+        else
+            return new Unsigned32(Integer.parseInt(indentificationNumber, 16));
+    }
+
+    private Unsigned8 getVersion(String version) throws IOException {
+        return new Unsigned8(Integer.parseInt(version));
+    }
+
+    private Unsigned8 getDeviceType(String deviceType) throws IOException {
+        return new Unsigned8(Integer.parseInt(deviceType, 16));
     }
 }

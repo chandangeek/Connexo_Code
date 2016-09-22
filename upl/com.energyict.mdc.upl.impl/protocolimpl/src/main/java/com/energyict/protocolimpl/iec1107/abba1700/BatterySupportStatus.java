@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -21,7 +21,7 @@ public class BatterySupportStatus {
     private int remainingBatterySupportTime;
     private int remainingPowerDownBatteryLife;
 
-    public BatterySupportStatus(final ProtocolLink protocolLink, final byte[] data) throws IOException {
+    public BatterySupportStatus(final ProtocolLink protocolLink, final byte[] data) throws ProtocolException {
         this.protocolLink = protocolLink;
         long shift = (long) ProtocolUtils.getIntLE(data, 0, DateTimeLength) & DateTimeMask;
         setOriginalBatteryCapacity(ProtocolUtils.getCalendar(getTimeZone(), shift).getTime());

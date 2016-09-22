@@ -12,6 +12,9 @@ import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.general.frames.AbstractInboundFrame;
 import com.energyict.protocol.ProtocolImplFactory;
 import com.energyict.protocol.ProtocolInstantiator;
+import com.energyict.protocol.exceptions.CodingException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.IdentificationFactory;
 import com.energyict.protocolimplv2.MdcManager;
@@ -153,7 +156,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
         try {
             return protocolInstantiator.getSerialNumber().getSerialNumber(discoverInfo);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
     }
 
@@ -161,7 +164,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
         try {
             return ProtocolImplFactory.getProtocolInstantiator(meterProtocolClass);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createGenericReflectionError(e, IdentificationFactory.class);
+            throw CodingException.genericReflectionError(e, IdentificationFactory.class);
         }
     }
 
@@ -169,7 +172,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
         try {
             return identificationFactory.getMeterProtocolClass(identificationFrame);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(e, identificationFrame, e.getMessage());
+            throw InboundFrameException.unexpectedFrame(e, identificationFrame, e.getMessage());
         }
     }
 
@@ -177,12 +180,17 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
         try {
             return ProtocolImplFactory.getIdentificationFactory();
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createGenericReflectionError(e, IdentificationFactory.class);
+            throw CodingException.genericReflectionError(e, IdentificationFactory.class);
         }
     }
 
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
         //No responses for the I and DoubleI Discover
+    }
+
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
     }
 }

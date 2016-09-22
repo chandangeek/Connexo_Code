@@ -10,14 +10,8 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
 
 /**
  *
@@ -40,7 +34,7 @@ public class Class15EventLogConfiguration extends AbstractClass {
         return "Class15EventLogConfiguration: EVSIZE="+EVSIZE+", EVSEL1=0x"+Integer.toHexString(EVSEL1);
     }
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
         EVSIZE = ProtocolUtils.getInt(data,0,2);
         EVSEL1 = ProtocolUtils.getInt(data,2,1);
     }

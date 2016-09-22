@@ -98,4 +98,9 @@ public class LatchComChannel implements ComChannel {
     public void flush() throws IOException {
 
     }
+
+    @Override
+    public void setTimeout(long millis) {
+
+    }
 }

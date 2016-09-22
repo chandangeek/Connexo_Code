@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.itron.datastar;
 
 import com.energyict.cbo.*;
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.itron.datastar.basepages.*;
 import com.energyict.protocolimplv2.MdcManager;
@@ -259,7 +260,7 @@ if (DEBUG>=1) System.out.println("read from "+lastReading);
                     Thread.sleep(5000);
                 } catch(InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             } else {
                 

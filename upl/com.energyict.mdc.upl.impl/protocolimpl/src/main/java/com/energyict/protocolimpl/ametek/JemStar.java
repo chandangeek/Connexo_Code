@@ -466,7 +466,7 @@ public class JemStar extends Jem implements MessageProtocol  {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-02-16 14:24:57 +0100 (Mon, 16 Feb 2015) $";
     }
 
     public String getFirmwareVersion() throws IOException {

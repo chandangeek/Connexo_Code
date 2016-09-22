@@ -7,28 +7,15 @@ import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /*
@@ -231,7 +218,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
 
         try {
@@ -636,7 +623,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     //
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -669,7 +656,9 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
         if (halfDuplex > 0) {
             halfDuplexController.setDelay(halfDuplex);
-            RtuPlusBusFrame.setHalfDuplexController(halfDuplexController);
+            if (RtuPlusBusFrame != null) {
+                RtuPlusBusFrame.setHalfDuplexController(halfDuplexController);
+            }
         }
     }
 

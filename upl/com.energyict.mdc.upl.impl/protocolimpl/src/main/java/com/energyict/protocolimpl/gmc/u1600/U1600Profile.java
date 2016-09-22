@@ -140,7 +140,7 @@ public class U1600Profile {
                 return profileData;
             }
         } catch (ConnectionException e) {
-            throw new ProtocolConnectionException("U1600Error, "+e.getMessage());
+            throw new ProtocolConnectionException("U1600Error, "+e.getMessage(), e.getReason());
         }
         
         

@@ -10,11 +10,10 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
 
 
 /**
@@ -48,10 +47,10 @@ public class RateBinsAndTotalEnergyDXCommand extends AbstractCommand {
         if (getCommandFactory().getFirmwareVersionCommand().isDX())
             return new byte[]{(byte)0x05,0,0,0,0,0,0,0,0};
         else
-            throw new IOException("RateBinsAndTotalEnergyDXCommand, only for DX meters!");
+            throw new ProtocolException("RateBinsAndTotalEnergyDXCommand, only for DX meters!");
     }
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
         int offset=0;
         for (int i=0;i<NR_OF_RATES;i++) {
             getRatekWHInPulses()[i] = ParseUtils.getBCD2LongLE(data, offset, 6);

@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -242,7 +243,7 @@ public class MK10InputStreamParser {
             }
 			catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
         }
 

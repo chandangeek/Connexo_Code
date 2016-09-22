@@ -5,18 +5,13 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.FirmwareVersion;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile.CeweProfile;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile.EventParser;
@@ -27,11 +22,7 @@ import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -131,7 +122,7 @@ import java.util.logging.Level;
  * @endchanges
  */
 
-public class CewePrometer extends AbstractProtocol  {
+public class CewePrometer extends AbstractProtocol implements SerialNumberSupport {
 
     /** Property keys specific for CewePrometer protocol. */
     private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
@@ -296,11 +287,20 @@ public class CewePrometer extends AbstractProtocol  {
         return channelCount.intValue();
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getRegisters().getrSerial().asString();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getRetries() + 1);
+        }
+    }
+
     /* (non-Javadoc)
-     * @see AbstractProtocol#getProtocolVersion()
-     */
+         * @see AbstractProtocol#getProtocolVersion()
+         */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
     }
     
     /** Fetch firware version. 
@@ -325,17 +325,6 @@ public class CewePrometer extends AbstractProtocol  {
     @Override
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return getFirmwareVersionObject().getVersionString();
-    }
-
-    /* (non-Javadoc)
-    * @see AbstractProtocol#validateSerialNumber()
-    */
-    protected void validateSerialNumber() throws IOException {
-        String configured = getInfoTypeSerialNumber();
-        String meter = getRegisters().getrSerial().asString();
-        if ((configured != null) && !configured.equals(meter)) {
-            throw new IOException("SerialNumber mismatch! meter: " + meter + ", configured: " + configured);
-        }
     }
 
     /**
@@ -407,7 +396,7 @@ public class CewePrometer extends AbstractProtocol  {
     }
 
     /** send read command */
-    public String read(String cmd, boolean retry) throws IOException {
+    public String read(String cmd, boolean retry) throws ConnectionException, NestedIOException, WriteException, ProtocolException {
         connection.sendRawCommandFrame(IEC1107Connection.READ1, cmd.getBytes());
         byte[] rawData = retry ? connection.receiveRawData() : connection.doReceiveData();
         String response = new String(rawData);

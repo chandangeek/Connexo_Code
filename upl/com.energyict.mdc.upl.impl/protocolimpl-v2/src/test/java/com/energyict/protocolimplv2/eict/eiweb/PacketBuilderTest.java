@@ -4,15 +4,13 @@ import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.exceptions.ComServerExceptionFactoryProvider;
-import com.energyict.mdc.exceptions.DefaultComServerExceptionFactoryProvider;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.DefaultCollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.DeviceIpAddress;
 import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.security.SecurityProperty;
@@ -53,7 +51,6 @@ public class PacketBuilderTest {
 
     @BeforeClass
     public static void doBefore() {
-        ComServerExceptionFactoryProvider.instance.set(new DefaultComServerExceptionFactoryProvider());
         CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
     }
 

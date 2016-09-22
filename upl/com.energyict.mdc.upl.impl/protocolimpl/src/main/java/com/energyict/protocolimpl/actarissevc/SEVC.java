@@ -1,39 +1,30 @@
 package com.energyict.protocolimpl.actarissevc;
 
 import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /*
@@ -53,7 +44,7 @@ KV|23032005|Changed header to be compatible with protocol version tool
 KV|07042006|Bugfix to correct read gross and corrected volume
  * @endchanges
  */
-public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNumber {
+public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, SerialNumberSupport {
 
     private static final byte DEBUG = 0;
 
@@ -301,6 +292,17 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
     }
 
+    @Override
+    public String getSerialNumber() {
+        String versionAndSerialNr;
+        try {
+            versionAndSerialNr = getFirmwareVersion();
+            return versionAndSerialNr.substring(versionAndSerialNr.indexOf("EP"));
+        } catch (IOException e) {
+           throw ProtocolIOExceptionHandler.handle(e, iProtocolRetriesProperty + 1);
+        }
+    }
+
     /**
      * this implementation calls <code> validateProperties </code>
      * and assigns the argument to the properties field
@@ -414,10 +416,10 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws ProtocolException, NestedIOException, ConnectionException {
         try {
             ByteArrayOutputStream byteByffer = new ByteArrayOutputStream();
             sevciec1107Connection.sendReadFrame(SEVC_READ_VERSION);
@@ -430,24 +432,10 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
             }
             return byteByffer.toString();
         } catch (SEVCIEC1107ConnectionException e) {
-            throw new IOException("sevc: getFirmwareVersion(), IEC1107ConnectionException, " + e.getMessage());
+            throw new ProtocolConnectionException("sevc: getFirmwareVersion(), IEC1107ConnectionException, " + e.getMessage(), e.getReason());
         }
     } // public String getFirmwareVersion()
 
-    // KV 15122003
-    private void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)) {
-            return;
-        }
-
-        String versionAndSerialNr = getFirmwareVersion();
-        String sn = versionAndSerialNr.substring(versionAndSerialNr.indexOf("EP"));
-        if (sn.compareTo(serialNumber) == 0) {
-            return;
-        }
-        throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + serialNumber);
-    }
 
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
@@ -514,13 +502,6 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         } catch (SEVCIEC1107ConnectionException e) {
             throw new IOException("connect() error, " + e.getMessage());
         }
-        try {
-            validateSerialNumber(); // KV 15122003
-        } catch (IOException e) {
-            disconnect();
-            throw e;
-        }
-
     }
 
     public void disconnect() {

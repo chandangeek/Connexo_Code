@@ -1,48 +1,30 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileConfigurationException;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -59,18 +41,18 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     /**
      * Hardcoded ObisCode for the status of the 15min profile
      */
-    protected static final ObisCode QuarterlyHourStatusObisCode = ObisCode.fromString("0.0.96.10.1.255");
+    protected static final ObisCode QuarterlyHourStatusObisCode = ObisCode.fromString("0.x.96.10.1.255");
 
-    protected static final ObisCode EdpQuarterlyHourStatusObisCode = ObisCode.fromString("0.0.96.10.7.255");
+    protected static final ObisCode EdpQuarterlyHourStatusObisCode = ObisCode.fromString("0.x.96.10.7.255");
 
     /**
      * Hardcoded ObisCode for the status of the daily profile
      */
-    protected static final ObisCode DailyStatusObisCode = ObisCode.fromString("0.0.96.10.2.255");
+    protected static final ObisCode DailyStatusObisCode = ObisCode.fromString("0.x.96.10.2.255");
     /**
      * Hardcoded ObisCode for the status of the hourly profile
      */
-    protected static final ObisCode HourlyStatusObiscode = ObisCode.fromString("0.0.96.10.3.255");
+    protected static final ObisCode HourlyStatusObiscode = ObisCode.fromString("0.x.96.10.3.255");
 
     /**
      * The used meterProtocol
@@ -137,7 +119,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         try {
             capturedObjectRegisterList = createCapturedObjectRegisterList(ccoLpConfigs);
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getMeterProtocol().getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1);
         }
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, meterProtocol.getDlmsSessionProperties().isBulkRequest());
 
@@ -161,7 +143,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     this.statusMasksMap.put(lpr, statusMask);
                     this.channelMaskMap.put(lpr, channelMask);
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                         lpc.setSupportedByMeter(false);
                     }
                 }
@@ -326,7 +308,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), isCumulativeChannel(registerUnit.getObisCode()));
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
@@ -468,7 +450,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
                     collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                         Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
@@ -520,5 +502,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
     protected Map<CapturedRegisterObject, DLMSAttribute> getRegisterUnitMap() {
         return registerUnitMap;
+    }
+
+    protected boolean isCumulativeChannel(ObisCode obisCode){
+        return ParseUtils.isObisCodeCumulative(obisCode);
     }
 }

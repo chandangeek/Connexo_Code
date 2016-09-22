@@ -4,12 +4,13 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
@@ -52,11 +53,21 @@ public class DlmsProperties implements DlmsSessionProperties {
      */
     @Override
     public TimeZone getTimeZone() {
-        TimeZoneInUse timeZoneInUse = properties.<TimeZoneInUse>getTypedProperty(TIMEZONE);
-        if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
+        final Object object = properties.getTypedProperty(TIMEZONE);
+
+        if (object == null) {
             return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+        } else if (object instanceof TimeZoneInUse) {
+            TimeZoneInUse timeZoneInUse = (TimeZoneInUse) object;
+            if (timeZoneInUse.getTimeZone() == null) {
+                return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+            } else {
+                return timeZoneInUse.getTimeZone();
+            }
+        } else if (object instanceof TimeZone) {
+            return (TimeZone) object;
         } else {
-            return timeZoneInUse.getTimeZone();
+            return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
         }
     }
 
@@ -105,7 +116,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public String getManufacturer() {
-        return properties.<String>getTypedProperty(MANUFACTURER, DEFAULT_MANUFACTURER);
+        return properties.getTypedProperty(MANUFACTURER, DEFAULT_MANUFACTURER);
     }
 
     @Override
@@ -120,7 +131,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public String getDeviceId() {
-        return properties.<String>getTypedProperty(DEVICE_ID, DEFAULT_DEVICE_ID);
+        return properties.getTypedProperty(DEVICE_ID, DEFAULT_DEVICE_ID);
     }
 
     @Override
@@ -245,7 +256,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public long getTimeout() {
-        return properties.<TimeDuration>getTypedProperty(TIMEOUT, new TimeDuration(DEFAULT_TIMEOUT.intValue() / 1000)).getMilliSeconds();
+        return properties.getTypedProperty(TIMEOUT, new TimeDuration(DEFAULT_TIMEOUT.intValue() / 1000)).getMilliSeconds();
     }
 
     @Override
@@ -255,7 +266,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public long getForcedDelay() {
-        return properties.<TimeDuration>getTypedProperty(FORCED_DELAY, new TimeDuration(DEFAULT_FORCED_DELAY.intValue() / 1000)).getMilliSeconds();
+        return properties.getTypedProperty(FORCED_DELAY, new TimeDuration(DEFAULT_FORCED_DELAY.intValue() / 1000)).getMilliSeconds();
     }
 
     @Override
@@ -264,7 +275,11 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     protected int parseBigDecimalProperty(String key, BigDecimal defaultValue) {
-        return properties.<BigDecimal>getTypedProperty(key, defaultValue).intValue();
+        try {
+            return properties.getTypedProperty(key, defaultValue).intValue();
+        } catch (Throwable e) {
+            return defaultValue.intValue();
+        }
     }
 
     /**
@@ -272,11 +287,11 @@ public class DlmsProperties implements DlmsSessionProperties {
      * Throw an error if no value was configured for this property.
      */
     protected int parseBigDecimalProperty(String key) {
-        final BigDecimal value = properties.<BigDecimal>getTypedProperty(key);
+        final BigDecimal value = properties.getTypedProperty(key);
         if (value != null) {
             return value.intValue();
         } else {
-            throw MdcManager.getComServerExceptionFactory().missingProperty(key);
+            throw DeviceConfigurationException.missingProperty(key);
         }
     }
 
@@ -290,8 +305,31 @@ public class DlmsProperties implements DlmsSessionProperties {
         return properties.getTypedProperty(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE).intValue();
     }
 
+    /**
+     * Return the default value, 100 ms.
+     */
     @Override
-    public boolean isUsePolling() {
+    public TimeDuration getPollingDelay() {
+        return new TimeDuration(100, TimeDuration.MILLISECONDS);
+    }
+
+    public GeneralCipheringKeyType getGeneralCipheringKeyType() {
+        String keyTypeDescription = properties.getStringProperty(DlmsProtocolProperties.GENERAL_CIPHERING_KEY_TYPE);
+
+        if (keyTypeDescription == null && getCipheringType().equals(CipheringType.GENERAL_CIPHERING)) {
+            //In the case of general-ciphering, the key type is a required property
+            throw DeviceConfigurationException.missingProperty(DlmsProtocolProperties.GENERAL_CIPHERING_KEY_TYPE);
+        } else {
+            return keyTypeDescription == null ? null : GeneralCipheringKeyType.fromDescription(keyTypeDescription);
+        }
+    }
+
+    /**
+     * By default, for all protocols, a timeout means that the available connection to the DLMS device is broken and can no longer be used,
+     * not even for other physical slave devices that share the same connection.
+     */
+    @Override
+    public boolean timeoutMeansBrokenConnection() {
         return true;
     }
 }

@@ -229,6 +229,13 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         return DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec();
     }
 
+    protected List<PropertySpec> getManufactureSpecificSecurityProperties() {
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+        propertySpecs.add(getClientMacAddressPropertySpec());
+        return propertySpecs;
+    }
+
     /**
      * Summarizes the used ID for the AuthenticationLevels.
      */
@@ -439,7 +446,7 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(getClientMacAddressPropertySpec());
+            return getManufactureSpecificSecurityProperties();
         }
     }
 

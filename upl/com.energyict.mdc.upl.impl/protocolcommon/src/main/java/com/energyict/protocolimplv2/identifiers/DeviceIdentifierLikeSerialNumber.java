@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.cbo.NotFoundException;
+import com.energyict.protocol.exceptions.identifier.DuplicateException;
 import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifierType;
 import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
@@ -9,7 +9,7 @@ import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -26,7 +26,7 @@ import java.util.List;
  * <p/>
  * <b>Be aware that the serialNumber is NOT a unique field in the database.
  * It is possible that multiple devices are found based on the provided SerialNumber.
- * In that case, a {@link com.energyict.cbo.NotFoundException} is throw</b>
+ * In that case, a {@link DuplicateException} is throw</b>
  * <p/>
  * Copyrights EnergyICT
  * Date: 13/05/13
@@ -56,10 +56,10 @@ public class DeviceIdentifierLikeSerialNumber implements ServerDeviceIdentifier 
         if (this.device == null) {
             fetchAllDevices();
             if (this.allDevices.isEmpty()) {
-                throw new NotFoundException("Device with serialnumber like " + this.serialNumber + " not found");
+                throw NotFoundException.notFound(Device.class, this.toString());
             } else {
                 if (this.allDevices.size() > 1) {
-                    throw MdcManager.getComServerExceptionFactory().createDuplicateException(Device.class, this.toString());
+                    throw DuplicateException.duplicateFoundFor(Device.class, this.toString());
                 } else {
                     this.device = this.allDevices.get(0);
                 }

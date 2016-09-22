@@ -8,6 +8,7 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
@@ -48,20 +49,26 @@ import java.util.List;
  */
 public class WebRTUKP extends AbstractDlmsProtocol {
 
-    private Dsmr23Messaging dsmr23Messaging;
+    protected Dsmr23Messaging dsmr23Messaging;
     private Dsmr23LogBookFactory logBookFactory;
     private LoadProfileBuilder loadProfileBuilder;
     private Dsmr23RegisterFactory registerFactory;
+    protected ComChannel comChannel;
+    protected HHUSignOnV2 hhuSignOn;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.comChannel = comChannel;
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
 
-        HHUSignOnV2 hhuSignOn = null;
         if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
         }
+        initDlmsSession();
+    }
+
+    protected void initDlmsSession() {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, getProperDeviceId()));
     }
 
@@ -135,7 +142,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
         return getDsmr23Messaging().executePendingMessages(pendingMessages);
     }
 
-    private Dsmr23Messaging getDsmr23Messaging() {
+    protected Dsmr23Messaging getDsmr23Messaging() {
         if (dsmr23Messaging == null) {
             dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
         }
@@ -148,8 +155,13 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getDsmr23Messaging().format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return getDsmr23Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     @Override
@@ -171,11 +183,12 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-06 14:27:09 +0100 (Fri, 06 Nov 2015) $";
     }
 
     @Override
     public String getProtocolDescription() {
         return "EnergyICT WebRTU KP DLMS (NTA DSMR2.3) V2";
     }
+
 }

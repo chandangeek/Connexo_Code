@@ -1,12 +1,15 @@
 package com.energyict.protocolimpl.din19244.poreg2.request;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.din19244.poreg2.core.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Class to read out a number of profile data entries.
@@ -122,10 +125,10 @@ public class ProfileData extends AbstractRequest {
     }
 
     @Override
-    protected byte[] validateAdditionalBytes(byte[] response) throws IOException {
+    protected byte[] validateAdditionalBytes(byte[] response) throws ProtocolException {
         int receivedGid = response[0] & 0xFF;
         if (receivedGid != gid) {
-            throw new IOException("Error receiving register data. Expected GID: " + gid + ", received " + receivedGid);
+            throw new ProtocolException("Error receiving register data. Expected GID: " + gid + ", received " + receivedGid);
         }
 
         receivedRegisterAddress = response[1] & 0xFF;

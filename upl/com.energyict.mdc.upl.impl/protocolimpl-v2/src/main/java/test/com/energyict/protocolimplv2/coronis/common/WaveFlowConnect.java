@@ -1,6 +1,7 @@
 package test.com.energyict.protocolimplv2.coronis.common;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
@@ -40,10 +41,10 @@ public class WaveFlowConnect {
             //try {
                 write(bytes);
                 return readAll();
-            //} catch (CommunicationException e) {  //TODO revise, don't use comserver exceptions
+            //} catch (CommunicationException e) {
             //    if (retry++ >= retries) {
             //        IOException exception = new IOException(e.getMessage());
-            //        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, retries + 1);
+            //        throw ConnectionCommunicationException.numberOfRetriesReached(exception, retries + 1);
             //    }
             //}
         }
@@ -68,7 +69,7 @@ public class WaveFlowConnect {
             }
         }
         IOException exception = new IOException(getExtraInfo() + "Didn't receive a response.");
-        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, 1);
+        throw ConnectionCommunicationException.numberOfRetriesReached(exception, 1);
     }
 
     private void delay(int millis) {
@@ -76,7 +77,7 @@ public class WaveFlowConnect {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 
@@ -95,11 +96,11 @@ public class WaveFlowConnect {
                 byte[] response = readAll();
                 connected = true;
                 return response;
-            //} catch (CommunicationException e) {  //TODO revise, don't use comserver exceptions
+            //} catch (CommunicationException e) {
             //    communicationAttemptNr++;
             //    if (retry++ >= retries) {
             //        IOException exception = new IOException(e.getMessage());
-            //        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, retries + 1);
+            //        throw ConnectionCommunicationException.numberOfRetriesReached(exception, retries + 1);
             //    }
             //}
         }

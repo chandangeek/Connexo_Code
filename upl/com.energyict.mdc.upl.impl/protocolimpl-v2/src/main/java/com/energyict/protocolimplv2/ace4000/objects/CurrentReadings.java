@@ -19,7 +19,6 @@ public class CurrentReadings extends AbstractActarisObject {
 
     private String includedRegisters = null;
     private Date timeStamp = null;
-    private MeterReadingData mrd = new MeterReadingData();
 
     public CurrentReadings(ObjectFactory of) {
         super(of);
@@ -47,7 +46,7 @@ public class CurrentReadings extends AbstractActarisObject {
         Element md = doc.createElement(XMLTags.METERDATA);
         root.appendChild(md);
         Element s = doc.createElement(XMLTags.SERIALNUMBER);
-        s.setTextContent(getObjectFactory().getAce4000().getSerialNumber());
+        s.setTextContent(getObjectFactory().getAce4000().getConfiguredSerialNumber());
         md.appendChild(s);
         Element t = doc.createElement(XMLTags.TRACKER);
         t.setTextContent(Integer.toString(getTrackingID(), 16));

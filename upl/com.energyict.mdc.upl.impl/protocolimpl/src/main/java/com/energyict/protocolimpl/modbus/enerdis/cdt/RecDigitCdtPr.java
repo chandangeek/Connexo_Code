@@ -2,21 +2,15 @@ package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocolimpl.base.ProfileLimiter;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 /** 
@@ -26,6 +20,7 @@ import java.util.List;
 public class RecDigitCdtPr extends RecDigitCdt {
 	
     private boolean debug = false;
+    private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
 
     final static Unit kWh = Unit.get(BaseUnit.WATT);
     
@@ -41,6 +36,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
     private int tempPointer = 0;
 	private int addState = 0;
 	private int tempPermission = 0;
+    private int limitMaxNrOfDays = 0;
     
     private Calendar currentTime = null;
     private Calendar calendar = null;
@@ -61,9 +57,25 @@ public class RecDigitCdtPr extends RecDigitCdt {
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactoryCdtPr(this));
     }
-    
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) 
-    throws IOException, UnsupportedException {
+
+    protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+
+        super.doTheValidateProperties(properties);
+        this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
+
+    }
+
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+        return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
+    }
+
+    private ProfileData getProfileWithLimiter(ProfileLimiter limiter, boolean includeEvents) throws IOException {
+        Date from = limiter.getFromDate();
+        Date to = limiter.getToDate();
+
+        if (to.before(from)) {
+            return new ProfileData();
+        }
 	
 		this.interval   = this.getProfileInterval();
 		this.rFactory   = this.getRecFactory();
@@ -161,7 +173,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
     			}
     		}
     		
-    		System.out.println("Next intervalTime: " + profileData.getIntervalData(i).getEndTime() );
+    		getLogger().fine("Next intervalTime: " + profileData.getIntervalData(i).getEndTime());
     		
     	}
     	
@@ -370,11 +382,14 @@ public class RecDigitCdtPr extends RecDigitCdt {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2016-06-06 09:40:43 +0300 (Mon, 06 Jun 2016)$";
     }
 
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;
-    }    
-    
+    }
+
+    public int getLimitMaxNrOfDays() {
+        return limitMaxNrOfDays;
+    }
 }

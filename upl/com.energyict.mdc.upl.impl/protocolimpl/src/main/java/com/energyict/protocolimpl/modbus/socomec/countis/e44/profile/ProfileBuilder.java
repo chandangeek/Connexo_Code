@@ -1,11 +1,13 @@
 package com.energyict.protocolimpl.modbus.socomec.countis.e44.profile;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.modbus.socomec.countis.e44.E44;
 import com.energyict.protocolimpl.modbus.socomec.countis.e44.RegisterFactory;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,9 +24,11 @@ public class ProfileBuilder {
     private static final int REGULAR_NUMBER_OF_PROFILE_RECORDS_PER_PROFILE_BLOCK = 29;
     private E44 protocol;
     private ProfileBlock lastProfileBlock;
+    private double ratio = 1;
 
     public ProfileBuilder(E44 protocol) {
         this.protocol = protocol;
+        setCTRatio();
     }
 
     public List getChannelInfos() throws IOException {
@@ -48,7 +52,7 @@ public class ProfileBuilder {
                 profileBlock.getProfileRecords().getProfileRecords().size() == REGULAR_NUMBER_OF_PROFILE_RECORDS_PER_PROFILE_BLOCK) { // If a ProfileRecord contains less entries, then it was the last/oldest one available > you should stop readout
             protocol.getRegisterFactory().findRegister(RegisterFactory.LP_R1_AREA).getWriteSingleRegister(GET_NEXT_DATA_READ_POINTER_VALUE);
             int[] values = protocol.getRegisterFactory().findRegister(RegisterFactory.LP_R2_AREA).values();
-            profileBlock = new ProfileBlock(values);
+            profileBlock = new ProfileBlock(values, getCTRatio());
             profileDataBlocks.add(profileBlock);
         }
 
@@ -74,8 +78,25 @@ public class ProfileBuilder {
         if (this.lastProfileBlock == null) {
             protocol.getRegisterFactory().findRegister(RegisterFactory.LP_R1_AREA).getWriteSingleRegister(RESET_READ_POINTER_VALUE);
             int[] values = protocol.getRegisterFactory().findRegister(RegisterFactory.LP_R2_AREA).values();
-            this.lastProfileBlock = new ProfileBlock(values);
+            this.lastProfileBlock = new ProfileBlock(values, getCTRatio());
         }
         return this.lastProfileBlock;
+    }
+
+    private void setCTRatio(){
+        if(protocol.isApplyCtRatio()){
+            try {
+                BigDecimal secondaryCT = (BigDecimal) protocol.getRegisterFactory().findRegister(ObisCode.fromString("1.0.96.8.0.255")).value();
+                BigDecimal primaryCT = (BigDecimal) protocol.getRegisterFactory().findRegister(ObisCode.fromString("1.0.96.9.0.255")).value();
+                ratio = primaryCT.intValue()/secondaryCT.intValue();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private double getCTRatio() {
+        return ratio;
     }
 }

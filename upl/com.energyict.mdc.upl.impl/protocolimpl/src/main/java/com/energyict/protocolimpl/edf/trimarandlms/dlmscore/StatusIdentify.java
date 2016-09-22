@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -26,7 +26,7 @@ public class StatusIdentify {
     int size;
     
     /** Creates a new instance of StatusIdentify */
-    public StatusIdentify(byte[] data, int offset) throws IOException {
+    public StatusIdentify(byte[] data, int offset) throws ProtocolException {
         size = offset;
         int length = ProtocolUtils.getInt(data,offset++,1);
         setResources(new String(ProtocolUtils.getSubArray2(data, offset, length)));

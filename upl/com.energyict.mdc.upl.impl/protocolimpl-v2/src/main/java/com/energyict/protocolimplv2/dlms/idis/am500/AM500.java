@@ -5,27 +5,33 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.idis.IDISObjectList;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
@@ -38,9 +44,9 @@ import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISRegisterFactor
 import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
 
 /**
  * This V2 protocol is a port from the old V1 IDIS protocol.
@@ -49,14 +55,15 @@ import java.util.List;
  * @author khe
  * @since 19/12/2014 - 10:42
  */
-public class AM500 extends AbstractDlmsProtocol {
+public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     protected IDISLogBookFactory idisLogBookFactory = null;
     protected IDISMessaging idisMessaging = null;
+    protected IDISProfileDataReader idisProfileDataReader = null;
+    protected IDISStoredValues storedValues = null;
     private IDISRegisterFactory registerFactory = null;
-    private IDISProfileDataReader idisProfileDataReader = null;
-    private IDISStoredValues storedValues = null;
     private String serialNumber = null;
+    private static final ObisCode LOGICAL_DEVICE_NAME_OBIS = ObisCode.fromString("0.0.42.0.0.255");
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -98,9 +105,6 @@ public class AM500 extends AbstractDlmsProtocol {
     public void logOn() {
         connectWithRetries(getDlmsSession());
         checkCacheObjects();
-        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
-            getMeterTopology().searchForSlaveDevices();
-        }
     }
 
     /**
@@ -112,38 +116,50 @@ public class AM500 extends AbstractDlmsProtocol {
     protected void connectWithRetries(DlmsSession dlmsSession) {
         int tries = 0;
         while (true) {
-            ComServerExecutionException exception;
+            ProtocolRuntimeException exception;
             try {
+                dlmsSession.getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
                 if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     dlmsSession.getDlmsV2Connection().connectMAC();
                     dlmsSession.createAssociation();
                 }
                 return;
-            } catch (ComServerExecutionException e) {
+            } catch (ProtocolRuntimeException e) {
+                getLogger().log(Level.WARNING, e.getMessage(), e);
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
-                } else if (MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e)) {
+                } else if (e instanceof ConnectionCommunicationException) {
                     throw e;
-                } else if (MdcManager.getComServerExceptionFactory().isDataEncryptionException(e)) {
+                } else if (e instanceof DataEncryptionException) {
                     throw e;
                 }
                 exception = e;
+            } finally {
+                dlmsSession.getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > dlmsSession.getProperties().getRetries()) {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
-                throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(exception);
+                throw CommunicationException.protocolConnectFailed(exception);
             } else {
                 getLogger().info("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     dlmsSession.getAso().releaseAssociation();
-                } catch (ComServerExecutionException e) {
+                } catch (ProtocolRuntimeException e) {
                     dlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
                     // Absorb exception: in 99% of the cases we expect an exception here ...
                 }
             }
         }
+    }
+
+    @Override
+    protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
+        if (dlmsSecuritySupport == null) {
+            dlmsSecuritySupport = new AM500SecuritySupport();
+        }
+        return dlmsSecuritySupport;
     }
 
     /**
@@ -164,7 +180,7 @@ public class AM500 extends AbstractDlmsProtocol {
         } else {
             getLogger().info("Cache exist, will not be read!");
         }
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getDeviceCache()).getObjectList());
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
     }
 
     @Override
@@ -197,7 +213,7 @@ public class AM500 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "AM500 DLMS (IDIS P1) V2";
+        return "Elster AM500 DLMS (IDIS P1) V2";
     }
 
     @Override
@@ -245,8 +261,13 @@ public class AM500 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getIDISMessaging().format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return getIDISMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     protected IDISMessaging getIDISMessaging() {
@@ -280,24 +301,49 @@ public class AM500 extends AbstractDlmsProtocol {
         return storedValues;
     }
 
+    /**
+     *
+     * @return this method returns either serial number or logical device name depending on the value of "UseLogicalDeviceNameAsSerialNumber" property
+     */
     @Override
     public String getSerialNumber() {
-        if (serialNumber == null) {
-            serialNumber = super.getSerialNumber();
+
+        if(!getDlmsSessionProperties().useLogicalDeviceNameAsSerialNumber()){
+            return getMeterInfo().getSerialNr();
+        } else {
+            try {
+                final Data data = getDlmsSession().getCosemObjectFactory().getData(LOGICAL_DEVICE_NAME_OBIS);
+                final OctetString logicalDeviceName = data.getValueAttr(OctetString.class);
+                return logicalDeviceName.stringValue();
+            } catch (IOException e) {
+                throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
+            }
         }
-        return serialNumber;
+    }
+
+    @Override
+    public void setTime(Date newMeterTime) {
+        try {
+            AXDRDateTime dateTime = new AXDRDateTime(newMeterTime, getTimeZone());
+            dateTime.useUnspecifiedAsDeviation(getDlmsSessionProperties().useUndefinedAsTimeDeviation());
+            getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(dateTime);
+        } catch (IOException e) {
+            getLogger().log(Level.FINEST, e.getMessage());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
+        }
     }
 
     @Override
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
             meterTopology = new IDISMeterTopology(this);
+            meterTopology.searchForSlaveDevices();
         }
         return meterTopology;
     }
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-05-09 15:56:50 +0300 (Mon, 09 May 2016)$";
     }
 }

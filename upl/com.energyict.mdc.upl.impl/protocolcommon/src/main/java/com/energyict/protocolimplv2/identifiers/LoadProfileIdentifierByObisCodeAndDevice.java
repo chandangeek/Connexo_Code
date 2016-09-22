@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.cbo.NotFoundException;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.util.Collections;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierType;
@@ -60,12 +60,10 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
             for (LoadProfile profile : loadProfiles) {
                 if (profile.getDeviceObisCode().equals(this.profileObisCode)) {
                     this.loadProfile = profile;
-                    break;
+                    return loadProfile;
                 }
             }
-        }
-        if (this.loadProfile == null) {
-            throw new NotFoundException("LoadProfile with ObisCode " + profileObisCode + " for device with " + deviceIdentifier.toString() + " not found");
+            throw NotFoundException.notFound(LoadProfile.class, this.toString());
         }
         return loadProfile;
     }

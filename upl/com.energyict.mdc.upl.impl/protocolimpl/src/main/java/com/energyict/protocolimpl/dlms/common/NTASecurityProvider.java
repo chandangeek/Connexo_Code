@@ -8,8 +8,8 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Properties;
-import java.util.Random;
 
 /**
  * Default implementation of the securityProvider.
@@ -21,17 +21,6 @@ import java.util.Random;
  * @author gna
  */
 public class NTASecurityProvider implements SecurityProvider {
-
-    protected int securityLevel = -1;
-    protected byte[] cTOs;
-    private byte[] authenticationKey;
-    private byte[] encryptionKey;
-    protected byte[] dedicatedKey;
-    private byte[] masterKey;
-    private String hlsSecret;
-    private int challengeLength;
-    protected Properties properties;
-    private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
     /**
      * Property name of the new AuthenticationKey
@@ -61,23 +50,17 @@ public class NTASecurityProvider implements SecurityProvider {
      * Property name of the length of the client to server challenge
      */
     public static final String CLIENT_TO_SERVER_CHALLENGE_LENGTH = "ChallengeLength";
-
-    public enum ChallengeLength {
-        LENGTH_8_BYTE(8),
-        LENGTH_16_BYTE(16);
-
-        private int length;
-
-        private ChallengeLength(int length) {
-            this.length = length;
-        }
-
-        public int getLength() {
-            return length;
-        }
-    }
-
+    protected int securityLevel = -1;
+    protected byte[] cTOs;
+    protected byte[] dedicatedKey;
+    protected Properties properties;
     protected Long initialFrameCounter;
+    private byte[] authenticationKey;
+    private byte[] encryptionKey;
+    private byte[] masterKey;
+    private String hlsSecret;
+    private int challengeLength;
+    private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
     /**
      * Create a new instance of LocalSecurityProvider
@@ -101,12 +84,16 @@ public class NTASecurityProvider implements SecurityProvider {
     }
 
     /**
-     * Generate a random challenge of 8 bytes long
+     * Generate a random challenge of x (default 16) bytes long
      */
     protected void generateClientToServerChallenge() {
+        this.generateClientToServerChallenge(getClientToServerChallengeLength());
+    }
+
+    protected void generateClientToServerChallenge(int length) {
         if (this.cTOs == null) {
-            Random generator = new Random();
-            this.cTOs = new byte[16];
+            SecureRandom generator = new SecureRandom();
+            this.cTOs = new byte[length];
             generator.nextBytes(this.cTOs);
         }
     }
@@ -119,6 +106,10 @@ public class NTASecurityProvider implements SecurityProvider {
             this.authenticationKey = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY, ""));
         }
         return this.authenticationKey;
+    }
+
+    protected void setAuthenticationKey(byte[] authenticationKey) {
+        this.authenticationKey = authenticationKey;
     }
 
     public byte[] getCallingAuthenticationValue() throws UnsupportedException {
@@ -141,6 +132,14 @@ public class NTASecurityProvider implements SecurityProvider {
             }
             case 5: {    // this is a ClientToServer challenge for GMAC
                 generateClientToServerChallenge();
+                return this.cTOs;
+            }
+            case 6: {    // this is a ClientToServer challenge for SHA-256
+                generateClientToServerChallenge();
+                return this.cTOs;
+            }
+            case 7: {    // this is a ClientToServer challenge for ECDSA, it requires a challenge length between 32 and 64 bytes
+                generateClientToServerChallenge(32);
                 return this.cTOs;
             }
             default:
@@ -186,11 +185,15 @@ public class NTASecurityProvider implements SecurityProvider {
     /**
      * @return the master key (this is the KeyEncryptionKey)
      */
-    public byte[] getMasterKey() throws IOException {
+    public byte[] getMasterKey(){
         if (this.masterKey == null) {
             this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
         }
         return this.masterKey;
+    }
+
+    protected void setMasterKey(byte[] masterKey) {
+        this.masterKey = masterKey;
     }
 
     /**
@@ -210,9 +213,13 @@ public class NTASecurityProvider implements SecurityProvider {
         if (initialFrameCounter != null) {
             return initialFrameCounter;
         } else {
-            Random generator = new Random();
+            SecureRandom generator = new SecureRandom();
             return generator.nextLong();
         }
+    }
+
+    public void setInitialFrameCounter(long frameCounter) {
+        this.initialFrameCounter = frameCounter;
     }
 
     /**
@@ -241,21 +248,13 @@ public class NTASecurityProvider implements SecurityProvider {
         this.authenticationKey = newAuthenticationKey;
     }
 
-    public void setInitialFrameCounter(long frameCounter) {
-        this.initialFrameCounter = frameCounter;
-    }
-
     public byte[] getDedicatedKey() {
         if (dedicatedKey == null) {
             dedicatedKey = new byte[16];
-            Random rnd = new Random();
+            SecureRandom rnd = new SecureRandom();
             rnd.nextBytes(dedicatedKey);
         }
         return dedicatedKey;
-    }
-
-    protected void setAuthenticationKey(byte[] authenticationKey) {
-        this.authenticationKey = authenticationKey;
     }
 
     protected void setDedicatedKey(byte[] dedicatedKey) {
@@ -268,10 +267,6 @@ public class NTASecurityProvider implements SecurityProvider {
 
     protected void setHlsSecret(String hlsSecret) {
         this.hlsSecret = hlsSecret;
-    }
-
-    protected void setMasterKey(byte[] masterKey) {
-        this.masterKey = masterKey;
     }
 
     public int getClientToServerChallengeLength() {
@@ -287,5 +282,20 @@ public class NTASecurityProvider implements SecurityProvider {
 
     protected Properties getProperties() {
         return this.properties;
+    }
+
+    public enum ChallengeLength {
+        LENGTH_8_BYTE(8),
+        LENGTH_16_BYTE(16);
+
+        private int length;
+
+        ChallengeLength(int length) {
+            this.length = length;
+        }
+
+        public int getLength() {
+            return length;
+        }
     }
 }

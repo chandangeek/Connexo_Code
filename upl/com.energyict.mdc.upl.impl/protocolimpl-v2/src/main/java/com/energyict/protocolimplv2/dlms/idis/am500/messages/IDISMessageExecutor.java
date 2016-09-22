@@ -1,27 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.messages;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.RegisterMonitor;
-import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
@@ -29,6 +12,7 @@ import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
@@ -38,29 +22,15 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
-import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
@@ -106,7 +76,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
                 try {
                     collectedMessage = executeMessage(pendingMessage, collectedMessage);
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSessionProperties().getRetries()+1)) {
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation(e.getMessage());
                         collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
@@ -129,6 +99,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
             writeSpecialDays(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS)) {
             resetAllAlarmBits(ALARM_BITS_OBISCODE);
+            collectedMessage.setDeviceProtocolInformation("Reset ALL alarm bits from "+ALARM_BITS_OBISCODE.toString());
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS)) {
             resetAllErrorBits(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.WRITE_ALARM_FILTER)) {
@@ -198,7 +169,11 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         }
 
         imageTransfer.setUsePollingVerifyAndActivate(true);    //Poll verification
-        imageTransfer.upgrade(binaryImage, false, firmwareIdentifier, false);
+        imageTransfer.upgrade(binaryImage, false, firmwareIdentifier, true);
+        activateFirmware(imageTransfer);
+    }
+
+    protected void activateFirmware(ImageTransfer imageTransfer) throws IOException {
         try {
             imageTransfer.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation (the meter will immediately reboot)!
             imageTransfer.imageActivation();
@@ -230,7 +205,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
                     return collectedMessage;
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                     continue;
                 } else {
                     throw e;
@@ -259,7 +234,10 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     private CollectedMessage superVision(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         int phase = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, phaseAttributeName).getDeviceMessageAttributeValue()).intValue();
         long threshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, thresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).longValue();
+        return updateThresholds(collectedMessage, offlineDeviceMessage, phase, threshold);
+    }
 
+    protected CollectedMessage updateThresholds(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage, int phase, long threshold) throws IOException {
         if (threshold > SUPERVISION_MAXIMUM_THRESHOLD_VALUE) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String msg = "Invalid threshold value, should be smaller than 4294967296";
@@ -298,7 +276,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         Date emergencyProfileActivationDate = new Date(new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileActivationDateAttributeName).getDeviceMessageAttributeValue()).longValue());
         int emergencyProfileDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileDurationAttributeName).getDeviceMessageAttributeValue());
         String emergencyProfileGroupIdList = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileGroupIdListAttributeName).getDeviceMessageAttributeValue();
-        int actionWhenUnderThreshold = LoadControlActions.fromDescription(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, actionWhenUnderThresholdAttributeName).getDeviceMessageAttributeValue());
+        int actionWhenUnderThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, actionWhenUnderThresholdAttributeName).getDeviceMessageAttributeValue());
 
         Limiter limiter = getCosemObjectFactory().getLimiter();
         setMonitoredValue(limiter, monitoredValue);
@@ -415,15 +393,13 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
 
     protected void resetAllAlarmBits(ObisCode obisCode) throws IOException {
-        long alarmBits = getCosemObjectFactory().getData(obisCode).getValue();
         Data data = getCosemObjectFactory().getData(obisCode);
-        data.setValueAttr(new Unsigned32(alarmBits));
+        data.setValueAttr(new Unsigned32(0)); // to reset the alarm bits we have to write zero back to the register
     }
 
     private void resetAllErrorBits(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         Data data = getCosemObjectFactory().getData(ERROR_BITS_OBISCODE);
-        long errorBits = data.getValueAttr().longValue();
-        data.setValueAttr(new Unsigned32(errorBits));
+        data.setValueAttr(new Unsigned32(0)); // to reset the error bits we have to write zero back to the register
     }
 
     protected void writeAlarmFilter(ObisCode obisCode, long filter) throws IOException {
@@ -484,7 +460,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         try {
             return ProtocolTools.compress(codeTableDescription);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw DataParseException.generalParseException(e);
         }
     }
 

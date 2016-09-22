@@ -11,7 +11,9 @@ import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 /** 29 may 2006 Bugfix
  * The load profile was being read with energy units.  The meter was actually
@@ -41,7 +43,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
     private boolean customerDefined2 = false;
 
     /** Creates new LoadProfileConfigRegister */
-    public void loadConfig(ABBA230RegisterFactory rFactory, byte[] data) throws IOException {
+    public void loadConfig(ABBA230RegisterFactory rFactory, byte[] data) {
         this.rFactory = rFactory;
         this.channelMask = data.clone();
         init();
@@ -56,7 +58,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
         init();
     }
     
-    private void init( ) throws IOException {
+    private void init( ) {
         int i = 0;
         
         if( ( channelMask[1] & 0x01 ) > 0 ) {

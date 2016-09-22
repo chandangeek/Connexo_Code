@@ -42,14 +42,15 @@ public enum LogBookDeviceMessage implements DeviceMessageSpec {
     ResetBreakerLogbook(14),
     ResetCommunicationLogbook(15),
     ResetLQILogbook(16),
-    ResetVoltageCutLogbook(17);
+    ResetVoltageCutLogbook(17),
+    ReadLogBook(18);
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.LOG_BOOKS;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
 
-    private LogBookDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    LogBookDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
         this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }

@@ -2,29 +2,15 @@ package com.energyict.protocolimplv2.dlms.idis.am500.events;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocol.NotInObjectListException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.dlms.idis.events.AbstractEvent;
-import com.energyict.protocolimpl.dlms.idis.events.DisconnectorControlLog;
-import com.energyict.protocolimpl.dlms.idis.events.FraudDetectionLog;
-import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog1;
-import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog2;
-import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog3;
-import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog4;
-import com.energyict.protocolimpl.dlms.idis.events.MBusEventLog;
-import com.energyict.protocolimpl.dlms.idis.events.PowerFailureEventLog;
-import com.energyict.protocolimpl.dlms.idis.events.PowerQualityEventLog;
-import com.energyict.protocolimpl.dlms.idis.events.StandardEventLog;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.dlms.idis.events.*;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -76,7 +62,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
                 ProfileGeneric profileGeneric = null;
                 try {
                     profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(logBookReader.getLogBookObisCode());
-                    profileGeneric.setDsmr4SelectiveAccessFormat(true);
+                    profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
                 } catch (NotInObjectListException e) {
                     collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                 }
@@ -96,7 +82,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
                             collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
                         }
                     } catch (IOException e) {
-                        if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
+                        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries())) {
                             collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                         }
                     }
@@ -132,7 +118,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
     protected List<MeterEvent> getMBusControlLog(Calendar fromCal, Calendar toCal, LogBookReader logBookReader) throws IOException {
         ObisCode mBusControlLogObisCode = getMBusControlLogObisCode(logBookReader.getMeterSerialNumber());
         ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(mBusControlLogObisCode);
-        profileGeneric.setDsmr4SelectiveAccessFormat(true);
+        profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
         DataContainer mBusControlLogDC = profileGeneric.getBuffer(fromCal, toCal);
         AbstractEvent mBusControlLog;
         switch (protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber())) {

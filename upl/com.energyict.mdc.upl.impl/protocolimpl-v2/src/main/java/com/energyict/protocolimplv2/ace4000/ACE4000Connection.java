@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.InboundFrameException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,10 +17,10 @@ import java.util.List;
  */
 public class ACE4000Connection {
 
+    private static final String START = "<MPush>";
     private ComChannel comChannel;
     private ACE4000 ace4000;
     private boolean inbound;
-    private static final String START = "<MPush>";
 
     public ACE4000Connection(ComChannel comChannel, ACE4000 ace4000, boolean inbound) {
         this.comChannel = comChannel;
@@ -43,7 +44,7 @@ public class ACE4000Connection {
 
         // keep reading until you get no data for [timeout] period
         int timeout = ace4000.getProperties().getTimeout();
-        long interMessageTimeout = getCurrentSystemTime() + timeout;
+        long timeoutMoment = getCurrentSystemTime() + timeout;
         StringBuilder msg = new StringBuilder();
         comChannel.startReading();
 
@@ -59,17 +60,20 @@ public class ACE4000Connection {
                 }
                 if (!mustKeepListening) {    //Return single frame, don't wait for timeout
                     return splitConcatenatedFrames(msg.toString());
+                } else {
+                    //Update the timeout moment, to make sure that we listen long enough
+                    timeoutMoment = getCurrentSystemTime() + timeout;
                 }
             } else {
                 delay(100);
             }
-            if (getCurrentSystemTime() - interMessageTimeout > 0) {
+            if (getCurrentSystemTime() - timeoutMoment > 0) {
                 if (msg.toString().isEmpty()) {
                     if (inbound) {
-                        throw MdcManager.getComServerExceptionFactory().createInboundTimeOutException(String.format("Timeout: didn't receive an inbound frame after %d ms.",timeout));
+                        throw InboundFrameException.timeoutException(String.format("Timeout: didn't receive an inbound frame after %d ms.", timeout));
                     } else {
-                        IOException cause = new IOException(String.format("Timeout: didn't receive an outbound frame after %d ms.",timeout));
-                        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(cause, ace4000.getProperties().getRetries() + 1);
+                        IOException cause = new IOException(String.format("Timeout: didn't receive an outbound frame after %d ms.", timeout));
+                        throw ConnectionCommunicationException.numberOfRetriesReached(cause, ace4000.getProperties().getRetries() + 1);
                     }
                 } else {
                     return splitConcatenatedFrames(msg.toString());    //Return the received frames after waiting for a timeout
@@ -94,7 +98,7 @@ public class ACE4000Connection {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 

@@ -46,7 +46,7 @@ public class EnermetE70XIEC1107Connection extends IEC1107Connection {
                     setBoolFlagIEC1107Connected(true);
                     return meterType;
                 } catch (ProtocolConnectionException e) {
-                    throw new ProtocolConnectionException("connectMAC(), ProtocolConnectionException " + e.getMessage());
+                    throw new ProtocolConnectionException("connectMAC(), ProtocolConnectionException " + e.getMessage(), e.getReason());
                 }
             }
             return null;

@@ -29,7 +29,7 @@ public class WaveFlowV2 extends WaveFlow {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override

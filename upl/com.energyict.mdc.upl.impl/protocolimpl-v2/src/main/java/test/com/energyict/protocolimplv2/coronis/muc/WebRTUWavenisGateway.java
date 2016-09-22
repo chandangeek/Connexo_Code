@@ -22,6 +22,8 @@ import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 import com.energyict.protocolimplv2.common.AbstractGateway;
@@ -59,7 +61,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
         if (comChannel instanceof ServerWavenisGatewayComChannel) {
             this.wavenisStack = ((ServerWavenisGatewayComChannel) comChannel).getWavenisStack();
         } else {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedComChannel(WavenisGatewayComChannel.class.getSimpleName(), comChannel.getClass().getSimpleName());
+            throw DeviceConfigurationException.unexpectedComChannel(WavenisGatewayComChannel.class.getSimpleName(), comChannel.getClass().getSimpleName());
         }
         this.offlineDevice = offlineDevice;
     }
@@ -75,7 +77,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
     @Override
@@ -95,7 +97,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
         try {
             return WavenisStackUtils.readClock(wavenisStack);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, 1);
+            throw ConnectionCommunicationException.numberOfRetriesReached(e, 1);
         }
     }
 
@@ -104,7 +106,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
         try {
             WavenisStackUtils.syncClock(wavenisStack);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, 1);
+            throw ConnectionCommunicationException.numberOfRetriesReached(e, 1);
         }
     }
 
@@ -146,8 +148,8 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getMessaging().format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return getMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
@@ -179,7 +181,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
             try {
                 result.add(getRegisterReader().readRegister(register));
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, 1);
+                throw ConnectionCommunicationException.numberOfRetriesReached(e, 1);
             }
         }
         return result;

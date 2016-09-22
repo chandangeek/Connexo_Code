@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
@@ -12,7 +13,6 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
@@ -52,19 +52,21 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
                 collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
                 try {
-                    boolean messageExecuted = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
-                    if (!messageExecuted) { // if it was not a PLC message
+                    final CollectedMessage plcMessageResult = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
+                    if (plcMessageResult != null) {
+                        collectedMessage = plcMessageResult;
+                    } else { // if it was not a PLC message
                         if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CLOSE_RELAY)) {
                             closeRelay(pendingMessage);
                         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.OPEN_RELAY)) {
                             openRelay(pendingMessage);
                         } else {
-                            collectedMessage = null;
                             dsmr40Messages.add(pendingMessage); // These messages are not specific for AM540, but can be executed by the super (= Dsmr 4.0) messageExecutor
+                            collectedMessage = null;
                         }
                     }
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                         collectedMessage.setDeviceProtocolInformation(e.getMessage());

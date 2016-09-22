@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import java.io.IOException;
-import java.util.Date;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk6.core.DateTimeBuilder;
+
+import java.util.Date;
 
 /**
  *
@@ -76,7 +76,7 @@ public class FileAccessSearchCommand extends AbstractCommand {
         return strBuff.toString();
     }    
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
         int offset = 2;
         setRegisterId(ProtocolUtils.getInt(data,offset,4));
         offset+=4;

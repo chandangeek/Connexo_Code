@@ -4,6 +4,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
@@ -16,7 +17,6 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
@@ -32,10 +32,10 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public class WebRTUZ3MBusMessageExecutor extends AbstractMessageExecutor {
 
-    public static final ObisCode MBUS_CLIENT_OBIS = ObisCode.fromString("0.0.24.1.0.255");
-    public static final ObisCode MBUS_DISCONNECT_CONTROL_OBIS = ObisCode.fromString("0.0.24.4.0.255");
-    public static final ObisCode MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS = ObisCode.fromString("0.0.24.6.0.255");
-    public static final ObisCode MBUS_DISCONNECT_SCRIPT_TABLE_OBIS = ObisCode.fromString("0.0.24.7.0.255");
+    public static final ObisCode MBUS_CLIENT_OBIS = ObisCode.fromString("0.x.24.1.0.255");
+    public static final ObisCode MBUS_DISCONNECT_CONTROL_OBIS = ObisCode.fromString("0.x.24.4.0.255");
+    public static final ObisCode MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS = ObisCode.fromString("0.x.24.6.0.255");
+    public static final ObisCode MBUS_DISCONNECT_SCRIPT_TABLE_OBIS = ObisCode.fromString("0.x.24.7.0.255");
 
     public WebRTUZ3MBusMessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
@@ -50,7 +50,7 @@ public class WebRTUZ3MBusMessageExecutor extends AbstractMessageExecutor {
             try {
                 collectedMessage = executeMessage(pendingMessage, collectedMessage);
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession().getProperties().getRetries() + 1)) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));

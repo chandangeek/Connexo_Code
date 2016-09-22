@@ -30,9 +30,9 @@ public class DSMR40RespondingFrameCounterHandler implements RespondingFrameCount
             if (this.responseFrameCounter == -1 && receivedFrameCounter == 0) { // rollover
                 this.responseFrameCounter = receivedFrameCounter;
             } else if (this.responseFrameCounter == -1 && receivedFrameCounter != 0) {
-                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_SECURITY);
+                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER);
             } else if (receivedFrameCounter != this.responseFrameCounter + 1) {
-                throw new DLMSConnectionException("Received incorrect FrameCounter.", DLMSConnectionException.REASON_SECURITY);
+                throw new DLMSConnectionException("Received incorrect FrameCounter.", DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER);
             } else {
                 this.responseFrameCounter = receivedFrameCounter;
             }
@@ -43,6 +43,10 @@ public class DSMR40RespondingFrameCounterHandler implements RespondingFrameCount
         return this.responseFrameCounter;
     }
 
+    @Override
+    public void resetRespondingFrameCounter(int initialValue) {
+        responseFrameCounter = initialValue;
+    }
 
     private boolean isFrameCounterInitialized() {
         return frameCounterInitialized;

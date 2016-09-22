@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>protocolimpl</artifactId>
@@ -29,10 +30,8 @@
         </dependency>
 
         <dependency>
-            <groupId>serialio</groupId>
-            <artifactId>serialio</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocol-api</artifactId>
         </dependency>
 
         <dependency>
@@ -216,7 +215,7 @@
         <plugins>
             <!-- This proguard plugin is used to obfuscate the protocolimpl jar-->
             <plugin>
-                <groupId>com.pyx4me</groupId>
+                <groupId>com.github.wvengen</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
                 <version>${proguard.maven.version}</version>
 
@@ -241,19 +240,6 @@
                         <lib>${java.home}/lib/jce.jar</lib>
                     </libs>
                 </configuration>
-
-                <dependencies>
-                    <dependency>
-                        <groupId>net.sf.proguard</groupId>
-                        <artifactId>proguard</artifactId>
-                        <version>${proguard.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>net.sf.proguard</groupId>
-                        <artifactId>proguard-base</artifactId>
-                        <version>${proguard.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
 
             <!-- This plugin is used to add the 'generated-sources' folder to the source folder.-->

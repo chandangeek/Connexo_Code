@@ -26,7 +26,6 @@ public class BillingData extends AbstractActarisObject {
     private int enabled = -1;
     private int interval = -1;
     private int numOfRecs = -1;
-    private MeterReadingData mrd = new MeterReadingData();
     private boolean isComplexBillingData = false;
 
     public BillingData(ObjectFactory of) {
@@ -52,7 +51,7 @@ public class BillingData extends AbstractActarisObject {
         Element md = doc.createElement(XMLTags.METERDATA);
         root.appendChild(md);
         Element s = doc.createElement(XMLTags.SERIALNUMBER);
-        s.setTextContent(getObjectFactory().getAce4000().getSerialNumber());
+        s.setTextContent(getObjectFactory().getAce4000().getConfiguredSerialNumber());
         md.appendChild(s);
         Element t = doc.createElement(XMLTags.TRACKER);
         t.setTextContent(Integer.toString(getTrackingID(), 16));

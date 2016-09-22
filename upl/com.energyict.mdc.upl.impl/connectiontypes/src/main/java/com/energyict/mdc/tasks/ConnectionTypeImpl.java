@@ -12,7 +12,7 @@ import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.exceptions.SerialPortException;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.protocol.ServerLoggableComChannel;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -47,6 +47,10 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
 
     protected Object getProperty(String propertyName) {
         return this.getAllProperties().getProperty(propertyName);
+    }
+
+    protected Object getProperty(String propertyName, Object defaultValue) {
+        return this.getAllProperties().getProperty(propertyName, defaultValue);
     }
 
     protected void setProperty(String propertyName, Object value) {

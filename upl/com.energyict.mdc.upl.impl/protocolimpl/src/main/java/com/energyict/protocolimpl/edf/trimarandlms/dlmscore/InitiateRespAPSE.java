@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
-import java.io.IOException;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -20,8 +19,8 @@ import com.energyict.protocol.ProtocolUtils;
  */
 abstract public class InitiateRespAPSE extends AbstractAPSEPDU {
 
-    abstract protected byte[] preparebuildPDU() throws IOException;
-    abstract protected void parsePDU(byte[] data) throws IOException;    
+    abstract protected byte[] preparebuildPDU() throws ProtocolException;
+    abstract protected void parsePDU(byte[] data) throws ProtocolException;
     
     private int negotiatedAppCtxName;
     
@@ -32,15 +31,15 @@ abstract public class InitiateRespAPSE extends AbstractAPSEPDU {
         
     final int INITIATE_RESP_APSE = 7;
     
-    byte[] preparebuild() throws IOException {
+    byte[] preparebuild() throws ProtocolException {
         return null;
     }
     
-    void parse(byte[] data) throws IOException {
+    void parse(byte[] data) throws ProtocolException {
         int offset=0;
         int tag = ProtocolUtils.getInt(data,offset++,1);
         if (tag != INITIATE_RESP_APSE){
-            throw new IOException("InitiateRespAPSE, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
+            throw new ProtocolException("InitiateRespAPSE, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
         }
         negotiatedAppCtxName = ProtocolUtils.getInt(data,offset++,1);
         parsePDU(ProtocolUtils.getSubArray(data,offset));

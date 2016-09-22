@@ -5,6 +5,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
@@ -85,11 +86,11 @@ public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupp
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (messageAttribute instanceof TimeDuration) {
             return Integer.toString(((TimeDuration) messageAttribute).getSeconds());
         } else {
-            return super.format(propertySpec, messageAttribute);
+            return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
         }
     }
 

@@ -29,6 +29,22 @@ public interface SixLoWPanMessages {
 
     }
 
+    @RtuMessageDescription(category = SIX_LOW_PAN_SETUP_CATEGORY, description = "Set low LQI value", tag = "SetLowLQIValue", advanced = true)
+    interface SetLowLQIValueMessage extends AnnotatedMessage {
+
+        @RtuMessageAttribute(tag = "LowLQIValue", required = true)
+        int getLowLQIValue();
+
+    }
+
+    @RtuMessageDescription(category = SIX_LOW_PAN_SETUP_CATEGORY, description = "Set high LQI value", tag = "SetHighLQIValue", advanced = true)
+    interface SetHighLQIValueMessage extends AnnotatedMessage {
+
+        @RtuMessageAttribute(tag = "HighLQIValue", required = true)
+        int getHighLQIValue();
+
+    }
+
     @RtuMessageDescription(category = SIX_LOW_PAN_SETUP_CATEGORY, description = "Set security level", tag = "SetSecurityLevel", advanced = true)
     interface SetSecurityLevel extends AnnotatedMessage {
 
@@ -45,6 +61,9 @@ public interface SixLoWPanMessages {
 
         @RtuMessageAttribute(tag = "adp_routing_table_entry_TTL", required = true)
         int adp_routing_table_entry_TTL();
+
+        @RtuMessageAttribute(tag = "adp_routing_tuple_TTL", required = true)
+        int adp_routing_tuple_TTL();
 
         @RtuMessageAttribute(tag = "adp_Kr", required = true)
         int adp_Kr();
@@ -89,6 +108,14 @@ public interface SixLoWPanMessages {
 
         @RtuMessageAttribute(tag = "BroadcastLogTableEntryTTL", required = true)
         int getBroadcastLogTableEntryTTL();
+
+    }
+
+    @RtuMessageDescription(category = SIX_LOW_PAN_SETUP_CATEGORY, description = "Set Routing Tuple TTL", tag = "SetRoutingTupleTTL", advanced = true)
+    interface SetRoutingTupleTTLMessage extends AnnotatedMessage {
+
+        @RtuMessageAttribute(tag = "RoutingTupleTTL", required = true)
+        int getRoutingTupleTTL();
 
     }
 

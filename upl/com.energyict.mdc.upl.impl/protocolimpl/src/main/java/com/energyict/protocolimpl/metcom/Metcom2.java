@@ -167,7 +167,7 @@ public class Metcom2 extends Metcom{
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-06-20 14:07:47 +0200 (Fri, 20 Jun 2014) $";
     }    
     
     public String getRegistersInfo(int extendedLogging) throws IOException {

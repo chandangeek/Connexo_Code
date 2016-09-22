@@ -42,7 +42,7 @@ public class Structure extends AbstractDataType {
         }
     }
 
-    public Structure(byte[] berEncodedData, int offset, int level) throws IOException {
+    public Structure(byte[] berEncodedData, int offset, int level) throws ProtocolException {
 		offsetBegin = offset;
 		if (berEncodedData[offset] != AxdrType.STRUCTURE.getTag()) {
 			throw new ProtocolException("Structure, invalid identifier " + berEncodedData[offset]);

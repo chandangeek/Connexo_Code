@@ -6,7 +6,7 @@ import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionTy
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -71,7 +71,7 @@ public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
     @Override

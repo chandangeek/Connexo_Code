@@ -34,12 +34,12 @@ public class ApplicationFunction {
         
         this.channelInfo =  new ArrayList( ){
             {
-                ChannelInfo c1 = new ChannelInfo( 1, "Import Kw", Unit.get("kWh") );
-                ChannelInfo c2 = new ChannelInfo( 2, "Export Kw", Unit.get("kWh") );
-                ChannelInfo c3 = new ChannelInfo( 3, "Reactive Q1", Unit.get("kvarh") );
-                ChannelInfo c4 = new ChannelInfo( 4, "Reactive Q2", Unit.get("kvarh") );
-                ChannelInfo c5 = new ChannelInfo( 5, "Reactive Q3", Unit.get("kvarh") );
-                ChannelInfo c6 = new ChannelInfo( 6, "Reactive Q4", Unit.get("kvarh") );
+                ChannelInfo c1 = new ChannelInfo( 0, "Import Kw", Unit.get("kWh") );
+                ChannelInfo c2 = new ChannelInfo( 1, "Export Kw", Unit.get("kWh") );
+                ChannelInfo c3 = new ChannelInfo( 2, "Reactive Q1", Unit.get("kvarh") );
+                ChannelInfo c4 = new ChannelInfo( 3, "Reactive Q2", Unit.get("kvarh") );
+                ChannelInfo c5 = new ChannelInfo( 4, "Reactive Q3", Unit.get("kvarh") );
+                ChannelInfo c6 = new ChannelInfo( 5, "Reactive Q4", Unit.get("kvarh") );
 
                 if( cumulative ) {
                     c1.setCumulativeWrapValue( Ziv5Ctd.MAX_PROFILE_VALUE );

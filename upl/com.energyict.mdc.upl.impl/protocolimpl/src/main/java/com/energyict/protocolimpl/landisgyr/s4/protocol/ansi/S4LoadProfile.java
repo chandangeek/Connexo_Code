@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.ansi.c12.procedures.*;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.*;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.UnitOfMeasureFactory;
@@ -319,7 +320,7 @@ if (DEBUG>=3) System.out.println("KV_DEBUG> cal interval="+cal.getTime());
                 }
                 catch(InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
             else break;

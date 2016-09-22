@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -11,6 +10,7 @@ import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,6 +27,7 @@ public class ReadRegisters extends AbstractRequest<List<OfflineRegister>, List<C
 
     public ReadRegisters(ACE4000Outbound ace4000) {
         super(ace4000);
+        multiFramedAnswer = true;
     }
 
     protected void doBefore() {
@@ -38,8 +39,12 @@ public class ReadRegisters extends AbstractRequest<List<OfflineRegister>, List<C
     public boolean shouldRequestCurrentRegisters(List<OfflineRegister> registers) {
         for (OfflineRegister register : registers) {
             ObisCode obisCode = register.getObisCode();
-            if (obisCode.getA() == 1 && obisCode.getB() == 0 && (obisCode.getC() == 1 || obisCode.getC() == 2) && obisCode.getD() == 8 && obisCode.getF() == 255) {
-                return true;
+            if (obisCode.getA() == 1 && obisCode.getB() == 0 && obisCode.getD() == 8 && obisCode.getF() == 255) {
+                if (obisCode.getC() == 1) {
+                    return obisCode.getE() >= 0 && obisCode.getE() <= 4;
+                } else if (obisCode.getC() == 2) {
+                    return obisCode.getE() == 0;
+                }
             }
         }
         return false;
@@ -123,25 +128,25 @@ public class ReadRegisters extends AbstractRequest<List<OfflineRegister>, List<C
     @Override
     protected void parseResult() {
         //Check if all necessary registers are received
-        boolean receivedAllNecessaryRegisters = false;
+        boolean receivedAllNecessaryRegisters = true;
         if (mustReceiveBilling) {
-            receivedAllNecessaryRegisters = receivedBillingRegisters();
+            receivedAllNecessaryRegisters &= receivedBillingRegisters();
         }
         if (mustReceiveCurrent) {
-            receivedAllNecessaryRegisters = receivedCurrentRegisters();
+            receivedAllNecessaryRegisters &= receivedCurrentRegisters();
         }
         if (mustReceiveInstant) {
-            receivedAllNecessaryRegisters = receivedInstantRegisters();
+            receivedAllNecessaryRegisters &= receivedInstantRegisters();
         }
 
-        //Retry if necessary, return results if all registers were received
+        //Retry if necessary, only return results if all registers were ACK'ed/NACK'ed
         if (receivedAllNecessaryRegisters) {
-            createResult("Requested register but the meter responded with NACK." + getReasonDescription());  //E.g. billing data not available
+            createResult("Requested register but the meter responded with NACK. " + getReasonDescription());  //E.g. billing data not available
         }
     }
 
     @Override
-    protected void handleException(ComServerExecutionException e) {
+    protected void handleException(RuntimeException e) {
         createResult("Didn't receive register from meter");
     }
 
@@ -157,11 +162,25 @@ public class ReadRegisters extends AbstractRequest<List<OfflineRegister>, List<C
                 }
             }
             if (!receivedRegister) {
-                CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
-                defaultDeviceRegister.setFailureInformation(ResultType.DataIncomplete, MdcManager.getIssueFactory().createWarning(rtuRegister.getObisCode(), msg, rtuRegister.getObisCode()));
-                result.add(defaultDeviceRegister);
+                if (isSupported(rtuRegister)) {
+                    CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
+                    defaultDeviceRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(rtuRegister.getObisCode(), "registerXissue", rtuRegister.getObisCode(), msg));
+                    result.add(defaultDeviceRegister);
+                } else {
+                    CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
+                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(rtuRegister.getObisCode(), "registerXnotsupported", rtuRegister.getObisCode()));
+                    result.add(defaultDeviceRegister);
+                }
             }
         }
         setResult(result);
+    }
+
+    /**
+     * Indicate if the requested register is supported by the device or not
+     */
+    private boolean isSupported(OfflineRegister offlineRegister) {
+        List<OfflineRegister> offlineRegisters = Arrays.asList(offlineRegister);
+        return shouldRequestBillingRegisters(offlineRegisters) || shouldRequestCurrentRegisters(offlineRegisters) || shouldRequestInstantaneousRegisters(offlineRegisters);
     }
 }

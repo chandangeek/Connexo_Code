@@ -3,6 +3,8 @@ package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
@@ -103,10 +105,10 @@ public class AM130Messaging extends IDISMessaging {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (messageAttribute instanceof Password) {
             return ((Password) messageAttribute).getValue();
         }
-        return super.format(propertySpec, messageAttribute);
+        return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 }

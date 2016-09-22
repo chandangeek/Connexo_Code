@@ -5,10 +5,12 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -31,6 +33,9 @@ public class ImageTransfer extends AbstractCosemObject {
 
     public static final int REPORT_STATUS_EVERY_X_BLOCKS = 1;
     public static final String DEFAULT_IMAGE_NAME = "NewImage";
+    public static final int ATTRIBUTE_PREVIOUS_UPGRADE_STATE = -1;
+    public static final int ATTRIBUTE_PROTOCOL_CONFIGURATION = -2;
+    public static final int ATTRIBUTE_UPGRADE_PROGRESS = -3;
     static final byte[] LN = new byte[]{0, 0, 44, 0, 0, (byte) 255};
     private static final String TIMEOUT_MESSAGE = "timeout";
     /* Attribute numbers */
@@ -66,7 +71,7 @@ public class ImageTransfer extends AbstractCosemObject {
     private Array imageToActivateInfo = null;    // Provides information on the image(s) ready for activation
     /* Image info */
     private Unsigned32 size = null;     // the size of the image
-    private byte[] data = null; // the complete image in byte
+    private ImageBlockSupplier dataSupplier = null; // the complete image in byte
     private int blockCount = -1; // the amount of block numbers
     private OctetString imageIdentification = null;
     private OctetString imageSignature = null;
@@ -74,12 +79,10 @@ public class ImageTransfer extends AbstractCosemObject {
     private long delayBeforeSendingBlocks = 0;
     private int booleanValue = 0xFF;        //Default byte value representing boolean TRUE is 0xFF
     private boolean checkNumberOfBlocksInPreviousSession = true;
-
     public ImageTransfer(ProtocolLink protocolLink) {
         super(protocolLink, new ObjectReference(LN));
         this.protocolLink = protocolLink;
     }
-
     public ImageTransfer(ProtocolLink protocolLink, ObjectReference objectReference) {
         super(protocolLink, objectReference);
         this.protocolLink = protocolLink;
@@ -174,35 +177,55 @@ public class ImageTransfer extends AbstractCosemObject {
         return -1;
     }
 
+    public void enableImageTransfer() throws IOException {
+        if (!isResume()) {
+            writeImageTransferEnabledState(true);
+        }
+    }
+
+    public void enableImageTransfer(ImageBlockSupplier dataSupplier, String imageIdentifier) throws IOException {
+        // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
+        updateState(ImageTransferCallBack.ImageTransferState.ENABLE_IMAGE_TRANSFER, imageIdentifier, 0, dataSupplier.getSize(), 0);
+        if (!isResume()) {
+            writeImageTransferEnabledState(true);
+        }
+    }
+
+    public void initiateImageTransfer(String imageIdentifier) throws IOException {
+        updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size != null ? size.intValue() : 0, 0);
+        Structure imageInitiateStructure = new Structure();
+        imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
+        imageInitiateStructure.addDataType(this.size);
+        if (!isResume()) {
+            imageTransferInitiate(imageInitiateStructure);
+        }
+    }
+
     /**
      * Start the automatic upgrade procedure. You may choose to add additional zeros at in the last block to match the blockSize for each block.
      *
-     * @param data                  - the image to transfer
+     * @param dataSupplier          - supplier of the image to transfer
      * @param additionalZeros       - indicate whether you need to add zeros to the last block to match the blockSize
      * @param imageIdentifier       - the name of the file. Default is NewImage
      * @param checkForMissingBlocks - whether or not to resend lost blocks
      * @throws java.io.IOException when something went wrong during the upgrade
      */
-    public void upgrade(byte[] data, boolean additionalZeros, String imageIdentifier, boolean checkForMissingBlocks) throws IOException {
+    public final void upgrade(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier, final boolean checkForMissingBlocks) throws IOException {
 
-        // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
-        updateState(ImageTransferCallBack.ImageTransferState.ENABLE_IMAGE_TRANSFER, imageIdentifier, 0, data.length, 0);
-        if (!isResume()) {
-            writeImageTransferEnabledState(true);
-        }
+        enableImageTransfer(dataSupplier, imageIdentifier);
 
         if (getImageTransferEnabledState().getState()) {
-            initializeAndTransferBlocks(data, additionalZeros, imageIdentifier);
+            initializeAndTransferBlocks(dataSupplier, additionalZeros, imageIdentifier);
 
             // Step4: Check completeness of the image and transfer missing blocks
             // Every block is confirmed by the meter
             if (checkForMissingBlocks) {
-                updateState(ImageTransferCallBack.ImageTransferState.CHECK_MISSING_BLOCKS, imageIdentifier, blockCount, data.length, 0);
+                updateState(ImageTransferCallBack.ImageTransferState.CHECK_MISSING_BLOCKS, imageIdentifier, blockCount, dataSupplier.getSize(), 0);
                 checkAndSendMissingBlocks();
             }
 
             // Step5: Verify image
-            updateState(ImageTransferCallBack.ImageTransferState.VERIFY_IMAGE, imageIdentifier, blockCount, data.length, 0);
+            updateState(ImageTransferCallBack.ImageTransferState.VERIFY_IMAGE, imageIdentifier, blockCount, dataSupplier.getSize(), 0);
             if (isUsePollingVerifyAndActivate()) {
                 this.protocolLink.getLogger().log(Level.INFO, "Verification of image using polling method ...");
                 verifyAndPollForSuccess();
@@ -224,9 +247,31 @@ public class ImageTransfer extends AbstractCosemObject {
 
     }
 
-    public void initializeAndTransferBlocks(byte[] data, boolean additionalZeros, String imageIdentifier) throws IOException {
-        this.data = data;
-        this.size = new Unsigned32(data.length);
+    /**
+     * Start the automatic upgrade procedure. You may choose to add additional zeros at in the last block to match the blockSize for each block.
+     *
+     * @param data                  - the image to transfer
+     * @param additionalZeros       - indicate whether you need to add zeros to the last block to match the blockSize
+     * @param imageIdentifier       - the name of the file. Default is NewImage
+     * @param checkForMissingBlocks - whether or not to resend lost blocks
+     * @throws java.io.IOException when something went wrong during the upgrade
+     */
+    public void upgrade(byte[] data, boolean additionalZeros, String imageIdentifier, boolean checkForMissingBlocks) throws IOException {
+        this.upgrade(new ByteArrayImageBlockSupplier(data), additionalZeros, imageIdentifier, checkForMissingBlocks);
+    }
+
+    /**
+     * Initialize the {@link ImageTransfer} objects and transfer the blocks to the target device.
+     *
+     * @param 	dataSupplier			Provides the image data.
+     * @param 	additionalZeros			Indicates whether or not to pad the last block with zeroes up to block size.
+     * @param 	imageIdentifier			The image identifier.
+     *
+     * @throws 	IOException				If an IO error occurs whilst transferring blocks.
+     */
+    public final void initializeAndTransferBlocks(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier) throws IOException {
+        this.dataSupplier = dataSupplier;
+        this.size = new Unsigned32(dataSupplier.getSize());
 
         // Step1: Get the maximum image block size
         // and calculate the amount of blocks in one step
@@ -249,21 +294,27 @@ public class ImageTransfer extends AbstractCosemObject {
         }
 
         // Step2: Initiate the image transfer
-        updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size != null ? size.intValue() : 0, 0);
-        Structure imageInitiateStructure = new Structure();
-        imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
-        imageInitiateStructure.addDataType(this.size);
-        if (!isResume()) {
-            imageTransferInitiate(imageInitiateStructure);
-        }
+        initiateImageTransfer(imageIdentifier);
 
-        if (delayBeforeSendingBlocks > 0) {
-            DLMSUtils.delay(delayBeforeSendingBlocks);  //Wait a bit before sending the blocks
-        }
+        //add delay
+        initializationBeforeSendingOfBlocks();
 
         // Step3: Transfer image blocks
         transferImageBlocks(additionalZeros);
         this.protocolLink.getLogger().log(Level.INFO, "All blocks are sent at : " + new Date(System.currentTimeMillis()));
+    }
+
+    /**
+     * Initialize the {@link ImageTransfer} objects and transfer the blocks to the target device.
+     *
+     * @param 	data					The image data already loaded in memory.
+     * @param 	additionalZeros			Indicates whether or not to pad the last block with zeroes up to block size.
+     * @param 	imageIdentifier			The image identifier.
+     *
+     * @throws 	IOException				If an IO error occurs whilst transferring blocks.
+     */
+    public final void initializeAndTransferBlocks(final byte[] data, final boolean additionalZeros, final String imageIdentifier) throws IOException {
+        this.initializeAndTransferBlocks(new ByteArrayImageBlockSupplier(data), additionalZeros, imageIdentifier);
     }
 
     /**
@@ -288,7 +339,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * Use this to allow more progress feedback to the user
      */
     public void initialize(byte[] data) throws IOException {
-        this.data = data;
+    	this.dataSupplier = new ByteArrayImageBlockSupplier(data);
         this.size = new Unsigned32(data.length);
 
         // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
@@ -331,27 +382,7 @@ public class ImageTransfer extends AbstractCosemObject {
             }
         }
         for (int i = startIndex; i < blockCount; i++) {
-            if (i < blockCount - 1) {
-                octetStringData = new byte[(int) readImageBlockSize().getValue()];
-                System.arraycopy(this.data, (int) (i * readImageBlockSize().getValue()), octetStringData, 0,
-                        (int) readImageBlockSize().getValue());
-            } else {
-                /*
-                     * If it is the last block then it is dependent from vendor to vendor whether they want the size of the last block
-                     * to be the same as the others, or just the size of the remaining bytes.
-                     */
-                long blockSize = this.size.getValue() - (i * readImageBlockSize().getValue());
-                if (additionalZeros) {
-                    octetStringData = new byte[(int) readImageBlockSize().getValue()];
-                    System.arraycopy(this.data, (int) (i * readImageBlockSize().getValue()), octetStringData, 0,
-                            (int) blockSize);
-                } else {
-                    octetStringData = new byte[(int) blockSize];
-                    System.arraycopy(this.data, (int) (i * readImageBlockSize().getValue()), octetStringData, 0,
-                            (int) blockSize);
-                }
-
-            }
+            octetStringData = this.dataSupplier.getBlock(i, (int)this.readImageBlockSize().getValue(), additionalZeros);
             os = OctetString.fromByteArray(octetStringData);
             imageBlockTransfer = new Structure();
             imageBlockTransfer.addDataType(new Unsigned32(i));
@@ -386,27 +417,7 @@ public class ImageTransfer extends AbstractCosemObject {
         OctetString os;
         Structure imageBlockTransfer;
         for (int i = startOffset; i < startOffset + numberOfBlocksPerStep; i++) {
-            if (i < blockCount - 1) {
-                octetStringData = new byte[(int) readImageBlockSize().getValue()];
-                System.arraycopy(this.data, (int) (i * readImageBlockSize().getValue()), octetStringData, 0,
-                        (int) readImageBlockSize().getValue());
-            } else {
-                /*
-                     * If it is the last block then it is dependent from vendor to vendor whether they want the size of the last block
-                     * to be the same as the others, or just the size of the remaining bytes.
-                     */
-                long blockSize = this.size.getValue() - (i * readImageBlockSize().getValue());
-                if (additionalZeros) {
-                    octetStringData = new byte[(int) readImageBlockSize().getValue()];
-                    System.arraycopy(this.data, (int) (i * readImageBlockSize().getValue()), octetStringData, 0,
-                            (int) blockSize);
-                } else {
-                    octetStringData = new byte[(int) blockSize];
-                    System.arraycopy(this.data, (int) (i * readImageBlockSize().getValue()), octetStringData, 0,
-                            (int) blockSize);
-                }
-
-            }
+            octetStringData = this.dataSupplier.getBlock(i, (int)this.readImageBlockSize().getValue(), additionalZeros);
             os = OctetString.fromByteArray(octetStringData);
             imageBlockTransfer = new Structure();
             imageBlockTransfer.addDataType(new Unsigned32(i));
@@ -449,17 +460,7 @@ public class ImageTransfer extends AbstractCosemObject {
                 retryBlock = 0;
             }
 
-            if (this.getImageFirstNotTransferedBlockNumber().getValue() < this.blockCount - 1) {
-                octetStringData = new byte[(int) readImageBlockSize().getValue()];
-                System.arraycopy(this.data, (int) (this.getImageFirstNotTransferedBlockNumber().getValue() * readImageBlockSize().getValue()), octetStringData, 0,
-                        (int) readImageBlockSize().getValue());
-            } else {
-                long blockSize = this.size.getValue() - (this.getImageFirstNotTransferedBlockNumber().getValue() * readImageBlockSize().getValue());
-                octetStringData = new byte[(int) blockSize];
-                System.arraycopy(this.data, (int) (this.getImageFirstNotTransferedBlockNumber().getValue() * readImageBlockSize().getValue()), octetStringData, 0,
-                        (int) blockSize);
-            }
-
+            octetStringData = this.dataSupplier.getBlock((int)this.getImageFirstNotTransferedBlockNumber().getValue(), (int)this.readImageBlockSize().getValue(), false);
             os = OctetString.fromByteArray(octetStringData);
             imageBlockTransfer = new Structure();
             imageBlockTransfer.addDataType(new Unsigned32((int) this.getImageFirstNotTransferedBlockNumber().getValue()));
@@ -549,7 +550,7 @@ public class ImageTransfer extends AbstractCosemObject {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
         }
         throw new ProtocolException("Image verification failed, even after a few polls!");
@@ -584,7 +585,7 @@ public class ImageTransfer extends AbstractCosemObject {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
         }
         throw new ProtocolException("Image activation failed, even after a few polls!");
@@ -613,6 +614,26 @@ public class ImageTransfer extends AbstractCosemObject {
      */
     public void writeImageBlockSize(Unsigned32 blockSize) throws IOException {
         write(ATTRB_IMAGE_BLOCK_SIZE, blockSize.getBEREncodedByteArray());
+    }
+
+    /**
+     * Set the protocol configuration:
+     * Writes the upgrade details needed to perform the upgrade.
+     * Note that this is a custom attribute, currently only implemented on the Beacon3100 firmware.
+     * See https://confluence.eict.vpdc/display/G3IntBeacon3100/Meter+multicast+upgrade
+     */
+    public void writeMulticastProtocolConfiguration(Structure protocolConfiguration) throws IOException {
+        write(ATTRIBUTE_PROTOCOL_CONFIGURATION, protocolConfiguration.getBEREncodedByteArray());
+    }
+
+    /**
+     * Read out the detailed progress of the multicast upgrade.
+     * This contains a list of information for all connected AM540 slave devices that are currently being upgraded.
+     * See https://confluence.eict.vpdc/display/G3IntBeacon3100/Meter+multicast+upgrade
+     */
+    public Structure readMulticastUpgradeProgress() throws IOException {
+        final byte[] berEncodedData = getLNResponseData(ATTRIBUTE_UPGRADE_PROGRESS);
+        return AXDRDecoder.decode(berEncodedData, Structure.class);
     }
 
     /**
@@ -919,10 +940,40 @@ public class ImageTransfer extends AbstractCosemObject {
     }
 
     /**
+	 * Supplier for image blocks.
+	 *
+	 * @author alex
+	 */
+	public interface ImageBlockSupplier {
+
+		/**
+		 * Returns the given block. Returns <code>null</code> if there is no such block (past the end of the data).
+		 *
+		 * @param 	blockNumber		The block number.
+		 * @param 	blockSize		The size of the blocks.
+		 * @param	padToBlockSize	Indicates whether or not the data should be padded with zeroes up to block size.
+		 *
+		 * @return	The given block, <code>null</code> if we are past the end of the data.
+		 *
+		 * @throws	IOException		If an IO error occurs when fetching the given block.
+		 */
+		byte[] getBlock(final int blockNumber, final int blockSize, final boolean padToBlockSize) throws IOException;
+
+		/**
+		 * Returns the size of the data.
+		 *
+		 * @return	The size of the data.
+		 */
+		int getSize();
+	}
+
+    /**
      * Implement this class and use the {@link ImageTransfer#setCallBack(com.energyict.dlms.cosem.ImageTransfer.ImageTransferCallBack)} method
      * to register your callBack to receive status updates while the image transfer is in progress.
      */
     public interface ImageTransferCallBack {
+
+        void updateState(ImageTransferState state, String imageName, int blockCount, int imageSize, int currentBlock) throws IOException;
 
         /**
          * The different states the image transfer uses
@@ -935,11 +986,138 @@ public class ImageTransfer extends AbstractCosemObject {
             VERIFY_IMAGE,
             ACTIVATE
         }
-
-        ;
-
-        void updateState(ImageTransferState state, String imageName, int blockCount, int imageSize, int currentBlock) throws IOException;
     }
+
+	/**
+	 * Image block supplier that simply uses a byte array.
+	 *
+	 * @author alex
+	 */
+	public static final class ByteArrayImageBlockSupplier implements ImageBlockSupplier {
+
+		/** The firmware data. */
+		private final byte[] data;
+
+		/**
+		 * Create a new instance.
+		 *
+		 * @param 	data		The data.
+		 */
+		public ByteArrayImageBlockSupplier(final byte[] data) {
+			this.data = data;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final byte[] getBlock(final int blockNumber, final int blockSize, final boolean padToBlockSize) {
+			if (blockSize <= 0) {
+				throw new IllegalArgumentException("Block size should be at least [1], you specified [" + blockSize + "]");
+			}
+
+			final int numberOfBlocks = (this.data.length / blockSize) + 1;
+
+			if (blockNumber < 0 || blockNumber >= numberOfBlocks) {
+				throw new IllegalArgumentException("Invalid block number requested, valid blocks between [0] and [" + (numberOfBlocks - 1) + "] !");
+			}
+
+			final int startIndex = blockNumber * blockSize;
+			int endIndex = (blockNumber + 1) * blockSize;
+
+			if (endIndex > this.data.length) {
+				endIndex = this.data.length;
+			}
+
+			final byte[] data = Arrays.copyOfRange(this.data, startIndex, endIndex);
+
+			if (padToBlockSize && data.length < blockSize) {
+				final byte[] paddedData = new byte[blockSize];
+				System.arraycopy(data, 0, paddedData, 0, data.length);
+
+				return paddedData;
+			}
+
+			return data;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final int getSize() {
+			return this.data.length;
+		}
+	}
+
+	/**
+	 * Image block supplier that uses a {@link RandomAccessFile}.
+	 *
+	 * @author alex
+	 */
+	public static final class RandomAccessFileImageBlockSupplier implements ImageBlockSupplier {
+
+		/** The file. */
+		private final RandomAccessFile file;
+
+		/**
+		 * Create a new instance.
+		 *
+		 * @param 	file		The file.
+		 */
+		public RandomAccessFileImageBlockSupplier(final RandomAccessFile file) {
+			this.file = file;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final byte[] getBlock(final int blockNumber, final int blockSize, final boolean padToBlockSize) throws IOException {
+			if (blockSize <= 0) {
+				throw new IllegalArgumentException("Block size should be at least [1], you specified [" + blockSize + "]");
+			}
+
+			final int numberOfBlocks = ((int)this.file.length() / blockSize) + 1;
+
+			if (blockNumber < 0 || blockNumber >= numberOfBlocks) {
+				throw new IllegalArgumentException("Invalid block number requested, valid blocks between [0] and [" + (numberOfBlocks - 1) + "] !");
+			}
+
+			final int startIndex = blockNumber * blockSize;
+			int endIndex = (blockNumber + 1) * blockSize;
+
+			if (endIndex > this.file.length()) {
+				endIndex = (int)this.file.length();
+			}
+
+			final byte[] buffer = new byte[endIndex - startIndex];
+
+			this.file.seek(startIndex);
+			this.file.readFully(buffer);
+
+			if (padToBlockSize && buffer.length < blockSize) {
+				final byte[] paddedData = new byte[blockSize];
+				System.arraycopy(buffer, 0, paddedData, 0, buffer.length);
+
+				return paddedData;
+			}
+
+			return buffer;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final int getSize() {
+			try {
+				return (int)this.file.length();
+			} catch (IOException e) {
+				throw new IllegalStateException("Cannot read size of file [" + this.file + "] : [" + e.getMessage() + "]", e);
+			}
+		}
+	}
 
     /**
      * Models an ImageToActivateInfo structure.

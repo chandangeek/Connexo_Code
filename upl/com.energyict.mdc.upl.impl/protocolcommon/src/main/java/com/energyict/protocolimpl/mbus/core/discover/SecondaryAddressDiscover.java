@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.mbus.core.discover;
 
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.mbus.core.*;
 import com.energyict.protocolimpl.mbus.core.connection.MBusException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
@@ -248,7 +249,7 @@ public class SecondaryAddressDiscover {
 			}
 			catch(InterruptedException ex) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(ex);
+                throw ConnectionCommunicationException.communicationInterruptedException(ex);
             }
     		throw new MBusException("MBus, Framing error!");
     	}
@@ -300,7 +301,7 @@ public class SecondaryAddressDiscover {
 						}
 						catch(InterruptedException ex) {
                             Thread.currentThread().interrupt();
-                            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                            throw ConnectionCommunicationException.communicationInterruptedException(e);
 						}
 			    		if (e.getReason() != mBus.getMBusConnection().getReasonTIMEOUT_ERROR()) {
 			    			throw new MBusException(e.toString());
@@ -333,7 +334,7 @@ public class SecondaryAddressDiscover {
 						}
 						catch(InterruptedException ex) {
                             Thread.currentThread().interrupt();
-                            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                            throw ConnectionCommunicationException.communicationInterruptedException(e);
                         }
 		    			throw new MBusException(e.toString());
 		    		}

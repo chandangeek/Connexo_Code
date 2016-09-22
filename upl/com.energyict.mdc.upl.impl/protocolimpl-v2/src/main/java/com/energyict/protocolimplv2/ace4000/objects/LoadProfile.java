@@ -4,12 +4,15 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
+import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -45,7 +48,7 @@ public class LoadProfile extends AbstractActarisObject {
         Element md = doc.createElement(XMLTags.METERDATA);
         root.appendChild(md);
         Element s = doc.createElement(XMLTags.SERIALNUMBER);
-        s.setTextContent(getObjectFactory().getAce4000().getSerialNumber());
+        s.setTextContent(getObjectFactory().getAce4000().getConfiguredSerialNumber());
         md.appendChild(s);
         Element t = doc.createElement(XMLTags.TRACKER);
         t.setTextContent(Integer.toString(getTrackingID(), 16));
@@ -64,7 +67,7 @@ public class LoadProfile extends AbstractActarisObject {
         return (msg.substring(msg.indexOf("?>") + 2));
     }
 
-    protected void parse(Element mdElement)  {
+    protected void parse(Element mdElement) {
         if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.LOADPR)) {
             parseLoadProfile(mdElement.getTextContent(), false, 0);
         } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.LOADPRABS)) {
@@ -73,7 +76,7 @@ public class LoadProfile extends AbstractActarisObject {
         }
     }
 
-    private void parseLoadProfile(String data, boolean absoluteValues, int scale)  {
+    private void parseLoadProfile(String data, boolean absoluteValues, int scale) {
         int offset = 0;
         byte[] decoded = new Base64EncoderDecoder().decode(data);
 
@@ -248,22 +251,22 @@ public class LoadProfile extends AbstractActarisObject {
     }
 
     private List<ChannelInfo> getSingleChannelInfo(int scale) {
-        ChannelInfo ci = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale));
+        ChannelInfo ci = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale), getObjectFactory().getAce4000().getConfiguredSerialNumber());
         ci.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE));
-        List<ChannelInfo> result = new ArrayList<ChannelInfo>(1);
+        List<ChannelInfo> result = new ArrayList<>(1);
         result.add(ci);
         return result;
     }
 
     private List<ChannelInfo> getExtendedChannelInfo(int scale) {
-        ChannelInfo ci1 = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale));
+        ChannelInfo ci1 = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale), getObjectFactory().getAce4000().getConfiguredSerialNumber());
         ci1.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE));
-        ChannelInfo ci2 = new ChannelInfo(1, "1.0.3.8.0.255", Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, scale));
+        ChannelInfo ci2 = new ChannelInfo(1, "1.0.3.8.0.255", Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, scale), getObjectFactory().getAce4000().getConfiguredSerialNumber());
         ci2.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE));
-        ChannelInfo ci3 = new ChannelInfo(2, "1.0.2.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale));
+        ChannelInfo ci3 = new ChannelInfo(2, "1.0.2.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale), getObjectFactory().getAce4000().getConfiguredSerialNumber());
         ci3.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE));
 
-        List<ChannelInfo> result = new ArrayList<ChannelInfo>(3);
+        List<ChannelInfo> result = new ArrayList<>(3);
         result.add(ci1);
         result.add(ci2);
         result.add(ci3);

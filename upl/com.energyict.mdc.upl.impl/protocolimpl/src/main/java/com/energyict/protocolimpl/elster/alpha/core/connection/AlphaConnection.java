@@ -10,19 +10,22 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.connection;
 
-import java.io.*;
-import java.util.*;
-
 import com.energyict.cbo.NestedIOException;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimpl.base.CRCGenerator;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  *
@@ -87,7 +90,7 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
             }
             catch(ConnectionException e) {
                 if (retry++>=getMaxRetries()) {
-                    throw new ProtocolConnectionException("response2AreYouOK() error maxRetries ("+getMaxRetries()+"), "+e.getMessage());
+                    throw new ProtocolConnectionException("response2AreYouOK() error maxRetries ("+getMaxRetries()+"), "+e.getMessage(), e.getReason());
                 }
             }
         }
@@ -108,7 +111,7 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
             }
             catch(ConnectionException e) {
                 if (retry++>=getMaxRetries()) {
-                    throw new ProtocolConnectionException("response2AreYouOK() error maxRetries ("+getMaxRetries()+"), "+e.getMessage());
+                    throw new ProtocolConnectionException("response2AreYouOK() error maxRetries ("+getMaxRetries()+"), "+e.getMessage(), e.getReason());
                 }
             }
         }
@@ -122,7 +125,7 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
         }
         catch(InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
     
@@ -150,7 +153,7 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
                 if (expectedFrameType == FRAME_RESPONSE_TYPE_WHO_ARE_YOU)
                     mr = 30;
                 if (retry++>=mr) {
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+mr+"), "+e.getMessage());
+                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+mr+"), "+e.getMessage(), e.getReason());
                 }
             }
         }
@@ -192,7 +195,7 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
     private static final byte STATE_WAIT_FOR_CRC=6;
     private static final byte STATE_WAIT_FOR_CRC_ON_ARE_YOU_OK=7;
     
-    private ResponseFrame receiveFrame(int expectedFrameType) throws NestedIOException, IOException {
+    private ResponseFrame receiveFrame(int expectedFrameType) throws IOException {
         long protocolTimeout,interFrameTimeout;
         int kar;
         int state;

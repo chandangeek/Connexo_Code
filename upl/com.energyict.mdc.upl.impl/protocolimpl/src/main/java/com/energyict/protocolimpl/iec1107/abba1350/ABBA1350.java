@@ -14,29 +14,13 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.DialerMarker;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocolimpl.base.DataDumpParser;
-import com.energyict.protocolimpl.base.DataParseException;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -49,15 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -76,7 +52,7 @@ import java.util.logging.Logger;
  */
 public class ABBA1350
         extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo,
-        RegisterProtocol, MessageProtocol {
+        RegisterProtocol, MessageProtocol, SerialNumberSupport {
 
     private final static int DEBUG = 0;
 
@@ -115,7 +91,7 @@ public class ABBA1350
     private ABBA1350ObisCodeMapper abba1350ObisCodeMapper = new ABBA1350ObisCodeMapper(this);
 
     private byte[] dataReadout = null;
-    private int[] billingCount;
+    private int billingCount = -1;
     private String firmwareVersion = null;
     private Date meterDate = null;
     private String meterSerial = null;
@@ -193,6 +169,15 @@ public class ABBA1350
 
 
     /** ************************************ MeterProtocol implementation ************************************** */
+
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getMeterSerial();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
+        }
+    }
 
     /**
      * This implementation calls <code> validateProperties </code> and assigns
@@ -325,7 +310,7 @@ public class ABBA1350
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:23:40 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -378,7 +363,6 @@ public class ABBA1350
         }
 
 
-        validateSerialNumber();
         abba1350ObisCodeMapper.initObis();
 
         if (extendedLogging >= 2) {
@@ -801,12 +785,12 @@ public class ABBA1350
     }
 
     int getBillingCount() throws IOException {
-        if (billingCount == null) {
+        if (this.billingCount == -1) {
 
             if (isDataReadout()) {
                 sendDebug("Requesting getBillingCount() dataReadOut: " + getDataReadout().length, 2);
                 DataDumpParser ddp = new DataDumpParser(getDataReadout());
-                billingCount = new int[]{ddp.getBillingCounter()};
+                this.billingCount = ddp.getBillingCounter();
             } else {
 
                 String data;
@@ -821,35 +805,29 @@ public class ABBA1350
 
                 int start = data.indexOf('(') + 1;
                 int stop = data.indexOf(')');
-                String v = data.substring(start, stop);
+                String value = data.substring(start, stop);
 
                 try {
-                    billingCount = new int[]{Integer.parseInt(v)};
+                    this.billingCount = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
-                    billingCount = new int[]{0};
-                    sendDebug("Unable to read billingCounter. Defaulting to 0!");
+                    this.billingCount = 0;
+                    getLogger().info(ABBA1350.class.getSimpleName() + " - Unable to read billingCounter. Defaulting to 0!");
                 }
             }
 
+            if (this.billingCount >= 100) {
+                this.billingCount = 0;
+                getLogger().warning(ABBA1350.class.getSimpleName() + " - Encountered invalid billingCounter (" + this.billingCount + "). The billingCounter should be between 0 and 100, defaulting to 0!");
+            }
         }
-        return billingCount[0];
+        return this.billingCount;
     }
 
     private String getMeterSerial() throws IOException {
         if (this.meterSerial == null) {
-            this.meterSerial = (String) getAbba1350Registry().getRegister(abba1350Registry.SERIAL);
+                this.meterSerial = (String) getAbba1350Registry().getRegister(abba1350Registry.SERIAL);
         }
         return this.meterSerial;
-    }
-
-    protected void validateSerialNumber() throws IOException {
-        if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)) {
-            return;
-        }
-        if (serialNumber.compareTo(getMeterSerial()) == 0) {
-            return;
-        }
-        throw new IOException("SerialNumber mismatch! meter sn=" + getMeterSerial() + ", configured sn=" + serialNumber);
     }
 
     /**

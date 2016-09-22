@@ -5,14 +5,22 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 /**
  *
  * @author  Koen
@@ -80,7 +88,7 @@ abstract public class VDEWProfile {
             return rawprofile;
         }
         catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("VDEWProfile, readRawProfile, FlagIEC1107ConnectionException, "+e.getMessage());
+            throw new ProtocolConnectionException("VDEWProfile, readRawProfile, FlagIEC1107ConnectionException, "+e.getMessage(), e.getReason());
         }
     }
     
@@ -134,7 +142,7 @@ abstract public class VDEWProfile {
             getProtocolLink().getLogger().warning("VDEWException, ERROR received when requesting profile data, probably no profile data available");
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("doGetProfileData> "+e.getMessage());
+           throw new ProtocolConnectionException("doGetProfileData> "+e.getMessage(), e.getReason());
         }
         catch(IOException e) {
            throw new IOException("doGetProfileData> "+e.getMessage());
@@ -161,7 +169,7 @@ abstract public class VDEWProfile {
             getProtocolLink().getLogger().warning("VDEWException, ERROR received when requesting logbook data, probably no logbook data available");
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("doGetLogBook> "+e.getMessage());
+           throw new ProtocolConnectionException("doGetLogBook> "+e.getMessage(), e.getReason());
         }
         catch(IOException e) {
            throw new IOException("doGetLogBook> "+e.getMessage());

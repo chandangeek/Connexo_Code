@@ -6,7 +6,7 @@ import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ExceptionResponseException;
+import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 
 import java.io.IOException;
 import java.io.InputStream;

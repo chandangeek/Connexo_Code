@@ -157,7 +157,7 @@ class Profile extends VDEWProfile {
                 Date    mTime   = asDate(fields[0]);       
                 int     eiCode  = asEiCode(getStatus(fields[1]));
                 
-                checkIntervalPeriod(fields[2]);                
+                checkIntervalPeriod(fields[2]);
                 checkNrChannels(fields[3]);
                 
                 if( channelInfos == null )
@@ -249,7 +249,7 @@ class Profile extends VDEWProfile {
     
     private int checkIntervalPeriod(String string) throws IOException {
         
-        int mInterval = Integer.parseInt(string) * 60;
+        int mInterval = Integer.parseInt(string) * 60 ;
         
         if( mInterval != pInterval ) {
             String msg = 

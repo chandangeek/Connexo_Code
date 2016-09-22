@@ -7,9 +7,8 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
-
-import java.io.IOException;
 
 /**
  *
@@ -21,7 +20,7 @@ public class TariffSources {
     ABBA1700MeterType meterType;
     
     /** Creates a new instance of TariffSources */
-    public TariffSources(byte[] data,ABBA1700MeterType meterType) throws IOException {
+    public TariffSources(byte[] data,ABBA1700MeterType meterType) throws ProtocolException {
         this.meterType = meterType;
         regSource = new int[meterType.getNrOfTariffRegisters()];
         parse(data);
@@ -41,7 +40,7 @@ public class TariffSources {
         return strBuff.toString();
     }
     
-    private void parse(byte[] data) throws IOException {
+    private void parse(byte[] data) throws ProtocolException {
         for (int i=0;i<meterType.getNrOfTariffRegisters();i++) {
             regSource[i] = ProtocolUtils.getIntLE(data,i,1);
         }

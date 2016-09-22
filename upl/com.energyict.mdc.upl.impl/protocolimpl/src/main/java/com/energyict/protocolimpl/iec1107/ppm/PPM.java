@@ -16,23 +16,12 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -43,14 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -129,7 +111,7 @@ import java.util.logging.Logger;
  * JME|17122009| Changed method of setTime to do a adjust time. This method does not waste profiledata
  * @endchanges
  */
-public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
+public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, SerialNumberSupport {
 
     /**
      * The minimum period of time that must be elapsed in order for an interval
@@ -222,12 +204,21 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
 
     /* ___ Implement interface MeterProtocol ___ */
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return (String) this.rFactory.getRegister("SerialNumber");
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, pRetries + 1);
+        }
+    }
+
     /*
-      * (non-Javadoc)
-      *
-      * @see com.energyict.protocol.MeterProtocol#
-      *      setProperties(java.util.Properties)
-      */
+          * (non-Javadoc)
+          *
+          * @see com.energyict.protocol.MeterProtocol#
+          *      setProperties(java.util.Properties)
+          */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
         if (p.getProperty(MeterProtocol.ADDRESS) != null) {
@@ -381,7 +372,6 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
             this.rFactory = new RegisterFactory(this, this, PPMMeterType.ISSUE2);
             this.profile = new Profile(this, this.rFactory);
 
-            validateSerialNumber();
             doExtendedLogging();
 
         } catch (FlagIEC1107ConnectionException e) {
@@ -391,25 +381,6 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
             throw new IOException(nex.getMessage());
         }
 
-    }
-
-    /*  change on: 26/01/2005.  The method should basically ignore the leading
-      *  dashes (-) in the comparison.
-      */
-    private void validateSerialNumber() throws IOException {
-        if ((this.pSerialNumber == null) || ("".equals(this.pSerialNumber))) {
-            return;
-        }
-
-        String sn = (String) this.rFactory.getRegister("SerialNumber");
-        if (sn != null) {
-            String snNoDash = sn.replaceAll("-+", "");
-            String pSerialNumberNoDash = this.pSerialNumber.replaceAll("-+", "");
-            if (pSerialNumberNoDash.equals(snNoDash)) {
-                return;
-            }
-        }
-        throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + this.pSerialNumber);
     }
 
     /*
@@ -464,7 +435,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

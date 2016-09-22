@@ -1,7 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -11,19 +10,18 @@ import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.events.AM110REventProfiles;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging.AM110RMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging.AM110RMessaging;
-import com.energyict.smartmeterprotocolimpl.eict.AM110R.wakeup.SmsWakeup;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,12 +51,12 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
     /**
      * The used {@link AM110RRegisterFactory} to read and manage the AM110R registers
      */
-    private AM110RRegisterFactory registerFactory;
+    protected BulkRegisterProtocol registerFactory;
 
     /**
      * * The used {@link com.energyict.smartmeterprotocolimpl.eict.AM110R.events.AM110REventProfiles} to read and manage the AM110R event logs
      */
-    private AM110REventProfiles eventProfiles;
+    protected AM110REventProfiles eventProfiles;
 
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging.AM110RMessaging} for messaging
@@ -93,28 +91,25 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         getLogger().info("TimeSet not applied, meter is synchronized by the E-meter.");
     }
 
-    public String getMeterSerialNumber() throws IOException {
-        if (getProperties().isFirmwareUpdateSession()) {
-            getLogger().severe("Using firmware update client. Skipping serial number check!");
-            return getProperties().getSerialNumber();
-        } else {
-            verifyFirmwareVersion();
-
-            try {
-                return getMeterInfo().getSerialNumber();
-            } catch (IOException e) {
-                String message = "Could not retrieve the SerialNumber. " + e.getMessage();
-                getLogger().finest(message);
-                throw new IOException(message);
+    public String getMeterSerialNumber()  {
+            if (getProperties().isFirmwareUpdateSession()) {
+                getLogger().severe("Using firmware update client. Skipping serial number check!");
+                return getProperties().getSerialNumber();
+            } else {
+                try {
+                    verifyFirmwareVersion();
+                    return getMeterInfo().getSerialNumber();
+                } catch (IOException e) {
+                    throw DLMSIOExceptionHandler.handle(e, dlmsSession.getProperties().getRetries() + 1);
+                }
             }
-        }
     }
 
     private void verifyFirmwareVersion() throws IOException {
         if (getProperties().verifyFirmwareVersion()) {
             String elsterFirmwareVersion = getMeterInfo().getElsterFirmwareVersion();
             if (!elsterFirmwareVersion.startsWith("ACH01.02.")) {
-                throw new IOException("Unsupported firmware version (" + elsterFirmwareVersion + ") - only firmware versions ACH01.02.XX can be read out with this protocol.");
+                throw new ProtocolException("Unsupported firmware version (" + elsterFirmwareVersion + ") - only firmware versions ACH01.02.XX can be read out with this protocol.");
             }
         }
     }
@@ -196,7 +191,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         return this.meterInfo;
     }
 
-    public AM110RRegisterFactory getRegisterFactory() {
+    public BulkRegisterProtocol getRegisterFactory() {
         if (this.registerFactory == null) {
             this.registerFactory = new AM110RRegisterFactory(this);
         }
@@ -233,7 +228,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
      * The protocol version
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-03-25 14:54:31 +0200 (Fri, 25 Mar 2016)$";
     }
 
     public void disConnect() throws IOException {
@@ -304,7 +299,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         }
     }
 
-    private void reInitDlmsSession(final Link link) throws ConnectionException {
+    protected void reInitDlmsSession(final Link link) throws ConnectionException {
         this.dlmsSession = new DlmsSession(link.getInputStream(), link.getOutputStream(), getLogger(), getProperties(), getTimeZone());
         enableHHUSignOn(link.getSerialCommunicationChannel(), false);
     }

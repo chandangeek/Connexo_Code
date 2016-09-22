@@ -6,16 +6,18 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.cbo.*;
-
-import java.math.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author  Koen
@@ -135,7 +137,7 @@ abstract public class ABBA1700RegisterData {
         return new String(data);
     }
     
-    protected Object parse(byte[] data) throws IOException {
+    protected Object parse(byte[] data) throws ProtocolException {
        try {
            switch(getType()) {
                case ABBA_STRING:
@@ -243,69 +245,87 @@ abstract public class ABBA1700RegisterData {
                    BatterySupportStatus bss = new BatterySupportStatus(getProtocolLink(), data);
                    return bss;
                default: 
-                   throw new IOException("ABBA1700RegisterData, parse , unknown type "+getType());
+                   throw new ProtocolException("ABBA1700RegisterData, parse , unknown type "+getType());
            }
        }
        catch(NumberFormatException e) {
-           throw new IOException("ABBA1700RegisterData, parse error");
+           throw new ProtocolException("ABBA1700RegisterData, parse error : " + e.getMessage());
        }
     }
     
-    private Long parseLongHexLE(byte[] data) throws IOException,NumberFormatException { 
+    private Long parseLongHexLE(byte[] data) throws ProtocolException {
         return new Long(ProtocolUtils.getLongLE(data,getOffset(),getLength()));
     }
 
-    private Long parseLongHex(byte[] data) throws IOException,NumberFormatException {
+    private Long parseLongHex(byte[] data) throws ProtocolException {
         return new Long(ProtocolUtils.getLong(data,getOffset(),getLength()));
     }
     
-    private BigDecimal parseBigDecimal(byte[] data) throws IOException,NumberFormatException {
+    private BigDecimal parseBigDecimal(byte[] data) throws ProtocolException {
         if (getLength() > 8) {
-            throw new IOException("ABBA1700RegisterData, parseBigDecimal, datalength should not exceed 8!");
+            throw new ProtocolException("ABBA1700RegisterData, parseBigDecimal, datalength should not exceed 8!");
         }
-        BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
-        return bd.movePointLeft(Math.abs(getUnit().getScale()));
+        try {
+            BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
+            return bd.movePointLeft(Math.abs(getUnit().getScale()));
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
+        }
+
     }
 
-    private Quantity parseQuantity(byte[] data) throws IOException,NumberFormatException {
+    private Quantity parseQuantity(byte[] data) throws ProtocolException {
         if (getLength() > 8) {
-            throw new IOException("ABBA1700RegisterData, parseQuantity, datalength should not exceed 8!");
+            throw new ProtocolException("ABBA1700RegisterData, parseQuantity, datalength should not exceed 8!");
         }
-        BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
-        return new Quantity(bd,getUnit());
+        try{
+            BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
+            return new Quantity(bd,getUnit());
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
+        }
+
     } 
     
-    private Long parseBitfield(byte[] data) throws IOException {
+    private Long parseBitfield(byte[] data) throws ProtocolException {
         if (getLength() > 8) {
-            throw new IOException("ABBA1700RegisterData, parseBitfield, datalength should not exceed 8!");
+            throw new ProtocolException("ABBA1700RegisterData, parseBitfield, datalength should not exceed 8!");
         }
         return new Long(ProtocolUtils.getLong(data,getOffset(),getLength()));
     }
 
-    private Long parseLong(byte[] data) throws IOException,NumberFormatException {
+    private Long parseLong(byte[] data) throws ProtocolException {
         if (getLength() > 8) {
-            throw new IOException("ABBA1700RegisterData, parseLong, datalength should not exceed 8!");
+            throw new ProtocolException("ABBA1700RegisterData, parseLong, datalength should not exceed 8!");
         }
-        return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
+        try{
+            return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
+        }catch(NumberFormatException e){
+            throw new ProtocolException(e);
+        }
     }
     
-    private Integer parseInteger(byte[] data) throws IOException,NumberFormatException {
+    private Integer parseInteger(byte[] data) throws ProtocolException {
         if (getLength() > 4) {
-            throw new IOException("ABBA1700RegisterData, parseInteger, datalength should not exceed 4!");
+            throw new ProtocolException("ABBA1700RegisterData, parseInteger, datalength should not exceed 4!");
         }
-        return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data,getOffset(),getLength()))));
+        try{
+            return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data,getOffset(),getLength()))));
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
+        }
     }
     
-    protected Date parseDate(byte[] data) throws IOException {
+    protected Date parseDate(byte[] data) throws ProtocolException {
        Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
-       calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[0]));
-       calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[1]));
-       calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[2]));
-       calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex((byte)((int)data[3]&0x3F)));
-       calendar.set(Calendar.MONTH,ProtocolUtils.BCD2hex((byte)((int)data[4]&0x1F))-1);
-       int y = ProtocolUtils.BCD2hex(data[6]);
-       calendar.set(Calendar.YEAR,y == 99 ? 1999 : y+2000);
-       return calendar.getTime();
+            calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[0]));
+            calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[1]));
+            calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[2]));
+            calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex((byte)((int)data[3]&0x3F)));
+            calendar.set(Calendar.MONTH,ProtocolUtils.BCD2hex((byte)((int)data[4]&0x1F))-1);
+            int y = ProtocolUtils.BCD2hex(data[6]);
+            calendar.set(Calendar.YEAR,y == 99 ? 1999 : y+2000);
+            return calendar.getTime();
     }
     
     /**

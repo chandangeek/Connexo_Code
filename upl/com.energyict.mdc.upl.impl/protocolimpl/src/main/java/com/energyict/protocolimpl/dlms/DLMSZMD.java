@@ -26,35 +26,19 @@ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.siemenszmd.LogBookReader;
 import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
@@ -62,18 +46,12 @@ import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 @Deprecated
 /** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD) instead. **/
-public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol {
+public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol, SerialNumberSupport {
 
     private static final byte DEBUG = 0;
     // Interval List
@@ -116,7 +94,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
 
     /** ProtocolVersion date */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
     }
 
     protected void getEventLog(ProfileData profileData, Calendar fromCalendar, Calendar toCalendar) throws IOException {
@@ -360,35 +338,24 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
      * Return the serialNumber of the device.
      *
      * @return the serialNumber of the device.
-     * @throws java.io.IOException if an error occurs during the read
      */
     @Override
-    public String getSerialNumber() throws IOException {
+    public String getSerialNumber(){
         /** The serial number is present in a reserved object: COSEM Logical device name object
          * In order to facilitate access using SN referencing, this object has a reserved short name by DLMS/COSEM convention: 0xFD00.
          * See topic 'Reserved base_names for special COSEM objects' in the DLMS Blue Book.
          **/
-        String retrievedSerial = getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
-        if (retrievedSerial.toLowerCase().startsWith("lgz")) {
-            return retrievedSerial.substring(3);
-        } else {
-            return retrievedSerial;
+        String retrievedSerial = null;
+        try {
+            retrievedSerial = getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
+            if (retrievedSerial.toLowerCase().startsWith("lgz")) {
+                return retrievedSerial.substring(3);
+            } else {
+                return retrievedSerial;
+            }
+        } catch (IOException e) {
+           throw DLMSIOExceptionHandler.handle(e, iProtocolRetriesProperty + 1);
         }
-    }
-
-    @Override
-    protected void validateSerialNumber() throws IOException {
-        if ((getConfiguredSerialNumber() == null) || ("".compareTo(getConfiguredSerialNumber()) == 0)) {
-            return;
-        }
-
-        String configuredSerial = getConfiguredSerialNumber().toLowerCase().startsWith("lgz") ? getConfiguredSerialNumber().substring(3) : getConfiguredSerialNumber();
-        String meterSerial = getSerialNumber();
-
-        if ((meterSerial != null) && (meterSerial.compareTo(configuredSerial) == 0)) {
-            return;
-        }
-        throw new IOException("SerialNumber mismatch! meter sn=" + meterSerial + ", configured sn=" + configuredSerial);
     }
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {

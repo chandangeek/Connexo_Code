@@ -6,11 +6,11 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.IOException;
 import java.util.List;
 /**
  *
@@ -49,7 +49,7 @@ public class RGLInfo extends AbstractCommand {
                
     }
     
-    public void build() throws ConnectionException, IOException {
+    public void build() throws ConnectionException, NestedIOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND);
         parse(data);

@@ -128,7 +128,7 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-08-26 14:01:32 +0200 (Wed, 26 Aug 2015) $";
     }
 
     @Override

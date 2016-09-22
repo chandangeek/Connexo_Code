@@ -10,15 +10,21 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -233,13 +239,6 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
             meterType = getFlagIEC1107Connection().connectMAC(strID, strPassword, securityLevel, nodeId);
             doConnect();
         } catch (FlagIEC1107ConnectionException e) {
-            throw new IOException(e.getMessage());
-        }
-
-        try {
-            validateSerialNumber();
-        } catch (FlagIEC1107ConnectionException e) {
-            disconnect();
             throw new IOException(e.getMessage());
         }
 
@@ -510,21 +509,6 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
      */
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         return ("");
-    }
-
-    /**
-     * Method must be overridden by the subclass to verify the property 'SerialNumber' against the serialnumber read
-     * from the meter. Use code below as example to implement the method. This code has been taken from a real protocol
-     * implementation.
-     */
-    protected void validateSerialNumber() throws IOException {
-        /*
-           * boolean check = true; if ((getInfoTypeSerialNumber() == null) ||
-           * ("".compareTo(getInfoTypeSerialNumber())==0)) return; String sn =
-           * (String)get[protocol]Registry().getRegister( "[name of register that contains serial nulber]"); if
-           * (sn.compareTo(getInfoTypeSerialNumber()) == 0) return; throw new IOException
-           * ("SerialNiumber mismatch! meter sn="+sn+", configured sn="+ getInfoTypeSerialNumber());
-           */
     }
 
     /**

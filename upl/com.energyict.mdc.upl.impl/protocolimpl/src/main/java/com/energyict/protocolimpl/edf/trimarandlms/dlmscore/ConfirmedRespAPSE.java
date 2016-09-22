@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
-import java.io.IOException;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -22,8 +21,8 @@ abstract public class ConfirmedRespAPSE extends AbstractAPSEPDU {
     
     final int DEBUG=0;
     
-    abstract protected byte[] preparebuildPDU() throws IOException;
-    abstract protected void parsePDU(byte[] data) throws IOException;
+    abstract protected byte[] preparebuildPDU() throws ProtocolException;
+    abstract protected void parsePDU(byte[] data) throws ProtocolException;
      
     
     /** Creates a new instance of ConfirmedRespAPSE */
@@ -34,11 +33,11 @@ abstract public class ConfirmedRespAPSE extends AbstractAPSEPDU {
     final int CONFIRMED_RESP_APSE = 1;
     final int CONFIRMED_ERROR_APSE = 2;
     
-    byte[] preparebuild() throws IOException {
+    byte[] preparebuild() throws ProtocolException {
         return null;
     }
     
-    void parse(byte[] data) throws IOException {
+    void parse(byte[] data) throws ProtocolException {
         
         if (DEBUG>=1){
         	System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
@@ -46,10 +45,10 @@ abstract public class ConfirmedRespAPSE extends AbstractAPSEPDU {
         int offset=0;
         int tag = ProtocolUtils.getInt(data,offset++,1);
         if (tag == CONFIRMED_ERROR_APSE) {
-			throw new IOException("ConfirmedRespAPSE, parse, ConfirmedErrorAPSE received!");
+			throw new ProtocolException("ConfirmedRespAPSE, parse, ConfirmedErrorAPSE received!");
 		}
         if (tag != CONFIRMED_RESP_APSE) {
-			throw new IOException("ConfirmedRespAPSE, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
+			throw new ProtocolException("ConfirmedRespAPSE, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
 		}
         parsePDU(ProtocolUtils.getSubArray(data,offset));        
     }

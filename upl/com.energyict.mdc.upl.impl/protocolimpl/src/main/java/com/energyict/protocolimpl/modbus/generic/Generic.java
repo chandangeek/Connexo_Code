@@ -145,7 +145,7 @@ public class Generic extends Modbus {
      */
     @Override
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-04-21 13:49:04 +0200 (Tue, 21 Apr 2015) $";
     }
 
     public DiscoverResult discover(DiscoverTools discoverTools) {

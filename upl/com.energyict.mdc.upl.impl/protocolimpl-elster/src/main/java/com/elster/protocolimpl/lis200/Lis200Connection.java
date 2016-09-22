@@ -1,10 +1,12 @@
 package com.elster.protocolimpl.lis200;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,7 +92,7 @@ public class Lis200Connection extends FlagIEC1107Connection {
                                 Thread.sleep(delayAfterCheck);
                             } catch (InterruptedException e) {
                                 Thread.currentThread().interrupt();
-                                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                                throw ConnectionCommunicationException.communicationInterruptedException(e);
                             }
                         }
                     }
@@ -116,12 +118,12 @@ public class Lis200Connection extends FlagIEC1107Connection {
                 identifier = meterType.getReceivedIdent();
                 return meterType;
             } catch (FlagIEC1107ConnectionException e) {
-                throw new FlagIEC1107ConnectionException(
+                throw new ProtocolConnectionException(
                         "connectMAC(), FlagIEC1107ConnectionException "
-                                + e.getMessage());
+                                + e.getMessage(), e.getReason());
             } catch (ConnectionException e) {
-                throw new FlagIEC1107ConnectionException(
-                        "connectMAC(), ConnectionException " + e.getMessage());
+                throw new ProtocolConnectionException(
+                        "connectMAC(), ConnectionException " + e.getMessage(), e.getReason());
             }
         } // if (boolFlagIEC1107Connected==false
 
@@ -176,7 +178,7 @@ public class Lis200Connection extends FlagIEC1107Connection {
      *
      * @throws IOException - in case of error
      */
-    private void sendWakeupSequence() throws IOException {
+    private void sendWakeupSequence() throws ConnectionException, NestedIOException {
         /* send 0 during 2 seconds */
         long endTime = System.currentTimeMillis() + 2000;
         while (System.currentTimeMillis() < endTime) {
@@ -185,7 +187,7 @@ public class Lis200Connection extends FlagIEC1107Connection {
                 Thread.sleep(30);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
         }
     }

@@ -20,7 +20,9 @@ import com.energyict.protocolimpl.modbus.core.functioncode.ReadHoldingRegistersR
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadInputRegistersRequest;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReportSlaveId;
+import com.energyict.protocolimpl.modbus.core.functioncode.WriteMultipleCoils;
 import com.energyict.protocolimpl.modbus.core.functioncode.WriteMultipleRegisters;
+import com.energyict.protocolimpl.modbus.core.functioncode.WriteSingleCoil;
 import com.energyict.protocolimpl.modbus.core.functioncode.WriteSingleRegister;
 
 import java.io.IOException;
@@ -161,6 +163,24 @@ public class AbstractRegister {
             return getRegisterFactory().getFunctionCodeFactory().getWriteMultipleRegisters(register, getRange(), registerValues);
         } catch (IOException e) {
             throw new NestedIOException(e, "IOException while writing register [" + register + "] with range [" + getRange() + "]");
+        }
+    }
+
+    public WriteSingleCoil getWriteSingleCoil(int writeCoilValue) throws IOException {
+        final int coil = getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0);
+        try {
+            return getRegisterFactory().getFunctionCodeFactory().getWriteSingleCoil(coil, writeCoilValue);
+        } catch (IOException e) {
+            throw new NestedIOException(e, "IOException while writing coil [" + coil + "]");
+        }
+    }
+
+    public WriteMultipleCoils getWriteMultipleCoils(byte[] coilValues) throws IOException {
+        final int coil = getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0);
+        try {
+            return getRegisterFactory().getFunctionCodeFactory().getWriteMultipleCoils(coil, getRange(), coilValues);
+        } catch (IOException e) {
+            throw new NestedIOException(e, "IOException while writing Coil [" + coil + "] with range [" + getRange() + "]");
         }
     }
     

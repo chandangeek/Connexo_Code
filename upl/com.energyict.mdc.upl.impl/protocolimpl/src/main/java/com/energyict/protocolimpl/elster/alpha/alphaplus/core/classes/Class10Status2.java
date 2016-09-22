@@ -10,14 +10,9 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
 
 
 /**
@@ -53,7 +48,7 @@ public class Class10Status2 extends AbstractClass {
         super(classFactory);
     }
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
          KH = ProtocolUtils.getBCD2Int(data,0, 3);
          PR = ProtocolUtils.getBCD2Int(data,3, 1);
          PULDEF = ProtocolUtils.getInt(data,4, 1);

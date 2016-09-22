@@ -8,16 +8,15 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -26,7 +25,7 @@ import java.util.logging.Logger;
  * Date: 7/09/12
  * Time: 10:21
  */
-public class EPM2200 extends Modbus {
+public class EPM2200 extends Modbus implements SerialNumberSupport {
 
     public EPM2200() {
     }
@@ -50,11 +49,21 @@ public class EPM2200 extends Modbus {
         setRegisterFactory(new RegisterFactory(this));
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            AbstractRegister meterSerial = getRegisterFactory().findRegister("MeterSerial");
+            return (String) meterSerial.value();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
     /**
      * The protocol version date
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException {

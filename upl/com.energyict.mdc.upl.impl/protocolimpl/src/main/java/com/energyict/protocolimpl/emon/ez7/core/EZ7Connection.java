@@ -6,16 +6,21 @@
 
 package com.energyict.protocolimpl.emon.ez7.core;
 
-import java.io.*;
-import java.util.*;
-
 import com.energyict.cbo.NestedIOException;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.CRCGenerator;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.base.SecurityLevelException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 /**
  *
  * @author  Koen
@@ -76,7 +81,7 @@ public class EZ7Connection extends Connection  implements ProtocolConnection {
             }
             catch(ConnectionException e) {
                 if (retry++>=maxRetries) {
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
+                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage(), MAX_RETRIES_ERROR);
                 }
             }
         }

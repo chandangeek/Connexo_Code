@@ -68,7 +68,7 @@ public class A100C extends AbstractMbusDevice {
      */
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-05-27 15:32:39 +0200 (Wed, 27 May 2015) $";
     }
 
     @Override

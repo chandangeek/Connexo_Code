@@ -25,17 +25,23 @@ public interface DlmsV2Connection extends DlmsConnection {
 
     /**
      * Send out a given request (byte array) to the device, read and return the response
+     * <p/>
+     * The sendRequest will check the current securitySuite to encrypt or authenticate the data and then parse the APDU to the DLMSConnection.
+     * The response from the meter is decrypted before sending it back to the object.
      */
     byte[] sendRequest(byte[] request);
 
     /**
-     * Send a request, don't wait for a response
-     */
-    void sendUnconfirmedRequest(final byte[] request);
-
-    /**
-     * Send out a given request, but don't apply any encryption. Read and return the response
-     * Use this method for requests that were somehow already encrypted.
+     * Send out a given request (byte array) to the device, read and return the response
+     * <p/>
+     * The sendRequest will check the current securitySuite to encrypt or authenticate the data and then parse the APDU to the DLMSConnection.
+     * The response from the meter is decrypted before sending it back to the object.
+     * <p/>
+     * If the request is already encrypted (indicated by the boolean), there's no need to encrypt it again in the sendRequest() method
+     * An example use case would be where the cryptoserver provides us the encrypted APDU to change the P2 MBus key, we only have to send it to the meter.
+     *
+     * @param request - The unEncrypted/authenticated request
+     * @return the unEncrypted response from the device
      */
     byte[] sendRequest(byte[] request, boolean isAlreadyEncrypted);
 
@@ -59,6 +65,11 @@ public interface DlmsV2Connection extends DlmsConnection {
      * @return the response bytes
      */
     byte[] readResponseWithRetries(byte[] retryRequest, boolean isAlreadyEncrypted);
+
+    /**
+     * Send a request, don't wait for a response
+     */
+    void sendUnconfirmedRequest(final byte[] request);
 
     /**
      * Sends the raw data as it is, without wrapping them in any headers or trailers. Read and return the response

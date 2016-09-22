@@ -5,6 +5,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ObjectReference;
@@ -138,7 +139,7 @@ public class LoadProfileBuilder {
         List<RegisterValue> registerValues = meterProtocol.readRegisters(registerList);
         for (RegisterValue channelInformation : registerValues) {
             if (channelInformation.getQuantity().getBaseUnit().getDlmsCode() != 0) {
-                ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), channelInformation.getObisCode().toString(), channelInformation.getQuantity().getUnit(), channelInformation.getSerialNumber(), true);
+                ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), channelInformation.getObisCode().toString(), channelInformation.getQuantity().getUnit(), channelInformation.getSerialNumber(), ParseUtils.isObisCodeCumulative(channelInformation.getObisCode()));
                 if (channelInformation.getQuantity().getUnit().isUndefined()) {
                     channelInfo.setMultiplier(new BigDecimal(new BigInteger("1"), -channelInformation.getQuantity().getUnit().getScale()));
                 }

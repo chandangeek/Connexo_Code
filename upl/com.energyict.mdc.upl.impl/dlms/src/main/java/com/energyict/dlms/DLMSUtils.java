@@ -12,6 +12,7 @@ import com.energyict.dlms.axrdencoding.Integer64;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
@@ -1186,6 +1187,22 @@ public final class DLMSUtils {
     }
 
     /**
+     * Search for the given <CODE>ObisCode</CODE> in the given objectList.
+     *
+     * @param instanteatedObjectList the given objectList
+     * @param cosemObjectObisCode    the obisCode of the object to find
+     * @return the searched UniversalObject or null if not found in list
+     */
+    public static UniversalObject findCosemObjectInObjectListIgnoreBChannel(UniversalObject[] instanteatedObjectList, ObisCode cosemObjectObisCode) {
+        for (UniversalObject uo : instanteatedObjectList) {
+            if (uo != null && uo.equalsIgnoreBChannel(cosemObjectObisCode)) {
+                return uo;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Build a String with the data representation using $ before each byte
      *
      * @param bytes data to build string from
@@ -1238,7 +1255,7 @@ public final class DLMSUtils {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 

@@ -2,19 +2,11 @@ package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.CachedMeterTime;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -41,7 +33,7 @@ import java.util.List;
  * Time: 14:15:14
  */
 @Deprecated //Use the V2 protocol instead: com.energyict.protocolimplv2.eict.webrtuz3.WebRTUZ3
-public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol {
+public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, SerialNumberSupport {
 
     /**
      * Contains properties related to the WebRTUZ3 protocol
@@ -137,7 +129,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      * @return the version of this protocol (file)
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:26:01 +0200 (Thu, 26 Nov 2015)$";
     }
 
     /**

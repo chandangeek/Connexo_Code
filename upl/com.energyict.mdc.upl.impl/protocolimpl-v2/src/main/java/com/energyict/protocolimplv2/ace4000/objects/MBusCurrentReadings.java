@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.ace4000.objects;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.core.DataRecord;
@@ -26,7 +27,6 @@ import java.util.logging.Level;
 public class MBusCurrentReadings extends AbstractActarisObject {
 
     private Date timeStamp = null;
-    private MeterReadingData mrd = new MeterReadingData();
 
     public MBusCurrentReadings(ObjectFactory of) {
         super(of);
@@ -66,7 +66,7 @@ public class MBusCurrentReadings extends AbstractActarisObject {
         Element md = doc.createElement(XMLTags.METERDATA);
         root.appendChild(md);
         Element s = doc.createElement(XMLTags.SERIALNUMBER);
-        s.setTextContent(getObjectFactory().getAce4000().getSerialNumber());
+        s.setTextContent(getObjectFactory().getAce4000().getConfiguredSerialNumber());
         md.appendChild(s);
         Element t = doc.createElement(XMLTags.TRACKER);
         t.setTextContent(Integer.toString(getTrackingID(), 16));
@@ -118,7 +118,7 @@ public class MBusCurrentReadings extends AbstractActarisObject {
             }
 
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         }
     }
 

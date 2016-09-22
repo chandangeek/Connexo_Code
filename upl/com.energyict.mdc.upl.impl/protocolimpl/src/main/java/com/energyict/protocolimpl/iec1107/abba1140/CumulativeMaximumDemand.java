@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
 import com.energyict.cbo.Quantity;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.math.BigDecimal;
 /**
  *
  * @author  Koen
@@ -14,17 +14,20 @@ public class CumulativeMaximumDemand extends MainRegister {
     int regSource;
      
     /** Creates a new instance of CumulativeMaximumDemand */
-    public CumulativeMaximumDemand(byte[] data) throws IOException {
+    public CumulativeMaximumDemand(byte[] data) throws ProtocolException {
         super();
         parse(data);
     }
     
     // TODO ?? energy of demand ??
-    private void parse(byte[] data) throws IOException {
-        BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,0,8))));
-        setRegSource(ProtocolUtils.getIntLE(data,8,1));
-        setQuantity(new Quantity(bd,EnergyTypeCode.getUnitFromRegSource(getRegSource(),false)));
-        
+    private void parse(byte[] data) throws ProtocolException {
+        try{
+            BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,0,8))));
+            setRegSource(ProtocolUtils.getIntLE(data,8,1));
+            setQuantity(new Quantity(bd,EnergyTypeCode.getUnitFromRegSource(getRegSource(),false)));
+        }catch(NumberFormatException e){
+            throw new ProtocolException(e);
+        }
     }
     
     public String toString() {

@@ -1,15 +1,19 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Sms;
+import com.energyict.mdw.core.DeviceOfflineFlags;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
@@ -75,7 +79,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
             TypedProperties deviceProtocolProperties = getContext().getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
             TypedProperties deviceConnectionTypeProperties = getContext().getInboundDAO().getDeviceConnectionTypeProperties(getDeviceIdentifier(), getContext().getComPort());
             if (deviceProtocolProperties == null || deviceConnectionTypeProperties == null) {
-                throw new NotFoundException("Device [" + getDeviceIdentifier() + "] not found.");
+                throw NotFoundException.notFound(Device.class, getDeviceIdentifier().toString());
             }
 
             allRelevantProperties.setAllProperties(deviceProtocolProperties);
@@ -92,7 +96,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
 
             return DiscoverResultType.DATA;
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         }
     }
 
@@ -111,7 +115,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
         if (!auth.equals(authenticationPropertyValue()) || !source.equals(sourcePropertyValue())) {
             setResultType(ResultType.AUTHENTICATION_FAILURE);
             IOException e = new IOException("Authentication failure: the API_source (" + source + ") and API_authentication (" + auth + ") of the received SMS do not match the credentials stored in EIMaster.");
-            throw MdcManager.getComServerExceptionFactory().createCipheringException(e);
+            throw  ConnectionCommunicationException.cipheringException(e);
         }
 
         String dcsString = isValidHexString(checkParameter(request.getParameter(DCS), DCS), DCS);
@@ -146,7 +150,9 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
         if (text == null && isRequiredParameter(parameter)) {
             setResultType(ResultType.MISSING_PARAMETER);
             resultType.addAdditionInformation(parameter);
-            throw MdcManager.getComServerExceptionFactory().missingProperty(parameter);
+            throw (getDeviceIdentifier() == null)
+                ? DeviceConfigurationException.missingProperty(parameter)
+                : DeviceConfigurationException.missingProperty(parameter, this.getDeviceIdentifier().toString());
         }
         return text != null ? text : "";
     }
@@ -225,7 +231,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
     }
 
     private String getDeviceSerialNumber() {
-        OfflineDevice device = getContext().getInboundDAO().findOfflineDevice(getDeviceIdentifier());
+        OfflineDevice device = getContext().getInboundDAO().getOfflineDevice(getDeviceIdentifier(), new DeviceOfflineFlags());
         if (device != null) {
             return device.getSerialNumber();
         } else {
@@ -242,7 +248,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
             out.println(getReply());
             out.close();
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createConnectionCommunicationException(e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         }
     }
 

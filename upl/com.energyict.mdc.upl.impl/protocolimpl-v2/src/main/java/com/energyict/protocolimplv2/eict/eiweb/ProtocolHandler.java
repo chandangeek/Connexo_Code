@@ -18,6 +18,9 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
@@ -129,7 +132,7 @@ public class ProtocolHandler {
             }
             this.confirmSentMessagesAndSendPending();
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createConnectionCommunicationException(e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         }
     }
 
@@ -151,7 +154,7 @@ public class ProtocolHandler {
             long ldate = (is.readLEUnsignedInt() + EIWebConstants.SECONDS10YEARS) * 1000;
             Date date = new Date(ldate);
             if ((i == 0) && (!this.packetBuilder.isTimeCorrect(date))) {
-                throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
+                throw DataEncryptionException.dataEncryptionException();
             }
             is.readByte(); // alarmid
             int channel = is.readByte() & 0xFF; // ignored for now
@@ -202,7 +205,7 @@ public class ProtocolHandler {
             this.packetBuilder.parseNrOfAcceptedMessages((String) parameters.get("xmlctr"));
             this.packetBuilder.parse(request.getInputStream(), (String) parameters.get("sn"));
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createConnectionCommunicationException(e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         }
     }
 
@@ -220,7 +223,7 @@ public class ProtocolHandler {
                     request.getParameter("sn"),
                     request.getParameter(EIWebConstants.MESSAGE_COUNTER_URL_PARAMETER_NAME));
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createConnectionCommunicationException(e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         }
     }
 
@@ -277,7 +280,7 @@ public class ProtocolHandler {
                     return contentType;
                 }
             }
-            throw MdcManager.getComServerExceptionFactory().unsupportedUrlContentType(request.getContentType());
+            throw CommunicationException.unsupportedUrlContentType(request.getContentType());
         }
 
         public abstract boolean matches(HttpServletRequest request);

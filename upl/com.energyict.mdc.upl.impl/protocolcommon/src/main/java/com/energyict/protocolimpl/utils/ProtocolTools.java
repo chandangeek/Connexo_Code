@@ -8,44 +8,22 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import com.energyict.protocolimplv2.MdcManager;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -69,6 +47,27 @@ public final class ProtocolTools {
 
     private ProtocolTools() {
         // Hide constructor for Util class with static methods
+    }
+
+    public static byte[] aesWrap(byte[] keyToWrap, byte[] kek) {
+        try {
+            final Cipher aesWrap = Cipher.getInstance("AESWrap");
+            aesWrap.init(Cipher.WRAP_MODE, new SecretKeySpec(kek, "AES"));
+            return aesWrap.wrap(new SecretKeySpec(keyToWrap, "AES"));
+        } catch (GeneralSecurityException e) {
+            throw DataEncryptionException.dataEncryptionException(e);
+        }
+    }
+
+    //TODO JUnit tests
+    public static byte[] aesUnwrap(byte[] wrappedKey, byte[] kek) {
+        try {
+            final Cipher aesWrap = Cipher.getInstance("AESWrap");
+            aesWrap.init(Cipher.UNWRAP_MODE, new SecretKeySpec(kek, "AES"));
+            return aesWrap.unwrap(wrappedKey, "AES", Cipher.SECRET_KEY).getEncoded();
+        } catch (GeneralSecurityException e) {
+            throw DataEncryptionException.dataEncryptionException(e);
+        }
     }
 
     /**
@@ -140,10 +139,20 @@ public final class ProtocolTools {
     }
 
     /**
+     * Check if the n-th bit is set of the value. The bit number is 0 based, so it can range from 0 to 31.
+     *
+     * @param bitNumber The number of the bit to test
+     * @return True if the bit was set, false if not.
+     */
+    public static boolean isBitSet(long value, int bitNumber) {
+        return ((value >> bitNumber) & 0x01) == 1;
+    }
+
+    /**
      * Convert int value to a hexadecimal string with a given byte length.
      * The default separator '$' is used between each byte.
      *
-     * @param value The intValue to convert
+     * @param value  The intValue to convert
      * @param length The amount of bytes that should be shown in the hex string
      * @return The hex string
      */
@@ -258,6 +267,7 @@ public final class ProtocolTools {
 
     /**
      * retrieve the subArray [from, to[  out of the given array
+     *
      * @param bytes
      * @param from  Inclusive from
      * @param to    Exclusive to
@@ -296,11 +306,11 @@ public final class ProtocolTools {
             if (secondArray == null) {
                 return new byte[0];
             } else {
-                return (byte[]) secondArray.clone();
+                return secondArray.clone();
             }
         } else {
             if (secondArray == null) {
-                return (byte[]) firstArray.clone();
+                return firstArray.clone();
             }
         }
 
@@ -324,7 +334,7 @@ public final class ProtocolTools {
         }
 
         Long[] longs = new Long[firstArray.length + secondArray.length];
-              System.arraycopy(firstArray, 0, longs, 0, firstArray.length);
+        System.arraycopy(firstArray, 0, longs, 0, firstArray.length);
         System.arraycopy(secondArray, 0, longs, firstArray.length, secondArray.length);
         return longs;
     }
@@ -335,7 +345,7 @@ public final class ProtocolTools {
                 return new BigDecimal[0];
             } else {
                 return secondArray.clone();
-    }
+            }
         } else {
             if (secondArray == null) {
                 return firstArray.clone();
@@ -394,6 +404,10 @@ public final class ProtocolTools {
      * @return
      */
     public static byte[] getBytesFromHexString(final String hexString, final String prefix) {
+        if (hexString == null || hexString.isEmpty()) {
+            return new byte[0];
+        }
+
         int prefixLength = (prefix == null) ? 0 : prefix.length();
         int charsPerByte = prefixLength + 2;
         ByteArrayOutputStream bb = new ByteArrayOutputStream();
@@ -471,6 +485,7 @@ public final class ProtocolTools {
         }
         return buffer;
     }
+
     /**
      * @param fileName
      * @return
@@ -487,7 +502,7 @@ public final class ProtocolTools {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 
@@ -504,7 +519,7 @@ public final class ProtocolTools {
         if (Math.abs(intervalInMinutes) >= (31 * 24 * 60)) { // In case of monthly intervals
             cal.set(Calendar.DAY_OF_MONTH, 1);
         }
-        if (Math.abs(intervalInMinutes) >=  (24 * 60) ) {    // In case of daily/monthly intervals
+        if (Math.abs(intervalInMinutes) >= (24 * 60)) {    // In case of daily/monthly intervals
             cal.set(Calendar.HOUR_OF_DAY, 0);
         }
 
@@ -678,7 +693,7 @@ public final class ProtocolTools {
         Date newest = null;
 
         List intervals = profileData.getIntervalDatas();
-        for (Iterator iterator = intervals.iterator(); iterator.hasNext();) {
+        for (Iterator iterator = intervals.iterator(); iterator.hasNext(); ) {
             IntervalData intervalData = (IntervalData) iterator.next();
             if ((oldest == null) || (newest == null)) {
                 oldest = intervalData.getEndTime();
@@ -758,11 +773,11 @@ public final class ProtocolTools {
     /**
      * Merge the duplicate intervals from the given list of IntervalData elements.
      * When merging multiple IntervalData elements, the Eis/protocol statuses are merged as well.
-     *  @deprecated this method can only be used if the channels contain simple consumption; if the channels contain cumulative
-     * values, then the merging will be wrong!
      *
      * @param intervals the list of IntervalData elements which should be checked for doubles
      * @return the merged list of IntervalData elements (which now should no longer contain duplicate intervals)
+     * @deprecated this method can only be used if the channels contain simple consumption; if the channels contain cumulative
+     * values, then the merging will be wrong!
      */
     public static List<IntervalData> mergeDuplicateIntervalsIncludingIntervalStatus(List<IntervalData> intervals) {
         List<IntervalData> mergedIntervals = new ArrayList<IntervalData>();
@@ -923,7 +938,6 @@ public final class ProtocolTools {
     }
 
     /**
-     *
      * @param year
      * @param month
      * @param dayOfMonth
@@ -1152,7 +1166,7 @@ public final class ProtocolTools {
     public static byte[] getReverseByteArray(byte[] bytes) {
         byte[] reverseBytes = new byte[bytes != null ? bytes.length : 0];
         for (int i = 0; i < reverseBytes.length; i++) {
-            reverseBytes[i] = bytes[bytes.length - (i+1)];
+            reverseBytes[i] = bytes[bytes.length - (i + 1)];
         }
         return reverseBytes;
     }
@@ -1377,7 +1391,7 @@ public final class ProtocolTools {
      * Close the databaseConnection when it is not needed so optimal database pooling can be used
      */
     public static void closeConnection() {
-        if(!Environment.getDefault().isInTransaction()){
+        if (!Environment.getDefault().isInTransaction()) {
             Environment.getDefault().closeConnection();
         }
     }
@@ -1493,19 +1507,18 @@ public final class ProtocolTools {
      * Visualise the given number taking into account the maximum number of characters the visualisation can use.<br></br>
      * If the visualisation would take more characters, the number is rounded.
      *
-     * @param value The Number to format
+     * @param value                The Number to format
      * @param maximumNumberOfChars The maximum number of (non-negative) characters to limit the number to<br></br>
-     * Examples:<br></br>
-     *  <ul>
-     *      <li>visualiseFormattedNumber(123.456f, 5) = 123.4</li>
-     *      <li>visualiseFormattedNumber(-123.456f, 5) = -123.4</li>
-     *      <li>visualiseFormattedNumber(12345678, 5) = 12345678</li>
-     *  </ul>
-     *
+     *                             Examples:<br></br>
+     *                             <ul>
+     *                             <li>visualiseFormattedNumber(123.456f, 5) = 123.4</li>
+     *                             <li>visualiseFormattedNumber(-123.456f, 5) = -123.4</li>
+     *                             <li>visualiseFormattedNumber(12345678, 5) = 12345678</li>
+     *                             </ul>
      * @return the formatted number visualisation
      */
     public static String visualiseFormattedNumber(Number value, int maximumNumberOfChars) {
-        MathContext mathContext = new MathContext(maximumNumberOfChars -1, RoundingMode.HALF_DOWN);
+        MathContext mathContext = new MathContext(maximumNumberOfChars - 1, RoundingMode.HALF_DOWN);
         BigDecimal bigDecimal = new BigDecimal(value.toString(), mathContext);
         return bigDecimal.toPlainString();
     }

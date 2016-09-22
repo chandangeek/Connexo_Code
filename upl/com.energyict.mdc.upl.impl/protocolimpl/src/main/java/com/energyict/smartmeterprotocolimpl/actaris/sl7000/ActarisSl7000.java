@@ -1,34 +1,20 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.actaris.sl7000.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging.Messages;
@@ -45,7 +31,7 @@ import java.util.logging.Level;
  * Date: 17/07/12
  * Time: 16:41
  */
-public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol {
+public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol, SerialNumberSupport {
 
     /**
      * Contains properties related to the Actaris SL7000 protocol
@@ -88,6 +74,20 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
             properties = new SL7000Properties();
         }
         return properties;
+    }
+
+    /**
+     * Make a connection to the physical device.
+     * Setup the association and check the objectList
+     *
+     * @throws java.io.IOException if errors occurred during data fetching
+     */
+    @Override
+    public void connect() throws IOException {
+        getDlmsSession().setUseLegacyHDLCConnection(getProperties().getUseLegacyHDLCConnection());
+        getDlmsSession().connect();
+        checkCacheObjects();
+        initAfterConnect();
     }
 
     @Override
@@ -146,22 +146,15 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         return getMeterInfo().getFirmwareVersion();
     }
 
-    public String getMeterSerialNumber() throws IOException {
-        if (meterSerial == null) {
-            String serial;
-            Data data;
-            try  {
-                data = getDlmsSession().getCosemObjectFactory().getData(ObisCodeMapper.OBISCODE_SERIAL_NUMBER_OBJ1);
-                serial = AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
-            } catch (DataAccessResultException e) {
-                oldFirmware = true;
-                data = getDlmsSession().getCosemObjectFactory().getData(ObisCodeMapper.OBISCODE_SERIAL_NUMBER_OBJ2);
-                serial = AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
-            }
-            meterSerial = serial;
+    public String getMeterSerialNumber() {
+        Data data;
+        try  {
+            oldFirmware = true;
+            data = getDlmsSession().getCosemObjectFactory().getData(ObisCodeMapper.OBISCODE_SERIAL_NUMBER_OBJ2);
+            return AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
+        }  catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
-
-        return meterSerial;
     }
 
     public RegisterInfo translateRegister(Register register) throws IOException {
@@ -192,7 +185,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
      * Returns the protocol version
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-05-12 16:20:57 +0300 (Thu, 12 May 2016)$";
     }
 
     /**
@@ -281,5 +274,10 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
             messageProtocol = new Messages(this);
         }
         return messageProtocol;
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return getMeterSerialNumber();
     }
 }

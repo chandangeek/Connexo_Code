@@ -17,7 +17,7 @@ import com.energyict.mdc.protocol.inbound.dlms.aso.SimpleApplicationServiceObjec
 import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.mdc.protocol.inbound.general.InboundConnection;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 
@@ -63,7 +63,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
                 disconnect();
             }
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
 
         return DiscoverResultType.IDENTIFIER;
@@ -203,7 +203,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
     public DLMSConnection getDLMSConnection() {

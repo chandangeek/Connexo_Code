@@ -4,8 +4,8 @@
  */
 package com.elster.protocolimpl.dlms.objects.a1;
 
-import com.elster.dlms.types.basic.ObisCode;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
+import com.elster.dlms.types.basic.ObisCode;
 import com.elster.protocolimpl.dlms.objects.a1.utils.BPValueHist;
 import com.elster.protocolimpl.dlms.objects.a1.utils.DataReader;
 import com.elster.protocolimpl.dlms.objects.a1.utils.RegisterReader;
@@ -88,7 +88,7 @@ public class A1ObjectPool extends ObjectPool
 
   public static final ObisCode UnitsDlyDiagnostic = new ObisCode("7.1.96.5.1.255");
 
-   // V4
+    // V4
   public static final ObisCode SIM_SubscriberID = new ObisCode("0.128.96.194.2.255");
   public static final ObisCode A1_RESET_ALARMS_1 = new ObisCode(7, 0, 0, 64, 56, 255);
   public static final ObisCode A1_RESET_ALARMS_2 = new ObisCode(7, 0, 0, 64, 51, 255);
@@ -164,7 +164,8 @@ public class A1ObjectPool extends ObjectPool
     new ObjectAccessor(0x000000, 0x011539, "SetCyclicMode", new ConfigureCyclicModeV1()),
     new ObjectAccessor(0x011539, 0xFFFFFF, "SetCyclicMode", new ConfigureCyclicModeV2()),
     //
-    new ObjectAccessor(0x000000, 0x011539, "SetPreferredDateMode", new ConfigurePreferredDateModeV1()),
+    // no change in newer versions  01/26/2016 gh
+    new ObjectAccessor(0x000000, 0xFFFFFF, "SetPreferredDateMode", new ConfigurePreferredDateModeV1()),
     //    new ObjectAccessor(0x011539, 0xFFFFFF, "SetPreferredDateMode", new ConfigureCyclicModeV2()),
 
     new ObjectAccessor(0x011539, 0xFFFFFF, "DisablePassiveTariff", new TariffPassiveDisable()),

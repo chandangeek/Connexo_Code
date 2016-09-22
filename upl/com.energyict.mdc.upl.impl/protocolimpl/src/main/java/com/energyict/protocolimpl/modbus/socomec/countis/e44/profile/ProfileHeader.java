@@ -15,11 +15,12 @@ public class ProfileHeader {
     private PhysicalUnit physicalUnit;
     private int numeratorRate;
     private int denominatorRate;
+    private double ctRatio;
 
     public ProfileHeader() {
     }
 
-    public static ProfileHeader parse(int[] values, int offset) {
+    public static ProfileHeader parse(int[] values, int offset, double ctRatio) {
         int ptr = offset;
         ProfileHeader profileHeader = new ProfileHeader();
         profileHeader.setRecordCount(values[ptr++]);
@@ -28,6 +29,8 @@ public class ProfileHeader {
         profileHeader.setPhysicalUnit(PhysicalUnit.physicalUnitFromCode(values[ptr++]));
         profileHeader.setNumeratorRate(values[ptr++]);
         profileHeader.setDenominatorRate(values[ptr++]);
+        profileHeader.setCtRatio(ctRatio);
+
         return profileHeader;
     }
 
@@ -81,6 +84,14 @@ public class ProfileHeader {
 
     public void setDenominatorRate(int denominatorRate) {
         this.denominatorRate = denominatorRate;
+    }
+
+    public void setCtRatio(double ctRatio) {
+        this.ctRatio = ctRatio;
+    }
+
+    public double getCtRatio() {
+        return ctRatio;
     }
 
     private enum PhysicalUnit {

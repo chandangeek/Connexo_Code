@@ -2,11 +2,13 @@ package com.energyict.protocolimplv2.dlms.idis.am500.messages;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -91,7 +93,7 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)
                 || propertySpec.getName().equals(contactorActivationDateAttributeName)
                 || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
@@ -117,5 +119,10 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds() / 60);  //Minutes
         }
         return messageAttribute.toString();
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 }

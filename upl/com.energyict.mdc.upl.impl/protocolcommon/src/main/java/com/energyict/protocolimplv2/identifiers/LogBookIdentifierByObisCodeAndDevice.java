@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.cbo.NotFoundException;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.util.Collections;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierType;
@@ -45,7 +45,7 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
     public LogBook getLogBook() {
         LogBook logBook = getLogBookFactory().findByDeviceAndDeviceObisCode(deviceIdentifier.findDevice(), logBookObisCode);
         if (logBook == null) {
-            throw new NotFoundException("No logbook found with obiscode '" + logBookObisCode.toString() + "'for device with serial number '" + deviceIdentifier.toString() + "'");
+            throw NotFoundException.notFound(LogBook.class, this.toString());
         } else {
             return logBook;
         }

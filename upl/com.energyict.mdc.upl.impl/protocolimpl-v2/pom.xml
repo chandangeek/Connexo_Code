@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>protocolimpl-v2</artifactId>
@@ -26,6 +27,11 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdwutil</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocol-api</artifactId>
         </dependency>
 
         <dependency>
@@ -125,6 +131,26 @@
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
         </dependency>
+
+        <!--Libraries that are used in the protocols, that are provided by the comserver-->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20090211</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.2</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -132,7 +158,7 @@
 
             <!-- This proguard plugin is used to obfuscate the protocolimpl-v2 jar-->
             <plugin>
-                <groupId>com.pyx4me</groupId>
+                <groupId>com.github.wvengen</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
                 <version>${proguard.maven.version}</version>
                 <executions>
@@ -157,19 +183,6 @@
                         <lib>${java.home}/lib/jce.jar</lib>
                     </libs>
                 </configuration>
-
-                <dependencies>
-                    <dependency>
-                        <groupId>net.sf.proguard</groupId>
-                        <artifactId>proguard</artifactId>
-                        <version>${proguard.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>net.sf.proguard</groupId>
-                        <artifactId>proguard-base</artifactId>
-                        <version>${proguard.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
 
             <!-- This plugin is used to add the 'generated-sources' folder to the source folder.-->

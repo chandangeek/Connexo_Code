@@ -20,6 +20,7 @@ import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.core.MBus;
 import com.energyict.protocolimpl.mbus.core.discover.DiscoverProtocolInfo;
@@ -91,7 +92,7 @@ public class Generic extends MBus {
 		        	}
 		        	catch(InterruptedException e) {
                         Thread.currentThread().interrupt();
-                        throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                        throw ConnectionCommunicationException.communicationInterruptedException(e);
                     }
 		        }
 		        catch(IOException e) {
@@ -105,7 +106,7 @@ public class Generic extends MBus {
 		        	}
 		        	catch(InterruptedException e) {
                         Thread.currentThread().interrupt();
-                        throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                        throw ConnectionCommunicationException.communicationInterruptedException(e);
                     }
 		        }
 		        catch(IOException e) {
@@ -257,7 +258,7 @@ public class Generic extends MBus {
     	    }
     	    catch(InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
     	}
         
@@ -280,7 +281,7 @@ public class Generic extends MBus {
      * The protocol version date
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }    
     
     protected void initRegisterFactory() {

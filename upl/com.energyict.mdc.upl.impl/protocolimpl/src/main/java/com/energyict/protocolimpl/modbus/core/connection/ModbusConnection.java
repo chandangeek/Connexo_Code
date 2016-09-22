@@ -16,6 +16,7 @@ import com.energyict.dialer.connection.ConnectionRS485;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -216,7 +217,9 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                                 responseData.setFunctionCode(kar);
 
                                 if ((responseData.getFunctionCode() == FunctionCode.WRITE_MULTIPLE_REGISTER.getFunctionCode()) ||
-                                        (responseData.getFunctionCode() == FunctionCode.WRITE_SINGLE_REGISTER.getFunctionCode())) {
+                                        (responseData.getFunctionCode() == FunctionCode.WRITE_SINGLE_REGISTER.getFunctionCode()) ||
+                                        (responseData.getFunctionCode() == FunctionCode.WRITE_SINGLE_COIL.getFunctionCode()) ||
+                                        (responseData.getFunctionCode() == FunctionCode.WRITE_MULTIPLE_COILS.getFunctionCode())) {
                                     len = 4 + 2;  // 4 bytes data + 2 bytes crc
                                     state = STATE_WAIT_FOR_DATA;
                                 } else {
@@ -253,7 +256,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                                 }
                                 catch (InterruptedException e) {
                                     Thread.currentThread().interrupt();
-                                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                                 }
                                 byte[] data = allDataArrayOutputStream.toByteArray();
                                 if (data.length <= 2) {

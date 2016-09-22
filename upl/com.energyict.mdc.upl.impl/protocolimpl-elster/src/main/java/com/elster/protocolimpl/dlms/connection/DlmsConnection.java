@@ -6,6 +6,7 @@ import com.elster.dlms.cosem.profiles.hdlc.EictDlmsHdlcStack;
 import com.elster.protocolimpl.dlms.SecurityData;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
@@ -187,7 +188,7 @@ public class DlmsConnection extends Connection {
                     Thread.sleep(20);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
             while (true);

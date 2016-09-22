@@ -8,8 +8,8 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Properties;
-import java.util.Random;
 
 /**
  * Default implementation of the securityProvider.
@@ -21,17 +21,6 @@ import java.util.Random;
  */
 public class LocalSecurityProvider implements SecurityProvider {
 
-    private int securityLevel;
-	private byte[] cTOs;
-	private byte[] authenticationPassword;
-	private byte[] dataTransportPassword;
-	private byte[] dedicatedKey;
-	private byte[] masterKey;
-	private String hlsSecret;
-	private Properties properties;
-    private Long initialFrameCounter;
-    private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
-
 	/** Property name of the DataTransport EncryptionKey */
 	public static final String DATATRANSPORTKEY = "DataTransportKey";
 	/** Property name of the Master key, or KeyEncryptionKey */
@@ -42,8 +31,17 @@ public class LocalSecurityProvider implements SecurityProvider {
 	public static final String NEW_LLS_SECRET = "NewLLSSecret";
     /** Property name of the initial frame counter */
     public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
-
-    private static final Random RANDOM = new Random();
+    private static final SecureRandom RANDOM = new SecureRandom();
+    private int securityLevel;
+	private byte[] cTOs;
+	private byte[] authenticationPassword;
+	private byte[] dataTransportPassword;
+	private byte[] dedicatedKey;
+	private byte[] masterKey;
+	private String hlsSecret;
+	private Properties properties;
+    private Long initialFrameCounter;
+    private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
 	/**
 	 * Create a new instance of LocalSecurityProvider
@@ -80,45 +78,60 @@ public class LocalSecurityProvider implements SecurityProvider {
     }
 
     /**
-	 * Generate a random challenge of 8 bytes long
-	 */
-	private void generateClientToServerChallenge(){
-		if(this.cTOs == null){
-			this.cTOs = new byte[8];
-			RANDOM.nextBytes(this.cTOs);
-		}
-	}
+     * Generate a random challenge of 8 bytes long
+     */
+    protected void generateClientToServerChallenge() {
+        this.generateClientToServerChallenge(8);
+    }
 
-	/**
+    protected void generateClientToServerChallenge(int length) {
+        if (this.cTOs == null) {
+            this.cTOs = new byte[length];
+            RANDOM.nextBytes(this.cTOs);
+        }
+    }
+
+    /**
 	 * Return the dataTransprot authenticationKey
 	 */
 	public byte[] getAuthenticationKey() {
 		return this.authenticationPassword;
 	}
 
-	public byte[] getCallingAuthenticationValue() throws UnsupportedException {
+    public byte[] getCallingAuthenticationValue() throws UnsupportedException {
 
-		switch(this.securityLevel){
-		case 0: return new byte[0];
-		case 1: {
-			return getHLSSecret();
-		}
-		case 2: throw new UnsupportedException("SecurityLevel 2 is not implemented.");
-		case 3: {	// this is a ClientToServer challenge for MD5
-			generateClientToServerChallenge();
-			return this.cTOs;
-		}
-		case 4: {	// this is a ClientToServer challenge for SHA-1
-			generateClientToServerChallenge();
-			return this.cTOs;
-		}
-		case 5: {	// this is a ClientToServer challenge for GMAC
-			generateClientToServerChallenge();
-			return this.cTOs;
-		}
-		default: return new byte[0];
-		}
-	}
+        switch (this.securityLevel) {
+            case 0:
+                return new byte[0];
+            case 1: {
+                return getHLSSecret();
+            }
+            case 2:
+                throw new UnsupportedException("SecurityLevel 2 is not implemented.");
+            case 3: {    // this is a ClientToServer challenge for MD5
+                generateClientToServerChallenge();
+                return this.cTOs;
+            }
+            case 4: {    // this is a ClientToServer challenge for SHA-1
+                generateClientToServerChallenge();
+                return this.cTOs;
+            }
+            case 5: {    // this is a ClientToServer challenge for GMAC
+                generateClientToServerChallenge();
+                return this.cTOs;
+            }
+            case 6: {    // this is a ClientToServer challenge for SHA-256
+                generateClientToServerChallenge();
+                return this.cTOs;
+            }
+            case 7: {    // this is a ClientToServer challenge for ECDSA, it requires a challenge length between 32 and 64 bytes
+                generateClientToServerChallenge(32);
+                return this.cTOs;
+            }
+            default:
+                return new byte[0];
+        }
+    }
 
 	/**
 	 * The global key or encryption key is a custom property of the rtu
@@ -150,7 +163,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	/**
 	 * @return the master key (this is the KeyEncryptionKey)
 	 */
-	public byte[] getMasterKey() throws IOException {
+	public byte[] getMasterKey() {
 		return this.masterKey;
 	}
 

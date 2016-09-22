@@ -1,9 +1,9 @@
 package test.com.energyict.protocolimplv2.coronis.common.escapecommands;
 
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.coronis.core.EscapeCommandException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import test.com.energyict.protocolimplv2.coronis.common.WaveFlowConnect;
 import test.com.energyict.protocolimplv2.coronis.common.WaveflowProtocolUtils;
 
@@ -100,7 +100,7 @@ abstract class AbstractEscapeCommand {
         byte[] response = waveFlowConnect.sendEscapeData(request);
         if (WaveflowProtocolUtils.toInt(response[0]) != 0) {
             EscapeCommandException exception = new EscapeCommandException("Error invoking the escape sequence. Returned [" + WaveflowProtocolUtils.toInt(response[0]) + "] for escape sequence [" + ProtocolUtils.outputHexString(request) + "]");
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(exception);
+            throw ConnectionCommunicationException.unExpectedProtocolError(exception);
         }
         parse(ProtocolUtils.getSubArray(response, 1));
     }

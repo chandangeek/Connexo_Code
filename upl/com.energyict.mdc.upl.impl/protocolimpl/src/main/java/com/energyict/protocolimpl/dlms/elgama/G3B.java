@@ -11,18 +11,7 @@ import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DemandRegister;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
@@ -34,12 +23,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -130,7 +114,7 @@ public class G3B extends AbstractDLMSProtocol {
      * @return the protocol version (being the date of the latest commit)
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
     }
 
     /**
@@ -362,10 +346,5 @@ public class G3B extends AbstractDLMSProtocol {
     @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, false);
-    }
-
-    @Override
-    public void validateSerialNumber() throws IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

@@ -10,14 +10,15 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.modbus.core.*;
-import com.energyict.protocolimpl.modbus.core.functioncode.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -61,7 +62,7 @@ abstract public class AbstractRegisterFactory {
         init();
     }
         
-    public AbstractRegister findRegister(String name) throws IOException {
+    public AbstractRegister findRegister(String name) throws NoSuchRegisterException {
         Iterator it = registers.iterator();
         while(it.hasNext()) {
             AbstractRegister register = (AbstractRegister)it.next();

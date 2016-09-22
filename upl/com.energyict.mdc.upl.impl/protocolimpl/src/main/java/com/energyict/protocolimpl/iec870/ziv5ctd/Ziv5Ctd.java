@@ -10,33 +10,18 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,7 +31,7 @@ import java.util.logging.Logger;
  * @endchanges
  */
 
-public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, RegisterProtocol {
+public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, RegisterProtocol, SerialNumberSupport {
 
     static final BigDecimal MAX_PROFILE_VALUE = new BigDecimal(9999999);
 
@@ -109,12 +94,21 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
 
     /* ___ Implement interface MeterProtocol ___ */
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return rFactory.getInfoObject47().getProductCode();
+        } catch (IOException e) {
+           throw ProtocolIOExceptionHandler.handle(e, pRetries + 1);
+        }
+    }
+
     /*
-    * (non-Javadoc)
-    *
-    * @see com.energyict.protocol.MeterProtocol#
-    *      setProperties(java.util.Properties)
-    */
+        * (non-Javadoc)
+        *
+        * @see com.energyict.protocol.MeterProtocol#
+        *      setProperties(java.util.Properties)
+        */
     public void setProperties(Properties p) throws InvalidPropertyException,
             MissingPropertyException {
 
@@ -263,11 +257,8 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
 
     void connect(int baudRate) throws IOException {
         try {
-
             linkLayer.connect();
             linkLayer.requestRespond(asduFactory.createType0xB7(pPassword));
-
-            validateSerialNumber();
             doExtendedLogging();
 
         } catch (NumberFormatException nex) {
@@ -407,7 +398,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:26:46 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -463,20 +454,6 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     public boolean isRequestHeader() {
         // TODO Auto-generated method stub
         return false;
-    }
-
-    /* ___ Private property checking ___ */
-
-    private void validateSerialNumber() throws IOException {
-
-        String sn = rFactory.getInfoObject47().getProductCode();
-
-        if (pSerialNumber == null || pSerialNumber.equals(sn)) {
-            return;
-        }
-
-        throw new IOException("SerialNumber mismatch! meter sn=" + sn
-                + ", configured sn=" + pSerialNumber);
     }
 
     private void validateProperties() throws MissingPropertyException,

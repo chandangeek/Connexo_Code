@@ -2,18 +2,11 @@ package com.energyict.protocolimpl.iec1107.abba1140;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.EndOfBillingEventLog;
-import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.InternalBatteryEventLog;
-import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.MainCoverEventLog;
-import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.MeterErrorEventLog;
-import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.PhaseFailureEventLog;
-import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.PowerFailEventLog;
-import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.ReverserunEventLog;
-import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.TerminalCoverEventLog;
-import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.TransientEventLog;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -300,60 +293,80 @@ abstract public class ABBA1140RegisterData {
                 }
 
                 default:
-                    throw new IOException("ABBA1140RegisterData, parse , unknown type " + getType());
+                    throw new ProtocolException("ABBA1140RegisterData, parse , unknown type " + getType());
             }
         }
         catch(NumberFormatException e) {
-            throw new IOException("ABBA1140RegisterData, parse error");
+            throw new ProtocolException("ABBA1140RegisterData, parse error exception:" + e.getMessage());
         }
     }
     
-    private Long parseLongHexLE(byte[] data) throws IOException,NumberFormatException {
+    private Long parseLongHexLE(byte[] data) throws ProtocolException {
         return new Long(ProtocolUtils.getLongLE(data,getOffset(),getLength()));
     }
     private Long parseLongHex(byte[] data) throws IOException,NumberFormatException {
         return new Long(ProtocolUtils.getLong(data,getOffset(),getLength()));
     }
     
-    private BigDecimal parseBigDecimal(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("ABBA1140RegisterData, parseBigDecimal, datalength should not exceed 8!");
-        BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
-        return bd.movePointLeft(Math.abs(getUnit().getScale()));
+    private BigDecimal parseBigDecimal(byte[] data) throws ProtocolException {
+        if (getLength() > 8) throw new ProtocolException("ABBA1140RegisterData, parseBigDecimal, datalength should not exceed 8!");
+        try {
+            BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data, getOffset(), getLength()))));
+            return bd.movePointLeft(Math.abs(getUnit().getScale()));
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
+        }
     }
     
-    private Quantity parseQuantity(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("ABBA1140RegisterData, parseQuantity, datalength should not exceed 8!");
-        BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
-        return new Quantity(bd,getUnit());
+    private Quantity parseQuantity(byte[] data) throws ProtocolException {
+        if (getLength() > 8) throw new ProtocolException("ABBA1140RegisterData, parseQuantity, datalength should not exceed 8!");
+        try {
+           BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
+           return new Quantity(bd,getUnit());
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
+        }
     }
 
-    private Quantity parseNetConsumption(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("ABBA1140RegisterData, parseQuantity, datalength should not exceed 8!");
-        BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
-        double d = bd.doubleValue();        //If necessary, convert to negative number
-        if (d > 5 * (Math.pow(10, 15))) {
-            d = Math.pow(10, 16) - d;
-            d = -d;
+    private Quantity parseNetConsumption(byte[] data) throws ProtocolException {
+        if (getLength() > 8) throw new ProtocolException("ABBA1140RegisterData, parseQuantity, datalength should not exceed 8!");
+        try {
+            BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
+            double d = bd.doubleValue();        //If necessary, convert to negative number
+            if (d > 5 * (Math.pow(10, 15))) {
+                d = Math.pow(10, 16) - d;
+                d = -d;
+            }
+            return new Quantity(BigDecimal.valueOf(d),getUnit());
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
         }
-        return new Quantity(BigDecimal.valueOf(d),getUnit());
     }
     
-    private Long parseBitfield(byte[] data) throws IOException {
-        if (getLength() > 8) throw new IOException("ABBA1140RegisterData, parseBitfield, datalength should not exceed 8!");
+    private Long parseBitfield(byte[] data) throws ProtocolException {
+        if (getLength() > 8) throw new ProtocolException("ABBA1140RegisterData, parseBitfield, datalength should not exceed 8!");
         return new Long(ProtocolUtils.getLong(data,getOffset(),getLength()));
     }
     
-    private Long parseLong(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("ABBA1140RegisterData, parseLong, datalength should not exceed 8!");
-        return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
+    private Long parseLong(byte[] data) throws ProtocolException {
+        if (getLength() > 8) throw new ProtocolException("ABBA1140RegisterData, parseLong, datalength should not exceed 8!");
+        try {
+            return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
+        }
     }
     
-    private Integer parseInteger(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 4) throw new IOException("ABBA1140RegisterData, parseInteger, datalength should not exceed 4!");
-        return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data,getOffset(),getLength()))));
+    private Integer parseInteger(byte[] data) throws ProtocolException {
+        if (getLength() > 4) throw new ProtocolException("ABBA1140RegisterData, parseInteger, datalength should not exceed 4!");
+        try {
+            return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data,getOffset(),getLength()))));
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
+        }
     }
     
-    private Date parseDate(byte[] data) throws IOException {
+    private Date parseDate(byte[] data) throws ProtocolException {
         Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
         calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[0]));
         calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[1]));

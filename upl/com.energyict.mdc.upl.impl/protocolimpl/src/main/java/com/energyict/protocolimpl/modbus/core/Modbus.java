@@ -22,6 +22,7 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.Discover;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -36,7 +37,6 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusTCPConnection;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,7 +94,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     	}
     	catch(InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     	
         doTheConnect();
@@ -120,7 +120,11 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     protected void setInfoTypePhysicalLayer(int physicalLayer) {
     	this.physicalLayer=physicalLayer;
     }
-    
+
+    public void setConnectionMode(int connection) {
+        this.connection = connection;
+    }
+
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","10").trim()));
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","15").trim()));
@@ -354,15 +358,22 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
    
    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 		try {
-			if (messageEntry.getContent().indexOf("<WriteMultipleRegisters")>=0) {
-				getLogger().info("************************* WriteMultipleRegisters *************************");
+
+            boolean writeMultipleRegisters = messageEntry.getContent().indexOf("<WriteMultipleRegisters")>=0;
+            boolean writeMultipleCoils = messageEntry.getContent().indexOf("<WriteMultipleCoils")>=0;
+            boolean writeSingleRegister = messageEntry.getContent().indexOf("<WriteSingleRegisters")>=0;
+            boolean writeSingleCoil = messageEntry.getContent().indexOf("<WriteSingleCoil")>=0;
+
+			if (writeMultipleRegisters || writeMultipleCoils) {
+                String operation = writeMultipleRegisters ? "WriteMultipleRegisters" : "WriteMultipleCoils";
+                getLogger().info("************************* "+operation+" *************************");
 				// e.g. HEX,0e00,2f4,D6D8
 				// e.g. DEC,3584,756,55000
 				// e.g. 0e00,2f4,D6D8
 				String content = stripOffTag(messageEntry.getContent());
 				String[] contentEntries = content.split(",");
 				if (contentEntries.length<2) {
-					getLogger().severe("Error parsing WriteMultipleRegisters message, content "+content+". Usage: [HEX or DEC,]address,val1,val2,...,valN");
+					getLogger().severe("Error parsing "+operation+" message, content "+content+". Usage: [HEX or DEC,]address,val1,val2,...,valN");
 					return MessageResult.createFailed(messageEntry);
 				}
 				else {
@@ -370,7 +381,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 					int[] values;
 					if (contentEntries[0].compareTo("HEX")==0) {
 						if (contentEntries.length<3) {
-							getLogger().severe("Error parsing WriteMultipleRegisters message, content "+content+". Usage: [HEX or DEC,]address,val1,val2,...,valN");
+							getLogger().severe("Error parsing "+operation+" message, content "+content+". Usage: [HEX or DEC,]address,val1,val2,...,valN");
 							return MessageResult.createFailed(messageEntry);
 						}
 						address = Integer.parseInt(contentEntries[1], 16);
@@ -381,7 +392,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 					}
 					else if (contentEntries[0].compareTo("DEC")==0) {
 						if (contentEntries.length<3) {
-							getLogger().severe("Error parsing WriteMultipleRegisters message, content "+content+". Usage: [HEX or DEC,]address,val1,val2,...,valN");
+							getLogger().severe("Error parsing "+operation+" message, content "+content+". Usage: [HEX or DEC,]address,val1,val2,...,valN");
 							return MessageResult.createFailed(messageEntry);
 						}
 						address = Integer.parseInt(contentEntries[1]);
@@ -397,20 +408,31 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 							values[i-1]=Integer.parseInt(contentEntries[i],16);
 						}
 					}
-					getRegisterFactory().getFunctionCodeFactory().getWriteMultipleRegisters(address, values.length, convertToBytesArray(values));
+
+                    if(writeMultipleRegisters){
+                        getRegisterFactory().getFunctionCodeFactory().getWriteMultipleRegisters(address, values.length, convertToBytesArray(values));
+                    } else if(writeMultipleCoils){
+                        int[] converted_values = new int[values.length];
+                        for (int i = 0; i < values.length; i++) {
+                            converted_values[i] = values[i] == 1 ? 65280 : 0;
+                        }
+
+                        getRegisterFactory().getFunctionCodeFactory().getWriteMultipleCoils(address, converted_values.length, convertToBytesArray(converted_values));
+                    }
 	                return MessageResult.createSuccess(messageEntry);
 				}
 				
 			}
-			else if (messageEntry.getContent().indexOf("<WriteSingleRegisters")>=0) {
-				getLogger().info("************************* WriteSingleRegisters *************************");
+			else if (writeSingleRegister || writeSingleCoil) {
+                String operation = writeSingleRegister ? "WriteSingleRegister" : "WriteSingleCoil";
+				getLogger().info("************************* "+operation+" *************************");
 				// e.g. HEX,0e00,2f4
 				// e.g. DEC,3584,756
 				// e.g. 0e00,2f4
 				String content = stripOffTag(messageEntry.getContent());
 				String[] contentEntries = content.split(",");
 				if (contentEntries.length<2) {
-					getLogger().severe("Error parsing WriteSingleRegisters message, content "+content+". Usage: [HEX or DEC,]address,value");
+					getLogger().severe("Error parsing "+operation+" message, content "+content+". Usage: [HEX or DEC,]address,value");
 					return MessageResult.createFailed(messageEntry);
 				}
 				else {
@@ -418,7 +440,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 					int value;
 					if (contentEntries[0].compareTo("HEX")==0) {
 						if (contentEntries.length<3) {
-							getLogger().severe("Error parsing WriteSingleRegisters message, content "+content+". Usage: [HEX or DEC,]address,value");
+							getLogger().severe("Error parsing "+operation+" message, content "+content+". Usage: [HEX or DEC,]address,value");
 							return MessageResult.createFailed(messageEntry);
 						}
 						address = Integer.parseInt(contentEntries[1], 16);
@@ -426,7 +448,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 					}
 					else if (contentEntries[0].compareTo("DEC")==0) {
 						if (contentEntries.length<3) {
-							getLogger().severe("Error parsing WriteSingleRegisters message, content "+content+". Usage: [HEX or DEC,]address,value");
+							getLogger().severe("Error parsing "+operation+" message, content "+content+". Usage: [HEX or DEC,]address,value");
 							return MessageResult.createFailed(messageEntry);
 						}
 						address = Integer.parseInt(contentEntries[1]);
@@ -436,7 +458,12 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 						address = Integer.parseInt(contentEntries[0], 16);
 						value = Integer.parseInt(contentEntries[1],16);
 					}
-					getRegisterFactory().getFunctionCodeFactory().getWriteSingleRegister(address, value);
+
+                    if(writeSingleRegister){
+                        getRegisterFactory().getFunctionCodeFactory().getWriteSingleRegister(address, value);
+                    } else if(writeSingleCoil){
+                        getRegisterFactory().getFunctionCodeFactory().getWriteSingleCoil(address, value == 1 ? 65280 : 0);
+                    }
 	                return MessageResult.createSuccess(messageEntry);
 				}
 			} else {

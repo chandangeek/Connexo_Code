@@ -39,6 +39,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
     Commission_With_Channel(9, PropertySpecFactory.bigDecimalPropertySpecWithValues(
             BigDecimal.valueOf(1),
             DeviceMessageConstants.mbusChannel,
+            BigDecimal.valueOf(0),
             BigDecimal.valueOf(1),
             BigDecimal.valueOf(2),
             BigDecimal.valueOf(3),
@@ -55,7 +56,30 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.hexStringPropertySpecWithDefaultValue(DeviceMessageConstants.dibInstance4, getCaptureDefinitionDefaultValue()),
             PropertySpecFactory.hexStringPropertySpecWithDefaultValue(DeviceMessageConstants.vibInstance4, getCaptureDefinitionDefaultValue())
     ),
-    WriteMBusCapturePeriod(12, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.capturePeriodAttributeName));
+    WriteMBusCapturePeriod(12, PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.capturePeriodAttributeName)),
+    ChangeMBusAttributes(13, PropertySpecFactory.bigDecimalPropertySpecWithValues(
+                    BigDecimal.valueOf(1),
+                    DeviceMessageConstants.mbusChannel,
+                    BigDecimal.valueOf(0),
+                    BigDecimal.valueOf(1),
+                    BigDecimal.valueOf(2),
+                    BigDecimal.valueOf(3),
+                    BigDecimal.valueOf(4)),
+                    PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber),
+                    PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientManufacturerId),
+                    PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientVersion),
+                    PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientDeviceType)
+    ),
+    MBusClientRemoteCommission(14, PropertySpecFactory.bigDecimalPropertySpecWithValues(
+            BigDecimal.valueOf(1),
+            DeviceMessageConstants.mbusChannel,
+            BigDecimal.valueOf(0),
+            BigDecimal.valueOf(1),
+            BigDecimal.valueOf(2),
+            BigDecimal.valueOf(3),
+            BigDecimal.valueOf(4)),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.MBusSetupDeviceMessage_mBusClientShortId));
+
 
     private static HexString getCaptureDefinitionDefaultValue() {
         return new HexString("FFFFFFFFFFFFFFFFFFFFFF");

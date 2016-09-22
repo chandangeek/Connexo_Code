@@ -4,7 +4,7 @@ package com.energyict.dlms;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -129,6 +129,10 @@ public class UniversalObject implements Serializable {
 
     public void setField(int iIndex, long val) {
         this.fields[iIndex] = val;
+    }
+
+    public void setObisCodeChannelB(long val){
+        this.fields[IOL_LN_B] = val;
     }
 
     public long getField(int iIndex) {
@@ -353,6 +357,24 @@ public class UniversalObject implements Serializable {
         }
     }
 
+    /*
+    *  Find ObisCode in instantiated object list and checks if equal ignoring the B channel
+    *  All instantiated objects have f=255 and are unique for a classId.
+    */
+    public boolean equalsIgnoreBChannel(ObisCode obisCode) {
+        if (obisCode == null) {
+            return false;
+        }
+        if (((getLNA() & 0xFF) == obisCode.getA()) &&
+                ((getLNC() & 0xFF) == obisCode.getC()) &&
+                ((getLND() & 0xFF) == obisCode.getD()) &&
+                ((getLNE() & 0xFF) == obisCode.getE())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public ObisCode getObisCode() {
         return ObisCode.fromString(getLN());
     }
@@ -373,7 +395,7 @@ public class UniversalObject implements Serializable {
             return 8;
         } else {
             ProtocolException protocolException = new ProtocolException("UniversalObject, wrong object for value attribute!");
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         }
     }
 

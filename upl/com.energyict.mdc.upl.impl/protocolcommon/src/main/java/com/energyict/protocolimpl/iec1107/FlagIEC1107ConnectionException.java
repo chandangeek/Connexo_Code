@@ -12,7 +12,7 @@ import com.energyict.dialer.connection.ConnectionException;
  * @author  koen
  */
 public class FlagIEC1107ConnectionException extends ConnectionException {
-    
+    public static final short DUPLICATE_RESPONSE = 1;
   private short sReason;
 
   public short getReason() {

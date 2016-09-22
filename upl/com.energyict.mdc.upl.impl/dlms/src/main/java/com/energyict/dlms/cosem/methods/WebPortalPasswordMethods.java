@@ -7,8 +7,8 @@ import com.energyict.dlms.cosem.DLMSClassId;
  */
 public enum WebPortalPasswordMethods implements DLMSClassMethods {
 
-    CHANGE_USER_1_PASSWORD(1, 80),
-    CHANGE_USER_2_PASSWORD(2, 88);
+    CHANGE_USER_1_PASSWORD(1, 10),
+    CHANGE_USER_2_PASSWORD(2, 18);
 
     /**
      * The method number.
@@ -35,7 +35,7 @@ public enum WebPortalPasswordMethods implements DLMSClassMethods {
      * {@inheritDoc}
      */
     public final DLMSClassId getDlmsClassId() {
-        return DLMSClassId.WEB_PORTAL_PASSWORDS;
+        return DLMSClassId.WEB_PORTAL_CONFIGURATION;
     }
 
     /**
@@ -52,3 +52,4 @@ public enum WebPortalPasswordMethods implements DLMSClassMethods {
         return this.methodNumber;
     }
 }
+

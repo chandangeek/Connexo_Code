@@ -1,13 +1,18 @@
 package com.energyict.protocolimpl.cm10;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Logger;
 
 public class CM10Connection extends Connection implements ProtocolConnection {
@@ -52,7 +57,7 @@ public class CM10Connection extends Connection implements ProtocolConnection {
                 tries++;
                 logger.severe("Caught ConnectionException on try [" + tries + "]: " + e.getMessage());
                 if (e.getReason() == PROTOCOL_ERROR) {
-                    throw new ProtocolConnectionException("sendCommand() error, " + e.getMessage());
+                    throw new ProtocolConnectionException("sendCommand() error, " + e.getMessage(), e.getReason());
                 }
             }
         } while ((tries <= maxRetries));

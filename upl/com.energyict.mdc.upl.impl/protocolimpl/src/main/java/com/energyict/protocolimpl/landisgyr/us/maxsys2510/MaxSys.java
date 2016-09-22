@@ -16,6 +16,6 @@ public class MaxSys extends com.energyict.protocolimpl.landisgyr.maxsys2510.MaxS
 
     @Override
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-04-20 14:29:26 +0200 (Mon, 20 Apr 2015) $";
     }
 }

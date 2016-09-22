@@ -5,8 +5,8 @@
  */
 
 package com.energyict.protocolimpl.iec1107.abba1700;
-import java.io.*;
-import java.util.*;
+
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 /**
  *
@@ -19,7 +19,7 @@ public class HistoricalDisplayScalingSet {
     ABBA1700MeterType meterType;
     
     /** Creates a new instance of HistoricalDisplayScalingSet */
-    public HistoricalDisplayScalingSet(byte[] data, ABBA1700MeterType meterType) throws IOException {
+    public HistoricalDisplayScalingSet(byte[] data, ABBA1700MeterType meterType) throws ProtocolException {
         this.meterType=meterType;
         parse(data);
     }
@@ -28,7 +28,7 @@ public class HistoricalDisplayScalingSet {
         return tariffSources.toString()+"\n"+mdSources.toString();   
     }
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
         tariffSources = new TariffSources(ProtocolUtils.getSubArray2(data,meterType.getDisplayScalingTOUOffset(),meterType.getNrOfTariffRegisters()),meterType);
         mdSources = new MDSources(ProtocolUtils.getSubArray2(data,(meterType.getDisplayScalingTOUOffset()+meterType.getNrOfTariffRegisters()),8));
     }    

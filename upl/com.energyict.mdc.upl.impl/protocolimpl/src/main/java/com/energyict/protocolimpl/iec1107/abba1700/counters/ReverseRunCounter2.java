@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.iec1107.abba1700.counters;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
-import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -40,7 +40,7 @@ public class ReverseRunCounter2 extends AbstractCounter {
      * @throws java.io.IOException when the conversion of certain types did not succeed
      */
     @Override
-    public void parse(final byte[] data) throws IOException {
+    public void parse(final byte[] data) throws ProtocolException {
 
         int offset = 0;
         setCounter(ProtocolUtils.getIntLE(data, offset, CounterLength));

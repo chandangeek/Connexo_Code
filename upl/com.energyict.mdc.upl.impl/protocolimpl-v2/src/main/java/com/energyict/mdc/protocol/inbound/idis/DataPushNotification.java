@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class DataPushNotification implements BinaryInboundDeviceProtocol {
 
-    private ComChannel comChannel;
+    protected ComChannel comChannel;
     private InboundDiscoveryContext context;
 
     private DataPushNotificationParser parser;
@@ -87,6 +87,11 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-07-20 10:41:02 +0300 (Wed, 20 Jul 2016)$";
+    }
+
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
     }
 }

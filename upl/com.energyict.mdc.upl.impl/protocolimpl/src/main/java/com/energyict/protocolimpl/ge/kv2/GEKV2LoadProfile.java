@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.ge.kv2;
 
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.ansi.c12.procedures.*;
 import java.io.*;
 import java.math.*;
@@ -264,7 +265,7 @@ public class GEKV2LoadProfile {
                 }
                 catch(InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
             else break;

@@ -1,6 +1,7 @@
 package com.elster.protocolimpl.lis200;
 
 import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
+import com.elster.protocolimpl.lis200.objects.LockObject;
 import com.elster.protocolimpl.lis200.objects.SimpleObject;
 import com.elster.protocolimpl.lis200.registers.HistoricRegisterDefinition;
 import com.elster.protocolimpl.lis200.registers.HistoricalArchive;
@@ -92,7 +93,7 @@ public class EK280 extends LIS200 implements IRegisterReadable {
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2012-12-12 09:00:00 +0100$";
+        return "$Date: 2016-05-26 14:50:46 +0300 (Thu, 26 May 2016)$";
     }
 
     // *******************************************************************************************
@@ -208,5 +209,11 @@ public class EK280 extends LIS200 implements IRegisterReadable {
         } else {
             return super.getLogBookInstance();
         }
+    }
+
+    @Override
+    protected LockObject[] getLockObjects()
+    {
+        return new LockObject[] {LockObject.ManufacturerLock, LockObject.AdministratorLock, LockObject.CustomerLock, LockObject.DataCollectorLock, LockObject.UserLock6};
     }
 }

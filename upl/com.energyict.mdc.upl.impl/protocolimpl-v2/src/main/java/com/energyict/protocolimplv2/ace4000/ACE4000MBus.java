@@ -52,7 +52,7 @@ public class ACE4000MBus extends ACE4000Outbound {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-06-08 15:56:38 +0200 (Mon, 08 Jun 2015) $";
     }
 
     @Override

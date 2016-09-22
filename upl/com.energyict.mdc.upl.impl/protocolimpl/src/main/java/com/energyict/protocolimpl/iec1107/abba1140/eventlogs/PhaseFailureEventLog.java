@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba1140.eventlogs;
 
-import java.io.IOException;
-import java.util.TimeZone;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.util.TimeZone;
  
 public class PhaseFailureEventLog extends AbstractEventLog {
 
@@ -21,7 +22,7 @@ public class PhaseFailureEventLog extends AbstractEventLog {
 		super(timeZone);
 	}
 
-	public void parse(byte[] data) throws IOException {
+	public void parse(byte[] data) throws ProtocolException {
 		count = ProtocolUtils.getIntLE(data, 0, COUNT_SIZE);
 		for( int i = 0; i < NUMBER_OF_EVENTS; i++ ) {
         	timeStamp[i] = new TimeStamp(data, COUNT_SIZE + (i*TIMESTAMP_SIZE), getTimeZone());

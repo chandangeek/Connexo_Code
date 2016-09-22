@@ -13,34 +13,31 @@ package com.energyict.protocolimpl.modbus.socomec.a40;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.base.ProfileLimiter;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 /**
  *
  * @author Koen
  */
-public class A40 extends Modbus {
+public class A40 extends Modbus implements SerialNumberSupport {
     
     private MultiplierFactory multiplierFactory=null;
     private String socomecType;
     private SocomecProfile profile;
+    private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
+    private int limitMaxNrOfDays;
     
     /**
      * Creates a new instance of A20 
@@ -53,10 +50,14 @@ public class A40 extends Modbus {
     
     protected void doTheDisConnect() throws IOException {
     }
-    
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-    	
-    	if(getProfile().isSupported()){
+
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+        return getProfileWithLimiter(new ProfileLimiter(from, new Date(), getLimitMaxNrOfDays()), includeEvents);
+    }
+
+    private ProfileData getProfileWithLimiter(ProfileLimiter limiter, boolean includeEvents) throws IOException {
+        Date lastReading = limiter.getFromDate();
+        if(getProfile().isSupported()){
     		ProfileData profileData = new ProfileData();
     		profileData.setChannelInfos(getProfile().getChannelInfos());
     		profileData.setIntervalDatas(getProfile().getIntervalDatas(lastReading));
@@ -65,7 +66,6 @@ public class A40 extends Modbus {
     	} else {
     		throw new UnsupportedException("ProfileData is not supported by the meter.");
     	}
-    	
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException {
@@ -75,6 +75,7 @@ public class A40 extends Modbus {
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","50").trim()));
         setSocomecType(properties.getProperty("SocomecType"));
+        this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -84,14 +85,30 @@ public class A40 extends Modbus {
     protected List doTheGetOptionalKeys() {
         List result = new ArrayList();
         result.add("SocomecType");
+        result.add("Connection");
+        result.add(PR_LIMIT_MAX_NR_OF_DAYS);
         return result;
+    }
+
+    /**
+     * Returns the serial number
+     *
+     * @return String serial number
+     */
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getRegisterFactory().findRegister(RegisterFactory.SERIAL_NUMBER).value().toString();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
     }
 
     /**
      * The protocol version
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2016-06-03 12:47:33 +0300 (Fri, 03 Jun 2016)$";
     }
     
     protected void initRegisterFactory() {
@@ -255,5 +272,9 @@ public class A40 extends Modbus {
      */
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         return getProfile().getNumberOfChannels();
+    }
+
+    private int getLimitMaxNrOfDays() {
+        return limitMaxNrOfDays;
     }
 }

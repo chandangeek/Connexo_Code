@@ -1,21 +1,31 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.coronis.core.*;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.coronis.core.ProtocolLink;
+import com.energyict.protocolimpl.coronis.core.RegisterCache;
+import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.Map.Entry;
 
-abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink, MessageProtocol, EventMapper, RegisterCache {
+abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink, MessageProtocol, EventMapper, RegisterCache, SerialNumberSupport {
 
     protected enum PairingMeterId {
         AS253(1),
@@ -33,29 +43,10 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
         }
     }
 
-    /**
-     * Validates if the serial number matches the utility ID (some kind of extended serial number) of the connected e-meter
-     */
+
     @Override
     protected void doConnect() throws IOException {
-        if (serialNumberA != null && serialNumberA.length() != 0) {
-            String meterSerialNumber;
-            try {
-                meterSerialNumber = readRegister(getUtilityIdObiscode()).getText().trim();
-            } catch (WaveFlowDLMSException e) {
-                getLogger().warning("Error while reading out the meter serial number: " + e.getMessage());
-                String msg = "Expected a meter with serial number '" + serialNumberA + "', but no meter is connected!";
-                getLogger().warning(msg);
-                IOException e1 = new IOException(msg);
-                throw new NestedIOException(e1);     //To get completion code 2 (IO Error) instead of code 3 (protocol error)
-            }
-            if (!serialNumberA.equalsIgnoreCase(meterSerialNumber)) {
-                String msg = "Serial number mismatch. Configured serial number for connected meter is '" + serialNumberA + "', while the actual serial number is '" + meterSerialNumber + "'";
-                getLogger().warning(msg);
-                IOException e = new IOException(msg);
-                throw new NestedIOException(e);     //To get completion code 2 (IO Error) instead of code 3 (protocol error)
-            }
-        }
+
     }
 
     static private final int EMETER_NR_OF_CHANNELS = 4;
@@ -357,7 +348,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 
     @Override
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override
@@ -459,7 +450,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
                     Thread.sleep(2000);
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e1);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e1);
                 }
 
             } // while(true)
@@ -550,4 +541,18 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
         return obisCodeMapper.getRegisterExtendedLogging();
     }
 
+
+    /**
+     * Returns the serial number
+     *
+     * @return String serial number
+     */
+    @Override
+    public String getSerialNumber() {
+        try {
+            return readRegister(getUtilityIdObiscode()).getText().trim();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
 }

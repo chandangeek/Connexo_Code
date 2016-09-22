@@ -6,12 +6,13 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
@@ -82,7 +83,7 @@ public class ABBA1700DataIdentity {
     }
     
     // read register in the meter if not cached
-    protected byte[] readRawRegister(String dataID,boolean cached,int dataLength, int set) throws FlagIEC1107ConnectionException,IOException {
+    protected byte[] readRawRegister(String dataID,boolean cached,int dataLength, int set) throws IOException {
        if ((!cached) || (dataBlocks[set] == null)) {
             // KV 16062004 changed to use streaming if possible...
             if (getABBA1700DataIdentityFactory().getProtocolLink().isIEC1107Compatible()) {
@@ -110,7 +111,7 @@ public class ABBA1700DataIdentity {
         return dataBlocks[set];
     }
     
-    private byte[] doReadRawRegisterStream(String dataID, boolean cached, int nrOfBlocks) throws FlagIEC1107ConnectionException,IOException {
+    private byte[] doReadRawRegisterStream(String dataID, boolean cached, int nrOfBlocks) throws IOException {
        byte[] dataBlock=null;
        String data = dataID+"001("+Integer.toHexString(nrOfBlocks)+")";
       
@@ -124,7 +125,7 @@ public class ABBA1700DataIdentity {
            }
            catch(FlagIEC1107ConnectionException e) {
                if (iRetries++ >= getABBA1700DataIdentityFactory().getProtocolLink().getNrOfRetries())
-                   throw e;
+                   throw new ProtocolConnectionException(e.getMessage(), e.getReason());
 //System.out.println("KV_DEBUG> streaming error reason "+e.getReason());
                getABBA1700DataIdentityFactory().getProtocolLink().getFlagIEC1107Connection().breakStreamingMode();
            }
@@ -144,7 +145,7 @@ public class ABBA1700DataIdentity {
     
     // normal iec1107 read method
     // read register in the meter
-    private byte[] doReadRawRegister(String dataID,int dataLen,int set) throws FlagIEC1107ConnectionException,IOException {
+    private byte[] doReadRawRegister(String dataID,int dataLen,int set) throws IOException {
         byte[] dataBlock=null;
         long timeout = System.currentTimeMillis() + AUTHENTICATE_REARM; // After 4,5 min, do authentication before continue! otherwise we can receive ERR5, password timeout!
         if (dataLen <= 0) throw new FlagIEC1107ConnectionException("ABBA1700DataIdentity, doReadRawRegister, wrong dataLength ("+dataLen+")!");
@@ -173,7 +174,7 @@ public class ABBA1700DataIdentity {
                 throw new FlagIEC1107ConnectionException("ABBA1700DataIdentity, doReadRawRegister, "+getABBA1700DataIdentityFactory().getMeterExceptionInfo().getExceptionInfo(exceptionId));
             }
             data.write(ba);
-            
+
             if (((long) (System.currentTimeMillis() - timeout)) > 0) {
                 timeout = System.currentTimeMillis() + AUTHENTICATE_REARM; // arm again...
                 getABBA1700DataIdentityFactory().getProtocolLink().getFlagIEC1107Connection().authenticate();

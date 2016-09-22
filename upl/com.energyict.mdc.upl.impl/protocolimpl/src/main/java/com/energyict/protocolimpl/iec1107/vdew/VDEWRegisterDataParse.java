@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.iec1107.vdew;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
@@ -17,11 +18,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  *
@@ -198,7 +195,7 @@ abstract public class VDEWRegisterDataParse {
 
 
 	// ********************************* parse received data *********************************
-	protected Object parse(byte[] data) throws IOException {
+	protected Object parse(byte[] data) throws ProtocolException {
 		try {
 			switch(getType()) {
 
@@ -242,16 +239,16 @@ abstract public class VDEWRegisterDataParse {
 				return parseKamstrup300DateValuePair(data);
 
 			default:
-				throw new IOException("VDEWRegisterDataParse, parse , unknown type "+getType());
+				throw new ProtocolException("VDEWRegisterDataParse, parse , unknown type "+getType());
 			}
 		}
 		catch(NumberFormatException e) {
-			throw new IOException("VDEWRegisterDataParse, parse error");
+			throw new ProtocolException("VDEWRegisterDataParse, parse error" + e.getMessage());
 		}
 
 	} // protected Object parse(byte[] data)
 
-	private DateValuePair parseDateValuePair(byte[] rawdata) throws IOException {
+	private DateValuePair parseDateValuePair(byte[] rawdata) throws ProtocolException {
 		StringBuffer strBuff=null;
 		int count=0;
 		BigDecimal value = null;
@@ -286,7 +283,7 @@ abstract public class VDEWRegisterDataParse {
 		return new DateValuePair(date,value);
 	} // private DateValuePair parseDateValuePair(byte[] rawdata) throws IOException
 
-	private DateQuantityPair parseKamstrup300DateValuePair(byte[] rawdata) throws IOException {
+	private DateQuantityPair parseKamstrup300DateValuePair(byte[] rawdata) throws ProtocolException {
 		String fullData = new String(rawdata);
 		String valueData = fullData.substring(0, fullData.indexOf(" "));
 		String dateData = fullData.substring(fullData.indexOf(" ")).trim();
@@ -298,11 +295,15 @@ abstract public class VDEWRegisterDataParse {
 		return new DateQuantityPair(date,new Quantity(value, unit));
 	} // private DateValuePair parseDateValuePair(byte[] rawdata) throws IOException
 
-	private Integer parseInteger(byte[] rawdata) throws IOException {
-		return new Integer(Integer.parseInt(findValue(rawdata)));
+	private Integer parseInteger(byte[] rawdata) throws ProtocolException {
+        try {
+            return Integer.parseInt(findValue(rawdata));
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
+        }
 	}
 
-	private Quantity parseQuantity(byte[] rawdata) throws IOException {
+	private Quantity parseQuantity(byte[] rawdata) throws ProtocolException {
 		Unit unit = buildUnit(rawdata);
 		BigDecimal bd = new BigDecimal(findValue(rawdata));
 		return new Quantity(bd,unit);
@@ -361,7 +362,7 @@ abstract public class VDEWRegisterDataParse {
 		return buff.toString();
 	} // private String findValue(byte[] rawdata)
 
-	private Date parseDateYYMMDDHHMM(byte[] rawdata) throws IOException {
+	private Date parseDateYYMMDDHHMM(byte[] rawdata) throws ProtocolException {
 		byte[] data = ProtocolUtils.convert2ascii(rawdata);
 		Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
 		calendar.clear();
@@ -373,9 +374,9 @@ abstract public class VDEWRegisterDataParse {
 		return calendar.getTime();
 	}
 
-	private Date parseKamstrup300TimeDate(byte[] rawdata) throws IOException {
+	private Date parseKamstrup300TimeDate(byte[] rawdata) throws ProtocolException {
 		if (rawdata.length != 17) {
-			throw new IOException("parseKamstrup300TimeDate, wrong data length!");
+			throw new ProtocolException("parseKamstrup300TimeDate, wrong data length!");
 		}
 		String stringData = new String(rawdata);
 		Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
@@ -390,13 +391,13 @@ abstract public class VDEWRegisterDataParse {
 		calendar.set(Calendar.SECOND, 		Integer.valueOf(stringData.substring(15, 17)).intValue());
 
 		if (calendar.equals(noInit)) {
-			throw new IOException("Register not initialized!");
+			throw new ProtocolException("Register not initialized!");
 		}
 
 		return calendar.getTime();
 	}
 
-	private Date parseTimeHHMMSS(byte[] rawdata) throws IOException {
+	private Date parseTimeHHMMSS(byte[] rawdata) throws ProtocolException {
 		int mode=-1;
 		Calendar calendar=null;
 		if (rawdata.length==13) {
@@ -417,7 +418,7 @@ abstract public class VDEWRegisterDataParse {
 		return calendar.getTime();
 	}
 
-	private Date parseDateYYMMDD(byte[] rawdata) throws IOException {
+	private Date parseDateYYMMDD(byte[] rawdata) throws ProtocolException {
 		int mode=-1;
 		Calendar calendar=null;
 		if (rawdata.length==13) {
@@ -437,7 +438,7 @@ abstract public class VDEWRegisterDataParse {
 		return calendar.getTime();
 	}
 
-    private Date parseDate(byte[] rawdata) throws IOException {
+    private Date parseDate(byte[] rawdata) throws ProtocolException {
         Calendar calendar = null;
         byte[] timedate = new byte[12];
 
@@ -445,7 +446,7 @@ abstract public class VDEWRegisterDataParse {
 
         int dataLength = rawdata.length;
         if ((dataLength % 2) != 0) {
-            throw new IOException("parseDate, rawdata wrong length (" + dataLength + ")!");
+            throw new ProtocolException("parseDate, rawdata wrong length (" + dataLength + ")!");
         }
 
         if (dataLength == 14) {
@@ -472,7 +473,7 @@ abstract public class VDEWRegisterDataParse {
             try {
                 return format.parse(ProtocolTools.getHexStringFromBytes(data, ""));
             } catch (ParseException e) {
-                throw new IOException("Could not parse the received timestamp (" + new String(data) + ") in the configured format + " + getDateFormat());
+                throw new ProtocolException("Could not parse the received timestamp (" + new String(data) + ") in the configured format + " + getDateFormat());
             }
         }
 
@@ -503,9 +504,9 @@ abstract public class VDEWRegisterDataParse {
         return new String(rawdata).replaceAll("[^0-9]", "").getBytes();
     }
 
-	private Date parseSTimeSDate(byte[] rawdata) throws IOException {
+	private Date parseSTimeSDate(byte[] rawdata) throws ProtocolException {
 		if (rawdata.length != 14) {
-			throw new IOException("VDEW_S_TIME_S_DATE wrong length!");
+			throw new ProtocolException("VDEW_S_TIME_S_DATE wrong length!");
 		}
 		byte[] time = ProtocolUtils.convert2ascii(ProtocolUtils.getSubArray(rawdata,1,6));
 		byte[] date = ProtocolUtils.convert2ascii(ProtocolUtils.getSubArray(rawdata,8,13));
@@ -528,9 +529,9 @@ abstract public class VDEWRegisterDataParse {
 		return calendar.getTime();
 	}
 
-	private Date parseDateSTime(byte[] rawdata) throws IOException {
+	private Date parseDateSTime(byte[] rawdata) throws ProtocolException {
 		if (rawdata.length != 13) {
-			throw new IOException("VDEW_DATE_S_TIME wrong length!");
+			throw new ProtocolException("VDEW_DATE_S_TIME wrong length!");
 		}
 		byte[] date = ProtocolUtils.convert2ascii(ProtocolUtils.getSubArray(rawdata,0,5));
 		byte[] time = ProtocolUtils.convert2ascii(ProtocolUtils.getSubArray(rawdata,7,12));
@@ -552,9 +553,9 @@ abstract public class VDEWRegisterDataParse {
 		return calendar.getTime();
 	}
 
-	private Date parseTimeDateFerranti(byte[] rawdata) throws IOException {
+	private Date parseTimeDateFerranti(byte[] rawdata) throws ProtocolException {
 		if (rawdata.length != 14) {
-			throw new IOException("VDEW_TIMEDATE_FERRANTI wrong length!");
+			throw new ProtocolException("VDEW_TIMEDATE_FERRANTI wrong length!");
 		}
 		Calendar calendar=null;
 		calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());

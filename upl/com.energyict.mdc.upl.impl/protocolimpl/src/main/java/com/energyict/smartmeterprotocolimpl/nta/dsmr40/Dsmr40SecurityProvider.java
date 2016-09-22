@@ -2,8 +2,8 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40;
 
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
+import java.security.SecureRandom;
 import java.util.Properties;
-import java.util.Random;
 
 /**
  * Copyrights EnergyICT
@@ -45,7 +45,7 @@ public class Dsmr40SecurityProvider extends NTASecurityProvider {
      * @return the initial frameCounter
      */
     public long getInitialFrameCounter() {
-        Random generator = new Random();
+        SecureRandom generator = new SecureRandom();
         return generator.nextLong();
     }
 }

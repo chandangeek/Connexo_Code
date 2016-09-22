@@ -1,10 +1,14 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.cbo.ApplicationException;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.exceptions.DataParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -16,17 +20,57 @@ import java.util.Date;
  */
 abstract public class AbstractActarisObject {
 
+    protected int reason = 0; //Only used in case of NACK or Reject messages
+    protected MeterReadingData mrd = new MeterReadingData();
     private ObjectFactory objectFactory;
     private String serialNumber;
-    protected int reason = 0; //Only used in case of NACK or Reject messages
     private int trackingId = -1;
+
+    public AbstractActarisObject(ObjectFactory of) {
+        this.objectFactory = of;
+        this.serialNumber = getObjectFactory().getAce4000().getConfiguredSerialNumber();
+    }
+
+    /**
+     * Creates a standard document to start making an XML DOM object
+     *
+     * @return document
+     */
+    public static Document createDomDocument() {
+        try {
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            return builder.newDocument();
+        } catch (ParserConfigurationException e) {
+            throw DataParseException.generalParseException(e);
+        }
+    }
+
+    /**
+     * Converts a given Document to a readable string
+     *
+     * @return converted string
+     */
+    public static String convertDocumentToString(Document doc) {
+        try {
+            Source domSource = new DOMSource(doc);
+            StringWriter stringWriter = new StringWriter();
+            Result result = new StreamResult(stringWriter);
+            TransformerFactory factory = TransformerFactory.newInstance();
+            Transformer transformer = factory.newTransformer();
+            transformer.transform(domSource, result);
+            return stringWriter.getBuffer().toString();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+            throw new ApplicationException("Could not transform current document into String.");
+        }
+    }
 
     /**
      * Parses the received content
      *
      * @param element the received content
      */
-    abstract protected void parse(Element element) ;
+    abstract protected void parse(Element element);
 
     /**
      * This generates the necessary meterXML to send the request to the meter
@@ -34,11 +78,6 @@ abstract public class AbstractActarisObject {
      * @return the meterXML string
      */
     abstract protected String prepareXML();
-
-    public AbstractActarisObject(ObjectFactory of) {
-        this.objectFactory = of;
-        this.serialNumber = getObjectFactory().getAce4000().getSerialNumber();
-    }
 
     /**
      * Gets the tracking ID of this object. It's incremented by 1 for every new request.
@@ -48,7 +87,7 @@ abstract public class AbstractActarisObject {
      */
     protected int getTrackingID() {
         if (trackingId == -1) {
-            return getObjectFactory().getIncreasedTrackingID();
+            trackingId = getObjectFactory().getIncreasedTrackingID();
         }
         return trackingId;
     }
@@ -77,40 +116,6 @@ abstract public class AbstractActarisObject {
 
     public String getSerialNumber() {
         return serialNumber;
-    }
-
-    /**
-     * Creates a standard document to start making an XML DOM object
-     *
-     * @return document
-     */
-    public static Document createDomDocument() {
-        try {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            return builder.newDocument();
-        } catch (ParserConfigurationException e) {
-            return null;
-        }
-    }
-
-    /**
-     * Converts a given Document to a readable string
-     *
-     * @return converted string
-     */
-    public static String convertDocumentToString(Document doc) {
-        try {
-            Source domSource = new DOMSource(doc);
-            StringWriter stringWriter = new StringWriter();
-            Result result = new StreamResult(stringWriter);
-            TransformerFactory factory = TransformerFactory.newInstance();
-            Transformer transformer = factory.newTransformer();
-            transformer.transform(domSource, result);
-            return stringWriter.getBuffer().toString();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-            throw new ApplicationException("Could not transform current document into String.");
-        }
     }
 
     /**
@@ -216,5 +221,9 @@ abstract public class AbstractActarisObject {
 
     public boolean isConnectCommandFailed() {
         return isBitSet(reason, 12);
+    }
+
+    public void resetMrd() {
+        this.mrd = new MeterReadingData();
     }
 }

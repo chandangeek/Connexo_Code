@@ -1,11 +1,19 @@
 package com.energyict.protocolimplv2.comchannels;
 
 
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.*;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModule;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleLinkAdaptor;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisProtocolTimeoutException;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStackImpl;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 
 /**
@@ -133,12 +141,12 @@ public class WavenisStackUtils {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 
     private static void validateRadioAddress(String radioAddress, String[] repeaterRadioAddresses, String fullRFAddress) {
-        ComServerExecutionException invalidPropertyFormatException = MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(RF_ADDRESS, fullRFAddress, "Each radio address should consist out of 12 hexadecimal characters.");
+        ProtocolRuntimeException invalidPropertyFormatException = DeviceConfigurationException.invalidPropertyFormat(RF_ADDRESS, fullRFAddress, "Each radio address should consist out of 12 hexadecimal characters.");
         if (radioAddress.length() != 12) {
             throw invalidPropertyFormatException;
         } else {
@@ -215,7 +223,7 @@ public class WavenisStackUtils {
                     waveModule.changeRoute(radioAddress.getRepeaterAddresses());
                 }
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(RF_ADDRESS, fullRFAddress, "Each radio address should consist out of 12 hexadecimal characters.");
+                throw DeviceConfigurationException.invalidPropertyFormat(RF_ADDRESS, fullRFAddress, "Each radio address should consist out of 12 hexadecimal characters.");
             }
         }
         //TODO waveModule.setConfigRFResponseTimeoutInMs(); ?

@@ -170,6 +170,28 @@ public class G3RegisterMapper {
     private static final ObisCode SIXLOWPAN_SETUP_ATTR18 = ObisCode.fromString("0.18.29.2.0.255");
     private static final ObisCode SIXLOWPAN_SETUP_ATTR19 = ObisCode.fromString("0.19.29.2.0.255");
 
+    private static final ObisCode EVENT_NOTIFICATION_ATTR1 = ObisCode.fromString("0.1.128.0.12.255");
+    private static final ObisCode EVENT_NOTIFICATION_ATTR2 = ObisCode.fromString("0.2.128.0.12.255");
+    private static final ObisCode EVENT_NOTIFICATION_ATTR4 = ObisCode.fromString("0.4.128.0.12.255");
+
+    private static final ObisCode WAN_IP_ADDRESS = ObisCode.fromString("0.0.25.1.3.255");
+    private static final ObisCode WAN_SUBNET_MASK = ObisCode.fromString("0.0.25.1.6.255");
+    private static final ObisCode WAN_GATEWAY_IP_ADDRESS = ObisCode.fromString("0.0.25.1.7.255");
+    private static final ObisCode WAN_PRIMARY_DNS_ADDRESS = ObisCode.fromString("0.0.25.1.9.255");
+    private static final ObisCode WAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.0.25.1.10.255");
+
+    private static final ObisCode LAN_IP_ADDRESS = ObisCode.fromString("0.1.25.1.3.255");
+    private static final ObisCode LAN_SUBNET_MASK = ObisCode.fromString("0.1.25.1.6.255");
+    private static final ObisCode LAN_GATEWAY_IP_ADDRESS = ObisCode.fromString("0.1.25.1.7.255");
+    private static final ObisCode LAN_PRIMARY_DNS_ADDRESS = ObisCode.fromString("0.1.25.1.9.255");
+    private static final ObisCode LAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.1.25.1.10.255");
+
+    private static final ObisCode WWAN_IP_ADDRESS = ObisCode.fromString("0.3.25.1.3.255");
+    private static final ObisCode WWAN_SUBNET_MASK = ObisCode.fromString("0.3.25.1.6.255");
+    private static final ObisCode WWAN_GATEWAY_IP_ADDRESS = ObisCode.fromString("0.3.25.1.7.255");
+    private static final ObisCode WWAN_PRIMARY_DNS_ADDRESS = ObisCode.fromString("0.3.25.1.9.255");
+    private static final ObisCode WWAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.3.25.1.10.255");
+
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
     private final Logger logger;
     private final CosemObjectFactory cosemObjectFactory;
@@ -431,5 +453,38 @@ public class G3RegisterMapper {
         plcStatistics.add(new PlcStatisticsMapping(SIXLOWPAN_SETUP_ATTR19));
 
         return plcStatistics;
+    }
+
+    protected final List<G3Mapping> getBeaconPushEventNotificationAttibutesMappings() {
+        final List<G3Mapping> pushEventNotificationMappings = new ArrayList<G3Mapping>();
+        pushEventNotificationMappings.add(new BeaconEventNotificationMapping(EVENT_NOTIFICATION_ATTR1));
+        pushEventNotificationMappings.add(new BeaconEventNotificationMapping(EVENT_NOTIFICATION_ATTR2));
+        pushEventNotificationMappings.add(new BeaconEventNotificationMapping(EVENT_NOTIFICATION_ATTR4));
+
+        return pushEventNotificationMappings;
+    }
+
+    protected final List<G3Mapping> getIPv4SetupMappings() {
+        final List<G3Mapping> ipv4SetupMappings = new ArrayList<G3Mapping>();
+
+        ipv4SetupMappings.add(new IPv4SetupMapping(WAN_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WAN_SUBNET_MASK));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WAN_GATEWAY_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WAN_PRIMARY_DNS_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WAN_SECONDARY_DNS_ADDRESS));
+
+        ipv4SetupMappings.add(new IPv4SetupMapping(LAN_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(LAN_SUBNET_MASK));
+        ipv4SetupMappings.add(new IPv4SetupMapping(LAN_GATEWAY_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(LAN_PRIMARY_DNS_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(LAN_SECONDARY_DNS_ADDRESS));
+
+        ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_SUBNET_MASK));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_GATEWAY_IP_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_PRIMARY_DNS_ADDRESS));
+        ipv4SetupMappings.add(new IPv4SetupMapping(WWAN_SECONDARY_DNS_ADDRESS));
+
+        return ipv4SetupMappings;
     }
 }

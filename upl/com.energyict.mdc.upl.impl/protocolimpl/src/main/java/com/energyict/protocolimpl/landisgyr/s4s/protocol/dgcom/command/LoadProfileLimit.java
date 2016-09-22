@@ -10,12 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
-import java.math.BigDecimal;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 
 
 /**
@@ -42,12 +38,12 @@ public class LoadProfileLimit extends AbstractCommand {
         return strBuff.toString();
     }
     
-    protected byte[] prepareBuild() throws IOException {
+    protected byte[] prepareBuild() throws ProtocolException {
          return new byte[]{(byte)0xCE,0,0,0,0,0,0,0,0};
     }
     
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
         int offset=0;
         setSmallLoadProfilePartitionSize(ProtocolUtils.getInt(data,offset++,1));
         setLargeLoadProfilePartitionSize(ProtocolUtils.getInt(data,offset++,1));

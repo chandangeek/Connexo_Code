@@ -5,6 +5,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimplv2.MdcManager;
 import org.apache.commons.logging.Log;
@@ -111,7 +112,7 @@ public class KaifaHHUConnection extends IEC1107HHUConnection {
             Thread.sleep((ack.length * 10 * 1000) / 300);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 

@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.core;
 
+import com.energyict.protocol.ProtocolException;
+
 import java.io.IOException;
 
 public class WavecardAwakeningPeriod extends AbstractEscapeCommand {
@@ -17,7 +19,7 @@ public class WavecardAwakeningPeriod extends AbstractEscapeCommand {
 	}
 
 	@Override
-	void parse(byte[] data) throws IOException {
+	void parse(byte[] data) throws ProtocolException {
 		
 	}
 

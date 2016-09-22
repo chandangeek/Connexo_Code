@@ -5,7 +5,6 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.common.DlmsProtocolProperties;
@@ -14,13 +13,9 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -36,9 +31,10 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
@@ -51,22 +47,27 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messag
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles.AM540LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.registers.Dsmr50RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540Cache;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
  * Copyrights EnergyICT
  * V2 version of the AM540 protocol.
  * This version adds breaker & relais support and other IDIS features.
+ * <p/>
+ * Note that this is a hybrid between DSMR5.0 and IDISP2.
+ * <p/>
+ * The frame counter is not read out (no register in the meter has it), it is stored in the device cache so it can be re-used in the next communication session
  *
  * @author khe
  * @since 17/12/2014 - 14:30
  */
-public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol {
+public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol, SerialNumberSupport {
 
     private Dsmr50LogBookFactory dsmr50LogBookFactory;
     private AM540Messaging am540Messaging;
@@ -74,6 +75,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private IDISMeterTopology meterTopology;
     private LoadProfileBuilder loadProfileBuilder;
     private Dsmr50RegisterFactory registerFactory;
+    private AM540Cache am540Cache;
 
     public AM540() {
         super();
@@ -106,25 +108,22 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public void logOn() {
         connectWithRetries();
         checkCacheObjects();
-        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
-            getMeterTopology().searchForSlaveDevices();
-        }
     }
 
     @Override
-    public DLMSCache getDeviceCache() {
-        if (this.dlmsCache == null || !(this.dlmsCache instanceof AM540Cache)) {
-            this.dlmsCache = new AM540Cache();
+    public AM540Cache getDeviceCache() {
+        if (this.am540Cache == null) {
+            am540Cache = new AM540Cache(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
         }
-        ((AM540Cache) this.dlmsCache).setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
-        return this.dlmsCache;
+        this.am540Cache.setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
+        return this.am540Cache;
     }
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof AM540Cache)) {
-            this.dlmsCache = (AM540Cache) deviceProtocolCache;
-            this.initialFrameCounter = ((AM540Cache) this.dlmsCache).getFrameCounter();
+            am540Cache = (AM540Cache) deviceProtocolCache;
+            this.initialFrameCounter = this.am540Cache.getFrameCounter();
         }
     }
 
@@ -132,21 +131,26 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
      * Method to check whether the cache needs to be read out or not, if so the read will be forced
      */
     protected void checkCacheObjects() {
-        boolean readCache = getDlmsSessionProperties().isReadCache();
-        if ((((DLMSCache) getDeviceCache()).getObjectList() == null) || (readCache)) {
-            if (readCache) {
+        getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
+
+        //Refresh the object list if it doesn't exist or if the property is enabled
+        if ((getDeviceCache().getObjectList() == null) || (getDlmsSessionProperties().isReadCache())) {
+
+            //For beacon mirror logical device, always read the actual object list. Same for when the property is enabled.
+            if (getDlmsSessionProperties().isReadCache() || getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
                 getLogger().info("ForcedToReadCache property is true, reading cache!");
                 readObjectList();
-                ((DLMSCache) getDeviceCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+                getDeviceCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
             } else {
+                //In case of actual meter, use a hard coded object list to avoid heavy load on the PLC network
                 getLogger().info("Cache does not exist, using hardcoded copy of object list");
                 UniversalObject[] objectList = new AM540ObjectList().getObjectList();
-                ((DLMSCache) getDeviceCache()).saveObjectList(objectList);
+                getDeviceCache().saveObjectList(objectList);
             }
         } else {
             getLogger().info("Cache exist, will not be read!");
         }
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getDeviceCache()).getObjectList());
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
     }
 
     @Override
@@ -162,6 +166,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         return (Dsmr50Properties) dlmsProperties;
     }
 
+
     /**
      * Add extra retries to the association request.
      * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
@@ -169,30 +174,36 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private void connectWithRetries() {
         int tries = 0;
         while (true) {
-            ComServerExecutionException exception;
+            ProtocolRuntimeException exception;
             try {
+                getDlmsSession().getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
                 if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
+                    getDlmsSession().getDlmsV2Connection().connectMAC();
                     getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
                 }
                 return;
-            } catch (ComServerExecutionException e) {
+            } catch (ProtocolRuntimeException e) {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
-                } else if (MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e)) {
+                } else if (e instanceof ConnectionCommunicationException) {
+                    throw e;
+                } else if (e instanceof DataEncryptionException) {
                     throw e;
                 }
                 exception = e;
+            } finally {
+                getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > getDlmsSessionProperties().getAARQRetries()) {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
-                throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(exception);
+                throw CommunicationException.protocolConnectFailed(exception);
             } else {
                 getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     getDlmsSession().getAso().releaseAssociation();
-                } catch (ComServerExecutionException e) {
+                } catch (ProtocolRuntimeException e) {
                     // Absorb exception: in 99% of the cases we expect an exception here ...
                 }
                 getDlmsSession().getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
@@ -228,6 +239,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public String getProtocolDescription() {
         return "Elster AM540 DLMS (NTA DSMR5.0) V2";
     }
+
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
@@ -266,7 +278,12 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> list) {
-        return getAM540Messaging().executePendingMessages(list);
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            IOException cause = new IOException("When connected to the mirror logical device, execution of device commands is not allowed.");
+            throw DeviceConfigurationException.notAllowedToExecuteCommand("send of device messages", cause);
+        } else {
+            return getAM540Messaging().executePendingMessages(list);
+        }
     }
 
     @Override
@@ -275,8 +292,13 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object o) {
-        return getAM540Messaging().format(propertySpec, o);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object o) {
+        return getAM540Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, o);
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     @Override
@@ -303,12 +325,35 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         return this.am540Messaging;
     }
 
+    /**
+     * Read out the serial number, this can either be of the module (equipment identifier) or of the connected e-meter.
+     * Note that reading out this register from the mirror logical device in the Beacon, the obiscode must always be 0.0.96.1.0.255
+     */
     @Override
     public String getSerialNumber() {
-        if (getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()) {
-            return getMeterInfo().getEquipmentIdentifier();
-        } else {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect() || !getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()) {
             return getMeterInfo().getSerialNr();
+        } else {
+            return getMeterInfo().getEquipmentIdentifier();
+        }
+    }
+
+    @Override
+    public Date getTime() {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            return new Date();  //Don't read out the clock of the mirror logical device, it does not know the actual meter time.
+        } else {
+            return super.getTime();
+        }
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            IOException cause = new IOException("When connected to the mirror logical device, writing of the clock is not allowed.");
+            throw DeviceConfigurationException.notAllowedToExecuteCommand("date/time change", cause);
+        } else {
+            super.setTime(timeToSet);
         }
     }
 
@@ -316,13 +361,14 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public IDISMeterTopology getMeterTopology() {
         if (meterTopology == null) {
             meterTopology = new IDISMeterTopology(this);
+            meterTopology.searchForSlaveDevices();
         }
         return meterTopology;
     }
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-05-03 14:54:30 +0200 (Tue, 03 May 2016)$";
     }
 
     @Override

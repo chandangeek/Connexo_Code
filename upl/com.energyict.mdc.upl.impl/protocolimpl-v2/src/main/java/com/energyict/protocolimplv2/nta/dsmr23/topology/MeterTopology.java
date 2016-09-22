@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -16,12 +17,12 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -77,8 +78,9 @@ public class MeterTopology extends AbstractMeterTopology {
         List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
-            UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
+            UniversalObject uo = DLMSUtils.findCosemObjectInObjectListIgnoreBChannel(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
             if (uo != null) {
+                uo.setObisCodeChannelB((byte) i);
                 ComposedMbusSerialNumber cMbusSerial = new ComposedMbusSerialNumber(
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), uo.getClassID()),
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), uo.getClassID()),
@@ -114,26 +116,29 @@ public class MeterTopology extends AbstractMeterTopology {
      */
     protected List<DeviceMapping> constructMbusMap() {
         String mbusSerial;
-        mbusMap = new ArrayList<>();
-        for (int i = 1; i <= MaxMbusDevices; i++) {
-            ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
-            if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
-                try {
-                    Unsigned16 manufacturer = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getManufacturerId()).getUnsigned16();
-                    Unsigned8 version = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getVersion()).getUnsigned8();
-                    Unsigned32 identification = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getIdentificationNumber()).getUnsigned32();
-                    Unsigned8 deviceType = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getDeviceType()).getUnsigned8();
-                    mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
-                    if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
-                        mbusMap.add(new DeviceMapping(mbusSerial, i));
-                    }
-                } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                        //Move on to next
+        if(mbusMap.isEmpty()){
+            mbusMap = new ArrayList<>();
+            for (int i = 1; i <= MaxMbusDevices; i++) {
+                ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
+                if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectListIgnoreChannelB(serialObisCode)) {
+                    try {
+                        Unsigned16 manufacturer = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getManufacturerId()).getUnsigned16();
+                        Unsigned8 version = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getVersion()).getUnsigned8();
+                        Unsigned32 identification = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getIdentificationNumber()).getUnsigned32();
+                        Unsigned8 deviceType = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getDeviceType()).getUnsigned8();
+                        mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
+                        if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
+                            mbusMap.add(new DeviceMapping(mbusSerial, i));
+                        }
+                    } catch (IOException e) {
+                        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
+                            //Move on to next
+                        }
                     }
                 }
             }
         }
+
         return mbusMap;
     }
 
@@ -235,4 +240,18 @@ public class MeterTopology extends AbstractMeterTopology {
     private void log(Level level, String message) {
         this.protocol.getLogger().log(level, message);
     }
+
+    /**
+     * Search for the next available physicalAddress
+     *
+     * @return the next available physicalAddress or -1 if none is available.
+     */
+    public int searchNextFreePhysicalAddress(){
+        List<Integer> availablePhysicalAddresses = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
+        for (DeviceMapping dm : this.mbusMap) {
+            availablePhysicalAddresses.remove((Integer) dm.getPhysicalAddress());    // Remove the specified object from the list
+        }
+        return availablePhysicalAddresses.isEmpty() ? 0 : availablePhysicalAddresses.get(0);
+    }
+
 }

@@ -1,14 +1,20 @@
 package com.energyict.protocolimpl.iec1107;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -318,6 +324,7 @@ public class FlagIEC1107Connection extends Connection {
     public void sendBreak() throws NestedIOException, FlagIEC1107ConnectionException {
         try {
             byte[] buffer = {(byte) SOH, (byte) 0x42, (byte) 0x30, (byte) ETX, (byte) 0x71};
+            startWriting();
             sendRawData(buffer);
             return;
         }
@@ -336,7 +343,7 @@ public class FlagIEC1107Connection extends Connection {
      * Method that requests a MAC connection for the HDLC layer. this request negotiates some parameters
      * for the buffersizes and windowsizes.
      */
-    public MeterType connectMAC() throws IOException, FlagIEC1107ConnectionException {
+    public MeterType connectMAC() throws IOException {
         return connectMAC(strIdentConfig, strPass, iSecurityLevel, meterID, baudrate);
     }
 
@@ -344,7 +351,7 @@ public class FlagIEC1107Connection extends Connection {
         return connectMAC(strIdentConfig, strPass, iSecurityLevel, meterID, 0);
     }
 
-    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID, int baudrate) throws IOException, FlagIEC1107ConnectionException {
+    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID, int baudrate) throws IOException {
 
         this.strIdentConfig = strIdentConfig;
         this.strPass = strPass;
@@ -368,10 +375,10 @@ public class FlagIEC1107Connection extends Connection {
                 return meterType;
             }
             catch (FlagIEC1107ConnectionException e) {
-                throw new FlagIEC1107ConnectionException("connectMAC(), FlagIEC1107ConnectionException " + e.getMessage());
+                throw new FlagIEC1107ConnectionException("connectMAC(), FlagIEC1107ConnectionException " + e.getMessage(), e.getReason());
             }
             catch (ConnectionException e) {
-                throw new FlagIEC1107ConnectionException("connectMAC(), ConnectionException " + e.getMessage());
+                throw new ProtocolConnectionException("connectMAC(), ConnectionException " + e.getMessage(), e.getReason());
             }
         } // if (boolFlagIEC1107Connected==false
 
@@ -379,11 +386,12 @@ public class FlagIEC1107Connection extends Connection {
 
     } // public MeterType connectMAC() throws HDLCConnectionException
 
-    protected MeterType signOn(String strIdentConfig, String meterID) throws IOException, NestedIOException, FlagIEC1107ConnectionException {
+    protected MeterType signOn(String strIdentConfig, String meterID) throws IOException {
         int retries = 0;
         while (true) {
             try {
                 String str = "/?" + meterID + "!\r\n";
+                startWriting();
                 sendRawData(str.getBytes());
                 // KV 16122003
                 String strIdent = receiveIdent(strIdentConfig);
@@ -403,10 +411,12 @@ public class FlagIEC1107Connection extends Connection {
                 if (iIEC1107Compatible == 1) {
                     // protocol mode C, programming mode
                     byte[] ack = {(byte) ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x31, (byte) 0x0D, (byte) 0x0A};
+                    startWriting();
                     sendRawData(ack);
                 } else {
                     // special case for Elster A1700 meter
                     byte[] ack = {(byte) ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x36, (byte) 0x0D, (byte) 0x0A};
+                    startWriting();
                     sendRawData(ack);
                 }
 
@@ -436,6 +446,7 @@ public class FlagIEC1107Connection extends Connection {
         while (true) {
             try {
                 // here, mac is connected for HHU or modem
+                delay(1000);
                 if (iSecurityLevel == 0) {
                     receiveData();
                 } else if (iSecurityLevel == 1) {
@@ -511,6 +522,7 @@ public class FlagIEC1107Connection extends Connection {
             if (iSecurityLevel != 0) {
                 while (true) {
                     echoByteArrayOutputStream.reset();
+                    startWriting();
                     sendRawCommandFrame(authenticationCommand, authenticationData); // logon using securitylevel
                     String resp = receiveString();
                     if (resp.compareTo("ACK") == 0) {
@@ -565,6 +577,7 @@ public class FlagIEC1107Connection extends Connection {
         while (true) {
             try {
                 String str = "/?" + meterID + "!\r\n";
+                startWriting();
                 sendRawData(str.getBytes());
                 String strIdent = receiveIdent(strIdentConfig);
 
@@ -574,6 +587,7 @@ public class FlagIEC1107Connection extends Connection {
                 }
 
                 byte[] ack = {(byte) ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x30, (byte) 0x0D, (byte) 0x0A};
+                startWriting();
                 sendRawData(ack);
                 boolFlagIEC1107Connected = true;
                 return (receiveRawData());
@@ -646,15 +660,15 @@ public class FlagIEC1107Connection extends Connection {
     public static final byte[] LOGON_PROCEDURE_2 = {'P', '2'};
     public static final byte[] EXECUTE_COMMAND = {'E', '2'};
 
-    public void sendRawCommandFrame(byte[] command, byte[] rawdata) throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public void sendRawCommandFrame(byte[] command, byte[] rawdata) throws IOException {
         doSendCommandFrame(command, rawdata, false);
     }
 
-    public String sendRawCommandFrameAndReturn(byte[] command, byte[] rawdata) throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public String sendRawCommandFrameAndReturn(byte[] command, byte[] rawdata) throws IOException {
         return doSendCommandFrame(command, rawdata, true);
     }
 
-    private String doSendCommandFrame(byte[] command, byte[] data, boolean returnResult) throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    private String doSendCommandFrame(byte[] command, byte[] data, boolean returnResult) throws IOException {
         int iRetries = 0;
         int t, i;
         initTxBuffer(command.length + data.length + 3); // KV 27102004
@@ -720,8 +734,9 @@ public class FlagIEC1107Connection extends Connection {
 
         lMSTimeout = System.currentTimeMillis() + iProtocolTimeout;
 
+        startReading();
         copyEchoBuffer();
-
+        delay(1000);
         while (true) {
             if ((iNewKar = readIn()) != -1) {
                 if (DEBUG == 1) {
@@ -752,7 +767,7 @@ public class FlagIEC1107Connection extends Connection {
     private static final byte STATE_WAIT_FOR_END = 3;
     private static final byte STATE_WAIT_FOR_CHECKSUM = 4;
 
-    public String receiveString() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public String receiveString() throws IOException {
         return new String(receiveRawData());
     }
 
@@ -763,7 +778,19 @@ public class FlagIEC1107Connection extends Connection {
      * @throws FlagIEC1107ConnectionException
      */
     public byte[] receiveData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
-        return parseDataBetweenBrackets(doReceiveDataRetry());
+        return parseDataBetweenBrackets(doReceiveDataRetry(null));
+    }
+
+    /**
+     * @return the data without the brackets
+     * @throws IOException
+     * @throws ConnectionException
+     * @throws FlagIEC1107ConnectionException
+     *
+     * @param requestObjectId: the objectId sent in the request command
+     */
+    public byte[] receiveData(String requestObjectId) throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+        return parseDataBetweenBrackets(doReceiveDataRetry(requestObjectId));
     }
 
     /**
@@ -772,20 +799,22 @@ public class FlagIEC1107Connection extends Connection {
      * @throws ConnectionException
      * @throws FlagIEC1107ConnectionException
      */
-    public byte[] receiveRawData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
-        return doReceiveDataRetry();
+    public byte[] receiveRawData() throws IOException {
+        return doReceiveDataRetry(null);
     }
 
     // KV 27102004
 
-    private byte[] doReceiveDataRetry() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    private byte[] doReceiveDataRetry(String requestObjectId) throws IOException {
         int retries = 0;
         while (true) {
             try {
-                return doReceiveData();
+                return doReceiveData(requestObjectId);
             }
             catch (FlagIEC1107ConnectionException e) {
-                if ((retries++ < iMaxRetries) && (getTxBuffer() != null) && ((e.getReason() == CRC_ERROR) || (e.getReason() == NAK_RECEIVED) || (e.getReason() == TIMEOUT_ERROR) || (e.getReason() == RECONNECT_ERROR))) {
+                if (e.getReason() == FlagIEC1107ConnectionException.DUPLICATE_RESPONSE){
+                    logger.info("Duplicate response for objectid " + requestObjectId);
+                }else if ((retries++ < iMaxRetries) && (getTxBuffer() != null) && ((e.getReason() == CRC_ERROR) || (e.getReason() == NAK_RECEIVED) || (e.getReason() == TIMEOUT_ERROR) || (e.getReason() == RECONNECT_ERROR))) {
                     //System.out.println("KV_DEBUG> RETRY "+e.getReason()+", txBuffer="+new String(getTxBuffer()));
                     logErrorMessage(Level.INFO, "doReceiveDataRetry error [retry " + retries + " of " + iMaxRetries + "], " + e.getMessage());
                     delayAndFlush(1000);
@@ -798,7 +827,7 @@ public class FlagIEC1107Connection extends Connection {
         }
     }
 
-    private byte[] doReceiveData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    private byte[] doReceiveData(String requestObjectId) throws IOException {
         long lMSTimeout, lMSTimeoutInterFrame;
         int iNewKar;
         int iState;
@@ -818,6 +847,7 @@ public class FlagIEC1107Connection extends Connection {
         if (DEBUG == 1) {
             System.out.println("doReceiveData(...):");
         }
+        startReading();
         copyEchoBuffer();
 
         while (true) {
@@ -842,9 +872,9 @@ public class FlagIEC1107Connection extends Connection {
                         // KV 27102004
                         if ((byte) iNewKar == NAK) {
                             if (sessionState != STATE_SIGNON) {
-                                throw new FlagIEC1107ConnectionException("doReceiveData() NAK received", NAK_RECEIVED);
+                                throw new ProtocolConnectionException("doReceiveData() NAK received" + NAK_RECEIVED);
                             } else {
-                                throw new NestedIOException(new IOException("Probably wrong password! (NAK received)"));
+                                throw new ProtocolConnectionException("Probably wrong password! (NAK received)");
                             }
                         }
 
@@ -886,6 +916,9 @@ public class FlagIEC1107Connection extends Connection {
 
                             if (end) {
                                 byte[] responseData = resultArrayOutputStream.toByteArray();
+                                if (isLateRetryResponse(requestObjectId, responseData)){
+                                    throw new FlagIEC1107ConnectionException("Duplicate response", FlagIEC1107ConnectionException.DUPLICATE_RESPONSE);
+                                }
                                 if (new String(responseData).compareTo("B0") == 0) {
 
                                     // KV 24112008
@@ -914,7 +947,7 @@ public class FlagIEC1107Connection extends Connection {
                             lMSTimeoutInterFrame = System.currentTimeMillis() + iProtocolTimeout;
                             byteArrayOutputStream.reset();
                             end = false;
-
+                            startWriting();
                             sendRawData(ACK);
                             copyEchoBuffer(); // KV 07092005 bugfix when ech cancelling...
                         } else {
@@ -943,6 +976,7 @@ public class FlagIEC1107Connection extends Connection {
     // KV 27102004
 
     public void breakStreamingMode() throws NestedIOException, ConnectionException {
+        startWriting();
         sendRawData((byte) 0x1B);
         delayAndFlush(3000);
     }
@@ -977,7 +1011,7 @@ public class FlagIEC1107Connection extends Connection {
         if (DEBUG == 1) {
             System.out.println("receiveStreamData(...):");
         }
-
+        startReading();
         copyEchoBuffer();
 
         while (true) {
@@ -1085,7 +1119,7 @@ public class FlagIEC1107Connection extends Connection {
         byte[] convert = new byte[1];
 
         lMSTimeout = System.currentTimeMillis() + iProtocolTimeout;
-
+        startReading();
         copyEchoBuffer();
         String convertstr;
 
@@ -1177,6 +1211,7 @@ public class FlagIEC1107Connection extends Connection {
         for (int i = 1; i < data.length; i++) {
             data[i] = txBuffer[i - 1];
         }
+        startWriting();
         sendOut(data);
 //        sendOut(SOH);
 //        sendOut(txBuffer);
@@ -1245,6 +1280,40 @@ public class FlagIEC1107Connection extends Connection {
         sb.append(" > strIdentConfig = ").append(strIdentConfig).append(crlf);
         sb.append(" > strPass = ").append(strPass).append(crlf);
         return sb.toString();
+    }
+
+    private boolean isLateRetryResponse(String requestObjectId, byte[] responseData) {
+        String responseObjectId = parseResponseObjectId(responseData);
+        if(requestObjectId == null || requestObjectId.isEmpty()){
+            return false;
+        }
+        if(responseObjectId == null || responseObjectId.isEmpty()){
+            return false;
+        }
+        return (!requestObjectId.contains(responseObjectId));
+    }
+
+    private String parseResponseObjectId(byte[] buffer) {
+        int idLength = 0;
+        for (int i = 0; i < buffer.length; i++) {
+            if (buffer[i] == (byte) '('){
+                idLength = i;
+                break;
+            }
+        }
+        String objectId = "";
+        for(int i =0; i < idLength; i++) {
+            objectId += (char) buffer[i];
+        }
+        return objectId;
+    }
+
+    protected void startWriting() {
+        //Nothing to do, subclasses can override
+    }
+
+    protected void startReading() {
+        //Nothing to do, subclasses can override
     }
 
 }

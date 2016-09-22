@@ -37,6 +37,10 @@ public enum LoadProfileMessage implements DeviceMessageSpec {
     LOAD_PROFILE_REGISTER_REQUEST(8,
             PropertySpecFactory.loadProfilePropertySpec(loadProfileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(fromDateAttributeName)
+    ),
+    READ_PROFILE_DATA(9,
+            PropertySpecFactory.dateTimePropertySpec(fromDateAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(toDateAttributeName)
     );
 
     private static final DeviceMessageCategory loadProfileCategory = DeviceMessageCategories.LOAD_PROFILES;

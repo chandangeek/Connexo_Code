@@ -19,4 +19,8 @@ public class DefaultRespondingFrameCounterHandler implements RespondingFrameCoun
     public Integer checkRespondingFrameCounter(final int receivedFrameCounter) throws DLMSConnectionException {
         return receivedFrameCounter;
     }
+
+    @Override
+    public void resetRespondingFrameCounter(int initialValue) {
+    }
 }

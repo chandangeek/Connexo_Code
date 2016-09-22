@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.IdentificationFeature;
 import com.energyict.protocolimpl.base.ParseUtils;
@@ -163,7 +164,7 @@ public class PSEMServiceFactory {
     public byte[] fullRead(int tableId) throws IOException {
         this.setTableId(tableId);
         if (state != STATE_SESSION)
-            throw new IOException("PSEMServiceFactory, logon, wrong state for logon. Should be in SESSION STATE...");
+            throw new ConnectionException("PSEMServiceFactory, logon, wrong state for logon. Should be in SESSION STATE...");
         ReadRequest readRequest = new ReadRequest(this);
         readRequest.fullRead(tableId);
         readRequest.build();

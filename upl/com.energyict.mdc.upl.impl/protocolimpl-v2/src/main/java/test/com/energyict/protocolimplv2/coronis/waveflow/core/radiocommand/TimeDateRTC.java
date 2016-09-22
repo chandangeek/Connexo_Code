@@ -1,6 +1,6 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand;
 
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.CommunicationException;
 import test.com.energyict.protocolimplv2.coronis.common.TimeDateRTCParser;
 import test.com.energyict.protocolimplv2.coronis.common.WaveflowProtocolUtils;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
@@ -36,7 +36,7 @@ public class TimeDateRTC extends AbstractRadioCommand {
             // check if write clock succeeded
             if (WaveflowProtocolUtils.toInt(data[0]) == SET_ERROR) {
                 IOException e = new IOException("Error setting the RTC in the waveflow device, returned [" + WaveflowProtocolUtils.toInt(data[0]) + "]");
-                throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+                throw CommunicationException.unexpectedResponse(e);
             }
         }
     }

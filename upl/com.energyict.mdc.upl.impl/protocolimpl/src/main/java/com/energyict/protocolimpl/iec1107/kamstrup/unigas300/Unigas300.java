@@ -8,26 +8,15 @@ package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -35,7 +24,7 @@ import java.util.logging.Logger;
  * Date: 6-dec-2010
  * Time: 9:28:03
  */
-public class Unigas300 extends AbstractUnigas300 {
+public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport {
 
     private static final int KAMSTRUP_NR_OF_CHANNELS = 11;
 
@@ -104,7 +93,6 @@ public class Unigas300 extends AbstractUnigas300 {
             flagIEC1107Connection.disconnectMAC();
             flagIEC1107Connection.connectMAC(strID, strPassword, iSecurityLevel, nodeId);
 
-            validateSerialNumber();
             getLogger().info("Connected to device with serial number: " + getDeviceSerialNumber());
             registerInfo();
         } catch (FlagIEC1107ConnectionException e) {
@@ -246,7 +234,7 @@ public class Unigas300 extends AbstractUnigas300 {
      * @return
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
     }
 
     /**
@@ -271,21 +259,6 @@ public class Unigas300 extends AbstractUnigas300 {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         if (extendedLogging >= 1) {
             getLogger().info(ocm.getRegisterInfo());
-        }
-    }
-
-    /**
-     * Compare the given serial number with the serial number from the device.
-     * This check is only done, when there is a serial number given to the protocol
-     *
-     * @throws IOException
-     */
-    private void validateSerialNumber() throws IOException {
-        if ((getSerialNumber() != null) && ("".compareTo(getSerialNumber()) != 0)) {
-            String sn = getDeviceSerialNumber();
-            if (sn.compareTo(serialNumber) != 0) {
-                throw new IOException("SerialNiumber mismatch! meter sn=" + sn + ", configured sn=" + serialNumber);
-            }
         }
     }
 

@@ -142,8 +142,6 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                    DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
                     DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
                     DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec()
             );

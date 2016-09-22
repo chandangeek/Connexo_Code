@@ -23,6 +23,7 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParseException;
 import com.energyict.protocolimpl.base.DataParser;
@@ -322,7 +323,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -412,7 +413,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
 

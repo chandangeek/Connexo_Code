@@ -2,24 +2,19 @@ package com.energyict.protocolimpl.iec1107.siemenss4s;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
 import com.energyict.protocolimpl.iec1107.siemenss4s.security.SiemensS4sEncryptor;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
-public class SiemensS4s extends AbstractIEC1107Protocol {
+public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberSupport {
 	
 	private S4sObjectFactory objectFactory;
 	private SiemensS4sProfile profileObject;
@@ -43,7 +38,16 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	public SiemensS4s(){
 		super(new SiemensS4sEncryptor());
 	}
-	
+
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getObjectFactory().getSerialNumberObject().getSerialNumber();
+        } catch (IOException e) {
+           throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
+        }
+    }
+
     public void connect() throws IOException {
         try {
             if (requestDataReadout) {
@@ -54,16 +58,9 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
             doConnect();
         }
         catch(FlagIEC1107ConnectionException e) {
-            throw new IOException(e.getMessage());
+            throw new ProtocolConnectionException(e.getMessage(), e.getReason());
         }
-        
-        try {
-            validateSerialNumber();
-        }
-        catch(FlagIEC1107ConnectionException e) {
-            disconnect();
-            throw new IOException(e.getMessage());
-        }
+
     }
 
 	protected void doConnect() throws IOException {
@@ -101,21 +98,6 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 		this.nodeAddress=properties.getProperty(MeterProtocol.NODEID,"");
 		this.serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
 		this.channelMap = Integer.parseInt(properties.getProperty("ChannelMap","1"));
-	}
-	
-	/**
-	 * Check if the serialNumber matches the one you read from the device. If not fail.
-	 * @throws IOException when mismatch or when received data isn't correct
-	 */
-	protected void validateSerialNumber() throws IOException{
-		if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)){
-			return;
-		}
-		String s4sSerialNumber = getObjectFactory().getSerialNumberObject().getSerialNumber();
-		if(!s4sSerialNumber.equalsIgnoreCase(this.serialNumber)){
-			throw new ConnectionException("Wrong serialNumber, EIServer: " + this.serialNumber + 
-					" - Meter: " + s4sSerialNumber);
-		}
 	}
 	
 	/**
@@ -171,6 +153,6 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	}
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:26:00 +0200 (Thu, 26 Nov 2015)$";
     }
 }

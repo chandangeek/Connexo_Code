@@ -1,17 +1,19 @@
 package com.energyict.dlms.cosem.generalblocktransfer;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.XdlmsApduTags;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.cosem.AbstractCosemObject;
-import com.energyict.dlms.cosem.ExceptionResponseException;
+import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -124,14 +126,14 @@ public class GeneralBlockTransferHandler {
                 byte[] cosemResponse = doHandleGeneralBlockTransfer(rawResponse);
                 return addLegacyHDLCHeadersToCosemApdu(cosemResponse);  // Re-add the 3 bytes, who represent the legacy HDLC header
 
-            } catch (IOException | ComServerExecutionException e) {
-                if (e instanceof ComServerExecutionException && !isConnectionCommunicationException(e)) {
-                    throw (ComServerExecutionException) e;  //Throw exception, we're only interested in handling ConnectionCommunicationException and IOExceptions
+            } catch (IOException | ProtocolRuntimeException e) {
+                if (e instanceof ProtocolRuntimeException && !isConnectionCommunicationException(e)) {
+                    throw (ProtocolRuntimeException) e;  //Throw exception, we're only interested in handling ConnectionCommunicationException and IOExceptions
                 } else {
                     //Handle IOException and ConnectionCommunicationException
                     if (currentRetryCount++ >= this.maxRetries) {
                         IOException ioException = (e instanceof IOException) ? (IOException) e : new IOException(e.getMessage(), e);
-                        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(ioException, maxRetries + 1);
+                        throw ConnectionCommunicationException.numberOfRetriesReached(ioException, maxRetries + 1);
                     }
 
                     rawResponse = getDlmsV2Connection().sendRequest(retryRequest, isAlreadyEncrypted); // This call does take into account retries, so no need to catch & retry this call
@@ -209,9 +211,9 @@ public class GeneralBlockTransferHandler {
                     getDlmsV2Connection().prepareComChannelForReceiveOfNextPacket(); // To ensure logging of next received packet is correct
                 }
             }
-        } catch (ComServerExecutionException | IOException e) {
-            if (e instanceof ComServerExecutionException && !isConnectionCommunicationException(e)) {
-                throw (ComServerExecutionException) e;  //Throw exception, we're only interested in handling ConnectionCommunicationException and IOExceptions
+        } catch (ProtocolRuntimeException | IOException e) {
+            if (e instanceof ProtocolRuntimeException && !isConnectionCommunicationException(e)) {
+                throw e;  //Throw exception, we're only interested in handling ConnectionCommunicationException and IOExceptions
             } else {
                 //Handle IOException and ConnectionCommunicationException
                 if (!checkForMissingBlocks) {
@@ -230,7 +232,7 @@ public class GeneralBlockTransferHandler {
     }
 
     private boolean isConnectionCommunicationException(Exception e) {
-        return MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e);
+        return e instanceof ConnectionCommunicationException;
     }
 
     /**
@@ -331,21 +333,37 @@ public class GeneralBlockTransferHandler {
                 if (XdlmsApduTags.contains(cipheredTag)) {
                     this.responseData = decrypt(secureConnection, getResponseData());
                 } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
-                    this.responseData = decryptGeneralCiphering(secureConnection, getResponseData());
+                    this.responseData = decryptGloOrDedGeneralCiphering(secureConnection, getResponseData());
+                } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
+
+                    //TODO general ciphering
+
                 } else {
+                    //TODO general signing
+
                     IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG]);
-                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(ioException);
+                    throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
                 }
             }
         }
     }
 
     private byte[] decrypt(SecureConnection secureConnection, byte[] securedResponse) {
-        return SecurityContextV2EncryptionHandler.dataTransportDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+        try {
+            return SecurityContextV2EncryptionHandler.dataTransportDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+        } catch (DLMSConnectionException e) {
+            //Invalid frame counter
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
     }
 
-    private byte[] decryptGeneralCiphering(SecureConnection secureConnection, byte[] securedResponse) {
-        return SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+    private byte[] decryptGloOrDedGeneralCiphering(SecureConnection secureConnection, byte[] securedResponse) {
+        try {
+            return SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+        } catch (DLMSConnectionException e) {
+            //Invalid frame counter
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
     }
 
     /**

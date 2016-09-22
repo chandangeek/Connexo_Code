@@ -7,6 +7,7 @@ import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -122,7 +123,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.year, BigDecimal.ZERO),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month, BigDecimal.ZERO),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.day),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.dayOfWeek, "--", "MO", "TU", "WE", "TH", "FR", "SA", "SU")    ),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.dayOfWeek, "--", "MO", "TU", "WE", "TH", "FR", "SA", "SU")),
     ConfigureBillingPeriodLength(49, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.billingPeriodLengthAttributeName)),
     WriteNewOnDemandBillingDate(50,
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.setOnDemandBillingDateAttributeName),
@@ -210,12 +211,159 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.methanePercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.higherCalorificValueAttributeName)),
     ChangeMeterLocation(68, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.meterLocationAttributeName)),
-    ;
+    SendShortDisplayMessage(69,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SHORT_DISPLAY_MESSAGE)),
+    SendLongDisplayMessage(70,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.LONG_DISPLAY_MESSAGE)),
+    ResetDisplayMessage(71),
+    ConfigureLCDDisplay(72,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.NUMBER_OF_DIGITS_BEFORE_COMMA,
+                    new BigDecimal(5),
+                    new BigDecimal(6),
+                    new BigDecimal(7)),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.NUMBER_OF_DIGITS_AFTER_COMMA,
+                    new BigDecimal(0),
+                    new BigDecimal(1),
+                    new BigDecimal(2),
+                    new BigDecimal(3)),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DISPLAY_SEQUENCE),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DISPLAY_CYCLE_TIME)
+    ),
+    ConfigureLoadProfileDataRecording(73,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.ENABLE_DISABLE,
+                    new BigDecimal(0),
+                    new BigDecimal(1)),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.CONFIG_LOAD_PROFILE_INTERVAL,
+                    new BigDecimal(1),
+                    new BigDecimal(2),
+                    new BigDecimal(3),
+                    new BigDecimal(5),
+                    new BigDecimal(6),
+                    new BigDecimal(10),
+                    new BigDecimal(12),
+                    new BigDecimal(15),
+                    new BigDecimal(20),
+                    new BigDecimal(30),
+                    new BigDecimal(60),
+                    new BigDecimal(120),
+                    new BigDecimal(240)),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MAX_NUMBER_RECORDS)
+    ),
+
+    ConfigureSpecialDataMode(74,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SPECIAL_DATE_MODE_DURATION_DAYS),
+            PropertySpecFactory.datePropertySpec(DeviceMessageConstants.SPECIAL_DATE_MODE_DURATION_DATE),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.SPECIAL_BILLING_REGISTER_RECORDING,
+                    new BigDecimal(0),
+                    new BigDecimal(1)),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.SPECIAL_BILLING_REGISTER_RECORDING_INTERVAL,
+                    new BigDecimal(0),
+                    new BigDecimal(1),
+                    new BigDecimal(2)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.SPECIAL_BILLING_REGISTER_RECORDING_MAX_NUMBER_RECORDS, new BigDecimal(1), new BigDecimal(65535)),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.SPECIAL_LOAD_PROFILE,
+                    new BigDecimal(0),
+                    new BigDecimal(1)),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.SPECIAL_LOAD_PROFILE_INTERVAL,
+                    new BigDecimal(1),
+                    new BigDecimal(2),
+                    new BigDecimal(3),
+                    new BigDecimal(5),
+                    new BigDecimal(6),
+                    new BigDecimal(10),
+                    new BigDecimal(12),
+                    new BigDecimal(15),
+                    new BigDecimal(20),
+                    new BigDecimal(30),
+                    new BigDecimal(60),
+                    new BigDecimal(120),
+                    new BigDecimal(240)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.SPECIAL_LOAD_PROFILE_MAX_NO, new BigDecimal(1), new BigDecimal(65535))
+    ),
+    ConfigureMaxDemandSettings(75,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.ACTIVE_REGISTERS_0_OR_REACTIVE_REGISTERS_1,
+                    new BigDecimal(0),
+                    new BigDecimal(1)),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.NUMBER_OF_SUBINTERVALS,
+                    new BigDecimal(0),
+                    new BigDecimal(1),
+                    new BigDecimal(2),
+                    new BigDecimal(3),
+                    new BigDecimal(4),
+                    new BigDecimal(5),
+                    new BigDecimal(10),
+                    new BigDecimal(15)),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.SUB_INTERVAL_DURATION,
+                    new BigDecimal(30),
+                    new BigDecimal(60),
+                    new BigDecimal(300),
+                    new BigDecimal(600),
+                    new BigDecimal(900),
+                    new BigDecimal(1200),
+                    new BigDecimal(1800),
+                    new BigDecimal(3600))
+    ),
+    ConfigureConsumptionLimitationsSettings(76,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.NUMBER_OF_SUBINTERVALS,
+                    new BigDecimal(0),
+                    new BigDecimal(1),
+                    new BigDecimal(2),
+                    new BigDecimal(3),
+                    new BigDecimal(4),
+                    new BigDecimal(5),
+                    new BigDecimal(10),
+                    new BigDecimal(15)),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.SUB_INTERVAL_DURATION,
+                    new BigDecimal(30),
+                    new BigDecimal(60),
+                    new BigDecimal(300),
+                    new BigDecimal(600),
+                    new BigDecimal(900),
+                    new BigDecimal(1200),
+                    new BigDecimal(1800),
+                    new BigDecimal(3600)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.OVERRIDE_RATE, new BigDecimal(0), new BigDecimal(4)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.ALLOWED_EXCESS_TOLERANCE, new BigDecimal(0), new BigDecimal(100)),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.THRESHOLD_SELECTION,
+                    new BigDecimal(0),
+                    new BigDecimal(1)),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SWITCHING_MOMENTS_DAILY_PROFILE0),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS_DAILY_PROFILE0),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE0),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SWITCHING_MOMENTS_DAILY_PROFILE1),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS_DAILY_PROFILE1),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE1),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DAY_PROFILES),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ACTIVATION_DATE)
+    ),
+    ConfigureEmergencyConsumptionLimitation(77,
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.DURATION_MINUTES, new BigDecimal(1), new BigDecimal(65535)),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.TRESHOLD_VALUE),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.TRESHOLD_UNIT,
+                    new BigDecimal(0),
+                    new BigDecimal(1)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.OVERRIDE_RATE, new BigDecimal(0), new BigDecimal(4))
+    ),
+    ConfigureTariffSettings(78,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.UNIQUE_TARIFF_ID_NO),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.NUMBER_OF_TARIFF_RATES, new BigDecimal(0), new BigDecimal(4)),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CODE_TABLE_ID)),
+    EnableGzipCompression(79, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.ENABLE_GZIP_COMPRESSION)),
+    SetAuthenticationMechanism(80, PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM, AuthenticationMechanism.getAuthNames())),
+    SetMaxLoginAttempts(81, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS)),
+    SetLockoutDuration(82, PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DeviceMessageConstants.SET_LOCKOUT_DURATION, new TimeDuration(10000, TimeDuration.MILLISECONDS))),
+    ConfigureGeneralLocalPortReadout(83, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.objectDefinitionsAttributeName)),
+    DISABLE_PUSH_ON_INSTALLATION(84),
+    ENABLE_PUSH_ON_INTERVAL_OBJECTS(85,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.typeAttributeName, PushType.getTypes()),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionMinutesForEachHour));
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
 
-    private ConfigurationChangeDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    ConfigurationChangeDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
         this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
@@ -268,5 +416,30 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
         private static final Date DEFAULT_DATE = new Date(978307200000l);   // 01/01/2001
         private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yy");
+    }
+
+    public enum PushType {
+        Interval_1(1),
+        Interval_2(2),
+        Interval_3(3);
+
+        private final int id;
+
+        private PushType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            PushType[] allTypes = values();
+            String[] result = new String[allTypes.length];
+            for (int index = 0; index < allTypes.length; index++) {
+                result[index] = allTypes[index].name();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
     }
 }

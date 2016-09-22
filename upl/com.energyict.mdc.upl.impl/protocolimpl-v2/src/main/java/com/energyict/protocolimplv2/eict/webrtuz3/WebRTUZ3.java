@@ -9,6 +9,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
@@ -137,8 +138,13 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getMessaging().format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return getMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     private WebRTUZ3Messaging getMessaging() {
@@ -152,6 +158,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
             meterTopology = new WebRTUZ3MeterTopology(this);
+            meterTopology.searchForSlaveDevices();
         }
         return meterTopology;
     }
@@ -178,7 +185,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-05-10 12:20:42 +0200 (Tue, 10 May 2016)$";
     }
 
     @Override

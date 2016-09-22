@@ -10,6 +10,7 @@ import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
@@ -28,16 +29,17 @@ import java.util.logging.Logger;
  */
 public class DlmsSession implements ProtocolLink {
 
-    private DlmsSessionProperties properties;
     protected final ApplicationServiceObject aso;
     protected DLMSMeterConfig dlmsMeterConfig;
-    private Logger logger;
-    private TimeZone timeZone;
     protected DLMSConnection dlmsConnection;
-    private InputStream in;
-    private OutputStream out;
     protected CosemObjectFactory cosemObjectFactory;
     protected HHUSignOn hhuSignOn = null;
+    private DlmsSessionProperties properties;
+    private Logger logger;
+    private TimeZone timeZone;
+    private InputStream in;
+    private OutputStream out;
+    private boolean useLegacyHDLCConnection = false;
 
     /**
      * @param in
@@ -103,7 +105,7 @@ public class DlmsSession implements ProtocolLink {
             Thread.sleep(5);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 
@@ -202,18 +204,30 @@ public class DlmsSession implements ProtocolLink {
         switch (getProperties().getConnectionMode()) {
             case HDLC:
                 try {
-                    transportConnection = new HDLC2Connection(
-                            in, out,
-                            getProperties().getTimeout(),
-                            getProperties().getForcedDelay(),
-                            getProperties().getRetries(),
-                            getProperties().getClientMacAddress(),
-                            getProperties().getLowerHDLCAddress(),
-                            getProperties().getUpperHDLCAddress(),
-                            getProperties().getAddressingMode(),
-                            getProperties().getInformationFieldSize(),
-                            5
-                    );
+                    if (isUseLegacyHDLCConnection()) {
+                        transportConnection = new HDLCConnection(in, out,
+                                getProperties().getTimeout(),
+                                getProperties().getForcedDelay(),
+                                getProperties().getRetries(),
+                                getProperties().getClientMacAddress(),
+                                getProperties().getLowerHDLCAddress(),
+                                getProperties().getUpperHDLCAddress(),
+                                getProperties().getAddressingMode());
+                    } else {
+                        transportConnection = new HDLC2Connection(
+                                in, out,
+                                getProperties().getTimeout(),
+                                getProperties().getForcedDelay(),
+                                getProperties().getRetries(),
+                                getProperties().getClientMacAddress(),
+                                getProperties().getLowerHDLCAddress(),
+                                getProperties().getUpperHDLCAddress(),
+                                getProperties().getAddressingMode(),
+                                getProperties().getInformationFieldSize(),
+                                5
+                        );
+                    }
+
                 } catch (DLMSConnectionException e) {
                     throw new NestedIOException(e);
                 }
@@ -294,10 +308,23 @@ public class DlmsSession implements ProtocolLink {
      */
     protected ApplicationServiceObject buildAso() {
         if (getProperties().isNtaSimulationTool()) {
-            return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null);
+            return buildAso(getProperties().getSerialNumber());
         } else {
             return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId());
         }
+    }
+
+    /**
+     * Build a new ApplicationServiceObject using the DLMSProperties, specific for a calledSystemTitle
+     * This one is used mainly in 2 cases:
+     *    - when using an NTA Simulator (from the calledSystemTitle the simulator will build-up the meter with that serial number
+     *    - when calling a Beacon and invoing get_frame_counter secure method
+     *
+     * @param calledSystemTitle
+     * @return
+     */
+    protected ApplicationServiceObject buildAso(String calledSystemTitle){
+        return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), calledSystemTitle.getBytes(), null);
     }
 
     /**
@@ -307,13 +334,17 @@ public class DlmsSession implements ProtocolLink {
      */
     protected XdlmsAse buildXDlmsAse() {
         return new XdlmsAse(
-                (getProperties().getCipheringType() == CipheringType.DEDICATED) ? getProperties().getSecurityProvider().getDedicatedKey() : null,
+                isDedicated() ? getProperties().getSecurityProvider().getDedicatedKey() : null,
                 getProperties().getInvokeIdAndPriorityHandler().getCurrentInvokeIdAndPriorityObject().needsResponse(),
                 getProperties().getProposedQOS(),
                 getProperties().getProposedDLMSVersion(),
                 getProperties().getConformanceBlock(),
                 getProperties().getMaxRecPDUSize()
         );
+    }
+
+    private boolean isDedicated() {
+        return getProperties().getCipheringType() == CipheringType.DEDICATED || getProperties().getCipheringType() == CipheringType.GENERAL_DEDICATED;
     }
 
     /**
@@ -410,5 +441,13 @@ public class DlmsSession implements ProtocolLink {
      */
     public void updateTimeZone(final TimeZone timeZone) {
         this.timeZone = timeZone;
+    }
+
+    public boolean isUseLegacyHDLCConnection() {
+        return useLegacyHDLCConnection;
+    }
+
+    public void setUseLegacyHDLCConnection(boolean useLegacyHDLCConnection) {
+        this.useLegacyHDLCConnection = useLegacyHDLCConnection;
     }
 }

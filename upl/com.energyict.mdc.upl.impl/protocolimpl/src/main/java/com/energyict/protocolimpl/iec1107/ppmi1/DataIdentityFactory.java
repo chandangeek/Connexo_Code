@@ -1,10 +1,12 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
 /** @author fbo */
 
@@ -87,7 +89,7 @@ class DataIdentityFactory {
 			DataIdentity rawRegister = findRawRegister(dataID);
 			return rawRegister.readRegister(dataID, cached, (dataLength == -1 ? rawRegister.getLength() : dataLength), set);
 		} catch (FlagIEC1107ConnectionException e) {
-			throw new IOException("DataIdentityFactory, getDataIdentity, " + e.getMessage());
+			throw new ConnectionException("DataIdentityFactory, getDataIdentity, " + e.getMessage(), e.getReason());
 		}
 	}
 
@@ -136,10 +138,10 @@ class DataIdentityFactory {
 	 * @return
 	 * @throws IOException
 	 */
-	private DataIdentity findRawRegister(String dataID) throws IOException {
+	private DataIdentity findRawRegister(String dataID) throws ProtocolException {
 		DataIdentity rawRegister = (DataIdentity) rawRegisters.get(dataID);
 		if (rawRegister == null) {
-			throw new IOException("DataIdentityFactory, findRawRegister, " + dataID + " does not exist!");
+			throw new ProtocolException("DataIdentityFactory, findRawRegister, " + dataID + " does not exist!");
 		} else {
 			return rawRegister;
 		}

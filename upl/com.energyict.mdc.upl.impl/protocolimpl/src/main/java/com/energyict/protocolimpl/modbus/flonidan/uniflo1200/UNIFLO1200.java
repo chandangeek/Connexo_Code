@@ -9,17 +9,13 @@ package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.connection.UNIFLO1200Connection;
@@ -30,19 +26,14 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author jme
  *
  */
 
-public class UNIFLO1200 extends Modbus {
+public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
     
 	private static final int DEBUG = 0;
 
@@ -59,8 +50,17 @@ public class UNIFLO1200 extends Modbus {
         return getModbusConnection();
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return (String) getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_SERIAL_NUMBER).value();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";
     }
 
 	public int getLoadProfileNumber() {
@@ -85,14 +85,6 @@ public class UNIFLO1200 extends Modbus {
 				
 	}
 
-	protected void validateSerialNumber() throws IOException {
-		if (getInfoTypeSerialNumber() == null) return;
-		String serialNumber = (String) getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_SERIAL_NUMBER).value();
-		serialNumber = serialNumber.trim();
-		if (!getInfoTypeSerialNumber().equalsIgnoreCase(serialNumber)) 
-			throw new InvalidPropertyException("SerialNumber [" + getInfoTypeSerialNumber() + "] doesn't match the serialnumber of the device [" + serialNumber + "] !!!");
-	}
-	
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
 		return getLoadProfile().getProfileData(from, to, includeEvents);
 	}

@@ -9,8 +9,9 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.ByteArrayOutputStream;
@@ -67,7 +68,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
                 setDeviceIdentifier(packet.getSerial());
                 return DiscoverResultType.IDENTIFIER;
             default:
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(packet.toString(), "The received packet is unsupported in the current protocol");
+                throw InboundFrameException.unexpectedFrame(packet.toString(), "The received packet is unsupported in the current protocol");
         }
     }
 
@@ -76,7 +77,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
      * implemented by reading bytes until a timeout occurs.
      *
      * @return the partial frame
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException in case of timeout after x retries
+     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException in case of timeout after x retries
      */
     private byte[] readFrame() {
         getComChannel().startReading();
@@ -98,7 +99,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
                 retryCount++;
                 timeoutMoment = System.currentTimeMillis() + getTimeOutProperty();
                 if (retryCount > getRetriesProperty()) {
-                    throw MdcManager.getComServerExceptionFactory().createInboundTimeOutException(String.format("Timeout while waiting for inbound frame, after %d ms, using %d retries.", getTimeOutProperty(), getRetriesProperty()));
+                    throw InboundFrameException.timeoutException(String.format("Timeout while waiting for inbound frame, after %d ms, using %d retries.", getTimeOutProperty(), getRetriesProperty()));
                 }
             }
         }
@@ -117,7 +118,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 
@@ -136,13 +137,18 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
         return Collections.emptyList();
     }
 
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
+    }
+
     public void setDeviceIdentifier(String serialNumber) {
         this.deviceIdentifier = new DialHomeIdDeviceIdentifier(serialNumber);
     }
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
     }
 
     @Override
@@ -186,4 +192,6 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
         }
         return typedProperties;
     }
+
+
 }

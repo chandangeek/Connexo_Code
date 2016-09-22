@@ -4,6 +4,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
@@ -18,7 +19,6 @@ import com.energyict.protocolimplv2.eict.webrtuz3.messages.mbus.WebRTUZ3MBusMess
 import com.energyict.protocolimplv2.eict.webrtuz3.topology.WebRTUZ3MeterTopology;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 
@@ -64,7 +64,7 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
                 try {
                     collectedMessage = executeMessage(pendingMessage, collectedMessage);
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation(e.getMessage());
                         collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));

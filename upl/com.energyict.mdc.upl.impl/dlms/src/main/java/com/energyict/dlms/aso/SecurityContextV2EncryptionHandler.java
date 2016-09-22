@@ -3,8 +3,11 @@ package com.energyict.dlms.aso;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 
 import java.io.IOException;
 
@@ -18,45 +21,81 @@ import java.io.IOException;
  */
 public class SecurityContextV2EncryptionHandler {
 
+    /**
+     * Service specific encryption (global or dedicated ciphering)
+     */
     public static byte[] dataTransportEncryption(SecurityContext securityContext, byte[] plainText) {
         try {
             return securityContext.dataTransportEncryption(plainText);
         } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+            throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
         }
     }
 
-    public static byte[] dataTransportGeneralEncryption(SecurityContext securityContext, byte[] request) {
-           try {
-               return securityContext.dataTransportGeneralEncryption(request);
-           } catch (UnsupportedException e) {  //Unsupported security policy
-               throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
-           } catch (IOException e) {           // Error while writing to the stream
-               throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
-           }
-       }
-
-    public static byte[] dataTransportDecryption(SecurityContext securityContext, byte[] cipherFrame) {
+    /**
+     * Service specific decryption (global or dedicated ciphering)
+     */
+    public static byte[] dataTransportDecryption(SecurityContext securityContext, byte[] cipherFrame) throws DLMSConnectionException {
         try {
             return securityContext.dataTransportDecryption(cipherFrame);
         } catch (ConnectionException e) {              //Failed to decrypt data
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
-        } catch (DLMSConnectionException e) {          //Invalid frame counter
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
+            throw DataEncryptionException.dataEncryptionException(e);
         } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+            throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
         }
     }
 
-    public static byte[] dataTransportGeneralDecryption(SecurityContext securityContext, byte[] securedResponse) {
+    /**
+     * General-global or general-dedicated encryption.
+     */
+    public static byte[] dataTransportGeneralGloOrDedEncryption(SecurityContext securityContext, byte[] request) {
+        try {
+            return securityContext.dataTransportGeneralGloOrDedEncryption(request);
+        } catch (UnsupportedException e) {  //Unsupported security policy
+            throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+        } catch (IOException e) {           // Error while writing to the stream
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
+    }
+
+    /**
+     * General-global or general-dedicated decryption.
+     */
+    public static byte[] dataTransportGeneralGloOrDedDecryption(SecurityContext securityContext, byte[] securedResponse) throws DLMSConnectionException {
+        try {
+            return securityContext.dataTransportGeneralGloOrDedDecryption(securedResponse);
+        } catch (ConnectionException e) {              //Failed to decrypt data
+            throw DataEncryptionException.dataEncryptionException(e);
+        } catch (UnsupportedException e) {             //Unsupported security policy
+            throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+        }
+    }
+
+    /**
+     * General-ciphering encryption
+     */
+    public static byte[] dataTransportGeneralEncryption(SecurityContext securityContext, byte[] request) {
+        try {
+            return securityContext.dataTransportGeneralEncryption(request);
+        } catch (UnsupportedException e) {  //Unsupported security policy
+            throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+        } catch (IOException e) {           // Error while writing to the stream
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
+    }
+
+    /**
+     * General-ciphering decryption
+     */
+    public static byte[] dataTransportGeneralDecryption(SecurityContext securityContext, byte[] securedResponse) throws DLMSConnectionException {
         try {
             return securityContext.dataTransportGeneralDecryption(securedResponse);
         } catch (ConnectionException e) {              //Failed to decrypt data
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
-        } catch (DLMSConnectionException e) {          //Invalid frame counter
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
+            throw DataEncryptionException.dataEncryptionException(e);
         } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+            throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+        } catch (ProtocolException e) {
+            throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
     }
 }

@@ -196,7 +196,7 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
 
     @Override
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2013-06-10 10:15:31 +0200 (Mon, 10 Jun 2013) $";
     }
 
     @Override

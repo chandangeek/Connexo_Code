@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
-import java.io.IOException;
 
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 /**
  *
@@ -11,7 +11,7 @@ public class MDSources {
     private static final int MD_REGISTERS = 8; // in fact 8 x 3 for maximum demand but 8 for the CMD
     int[] regSource = new int[MD_REGISTERS];
     /** Creates a new instance of MDSources */
-    public MDSources(byte[] data) throws IOException {
+    public MDSources(byte[] data) throws ProtocolException {
         parse(data);
     }
     
@@ -28,7 +28,7 @@ public class MDSources {
         return strBuff.toString();
     }
     
-    private void parse(byte[] data) throws IOException {
+    private void parse(byte[] data) throws ProtocolException {
         for (int i=0;i<MD_REGISTERS;i++) {
             regSource[i] = ProtocolUtils.getIntLE(data,i,1);
         }

@@ -3,22 +3,27 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.registers;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.axrdencoding.util.AXDRTime;
+import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540PLCRegisterMapper;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 
 import java.io.IOException;
@@ -38,6 +43,8 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
     public static final ObisCode ClockObisCode = ObisCode.fromString("0.0.1.0.0.255");
     public static final ObisCode EndOfBillingPeriod1SchedulerObisCode = ObisCode.fromString("0.0.15.0.0.255");
     public static final ObisCode BillingProfileObisCode = ObisCode.fromString("0.0.98.1.0.255");
+    private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
+    private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
 
     private AM540PLCRegisterMapper plcRegisterMapper;
 
@@ -52,7 +59,14 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
         //First read out the G3 PLC registers, using the G3 PLC register mapper
         for (OfflineRegister register : allRegisters) {
             ObisCode obisCode = register.getObisCode();
-            if (getPLCRegisterMapper().getG3Mapping(obisCode) != null) {
+
+            if (obisCode.equals(G3NetworkManagement.getDefaultObisCode())) {
+                final CollectedRegister incompatibleRegister = createIncompatibleRegister(register, "Register with obiscode " + obisCode + " cannot be read out, use the path request message for this.");
+                collectedRegisters.add(incompatibleRegister);
+            } else if (register.getObisCode().equals(MULTICAST_METER_PROGRESS)) {
+                final CollectedRegister incompatibleRegister = createIncompatibleRegister(register, "Register with obiscode " + register.getObisCode() + " cannot be read out, use the 'read DC multicast progress' message on the Beacon protocol for this.");
+                collectedRegisters.add(incompatibleRegister);
+            } else if (getPLCRegisterMapper().getG3Mapping(obisCode) != null) {
                 try {
                     RegisterValue registerValue = getPLCRegisterMapper().readRegister(obisCode);
                     CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
@@ -107,6 +121,18 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
         return collectedRegisters;
     }
 
+    @Override
+    protected RegisterValue convertCustomAbstractObjectsToRegisterValues(OfflineRegister register, AbstractDataType abstractDataType) throws UnsupportedException {
+        ObisCode rObisCode = getCorrectedRegisterObisCode(register);
+
+        //Non ASCII octetstring, so return a hexstring that represents the byte array
+        if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE) || rObisCode.equals(MODULE_FIRMWARE_SIGNATURE)) {
+            return new RegisterValue(register, null, null, null, null, new Date(), 0, ParseUtils.decimalByteToString(abstractDataType.getContentByteArray()).toUpperCase());
+        }
+
+        return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
+    }
+
     private String parseExecutionTimeArrayToHumanReadableText(Array executionTime) throws IOException {
         Array emptyArray = new Array(
                 new OctetString(ProtocolTools.getBytesFromHexString("FFFFFFFFFF", "")),
@@ -128,8 +154,8 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
     }
 
     private void handleIOException(List<CollectedRegister> collectedRegisters, OfflineRegister register, IOException e) {
-        if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-            if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
+            if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                 collectedRegisters.add(createUnsupportedRegister(register));
             } else {
                 collectedRegisters.add(createIncompatibleRegister(register, e.getMessage()));

@@ -33,6 +33,7 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimplv2.MdcManager;
@@ -470,7 +471,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             } catch (IOException e) {
                 throw new IOException("DukePower, buildFrameWriteClock, IOException, " + e.getMessage());
             }
@@ -792,7 +793,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
     /**
@@ -1099,7 +1100,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             return 4;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IOException(e.getMessage());
         }
@@ -1267,7 +1268,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
         }

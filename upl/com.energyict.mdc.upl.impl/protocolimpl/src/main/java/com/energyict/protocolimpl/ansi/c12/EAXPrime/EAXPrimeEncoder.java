@@ -42,11 +42,11 @@ import java.io.IOException;
  */
 public class EAXPrimeEncoder {
 
-    static byte[] buffer = new byte[16];
-    static int buffer_idx;
-    static byte[] d_value = new byte[16];
-    static byte[] q_value = new byte[16];
-    static byte[] nonce = new byte[16];
+    private byte[] buffer = new byte[16];
+    private int buffer_idx;
+    private byte[] d_value = new byte[16];
+    private byte[] q_value = new byte[16];
+    private byte[] nonce = new byte[16];
 
     private byte[] plainText;
     private byte[] cipherText;

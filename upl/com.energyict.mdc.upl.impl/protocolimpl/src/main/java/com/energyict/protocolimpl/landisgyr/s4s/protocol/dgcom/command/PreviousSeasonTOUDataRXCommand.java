@@ -10,11 +10,12 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.Date;
 
 
 /**
@@ -197,7 +198,7 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
             return new byte[]{(byte)0xAB,0,0,0,0,0,0,0,0};
         }
         else 
-            throw new IOException("PreviousSeasonTOUDataRXCommand, only for RX meters!");
+            throw new ProtocolException("PreviousSeasonTOUDataRXCommand, only for RX meters!");
     }
     
     protected void parse(byte[] data) throws IOException {

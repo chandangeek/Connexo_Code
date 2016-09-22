@@ -5,12 +5,12 @@
  */
 
 package com.energyict.protocolimpl.iec1107.abba1700;
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
+
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.IOException;
 
 /**
  *
@@ -92,31 +92,31 @@ public class ABBA1700Register extends ABBA1700RegisterData {
     }
     
     
-    protected void writeRegister(String value) throws FlagIEC1107ConnectionException,IOException {
+    protected void writeRegister(String value) throws IOException {
         getABBA1700DataIdentityFactory().setDataIdentity(getDataID(),value);
     }
     
-    protected void writeRegister(Object object) throws FlagIEC1107ConnectionException,IOException {
+    protected void writeRegister(Object object) throws IOException {
         getABBA1700DataIdentityFactory().setDataIdentity(getDataID(),buildData(object));
     }
     
-    protected void invokeRegister() throws FlagIEC1107ConnectionException,IOException {
+    protected void invokeRegister() throws IOException {
         getABBA1700DataIdentityFactory().invokeDataIdentity(getDataID());
     }
     
     // read register in iec1107 mode
-    protected byte[] readRegister(boolean cached) throws FlagIEC1107ConnectionException,IOException {
+    protected byte[] readRegister(boolean cached) throws IOException {
          return readRegister(cached,-1,0);
     }
-    protected byte[] readRegister(boolean cached, int set) throws FlagIEC1107ConnectionException,IOException {
+    protected byte[] readRegister(boolean cached, int set) throws IOException {
          return readRegister(cached,-1,set);
     }
-    protected byte[] readRegister(boolean cached,int dataLength,int set) throws FlagIEC1107ConnectionException,IOException {
+    protected byte[] readRegister(boolean cached,int dataLength,int set) throws IOException {
          return(getABBA1700DataIdentityFactory().getDataIdentity(getDataID(),cached,dataLength,set));
     }
     
     // read register in streaming mode
-    protected byte[] readRegisterStream(boolean cached,int nrOfBlocks) throws FlagIEC1107ConnectionException,IOException {
+    protected byte[] readRegisterStream(boolean cached,int nrOfBlocks) throws IOException {
          return(getABBA1700DataIdentityFactory().getDataIdentityStream(getDataID(),cached,nrOfBlocks));
     }
     

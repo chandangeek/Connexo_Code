@@ -6,23 +6,21 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.DeviceMappingRange;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -123,7 +121,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
                     }
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession())) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession().getProperties().getRetries() + 1)) {
                     continue;   //Go to the next meter
                 }
             }
@@ -148,7 +146,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
                     }
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession())) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession().getProperties().getRetries() + 1)) {
                     continue;   //Go to the next meter
                 }
             }
@@ -180,7 +178,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
     @Override
     public int getPhysicalAddress(String serialNumber) {
         if (serialNumber == null || serialNumber.isEmpty()) {
-            throw MdcManager.getComServerExceptionFactory().missingProperty("SerialNumber");
+            throw DeviceConfigurationException.missingProperty("SerialNumber");
         }
 
         if (serialNumber.equals(meterProtocol.getDlmsSession().getProperties().getSerialNumber())) {
@@ -199,17 +197,16 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
             }
         }
 
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("SerialNumber", serialNumber);
+        throw DeviceConfigurationException.unsupportedPropertyValue("SerialNumber", serialNumber);
     }
 
     @Override
     public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
         int physicalAddress = getPhysicalAddress(serialNumber);
-        if (physicalAddress == 0) {
+        if ((physicalAddress == 0 && !obisCode.anyChannel() && obisCode.getB() != 128)) { // then don't correct the obisCode
             return obisCode;
-        } else {
-            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) physicalAddress);
         }
+        return ProtocolTools.setObisCodeField(obisCode, 1, (byte) physicalAddress);
     }
 
     @Override
@@ -224,5 +221,18 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
         }
 
         return deviceTopology;
+    }
+
+    /**
+     * Search for the next available physicalAddress
+     *
+     * @return the next available physicalAddress or -1 if none is available.
+     */
+    public int searchNextFreePhysicalAddress() {
+        List<Integer> availablePhysicalAddresses = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
+        for (DeviceMapping dm : this.mbusMap) {
+            availablePhysicalAddresses.remove((Integer) dm.getPhysicalAddress());    // Remove the specified object from the list
+        }
+        return availablePhysicalAddresses.isEmpty() ? 0 : availablePhysicalAddresses.get(0);
     }
 }

@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.edmi.mk10.parsers;
 import java.io.ByteArrayOutputStream;
 
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 /**
@@ -92,7 +93,7 @@ public class MK10OutputStreamParser {
 			try {Thread.sleep(DEBUG_DELAY);} 
 			catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
 		}
 		

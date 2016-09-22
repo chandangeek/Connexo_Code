@@ -36,6 +36,8 @@ public class FunctionCodeFactory {
             return getReadInputRegistersRequest(vals[0], vals[1]);
         else if (functionCode == FunctionCode.READ_HOLDING_REGISTER.getFunctionCode())
             return getReadHoldingRegistersRequest(vals[0], vals[1]);
+        else if (functionCode == FunctionCode.WRITE_SINGLE_COIL.getFunctionCode())
+            return getWriteSingleCoil(vals[0], vals[1]);
         else if (functionCode == FunctionCode.WRITE_SINGLE_REGISTER.getFunctionCode())
             return getWriteSingleRegister(vals[0], vals[1]);
         else if (functionCode == FunctionCode.REPORT_SLAVE_ID.getFunctionCode())
@@ -45,10 +47,23 @@ public class FunctionCodeFactory {
         else if (functionCode == FunctionCode.WRITE_MULTIPLE_REGISTER.getFunctionCode()) {
             byte[] data = ParseUtils.convert2ByteArray(vals,2);
             return getWriteMultipleRegisters(vals[0], vals[1], data);
+        } else if (functionCode == FunctionCode.WRITE_MULTIPLE_COILS.getFunctionCode()) {
+            byte[] data = ParseUtils.convert2ByteArray(vals,2);
+            return getWriteMultipleCoils(vals[0], vals[1], data);
+        }else if (functionCode == FunctionCode.READ_FILE_RECORD.getFunctionCode()){
+            return readFileRecordRequest(vals[0], vals[1], vals[1]);
         }
+
         else return null;
     }
-            
+
+    public ReadFileRecordRequest readFileRecordRequest(int fileNumber, int recordNumber, int recordLength)throws IOException {
+        ReadFileRecordRequest readFileRecordRequest = new ReadFileRecordRequest(this);
+        readFileRecordRequest.setFileRecordParameters(fileNumber, recordNumber, recordLength);
+        readFileRecordRequest.build();
+        return readFileRecordRequest;
+    }
+
     public ReadHoldingRegistersRequest getReadHoldingRegistersRequest(int startingAddress, int quantityOfRegisters) throws IOException {
         ReadHoldingRegistersRequest readHoldingRegistersRequest = new ReadHoldingRegistersRequest(this);
         readHoldingRegistersRequest.setRegisterSpec(startingAddress, quantityOfRegisters);
@@ -84,11 +99,25 @@ public class FunctionCodeFactory {
         return writeSingleRegister;
     }
 
+    public WriteSingleCoil getWriteSingleCoil(int writeCoilAddress, int writeCoilValue) throws IOException {
+        WriteSingleCoil writeSingleCoil = new WriteSingleCoil(this);
+        writeSingleCoil.writeCoil(writeCoilAddress, writeCoilValue);
+        writeSingleCoil.build();
+        return writeSingleCoil;
+    }
+
     public WriteMultipleRegisters getWriteMultipleRegisters(int writeStartingAddress, int writeQuantityOfRegisters, byte[] registerValues) throws IOException {
         WriteMultipleRegisters writeMultipleRegisters = new WriteMultipleRegisters(this);
         writeMultipleRegisters.writeRegister(writeStartingAddress, writeQuantityOfRegisters, registerValues);
         writeMultipleRegisters.build();
         return writeMultipleRegisters;
+    }
+
+    public WriteMultipleCoils getWriteMultipleCoils(int writeStartingAddress, int writeQuantityOfCoils, byte[] registerValues) throws IOException {
+        WriteMultipleCoils writeMultipleCoils = new WriteMultipleCoils(this);
+        writeMultipleCoils.writeCoil(writeStartingAddress, writeQuantityOfCoils, registerValues);
+        writeMultipleCoils.build();
+        return writeMultipleCoils;
     }
 
     public ReportSlaveId getReportSlaveId() throws IOException {
@@ -106,6 +135,4 @@ public class FunctionCodeFactory {
         readDeviceIdentification.build();
         return readDeviceIdentification;
     }
-    
-    
 }

@@ -10,9 +10,11 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
 import java.io.IOException;
 
-import com.energyict.dialer.connection.ConnectionException;
 
 /**
  *
@@ -25,7 +27,12 @@ public class LayerManager {
     Connection62056 connection;
     int sourceTransportAddress;
     int destinationTransportAddress;
-            
+
+    /**
+     * reason for a ProtocolConnectionException
+     */
+    protected final byte TIMEOUT_ERROR = -2;
+
     /** Creates a new instance of LayerManager */
     public LayerManager(Connection62056 connection) { 
         this.connection=connection;
@@ -47,7 +54,7 @@ public class LayerManager {
             catch(ConnectionException e) {
                 if (e.getReason() == connection.getPROTOCOL_ERROR()) {
                     if (retryRequest++>=5){
-                        throw new IOException(e.toString()+", max retries!");
+                        throw new ProtocolConnectionException(e.toString()+", max retries!" + e.getMessage(), TIMEOUT_ERROR);
                     } else {
 						continue;
 					}

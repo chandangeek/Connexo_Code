@@ -10,15 +10,20 @@
 
 package com.energyict.protocolimpl.edf.core;
 
-import com.energyict.cbo.*;
-import com.energyict.dialer.connection.*; 
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edf.trimaran.core.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionV25;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.CRCGenerator;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.edf.trimaran.core.AbstractSPDU;
 
-import com.energyict.protocolimpl.base.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  *
@@ -132,13 +137,13 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
                 return getSessionData(len);
             } catch(ConnectionException e) {
                 if (retry++>=(maxRetries-1)) { // maxretries voldoet in een bepaalde voorwaarde aan de sessiontimeout...
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
+                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage(), MAX_RETRIES_ERROR);
                 }
                
                 // KV new timeout behaviour
                 if (e.getReason() == TIMEOUT_ERROR) {
                     if (timeoutType==TSE)
-                        throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
+                        throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage(), MAX_RETRIES_ERROR);
                 }
                 
                 if ((e.getReason() != ERROR_NAK) && (e.getReason() != TIMEOUT_ERROR))

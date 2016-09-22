@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ProtocolExceptionReference;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CTRDeviceProtocolCache;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -95,13 +96,13 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
                 String warning = "The device is verifying the firmware image - The firmware upgrade process will continue next communication session.;";
                 super.getLogger().log(Level.WARNING, warning);
                 CTRFirmwareUpgradeTimeOutException exception = new CTRFirmwareUpgradeTimeOutException(warning);
-                MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, 1);
+                ConnectionCommunicationException.numberOfRetriesReached(exception, 1);
             case 4:
                 // Nothing to do - we must wait until the device has activated the new image.
                 warning = "New firmware version will be activated on " + getActivationDate() + " - The firmware upgrade process will continue next communication session.";
                 super.getLogger().log(Level.WARNING, warning);
                 exception = new CTRFirmwareUpgradeTimeOutException(warning);
-                MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, 1);
+                ConnectionCommunicationException.numberOfRetriesReached(exception, 1);
             case 5:
                 restoreDownloadSeal();
                 break;
@@ -307,14 +308,14 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
                     retryCount += 1;
                 }
             }
-        } catch (ComServerExecutionException e) {
-            if (MdcManager.getComServerExceptionFactory().isNumberOfRetriesReached(e)) {        // A timeout exception, probably because the device went offline after 5 min of communication
+        } catch (ProtocolRuntimeException e) {
+            if (e instanceof ConnectionCommunicationException && (e.getExceptionReference().equals(ProtocolExceptionReference.NUMBER_OF_RETRIES_REACHED))) {        // A timeout exception, probably because the device went offline after 5 min of communication
                 String message = "Got an CTRException [" + e.getMessage() + "] while sending firmware image segments to the MTU155 - " +
                         lastAckedSegment.getSegment() + " out of " + numberOfTotalSegments + " segments are already send out to the device" +
                         " - The firmware upgrade process will continue next communication session.";
                 super.getLogger().log(Level.WARNING, message);
                 CTRFirmwareUpgradeTimeOutException exception = new CTRFirmwareUpgradeTimeOutException(message);
-                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, nrOfRetries() + 1);
+                throw ConnectionCommunicationException.numberOfRetriesReached(exception, nrOfRetries() + 1);
             } else {
                 throw e;
             }

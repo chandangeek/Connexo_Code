@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
 import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
@@ -19,9 +20,14 @@ public class AM130Properties extends IDISProperties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
-            securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+            securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER);
         }
         return securityProvider;
+    }
+
+    @Override
+    public boolean isBulkRequest() {
+        return true;
     }
 
     @Override

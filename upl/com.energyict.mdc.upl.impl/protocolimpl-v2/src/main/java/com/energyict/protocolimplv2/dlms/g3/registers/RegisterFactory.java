@@ -5,6 +5,7 @@ import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
@@ -12,19 +13,15 @@ import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -115,14 +112,14 @@ public class RegisterFactory {
                     RegisterValue registerValue = g3Mapping.parse(attributeValue, unit, captureTime);
                     result.add(createCollectedRegister(registerValue, offlineRegister));
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, getDlmsSession())) {
-                        if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSession().getProperties().getRetries() + 1)) {
+                        if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                             result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
                         } else {
                             result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage()));
                         }
                     } else {
-                        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDlmsSession().getProperties().getRetries() + 1);
+                        throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsSession().getProperties().getRetries() + 1);
                     }
                 }
             }

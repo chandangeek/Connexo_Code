@@ -6,17 +6,14 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.Calendar;
-import java.math.BigDecimal;
-import java.io.IOException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 /**
  *
  * @author  Koen
@@ -27,17 +24,17 @@ public class InstantaneousValue {
     
     
     /** Creates a new instance of InstantaneousValue */
-    public InstantaneousValue(byte[] data) throws IOException {
+    public InstantaneousValue(byte[] data) throws ProtocolException {
         parse(data);
     }
     
-    private void parse(byte[] data) throws IOException {
+    private void parse(byte[] data) throws ProtocolException {
         //data = ProtocolUtils.convert2ascii(data);
         if (((int)data[0]&0xFF) == 0xFF)
-            throw new IOException("Instantaneous value not available!");
+            throw new ProtocolException("Instantaneous value not available!");
         int format = (int)data[0]&0xFF;
         if ((format & 0x07) == 0x07)
-            throw new IOException("Instantaneous value too large!");
+            throw new ProtocolException("Instantaneous value too large!");
         int scale = 4 - (int)(format & 0x07);
         int sign = ((format & 0x80) == 0x80 ? -1 : 1);
         data = ProtocolUtils.getSubArray(data,1);

@@ -4,40 +4,21 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.ObjectReference;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.siemenszmd.LogBookReader;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging.ZMDMessages;
 
 import java.io.IOException;
@@ -56,7 +37,7 @@ import java.util.logging.Logger;
  * Date: 13/12/11
  * Time: 16:02
  */
-public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtocol, MessageProtocol, ProtocolLink {
+public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtocol, MessageProtocol, ProtocolLink, SerialNumberSupport {
 
     protected static final ObisCode[] SerialNumberSelectionObjects = {
             // Identification numbers 1.1, 1.2, 1.3 and 1.4
@@ -134,21 +115,8 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
 
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        validateSerialNumber();
     }
 
-    private void validateSerialNumber() throws ConnectionException {
-        if ((getProperties().getSerialNumber() == null) || ("".compareTo(getProperties().getSerialNumber()) == 0)) {
-            return;
-        }
-        String sn = getMeterSerialNumber();
-        String configuredSerial = getProperties().getSerialNumber();
-        configuredSerial = configuredSerial.toLowerCase().startsWith("lgz") ? configuredSerial.substring(3) : configuredSerial;
-        if ((sn != null) && (sn.compareTo(configuredSerial) == 0)) {
-            return;
-        }
-        throw new ConnectionException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + configuredSerial);
-    }
 
     @Override
     public Date getTime() throws IOException {
@@ -256,7 +224,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
      * Returns the protocol version date
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public void resetDemand() throws IOException {
@@ -329,5 +297,14 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
             iConfigProgramChange = (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
         }
         return iConfigProgramChange;
+    }
+
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getMeterSerialNumber();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
+        }
     }
 }

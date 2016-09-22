@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers;
 
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
@@ -12,10 +13,10 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping.GprsModemSetupMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping.LoggerSettingsMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.GatewaySetupMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.IDISGatewaySFSKMacCountersMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.MasterboardSetupMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.NetworkManagementMapping;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 
@@ -39,7 +40,8 @@ public class IDISGatewayRegisters {
                 new LoggerSettingsMapping(session.getCosemObjectFactory()),
                 new GatewaySetupMapping(session.getCosemObjectFactory()),
                 new NetworkManagementMapping(session.getCosemObjectFactory()),
-                new MasterboardSetupMapping(session.getCosemObjectFactory())
+                new MasterboardSetupMapping(session.getCosemObjectFactory()),
+                new IDISGatewaySFSKMacCountersMapping(session.getCosemObjectFactory())
         };
     }
 
@@ -52,8 +54,8 @@ public class IDISGatewayRegisters {
                 }
             }
         } catch (IOException e) {
-            if (IOExceptionHandler.isUnexpectedResponse(e, session)) {
-                if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, session.getProperties().getRetries() + 1)) {
+                if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                     return createFailureCollectedRegister(register, ResultType.NotSupported);
                 } else {
                     return createFailureCollectedRegister(register, ResultType.InCompatible, e.getMessage());

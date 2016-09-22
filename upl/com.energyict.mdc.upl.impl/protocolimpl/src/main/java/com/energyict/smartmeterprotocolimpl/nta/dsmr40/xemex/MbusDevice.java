@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
@@ -46,14 +47,17 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> required = new ArrayList<>();
-        return required;
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optional = new ArrayList<>();
-        return optional;
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
+    @Override
+    public List<String> getOptionalKeys() {
+        return new ArrayList<>();
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {

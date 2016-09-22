@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import java.io.IOException;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -61,7 +60,7 @@ public class InformationCommand extends AbstractCommand {
         }
     }
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws CommandResponseException, ProtocolException {
         int offset = 1;
         
         if (COMMAND != (char)data[0]) {

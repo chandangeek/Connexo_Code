@@ -8,21 +8,14 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
@@ -41,7 +34,7 @@ import java.util.Properties;
  * @author jeroen.meulemeester
  *
  */
-public class GasDevice extends AS220 implements MessageProtocol{
+public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSupport {
 
 	private static final int MAX_MBUS_CHANNELS = 4;
 
@@ -69,7 +62,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 
     @Override
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
     }
 
 	@Override
@@ -125,9 +118,13 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	 * @return the serial number from the device as {@link String}
 	 * @throws IOException
 	 */
-	public String getSerialNumber() throws IOException {
-		return getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(getPhysicalAddress()).getObisCode()).getString();
-	}
+	public String getSerialNumber() {
+        try {
+            return getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(getPhysicalAddress()).getObisCode()).getString();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getProtocolRetries() + 1);
+        }
+    }
 
 	protected byte[] getSystemIdentifier(){
 		return this.emeterSerialnumber.getBytes();

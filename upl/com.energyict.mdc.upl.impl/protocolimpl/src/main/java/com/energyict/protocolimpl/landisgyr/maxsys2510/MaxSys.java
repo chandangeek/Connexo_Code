@@ -6,30 +6,18 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -66,7 +54,7 @@ import java.util.regex.Pattern;
  * defined.  A time of use defines which datablocks are active.
  */
 
-public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
+public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,SerialNumberSupport {
 
     /**
      * Property keys
@@ -138,11 +126,29 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /* ___ Implement interface MeterProtocol ___ */
 
+    @Override
+    public String getSerialNumber()  {
+        try{
+            // initial implementatation: serialnumber = unit_id3 (this is the default!)
+            // implementation for Imserv: serialnumber = unit_id1
+            if (!readUnit1SerialNumber) {
+                TableAddress ta = new TableAddress(this, 2, 19);
+                return ta.readString(11);
+            } else {
+                TableAddress ta = new TableAddress(this, 2, 0);
+                byte[] values = ta.readBytes(4);
+                return getSerialNumber(values).substring(1);
+            }
+        }catch (IOException e){
+            throw ProtocolIOExceptionHandler.handle(e, pRetries + 1);
+        }
+    }
+
     /*
-     * (non-Javadoc)
-     * 
-     * @see com.energyict.protocol.MeterProtocol# setProperties(java.util.Properties)
-     */
+         * (non-Javadoc)
+         *
+         * @see com.energyict.protocol.MeterProtocol# setProperties(java.util.Properties)
+         */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
         if (p.getProperty(MeterProtocol.SERIALNUMBER) != null) {
@@ -269,7 +275,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
                 linkLayer.send(xCommand);
             }
         } catch (NumberFormatException e) {
-            throw new IOException("Invalid node address: " + pNodeId);
+            throw new ProtocolException("Invalid node address: " + pNodeId);
         }
     }
 
@@ -365,12 +371,9 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
         try {
             linkLayer.send(commandFactory.createX(nextCrn(), 0x00, 0x0e)); // 0e: return unit id
             getTable0();
-
             doExtendedLogging();
-            validateSerialNumber();
-
         } catch (NumberFormatException nex) {
-            throw new IOException(nex.getMessage());
+            throw new ProtocolException(nex.getMessage());
         }
     }
 
@@ -467,35 +470,6 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
         }
     }
 
-    private void validateSerialNumber() throws IOException {
-        if ((pSerialNumber == null) || ("".equals(pSerialNumber))) {
-            return;
-        }
-
-        String sn = null;
-
-        // initial implementatation: serialnumber = unit_id3 (this is the default!)
-        // implementation for Imserv: serialnumber = unit_id1
-        if (!readUnit1SerialNumber) {
-            TableAddress ta = new TableAddress(this, 2, 19);
-            sn = ta.readString(11);
-        } else {
-            TableAddress ta = new TableAddress(this, 2, 0);
-            byte[] values = ta.readBytes(4);
-            sn = getSerialNumber(values).substring(1);
-        }
-
-        if (sn != null) {
-            if (pSerialNumber.equals(sn)) {
-                return;
-            }
-        }
-        String msg =
-                "SerialNumber mismatch! meter sn=" + sn +
-                        ", configured sn=" + pSerialNumber;
-        throw new IOException(msg);
-    }
-
     protected String getSerialNumber(byte[] data) {
         StringBuffer strBuff = new StringBuffer();
         for (int i = 0; i < data.length; i++) {
@@ -507,7 +481,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

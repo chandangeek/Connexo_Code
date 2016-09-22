@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,20 +18,15 @@ public class SystemStatus {
     /**
      * Creates a new instance of SystemStatus
      */
-    public SystemStatus(byte[] data) throws IOException {
-        try {
-            value = ProtocolUtils.getIntLE(data, 0, 4);
-            for (int i = 0; i < 16; i++) {
-                systemStatuses.add(ProtocolUtils.getInt(data, i, 1));
-            }
-            for (int i = 0; i < 4; i++) {
-                systemErrors.add(ProtocolUtils.getInt(data, 16 + i, 1));
-            }
-            clockFailureActionMode = ProtocolUtils.getInt(data, 20, 1);
-        } catch (IOException e) {
-            // IOException caused by an ArrayIndexOutOfBoundsException
-            // Absorb exception - done to be compliant with older types of devices who have less status bytes
+    public SystemStatus(byte[] data) throws ProtocolException {
+        value = ProtocolUtils.getIntLE(data, 0, 4);
+        for (int i = 0; i < 16; i++) {
+            systemStatuses.add(ProtocolUtils.getInt(data, i, 1));
         }
+        for (int i = 0; i < 4; i++) {
+            systemErrors.add(ProtocolUtils.getInt(data, 16 + i, 1));
+        }
+        clockFailureActionMode = ProtocolUtils.getInt(data, 20, 1);
     }
     
     public long getValue() {

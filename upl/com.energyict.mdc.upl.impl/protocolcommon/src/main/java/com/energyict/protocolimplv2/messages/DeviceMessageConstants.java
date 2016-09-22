@@ -32,9 +32,34 @@ public class DeviceMessageConstants {
     public static final String firmwareUpdateVersionNumberAttributeName = "FirmwareDeviceMessage.upgrade.version";
     public static final String firmwareUpdateUserFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
     public static final String firmwareUpdateImageIdentifierAttributeName = "FirmwareDeviceMessage.image.identifier";
+    public static final String deviceIdsAttributeName = "FirmwareDeviceMessage.deviceIds";
+    public static final String UnicastClientWPort = "FirmwareDeviceMessage.UnicastClientWPort";
+    public static final String BroadcastClientWPort = "FirmwareDeviceMessage.BroadcastClientWPort";
+    public static final String MulticastClientWPort = "FirmwareDeviceMessage.MulticastClientWPort";
+    public static final String LogicalDeviceLSap = "FirmwareDeviceMessage.LogicalDeviceLSap";
+    public static final String SecurityLevelUnicast = "FirmwareDeviceMessage.SecurityLevelUnicast";
+    public static final String SecurityLevelBroadcast = "FirmwareDeviceMessage.SecurityLevelBroadcast";
+    public static final String SecurityPolicyBroadcast = "FirmwareDeviceMessage.SecurityPolicyBroadcast";
+    public static final String DelayAfterLastBlock = "FirmwareDeviceMessage.DelayAfterLastBlock";
+    public static final String DelayPerBlock = "FirmwareDeviceMessage.DelayPerBlock";
+    public static final String DelayBetweenBlockSentFast = "FirmwareDeviceMessage.DelayBetweenBlockSentFast";
+    public static final String DelayBetweenBlockSentSlow = "FirmwareDeviceMessage.DelayBetweenBlockSentSlow";
+    public static final String BlocksPerCycle = "FirmwareDeviceMessage.BlocksPerCycle";
+    public static final String MaxCycles = "FirmwareDeviceMessage.MaxCycles";
+    public static final String RequestedBlockSize = "FirmwareDeviceMessage.RequestedBlockSize";
+    public static final String PadLastBlock = "FirmwareDeviceMessage.PadLastBlock";
+    public static final String UseTransferredBlockStatus = "FirmwareDeviceMessage.UseTransferredBlockStatus";
     public static final String resumeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.resume";
     public static final String plcTypeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.plc";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
+    public static final String SkipStepEnable = "FirmwareDeviceMessage.SkipStepEnable";
+    public static final String SkipStepVerify = "FirmwareDeviceMessage.SkipStepVerify";
+    public static final String SkipStepActivate = "FirmwareDeviceMessage.SkipStepActivate";
+    public static final String UnicastFrameCounterType = "FirmwareDeviceMessage.UnicastFrameCounterType";
+    public static final String MeterTimeZone = "FirmwareDeviceMessage.TimeZone";
+    public static final String SecurityLevelMulticast = "FirmwareDeviceMessage.SecurityLevelMulticast";
+    public static final String SecurityPolicyMulticastV0 = "FirmwareDeviceMessage.SecurityPolicyMulticastV0";
+
     public static final String contractAttributeName = "contract";
     public static final String defaultTariffCodeAttrributeName = "ActivityCalendarDeviceMessage.default.tariff";
     public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";
@@ -53,6 +78,7 @@ public class DeviceMessageConstants {
     public static final String clientMacAddress = "ClientMacAddress";
     public static final String masterKey = "SecurityMessage.masterkey";
     public static final String pskAttributeName = "SecurityMessage.psk";
+    public static final String clientCertificateAttributeName = "SecurityMessage.new.clientcertificate";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
     public static final String newHexPasswordAttributeName = "SecurityMessage.newhexpassword";
     public static final String preparedDataAttributeName = "SecurityMessage.prepareddata";
@@ -86,8 +112,6 @@ public class DeviceMessageConstants {
     public static final String deviceGroupAttributeName = "SecurityMessage.devicegroup";
 
     public static final String deviceConfigurationIDAttributeName = "DeviceActionMessage.deviceConfigurationID";
-    public static final String dcDeviceIDAttributeName = "DeviceActionMessage.dcDeviceID";
-    public static final String dcDeviceID2AttributeName = "DeviceActionMessage.dcDeviceID2";
     public static final String cleanUpUnusedDeviceTypesAttributeName = "DeviceActionMessage.cleanupUnusedDeviceTypes";
     public static final String broadcastDevicesGroupAttributeName = "FirmwareDeviceMessage.broadcastDevicesGroup";
 
@@ -163,8 +187,11 @@ public class DeviceMessageConstants {
 
     public static final String phaseAttributeName = "LoadBalanceDeviceMessage.phase";
     public static final String thresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.thresholdinampere";
+    public static final String positiveThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.positivethresholdinampere";
+    public static final String negativeThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.negativethresholdinampere";
     public static final String capturePeriodAttributeName = "LoadProfileConfigurationMessage.captureperiod";
     public static final String consumerProducerModeAttributeName = "LoadProfileConfigurationMessage.consumerproducermode";
+    public static final String monitorInstanceAttributeName = "LoadBalanceDeviceMessage.monitorInstance";
 
     public static final String xmlConfigAttributeName = "AdvancedTestMessage.xmlconfig";
     public static final String UserFileConfigAttributeName = "AdvancedTestMessage.configuserfile";
@@ -199,6 +226,7 @@ public class DeviceMessageConstants {
     public static final String SetGatewayAttributeName = "NetworkConnectivityMessage.setgateway";
     public static final String SetNameServerAttributeName = "NetworkConnectivityMessage.setnameserver";
     public static final String SetHttpPortAttributeName = "NetworkConnectivityMessage.sethttpport";
+    public static final String SetHttpsPortAttributeName = "NetworkConnectivityMessage.SET_HTTPS_PORT";
     public static final String NetworkConnectivityIPAddressAttributeName = "NetworkConnectivityMessage.ipaddress";
     public static final String NetworkConnectivityIntervalAttributeName = "NetworkConnectivityMessage.interval";
     public static final String preferGPRSUpstreamCommunication = "NetworkConnectivityMessage.preferGPRSUpstreamCommunication";
@@ -219,7 +247,7 @@ public class DeviceMessageConstants {
     public static final String autoAnswerEndTime = "NetworkConnectivityMessage.autoanswer.endtime";
 
     public static final String enableDSTAttributeName = "ClockDeviceMessage.enabledst";
-    public static final String DSTDeviationAttributeName= "ClockDeviceMessage.dst.deviation";
+    public static final String DSTDeviationAttributeName = "ClockDeviceMessage.dst.deviation";
     public static final String SetDSTAttributeName = "ClockDeviceMessage.setdst";
     public static final String StartOfDSTAttributeName = "ClockDeviceMessage.startofdst";
     public static final String EndOfDSTAttributeName = "ClockDeviceMessage.endofdst";
@@ -356,7 +384,7 @@ public class DeviceMessageConstants {
     public static final String methanePercentageAttributeName = "ConfigurationChangeDeviceMessage.methane.percentage";
     public static final String higherCalorificValueAttributeName = "ConfigurationChangeDeviceMessage.highercalorificvalue";
     public static final String billingPeriodLengthAttributeName = "ConfigurationChangeDeviceMessage.billingperiod.length";
-    public static final String setOnDemandBillingDateAttributeName= "ConfigurationChangeDeviceMessage.ondemand.billing.date";
+    public static final String setOnDemandBillingDateAttributeName = "ConfigurationChangeDeviceMessage.ondemand.billing.date";
     public static final String OnDemandBillingReasonAttributeName = "ConfigurationChangeDeviceMessage.ondemand.billing.reason";
     public static final String UnitStatusAttributeName = "ConfigurationChangeDeviceMessage.unit.status";
     public static final String IgnoreDSTAttributeName = "ConfigurationChangeDeviceMessage.ignore.dst";
@@ -422,6 +450,8 @@ public class DeviceMessageConstants {
     public static final String RadixFormatAttributeName = "ModbusConfigurationDeviceMessage.radixformat";
     public static final String RegisterAddressAttributeName = "ModbusConfigurationDeviceMessage.registeraddress";
     public static final String RegisterValueAttributeName = "ModbusConfigurationDeviceMessage.RegisterValue(s)";
+    public static final String AddressAttributeName = "ModbusConfigurationDeviceMessage.address";
+    public static final String ValueAttributeName = "ModbusConfigurationDeviceMessage.Value(s)";
 
 
     public static final String SetMBusEveryAttributeName = "MBusConfigurationDeviceMessage.setmbusevery";
@@ -560,6 +590,8 @@ public class DeviceMessageConstants {
     public static final String minBe = "PLCConfigurationDeviceMessage.minBe";
     public static final String plcSecurityLevel = "PLCConfigurationDeviceMessage.plcSecurityLevel";
     public static final String weakLQIValueAttributeName = "PLCConfigurationDeviceMessage.weaklqivalue";
+    public static final String lowLQIValueAttributeName = "PLCConfigurationDeviceMessage.lowlqivalue";
+    public static final String highLQIValueAttributeName = "PLCConfigurationDeviceMessage.highlqivalue";
     public static final String plcG3TimeoutAttributeName = "PLCConfigurationDeviceMessage.plcg3timeout";
     public static final String G3PanIdAttributename = "PLCConfigurationDeviceMessage.g3panid";
     public static final String adp_Kr = "PLCConfigurationDeviceMessage.adp_Kr";
@@ -572,6 +604,7 @@ public class DeviceMessageConstants {
     public static final String adp_RLC_enabled = "PLCConfigurationDeviceMessage.adp_RLC_enabled";
     public static final String adp_net_traversal_time = "PLCConfigurationDeviceMessage.adp_net_traversal_time";
     public static final String adp_routing_table_entry_TTL = "PLCConfigurationDeviceMessage.adp_routing_table_entry_TTL";
+    public static final String adp_routing_tuple_TTL = "PLCConfigurationDeviceMessage.adp_routing_tuple_TTL";
     public static final String adp_RREQ_RERR_wait = "PLCConfigurationDeviceMessage.adp_RREQ_RERR_wait";
     public static final String adp_Blacklist_table_entry_TTL = "PLCConfigurationDeviceMessage.adp_Blacklist_table_entry_TTL";
     public static final String adp_unicast_RREQ_gen_enable = "PLCConfigurationDeviceMessage.adp_unicast_RREQ_gen_enable";
@@ -610,6 +643,7 @@ public class DeviceMessageConstants {
     public static final String delete = "delete";
     public static final String startTime = "startTime";
     public static final String macAddress = "macAddress";
+    public static final String macAddresses = "macAddresses";
     public static final String output = "output";
     public static final String enabled = "enabled";
     public static final String outputId = "OutputConfigurationMessage.outputId";
@@ -639,4 +673,65 @@ public class DeviceMessageConstants {
     public static final String sslCertificateUserFile = "sslCertificateUserFile";
     public static final String servletURL = "servletURL";
     public static final String logLevel = "logLevel";
+    public static final String protocolName = "protocolName";
+
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber = "MBusSetupDeviceMessage.ChangeMBusClientIdentificationNumber";
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientManufacturerId = "MBusSetupDeviceMessage.ChangeMBusClientManufacturerId";
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientVersion = "MBusSetupDeviceMessage.ChangeMBusClientVersion";
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientDeviceType = "MBusSetupDeviceMessage.ChangeMBusClientDeviceType";
+    public static final String MBusSetupDeviceMessage_mBusClientShortId = "MBusSetupDeviceMessage.MBusClientShortId";
+
+    public static final String ACTIVE_REGISTERS_0_OR_REACTIVE_REGISTERS_1 = "ACE4000ConfigurationMessages.ACTIVE_REGISTERS_0_OR_REACTIVE_REGISTERS_1";
+    public static final String NUMBER_OF_SUBINTERVALS = "ACE4000ConfigurationMessages.NUMBER_OF_SUBINTERVALS";
+    public static final String SUB_INTERVAL_DURATION = "ACE4000ConfigurationMessages.SUB_INTERVAL_DURATION";
+    public static final String SHORT_DISPLAY_MESSAGE = "ACE4000ConfigurationMessages.SHORT_DISPLAY_MESSAGE";
+    public static final String LONG_DISPLAY_MESSAGE = "ACE4000ConfigurationMessages.LONG_DISPLAY_MESSAGE";
+    public static final String NUMBER_OF_DIGITS_BEFORE_COMMA = "ACE4000ConfigurationMessages.NUMBER_OF_DIGITS_BEFORE_COMMA";
+    public static final String NUMBER_OF_DIGITS_AFTER_COMMA = "ACE4000ConfigurationMessages.NUMBER_OF_DIGITS_AFTER_COMMA";
+    public static final String DISPLAY_SEQUENCE = "ACE4000ConfigurationMessages.DISPLAY_SEQUENCE";
+    public static final String DISPLAY_CYCLE_TIME = "ACE4000ConfigurationMessages.DISPLAY_CYCLE_TIME";
+    public static final String ENABLE_DISABLE = "ACE4000ConfigurationMessages.ENABLE_DISABLE";
+    public static final String CONFIG_LOAD_PROFILE_INTERVAL = "ACE4000ConfigurationMessages.CONFIG_LOAD_PROFILE_INTERVAL";
+    public static final String MAX_NUMBER_RECORDS = "ACE4000ConfigurationMessages.MAX_NUMBER_RECORDS";
+    public static final String OVERRIDE_RATE = "ACE4000ConfigurationMessages.OVERRIDE_RATE";
+    public static final String ALLOWED_EXCESS_TOLERANCE = "ACE4000ConfigurationMessages.ALLOWED_EXCESS_TOLERANCE";
+    public static final String THRESHOLD_SELECTION = "ACE4000ConfigurationMessages.THRESHOLD_SELECTION";
+    public static final String SWITCHING_MOMENTS_DAILY_PROFILE0 = "ACE4000ConfigurationMessages.SWITCHING_MOMENTS_DAILY_PROFILE0";
+    public static final String THRESHOLDS_MOMENTS_DAILY_PROFILE0 = "ACE4000ConfigurationMessages.THRESHOLDS_MOMENTS_DAILY_PROFILE0";
+    public static final String THRESHOLDS_MOMENTS = "ACE4000ConfigurationMessages.THRESHOLDS_MOMENTS";
+    public static final String ACTIONS_IN_HEX_DAILY_PROFILE0 = "ACE4000ConfigurationMessages.ACTIONS_IN_HEX_DAILY_PROFILE0";
+    public static final String SWITCHING_MOMENTS_DAILY_PROFILE1 = "ACE4000ConfigurationMessages.SWITCHING_MOMENTS_DAILY_PROFILE1";
+    public static final String THRESHOLDS_MOMENTS_DAILY_PROFILE1 = "ACE4000ConfigurationMessages.THRESHOLDS_MOMENTS_DAILY_PROFILE1";
+    public static final String ACTIONS_IN_HEX_DAILY_PROFILE1 = "ACE4000ConfigurationMessages.ACTIONS_IN_HEX_DAILY_PROFILE1";
+    public static final String DAY_PROFILES = "ACE4000ConfigurationMessages.DAY_PROFILES";
+    public static final String ACTIVATION_DATE = "ACE4000ConfigurationMessages.ACTIVATION_DATE";
+    public static final String DURATION_MINUTES = "ACE4000ConfigurationMessages.DURATION_MINUTES";
+    public static final String TRESHOLD_VALUE = "ACE4000ConfigurationMessages.TRESHOLD_VALUE";
+    public static final String TRESHOLD_UNIT = "ACE4000ConfigurationMessages.TRESHOLD_UNIT";
+    public static final String UNIQUE_TARIFF_ID_NO = "ACE4000ConfigurationMessages.UNIQUE_TARIFF_ID_NO";
+    public static final String NUMBER_OF_TARIFF_RATES = "ACE4000ConfigurationMessages.NUMBER_OF_TARIFF_RATES";
+    public static final String CODE_TABLE_ID = "ACE4000ConfigurationMessages.CODE_TABLE_ID";
+    public static final String URL_PATH = "ACE4000ConfigurationMessages.URL_PATH";
+    public static final String JAR_FILE_SIZE = "ACE4000ConfigurationMessages.JAR_FILE_SIZE";
+    public static final String JAD_FILE_SIZE = "ACE4000ConfigurationMessages.JAD_FILE_SIZE";
+    public static final String OPTIONAL_DATE = "ACE4000ConfigurationMessages.OPTIONAL_DATE";
+    public static final String SPECIAL_DATE_MODE_DURATION_DAYS = "ACE4000ConfigurationMessages.SPECIAL_DATE_MODE_DURATION_DAYS";
+    public static final String SPECIAL_DATE_MODE_DURATION_DATE = "ACE4000ConfigurationMessages.SPECIAL_DATE_MODE_DURATION_DATE";
+    public static final String SPECIAL_BILLING_REGISTER_RECORDING = "ACE4000ConfigurationMessages.SPECIAL_BILLING_REGISTER_RECORDING";
+    public static final String SPECIAL_BILLING_REGISTER_RECORDING_INTERVAL = "ACE4000ConfigurationMessages.SPECIAL_BILLING_REGISTER_RECORDING_INTERVAL";
+    public static final String SPECIAL_BILLING_REGISTER_RECORDING_MAX_NUMBER_RECORDS = "ACE4000ConfigurationMessages.SPECIAL_BILLING_REGISTER_RECORDING_MAX_NUMBER_RECORDS";
+    public static final String SPECIAL_LOAD_PROFILE = "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE";
+    public static final String SPECIAL_LOAD_PROFILE_INTERVAL = "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE_INTERVAL";
+    public static final String SPECIAL_LOAD_PROFILE_MAX_NO = "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE_MAX_NO";
+    public static final String DISPLAY_MESSAGE = "Display_Message";
+    public static final String ETHERNET_WAN = "NetworkConnectivityMessage.Ethernet_WAN";
+    public static final String ETHERNET_LAN = "NetworkConnectivityMessage.Ethernet_LAN";
+    public static final String WIRELESS_WAN = "NetworkConnectivityMessage.Wireless_WAN";
+    public static final String IP6_TUNNEL = "NetworkConnectivityMessage.IP6_Tunnel";
+    public static final String PLC_NETWORK = "NetworkConnectivityMessage.PLC_Network";
+    public static final String ENABLE_GZIP_COMPRESSION = "ConfigurationChangeDeviceMessage.ENABLE_GZIP_COMPRESSION";
+    public static final String SET_AUTHENTICATION_MECHANISM = "ConfigurationChangeDeviceMessage.SET_AUTHENTICATION_MECHANISM";
+    public static final String SET_MAX_LOGIN_ATTEMPTS = "ConfigurationChangeDeviceMessage.SET_MAX_LOGIN_ATTEMPTS";
+    public static final String SET_LOCKOUT_DURATION = "ConfigurationChangeDeviceMessage.SET_LOCKOUT_DURATION";
+    public static final String executionMinutesForEachHour = "ConfigurationChangeDeviceMessage.executionMinutesForEachHour";
 }

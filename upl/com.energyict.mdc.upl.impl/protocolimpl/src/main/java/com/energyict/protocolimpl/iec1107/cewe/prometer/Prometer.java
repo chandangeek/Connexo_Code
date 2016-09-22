@@ -6,22 +6,13 @@ import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RetryHandler;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
 
 import java.io.IOException;
@@ -30,12 +21,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 
 /** <pre>
@@ -77,7 +63,7 @@ import java.util.logging.Level;
  * GNA|19052008| Unit conversions are NOT case sensitive anymore
  * @endchanges
  */
-public class Prometer extends AbstractProtocol  {
+public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     
     /** Property keys specific for CewePrometer protocol. */
     final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
@@ -645,11 +631,20 @@ public class Prometer extends AbstractProtocol  {
         
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return rSerial.asString();
+        } catch (IOException e) {
+           throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
     /* (non-Javadoc)
-     * @see AbstractProtocol#getProtocolVersion()
-     */
+         * @see AbstractProtocol#getProtocolVersion()
+         */
     public String getProtocolVersion() {
-    	return "$Date$";
+    	return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
     }
     
     /** Fetch firware version. 
@@ -657,25 +652,6 @@ public class Prometer extends AbstractProtocol  {
      */
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return rSoftwareVersion.asString();
-    }
-    
-    /* (non-Javadoc)
-     * @see AbstractProtocol#validateSerialNumber()
-     */
-    protected void validateSerialNumber() throws IOException {
-        
-        String configured = getInfoTypeSerialNumber();
-        if( (configured == null) || (configured.length() == 0) ) return;
-        
-        String meter = rSerial.asString();
-        
-        if( !configured.equals(meter) ){
-            String msg = 
-                "SerialNumber mismatch! meter: " + meter + ", " +
-                "configured: " + configured;
-            throw new IOException(msg);
-        }
-        
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException {
@@ -873,7 +849,7 @@ public class Prometer extends AbstractProtocol  {
     }
 
     /** send read command */
-    String read(String cmd, boolean retry) throws IOException {
+    String read(String cmd, boolean retry) throws ProtocolException, ConnectionException, NestedIOException {
         connection.sendRawCommandFrame(IEC1107Connection.READ1, cmd.getBytes());
         byte[] rawData = retry ? connection.receiveRawData() : connection.doReceiveData();
         return new String(rawData);

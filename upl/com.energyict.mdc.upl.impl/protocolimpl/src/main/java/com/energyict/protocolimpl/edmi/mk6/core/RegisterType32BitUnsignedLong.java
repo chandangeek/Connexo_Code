@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import java.io.IOException;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -29,10 +29,10 @@ public class RegisterType32BitUnsignedLong extends AbstractRegisterType {
     private TimeZone timeZone;
     
     /** Creates a new instance of RegisterType16BitsInt */
-    public RegisterType32BitUnsignedLong(byte[] data) throws IOException {
+    public RegisterType32BitUnsignedLong(byte[] data) throws ProtocolException {
         this(data, null);
     }
-    public RegisterType32BitUnsignedLong(byte[] data, TimeZone timeZone) throws IOException {
+    public RegisterType32BitUnsignedLong(byte[] data, TimeZone timeZone) throws ProtocolException {
        setValue(ProtocolUtils.getLong(data,0,4));   
        this.timeZone=timeZone;
        if (timeZone != null) {

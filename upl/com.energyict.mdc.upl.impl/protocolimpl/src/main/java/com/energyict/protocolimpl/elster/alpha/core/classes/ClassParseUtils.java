@@ -10,14 +10,13 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -37,13 +36,13 @@ public class ClassParseUtils {
     static public Date getDate5(byte[] data, int offset, TimeZone timeZone) throws IOException {
         return getCalendar5(data,offset,timeZone).getTime();
     }    
-    static public Date getDate6(byte[] data, int offset, TimeZone timeZone) throws IOException {
+    static public Date getDate6(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
         Calendar cal = getCalendar5(data,offset,timeZone);
         cal.set(Calendar.SECOND,ProtocolUtils.getBCD2Int(data,offset+5,1));
         return cal.getTime();
     }    
 
-    static public Calendar getCalendar3(byte[] data, int offset, TimeZone timeZone) throws IOException {
+    static public Calendar getCalendar3(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
         int year = ProtocolUtils.getBCD2Int(data,offset,1);
         cal.set(Calendar.YEAR,year>50?1900+year:2000+year);
@@ -53,7 +52,7 @@ public class ClassParseUtils {
     }
     
     
-    static public Calendar getCalendar5(byte[] data, int offset, TimeZone timeZone) throws IOException {
+    static public Calendar getCalendar5(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
         Calendar cal = getCalendar3(data, offset, timeZone);
         cal.set(Calendar.HOUR_OF_DAY,ProtocolUtils.getBCD2Int(data,offset+3,1));
         cal.set(Calendar.MINUTE,ProtocolUtils.getBCD2Int(data,offset+4,1));

@@ -1,12 +1,9 @@
 package com.energyict.protocolimpl.instromet.v555;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.instromet.connection.Command;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.connection.StatusCommand;
@@ -16,14 +13,9 @@ import com.energyict.protocolimpl.instromet.v555.tables.TableFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 
-public class Instromet555 extends InstrometProtocol {
+public class Instromet555 extends InstrometProtocol implements SerialNumberSupport {
 	
 	private Instromet555Profile instromet555Profile = null;
 	private TableFactory tableFactory = null;
@@ -100,15 +92,6 @@ public class Instromet555 extends InstrometProtocol {
     	return wrapValues;
     }
     
-    protected void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || 
-            ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-        String sn = this.getTableFactory().getCorrectorInformationTable().getSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
-        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
-    }
-    
     public int getCommId() throws IOException {
     	String nodeAddress = getInfoTypeNodeAddress();
     	if ((nodeAddress == null) || ("".equals(nodeAddress)))
@@ -158,8 +141,21 @@ public class Instromet555 extends InstrometProtocol {
 		return getTableFactory().getCorrectorInformationTable().getFirwareVersion();
 	}
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return this.getTableFactory().getCorrectorInformationTable().getSerialNumber();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries()+1);
+        }
+    }
+
+	/**
+	 * The protocol version date
+	 * @return
+     */
     public String getProtocolVersion() {
-		return "$Date$";
+		return "$Date: 2015-11-26 15:26:00 +0200 (Thu, 26 Nov 2015)$";
 	}
 
 	public Date getTime() throws IOException {

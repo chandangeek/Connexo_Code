@@ -1,21 +1,21 @@
 package com.energyict.protocolimpl.instromet.connection;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
-import com.energyict.protocolimplv2.MdcManager;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class InstrometConnection extends Connection implements ProtocolConnection {
 
@@ -71,13 +71,13 @@ public class InstrometConnection extends Connection implements ProtocolConnectio
 				return response;
 			} catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             } catch (IOException e) {
 				if (DEBUG >= 1) {
 					e.printStackTrace();
 				}
 				if ((e instanceof ConnectionException) && (((ConnectionException) e).getReason() == PROTOCOL_ERROR)) {
-					throw new ProtocolConnectionException("sendCommand() error, " + e.getMessage());
+					throw new ProtocolConnectionException("sendCommand() error, " + e.getMessage(), PROTOCOL_ERROR);
 				} else {
 					if (retry++ >= maxRetries) {
 						throw new ProtocolConnectionException("sendCommand() error maxRetries (" + maxRetries + "), " + e.getMessage());
@@ -101,7 +101,7 @@ public class InstrometConnection extends Connection implements ProtocolConnectio
 					e.printStackTrace();
 				}
 				if ((e instanceof ConnectionException) && (((ConnectionException) e).getReason() == PROTOCOL_ERROR)) {
-					throw new ProtocolConnectionException("sendCommand() error, " + e.getMessage());
+					throw new ProtocolConnectionException("sendCommand() error, " + e.getMessage(), PROTOCOL_ERROR);
 				} else {
 					if (retry++ >= maxRetries) {
 						throw new ProtocolConnectionException("sendCommand() error maxRetries (" + maxRetries + "), " + e.getMessage());

@@ -19,22 +19,13 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -43,15 +34,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -69,7 +52,7 @@ import java.util.logging.Logger;
  * @version 1.0
  * @endchanges
  */
-public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol {
+public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol, SerialNumberSupport {
 
     private static final byte DEBUG = 0;
 
@@ -189,6 +172,15 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
     }
 
     /************************************** MeterProtocol implementation ***************************************/
+
+    @Override
+    public String getSerialNumber() {
+        try {
+            return (String) getIskraEmecoRegistry().getRegister("meter serial number");
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
+        }
+    }
 
     /**
      * this implementation calls <code> validateProperties </code>
@@ -319,7 +311,7 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
 
     /** Protocol Version **/
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -360,13 +352,6 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
             throw new IOException(e.getMessage());
         }
 
-        try {
-            validateSerialNumber(); // KV 15122003
-        } catch (FlagIEC1107ConnectionException e) {
-            disconnect();
-            throw new IOException(e.getMessage());
-        }
-
         if (extendedLogging >= 1) {
             logger.info(getRegistersInfo(extendedLogging));
         }
@@ -375,19 +360,6 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         return regs.getRegisterInfo();
     }
-
-    private void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)) {
-            return;
-        }
-        String sn = (String) getIskraEmecoRegistry().getRegister("meter serial number");
-        if (sn.compareTo(serialNumber) == 0) {
-            return;
-        }
-        throw new IOException("SerialNiumber mismatch! meter sn=" + sn + ", configured sn=" + serialNumber);
-    }
-
 
     public void disconnect() throws NestedIOException {
         try {

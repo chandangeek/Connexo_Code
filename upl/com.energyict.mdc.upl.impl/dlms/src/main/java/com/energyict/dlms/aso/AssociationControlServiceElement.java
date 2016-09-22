@@ -22,6 +22,13 @@ import java.util.Arrays;
  */
 public class AssociationControlServiceElement {
 
+    public static final int LOGICAL_NAME_REFERENCING_NO_CIPHERING = 1;
+    public static final int LOGICAL_NAME_REFERENCING_WITH_CIPHERING = 3;
+    public static final int SHORT_NAME_REFERENCING_NO_CIPHERING = 2;
+    public static final int SHORT_NAME_REFERENCING_WITH_CIPHERING = 4;
+    public static final String REFUSED_BY_THE_VDE_HANDLER = ", refused by the VDE handler";
+    public static final String ACSE_SERVICE_USER_NO_REASON_GIVEN = ", ACSE_SERVICE_USER, no reason given";
+    public static final String ACSE_SERVICE_PROVIDER_NO_REASON_GIVEN = ", ACSE_SERVICE_PROVIDER, No Reason Given!";
     /**
      * <pre>
      * This default object identifier means:
@@ -32,19 +39,13 @@ public class AssociationControlServiceElement {
      */
     private static final byte[] DEFAULT_OBJECT_IDENTIFIER = new byte[]{(byte) 0x60,
             (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08};
-
-    public static final int LOGICAL_NAME_REFERENCING_NO_CIPHERING = 1;
-    public static final int LOGICAL_NAME_REFERENCING_WITH_CIPHERING = 3;
-    public static final int SHORT_NAME_REFERENCING_NO_CIPHERING = 2;
-    public static final int SHORT_NAME_REFERENCING_WITH_CIPHERING = 4;
-
+    protected byte[] respondingAPTitle;
+    protected XdlmsAse xdlmsAse;
     private int ACSE_protocolVersion = 0; // default version1
     private int contextId = 1;
     private int mechanismId = 0;
     private byte[] userInformationData;
     private byte[] respondingAuthenticationValue;
-    protected byte[] respondingAPTitle;
-    protected XdlmsAse xdlmsAse;
     private byte[] callingApplicationProcessTitle;
     private byte[] calledApplicationProcessTitle;
     private byte[] calledApplicationEntityQualifier;
@@ -144,24 +145,6 @@ public class AssociationControlServiceElement {
     }
 
     /**
-     * Getter for the {@link #calledApplicationProcessTitle}
-     *
-     * @return the calledApplicationProcessTitle
-     */
-    public byte[] getCalledApplicationProcessTitle() {
-        return this.calledApplicationProcessTitle;
-    }
-
-    /**
-     * Getter for the {@link #calledApplicationEntityQualifier}
-     *
-     * @return the calledApplicationEntityQualifier
-     */
-    public byte[] getCalledApplicationEntityQualifier() {
-        return this.calledApplicationEntityQualifier;
-    }
-
-    /**
      * Setter for the CallingApplicationTitle
      *
      * @param callingApplicationProcessTitle the title to set
@@ -173,6 +156,15 @@ public class AssociationControlServiceElement {
     }
 
     /**
+     * Getter for the {@link #calledApplicationProcessTitle}
+     *
+     * @return the calledApplicationProcessTitle
+     */
+    public byte[] getCalledApplicationProcessTitle() {
+        return this.calledApplicationProcessTitle;
+    }
+
+    /**
      * Setter for the {@link #calledApplicationProcessTitle}
      *
      * @param calledApplicationProcessTitle the APTitle to set
@@ -181,6 +173,15 @@ public class AssociationControlServiceElement {
         if (calledApplicationProcessTitle != null) {
             this.calledApplicationProcessTitle = calledApplicationProcessTitle.clone();
         }
+    }
+
+    /**
+     * Getter for the {@link #calledApplicationEntityQualifier}
+     *
+     * @return the calledApplicationEntityQualifier
+     */
+    public byte[] getCalledApplicationEntityQualifier() {
+        return this.calledApplicationEntityQualifier;
     }
 
     /**
@@ -355,7 +356,7 @@ public class AssociationControlServiceElement {
                                         if (responseData[i + 5] == 0x00) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER";
                                         } else if (responseData[i + 5] == 0x01) {
-                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, no reason given";
+                                            strResultSourceDiagnostics += ACSE_SERVICE_USER_NO_REASON_GIVEN;
                                             throw new ProtocolException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
                                         } else if (responseData[i + 5] == 0x02) {
@@ -396,7 +397,7 @@ public class AssociationControlServiceElement {
                                         if (responseData[i + 5] == 0x00) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER!";
                                         } else if (responseData[i + 5] == 0x01) {
-                                            strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Reason Given!";
+                                            strResultSourceDiagnostics += ACSE_SERVICE_PROVIDER_NO_REASON_GIVEN;
                                         } else if (responseData[i + 5] == 0x02) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Common ACSE Version!";
                                         } else {
@@ -503,7 +504,7 @@ public class AssociationControlServiceElement {
                                     } else if (0x03 == responseData[i + 6]) {
                                         strResultSourceDiagnostics += ", pdu size too short";
                                     } else if (0x04 == responseData[i + 6]) {
-                                        strResultSourceDiagnostics += ", refused by the VDE handler";
+                                        strResultSourceDiagnostics += REFUSED_BY_THE_VDE_HANDLER;
                                     } else {
                                         throw new ProtocolException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons ");
                                     }
@@ -725,6 +726,16 @@ public class AssociationControlServiceElement {
     }
 
     /**
+     * Setter for the userInformation field. If you plan on initiating an
+     * association, then normally this is a xDLMS.initiateRequest()
+     *
+     * @param userInformation
+     */
+    public void setUserInformation(byte[] userInformation) {
+        this.userInformationData = userInformation.clone();
+    }
+
+    /**
      * The applicationContextName is generated from a default objectIdentifier
      * and two specific bytes
      *
@@ -800,7 +811,6 @@ public class AssociationControlServiceElement {
         }
     }
 
-
     /**
      * The mechanism name is generated from a default objectIdentifier and to
      * specific bytes
@@ -848,17 +858,6 @@ public class AssociationControlServiceElement {
     }
 
     /**
-     * <p/>
-     * Setter for the application context name - context id
-     * <p/>
-     *
-     * @param contextId
-     */
-    public void setContextId(int contextId) {
-        this.contextId = contextId;
-    }
-
-    /**
      * <p>
      * Setter for the authentication mechanism - mechanism id
      * </p>
@@ -867,16 +866,6 @@ public class AssociationControlServiceElement {
      */
     public void setAuthMechanismId(int mechanismId) {
         this.mechanismId = mechanismId;
-    }
-
-    /**
-     * Setter for the userInformation field. If you plan on initiating an
-     * association, then normally this is a xDLMS.initiateRequest()
-     *
-     * @param userInformation
-     */
-    public void setUserInformation(byte[] userInformation) {
-        this.userInformationData = userInformation.clone();
     }
 
     /**
@@ -912,6 +901,17 @@ public class AssociationControlServiceElement {
      */
     public int getContextId() {
         return this.contextId;
+    }
+
+    /**
+     * <p/>
+     * Setter for the application context name - context id
+     * <p/>
+     *
+     * @param contextId
+     */
+    public void setContextId(int contextId) {
+        this.contextId = contextId;
     }
 
     protected void setRespondingAPTitle(byte[] respondingAPTitle) {

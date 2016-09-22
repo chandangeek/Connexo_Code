@@ -10,12 +10,11 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
 
 
 /**
@@ -83,7 +82,7 @@ public class LoadProfileMetricSelectionRXCommand extends AbstractCommand {
         if (getCommandFactory().getFirmwareVersionCommand().isRX())
             return new byte[]{(byte)0xA6,0,0,0,0,0,0,0,0};
         else
-            throw new IOException("LoadProfileMetricSelectionRXCommand, only for RX meters!");
+            throw new ProtocolException("LoadProfileMetricSelectionRXCommand, only for RX meters!");
     }
     
     protected void parse(byte[] data) throws IOException {

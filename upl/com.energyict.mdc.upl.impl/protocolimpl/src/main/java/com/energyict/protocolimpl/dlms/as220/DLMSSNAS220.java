@@ -25,34 +25,14 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.CosemPDUConnection;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.LLCConnection;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.LocalSecurityProvider;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -62,15 +42,10 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
-public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism {
+public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, SerialNumberSupport {
 
     private static final String PR_OPTICAL_BAUDRATE = "OpticalBaudrate";
     private static final String PR_PROFILE_TYPE = "ProfileType";
@@ -317,7 +292,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
             checkCache();
             setObjectList();
             doConnect();
-            validateSerialNumber();
         } catch (DLMSConnectionException e) {
             IOException exception = new IOException(e.getMessage());
             exception.initCause(e);
@@ -442,36 +416,20 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     }
 
     /**
-     * Check if the serial number property is used, and compare it with the
-     * serial number of the device. When there's no serial number entered in the
-     * protocol properties, then no check is performed.
-     *
-     * @throws IOException when the serial numbers didn't match
-     */
-    private void validateSerialNumber() throws IOException {
-        if ((serialNumber != null) && ("".compareTo(serialNumber) != 0)) {
-            String sn = getSerialNumber();
-            if ((sn == null) || (sn.compareTo(serialNumber) != 0)) {
-                throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + serialNumber);
-            }
-        }
-    }
-
-    /**
      * Read the serialNumber from the device
      *
      * @return the serial number from the device as {@link String}
-     * @throws IOException
      */
-    public String getSerialNumber() throws IOException {
+    public String getSerialNumber() {
         RetryHandler rh = new RetryHandler();
         do {
             try {
                 UniversalObject uo = getMeterConfig().getSerialNumberObject();
                 byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getResponseData();
                 return AXDRDecoder.decode(responsedata).getOctetString().stringValue();
-            } catch (DataAccessResultException e) {
-                rh.logFailure(e);
+            }
+            catch (IOException e) {
+               throw DLMSIOExceptionHandler.handle(e, getProtocolRetries() + 1);
             }
         } while (true);
     }

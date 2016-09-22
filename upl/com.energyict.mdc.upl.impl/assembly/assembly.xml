@@ -26,6 +26,7 @@
                 <include>com.energyict:protocolimpl-v2</include>
                 <include>com.energyict:protocolcommon</include>
                 <include>com.energyict:protocolimpl-elster</include>
+                <include>com.energyict:protocolimpl-us</include>
             </includes>
 
             <binaries>
@@ -33,12 +34,20 @@
                 <outputDirectory>lib/protocol</outputDirectory>
                 <dependencySets>
                     <dependencySet>
+                        <includes>
+                            <include>com.energyict:protocol-api</include>
+                        </includes>
+                        <useTransitiveDependencies>true</useTransitiveDependencies>
+                        <useTransitiveFiltering>true</useTransitiveFiltering>
+                    </dependencySet>
+                    <dependencySet>
                         <excludes>
                             <exclude>com.energyict:*</exclude>
                             <exclude>com.energyict.comserver:*</exclude>
                             <exclude>org.aspectj:*</exclude>
                             <exclude>org.perf4j:*</exclude>
                             <exclude>org.json:*</exclude>
+                            <exclude>serialio:serialio:*</exclude>
                         </excludes>
                         <useTransitiveDependencies>true</useTransitiveDependencies>
                         <useTransitiveFiltering>true</useTransitiveFiltering>

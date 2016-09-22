@@ -61,7 +61,7 @@ public class AutoConnect extends AbstractCosemObject {
 	 * @return
 	 * @throws java.io.IOException
 	 */
-	public TypeEnum readMode() throws IOException {
+	public TypeEnum readMode() throws NestedIOException {
 		try{
 			return this.mode = new TypeEnum(getLNResponseData(ATTRB_MODE), 0);
 		} catch (IOException e){
@@ -213,7 +213,7 @@ public class AutoConnect extends AbstractCosemObject {
 	 * @return
 	 * @throws java.io.IOException
 	 */
-	public Array readCallingWindow() throws IOException {
+	public Array readCallingWindow() throws NestedIOException {
 		try{
 			return this.callingWindow = new Array(getLNResponseData(ATTRB_CALLING_WINDOW), 0, 0);
 		} catch (IOException e){
@@ -251,7 +251,7 @@ public class AutoConnect extends AbstractCosemObject {
 	 * @return
 	 * @throws java.io.IOException
 	 */
-	public Array readDestinationList() throws IOException {
+	public Array readDestinationList() throws NestedIOException {
 		try{
 			return this.destinationList = new Array(getLNResponseData(ATTRB_DESTINATION_LIST), 0, 0);
 		}catch (IOException e){

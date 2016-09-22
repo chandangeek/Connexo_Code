@@ -1,10 +1,16 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
-import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+
+import com.energyict.cbo.TimeDuration;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
@@ -25,14 +31,39 @@ public class AM540Properties extends IDISProperties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
-            securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+            securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), DLMSConnectionException.REASON_CONTINUE_INVALID_FRAMECOUNTER);
         }
         return securityProvider;
     }
 
     @Override
-    public boolean isUsePolling() {
-        return false;   //The AM540 protocol will run embedded in the Beacon3100, so avoid polling on the inputstream
+    public ConformanceBlock getConformanceBlock() {
+        ConformanceBlock conformanceBlock = super.getConformanceBlock();
+
+        conformanceBlock.setGeneralBlockTransfer(useGeneralBlockTransfer());
+        conformanceBlock.setGeneralProtection(getCipheringType().equals(CipheringType.GENERAL_DEDICATED) || getCipheringType().equals(CipheringType.GENERAL_GLOBAL));
+
+        conformanceBlock.setGeneralProtection(true);
+        conformanceBlock.setAccess(true);
+        conformanceBlock.setDataNotification(true);
+        conformanceBlock.setAction(true);
+        conformanceBlock.setPriorityManagementSupported(false);
+        conformanceBlock.setEventNotification(false);
+
+        return conformanceBlock;
+    }
+
+    @Override
+    public boolean isBulkRequest() {
+        return true;
+    }
+
+    /**
+     * The AM540 protocol will also run embedded in the Beacon3100, so by default: avoid polling on the inputstream
+     */
+    @Override
+    public TimeDuration getPollingDelay() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.POLLING_DELAY, new TimeDuration(0));
     }
 
     @Override
@@ -54,7 +85,7 @@ public class AM540Properties extends IDISProperties {
     private int getMirrorLogicalDeviceId() {
         final int logicalDeviceId = parseBigDecimalProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
         if (logicalDeviceId == -1) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
+            throw DeviceConfigurationException.invalidPropertyFormat(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
         }
         return logicalDeviceId;
     }
@@ -62,7 +93,7 @@ public class AM540Properties extends IDISProperties {
     private int getGatewayLogicalDeviceId() {
         final int logicalDeviceId = parseBigDecimalProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
         if (logicalDeviceId == -1) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
+            throw DeviceConfigurationException.invalidPropertyFormat(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
         }
         return logicalDeviceId;
     }
@@ -80,11 +111,7 @@ public class AM540Properties extends IDISProperties {
 
     @Override
     public int getClientMacAddress() {
-        if (useBeaconMirrorDeviceDialect() && !usesPublicClient()) {
-            return BigDecimal.ONE.intValue();   // When talking to the Beacon mirrored device, we should always use client address 1 (except for the public client, which is always 16)
-        } else {
-            return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
-        }
+        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
     }
 
     public boolean usesPublicClient() {
@@ -93,11 +120,80 @@ public class AM540Properties extends IDISProperties {
 
     public boolean useBeaconMirrorDeviceDialect() {
         String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
-        return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_MIRROR_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+        if (dialectName == null) {
+            return false;
+        }
+        MirrorTcpDeviceProtocolDialect dialect = new MirrorTcpDeviceProtocolDialect();
+        // for compatibility with ProtocolTester - here the protocol dialect is the "display name"
+        return dialect.getDisplayName().equals(dialectName) || dialect.getDeviceProtocolDialectName().equals(dialectName);
     }
 
     public boolean useBeaconGatewayDeviceDialect() {
         String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
+
+    public boolean useSerialDialect() {
+        String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
+        return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.SERIAL_DLMS_PROTOCOL_DIALECT_NAME.getName());
+    }
+
+    public int getAARQRetries() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2)).intValue();
+    }
+
+    public long getAARQTimeout() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.AARQ_TIMEOUT_PROPERTY, new TimeDuration(AM540ConfigurationSupport.NOT_USED_AARQ_TIMEOUT)).getMilliSeconds();
+    }
+
+    /**
+     * A timeout (lack of response from the AM540) should be handled differently according to the context:
+     * - in case of G3 gateway mode, you can still read out the next physical slave devices if one slave device does not reply.
+     * - in case of Beacon DC mode (reading out 'mirror' logical devices), a timeout is fatal, the next physical slaves cannot be read out.
+     * - in case of a serial connection we should fail on a timeout
+     */
+    @Override
+    public boolean timeoutMeansBrokenConnection() {
+        return useBeaconMirrorDeviceDialect() || useSerialDialect();
+    }
+
+    public boolean useMeterInTransparentMode() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.USE_METER_IN_TRANSPARENT_MODE, false);
+    }
+
+    public int getTransparentConnectTime() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.TRANSP_CONNECT_TIME, BigDecimal.valueOf(10)).intValue();
+    }
+
+    public String getTransparentPassword() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.PASSWORD, "00000000");
+    }
+
+    public String getTransparentSecurityLevel() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.METER_SECURITY_LEVEL, "1:0");
+    }
+
+    public boolean getRequestAuthenticatedFrameCounter() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false);
+    }
+
+    public boolean useCachedFrameCounter() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false);
+    }
+    public boolean validateCachedFrameCounter() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, true);
+    }
+
+    public int getFrameCounterRecoveryRetries(){
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100)).intValue();
+    }
+
+    public int getFrameCounterRecoveryStep(){
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE).intValue();
+    }
+
+    public BigDecimal getInitialFrameCounter(){
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER);
+    }
+
 }

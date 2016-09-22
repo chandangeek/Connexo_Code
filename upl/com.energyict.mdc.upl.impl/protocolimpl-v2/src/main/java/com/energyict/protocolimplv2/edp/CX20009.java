@@ -7,16 +7,29 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.tasks.*;
+import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
+import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ProtocolExceptionReference;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.edp.logbooks.LogbookReader;
@@ -77,8 +90,8 @@ public class CX20009 extends AbstractDlmsProtocol {
         try {
             getDlmsSession().connect();
             checkCacheObjects();
-        } catch (ComServerExecutionException e) {
-            if (MdcManager.getComServerExceptionFactory().isProtocolConnectFailedException(e)) {
+        } catch (ProtocolRuntimeException e) {
+            if (e instanceof ConnectionCommunicationException && (e.getExceptionReference().equals(ProtocolExceptionReference.PROTOCOL_CONNECT))) {
                 logOff();
                 getDlmsSession().connect();
                 checkCacheObjects();
@@ -93,7 +106,7 @@ public class CX20009 extends AbstractDlmsProtocol {
         if (getDeviceCache() == null) {
             setDeviceCache(new DLMSCache());
         }
-        DLMSCache dlmsCache = (DLMSCache) getDeviceCache();
+        DLMSCache dlmsCache = getDeviceCache();
         if (dlmsCache.getObjectList() == null || getDlmsSessionProperties().isReadCache()) {
             readObjectList();
             dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
@@ -104,7 +117,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-05-09 09:38:14 +0300 (Mon, 09 May 2016)$";
     }
 
     /**
@@ -116,6 +129,8 @@ public class CX20009 extends AbstractDlmsProtocol {
         result.add(new OutboundTcpIpConnectionType());
         result.add(new SioSerialConnectionType());
         result.add(new RxTxSerialConnectionType());
+        result.add(new SioAtModemConnectionType());
+        result.add(new RxTxAtModemConnectionType());
         return result;
     }
 
@@ -131,7 +146,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "SagemCom CX2000-9 DLMS";
+        return "Sagemcom CX2000-9 DLMS";
     }
 
     @Override
@@ -177,8 +192,13 @@ public class CX20009 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getMessaging().format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return getMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     @Override

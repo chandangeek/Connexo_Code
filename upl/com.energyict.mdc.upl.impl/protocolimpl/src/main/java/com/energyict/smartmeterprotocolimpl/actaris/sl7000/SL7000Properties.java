@@ -17,13 +17,17 @@ import java.util.List;
 public class SL7000Properties extends DlmsProtocolProperties {
 
     public static final String USE_REGISTER_PROFILE = "UseRegisterProfile";
+    public static final String LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
+    private static final String USE_LEGACY_HDLC_CONNECTION = "UseLegacyHDLCConnection";
 
     public static final String DEFAULT_SECURITY_LEVEL = "1:0";
     public static final String DEFAULT_ADDRESSING_MODE = "-1";
     public static final String DEFAULT_CLIENT_MAC_ADDRESS = "1";
     public static final String DEFAULT_SERVER_MAC_ADDRESS = "1:17";
     public static final String DEFAULT_MAX_REC_PDU_SIZE = "0";
-    public static final String DEAULT_USE_REGISTER_PROFILE = "0";
+    public static final String DEFAULT_USE_REGISTER_PROFILE = "0";
+    public static final String DEFAULT_LIMIT_MAX_NR_OF_DAYS = "0";
+    public static final String DEFAULT_USE_LEGACY_HDLC_CONNECTION = "0";
 
     public List<String> getOptionalKeys() {
         List result = new ArrayList();
@@ -34,6 +38,8 @@ public class SL7000Properties extends DlmsProtocolProperties {
         result.add(CLIENT_MAC_ADDRESS);
         result.add(SERVER_MAC_ADDRESS);
         result.add(USE_REGISTER_PROFILE);
+        result.add(LIMIT_MAX_NR_OF_DAYS);
+        result.add(USE_LEGACY_HDLC_CONNECTION);
         return result;
     }
 
@@ -86,7 +92,7 @@ public class SL7000Properties extends DlmsProtocolProperties {
     }
 
     public boolean useRegisterProfile() {
-        return getBooleanProperty(USE_REGISTER_PROFILE, DEAULT_USE_REGISTER_PROFILE);
+        return getBooleanProperty(USE_REGISTER_PROFILE, DEFAULT_USE_REGISTER_PROFILE);
     }
 
     @ProtocolProperty
@@ -96,6 +102,21 @@ public class SL7000Properties extends DlmsProtocolProperties {
 
     @Override
     public byte[] getSystemIdentifier() {
-        return "".getBytes();
+        return null;
+    }
+
+    /**
+     * Limit the readout of load profile data to a given nr of days. By default (= 0), all load profile data is read out.<br></br>
+     * If set to a positive number, load profile data for period 'FROM [lastReading] TO [lastReading + nrOfDays]' is read out.<br></br>
+     * If set to a negative number, load profile data for period 'FROM [toDate - |nrOfDays|] TO [toDate] ' is read out.<br></br>
+     */
+    @ProtocolProperty
+    public int getLimitMaxNrOfDays() {
+        return getIntProperty(LIMIT_MAX_NR_OF_DAYS, DEFAULT_LIMIT_MAX_NR_OF_DAYS);
+    }
+
+    @ProtocolProperty
+    public boolean getUseLegacyHDLCConnection() {
+        return getIntProperty(USE_LEGACY_HDLC_CONNECTION, DEFAULT_USE_LEGACY_HDLC_CONNECTION) == 1;
     }
 }
