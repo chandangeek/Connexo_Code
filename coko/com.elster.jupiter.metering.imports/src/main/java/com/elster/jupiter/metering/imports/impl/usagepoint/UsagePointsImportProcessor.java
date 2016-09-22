@@ -79,7 +79,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         Optional<UsagePoint> usagePoint = context.getMeteringService().findUsagePoint(mRID);
         if (usagePoint.isPresent()) {
             if (data.isAllowUpdate()) {
-                updateDetails(usagePoint.get(), data, logger).validate();
+//                updateDetails(usagePoint.get(), data, logger).validate();
                 validateCustomPropertySetValues(usagePoint.get(), data);
             } else {
                 throw new ProcessorException(MessageSeeds.UPDATE_NOT_ALLOWED, data.getLineNumber());
