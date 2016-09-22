@@ -122,8 +122,13 @@ Ext.define('Scs.controller.ServiceCalls', {
                             activeTab: window.location.href.indexOf('?') > 0 ? 1 : 0
                         });
                         me.setBreadcrumb(parents);
-                        view.down('scs-landing-page').updateLandingPage(record);
-                            Uni.util.History.setSuspended(false);
+                        var tp = view.down('tabpanel');
+                        var page = view.down('scs-landing-page');
+                        if (page && tp.getActiveTab().getItemId() === "specifications-tab") {
+                            view.down('scs-landing-page').updateLandingPage(record);
+                        }
+
+                        Uni.util.History.setSuspended(false);
                     } else {
                         view = Ext.widget('scs-landing-page', {
                             router: me.getController('Uni.controller.history.Router'),
