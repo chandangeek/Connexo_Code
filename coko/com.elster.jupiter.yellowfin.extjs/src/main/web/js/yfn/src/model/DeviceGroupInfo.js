@@ -14,7 +14,7 @@ Ext.define('Yfn.model.DeviceGroupInfo', {
                 if(v.indexOf("__##SEARCH_RESULTS##__")!=-1){
                     return Uni.I18n.translate('generatereport.searchResults', 'YFN', 'Search results')
                 }
-                return v;
+                return Ext.String.htmlEncode(v);
             }
         },
         {
