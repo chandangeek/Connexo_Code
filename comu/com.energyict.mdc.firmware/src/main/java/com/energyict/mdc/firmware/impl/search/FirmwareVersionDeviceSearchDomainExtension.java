@@ -7,7 +7,6 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
@@ -83,6 +82,6 @@ public class FirmwareVersionDeviceSearchDomainExtension implements SearchDomainE
     public SqlFragment asFragment(List<SearchablePropertyCondition> conditions) {
         return this.firmwareService.getDataModel().query(ActivatedFirmwareVersion.class, FirmwareVersion.class)
                 .asFragment(conditions.stream().reduce(Condition.TRUE, (ormCondition, searchCondition) -> ormCondition.and(searchCondition.getCondition()), Condition::and),
-                        new String[]{"device"}, Order.NOORDER);
+                        "device");
     }
 }
