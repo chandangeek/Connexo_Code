@@ -61,7 +61,7 @@ public interface Query<T> {
     /**
      * Convert the Query to a SubQuery
      */
-    Subquery asSubquery(Condition condition, String[] fieldNames, Order[] orderBy);
+    Subquery asSubquery(Condition condition, String... fieldNames);
 
     /**
      * @return a list of all possible field name that can be used in conditions for this Query

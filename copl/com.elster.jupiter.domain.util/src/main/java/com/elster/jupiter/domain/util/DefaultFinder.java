@@ -10,6 +10,8 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import com.google.common.collect.Range;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,7 +33,7 @@ public final class DefaultFinder<T> implements Finder<T> {
     private Integer pageSize;
     private List<Order> sortingColumns = new ArrayList<>();
     private Order defaultSort;
-    private Integer maxPageSize = null;
+    private Integer maxPageSize;
     private Thesaurus thesaurus;
 
     public static <T> DefaultFinder<T> of(Class<T> clazz, DataModel dataModel, Class<?>... eagers) {
@@ -69,17 +71,10 @@ public final class DefaultFinder<T> implements Finder<T> {
 
     @Override
     public List<T> find() {
-        if (start == null || pageSize == null) {
-            if (maxPageSize != null) {
-                throw new UnpagedNotAllowed(thesaurus, maxPageSize);
-            }
-            return query.select(condition, getActualSortingColumns());
-        } else {
-            if (maxPageSize != null && pageSize > this.maxPageSize) {
-                throw new MaxPageSizeExceeded(thesaurus, maxPageSize);
-            }
-            return query.select(condition, getActualSortingColumns(), true, new String[0], this.start + 1, this.start + this.pageSize + 1);
-        }
+        Range<Integer> limits = getActualPageLimits();
+        return Range.all().equals(limits) ?
+                query.select(condition, getActualSortingColumns()) :
+                query.select(condition, getActualSortingColumns(), true, new String[0], limits.lowerEndpoint(), limits.upperEndpoint());
     }
 
     @Override
@@ -109,16 +104,12 @@ public final class DefaultFinder<T> implements Finder<T> {
 
     @Override
     public Subquery asSubQuery(String... fieldNames) {
-        if (start == null || pageSize == null) {
-            return query.asSubquery(condition, fieldNames, Order.NOORDER);
-        } else {
-            return query.asSubquery(condition, start + 1, start + pageSize + 1, fieldNames, getActualSortingColumns());
-        }
+        return query.asSubquery(condition, fieldNames);
     }
 
     @Override
     public SqlFragment asFragment(String... fieldNames) {
-        return query.asFragment(condition, fieldNames, Order.NOORDER);
+        return query.asFragment(condition, fieldNames);
     }
 
     @Override
@@ -135,6 +126,20 @@ public final class DefaultFinder<T> implements Finder<T> {
         return sortingColumnsCount == 0 && defaultSort != null ?
                 new Order[]{defaultSort} :
                 sortingColumns.toArray(new Order[sortingColumnsCount]);
+    }
+
+    public Range<Integer> getActualPageLimits() {
+        if (start == null || pageSize == null) {
+            if (maxPageSize != null) {
+                throw new UnpagedNotAllowed(thesaurus, maxPageSize);
+            }
+            return Range.all();
+        } else {
+            if (maxPageSize != null && pageSize > this.maxPageSize) {
+                throw new MaxPageSizeExceeded(thesaurus, maxPageSize);
+            }
+            return Range.closedOpen(this.start + 1, this.start + this.pageSize + 1);
+        }
     }
 
     /**

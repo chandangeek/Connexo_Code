@@ -27,8 +27,8 @@ class QueryImpl<T> implements Query<T> {
     }
 
     @Override
-    public Subquery asSubquery(Condition condition, String[] fieldNames, Order[] orderBy) {
-        return queryExecutor.asSubquery(condition, fieldNames, orderBy);
+    public Subquery asSubquery(Condition condition, String... fieldNames) {
+        return queryExecutor.asSubquery(condition, fieldNames);
     }
 
     @Override
