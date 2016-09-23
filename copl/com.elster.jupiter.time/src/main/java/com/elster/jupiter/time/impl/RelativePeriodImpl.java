@@ -92,11 +92,7 @@ final class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
 
     @Override
     public String getName() {
-        return Arrays.stream(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values())
-                .filter(e -> e.getDefaultFormat().equals(name))
-                .findFirst()
-                .map(e -> thesaurus.getFormat(e).format())
-                .orElse(name);
+        return name;
     }
 
     @Override
