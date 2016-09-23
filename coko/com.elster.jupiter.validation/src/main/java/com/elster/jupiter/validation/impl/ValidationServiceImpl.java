@@ -329,8 +329,8 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public List<Meter> validationEnabledMetersIn(List<String> meterMrids) {
-        Condition isActive = ListOperator.IN.contains("meter.mRID", meterMrids).and(where("isActive").isEqualTo(true));
+    public List<Meter> validationEnabledMetersIn(List<String> meterNames) {
+        Condition isActive = ListOperator.IN.contains("meter.name", meterNames).and(where("isActive").isEqualTo(true));
         QueryExecutor<MeterValidationImpl> query = dataModel.query(MeterValidationImpl.class, EndDevice.class);
         return query.select(isActive).stream()
                 .map(MeterValidationImpl::getMeter)
