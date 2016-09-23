@@ -90,6 +90,10 @@ final class Languages {
         this.languages.forEach(language -> language.addTranslationsTo(nlsKeys));
     }
 
+    void addTranslationsTo(NlsKeyImpl nlsKey) {
+        this.languages.forEach(language -> language.addTranslationsTo(nlsKey));
+    }
+
     void deactivate() {
         this.languages.forEach(Language::deactivate);
     }
@@ -281,7 +285,7 @@ final class Languages {
             nlsKeys.forEach(this::addTranslationsTo);
         }
 
-        private void addTranslationsTo(NlsKeyImpl nlsKey) {
+        void addTranslationsTo(NlsKeyImpl nlsKey) {
             ComponentAndLayer componentAndLayer = ComponentAndLayer.from(nlsKey);
             this.translations
                     .get(componentAndLayer)
