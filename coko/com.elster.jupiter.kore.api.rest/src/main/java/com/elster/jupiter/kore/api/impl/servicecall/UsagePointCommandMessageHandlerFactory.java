@@ -10,9 +10,12 @@ import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandMessageHandlerFactory",
         service = MessageHandlerFactory.class,
-        property = {"subscriber=CommandCallback", "destination=CommandCallback"},
+        property = {"subscriber=" + UsagePointCommandMessageHandlerFactory.SUBSCRIBER_NAME, "destination=CommandCallback"},
         immediate = true)
 public class UsagePointCommandMessageHandlerFactory implements MessageHandlerFactory {
+
+    public static final String SUBSCRIBER_NAME = "CommandCallback";
+    public static final String SUBSCRIBER_DISPLAYNAME = "Handle usage point commands";
 
     private volatile ServiceCallService serviceCallService;
     private volatile JsonService jsonService;

@@ -11,6 +11,9 @@ import org.osgi.service.component.annotations.Component;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.pulse.api.rest.app",
         service = {TranslationKeyProvider.class, ApplicationPrivilegesProvider.class},
@@ -38,6 +41,11 @@ public class PublicRestAppServiceImpl implements TranslationKeyProvider, Applica
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(Privileges.values());
+        return Stream.of(
+                Arrays.stream(Privileges.values()),
+                Arrays.stream(TranslationKeys.values())
+            )
+            .flatMap(Function.identity())
+            .collect(Collectors.toList());
     }
 }
