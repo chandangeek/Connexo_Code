@@ -18,14 +18,12 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
+import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
-import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 
 import com.google.inject.Injector;
-import org.junit.Test;
-import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
 
 import java.time.Instant;
@@ -33,8 +31,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.Test;
+import org.mockito.Matchers;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BasicDataCollectionRuleTemplateTest extends BaseTest {
 
@@ -162,7 +165,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, amrId.toString());
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
-        event.wrap(messageMap, DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE);
+        event.wrap(messageMap, DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE, device);
         return event;
     }
 }
