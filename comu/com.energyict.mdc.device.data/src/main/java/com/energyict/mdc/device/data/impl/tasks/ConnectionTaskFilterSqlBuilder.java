@@ -124,7 +124,8 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
     	SqlBuilder sqlBuilder = dataMapper.builder(connectionTaskAliasName());
         actualBuilder.append(sqlBuilder);
         this.appendJoinedTables();
-        String sqlStartClause = sqlBuilder.getText();
+        // join table due to execution appendLastSessionClause() inside #appendNonStatusWhereClauses()
+        String sqlStartClause = sqlBuilder.getText() + " JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id";
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
         }
