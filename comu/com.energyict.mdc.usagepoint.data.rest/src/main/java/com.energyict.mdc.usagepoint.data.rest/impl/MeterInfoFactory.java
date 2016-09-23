@@ -65,7 +65,7 @@ public class MeterInfoFactory {
     private MeterInfo asInfo(MeterActivation meterActivation) {
         MeterInfo meterInfo = new MeterInfo();
         Meter meter = meterActivation.getMeter().get();
-        Device device = deviceService.findByUniqueMrid(meterActivation.getMeter().get().getMRID()).get();
+        Device device = deviceService.findDeviceByMrid(meterActivation.getMeter().get().getMRID()).get();
         meterInfo.mRID = meter.getMRID();
         meterInfo.serialNumber = device.getSerialNumber();
         meterInfo.deviceType = new IdWithNameInfo(device.getDeviceType().getId(), device.getDeviceType().getName());

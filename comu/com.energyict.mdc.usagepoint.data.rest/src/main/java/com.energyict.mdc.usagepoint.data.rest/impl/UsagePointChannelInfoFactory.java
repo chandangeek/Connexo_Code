@@ -78,7 +78,7 @@ public class UsagePointChannelInfoFactory {
             } else {
                 UsagePointDeviceChannelInfo deviceChannelInfo = new UsagePointDeviceChannelInfo();
                 String mrid = meterActivation.getMeter().get().getMRID();
-                Optional<Device> device = deviceService.findByUniqueMrid(mrid);
+                Optional<Device> device = deviceService.findDeviceByMrid(mrid);
                 if(device.isPresent()) {
                     deviceChannelInfo.mRID = mrid;
                     deviceChannelInfo.from = meterActivation.getStart().toEpochMilli();

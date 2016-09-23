@@ -87,7 +87,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(meter.getState()).thenReturn(Optional.of(deviceState));
         when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getName()).thenReturn("testDT");
-        when(deviceService.findByUniqueMrid("testD")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByMrid("testD")).thenReturn(Optional.of(device));
         doReturn(Collections.singletonList(meterActivation)).when(usagePoint).getMeterActivations();
     }
 
@@ -198,7 +198,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(oldMeterActivation.getEnd()).thenReturn(Instant.ofEpochMilli(1410774620100L));
         when(oldMeterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         Device oldDevice = mock(Device.class);
-        when(deviceService.findByUniqueMrid("testOldDevice")).thenReturn(Optional.of(oldDevice));
+        when(deviceService.findDeviceByMrid("testOldDevice")).thenReturn(Optional.of(oldDevice));
         when(oldDevice.getChannels()).thenReturn(Collections.emptyList());
 
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
