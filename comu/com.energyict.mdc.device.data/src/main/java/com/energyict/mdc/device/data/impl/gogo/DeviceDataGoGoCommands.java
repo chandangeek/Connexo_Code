@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
@@ -56,7 +57,8 @@ import java.util.stream.Collectors;
         property = {"osgi.command.scope=" + DeviceDataServices.COMPONENT_NAME,
                 "osgi.command.function=sendCalendarMessage",
                 "osgi.command.function=enableOutboundCommunication",
-                "osgi.command.function=devices"
+                "osgi.command.function=devices",
+                "osgi.command.function=comTaskExecution"
         }, immediate = true)
 public class DeviceDataGoGoCommands {
 
@@ -65,6 +67,7 @@ public class DeviceDataGoGoCommands {
     private volatile CalendarService calendarService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DeviceService deviceService;
+    private volatile CommunicationTaskService communicationTaskService;
 
     private enum ScheduleFrequency {
         DAILY {
@@ -229,6 +232,11 @@ public class DeviceDataGoGoCommands {
         this.deviceService = deviceService;
     }
 
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
     private static class EnableDailyCommunicationTransaction {
         private final TransactionService transactionService;
         private final List<Device> devices;
@@ -285,5 +293,16 @@ public class DeviceDataGoGoCommands {
             }
         }
 
+    }
+
+    public void comTaskExecution(long id) {
+        String message = communicationTaskService.findComTaskExecution(id)
+                .map(this::description)
+                .orElse("No such ComTaskExecution");
+        System.out.println(message);
+    }
+
+    private String description(ComTaskExecution comTaskExecution) {
+        return "Status : " + comTaskExecution.getStatus();
     }
 }
