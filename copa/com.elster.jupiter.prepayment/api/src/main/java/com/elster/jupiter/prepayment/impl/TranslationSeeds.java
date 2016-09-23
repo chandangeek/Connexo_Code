@@ -14,7 +14,8 @@ public enum TranslationSeeds implements TranslationKey {
     AS_SOON_AS_POSSIBLE("AsSoonAsPossible", "As soon as possible"),
     CALL_BACK_URL("callback", "Callback URL"),
     PROVIDED_RESPONSE("providedResponse", "Provided response"),
-    BREAKER_STATUS("breakerStatus", "Breaker status")
+    BREAKER_STATUS("breakerStatus", "Breaker status"),
+    COMPLETION_OPTIONS_MESSAGE_HANDLER_DISPLAYNAME(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER, CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER_DISPLAYNAME)
     ;
     private String key;
     private final String defaultFormat;
