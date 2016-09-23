@@ -78,6 +78,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                                 },
                                 {
                                     xtype: 'uni-actioncolumn-remove',
+                                    align: 'right',
                                     handler: function (grid, rowIndex) {
                                         grid.getStore().removeAt(rowIndex);
                                         this.up('#dlc-state-edit').showGridsOrMessages();
@@ -152,6 +153,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                                 },
                                 {
                                     xtype: 'uni-actioncolumn-remove',
+                                    align: 'right',
                                     handler: function (grid, rowIndex) {
                                         grid.getStore().removeAt(rowIndex);
                                         this.up('#dlc-state-edit').showGridsOrMessages();
