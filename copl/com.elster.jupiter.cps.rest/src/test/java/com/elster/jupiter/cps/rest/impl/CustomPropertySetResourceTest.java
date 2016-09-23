@@ -68,7 +68,7 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         assertThat(jsonCustomAttributes.get("key")).isEqualTo("customAttribute");
         Map propertyTypeInfo = (Map) jsonCustomAttributes.get("propertyTypeInfo");
         assertThat(propertyTypeInfo.get("type")).isEqualTo("java.math.BigDecimal");
-        assertThat(propertyTypeInfo.get("typeSimpleName")).isEqualTo("BigDecimal");
+        assertThat(propertyTypeInfo.get("typeSimpleName")).isEqualTo("Big decimal");
         assertThat(jsonCustomAttributes.get("required")).isEqualTo(true);
     }
 
