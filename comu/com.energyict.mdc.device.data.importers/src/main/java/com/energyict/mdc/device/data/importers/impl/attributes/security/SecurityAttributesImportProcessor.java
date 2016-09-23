@@ -10,9 +10,9 @@ import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter.PropertiesConverterConfig;
+import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
@@ -33,7 +33,7 @@ public class SecurityAttributesImportProcessor implements FileImportProcessor<Se
 
     @Override
     public void process(SecurityAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
-        Device device = context.getDeviceService().findByUniqueMrid(data.getDeviceMRID())
+        Device device = context.getDeviceService().findDeviceByName(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
         validateSecuritySettingsNameUniquenessInFile(data);
         SecurityPropertySet deviceConfigSecurityPropertySet = device.getDeviceConfiguration().getSecurityPropertySets().stream()

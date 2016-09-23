@@ -24,14 +24,14 @@ public class DeviceShipmentImportProcessor implements FileImportProcessor<Device
 
     @Override
     public void process(DeviceShipmentImportRecord data, FileImportLogger logger) throws ProcessorException {
-        if (this.context.getDeviceService().findByUniqueMrid(data.getDeviceMRID()).isPresent()) {
+        if (this.context.getDeviceService().findDeviceByName(data.getDeviceMRID()).isPresent()) {
             throw new ProcessorException(MessageSeeds.DEVICE_ALREADY_EXISTS, data.getLineNumber(), data.getDeviceMRID());
         }
         DeviceType deviceType = getDeviceTypeOrThrowException(data);
         DeviceConfiguration deviceConfiguration = getDeviceConfigurationOrThrowException(deviceType, data);
         Device device;
         if (!is(data.getBatch()).emptyOrOnlyWhiteSpace()) {
-            device = this.context.getDeviceService().newDevice(deviceConfiguration, data.getDeviceMRID(), data.getDeviceMRID(), data.getBatch(), Instant.now());
+            device = this.context.getDeviceService().newDevice(deviceConfiguration, data.getDeviceMRID(), data.getBatch(), Instant.now());
         } else {
             device = this.context.getDeviceService().newDevice(deviceConfiguration, data.getDeviceMRID(), data.getDeviceMRID(), Instant.now());
         }

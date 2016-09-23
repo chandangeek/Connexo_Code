@@ -114,7 +114,7 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
 
         Device device = mock(Device.class, RETURNS_DEEP_STUBS);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
@@ -145,7 +145,7 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         Device device = mock(Device.class);
         CIMLifecycleDates dates = mock(CIMLifecycleDates.class);
         DeviceValidation validation = mock(DeviceValidation.class);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.COMMISSIONING.getKey());

@@ -113,7 +113,7 @@ public class SecurityAttributesImporterFactoryTest {
         String csv = "Device MRID;Security settings name\n" +
                 "VPB0001;MD5";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
 
         createSecurityAttributesImporter().process(importOccurrence);
 
@@ -282,7 +282,7 @@ public class SecurityAttributesImporterFactoryTest {
     private Device mockDevice(String mRID) {
         Device device = mock(Device.class);
         when(device.getmRID()).thenReturn(mRID);
-        when(deviceService.findByUniqueMrid(mRID)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(mRID)).thenReturn(Optional.of(device));
         return device;
     }
 

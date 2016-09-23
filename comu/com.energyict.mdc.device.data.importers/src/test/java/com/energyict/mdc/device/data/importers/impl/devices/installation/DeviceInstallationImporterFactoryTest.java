@@ -183,14 +183,14 @@ public class DeviceInstallationImporterFactoryTest {
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -253,7 +253,7 @@ public class DeviceInstallationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.empty());
         importer.process(importOccurrence);
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
@@ -269,14 +269,14 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -304,14 +304,14 @@ public class DeviceInstallationImporterFactoryTest {
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -340,11 +340,11 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -368,14 +368,14 @@ public class DeviceInstallationImporterFactoryTest {
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -402,14 +402,14 @@ public class DeviceInstallationImporterFactoryTest {
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -440,14 +440,14 @@ public class DeviceInstallationImporterFactoryTest {
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -479,14 +479,14 @@ public class DeviceInstallationImporterFactoryTest {
 
        Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -518,7 +518,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
@@ -546,14 +546,14 @@ public class DeviceInstallationImporterFactoryTest {
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -582,14 +582,14 @@ public class DeviceInstallationImporterFactoryTest {
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -618,14 +618,14 @@ public class DeviceInstallationImporterFactoryTest {
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -651,7 +651,7 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
@@ -674,7 +674,7 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.ACTIVE.getKey());
@@ -694,7 +694,7 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
@@ -722,7 +722,7 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.INACTIVE.getKey());
@@ -749,14 +749,14 @@ public class DeviceInstallationImporterFactoryTest {
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -799,14 +799,14 @@ public class DeviceInstallationImporterFactoryTest {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(device.getmRID()).thenReturn("VPB0002");
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);

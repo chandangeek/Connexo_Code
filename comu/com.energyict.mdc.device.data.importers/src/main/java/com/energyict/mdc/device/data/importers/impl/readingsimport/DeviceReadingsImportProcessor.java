@@ -35,7 +35,12 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DeviceReadingsImportProcessor implements FileImportProcessor<DeviceReadingsImportRecord> {
@@ -101,7 +106,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
     private void setDevice(DeviceReadingsImportRecord data, FileImportLogger logger) {
         if (device == null || !device.getmRID().equals(data.getDeviceMRID())) {
             complete(logger);//when new mrid comes we store all previous data read
-            device = this.context.getDeviceService().findByUniqueMrid(data.getDeviceMRID())
+            device = this.context.getDeviceService().findDeviceByName(data.getDeviceMRID())
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
         }
         validateDeviceState(data, device);

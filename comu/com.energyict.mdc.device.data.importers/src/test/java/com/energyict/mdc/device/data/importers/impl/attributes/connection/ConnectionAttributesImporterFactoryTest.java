@@ -118,7 +118,7 @@ public class ConnectionAttributesImporterFactoryTest {
         String csv = "Device MRID;Connection method name\n" +
                 "VPB0001;Outbound TCP";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
 
         createConnectionAttributesImporter().process(importOccurrence);
 
@@ -510,7 +510,7 @@ public class ConnectionAttributesImporterFactoryTest {
     private Device mockDevice(String mRID) {
         Device device = mock(Device.class);
         when(device.getmRID()).thenReturn(mRID);
-        when(deviceService.findByUniqueMrid(mRID)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(mRID)).thenReturn(Optional.of(device));
         return device;
     }
 

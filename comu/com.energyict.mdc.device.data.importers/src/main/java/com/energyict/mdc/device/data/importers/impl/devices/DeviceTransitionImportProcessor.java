@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.importers.impl.devices;
 
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
@@ -15,9 +17,6 @@ import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +44,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
 
     @Override
     public void process(T data, FileImportLogger logger) throws ProcessorException {
-        Device device = getContext().getDeviceService().findByUniqueMrid(data.getDeviceMRID())
+        Device device = getContext().getDeviceService().findDeviceByName(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
         beforeTransition(device, data);
         performDeviceTransition(data, device, logger);
@@ -136,7 +135,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
 
     private void processMasterMrid(Device device, T data, FileImportLogger logger) {
         if (data.getMasterDeviceMrid() != null) {
-            Device masterDevice = getContext().getDeviceService().findByUniqueMrid(data.getMasterDeviceMrid())
+            Device masterDevice = getContext().getDeviceService().findDeviceByName(data.getMasterDeviceMrid())
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_MASTER_DEVICE, data.getLineNumber(), data.getMasterDeviceMrid()));
             if (GatewayType.NONE.equals(masterDevice.getConfigurationGatewayType())) {
                 throw new ProcessorException(MessageSeeds.DEVICE_CAN_NOT_BE_MASTER, data.getLineNumber(), masterDevice.getmRID());

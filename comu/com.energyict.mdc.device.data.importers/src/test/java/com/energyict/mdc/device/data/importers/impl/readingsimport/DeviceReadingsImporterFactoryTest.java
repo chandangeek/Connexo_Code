@@ -281,7 +281,7 @@ public class DeviceReadingsImporterFactoryTest {
         String csv = "Device MRID;Reading date;Reading type MRID;Reading Value\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;1005003";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
@@ -828,7 +828,7 @@ public class DeviceReadingsImporterFactoryTest {
         State deviceState = mock(State.class);
         when(deviceState.getName()).thenReturn(state.getKey());
         when(device.getState()).thenReturn(deviceState);
-        when(deviceService.findByUniqueMrid(mRID)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(mRID)).thenReturn(Optional.of(device));
         return device;
     }
 

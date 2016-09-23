@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
@@ -17,10 +20,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.ConnectionType;
-
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -43,7 +42,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
 
     @Override
     public void process(ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
-        Device device = context.getDeviceService().findByUniqueMrid(data.getDeviceMRID())
+        Device device = context.getDeviceService().findDeviceByName(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
         validateConnectionMethodUniquenessInFile(data);
         Optional<ConnectionTask<?, ?>> connectionTask = device.getConnectionTasks().stream()

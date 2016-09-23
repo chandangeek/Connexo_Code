@@ -101,14 +101,14 @@ public class DeviceShipmentImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
 
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.of(deviceType));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         Device device = mock(Device.class);
-        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class))).thenReturn(device);
+        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class))).thenReturn(device);
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(device.getLifecycleDates()).thenReturn(lifecycleDates);
         Batch batch = mock(Batch.class);
@@ -179,7 +179,7 @@ public class DeviceShipmentImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
 
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.empty());
 
         importer.process(importOccurrence);
@@ -196,7 +196,7 @@ public class DeviceShipmentImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
 
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(Collections.<DeviceConfiguration>emptyList());
@@ -214,14 +214,14 @@ public class DeviceShipmentImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
 
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.of(deviceType));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         doThrow(new RuntimeException("Error!")).when(deviceService)
-                .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class));
+                .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("batch"), any(Instant.class));
 
         importer.process(importOccurrence);
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
@@ -238,7 +238,7 @@ public class DeviceShipmentImporterFactoryTest {
         FileImporter importer = createDeviceShipmentImporter();
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.of(device));
 
         importer.process(importOccurrence);
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
