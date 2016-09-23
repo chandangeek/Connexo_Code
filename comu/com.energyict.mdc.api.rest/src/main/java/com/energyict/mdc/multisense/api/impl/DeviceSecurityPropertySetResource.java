@@ -77,7 +77,7 @@ public class DeviceSecurityPropertySetResource {
     @Path("/{securityPropertySetId}")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public DeviceSecurityPropertySetInfo getDeviceSecurityPropertySet(@PathParam("mrid") String mrid, @PathParam("securityPropertySetId") long deviceSecurityPropertySetId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mrid)
+        Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityPropertySet securityPropertySet = device.getDeviceConfiguration().getSecurityPropertySets().stream()
                 .filter(sps -> sps.getId() == deviceSecurityPropertySetId)
@@ -108,7 +108,7 @@ public class DeviceSecurityPropertySetResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public PagedInfoList<DeviceSecurityPropertySetInfo> getDeviceSecurityPropertySets(@PathParam("mrid") String mrid, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = deviceService.findByUniqueMrid(mrid)
+        Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         List<DeviceSecurityPropertySetInfo> infos = device.getDeviceConfiguration().getSecurityPropertySets().stream()
                 .sorted(Comparator.comparing(SecurityPropertySet::getName))

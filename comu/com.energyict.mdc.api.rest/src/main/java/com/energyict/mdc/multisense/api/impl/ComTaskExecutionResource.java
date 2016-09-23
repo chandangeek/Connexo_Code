@@ -71,7 +71,7 @@ public class ComTaskExecutionResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public ComTaskExecutionInfo getComTaskExecution(@PathParam("mrid") String mRID, @PathParam("comTaskExecutionId") long comTaskExecutionId,
                                                     @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-         return deviceService.findByUniqueMrid(mRID)
+        return deviceService.findDeviceByMrid(mRID)
                  .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
                  .getComTaskExecutions().stream()
                  .filter(comTaskExecution -> comTaskExecution.getId()==comTaskExecutionId)
@@ -98,7 +98,7 @@ public class ComTaskExecutionResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<ComTaskExecutionInfo> getComTaskExecutions(@PathParam("mrid") String mRID, @BeanParam FieldSelection fieldSelection,
                                                                     @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-        List<ComTaskExecutionInfo> infoList = deviceService.findByUniqueMrid(mRID)
+        List<ComTaskExecutionInfo> infoList = deviceService.findDeviceByMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
                 .getComTaskExecutions().stream()
                 .map(cte -> comTaskExecutionInfoFactory.from(cte, uriInfo, fieldSelection.getFields()))
@@ -129,7 +129,6 @@ public class ComTaskExecutionResource {
         if (comTaskExecutionInfo.device == null || comTaskExecutionInfo.device.version == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device");
         }
-
         Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, comTaskExecutionInfo.device.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         ComTaskExecution comTaskExecution = comTaskExecutionInfo.type.createComTaskExecution(comTaskExecutionInfoFactory, comTaskExecutionInfo, device);
@@ -200,7 +199,7 @@ public class ComTaskExecutionResource {
     @Path("/{comTaskExecutionId}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response deleteComTaskExecution(@PathParam("mrid") String mrid, @PathParam("comTaskExecutionId") long comTaskExecutionid) {
-        Device device = deviceService.findByUniqueMrid(mrid)
+        Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getId() == comTaskExecutionid)

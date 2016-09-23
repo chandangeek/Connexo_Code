@@ -237,7 +237,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
         when(mock.getBatch()).thenReturn(Optional.of(batch));
         when(topologyService.getPhysicalGateway(mock)).thenReturn(Optional.empty());
-        when(deviceService.findByUniqueMrid(mrid)).thenReturn(Optional.of(mock));
+        when(deviceService.findDeviceByMrid(mrid)).thenReturn(Optional.of(mock));
         when(deviceService.findAndLockDeviceByIdAndVersion(deviceId, version)).thenReturn(Optional.of(mock));
         when(deviceService.findAndLockDeviceByIdAndVersion(eq(deviceId), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mrid), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());

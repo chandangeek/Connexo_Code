@@ -82,8 +82,7 @@ public class DeviceLifecycleActionResource {
                                          @PathParam("actionId") long actionId,
                                          @Context UriInfo uriInfo,
                                          @BeanParam FieldSelection fieldSelection) {
-
-        Device device = deviceService.findByUniqueMrid(mRID)
+        Device device = deviceService.findDeviceByMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         ExecutableAction executableAction = getExecutableActionByIdOrThrowException(actionId, device);
         return deviceLifecycleActionInfoFactory.createDeviceLifecycleActionInfo(device, (AuthorizedTransitionAction) executableAction.getAction(), uriInfo, fieldSelection.getFields());
@@ -108,7 +107,7 @@ public class DeviceLifecycleActionResource {
                                                     @BeanParam FieldSelection fieldSelection,
                                                     @Context UriInfo uriInfo,
                                                     @BeanParam JsonQueryParameters queryParameters) {
-        Device device = deviceService.findByUniqueMrid(mRID)
+        Device device = deviceService.findDeviceByMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         List<LifeCycleActionInfo> infos = deviceLifeCycleService.getExecutableActions(device).stream().
                 map(ExecutableAction::getAction).
@@ -150,7 +149,7 @@ public class DeviceLifecycleActionResource {
         if (info.device == null || info.device.version == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device");
         }
-        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        Device device = deviceService.findDeviceByMrid(mrid).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.device.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.CONFLICT_ON_DEVICE));
         ExecutableAction requestedAction = getExecutableActionByIdOrThrowException(actionId, device);

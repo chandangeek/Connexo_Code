@@ -73,7 +73,7 @@ public class DeviceContactorResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        Device device = deviceService.findDeviceByMrid(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessageId deviceMessageId = getMessageId(contactorInfo);
         ComTaskEnablement comTaskEnablement = getComTaskEnablementForDeviceMessage(device, deviceMessageId);
         Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()

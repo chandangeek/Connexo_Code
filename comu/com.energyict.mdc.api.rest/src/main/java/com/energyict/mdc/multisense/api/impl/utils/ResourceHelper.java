@@ -3,7 +3,6 @@ package com.energyict.mdc.multisense.api.impl.utils;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.multisense.api.impl.ConnectionTaskInfo;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
@@ -30,7 +29,7 @@ public class ResourceHelper {
 
     public Device findDeviceByMrIdOrThrowException(String mrid) {
         return deviceService
-                .findByUniqueMrid(mrid)
+                .findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
     }
 

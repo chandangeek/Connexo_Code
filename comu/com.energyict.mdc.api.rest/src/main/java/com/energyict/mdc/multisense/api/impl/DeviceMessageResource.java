@@ -96,7 +96,7 @@ public class DeviceMessageResource {
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public DeviceMessageInfo getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
                                               @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(exceptionFactory
+        Device device = deviceService.findDeviceByMrid(mRID).orElseThrow(exceptionFactory
                 .newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
@@ -139,8 +139,7 @@ public class DeviceMessageResource {
     public PagedInfoList<DeviceMessageInfo> getDeviceMessages(@PathParam("mrid") String mRID,
                                                               @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo,
                                                               @BeanParam JsonQueryParameters queryParameters) {
-
-        List<DeviceMessageInfo> infos = deviceService.findByUniqueMrid(mRID)
+        List<DeviceMessageInfo> infos = deviceService.findDeviceByMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
                 .getMessages().stream()
                 .map(ct -> deviceMessageInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -276,7 +275,7 @@ public class DeviceMessageResource {
     @Path("/{messageId}")
     public DeviceMessageInfo deleteDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
                                                  @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mRID)
+        Device device = deviceService.findDeviceByMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
