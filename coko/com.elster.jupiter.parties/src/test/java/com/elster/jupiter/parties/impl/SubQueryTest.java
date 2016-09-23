@@ -24,7 +24,6 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -112,7 +111,7 @@ public class SubQueryTest {
             context.commit();
         }
         Subquery subquery = dataModel.query(Party.class, PartyInRole.class)
-                .asSubquery(Where.where("aliasName").isEqualTo("Melrose Place"), new String[]{"partyInRoles.role"}, Order.NOORDER);
+                .asSubquery(Where.where("aliasName").isEqualTo("Melrose Place"), "partyInRoles.role");
         QueryExecutor<PartyRole> query = dataModel.query(PartyRole.class);
         assertThat(query.select(ListOperator.IN.contains(subquery, "mRID"))).hasSize(1);
     }
