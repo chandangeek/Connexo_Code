@@ -1,0 +1,231 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Service calls, service call types and life cycle</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Service calls.fm" />
+ <link rel="stylesheet" href="000017_UMNL_Service_calls.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "20.1";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Service_calls/Service_calls.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Service_calls/Monitoring_service_calls.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H2Section"><span class="FM_change_bar">Service calls, service call types and life cycle</span></p>
+ 
+ <p class="FM_H3SectionTopic"><a name="TOC_Understand_service_calls"></a><span class="FM_change_bar">Understand service calls</span></p>
+ <p class="FM_H4Topic"><span class="FM_change_bar">What is a service call?</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Service calls are used if responsibility for executing an action is passed to an external system like a billing system or an MDM. They allow you to track the status and progress of actions requested by third party systems through web services, api, importers, processes, etc. on different objects in Connexo such as devices and usage points.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Using service calls the operator can see what changed on an object and where the action originates from. All of this information enables the operator to investigate what is happening and to intervene if necessary.</span></p>
+ <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Service calls are a tracking mechanism and do not do any actions by themselves. The actual service is handled by the requester, i.e. the third party system. The service call functions as a tag.</span></p>
+ <p class="FM_H4Topic"><span class="FM_change_bar">Possible scenarios for a service call</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">These scenarios will mostly be executed by meter operators or data experts.</span></p>
+ <p class="FM_BoldBody" style="margin-top  : 5.000pt; margin-bottom : 5.000pt; font-family : Marvel; font-size  : 15.0pt; color   : #1f7e9e;"><span class="FM_TopicSection">Debugging</span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">To investigate an unexpected configuration change on a device, view the service call actions from the corresponding device landing page and find out if:</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">an unexpected requester has done a configuration change or,</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">an expected requester has done an unexpected configuration change.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">To investigate why a reading request on a device did not succeed, find the detail of the reading request action in the device’s service call overview and analyse its log data.</span></p>
+</li>
+ </ul>
+ <p class="FM_BoldBody" style="margin-top  : 5.000pt; margin-bottom : 5.000pt; font-family : Marvel; font-size  : 15.0pt; color   : #1f7e9e;"><span class="FM_TopicSection">Track status</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Every month an external system (e.g. SAP) can request data for a number of devices for a given time frame. Connexo will check data availability and return data if available. If not, Connexo checks if the data is expected to come in. If yes, the service call state becomes </span><span class="FM_UIRef">WAITING</span><span class="FM_change_bar">. Connexo will check every day for service calls that are in WAITING mode if the corresponding data has arrived. If so, the data is returned to the SAP system.</span></p>
+ <p class="FM_BoldBody" style="margin-top  : 5.000pt; margin-bottom : 5.000pt; font-family : Marvel; font-size  : 15.0pt; color   : #1f7e9e;"><span class="FM_TopicSection">Follow up actions on an object</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">An external system triggered an asynchronous configuration change on a device. View the service call actions overview from the corresponding device landing page and find out if the action has been executed.</span></p>
+ <p class="FM_BoldBody" style="margin-top  : 5.000pt; margin-bottom : 5.000pt; font-family : Marvel; font-size  : 15.0pt; color   : #1f7e9e;"><span class="FM_TopicSection">Follow up bulk actions involving multiple objects</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">To investigate a disconnect on multiple devices, navigate to the relevant disconnect actions and verify progress of each of the disconnect actions.</span></p>
+ <p class="FM_H4Topic"><span class="FM_change_bar"><a name="XREF_86140_What_is_a_service"></a>Understand service call types</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">In Connexo third party system create service calls through the service call framework. This framework requires service call types to allow following up the incoming requests. Service calls are always associated with a service call type.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Each service call type has some mandatory properties such as a unique type name, a version and a log level. On top of that, each service call type has an associated service call type life cycle (See </span><a href="#XREF_30356_What_is_the"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Understand service call type life cycles</span><span class="FM_blue_crossreference">”</span></a><span class="FM_change_bar">). The same service call type life cycle can be associated with multiple service call types. A service call is always in a certain state.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">The properties of a service call are defined on a per-service call basis. For example, a service call created from a web service to disconnect a meter will need other properties than a service call created from a web service to collect meter data. The service call type links the service call handler to the correct custom property sets.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Service call types are installed by your service &amp; delivery team and cannot be changed after creation. </span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Service call types can be viewed in Connexo Admin. </span></p>
+ <p class="FM_H4Topic"><span class="FM_change_bar"><a name="XREF_30356_What_is_the"></a>Understand service call type life cycles</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">A service call is always in a certain state, this is the current state. States are managed through a finite state machine. So, each service call is in only 1 state simultaneously. It can change from 1 state to another when initiated by a triggering event or a condition. This is called a transition. The service call type life cycle is defined by a list of its states and the triggering conditions for each transition.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">The service call type life cycle is named and defined in the service call type which is installed by your service &amp; delivery team. In order to limit existing life cycle diagrams, it is possible to have states and transitions removed from the life cycle but not added. </span></p>
+ <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
+ <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">The following restrictions to adjusting service call type life cycles apply. </span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">The states </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Created</span><span class="FM_change_bar">, </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Pending</span><span class="FM_change_bar">, </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Ongoing</span><span class="FM_change_bar">, </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Successful</span><span class="FM_change_bar">&#160;and </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Failed</span><span class="FM_change_bar">&#160;are essential and must always be part of the subset of states.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">There is always a path from the initial state (</span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Created</span><span class="FM_change_bar">) to the end state (</span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Successful</span><span class="FM_change_bar">).</span></p>
+</li>
+ </ul>
+ <p class="FM_Body"><span class="FM_change_bar">The following states are available by default:</span></p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellHeading">State</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">CREATED</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Initial default state.</p>
+</td>
+</tr>
+  <tr style=" height : 73.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">REJECTED</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">For example, if the incoming web service could not be started because of errors, lacking privileges, etc. The actual rejection reason can be found in the service call log. This logging information can be found on the service call landing page. See <a href="View_service_calls.htm#XREF_21494_View_service_calls"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">View service calls</span><span class="FM_blue_crossreference">”</span></a>.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">PENDING</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">When the task has been cleared but has not yet started.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">ONGOING</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The web service has started and is currently active.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">PAUSED</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The web service has been started but is currently not progressing on the service request because it has been paused.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">WAITING</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The web service has been started but is currently not progressing because it is waiting on another process to finish.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">SCHEDULED</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The web service has been started but is currently not pogressing because it has been scheduled to run on a later date.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">CANCELLED</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The web service has been cancelled and no further progress is made by the web service.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">SUCCESSFUL</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The web service has successfully completed its task(s).</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">PARTIAL SUCCESS</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The web service has completed all tasks but not all of them were successful. For example, in the case of a bulk action, some subtasks may have failed.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">FAILED</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The web service has finished but was unsuccessful in completing the task in its entirety. </p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_Body"></p>
+
+ <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
+  <caption class="FM_CGraphic" align="bottom">Figure: Service call type life cycle - Example</caption>
+  <tr style=" height : 284.75pt;">
+  <td style="width : 351.496pt; vertical-align : top;padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+  <p class="FM_CGraphicCell"><img alt="Service_call_status_diagram.png" style=" margin-bottom:0.000pt; width:100%; max-width:634px;" id="image0" src="Service_call_status_diagram.png" />&nbsp;</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_Body"></p>
+ </body>
+</html>

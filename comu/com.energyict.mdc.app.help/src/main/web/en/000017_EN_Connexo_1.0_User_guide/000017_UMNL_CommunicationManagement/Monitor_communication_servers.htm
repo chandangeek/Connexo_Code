@@ -1,0 +1,270 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Monitor communication servers</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_CommunicationManagement.fm" />
+ <link rel="stylesheet" href="000017_UMNL_CommunicationManagement.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "2.1_1";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_CommunicationManagement/Configure_communication_port_pools.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Device_configuration.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H2Section"><a name="XREF_76095_2_2_Monitor"></a>Monitor communication servers</p>
+ <p class="FM_H4Topic"><a name="XREF_19695_Monitor_a"></a><span class="FM_change_bar">Monitor a communication server</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">You can monitor status, performance and multiple loggings for each communication server using the communication server monitor. The displayed information is real-time and automatically refreshed. It is used to detect and investigate problems and to find a corresponding solution. The communication server cannot be used to change communication &#160;or communication server settings in Connexo.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Examples:</span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">At installation or migration, use the communication server monitor to check general polling and running information. Check if all needed ports are able to communicate.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">For performance tuning, check the load, threads in communication ports and communication port pools.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">To troubleshoot a device that has problems communicating, use the trace log level to check the real time of the device after scheduling an ad hoc communication task on that device.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">For testing protocols you can put the log level on </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Trace</span><span class="FM_change_bar">&#160;to see the hexadecimal and binary notation.</span></p>
+</li>
+ </ul>
+ <p class="FM_Body">&nbsp;</p>
+ <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
+ <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">To use the communication server monitor on a device different from that on which the communication server is running, you will need to configure this. By default you are always able to monitor the communication server on the device it is running. See </span><a href="Configure_communication_servers.htm#XREF_64120_Add_an_online"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Add an online communication server”</span></a><span class="FM_change_bar"> for more information.</span></p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Administration</span><span class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Device communication</span><span class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Communication servers</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Select the desired communication server.</span></p>
+ <p class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the actions icon <img alt="masterActions00013.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image14" src="masterActions00013.png" />&#160;and select </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Monitor</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">The communication server monitor opens in a new tab and shows status, performance and logging information for the current communication server.</span></p>
+ <p class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">The </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Status</span><span class="FM_change_bar">&#160;tab is open by default. </span></p>
+ <p class="FM_ListNumber2">a. <span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;</span><span class="FM_change_bar">Monitor polling information of the communication server. It shows you when to expect the communication server to do its task or apply the requested changes. The following information is shown.</span></p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">Changes inter poll delay</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Frequency to apply changes made in the communication server configuration, e.g. name change, changing number of threads, etc. The date and time between brackets indicate the next run of the changes inter poll delay, i.e. when the changes will be applied.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">Scheduling inter poll delay</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Frequency to look for new communication tasks that must be executed.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber2"><span class="FM_change_bar">&#160;&#160;</span></p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey"><span class="FM_change_bar">When the values of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; color   : #686868; ">Changes inter poll delay </span><span class="FM_change_bar">and/or S</span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; color   : #686868; ">cheduling inter poll delay</span><span class="FM_change_bar">&#160;of the communication server are edited and saved in Connexo, they are updated in the communication server monitor after the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; color   : #686868; ">Changes inter poll delay </span><span class="FM_change_bar">has expired.</span></p>
+ <p class="FM_ListNumber2">b. <span class="FM_change_bar">Monitor running information of the communication server. It shows if the communication server is still working efficiently. The following information is shown.</span></p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Total amount of events</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">All published events since the communication server has been started.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Memory usage</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Shows memory in use compared to the maximum heap space.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber2"></p>
+ <p class="FM_ListNumber2">c. <span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;</span><span class="FM_change_bar">Monitor communication ports on a communication server to see what communication ports don’t communicate. <span style="font-family:Times New Roman; font-size:7.0pt">&nbsp;&nbsp;&nbsp;</span></span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">Two lists of communication ports are shown: </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Ports in use</span><span class="FM_change_bar">&#160;and </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Inactive ports</span><span class="FM_change_bar">.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">An icon in front of each port indicates whether it concerns an inbound or an outbound communication port.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">You can click a communication port to see its a logging information in a new tab.</span></p>
+</li>
+ </ul>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey"><span class="FM_change_bar">A communication port is inactive when there is no communication on that communication port. It is possible that a communication port that is marked active in Connexo appears in the inactive list in the communication server monitor. Ports that are marked as deactivated in Connexo always appear in the inactive list.</span></p>
+ <p class="FM_ListNumber2">d. <span class="FM_change_bar">Monitor communication port pools on a communication server to see which port pools are communicating and which not.</span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">Two lists of communication port pools are shown: </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Pools in use</span><span class="FM_change_bar">&#160;and </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Pools not in use</span><span class="FM_change_bar">.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">An icon in front of each port indicates whether it concerns an inbound or an outbound communication port.</span></p>
+</li>
+ </ul>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey"><span class="FM_change_bar">A communication port pool is inactive if all communication ports in that pool are inactive. A communication port is inactive when there is no communication on that communication port. It is possible that a communication port that is marked active in Connexo appears in the inactive list in the communication server monitor. Ports that are marked as deactivated in Connexo always appear in the inactive list.</span></p>
+ <p class="FM_ListNumber2">e. <span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;</span><span class="FM_change_bar">Refresh communication server status information to follow up on changes over time and intervene if necessary.</span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">Check the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Auto refresh every</span><span class="FM_change_bar">&#160;checkbox in the upper right corner to refresh the status information automatically. If not checked, you have to refresh the page manually.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">Select the refresh frequency. It can be every 1, 2, 5 or 10 minutes.</span></p>
+</li>
+ </ul>
+ <p class="FM_ListNumber1">5. &#160; <span class="FM_change_bar">Click the tab </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Performance</span><span class="FM_change_bar"> to monitor performance of the communication server.</span></p>
+ <p class="FM_ListNumber2">a. <span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;</span><span class="FM_change_bar">Data storage: See when the load becomes too high. Data storage performance is shown by three time series on a line chart: </span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">The capacity of the collected data processor.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">The amount of data storage threads.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">The load in percentage.</span></p>
+</li>
+ </ul>
+ <p class="FM_Body" style="margin-left : 39.685pt; text-indent : 0.000pt;"><span class="FM_change_bar">The graph is updated every minute. After each update a new dot appears on the graph. You can also refresh manually by clicking </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Refresh</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_Body" style="margin-left : 39.685pt; text-indent : 0.000pt;"><span class="FM_change_bar">When first opening the performance tab, the graph is empty and starts at the 5 minute rounded current time. Then, the one minute refresh interval starts.</span></p>
+ <p class="FM_Body" style="margin-left : 39.685pt; text-indent : 0.000pt;"><span class="FM_change_bar">After an hour the graph shows the latest hour.</span></p>
+ <p class="FM_Body" style="margin-left : 39.685pt; text-indent : 0.000pt;"><span class="FM_change_bar">When you go to another tab the graph will keep updating. </span></p>
+ <p class="FM_Body" style="margin-left : 39.685pt; text-indent : 0.000pt;"><span class="FM_change_bar">When the communication server monitor is closed, the graph is reset.</span></p>
+ <p class="FM_ListNumber2">b. <span class="FM_change_bar">View performance of outbound communication ports. You may need to intervene when too many threads are in use on a communication port because tasks will not be finished efficiently. The information is presented in a pie chart with:</span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">The threads that are in use.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">The threads that are not in use.</span></p>
+</li>
+ </ul>
+ <p class="FM_ListNumber2">c. <span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;</span><span class="FM_change_bar">View performance of communication port pools. You may need to intervene when there are too many threads in a communication port pool with only a few communication ports. The information is shown in two bar charts showing:</span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">Number of threads in the communication port pools.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">Number of communication ports in the communication port pools.</span></p>
+</li>
+ </ul>
+ <p class="FM_ListNumber1">6. &#160; <span class="FM_change_bar">Click the tab </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Logging</span><span class="FM_change_bar"> to consult live logging information for that communication server.</span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">The logging is shown in a new tab.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">You can select a log level: </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Trace</span><span class="FM_change_bar">, </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Debug</span><span class="FM_change_bar">, </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Info</span><span class="FM_change_bar">, </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Warning</span><span class="FM_change_bar">, </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Error</span><span class="FM_change_bar">.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">New log lines appear under the previous one.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">You can stop the logging if you found an interesting fragment. Note that the logging will be completely halted. Clicking </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Start logging</span><span class="FM_change_bar">&#160;will start logging again from the moment of clicking. So, there will be no logging information for the time during these two clicks.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">Logging is not kept in memory after stopping the logging. </span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">It is possible to save the logging information into a text file by clicking </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Save logging</span><span class="FM_change_bar">.</span></p>
+</li>
+ </ul>
+ <p class="FM_ListNumber2">a. <span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;</span><span class="FM_change_bar">Communication server logging - General: Detect and solve problems with updates on the communication server and database or network connection errors.</span></p>
+ <p class="FM_ListNumber2">b. <span class="FM_change_bar">Communication server logging - Data storage. This information comes from the data storage threads in Connexo MultiSense.</span></p>
+ <p class="FM_ListNumber2">c. <span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;</span><span class="FM_change_bar">Communication logging - Monitor the inbound and outbound communication of a specific device or port.</span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">Enter the one or more device MRID’s or communication port names. Separate multiple values in the same field by a comma.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">If log level is </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Trace</span><span class="FM_change_bar">, you see three log fields, i.e. one for the protocol logging and two for the communication tracing. Other log levels show only the protocol logging.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">You can hide the communication tracing by clicking the down arrow in the blue bar. Th communication tracing shows binary and hexadecimal information.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet2"><span class="FM_change_bar">In case of a concentrator, you will see the logging of that concentrator and of its slaves.</span></p>
+</li>
+ </ul>
+ <p class="FM_H4Topic"><span class="FM_change_bar" style="font-family : Lato Light; font-weight : normal; font-size  : 11.0pt; color   : #686868; ">In case of a slave device, you will only see the logging of that slave device and not the logging of its concentrator.</span></p>
+</body>
+</html>

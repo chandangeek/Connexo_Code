@@ -1251,6 +1251,42 @@ p.FM_BodyProcedure {
                     letter-spacing:0.00em;
 
 }
+p.FM_DropDownBodyLetters {
+        margin-left:     31.181pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     -8.504pt;
+        margin-top:      4.000pt;
+        margin-bottom:   7.000pt;
+        word-spacing:    0.250em;
+        font-family:     Lato Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
+caption.FM_DropDownBodyLetters {
+        margin-left:     31.181pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     -8.504pt;
+        margin-top:      4.000pt;
+        margin-bottom:   7.000pt;
+        word-spacing:    0.250em;
+        font-family:     Lato Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
 p.FM_Volume {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -2001,6 +2037,42 @@ caption.FM_COTitleProduct {
 		letter-spacing:  0.01em;
         
 }
+p.FM_COApplication {
+        margin-left:     0.000pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     0.000pt;
+        margin-top:      33.000pt;
+        margin-bottom:   15.000pt;
+        word-spacing:    0.250em;
+        font-family:     Open Sans Condensed Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       24.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
+caption.FM_COApplication {
+        margin-left:     0.000pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     0.000pt;
+        margin-top:      33.000pt;
+        margin-bottom:   15.000pt;
+        word-spacing:    0.250em;
+        font-family:     Open Sans Condensed Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       24.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
 p.FM_CellBodyParameter {
         margin-left:     8.504pt;
         margin-right:    0.000pt;
@@ -2536,11 +2608,11 @@ p.FM_ListNumber2 {
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato;
+        font-family:     Lato Light;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #000000;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -2554,11 +2626,11 @@ caption.FM_ListNumber2 {
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato;
+        font-family:     Lato Light;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #000000;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -3754,7 +3826,7 @@ p.FM_H1Chapter {
         font-style:      normal;
         font-weight:     normal;
         font-size:       30.0pt;
-        color:           #00699e;
+        color:           #1f7e9e;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -3772,7 +3844,7 @@ caption.FM_H1Chapter {
         font-style:      normal;
         font-weight:     normal;
         font-size:       30.0pt;
-        color:           #00699e;
+        color:           #1f7e9e;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;

@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Secure communication</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_DeviceCommunication.fm" />
+ <link rel="stylesheet" href="000017_UMNL_DeviceCommunication.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "5.3";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Configure_communication_tasks_on_devices.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Configure_security_setting_configurations.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H2Section">Secure communication</p>
+ 
+ <p class="FM_H3SectionTopic"><a name="TOC_Understand_secure"></a><a name="XREF_22020_Understand_secure"></a>Understand secure communication</p>
+ <p class="FM_Body">To guarantee that the data to and from the devices remains secure, certain measures have to be taken. In <uservariable x-value="Connexo MultiSense" x-showvalue="TRUE" name="Product_name" x-format="Product_name">Connexo MultiSense</uservariable>&#160;this is accomplished via the use of security settings. Security settings consist out of all security properties to communicate with a device such as authentication and encryption. Authentication ensures that both ends of the connection are secure while encryption ensures that the information within a session is not compromised.</p>
+ <p class="FM_Body">In Connexo <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>&#160;the system administrator adds privileges to different user roles. These define what a user is allowed to do within the different parts of the applications. These privileges are further divided in levels. With these levels you can group user roles. For example level 1 can be used for people working with electricity meters while level 2 is used for people working with gas meters.</p>
+ <p class="FM_Body">In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;you can then link these privileges to the security settings configured on the device configuration. This will define what different users can do on a device. For security settings the following scenarios are possible:</p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet1"> No privileges:</p>
+</li>
+  <li>
+  <p class="FM_ListBullet2">A user that has no privileges will not see the different security attributes of the selected security set.</p>
+</li>
+  <li>
+  <p class="FM_ListBullet2">All action buttons are disabled.</p>
+</li>
+  <li>
+  <p class="FM_ListBullet1">Only view privileges:</p>
+</li>
+  <li>
+  <p class="FM_ListBullet2">The names of the different security attributes of the selected security set are shown. Values are encrypted and shown as ********, if the value is not empty.</p>
+</li>
+  <li>
+  <p class="FM_ListBullet2">All action buttons are disabled.</p>
+</li>
+  <li>
+  <p class="FM_ListBullet1">Only edit privileges:</p>
+</li>
+  <li>
+  <p class="FM_ListBullet2">The names of the different security attributes of the selected security set are shown. Values are encrypted and shown as ********, if the value is not empty.</p>
+</li>
+  <li>
+  <p class="FM_ListBullet2">All action buttons are enabled and it is possible to edit values.</p>
+</li>
+  <li>
+  <p class="FM_ListBullet1">View and edit privileges:</p>
+</li>
+  <li>
+  <p class="FM_ListBullet2">The names of the different security attributes of the selected security set are shown. Values are encrypted and shown as ********, if the value is not empty.</p>
+</li>
+  <li>
+  <p class="FM_ListBullet2">All action buttons are enabled and it is possible to edit values and show or hide the value.</p>
+</li>
+ </ul>
+ <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
+  <caption class="FM_CGraphic" align="bottom">Figure: Priviliges in Connexo</caption>
+  <tr style=" height : 204.80pt;">
+  <td style="width : 351.496pt; vertical-align : top;padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+  <p class="FM_CGraphicCell"><img alt="Connexo-privileges.png" style=" margin-bottom:0.000pt; width:100%; max-width:552px;" id="image17" src="Connexo-privileges.png" />&nbsp;</p>
+</td>
+</tr>
+ </table>
+
+ </body>
+</html>

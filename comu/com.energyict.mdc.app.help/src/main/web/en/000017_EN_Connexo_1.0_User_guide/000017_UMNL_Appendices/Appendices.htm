@@ -1,0 +1,562 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Appendices</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Appendices.fm" />
+ <link rel="stylesheet" href="000017_UMNL_Appendices.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "22";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Find_data/Perform_bulk_actions_on_search_results_for_devices.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Appendices/Interval_flags_mapped_to_CIM_reading_qualities.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H1Chapter">Appendices</p>
+ 
+ <p class="FM_H3SectionTopic"><a name="TOC_Calendar_format"></a>Calendar format</p>
+ <p class="FM_H4Topic">Time of use calendar format</p>
+ <p class="FM_Body">When you import a time of use calendar in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;the XML file should have the following format:</p>
+ <p class="FM_BodyGrey">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</p>
+ <p class="FM_BodyGrey" style="text-align  : left;">&lt;xs:schema xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; elementFormDefault=&quot;qualified&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;calendar&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;content-version&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;name&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;category&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;mRID&quot; minOccurs=&quot;0&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;description&quot; minOccurs=&quot;0&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;timezone&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;start-year&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;events&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;day-types&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;periods&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;exceptions&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:any minOccurs=&quot;0&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;content-version&quot; type=&quot;xs:NMTOKEN&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;category&quot; type=&quot;xs:NCName&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;mRID&quot; type=&quot;xs:NCName&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;description&quot; type=&quot;xs:string&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;timezone&quot; type=&quot;xs:string&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;start-year&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;events&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element maxOccurs=&quot;unbounded&quot; ref=&quot;event&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;day-types&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element maxOccurs=&quot;unbounded&quot; ref=&quot;day-type&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;day-type&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;id&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;name&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;ranges&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:any minOccurs=&quot;0&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;ranges&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element maxOccurs=&quot;unbounded&quot; ref=&quot;range-time&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;range-time&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;from&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element name=&quot;event&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;from&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;hour&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;minute&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;second&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;hour&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;minute&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;second&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;periods&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element maxOccurs=&quot;unbounded&quot; ref=&quot;period&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;transitions&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;period&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;id&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;name&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;week-template&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:any minOccurs=&quot;0&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;week-template&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;monday&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;tuesday&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;wednesday&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;thursday&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;friday&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;saturday&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;sunday&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;monday&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:attribute name=&quot;day-type&quot; use=&quot;required&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;tuesday&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:attribute name=&quot;day-type&quot; use=&quot;required&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;wednesday&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:attribute name=&quot;day-type&quot; use=&quot;required&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;thursday&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:attribute name=&quot;day-type&quot; use=&quot;required&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;friday&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:attribute name=&quot;day-type&quot; use=&quot;required&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;saturday&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:attribute name=&quot;day-type&quot; use=&quot;required&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;sunday&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:attribute name=&quot;day-type&quot; use=&quot;required&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;transitions&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element maxOccurs=&quot;unbounded&quot; ref=&quot;transition&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:attribute name=&quot;recurring&quot; use=&quot;required&quot; type=&quot;xs:boolean&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;transition&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;to-period&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;year&quot; minOccurs=&quot;0&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;month&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;day&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;to-period&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;exceptions&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element minOccurs=&quot;0&quot; maxOccurs=&quot;unbounded&quot; ref=&quot;exception&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;exception&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;occurrences&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:attribute name=&quot;day-type&quot; use=&quot;required&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;occurrences&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:choice maxOccurs=&quot;unbounded&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;fixed-occurrence&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;recurring-occurrence&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:choice&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;recurring-occurrence&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;month&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;day&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;name&quot; type=&quot;xs:string&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;event&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType mixed=&quot;true&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;id&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;name&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;code&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:any minOccurs=&quot;0&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;code&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;id&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;month&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;day&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;fixed-occurrence&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element minOccurs=&quot;0&quot; ref=&quot;fixed-occurrence&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:sequence minOccurs=&quot;0&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;day&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;month&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;xs:element ref=&quot;year&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&lt;/xs:sequence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/xs:complexType&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;/xs:element&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&lt;xs:element name=&quot;year&quot; type=&quot;xs:integer&quot;/&gt;</p>
+ <p class="FM_BodyGrey">&lt;/xs:schema&gt;</p>
+ <p class="FM_H4Topic">Time of use calendar example</p>
+ <p class="FM_Body">Below you can find an example of an XML file of a time of use calendar. This complies to the scheme discussed above.</p>
+ <p class="FM_BodyGrey">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</p>
+ <p class="FM_BodyGrey">&lt;calendar&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;content-version&gt;1.0.0&lt;/content-version&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;name&gt;Residential TOU Example&lt;/name&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;category&gt;TOU&lt;/category&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;mRID&gt;optional&lt;/mRID&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;description&gt;Example calendar&lt;/description&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;timezone&gt;GMT&lt;/timezone&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;start-year&gt;2010&lt;/start-year&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;events&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;id&gt;1&lt;/id&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;name&gt;On Peak&lt;/name&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;code&gt;3&lt;/code&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;id&gt;2&lt;/id&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;name&gt;Off Peak&lt;/name&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;code&gt;5&lt;/code&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;id&gt;3&lt;/id&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;name&gt;Demand response&lt;/name&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;code&gt;97&lt;/code&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/events&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;day-types&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day-type&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;id&gt;1&lt;/id&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;name&gt;summer weekday&lt;/name&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;ranges&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;!-- Closed-Open --&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;!-- maps to java class java.time.LocalTime --&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;hour&gt;0&lt;/hour&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;minute&gt;0&lt;/minute&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;second&gt;0&lt;/second&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;2&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;hour&gt;13&lt;/hour&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;minute&gt;0&lt;/minute&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;second&gt;0&lt;/second&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;1&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;hour&gt;20&lt;/hour&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;minute&gt;0&lt;/minute&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;second&gt;0&lt;/second&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;2&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/ranges&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/day-type&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day-type&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;id&gt;2&lt;/id&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;name&gt;weekend&lt;/name&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;ranges&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;hour&gt;0&lt;/hour&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;minute&gt;0&lt;/minute&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;second&gt;0&lt;/second&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;2&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/ranges&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/day-type&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day-type&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;id&gt;3&lt;/id&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;name&gt;holiday&lt;/name&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;ranges&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;hour&gt;0&lt;/hour&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;minute&gt;0&lt;/minute&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;second&gt;0&lt;/second&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;2&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/ranges&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/day-type&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day-type&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;id&gt;4&lt;/id&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;name&gt;winter day&lt;/name&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;ranges&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;!-- Closed-Open --&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;!-- maps to java class java.time.LocalTime --&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;hour&gt;0&lt;/hour&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;minute&gt;0&lt;/minute&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;second&gt;0&lt;/second&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;2&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;hour&gt;5&lt;/hour&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;minute&gt;0&lt;/minute&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;second&gt;0&lt;/second&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;1&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;hour&gt;9&lt;/hour&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;minute&gt;0&lt;/minute&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;second&gt;0&lt;/second&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;1&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;hour&gt;17&lt;/hour&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;minute&gt;0&lt;/minute&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;second&gt;0&lt;/second&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;2&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;hour&gt;21&lt;/hour&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;minute&gt;0&lt;/minute&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;second&gt;0&lt;/second&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;2&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/ranges&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/day-type&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day-type&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;id&gt;5&lt;/id&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;name&gt;Demand Response&lt;/name&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;ranges&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;hour&gt;0&lt;/hour&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;minute&gt;0&lt;/minute&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;second&gt;0&lt;/second&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/from&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;event&gt;3&lt;/event&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/range-time&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/ranges&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/day-type&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/day-types&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;periods&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;period&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;id&gt;1&lt;/id&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;name&gt;Summer&lt;/name&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;week-template&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;monday day-type=&quot;1&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;tuesday day-type=&quot;1&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;wednesday day-type=&quot;1&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;thursday day-type=&quot;1&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;friday day-type=&quot;1&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;saturday day-type=&quot;2&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;sunday day-type=&quot;2&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/week-template&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/period&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;period&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;id&gt;2&lt;/id&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;name&gt;Winter&lt;/name&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;week-template&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;monday day-type=&quot;4&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;tuesday day-type=&quot;4&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;wednesday day-type=&quot;4&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;thursday day-type=&quot;4&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;friday day-type=&quot;4&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;saturday day-type=&quot;4&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;sunday day-type=&quot;4&quot;/&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/week-template&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/period&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;transitions recurring=&quot;true&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;!-- When recurring is true, all transition elements</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;will only have month/day and not year</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;and will map to a java.util.MonthDay</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;When recurring is false, all transition elements</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;will have year/month/day and will map to java.util.LocalDate --&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;transition&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;to-period&gt;1&lt;/to-period&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;5&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;1&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/transition&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;transition&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;to-period&gt;2&lt;/to-period&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;11&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;1&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/transition&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/transitions&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/periods&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;exceptions&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;exception day-type=&quot;3&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;occurrences&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;recurring-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;!-- maps to java class java.time.MonthDay --&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;1&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;1&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/recurring-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;18&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;1&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;year&gt;2016&lt;/year&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;15&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;2&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;year&gt;2016&lt;/year&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;30&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;5&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;year&gt;2016&lt;/year&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;recurring-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;!-- maps to java class java.time.MonthDay --&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;7&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;4&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/recurring-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;5&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;9&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;year&gt;2016&lt;/year&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;10&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;10&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;year&gt;2016&lt;/year&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;recurring-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;!-- maps to java class java.time.MonthDay --&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;11&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;11&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/recurring-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;24&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;11&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;year&gt;2016&lt;/year&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;recurring-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;!-- maps to java class java.time.MonthDay --&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;12&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;25&lt;/day&gt;                                              </p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/recurring-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;recurring-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;!-- maps to java class java.time.MonthDay --&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;12&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;26&lt;/day&gt;                                                            </p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/recurring-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/occurrences&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/exception&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;exception day-type=&quot;5&quot;&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;occurrences&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;day&gt;20&lt;/day&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;month&gt;5&lt;/month&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;year&gt;2016&lt;/year&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/fixed-occurrence&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/occurrences&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/exception&gt;</p>
+ <p class="FM_BodyGrey"> &#160;&#160;&#160;&lt;/exceptions&gt;</p>
+ <p class="FM_BodyGrey">&lt;/calendar&gt;</p>
+ </body>
+</html>

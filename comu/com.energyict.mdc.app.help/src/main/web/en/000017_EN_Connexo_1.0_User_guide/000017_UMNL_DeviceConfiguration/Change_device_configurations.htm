@@ -1,0 +1,138 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Change device configurations</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_DeviceConfiguration.fm" />
+ <link rel="stylesheet" href="000017_UMNL_DeviceConfiguration.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "3.4";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Manage_custom_attribute_sets_over_time.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Manage_device_configuration_mappings.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H2Section"><a name="XREF_45621_2_16_Change_device"></a>Change device configurations</p>
+ 
+ <p class="FM_H3SectionTopic"><a name="TOC_Understand_device1"></a>Understand device configuration management</p>
+ <p class="FM_H4Topic">When to change device configurations</p>
+ <p class="FM_Body">In some cases you might wish to change the device configuration of one or more devices, for example:</p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet1">when you install a device but you do not know which contract will be used or what type of user will use the meter</p>
+</li>
+  <li>
+  <p class="FM_ListBullet1">upgrade of a customer</p>
+</li>
+  <li>
+  <p class="FM_ListBullet1">change of functionality</p>
+</li>
+ </ul>
+ <p class="FM_Body" style="margin-top  : 10.000pt;">If you change the configuration of a device, you need to be certain there are no conflicts between the original configuration and the new configuration.</p>
+ <p class="FM_H4Topic">How to change device configurations in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable></p>
+ <p class="FM_Body">In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;changing a device configuration is managed on two different levels: on the <span class="FM_Bold">device type</span>&#160;and on the <span class="FM_Bold">device</span>. The actual changing of a device configuration is executed on a device level. On the device type you manage what happens with conflicts when you change one configuration into another.</p>
+ <p class="FM_Body">When a device type has multiple active configurations <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will check if there are conflicts in all possible options for changing device configurations. These conflicts can then be solved allowing the change of one configuration to another on a device to go without errors.</p>
+ <p class="FM_Body">When mapping two configurations <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;maps every data source, communication feature, rule set from the original configuration to the new configuration. This mapping will not cause any conflicts because it is not possible to make two identical registers or communication tasks. The following cases are possible and will be handled as such:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellHeading">Use case</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellHeading">Solution</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t2Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Data source / Communication feature / rule set is available in both configurations</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">The data source / communication feature / rule set from the original configuration will be mapped to the new configuration together with all its attributes.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Data source / Communication feature / rule set is only available in the original configurations</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">The data source / communication feature / rule set from the original configuration will be removed together with all its attributes. Consequently all these values will be lost.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t2Row">
+  <td style="width : 141.732pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Data source / Communication feature / rule set is only available in the new configurations</p>
+</td>
+  <td style="width : 274.961pt; vertical-align : top;">
+  <p class="FM_CellBody">The data source / communication feature / rule set will be added and the attribute values will remain empty.</p>
+</td>
+</tr>
+ </table>
+
+ <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
+  <caption class="FM_CGraphic" align="bottom">Figure: Use case when registers and other data sources are mapped from one configuration to another.</caption>
+  <tr style=" height : 142.52pt;">
+  <td style="width : 351.496pt; vertical-align : top;padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+  <p class="FM_CGraphicCell"><img alt="Change_device_configuration_registers.png" style=" margin-bottom:0.000pt; width:100%; max-width:550px;" id="image56" src="Change_device_configuration_registers.png" />&nbsp;</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_Body">The connection methods and security settings of device configurations can cause conflicts. This can be explained as follows, device configurations can have connection methods with the same connection type or security settings with the same authentication and encryption levels. However the attributes such as port number, host and passwords can be different. What will you do with these attributes when changing device configurations? This is what you will configure on the device type, you will define what happens in case conflicts between configurations arise. It is also possible that the connection methods in the two device configurations use the same connection type, but the connection methods have different names.</p>
+ <p class="FM_Body">In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;you are able to change device configurations of a single device or of multiple devices using the device search.</p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_PNote2">It is not possible to change the device configuration of data loggers and data logger slaves.</p>
+ </body>
+</html>

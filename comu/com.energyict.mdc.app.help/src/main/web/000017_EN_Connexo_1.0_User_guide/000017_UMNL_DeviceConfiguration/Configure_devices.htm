@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Configure devices</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_DeviceConfiguration.fm" />
+ <link rel="stylesheet" href="000017_UMNL_DeviceConfiguration.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "3.2";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Configure_logbook_types.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Configure_device_types.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H2Section"><a name="XREF_25002_2_3_Configure"></a>Configure devices</p>
+ 
+ <p class="FM_H3SectionTopic"><a name="TOC_Understand_device"></a>Understand device configurations</p>
+ <p class="FM_H4Topic">Understand devices</p>
+ <p class="FM_Body">To be able to collect meter data, you need metering devices. These <a title="A device represents a physical element (in the grid), this can be e.g. a meter, concentrator, gateway, in home display, etc.">device</a>s are located in the field. Different types of devices are available originating from different vendors. All of these have their own possibilities and characteristics. The ultimate goal is to collect the data coming from the meter and use this data for other purposes such as billing and energy management.</p>
+ <p class="FM_Body">To be able to collect this data, you need a meter data collection system. <uservariable x-value="Connexo MultiSense" x-showvalue="TRUE" name="Product_name" x-format="Product_name">Connexo MultiSense</uservariable>&#160;connects and communicates with these devices. How this communication works is explained in <a href="../000017_UMNL_CommunicationManagement/Configure_communication_infrastructure.htm#XREF_70591_Understand"><span class="FM_blue_crossreference">“Understand communication”</span></a>. Devices in <uservariable x-value="Connexo MultiSense" x-showvalue="TRUE" name="Product_name" x-format="Product_name">Connexo MultiSense</uservariable>&#160;are configured using device types and device configurations. Then, the devices are added (manually or via import) and the correct device type and configuration are assigned. Finally, only device specific parameters, such as passwords and connection details, need to be defined.</p>
+ <p class="FM_H4Topic">Device types and configurations in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable></p>
+ <p class="FM_Body">To collect data from a physical device, you have to create a device in <uservariable x-value="Connexo MultiSense" x-showvalue="TRUE" name="Product_name" x-format="Product_name">Connexo MultiSense</uservariable>. A device uses one <span class="FM_Bold"><a title="A device type defines the capabilities of a physical device. Every device has exactly one device type that defines which data (such as registers, load profiles and logbooks) can be read from it and what communication protocol is used to read it. A device type maps to a single physical device model. but devices of this model can have different capabilities. This is achieved through device configurations.">device type</a></span>&#160;with a certain configuration. This device type defines the physical capabilities of the device, which data can be read and what communication protocol has to be used. When configuring a new device type you need to define whether it is a standard or a data logger slave device type. This selection will define the parameters to define in further steps.</p>
+ <p class="FM_Body">A device type maps to a single physical device model, but devices of this model can have different capabilities. This is achieved through device configurations.</p>
+ <p class="FM_Body">A device type can have <span class="FM_Bold">multiple device configurations</span>. Device configurations are used to customise and further configure the functionality of the device type. The device configuration will determine the actual register specifications together with the number of active channels. It also defines which security settings (authentication and encryption) are used and how a connection is set up (GPRS, GSM, etc.). </p>
+ <p class="FM_Body">By using device configurations a more accurate representation of the physical device and its enabled functionality can be created. Configurations can be reused and facilitate the process of creating a large amount of similar devices.</p>
+
+ <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
+  <caption class="FM_CGraphic" align="bottom">Figure: Relation between physical device and device type</caption>
+  <tr style=" height : 355.00pt;">
+  <td style="width : 351.496pt; vertical-align : top;padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+  <p class="FM_CGraphicCell"><img alt="Devices.png" style=" margin-bottom:0.000pt; width:100%; max-width:533px;" id="image10" src="Devices.png" />&nbsp;</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_H4Topic">Understand device multipliers</p>
+ <p class="FM_Body">The need for a device multiplier relates to the usage of CT/VT (current transformer, voltage transformer) or pulse counting.</p>
+ <p class="FM_Body">The first is used in heavy duty installations where the current or voltage of the system under measurement is too high for a measuring device to be connected directly. This is why a secondary circuit is built with reasonable current/voltage in which the measuring device is integrated. Anything that is measured by the device is then multiplied by the same factor that reduces the current/voltage from the main circuit to the secondary circuit. In some cases the value of the device multiplier can change.</p>
+ <p class="FM_Body">The second situation is used for devices that do not count actual consumption units but for example count pulses instead and each pulse then needs to be converted to the desired consumption unit. For example the typical household meter with the rotating wheel that produces a pulse each time the wheel completes a full circle. The speed of the wheel is determined by the amount of energy that is consumed, meaning that each pulse relates to the same amount of energy and can therefore be converted to kWh. The speed of the wheel is determined by the design of the meter and will remain the same for the lifetime of this device.</p>
+ <p class="FM_Body">The CIM model (an international standard developed and used in the utility industry) also talks about device multipliers and distinguishes the actual measurement from the multiplied measurement by using a different reading type in case of measuring electricity. The commodity field of a reading type (digit 6) is responsible for this. In CIM language, the actual measurement is called the secondary measured value (because it was measured on the secondary circuit) and the real consumption, i.e. the result of applying the device multiplier is called the primary measured value.</p>
+ <p class="FM_Body">The use of a multiplier is optional and can be used on a device. However not all the data of the device requires a multiplier, for example measuring volt, text registers, status registers, etc. This is why it is possible to indicate if a multiplier will be used or not on a configuration level. The value of the multiplier it set on the device level as typically this is different for each device.</p>
+ </body>
+</html>

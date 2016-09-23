@@ -1,0 +1,184 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Manage custom attribute sets over time</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_DeviceConfiguration.fm" />
+ <link rel="stylesheet" href="000017_UMNL_DeviceConfiguration.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "3.3.0_3";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Manage_custom_attributes_on_objects.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Change_device_configurations.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H3SectionTopic"><a name="XREF_71207_Manage_custom"></a>Manage custom attribute sets over time</p>
+ <p class="FM_H4Topic">Understand custom attribute set versions</p>
+ <p class="FM_Body">In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;you have the option to add multiple versions to specific custom attribute sets. This will allow you to create a new version of the attribute set that will be active starting from a specific date with specific values whenever there is a change in the device, registers or channels. When adding a new version you are still able to see the previous versions together with the values used for that attribute sets during that period.</p>
+ <p class="FM_Body">Privileges that were set in <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>&#160;define which users are allowed to add and edit version, as well as what they can see. If a custom attribute set is able to have different versions, is defined in the code of the attribute set.</p>
+ <p class="FM_H4Topic"><a name="XREF_57793_View_custom"></a>View custom attribute set version on a device</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Select a device using <span class="FM_UIRef">Search</span>, see <a href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Advanced search</span><span class="FM_blue_crossreference">”</span></a>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Device attributes</span>&#160;in the menu on the left and then click <span class="FM_UIRef">Versions</span>&#160;next to the custom attributes set or click <span class="FM_UIRef">History</span>&#160;in the menu on the left and select the tab corresponding to the custom attribute set.</p>
+ <p class="FM_BodyProcedure">On the Device attribute page the values of the current version of the custom attribute sets is shown as well as the period the version is valid.</p>
+ <p class="FM_BodyProcedure">The history page of the custom device attribute shows all versions: the period they are active and the values they contain.</p>
+ <p class="FM_H4Topic"><a name="XREF_72505_View_custom"></a>View custom attribute set version on the register of a device</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Select a device using <span class="FM_UIRef">Search</span>, see <a href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Advanced search</span><span class="FM_blue_crossreference">”</span></a>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Registers</span> in the menu on the left.</p>
+ <p class="FM_ListNumber1">3. &#160; Click a register name and go to the <span class="FM_UIRef">Specifications</span>&#160;tab or select a register in table and click <span class="FM_UIRef">Versions</span>.</p>
+ <p class="FM_BodyProcedure">On the Specifications tab or the details pane of the register overview page only the current version of the custom attribute set is shown.</p>
+ <p class="FM_BodyProcedure">The history page of the custom device attribute shows all versions: the period they are active and the values they contain.</p>
+ <p class="FM_H4Topic"><a name="XREF_40762_View_custom"></a>View custom attribute set version on the channel of a device</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Select a device using <span class="FM_UIRef">Search</span>, see <a href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Advanced search</span><span class="FM_blue_crossreference">”</span></a>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Channels</span> in the menu on the left.</p>
+ <p class="FM_ListNumber1">3. &#160; Click a channel name and go to the <span class="FM_UIRef">Specifications</span>&#160;tab or select a channel in table and click <span class="FM_UIRef">Versions</span>.</p>
+ <p class="FM_BodyProcedure">On the Specifications tab or the details pane of the channel overview page only the current version of the custom attribute set is shown.</p>
+ <p class="FM_BodyProcedure">The history page of the custom device attribute shows all versions: the period they are active and the values they contain.</p>
+ <p class="FM_H4Topic"><a name="XREF_96492_Add_custom"></a>Add custom attribute set versions</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Select a device using <span class="FM_UIRef">Search</span>, see <a href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Advanced search</span><span class="FM_blue_crossreference">”</span></a>.</p>
+ <p class="FM_ListNumber1">2. &#160; Go to the custom attributes of the device, register or channel as described in <a href="#XREF_57793_View_custom"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">View custom attribute set version on a device”</span></a>, <a href="#XREF_72505_View_custom"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">View custom attribute set version on the register of a device”</span></a>&#160;and <a href="#XREF_40762_View_custom"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">View custom attribute set version on the channel of a device”</span></a>.</p>
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add version</span> and complete the following fields:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 113.386pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 303.307pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t2Row">
+  <td style="width : 113.386pt; vertical-align : top;">
+  <p class="FM_CellBody">Start</p>
+</td>
+  <td style="width : 303.307pt; vertical-align : top;">
+  <p class="FM_CellBody">Start date of the version, from this day and time the version will become active.</p>
+  <p class="FM_CellBody">You can also choose not to specify a specific date.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t1Row">
+  <td style="width : 113.386pt; vertical-align : top;">
+  <p class="FM_CellBody">End</p>
+</td>
+  <td style="width : 303.307pt; vertical-align : top;">
+  <p class="FM_CellBody">End date of the version. The version will be active until this day and time.</p>
+  <p class="FM_CellBody">You can also choose not to specify a specific date.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 113.386pt; vertical-align : top;">
+  <p class="FM_CellBody">Custom attributes</p>
+</td>
+  <td style="width : 303.307pt; vertical-align : top;">
+  <p class="FM_CellBody">Enter the custom attribute values for this version.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ <p class="FM_BodyProcedure">If the selected time window introduces gaps or overlaps with the other configured versions, then an error message will be shown. Close the message.</p>
+ <p class="FM_BodyProcedure">A new table will appear showing the conflicts and some additional information. You can change the date and time to remove the error or click the actions icon and select Align left or Align right. Which options you see are dependent of the versions available and the date selected.</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellHeading">Options</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Align left</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Start date of the new version will be set equal to the end date of the previous version.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Align right</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The end date of the new version will be set equal to the start date of the next version.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_BodyProcedure">You can also choose not the fix the error yourself but click Add and then the time and time will be adjusted automatically to remove any inconsistencies.</p>
+ <p class="FM_H4Topic">Clone custom attribute set version</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to the custom attribute versions page.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00029.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image54" src="masterActions00029.png" />&#160;and select <span class="FM_UIRef">Clone</span>. Depending on your privileges this action may not be possible.</p>
+ <p class="FM_ListNumber1">3. &#160; Edit the custom attribute parameters.</p>
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Clone</span>.</p>
+ <p class="FM_BodyProcedure">If there are conflicts in the configured time window of the cloned version, these can be handled as described in step 4 of <a href="#XREF_96492_Add_custom"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Add custom attribute set versions”</span></a>.</p>
+ <p class="FM_H4Topic">Edit custom attribute set version</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to the custom attribute versions page.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00030.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image55" src="masterActions00030.png" />&#160;and select <span class="FM_UIRef">Edit</span>. Depending on your privileges this action may not be possible.</p>
+ <p class="FM_BodyProcedure">If there are conflicts in the configured time window of the cloned version, these can be handled as described in step 4 of <a href="#XREF_96492_Add_custom"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Add custom attribute set versions”</span></a>.</p>
+ </body>
+</html>

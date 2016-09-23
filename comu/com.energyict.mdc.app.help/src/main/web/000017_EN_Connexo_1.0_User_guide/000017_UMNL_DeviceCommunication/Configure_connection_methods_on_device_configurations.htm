@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Configure connection methods on device configurations</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_DeviceCommunication.fm" />
+ <link rel="stylesheet" href="000017_UMNL_DeviceCommunication.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "5.1.0_2";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Configure_device_communication.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Configure_connection_methods_on_a_device.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H3SectionTopic">Configure connection methods on device configurations</p>
+ <p class="FM_H4Topic">Understand connection methods</p>
+ <p class="FM_Body">The connection method allows you to define how to communicate with the device. Some devices can support multiple types of connection methods (GRPS, optical, SMS, etc.). You can configure which is the preferred type. Using connection methods you can minimize your cost via the connection strategy. You can select to minimize the connections or connect as soon as possible.</p>
+ <p class="FM_Body">If you choose to minimize the connections then <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will only connect to a device when the connection method allows it. A communication task will then only be executed at the time the connection is scheduled. If you choose to connect a soon as possible, then a connection will be set up as soon as a communication task needs a connection. This is only possible for devices that use the master-slave setup.</p>
+ <p class="FM_H4Topic">Add <a title="Data from, for example a communication server, is pushed to a device.">outbound</a> connection methods</p>
+ <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
+ <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+ <p class="FM_Body">Before you add a connection method make sure that the device is <span class="FM_UIRef">Directly addressable</span><span class="FM_Bold">. </span>If not, then no connection methods can be added.<span class="FM_Bold"> This can be selected</span>&#160;on the device configuration edit page. See <a href="../000017_UMNL_DeviceConfiguration/Configure_device_configurations.htm#XREF_60728_Configure_device"><span class="FM_blue_crossreference">“Configure device configurations”</span></a>. </p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt;&#160;select a configuration &gt; click <span class="FM_UIRef">Connection methods</span>&#160;in the menu on the left.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add connection method</span><span class="FM_Bold">&#160;&gt; </span><span class="FM_UIRef">Add outbound connection method</span>. Complete the following fields: </p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellBody">Name</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellBody">A unique name.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellBody">Connection type</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellBody">Select a connection types. The connection type how the device will connect with the system. Which type is selected determines which connection details need to be completed.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellBody">Communication port pool</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellBody">Select a communication port pool</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellBody">Connection strategy</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_UIRef">As soon as possible</span>: connect whenever a communication task needs a connection. </p>
+  <p class="FM_CellBody"><span class="FM_UIRef">Minimize connections</span>: only connect with the device at the scheduled time.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellBody">Connection schedule</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellBody">Only available when “Minimize connections” is selected. The schedule when to set up a connection.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellBody">Connection window</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellBody">Is the time window during which the device is active and it is possible to set up a connection and communication tasks can be executed. Is not used when the device is always accessible.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellBody">Retry delay</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellBody">The period of delay before the connection will be retried.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellBody">Number of simultaneous connections</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellBody">Allows multiple connections at the same time to make parallel scheduling of devices possible.</p>
+  <p class="FM_CellBody">By default this is set to 1 and the maximum allowed value is 16.</p>
+</td>
+</tr>
+  <tr style=" height : 86.00pt;" class="t2Row">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellBody">Connection details</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellBody">Specify the connection details such as port number. All devices that use this configuration will inherit these parameters. These can be overruled on the device itself.</p>
+  <p class="FM_CellBody">These fields are not mandatory.</p>
+  <p class="FM_CellBody">On the device itself you can set device specific parameters such as IP address.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ <p class="FM_ListNumber1">4. &#160; Click the actions icon and select <span class="FM_UIRef">Set as default</span>&#160;to make the connection method the default method.</p>
+ <p class="FM_H4Topic">Add <a title="Data is pushed from the device to for example a communication server.">inbound</a> connection methods</p>
+ <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
+ <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+ <p class="FM_Body">Before you add a connection method make sure that the device is <span class="FM_Bold">Directly accessible, this can be selected</span>&#160;on the device configuration edit page. See <a href="../000017_UMNL_DeviceConfiguration/Configure_device_configurations.htm#XREF_60728_Configure_device"><span class="FM_blue_crossreference">“Configure device configurations”</span></a>. If not, no connection methods can be added.</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt;&#160;select a configuration &gt; click <span class="FM_UIRef">Connection method</span>&#160;in the menu on the left.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add connection method</span><span class="FM_Bold">&#160;&gt; </span><span class="FM_UIRef">Add inbound connection method</span>. Complete the following fields:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Name</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">A unique name.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t1Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Connection type</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">Select a connection types. The connection type how the device will connect with the system. Which type is selected determines which connections details need to be completed.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Communication port pool</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">Select communication port pool.</p>
+</td>
+</tr>
+  <tr style=" height : 86.00pt;" class="t1Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Connection details</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">Specify the connection details such as port number. All devices that use this configuration will inherit these parameters. These can be overruled on the device itself.</p>
+  <p class="FM_CellBody">These fields are not mandatory.</p>
+  <p class="FM_CellBody">On the device itself you can set device specific parameters such as IP address.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ <p class="FM_ListNumber1">4. &#160; Click the actions icon and select <span class="FM_UIRef">Set as default</span>&#160;to make the connection method the default method.</p>
+ <p class="FM_H4Topic">Edit connection methods</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt;&#160;select a configuration &gt; click <span class="FM_UIRef">Connection methods</span>&#160;in the menu on the left.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image0" src="masterActions.png" />&#160;and select <span class="FM_UIRef">Edit</span>.</p>
+ <p class="FM_ListNumber1">3. &#160; Change the connection method parameters.</p>
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Save</span>.</p>
+ <p class="FM_H4Topic">Remove connection methods</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt;&#160;select a configuration &gt; click <span class="FM_UIRef">Connection methods</span>&#160;in the menu on the left.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00001.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image1" src="masterActions00001.png" />&#160;and select <span class="FM_UIRef">Remove</span>.</p>
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Remove</span>.</p>
+ </body>
+</html>

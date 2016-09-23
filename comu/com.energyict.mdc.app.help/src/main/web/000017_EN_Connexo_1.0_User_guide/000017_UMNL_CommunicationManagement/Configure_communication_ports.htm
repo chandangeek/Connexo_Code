@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Configure communication ports</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_CommunicationManagement.fm" />
+ <link rel="stylesheet" href="000017_UMNL_CommunicationManagement.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "2.1.0_4";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_CommunicationManagement/Configure_communication_servers.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_CommunicationManagement/Configure_communication_port_pools.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H3SectionTopic"><a name="XREF_48111_Configure"></a>Configure communication ports</p>
+ <p class="FM_H4Topic">Add inbound communication port(s)</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device communication</span>&#160;&gt; <span class="FM_UIRef">Communication servers</span>&#160;&gt;click a <span class="FM_UIRef">communication server name</span>. </p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Communication ports</span><span class="FM_UIRef">&#160;</span>in the menu on the left or click the communication port link provided on the overview page.</p>
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add communication port</span>&#160;&gt; <span class="FM_UIRef">Inbound</span>. Complete the following fields:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 142.553pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 274.140pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 142.553pt; vertical-align : top;">
+  <p class="FM_CellBody">Name</p>
+</td>
+  <td style="width : 274.140pt; vertical-align : top;">
+  <p class="FM_CellBody">Unique name in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable> for the port.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 142.553pt; vertical-align : top;">
+  <p class="FM_CellBody">Type</p>
+</td>
+  <td style="width : 274.140pt; vertical-align : top;">
+  <p class="FM_CellBody">Serial, servlet, TCP, UDP.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t2Row">
+  <td style="width : 142.553pt; vertical-align : top;">
+  <p class="FM_CellBody">Simultaneous connections</p>
+</td>
+  <td style="width : 274.140pt; vertical-align : top;">
+  <p class="FM_CellBody">Number of threads that can run simultaneously on this port. This option is not available for physical ports such as modems.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 142.553pt; vertical-align : top;">
+  <p class="FM_CellBody"><a title="Data is pushed from the device to for example a communication server.">Inbound</a> communication port pool</p>
+</td>
+  <td style="width : 274.140pt; vertical-align : top;">
+  <p class="FM_CellBody">Select a communication port pool out of the list of configured inbound communication port pools.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ <p class="FM_ListNumber1">5. &#160; Click the actions icon <img alt="masterActions00004.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image5" src="masterActions00004.png" />&#160;and select <span class="FM_UIRef">Activate</span>.</p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey">Depending on the type extra fields need to be completed.</p>
+ <p class="FM_BodyGrey">Communication ports without an assigned communication port pool can be added, but they cannot be activated.</p>
+ <p class="FM_H4Topic">Add outbound communication port(s)</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device communication</span>&#160;&gt; <span class="FM_UIRef">Communication servers</span>&#160;&gt; click a <span class="FM_UIRef">communication server name</span>. </p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Communication ports</span><span class="FM_UIRef">&#160;</span>in the menu on the left or click the communication port link provided on the overview page.</p>
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add communication port</span>&#160;&gt; <span class="FM_UIRef">Outbound</span>. Complete the following fields:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 142.553pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 274.140pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 142.553pt; vertical-align : top;">
+  <p class="FM_CellBody">Name</p>
+</td>
+  <td style="width : 274.140pt; vertical-align : top;">
+  <p class="FM_CellBody">A unique name.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 142.553pt; vertical-align : top;">
+  <p class="FM_CellBody">Type</p>
+</td>
+  <td style="width : 274.140pt; vertical-align : top;">
+  <p class="FM_CellBody">Serial, TCP, UDP.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t2Row">
+  <td style="width : 142.553pt; vertical-align : top;">
+  <p class="FM_CellBody">Simultaneous connections</p>
+</td>
+  <td style="width : 274.140pt; vertical-align : top;">
+  <p class="FM_CellBody">Number of threads that can run simultaneously on this port. This option is not available for physical ports such as modems.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 142.553pt; vertical-align : top;">
+  <p class="FM_CellBody"><a title="Data from, for example a communication server, is pushed to a device.">Outbound</a> communication port pools</p>
+</td>
+  <td style="width : 274.140pt; vertical-align : top;">
+  <p class="FM_CellBody">Click <span class="FM_UIRef">Add communication port pools</span>&#160;to select one or more port pools.</p>
+  <p class="FM_CellBody">Click <span class="FM_UIRef">Manage communication port pools</span>&#160;to create a new outbound port pool.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add</span>. </p>
+ <p class="FM_ListNumber1">5. &#160; Click the actions icon <img alt="masterActions00005.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image6" src="masterActions00005.png" />&#160;and select <span class="FM_UIRef">Activate</span>.</p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey">Depending on the type of communication port, different extra fields need to be completed. </p>
+ <p class="FM_BodyGrey">Communication ports without an assigned communication port pool can be added, but they cannot be activated.</p>
+ <p class="FM_H4Topic">Edit communication ports</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device communication</span>&#160;&gt; <span class="FM_UIRef">Communication servers</span>&#160;&gt; click a <span class="FM_UIRef">communication server name</span>. </p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Communication ports</span><span class="FM_UIRef">&#160;</span>in the menu on the left or click the communication port link provided on the overview page.</p>
+ <p class="FM_ListNumber1">3. &#160; Click the actions icon <img alt="masterActions00006.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image7" src="masterActions00006.png" />&#160;and select <span class="FM_UIRef">Edit</span>.</p>
+ <p class="FM_ListNumber1">4. &#160; Change the communication port parameters.</p>
+ <p class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Save</span>.</p>
+ <p class="FM_H4Topic">Remove communication ports</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device communication</span>&#160;&gt; <span class="FM_UIRef">Communication servers</span>&#160;&gt; click a <span class="FM_UIRef">communication server name</span>. </p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Communication ports</span><span class="FM_UIRef">&#160;</span>in the menu on the left or click the communication port link provided on the overview page.</p>
+ <p class="FM_ListNumber1">3. &#160; Click the actions icon <img alt="masterActions00007.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image8" src="masterActions00007.png" />&#160;and select <span class="FM_UIRef">Remove</span>.</p>
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Remove</span>.</p>
+ <p class="FM_H4Topic">Manage communication ports on communication port pools</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration </span>&gt; <span class="FM_UIRef">Device communication </span>&gt; <span class="FM_UIRef">Communication port pools</span>&#160;&gt; click the <span class="FM_Bold"><a title="A communications port pool is a set of communication ports. The communication port pools can be grouped in ‘Inbound port pools’ and ‘Outbound port pools’. Typically communication port pools are spread over different communication servers.">communication port pool</a> name.</span>&#160;</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">communication port</span>&#160;in the left menu or click the communication port link on the overview page. </p>
+ <p class="FM_ListNumber1">3. &#160; Remove communication ports using the actions icon <img alt="masterActions00008.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image9" src="masterActions00008.png" />.</p>
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add communication port</span>. </p>
+ <p class="FM_ListNumber1">5. &#160; Select one or more communication ports.</p>
+ <p class="FM_ListNumber1">6. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ </body>
+</html>

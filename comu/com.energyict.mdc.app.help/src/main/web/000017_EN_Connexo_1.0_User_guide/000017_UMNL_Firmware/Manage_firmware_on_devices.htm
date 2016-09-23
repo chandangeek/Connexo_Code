@@ -7,7 +7,7 @@
 
  <meta name="generator" content="Adobe FrameMaker 12" />
  <meta name="Originator" content="ImportMif" />
- <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Firmware.fm" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Firmware.fm" />
  <link rel="stylesheet" href="000017_UMNL_Firmware.css" type="text/css" />
  <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
 
@@ -54,7 +54,7 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "9.2";
+gTopicId = "8.2";
 </script>
  <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Firmware/Manage_firmware_options.htm">
  <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Firmware/Manage_firmware_on_a_single_device.htm">
@@ -67,7 +67,7 @@ gTopicId = "9.2";
  <p class="FM_H4Topic">How firmware is managed on devices</p>
  <p class="FM_Body">Firmware versions are added to <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;on the device type where also the upload options are defined, but the actual upload of the firmware to the physical device is done via the Connexo device. The firmware is uploaded and activated using a firmware specific communication task, see <a href="Understand_firmware.htm#XREF_73116_How_is_firmware"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">How is firmware managed in MultiSense”</span></a> for more information.</p>
  <p class="FM_Body">When you want to upload firmware on a device you have multiple options. Which options are available are defined by the communication protocol used and the firmware management options on the device type. If you choose to <span class="FM_Bold">activate the firmware immediately </span>the firmware will be sent to the device as soon as a connection is triggered according to the connection strategy. When the device receives the firmware, it will be installed immediately. To <span class="FM_Bold">upload and activate firmware with a date</span>&#160;the same methodology is used but the upload and activation will be executed on a specific date. If you choose to <span class="FM_Bold">activate the firmware later</span>, you will need two separate communication tasks. One to upload the firmware and one to activate and install the firmware.</p>
- <p class="FM_Body">On the device you can check which firmware version is installed. To be able to perform this action a communication tasks needs to be configured that contains the “Status information” action. To retrieve this information the communication task depends on the connection strategy of its connection method.</p>
+ <p class="FM_Body">On the device you can check which firmware version is installed. To be able to perform this action a communication task needs to be configured that contains the “Status information” action. To retrieve this information the communication task depends on the connection strategy of its connection method.</p>
 
  <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
   <caption class="FM_CGraphic" align="bottom">Figure: How firmware communication tasks are communicated with devices in Connexo.</caption>

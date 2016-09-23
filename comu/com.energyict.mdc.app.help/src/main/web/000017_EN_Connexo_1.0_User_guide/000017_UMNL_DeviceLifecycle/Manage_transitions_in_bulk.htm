@@ -7,7 +7,7 @@
 
  <meta name="generator" content="Adobe FrameMaker 12" />
  <meta name="Originator" content="ImportMif" />
- <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_DeviceLifecycle.fm" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_DeviceLifecycle.fm" />
  <link rel="stylesheet" href="000017_UMNL_DeviceLifecycle.css" type="text/css" />
  <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
 
@@ -54,10 +54,10 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "3.4.0_2";
+gTopicId = "10.4.0_2";
 </script>
  <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/Transition_devices.htm">
- <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Validate_data/Validate_data.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/Monitor_meter_activations.htm">
 </head>
 
 <body>
@@ -68,7 +68,7 @@ gTopicId = "3.4.0_2";
  <p class="FM_Body">In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;multiple devices can be transitioned at the same time, this is achieved through import services. Using these import services you upload CSV files containing all relevant information to a certain file location, where this file is picked up and processed by <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>.</p>
  <p class="FM_Body">Import services are configured in <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>. When creating new import services Connexo offers different default file importers that allow the import of different types of data to perform different actions. During configuration you need to specify the location where files that will be imported have to placed. Next to the import folder you will also specify the folder for in progress files and files of successful and failed import. All this information is also visible in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;when you look at the import service details located here: <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data import</span>&#160;&gt; <span class="FM_UIRef">Import services</span>.</p>
  <p class="FM_H4Topic">View import service history</p>
- <p class="FM_Body">See <a href="../000017_UMNL_Deliver_data/Monitor_data_import.htm#XREF_59409_View_import"><span class="FM_blue_crossreference">“View import service history”</span></a> for more information.</p>
+ <p class="FM_Body">See <a href="../000017_UMNL_ImportData/Monitor_data_import.htm#XREF_59409_View_import"><span class="FM_blue_crossreference">“View import service history”</span></a> for more information.</p>
  <p class="FM_H4Topic">Register devices from shipment file (import devices)</p>
  <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
@@ -215,10 +215,123 @@ gTopicId = "3.4.0_2";
   <p class="FM_CellBody">No</p>
 </td>
 </tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Country code</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Country name</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Administrative area</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Locality</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Sublocality</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Street type</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Street name</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Street number</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Establishment type</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Establishment name</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Establishment number</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Adress detail</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Zip code</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Locale</p>
+</td>
+  <td style="width : 208.346pt; vertical-align : top;">
+  <p class="FM_CellBody">Defined upon installation*</p>
+</td>
+</tr>
  </table>
 
  <p class="FM_Body">If the master device specified in the file is different from that in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>, then <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will override this device using the one provided in the file. If the master device is not known in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>, this line of the file is skipped.</p>
  <p class="FM_Body">The “Start validation date” is needed for the “Activate validation” auto-action. If this date is not specified, the installation data will be used.</p>
+ <p class="FM_Body">*Which location parameters are mandatory is defined during the setup of your system. Contact your system administrator for more information. The fields you can see here are all options that are available.</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Place the CSV file containing the installation information in the import folder.</p>
@@ -376,6 +489,5 @@ gTopicId = "3.4.0_2";
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Place the CSV file containing the devices to decommission in the import folder.</p>
  <p class="FM_ListNumber1">2. &#160; Once import is finished successfully the original CSV is moved to the success folder. The defined devices are now decommissioned.</p>
- <p class="FM_Body">&nbsp;</p>
-</body>
+ </body>
 </html>

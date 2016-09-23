@@ -7,7 +7,7 @@
 
  <meta name="generator" content="Adobe FrameMaker 12" />
  <meta name="Originator" content="ImportMif" />
- <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Firmware.fm" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Firmware.fm" />
  <link rel="stylesheet" href="000017_UMNL_Firmware.css" type="text/css" />
  <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
 
@@ -54,17 +54,18 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "9.2.0_2";
+gTopicId = "8.2.0_2";
 </script>
  <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Firmware/Manage_firmware_on_a_single_device.htm">
- <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Find_data/Find_data.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_TimeOfUse/Time_of_use_calendars.htm">
 </head>
 
 <body>
 <script type="text/javascript" src="../../ehlpdhtm.js"></script>
 
  <p class="FM_H3SectionTopic">Firmware campaigns</p>
- <p class="FM_H4Topic">View firmware campaigns</p>
+ <p class="FM_Body">In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;you can upload firmware on multiple devices using a single action. These are called firmware campaigns. These firmware campaigns are created for a specific device type and device group. Only the devices of the device group that have the specified device type will get a new firmware version.</p>
+ <p class="FM_H4Topic"><a name="XREF_43690_View_firmware"></a>View firmware campaigns</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Firmware management</span>&#160;&gt; <span class="FM_UIRef">Firmware campaigns</span>.</p>
@@ -73,6 +74,7 @@ gTopicId = "9.2.0_2";
  <p class="FM_BodyProcedure">The data is in this table can be exported to a CSV using the grid export button <img alt="grid_export.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image6" src="grid_export.png" />.</p>
  <p class="FM_ListNumber1">2. &#160; Click the firmware campaign name to see the overview page of the firmware campaign. This page shows the same details as the table as well as the firmware management options defined by communication protocol and device type.</p>
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Devices</span>&#160;in the menu on the left to see which devices are included in the campaign and what their status is.</p>
+ <p class="FM_Body"><span class="FM_change_bar">You can filter the devices in the firmware campaign on their status using the status filter on top of the page. This allows to quickly find the devices that failed to upgrade their firmware and take the appropriate action.</span></p>
  <p class="FM_H4Topic">Add firmware campaign</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
@@ -112,6 +114,22 @@ gTopicId = "9.2.0_2";
   <p class="FM_CellBody">Select the device group that contains all devices that need the firmware upload. Only the devices with the device type defined in the device type parameter will be subject to the firmware campaign.</p>
 </td>
 </tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">Time boundary start</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Start time of the time boundary within which the firmware campaign can start new firmware uploads.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">Time boundary end</span></p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">End time of the time boundary within which the firmware campaign can start new firmware uploads.</p>
+</td>
+</tr>
   <tr style=" height : 47.00pt;" class="t1Row">
   <td style="width : 98.691pt; vertical-align : top;">
   <p class="FM_CellBody">Firmware management option</p>
@@ -147,14 +165,56 @@ gTopicId = "9.2.0_2";
  </table>
 
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
- <p class="FM_H4Topic">Cancel firmware campaign</p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey">Equal <span class="FM_UIRef">Time boundary start</span>&#160;and <span class="FM_UIRef">Time boundary end</span> will pause the firmware campaign.</p>
+ <p class="FM_H4Topic"><span class="FM_change_bar">Cancel firmware campaign</span></p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
- <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Firmware management</span>&#160;&gt; <span class="FM_UIRef">Firmware campaigns</span>.</p>
- <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00003.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image7" src="masterActions00003.png" />&#160;and select <span class="FM_UIRef">Cancel</span>. </p>
- <p class="FM_BodyProcedure">It is only possible to cancel firmware campaigns that have the status ongoing.</p>
- <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Cancel campaign</span>.</p>
- <p class="FM_BodyProcedure">When you cancel the firmware campaign the upload all devices that still need to be executed will be cancelled, ongoing uploads will be finished and successful uploads are not reversed.</p>
- <p class="FM_Body">&nbsp;</p>
+ <p class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Workspace</span><span class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmware management</span><span class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmware campaigns</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Select the desired firmware campaign.</span></p>
+ <p class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the actions icon <img alt="masterActions00003.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image7" src="masterActions00003.png" />&#160;and select </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Cancel</span><span class="FM_change_bar">. </span></p>
+ <p class="FM_BodyProcedure"><span class="FM_change_bar">It is only possible to cancel firmware campaigns that have the status ongoing.</span></p>
+ <p class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Cancel campaign</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_BodyProcedure"><span class="FM_change_bar">When you cancel the firmware campaign the upload to all devices that still needs to be executed will be cancelled, ongoing uploads will be finished and successful uploads will not be reversed.</span></p>
+ <p class="FM_H4Topic">Ed<span class="FM_change_bar">it firmware campaign</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Editing a firmware campaign is only possible if the user has sufficient privileges and for firmware campaigns that have the status </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Ongoing</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Workspace</span><span class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmware management</span><span class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmware campaigns</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">2. &#160; Select the desired campaign<span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the actions icon <img alt="masterActions00004.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image8" src="masterActions00004.png" />&#160;and select </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Edit</span><span class="FM_change_bar">. </span></p>
+ <p class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Make the needed adjustments.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Only </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Name</span><span class="FM_change_bar">&#160;and </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Time boundaries</span><span class="FM_change_bar">&#160;can be edited. The change on time boundaries only impacts devices that have the status </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Pending</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">5. &#160; <span class="FM_change_bar">Click </span><span class="FM_UIRef">Save</span>.</p>
+ <p class="FM_H4Topic">Cancel a device in a fir<span class="FM_change_bar">mware campaign</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">It is possible to skip one or more devices in a firmware campaign to prevent that the firmware version is uploaded to these devices. This action may be required when a device is ‘trapped’ in the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Ongoing</span><span class="FM_change_bar">&#160;status - for example when the device is no longer available (installed) in the field. Skipping this particular device will allow the firmware campaign to be completed. </span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Cancelling a device in a firmware campaign is only possible if the user has sufficient privileges, for firmware campaigns that have the status </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Ongoing</span><span class="FM_change_bar">&#160;and only for devices that have the status </span><span class="FM_UIRef">Pending</span><span class="FM_change_bar">&#160;or </span><span class="FM_UIRef">Ongoing</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Workspace</span><span class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmware management</span><span class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmware campaigns</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Select the desired firmware campaign.</span></p>
+ <p class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the tab </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Devices</span><span class="FM_change_bar"> and select the desired device.</span></p>
+ <p class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Devices</span><span class="FM_change_bar"> and select the desired device.</span></p>
+ <p class="FM_ListNumber1">5. &#160; <span class="FM_change_bar">Click the actions icon <img alt="masterActions00005.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image9" src="masterActions00005.png" />&#160;and select </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Cancel</span><span class="FM_change_bar">. </span></p>
+ <p class="FM_ListNumber1">6. &#160; <span class="FM_change_bar">Confirm the cancellation.</span></p>
+ <p class="FM_H4Topic"><span class="FM_change_bar">Retry a device in a firmware campaign</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">A device for which the firmware upgrade did not succeed during a firmware campaign can be retried without restarting the whole firmware campaign as long as the firmware campaign is still running.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Retrying a device in a firmware campaign is only possible if the user has sufficient privileges, for firmware campaigns that have the status </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Ongoing</span><span class="FM_change_bar">&#160;and only for devices that have the status </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Cancelled</span><span class="FM_change_bar">, </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Failed </span><span class="FM_change_bar">or</span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; "> Configuration error</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Workspace</span><span class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmware management</span><span class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmware campaigns</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Select the desired firmware campaign.</span></p>
+ <p class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the tab </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Devices</span><span class="FM_change_bar"> and select the desired device.</span></p>
+ <p class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Click the actions icon <img alt="masterActions00006.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image10" src="masterActions00006.png" />&#160;and select </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Retry</span><span class="FM_change_bar">. </span></p>
+ <p class="FM_Body"><span class="FM_change_bar">The status of the device becomes </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Pending</span><span class="FM_change_bar">. This means that it will be picked up by the firmware engine for retrying the upgrade. Keep an eye on the status of this device to follow up on its progress. See </span><a href="#XREF_43690_View_firmware"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">View firmware campaigns”</span></a><span class="FM_change_bar">.</span></p>
+ <p class="FM_H4Topic">View<span class="FM_change_bar"> firmware history on a device</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">A history of firmware changes is kept for each device. It allows you to see what firmware was active at a particular moment in time. Because firmware contains bug fixes and new features, firmware history on the device will help you understand from what moment you may expect benefit from those new features, e.g. extra meter events, register objects, fixed issues, etc.</span></p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Open a device using search. See </span><a href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Advanced search</span><span class="FM_blue_crossreference">”</span></a><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">History</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">In the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">History</span><span class="FM_change_bar">&#160;window, click the tab </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmware</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">All firmware versions that have been active including the firmware version that is currently active on the device are shown in a table with their activation date, firmware version and firmware type. The</span> most recent firmware versions are ordered on top.</p>
 </body>
 </html>

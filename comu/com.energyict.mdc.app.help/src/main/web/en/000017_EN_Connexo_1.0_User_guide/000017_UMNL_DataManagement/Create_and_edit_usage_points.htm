@@ -1,0 +1,269 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Create and edit usage points</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_DataManagement.fm" />
+ <link rel="stylesheet" href="000017_UMNL_DataManagement.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "11.1.0_2";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DataManagement/Monitor_usage_points.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DataManagement/Link_devices_to_usage_points.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H3SectionTopic"><span class="FM_change_bar">Create and edit usage points</span></p>
+ <p class="FM_H4Topic"><span class="FM_change_bar">Create and update usage points using file import</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Use the import framework to add or update multiple usage points from a csv file. For more information on import services see </span><a href="../000017_UMNL_ImportData/Data_import.htm#XREF_12224_1_Data_import"><span class="FM_blue_crossreference">“Data import”</span></a><span class="FM_change_bar">&#160;or for configuration see Import services in the chapter System configuration of the <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>&#160;user guide. </span></p>
+ <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
+ <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Prerequisites:</span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">The default import service </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage Point Importer</span><span class="FM_change_bar">&#160;must be correctly configured and activated. </span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">The corresponding folders for holding the import file must be available on the Connexo server. </span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">The usage point import service must be added to an application server. </span></p>
+</li>
+ </ul>
+ <p class="FM_PImportant2"><span class="FM_Bold">Important</span><span class="FM_change_bar" style="font-family : Lato Light; font-weight : normal; color   : #686868; ">The usage point data must be available in a CSV file. The first line in this file must contain the column headers and the fields must be separated by a semicolon or a comma. The following fields are expected in the usage point import file.</span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet1"></p>
+
+  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+   <tr style=" height : 25.00pt;" class="t1st">
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellHeading">Parameter</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellHeading">Required</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellHeading">Data type</p>
+</td>
+   <td style="width : 161.575pt; vertical-align : top;">
+   <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+   <tr style=" height : 112.00pt;" class="t2Row">
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">MRI<span class="FM_change_bar">D</span></p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">Yes</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">String</p>
+</td>
+   <td style="width : 161.575pt; vertical-align : top;">
+   <p class="FM_CellBody">MIRD of the usage point. </p>
+   <p class="FM_CellBody">&nbsp;</p>
+   <p class="FM_CellBody"><span class="FM_Bold">Important</span>: If the MRID field contains an already existing usage point MRID then the existing usage point will be edited instead of adding a new one.</p>
+</td>
+</tr>
+   <tr style=" height : 21.00pt;" class="t1Row">
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">N<span class="FM_change_bar">ame</span></p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">No</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">String</p>
+</td>
+   <td style="width : 161.575pt; vertical-align : top;">
+   <p class="FM_CellBody">Name of the usage point.</p>
+</td>
+</tr>
+   <tr style=" height : 34.00pt;" class="t2Row">
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">Service <span class="FM_change_bar">categor</span>y</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">Yes</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">String</p>
+</td>
+   <td style="width : 161.575pt; vertical-align : top;">
+   <p class="FM_CellBody">The commodity that is measured.</p>
+</td>
+</tr>
+   <tr style=" height : 47.00pt;" class="t1Row">
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">Cre<span class="FM_change_bar">ate</span>d</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">Yes</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">Date</p>
+</td>
+   <td style="width : 161.575pt; vertical-align : top;">
+   <p class="FM_CellBody">Date of the physical creation of the usage point. Format is dd/MM/yyyy HH:mm</p>
+</td>
+</tr>
+   <tr style=" height : 125.00pt;" class="t2Row">
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">Metrology configuration</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">No</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">String</p>
+</td>
+   <td style="width : 161.575pt; vertical-align : top;">
+   <p class="FM_CellBody">Name of the metrology configuration. Only applicable for the creation of new usage points. The value is skipped if the line is meant to update an existing usage point. It is not possible to update the metrology configuration &#160;of existing usage points.</p>
+</td>
+</tr>
+   <tr style=" height : 99.00pt;" class="t1Row">
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">Metrology configuration start</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">No</p>
+</td>
+   <td style="width : 85.039pt; vertical-align : top;">
+   <p class="FM_CellBody">Date</p>
+</td>
+   <td style="width : 161.575pt; vertical-align : top;">
+   <p class="FM_CellBody">Start date of the metrology configuration version on the usage point. Only applicable for the creation of new usage points. The value is skipped if the line is meant to update an existing usage point.</p>
+</td>
+</tr>
+  </table>
+
+  <p class="FM_ListBullet1"></p>
+</li>
+ </ul>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey"><span class="FM_change_bar">The metrology configuration lines are only applicable for the creation of new usage points. The value is skipped if the line is meant to update an existing usage point. It is not possible to update the metrology configuration of existing usage points because a usage point can have multiple metrology configuration versions. It would not be clear which version to update.</span></p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Put the CSV file with the usage points in the import folder.</span></p>
+ <p class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">The application server will pick up the import file for further processing. At this moment the import file will be moved to the folder </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">In progress</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">When the import is finished, the import file is moved either to the folder </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Success</span><span class="FM_change_bar">&#160;or to the folder </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Failure</span><span class="FM_change_bar">. </span></p>
+ <p class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">&#160;Check the created usage points using the search function. See </span><a href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Advanced search</span><span class="FM_blue_crossreference">”</span></a><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">5. &#160; <span class="FM_change_bar">If there was a problem, you can troubleshoot by looking at the log in import service history. See </span><a href="../000017_UMNL_ImportData/Monitor_data_import.htm#XREF_40419_Monitor_data_import"><span class="FM_blue_crossreference">“Monitor data import”</span></a><span class="FM_change_bar">.</span></p>
+ <p class="FM_H4Topic"><span class="FM_change_bar">Add a usage point manually</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Next to importing a number of usage points simultaneously using a file importer you can also create a usage point in Connexo MultiSense by entering its data manually on a form. Once the usage point is created, you will be able to link devices to it.</span></p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage points</span><span class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Add usage point</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Complete the fields on screen. All fields - except for </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Name</span><span class="FM_change_bar"> - are required.</span></p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">MRID</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">MRID of the usage point. This field is unique for each usage point.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Name</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">This is a optional field allowing you to enter a relevant name for the usage point.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Service category</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Drop down containing all active service categories in the system.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Created</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Date of the physical creation of the usage point. Default value is <span class="FM_UIRef">Now</span>.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1"></p>
+ <p class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Add</span><span class="FM_change_bar">.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">You are directed to the landing page of the usage point you just created.</span></p>
+ <p class="FM_H4Topic"><span class="FM_change_bar">Edit a usage point</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Existing usage points can be edited in Connexo MultiSense to correct eventual mistakes during creation.</span></p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Search for a usage point as described in </span><a href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_14822_Search_for_usage"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Search for usage points</span><span class="FM_blue_crossreference">”</span></a><span class="FM_change_bar">.</span></p>
+ <p class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click the usage point to see its landing page.</span></p>
+ <p class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Select </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Edit</span><span class="FM_change_bar">&#160;from the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Actions</span><span class="FM_change_bar"> button.</span></p>
+ <p class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Edit the relevant fields.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">MRID </span><span class="FM_change_bar">and </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Service category</span><span class="FM_change_bar"> can’t be edited.</span></p>
+ <p class="FM_ListNumber1">5. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Save</span><span class="FM_change_bar">.</span></p>
+ <p style="text-indent : 14.173pt;"><span class="FM_change_bar">You are directed back to the usage point landing page that shows the adjusted data.</span></p>
+ </body>
+</html>

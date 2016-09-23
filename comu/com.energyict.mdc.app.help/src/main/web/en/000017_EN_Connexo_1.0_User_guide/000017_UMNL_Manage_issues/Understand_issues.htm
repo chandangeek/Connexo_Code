@@ -7,7 +7,7 @@
 
  <meta name="generator" content="Adobe FrameMaker 12" />
  <meta name="Originator" content="ImportMif" />
- <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Manage issues.fm" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Manage issues.fm" />
  <link rel="stylesheet" href="000017_UMNL_Manage_issues.css" type="text/css" />
  <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
 
@@ -54,9 +54,9 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "7.0_1";
+gTopicId = "15.0_1";
 </script>
- <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Manage_issues/Manage_issues.htm">
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Manage_issues/Issue_management.htm">
  <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Manage_issues/Configure_issues.htm">
 </head>
 
@@ -67,7 +67,10 @@ gTopicId = "7.0_1";
  <p class="FM_H4Topic">What are issues</p>
  <p class="FM_Body" style="margin-bottom : 2.000pt;">It is often important that users are notified when something goes wrong during data collection and validation. Instead of having to manually verify all events that originate from different tasks, <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;allows you to configure rules to create issues for specific events. For more information see <a href="Configure_issues.htm#XREF_77620_Configure_issue"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Configure issue creation rules”</span></a>.</p>
  <p class="FM_Body" style="margin-top  : 7.000pt;">Once issues have been created and are not closed automatically, they need to be handled. The way to solve an issue depends on the type of task from which it has been generated. The violation of a data validation rule requires a different investigation and solution than a failed communication task. Issues can be assigned to a particular user.</p>
- <p class="FM_H4Topic">Explore the issues page</p>
+ <p class="FM_H4Topic">Issues in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable></p>
+ <p class="FM_Body">Issues are created automatically in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;based on the rules you configure. When <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;creates an issue, it also generates an ID for this issue. This allows you to identify and communicate issue information with other people.</p>
+ <p class="FM_Body">Depending on the issue type a different code is used: DCI for data collection issues and DVI for data validation issues. You can use this ID to search for specific issues.</p>
+ <p class="FM_H4Topic"><a name="XREF_36222_Explore_the_issues"></a>Explore the issues page</p>
  <p class="FM_Body" style="margin-bottom : 4.000pt;">Go to <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Data collection </span>&gt; <span class="FM_UIRef">Issues.</span></p>
  <p class="FM_Body" style="margin-bottom : 4.000pt;">On top of the Issues page all available <span class="FM_UIRef">filters</span>&#160;are shown and can be configured here. You can for example filter all issues raised by a failed connection and assigned to you. The applied filters are shown in this menu.</p>
  <p class="FM_Body" style="margin-bottom : 4.000pt;">Below the filter pane there is a possibility to <span class="FM_UIRef">group</span>&#160;issues based on the parameter <span class="FM_UIRef">Reason</span>. If grouping is applied then the group will be shown on top of the page above the overview table. In this table it is indicated how many issues this group contains.</p>
@@ -76,9 +79,26 @@ gTopicId = "7.0_1";
 
  <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
   <caption class="FM_CGraphic" align="bottom">Figure: Issues homepage.</caption>
-  <tr style=" height : 184.67pt;">
+  <tr style=" height : 282.00pt;">
   <td style="width : 351.496pt; vertical-align : top;padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
-  <p class="FM_CGraphicCell" style="text-align  : justify;"><img alt="MultiSense_10.1_IssueManagement.png" style=" margin-bottom:0.000pt; width:100%; max-width:476px;" id="image0" src="MultiSense_10.1_IssueManagement.png" />&nbsp;</p>
+  <p class="FM_CGraphicCell" style="text-align  : justify;"><img alt="MultiSense_10.2_IssueManagement.png" style=" margin-bottom:0.000pt; width:100%; max-width:568px;" id="image0" src="MultiSense_10.2_IssueManagement.png" />&nbsp;</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_H4Topic">View issues overview</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Issues</span>&#160;&gt; <span class="FM_UIRef">Issues overview</span>.</p>
+ <p class="FM_BodyProcedure">This page shows an overall overview of all issues in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>. Issues are grouped per type, status, assignee and reason.</p>
+ <p class="FM_ListNumber1">2. &#160; Click one of the links to see all issues in that group.</p>
+ <p class="FM_ListNumber1">3. &#160; Use the filters on top of the page to see get an overview of all issues corresponding to the selected filters.</p>
+
+ <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
+  <caption class="FM_CGraphic" align="bottom">Figure: The issues overview page</caption>
+  <tr style=" height : 228.33pt;">
+  <td style="width : 351.496pt; vertical-align : top;padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+  <p class="FM_CGraphicCell"><img alt="IssuesOverview.png" style=" margin-bottom:0.000pt; width:100%; max-width:539px;" id="image1" src="IssuesOverview.png" />&nbsp;</p>
 </td>
 </tr>
  </table>
