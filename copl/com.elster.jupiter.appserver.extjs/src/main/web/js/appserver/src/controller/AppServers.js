@@ -794,9 +794,7 @@ Ext.define('Apr.controller.AppServers', {
             appServerName: me.appServer.get('name'),
             store: servedMessageServicesStore
         });
-        if (unservedMessagesStore.count() === 0) {
-            view.down('#add-message-services-button-from-details').disable();
-        }
+        view.down('#add-message-services-button-from-details').setDisabled(!unservedMessagesStore.count());
         route = router.getRoute(me.removeLastPartOfUrl(router.currentRoute));
         Uni.util.History.suspendEventsForNextCall();
         route.forward();
@@ -1361,7 +1359,7 @@ Ext.define('Apr.controller.AppServers', {
             },
             failure: function (response, operation) {
                 var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                var titleText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed')
+                var titleText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed');
                 me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
             }
         });
@@ -1382,23 +1380,21 @@ Ext.define('Apr.controller.AppServers', {
 
         var me = this,
             store = me.getMessageServicesGrid().getStore(),
-            itemsUpdated = store.getUpdatedRecords().length > 0,
-            itemsAdded = store.getNewRecords().length > 0,
-            itemsRemoved = store.getRemovedRecords().length > 0;
+            storeIsModified = store.getUpdatedRecords().length
+                || store.getNewRecords().length
+                || store.getRemovedRecords().length;
 
-        if (itemsUpdated || itemsAdded || itemsRemoved) {
-            if (me.getSaveSettingsButton()) {
-                me.getSaveSettingsButton().enable();
-            }
-            if (me.getNoMessageServicesSaveSettingsButton()) {
-                me.getNoMessageServicesSaveSettingsButton().enable();
-            }
-            if (me.getUndoSettingsButton()) {
-                me.getUndoSettingsButton().enable();
-            }
-            if (me.getNoMessageServicesUndoSettingsButton()) {
-                me.getNoMessageServicesUndoSettingsButton().enable();
-            }
+        if (me.getSaveSettingsButton()) {
+            me.getSaveSettingsButton().setDisabled(!storeIsModified);
+        }
+        if (me.getNoMessageServicesSaveSettingsButton()) {
+            me.getNoMessageServicesSaveSettingsButton().setDisabled(!storeIsModified);
+        }
+        if (me.getUndoSettingsButton()) {
+            me.getUndoSettingsButton().setDisabled(!storeIsModified);
+        }
+        if (me.getNoMessageServicesUndoSettingsButton()) {
+            me.getNoMessageServicesUndoSettingsButton().setDisabled(!storeIsModified);
         }
         me.updateMessageServiceCounter();
     },
