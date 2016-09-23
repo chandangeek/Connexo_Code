@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -258,12 +259,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     MeterActivation activate(Instant start);
 
     /**
-     *<b>MULTISENSE ONLY, DO NOT USE WHEN INSIGHT IS INSTALLED.</b>
-     * This method doesn't take {@link com.elster.jupiter.metering.config.MeterRole} into account. As a result all actions on meter activations
-     * (for example, check for mandatory reading type requirements) are performed with {@code com.elster.jupiter.metering.config.DefaultMeterRole#DEFAULT}
-     * role. Additional argument {@code 'MeterRole meterRole'} should be added to this method. Business constraints should be aligned with
-     * {@link UsagePoint#linkMeters()} method.
-     * <p></p>
      * Activates the device on a usage point. Either end the current MeterActivation and create a new one
      * based on previous MeterActivation but with the target Usage Point, or just create a new MeterActivation.
      * If this constitutes no change vs the current activation, the current MeterActivation will be returned.
@@ -274,25 +269,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *</ul>
      * @param start start of the meterActivation
      * @param usagePoint the Usage Point to be linked to the device
+     * @param meterRole
      * @return the new meterActivation
      */
-    // TODO Change method signature: add third argument 'MeterRole meterRole'
-    MeterActivation activate(Instant start, UsagePoint usagePoint);
-
-    /**
-     * Activates the device on a usage point. Either end the current MeterActivation and create a new one
-     * based on previous MeterActivation but with the target Usage Point, or just create a new MeterActivation.
-     * If this constitutes no change vs the current activation, a new MeterActivation will be made regardless.
-     * Activation can fail if:
-     * <ul>
-     * <li>the usagePoint is linked to another device</li>
-     * <li>the device doesn't provide all required reading types that specified in the metrology configurations of the usagePoint</li>
-     *</ul>
-     * @param start start of the meterActivation
-     * @param usagePoint the Usage Point to be linked to the device
-     * @return the new meterActivation
-     */
-    MeterActivation forceActivate(Instant start, UsagePoint usagePoint);
+    MeterActivation activate(Instant start, UsagePoint usagePoint, MeterRole meterRole);
 
     /**
      * Terminates the current MeterActivation on this Device.

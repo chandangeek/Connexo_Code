@@ -60,4 +60,23 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
         return "device having serial number '" + this.device.getSerialNumber() + "'";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DeviceIdentifierForAlreadyKnownDeviceBySerialNumber that = (DeviceIdentifierForAlreadyKnownDeviceBySerialNumber) o;
+
+        return device.getId() == that.device.getId();
+
+    }
+
+    @Override
+    public int hashCode() {
+        return device.hashCode();
+    }
 }

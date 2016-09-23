@@ -60,4 +60,24 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
     public String toString() {
         return "device having MRID " + getIdentifier();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DeviceIdentifierForAlreadyKnownDeviceByMrID that = (DeviceIdentifierForAlreadyKnownDeviceByMrID) o;
+
+        return device.getId() == that.device.getId();
+
+    }
+
+    @Override
+    public int hashCode() {
+        return device.hashCode();
+    }
 }
