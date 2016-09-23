@@ -100,6 +100,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
                             },
                             {
                                 xtype: 'uni-actioncolumn-remove',
+                                align: 'right',
                                 handler: function (grid, rowIndex) {
                                     grid.getStore().removeAt(rowIndex);
                                     if (grid.getStore().count() === 0) {
