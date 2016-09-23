@@ -228,7 +228,6 @@ public class ValidationEvaluatorIT {
         inMemoryBootstrapModule.deactivate();
     }
 
-    @Ignore
     @Test
     public void testValidationFromDifferentApplications() {
         ValidationService validationService = injector.getInstance(ValidationService.class);
