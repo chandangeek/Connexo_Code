@@ -233,13 +233,13 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
 
         QueryExecutor<EntryImpl> query = getDataModel().query(EntryImpl.class);
         Subquery subQueryEndDeviceIdInGroup = query.asSubquery(where("endDeviceGroup").isEqualTo(this),
-                new String[]{"endDevice"}, Order.NOORDER);
+                "endDevice");
         Condition condition = ListOperator.IN.contains(subQueryEndDeviceIdInGroup, "id");
         if (amrSystems.length > 0) {
             condition = condition.and(ListOperator.IN.contains("amrSystem", Arrays.asList(amrSystems)));
         }
 
-        return endDeviceQuery.asSubquery(condition, new String[]{"amrId"}, Order.NOORDER);
+        return endDeviceQuery.asSubquery(condition, "amrId");
     }
 
     private EndDeviceMembershipImpl forEndDevice(EndDevice endDevice) {
