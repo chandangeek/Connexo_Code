@@ -37,6 +37,7 @@ public class CalendarImporterMessageHandler implements MessageHandlerFactory, Tr
 
     static final String DESTINATION_NAME = "CalendarImport";
     public static final String SUBSCRIBER_NAME = "CalendarImport";
+    public static final String SUBSCRIBER_DISPLAYNAME = "Handle calendar import";
 
     private volatile MessageService messageService;
     private volatile FileImportService fileImportService;
