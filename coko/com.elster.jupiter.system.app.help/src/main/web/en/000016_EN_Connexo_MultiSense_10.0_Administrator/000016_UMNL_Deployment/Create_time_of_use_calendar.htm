@@ -1,0 +1,202 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Create time of use calendar</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000016_EN Connexo MDC 1.0 System administrator's guide\01 DRAFT\01 SOURCE\000016_UMNL_Deployment.fm" />
+ <link rel="stylesheet" href="000016_UMNL_Deployment.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "4.3.0_2";
+</script>
+ <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Time_of_use.htm">
+ <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Update_time_of_use_calendar.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H3SectionTopic"><span class="FM_change_bar">Create time of use calendar</span></p>
+ <p class="FM_H4Topic"><span class="FM_change_bar"><a name="XREF_33997_Import_time_of_use"></a>Import time of use calendar</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">Time of use calendars are imported into Connexo with an XML file which is validated by the calendar xsd file. The existing import framework is used for this purpose. See </span><a href="Import_services.htm#XREF_45529_4_2_Import_services"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Import services”</span></a><span class="FM_change_bar">. After importing the calendar, it becomes available for viewing (see </span><a href="Manage_time_of_use_calendars.htm#XREF_85205_View_a_time_of_use"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">View a time of use calendar</span><span class="FM_blue_crossreference">”</span></a><span class="FM_change_bar">) and assigning to a device (refer to the Connexo MultiSense user guide).</span></p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey"><span class="FM_change_bar">Some delay may occur when first using the new calendar because time series for an entire year will be calculated. Afterwards, new series will be calculated via a background process.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">The following attributes apply to the time of use calendar.</span></p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 85.039pt; vertical-align : top;">
+  <p class="FM_CellHeading"><span class="FM_change_bar">Parameter</span></p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+  <td style="width : 62.362pt; vertical-align : top;">
+  <p class="FM_CellHeading">Required</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 85.039pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">name</span></p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">Unique identifier for the calendar.</p>
+</td>
+  <td style="width : 62.362pt; vertical-align : top;">
+  <p class="FM_CellBody">Yes</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 85.039pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">category</span></p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">Purpose of the calendar, e.g. time of use.</p>
+</td>
+  <td style="width : 62.362pt; vertical-align : top;">
+  <p class="FM_CellBody">Yes</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 85.039pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">mRID</span></p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">Optional unique ID.</p>
+</td>
+  <td style="width : 62.362pt; vertical-align : top;">
+  <p class="FM_CellBody">No</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 85.039pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">description</span></p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">Free text describing the functional background of the calendar.</p>
+</td>
+  <td style="width : 62.362pt; vertical-align : top;">
+  <p class="FM_CellBody">No</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 85.039pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">timezone</span></p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">Indicates in which time zone the times in the import file must be interpreted/converted.</p>
+</td>
+  <td style="width : 62.362pt; vertical-align : top;">
+  <p class="FM_CellBody">Yes</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 85.039pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">start-year</span></p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">Start date for (re)calculating the corresponding time series.</p>
+</td>
+  <td style="width : 62.362pt; vertical-align : top;">
+  <p class="FM_CellBody">Yes</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t2Row">
+  <td style="width : 85.039pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">events</span></p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">Occurrence that you want to keep track of. This can be the start of an off-peak period or of a holiday period. An event always has an ID, a name and a code. The code corresponds to the twelfth field of the CIM reading type.</p>
+</td>
+  <td style="width : 62.362pt; vertical-align : top;">
+  <p class="FM_CellBody">Yes</p>
+</td>
+</tr>
+  <tr style=" height : 138.00pt;" class="t1Row">
+  <td style="width : 85.039pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">day-type</span></p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">A day type splits up each day in a period by means of ranges and associates these ranges with events. So, the day type will allow you to apply different tariffs to different moments of the day. Each range only has a start time. It lasts from its start time until the start of another range of that day. For example, if a range A starts at 23:00 and a range B starts at 02:00, then the period for range A is from 23:00 until 23:59 and from 0:00 until 2:00. Each moment of the day is covered by a day type. Apart from one or more ranges, each day type has an ID and a name.</p>
+</td>
+  <td style="width : 62.362pt; vertical-align : top;">
+  <p class="FM_CellBody">Yes</p>
+</td>
+</tr>
+  <tr style=" height : 307.00pt;" class="t2Row">
+  <td style="width : 85.039pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">periods</span></p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">A period corresponds to a time range within a year, i.e mostly a few months. It always has a name and a week template. The week template indicates for each day the valid day type. </p>
+  <p class="FM_CellBody">Periods only have start dates. Each period ends when it transitions into the next one. These transitions are setup either on fixed dates (day, month, year) or on recurring dates (day, month). Periods can overlap years. For example, if period 1 starts on 1 December and period 2 starts on 1 March, then December, January and February are part of period 1. </p>
+  <p class="FM_CellBody">The whole year must be covered by periods, including the time before the start of the very first period. When using recurring periods you only have to look at the last started period of the preceding year to know what period applies to the time before the start of the first period in the current year. In case of fixed periods, there is no way to know what period applies to the time before the start of your first period in the start year. Therefore, your very first period must start on 1 January. If needed, you have the possibility to let it start earlier because the period will wrap around the year change anyway. You just need to make sure that the period spans the entire year.</p>
+</td>
+  <td style="width : 62.362pt; vertical-align : top;">
+  <p class="FM_CellBody">Yes</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 85.039pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_change_bar">exceptions</span></p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">Special cases where the regular rules do not apply such as holidays, special days that are linked to an event, etc. This exception can be on a fixed date (day, month, year) or it can be a recurring date (day, month).</p>
+</td>
+  <td style="width : 62.362pt; vertical-align : top;">
+  <p class="FM_CellBody">No</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_Body"></p>
+ </body>
+</html>

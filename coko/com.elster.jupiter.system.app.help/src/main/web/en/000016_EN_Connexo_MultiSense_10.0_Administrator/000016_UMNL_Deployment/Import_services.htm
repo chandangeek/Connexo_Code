@@ -7,7 +7,7 @@
 
  <meta name="generator" content="Adobe FrameMaker 12" />
  <meta name="Originator" content="ImportMif" />
- <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000016_EN Connexo MDC 1.0 System administrator's guide\01 DRAFT\01 SOURCE\000016_UMNL_Deployment.fm" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000016_EN Connexo MDC 1.0 System administrator's guide\01 DRAFT\01 SOURCE\000016_UMNL_Deployment.fm" />
  <link rel="stylesheet" href="000016_UMNL_Deployment.css" type="text/css" />
  <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
 
@@ -56,14 +56,14 @@ gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
 gTopicId = "4.2";
 </script>
- <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Monitor_application_servers1.htm">
+ <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Monitor_application_server_load.htm">
  <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Configure_import_services.htm">
 </head>
 
 <body>
 <script type="text/javascript" src="../../ehlpdhtm.js"></script>
 
- <p class="FM_H2Section">Import services</p>
+ <p class="FM_H2Section"><a name="XREF_45529_4_2_Import_services"></a>Import services</p>
  <p class="FM_H4Topic">Understand import services</p>
  <p class="FM_Body">Import services are configured in <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>&#160;and used in the other Connexo applications. When creating new import services Connexo offers different default file importers that allow the import of different types of data to perform different actions. During configuration you need to specify the location of the files that need to be imported. Next to the import folder you will also specify the folder for in progress files and files of successful and failed imports. All this information is also visible in the applications using the import services when you look at the import service details.</p>
  <p class="FM_Body">The import service will take the file that needs to be imported and move it to the In progress folder and subsequently put it on the queue. The actual import is handled by a message service. This means that for import to be successful import service as well as message service need to be configured and added to the application server.</p>

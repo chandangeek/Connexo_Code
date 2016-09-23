@@ -1251,6 +1251,42 @@ p.FM_BodyProcedure {
                     letter-spacing:0.00em;
 
 }
+p.FM_DropDownBodyLetters {
+        margin-left:     31.181pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     -8.504pt;
+        margin-top:      4.000pt;
+        margin-bottom:   7.000pt;
+        word-spacing:    0.250em;
+        font-family:     Lato Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
+caption.FM_DropDownBodyLetters {
+        margin-left:     31.181pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     -8.504pt;
+        margin-top:      4.000pt;
+        margin-bottom:   7.000pt;
+        word-spacing:    0.250em;
+        font-family:     Lato Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
 p.FM_Volume {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -2572,11 +2608,11 @@ p.FM_ListNumber2 {
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato;
+        font-family:     Lato Light;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #000000;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -2590,11 +2626,11 @@ caption.FM_ListNumber2 {
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato;
+        font-family:     Lato Light;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #000000;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -3706,6 +3742,42 @@ p.FM_OLandscape {
                  letter-spacing:0.00em;
 
 }
+p.FM_ListBullet4 {
+        margin-left:     70.866pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     -8.504pt;
+        margin-top:      7.000pt;
+        margin-bottom:   0.000pt;
+        word-spacing:    0.250em;
+        font-family:     Lato Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
+caption.FM_ListBullet4 {
+        margin-left:     70.866pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     -8.504pt;
+        margin-top:      7.000pt;
+        margin-bottom:   0.000pt;
+        word-spacing:    0.250em;
+        font-family:     Lato Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
 p.FM_IconProcedure {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -3754,7 +3826,7 @@ p.FM_H1Chapter {
         font-style:      normal;
         font-weight:     normal;
         font-size:       30.0pt;
-        color:           #00699e;
+        color:           #1f7e9e;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -3772,7 +3844,7 @@ caption.FM_H1Chapter {
         font-style:      normal;
         font-weight:     normal;
         font-size:       30.0pt;
-        color:           #00699e;
+        color:           #1f7e9e;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -3834,36 +3906,36 @@ caption.FM_GlossaryTermIOM {
         
 }
 p.FM_ListBullet3 {
-        margin-left:     99.213pt;
+        margin-left:     59.528pt;
         margin-right:    0.000pt;
         text-align:      justify;
-        text-indent:     -14.173pt;
+        text-indent:     -8.504pt;
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato;
+        font-family:     Lato Light;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #000000;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
         
 }
 caption.FM_ListBullet3 {
-        margin-left:     99.213pt;
+        margin-left:     59.528pt;
         margin-right:    0.000pt;
         text-align:      justify;
-        text-indent:     -14.173pt;
+        text-indent:     -8.504pt;
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato;
+        font-family:     Lato Light;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #000000;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -4220,10 +4292,10 @@ p.FM_PDefinition {
 
 }
 p.FM_ListBullet2 {
-        margin-left:     56.693pt;
+        margin-left:     48.189pt;
         margin-right:    0.000pt;
         text-align:      justify;
-        text-indent:     -14.173pt;
+        text-indent:     -8.504pt;
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
@@ -4238,10 +4310,10 @@ p.FM_ListBullet2 {
         
 }
 caption.FM_ListBullet2 {
-        margin-left:     56.693pt;
+        margin-left:     48.189pt;
         margin-right:    0.000pt;
         text-align:      justify;
-        text-indent:     -14.173pt;
+        text-indent:     -8.504pt;
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
@@ -4480,7 +4552,7 @@ p.FM_ListBullet1 {
         margin-right:    0.000pt;
         text-align:      justify;
         text-indent:     -11.339pt;
-        margin-top:      7.000pt;
+        margin-top:      5.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
         font-family:     Lato Light;
@@ -4498,7 +4570,7 @@ caption.FM_ListBullet1 {
         margin-right:    0.000pt;
         text-align:      justify;
         text-indent:     -11.339pt;
-        margin-top:      7.000pt;
+        margin-top:      5.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
         font-family:     Lato Light;

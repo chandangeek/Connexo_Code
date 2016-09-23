@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Update time of use calendar</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000016_EN Connexo MDC 1.0 System administrator's guide\01 DRAFT\01 SOURCE\000016_UMNL_Deployment.fm" />
+ <link rel="stylesheet" href="000016_UMNL_Deployment.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "4.3.0_3";
+</script>
+ <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Create_time_of_use_calendar.htm">
+ <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Manage_time_of_use_calendars.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H3SectionTopic"><span class="FM_change_bar">Update time of use calendar</span></p>
+ <p class="FM_H4Topic"><span class="FM_change_bar">Update by re-importing the time of use calendar</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">You can update a time of use calendar by re-importing it into Connexo. Updating the time of use calendar is mostly done to add specific events such as variable holidays and other special periods that need an adjusted rate.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">To import the calendar, use the existing import framework and exactly the same name as the one that was used for the earlier import. Any changes will simply overwrite the existing information in the time of use calendar.</span></p>
+ <p class="FM_Body"><span class="FM_change_bar">If data had already been calculated with the previous version of the calendar, then, recalculate the data as from the start year. If no data had been calculated yet or if the previous version was </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; "><a title="Ghost is the status of time of use calendars that originate from the device and that are not known in the Connexo system. For these time of use calendars no detailed information is available and it is not possible to preview such a time of use calendar. It can only be removed. Ghost time of use calendars can be introduced into Connexo by importing them. See “Import time of use calendar”. Import file must be requested from the device manufacturer.">Ghost</a></span><span class="FM_change_bar">, then no calculation is required.</span></p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey">The status of the time of use calendar is <span class="FM_UIRef">Ghost</span>&#160;if it originates from the device and does not exist in Connexo.</p>
+ <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
+ <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+ <ul type="disc">
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">If you change the start year, all data before that date won’t be calculated.</span></p>
+</li>
+  <li>
+  <p class="FM_ListBullet1"><span class="FM_change_bar">Some delay may occur when first using the updated calendar because time series for an entire year will be calculated. Afterwards, new series will be calculated via background process.</span></p>
+</li>
+ </ul>
+ </body>
+</html>

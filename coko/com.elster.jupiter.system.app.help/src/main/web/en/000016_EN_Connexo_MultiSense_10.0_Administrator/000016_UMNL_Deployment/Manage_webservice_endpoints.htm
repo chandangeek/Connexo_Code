@@ -1,0 +1,180 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Manage webservice endpoints</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="C:\Users\jho\Documents\HomeWork\EMNL000016_EN Connexo MDC 1.0 System administrator's guide\01 DRAFT\01 SOURCE\000016_UMNL_Deployment.fm" />
+ <link rel="stylesheet" href="000016_UMNL_Deployment.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "4.4.0_3";
+</script>
+ <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Monitor_webservice_endpoints.htm">
+ <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Reading_types.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H3SectionTopic">Manage webservice endpoints</p>
+ <p class="FM_H4Topic">Add webservice endpoints</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Webservices</span>&#160;&gt; <span class="FM_UIRef">Webservice endpoints</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add webservice endpoint</span>. Complete the following fields:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Name</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Give a unique name</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Webservice</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Select a webservice. Depending on this selection different parameters need to be defined.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Url path</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Required for incoming webservices. Provide a unique path for the URL of the following format https://&lt;host&gt;:&lt;port&gt;/<span class="FM_Bold">&lt;path&gt;</span>.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Url</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Required for outgoing webservices. Provide a unique url in the following format https://&lt;host&gt;:&lt;port&gt;/&lt;path&gt;.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Log level</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Select the log level of the endpoint. If you select a high log level this will result in a detailed logging resulting in high database usage.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Trace requests</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">If you select this option, Connexo will create a file with the name you specified containing all request details.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">HTTP compression</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Compress outbound HTTP data and accept inbound compressed HTTP data.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Scheme validation</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Validate the XML schemes.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Authentication</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Add authentication level, if you select basic authentication then you will need to specify user name and password. For inbound services, you can specify a user role.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ <p class="FM_H4Topic">Activate/deactivate webservice endpoints</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Webservices</span>&#160;&gt; <span class="FM_UIRef">Webservice endpoints</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <span class="FM_change_bar"><img alt="masterActions00013.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image22" src="masterActions00013.png" /></span> next to the endpoint that you want to activate/deactivate.</p>
+ <p class="FM_ListNumber1">3. &#160; Select <span class="FM_UIRef">Activate</span>/<span class="FM_UIRef">Deactivate</span>.</p>
+ <p class="FM_H4Topic">Edit webservice endpoints</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Webservices</span>&#160;&gt; <span class="FM_UIRef">Webservice endpoints</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <span class="FM_change_bar"><img alt="masterActions00014.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image23" src="masterActions00014.png" /></span>&#160;next to the endpoint that you want to edit and select <span class="FM_UIRef">Edit</span>.</p>
+ <p class="FM_ListNumber1">3. &#160; Change the webservice endpoint parameters. Note that not all parameters can be edited when the endpoint is active.</p>
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Save</span>.</p>
+ <p class="FM_H4Topic">Remove webservice endpoints</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Webservices</span>&#160;&gt; <span class="FM_UIRef">Webservice endpoints</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <span class="FM_change_bar"><img alt="masterActions00015.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image24" src="masterActions00015.png" /></span>&#160;next to the endpoint that you want to remove and select <span class="FM_UIRef">Remove</span>.</p>
+ <p class="FM_ListNumber1">3. &#160; Confirm by clicking <span class="FM_UIRef">Remove</span>.</p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey">Requests which are being executed during the removal of the endpoint will be finalised with the settings of the endpoint at the time of the request. Requests after the endpoint has been removed, will result in an error.</p>
+ </body>
+</html>
