@@ -489,7 +489,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutnumberfield').clearInvalid();
             me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutcombobox').clearInvalid();
         }
-        record.getProxy().extraParams = ({mrid: encodeURIComponent(me.mrid)});
+        record.getProxy().setExtraParam('mrid', me.mrid);
         record.save({
             backUrl: backUrl,
             success: function (record) {
@@ -588,7 +588,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
         deviceModel.load(mrid, {
             success: function (device) {
-                connectionMethodModel.getProxy().setExtraParam('mrid', encodeURIComponent(mrid));
+                connectionMethodModel.getProxy().setExtraParam('mrid', mrid);
                 connectionMethodModel.load(connectionMethodId, {
                     success: function (connectionMethod) {
                         me.getApplication().fireEvent('loadDevice', device);

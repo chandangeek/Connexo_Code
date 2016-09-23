@@ -81,7 +81,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
         if (protocolDialect.length === 1) {
             var protocolDialectId = protocolDialect[0].get('id');
             var model = Ext.ModelManager.getModel('Mdc.model.DeviceProtocolDialect');
-            model.getProxy().extraParams = ({mRID: encodeURIComponent(me.mRID)});
+            model.getProxy().setExtraParam('mRID', me.mRID);
             model.load(protocolDialectId, {
                     success: function (deviceProtocolDialect) {
                         me.getDeviceProtocolDialectPreviewForm().loadRecord(deviceProtocolDialect);
@@ -119,7 +119,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
 
 
         var model = Ext.ModelManager.getModel('Mdc.model.DeviceProtocolDialect');
-        model.getProxy().extraParams = ({mRID: encodeURIComponent(mRID)});
+        model.getProxy().setExtraParam('mRID', mRID);
         model.load(protocolDialectId, {
             success: function (protocolDialect) {
                 me.getApplication().fireEvent('loadDeviceProtocolDialect', protocolDialect);

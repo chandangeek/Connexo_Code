@@ -120,7 +120,7 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
     },
 
     onRulesSetGridAfterRender: function (grid) {
-        grid.store.getProxy().setExtraParam('mRID', encodeURIComponent(this.mRID));
+        grid.store.getProxy().setExtraParam('mRID', this.mRID);
         grid.store.load();
     },
 
@@ -186,7 +186,7 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
             ruleSetIsActive = record.get('active'),
             page = me.getPage();
 
-        record.getProxy().setExtraParam('mRID', encodeURIComponent(me.mRID));
+        record.getProxy().setExtraParam('mRID', me.mRID);
         record.set('active', !ruleSetIsActive);
         page.setLoading();
         record.save({
