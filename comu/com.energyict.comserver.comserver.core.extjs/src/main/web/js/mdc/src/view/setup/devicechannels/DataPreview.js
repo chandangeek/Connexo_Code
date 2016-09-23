@@ -33,10 +33,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             me.down('#general-panel').setTitle(title);
             me.down('#values-panel').setTitle(title);
             me.down('#mdc-qualities-panel').setTitle(title);
-            me.down('#general-panel').loadRecord(detailRecord);
-            me.down('#values-panel').loadRecord(detailRecord);
+            me.down('#general-panel').loadRecord(record);
 
-            if (detailRecord.get('multiplier')) {
+            if (record.get('multiplier')) {
                 me.down('#general-panel #mdc-multiplier').show();
                 me.down('#values-panel #mdc-multiplier').show();
             } else {
@@ -87,7 +86,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 });
             } else {
                 me.setDataQuality(detailRecord.get('readingQualities'));
-                me.down('#readingDataValidated').setValue(record.get('dataValidated'));
+                me.down('#readingDataValidated').setValue(detailRecord.get('dataValidated'));
                 var dataLoggerSlaveField = me.down('#mdc-channel-data-preview-data-logger-slave');
                 if (dataLoggerSlaveField) {
                     dataLoggerSlaveField.setValue(record.get('slaveChannel'));
@@ -97,6 +96,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             Ext.resumeLayouts(true);
             detailRecord.set('value', record.get('value'));
             detailRecord.set('collectedValue', record.get('collectedValue'));
+            detailRecord.set('multiplier', record.get('multiplier'));
             me.down('#values-panel').loadRecord(detailRecord);
             me.setLoading(false);
         });
@@ -329,6 +329,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             {
                 fieldLabel: Uni.I18n.translate('devicechannelsreadings.dataValidated.title', 'MDC', 'Data validated'),
                 itemId: 'readingDataValidated',
+                name: 'dataValidated',
                 htmlEncode: false,
                 renderer: function (value) {
                     return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
@@ -348,7 +349,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     xtype: 'uni-form-info-message',
                     itemId: 'mdc-noReadings-msg',
                     text: Uni.I18n.translate('general.loadProfile.noDataQualities', 'MDC', 'There are no reading qualities for the channel readings on this load profile.'),
-                    margin: '7 10 32 0',
                     padding: '10'
                 }
             );
@@ -545,7 +545,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     xtype: 'uni-form-info-message',
                     itemId: 'mdc-noReadings-msg',
                     text: Uni.I18n.translate('general.reading.noDataQualities', 'MDC', 'There are no reading qualities for this reading.'),
-                    margin: '7 10 32 0',
                     padding: '10'
                 },
                 {
