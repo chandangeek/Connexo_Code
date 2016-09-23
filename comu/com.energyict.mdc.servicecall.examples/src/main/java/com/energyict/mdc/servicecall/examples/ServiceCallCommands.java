@@ -256,16 +256,16 @@ public class ServiceCallCommands {
     }
 
     public void createTrackedCommand() {
-        System.out.println("Usage: createTrackedCommand <device mRID> <device message id> <service call id>");
+        System.out.println("Usage: createTrackedCommand <device name> <device message id> <service call id>");
         System.out.println("  Creates a device message for _device message id_ for the device identified by _device mRID_ so that the device command is tracked by the service call");
     }
 
-    public void createTrackedCommand(String deviceMrid, long deviceMessageId, long serviceCallId) {
+    public void createTrackedCommand(String deviceName, long deviceMessageId, long serviceCallId) {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            Device device = deviceService.findByUniqueMrid(deviceMrid)
-                    .orElseThrow(() -> new IllegalArgumentException("No device known with mRID " + deviceMrid));
+            Device device = deviceService.findDeviceByName(deviceName)
+                    .orElseThrow(() -> new IllegalArgumentException("No device known with name " + deviceName));
 
 
             device.newDeviceMessage(DeviceMessageId.havingId(deviceMessageId), TrackingCategory.serviceCall)
@@ -279,18 +279,18 @@ public class ServiceCallCommands {
     }
 
     public void createDeviceServiceCall() {
-        System.out.println("Usage: createDeviceServiceCall <type> <version> <external reference> <device MRID>");
+        System.out.println("Usage: createDeviceServiceCall <type> <version> <external reference> <device name>");
     }
 
-    public void createDeviceServiceCall(String type, String typeVersion, String externalReference, String deviceMRID) {
+    public void createDeviceServiceCall(String type, String typeVersion, String externalReference, String deviceName) {
         threadPrincipalService.set(() -> "Console");
         Optional<ServiceCallType> serviceCallType = serviceCallService.findServiceCallType(type, typeVersion);
         if (!serviceCallType.isPresent()) {
             System.out.println("There is no service call type with name: '" + type + "' and version: '" + typeVersion + "'");
         } else {
             try (TransactionContext context = transactionService.getContext()) {
-                Device device = deviceService.findByUniqueMrid(deviceMRID)
-                        .orElseThrow(() -> new IllegalArgumentException("No device known with mRID " + deviceMRID));
+                Device device = deviceService.findDeviceByName(deviceName)
+                        .orElseThrow(() -> new IllegalArgumentException("No device known with name " + deviceName));
 
                 ServiceCall serviceCall = serviceCallType.get()
                         .newServiceCall()
@@ -507,7 +507,7 @@ public class ServiceCallCommands {
                 usagePoint.ifPresent(serviceCallBuilder::targetObject);
             }
             if (object.startsWith("SP")) {
-                Optional<Device> device = deviceService.findByUniqueMrid(object);
+                Optional<Device> device = deviceService.findDeviceByName(object);
                 device.ifPresent(serviceCallBuilder::targetObject);
             }
         }
