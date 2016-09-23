@@ -20,6 +20,8 @@ import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import com.google.common.collect.Range;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -81,8 +83,13 @@ public class UsagePointFinder implements Finder<UsagePoint> {
 
     @Override
     public List<UsagePoint> find() {
-        QueryExecutor<UsagePoint> query = meteringService.getDataModel().query(UsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, Location.class, LocationMember.class);
-        return query.select(ListOperator.IN.contains(this.finder.asSubQuery("id"), "id"), finder.getActualSortingColumns());
+        QueryExecutor<UsagePoint> query = meteringService.getDataModel().query(
+                UsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, Location.class, LocationMember.class);
+        Range<Integer> pageLimits = finder.getActualPageLimits();
+        return Range.all().equals(pageLimits) ?
+                query.select(ListOperator.IN.contains(this.finder.asSubQuery("id"), "id"), finder.getActualSortingColumns()) :
+                query.select(ListOperator.IN.contains(this.finder.asSubQuery("id"), "id"), finder.getActualSortingColumns(),
+                        true, new String[0], pageLimits.lowerEndpoint(), pageLimits.upperEndpoint());
     }
 
     @Override
