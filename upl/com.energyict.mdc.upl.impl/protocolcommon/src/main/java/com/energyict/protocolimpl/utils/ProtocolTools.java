@@ -49,6 +49,9 @@ public final class ProtocolTools {
         // Hide constructor for Util class with static methods
     }
 
+    /**
+     * Keys can either be 128 bits or 256 bits.
+     */
     public static byte[] aesWrap(byte[] keyToWrap, byte[] kek) {
         try {
             final Cipher aesWrap = Cipher.getInstance("AESWrap");
@@ -59,7 +62,9 @@ public final class ProtocolTools {
         }
     }
 
-    //TODO JUnit tests
+    /**
+     * Keys can either be 128 bits or 256 bits.
+     */
     public static byte[] aesUnwrap(byte[] wrappedKey, byte[] kek) {
         try {
             final Cipher aesWrap = Cipher.getInstance("AESWrap");

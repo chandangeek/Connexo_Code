@@ -52,27 +52,26 @@ import java.util.List;
 /**
  * The AM540 is a PLC E-meter designed according to IDIS package 2 specifications <br/>
  * The protocol is an extension of the AM130 protocol (which is the GPRS variant designed according to IDIS P2)
- *
+ * <p/>
  * The protocol supports also EVN Netz-NO Companion standard specification (security-related).
  *
  * @author sva
  * @since 11/08/2015 - 14:04
  */
 public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCache {
-    protected static final ObisCode EVN_FRAMECOUNTER_DATA_READOUT   = ObisCode.fromString("0.0.43.3.0.255");
-    protected static final ObisCode EVN_FRAMECOUNTER_INSTALLATION   = ObisCode.fromString("0.0.43.4.0.255");
-    protected static final ObisCode EVN_FRAMECOUNTER_MAINTENANCE    = ObisCode.fromString("0.0.43.5.0.255");
-    protected static final ObisCode EVN_FRAMECOUNTER_CERTIFICATION  = ObisCode.fromString("0.0.43.6.0.255");
+    protected static final ObisCode EVN_FRAMECOUNTER_DATA_READOUT = ObisCode.fromString("0.0.43.3.0.255");
+    protected static final ObisCode EVN_FRAMECOUNTER_INSTALLATION = ObisCode.fromString("0.0.43.4.0.255");
+    protected static final ObisCode EVN_FRAMECOUNTER_MAINTENANCE = ObisCode.fromString("0.0.43.5.0.255");
+    protected static final ObisCode EVN_FRAMECOUNTER_CERTIFICATION = ObisCode.fromString("0.0.43.6.0.255");
 
-    protected static final int EVN_CLIENT_MANAGEMENT        = 1;
-    protected static final int EVN_CLIENT_DATA_READOUT      = 2;
-    protected static final int EVN_CLIENT_FW_UPGRADE        = 3;
-    protected static final int EVN_CLIENT_INSTALLATION      = 5;
-    protected static final int EVN_CLIENT_MAINTENANCE       = 6;
-    protected static final int EVN_CLIENT_CERTIFICATION     = 7;
-    protected static final int PUBLIC_CLIENT                = 16;
-    protected static final int EVN_CLIENT_CUSTOMER_INFORMATION_PUSH    = 103;
-
+    protected static final int EVN_CLIENT_MANAGEMENT = 1;
+    protected static final int EVN_CLIENT_DATA_READOUT = 2;
+    protected static final int EVN_CLIENT_FW_UPGRADE = 3;
+    protected static final int EVN_CLIENT_INSTALLATION = 5;
+    protected static final int EVN_CLIENT_MAINTENANCE = 6;
+    protected static final int EVN_CLIENT_CERTIFICATION = 7;
+    protected static final int PUBLIC_CLIENT = 16;
+    protected static final int EVN_CLIENT_CUSTOMER_INFORMATION_PUSH = 103;
 
 
     private AM540Cache am540Cache;
@@ -96,7 +95,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     }
 
     private void setMeterToTransparentMode(ComChannel comChannel) {
-        if (getDlmsSessionProperties().useMeterInTransparentMode()){
+        if (getDlmsSessionProperties().useMeterInTransparentMode()) {
             if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
                 hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
                 SerialPortConfiguration serialPortConfiguration = ((SerialPortComChannel) comChannel).getSerialPortConfiguration();
@@ -113,7 +112,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
                     flagIEC1107Connection.setMeterToTransparentMode();
                 } catch (Exception e) {
                     getLogger().info("Failed to set the meter into transparent mode");
-                    if(flagIEC1107Connection != null){
+                    if (flagIEC1107Connection != null) {
                         flagIEC1107Connection.switchBaudrate(transparentBaudrate, HHUSignOn.PROTOCOL_HDLC);
                     }
                 }
@@ -130,7 +129,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         return hhuSignOn;
     }
 
-    private int getParityValue(Parities parities){
+    private int getParityValue(Parities parities) {
         switch (parities) {
             case NONE:
                 return 0;
@@ -199,7 +198,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         return new AM540ConfigurationSupport();
     }
 
-    protected void initFrameCounterCache(SecurityContext securityContext){
+    protected void initFrameCounterCache(SecurityContext securityContext) {
         if (securityContext == null) {
             securityContext = getDlmsSession().getAso().getSecurityContext();
         }
@@ -223,13 +222,11 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
             } else {
                 if (!getDlmsSessionProperties().usesPublicClient()) {
                     getLogger().info("Reading frame counter using normal method");
-                    super.readFrameCounter(comChannel, (int)getDlmsSessionProperties().getAARQTimeout());
+                    super.readFrameCounter(comChannel, (int) getDlmsSessionProperties().getAARQTimeout());
                 }
             }
         }
     }
-
-
 
 
     /**
@@ -238,18 +235,18 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
      *
      * @return
      */
-    protected boolean readAndTestCachedFrameCounter(ComChannel comChannel){
+    protected boolean readAndTestCachedFrameCounter(ComChannel comChannel) {
         getLogger().info("Will try to use a cached frame counter");
         final int clientId = getDlmsSessionProperties().getClientMacAddress();
         long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         boolean frameCounterSet = false;
 
         if (cachedFrameCounter > 0) {
-            getLogger().info(" - cached frame counter: "+cachedFrameCounter);
+            getLogger().info(" - cached frame counter: " + cachedFrameCounter);
             this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFrameCounter + 1);
             frameCounterSet = true;
         } else {
-            getLogger().warning("Cache does not have a cached frame counter for clientId="+clientId);
+            getLogger().warning("Cache does not have a cached frame counter for clientId=" + clientId);
 
             BigDecimal initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
             if (initialFrameCounter != null) {
@@ -257,13 +254,13 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
                 this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter.intValue());
                 frameCounterSet = true;
             } else {
-                getLogger().warning( "InitialFrameCounter parameter not set correctly, will try to fetch a new one if possible.: ");
+                getLogger().warning("InitialFrameCounter parameter not set correctly, will try to fetch a new one if possible.: ");
             }
         }
 
 
         if (frameCounterSet) {
-            if (getDlmsSessionProperties().validateCachedFrameCounter()){
+            if (getDlmsSessionProperties().validateCachedFrameCounter()) {
                 return testConnectionAndRetryWithFrameCounterIncrements(comChannel);
             } else {
                 getLogger().warning(" - cached frame counter will not be validated - if the communication fails please set the cache property back to {No}, so a fresh one will be read-out");
@@ -276,20 +273,20 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         return false;
     }
 
-    protected boolean testConnectionAndRetryWithFrameCounterIncrements(ComChannel comChannel){
+    protected boolean testConnectionAndRetryWithFrameCounterIncrements(ComChannel comChannel) {
         DlmsSession testDlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
-        int retries = getDlmsSessionProperties().getFrameCounterRecoveryRetries() ;
+        int retries = getDlmsSessionProperties().getFrameCounterRecoveryRetries();
         int step = getDlmsSessionProperties().getFrameCounterRecoveryStep();
 
-        getLogger().info("Will test the frameCounter. Recovery mechanism: retries="+retries+", step="+step);
-        if (retries<=0){
+        getLogger().info("Will test the frameCounter. Recovery mechanism: retries=" + retries + ", step=" + step);
+        if (retries <= 0) {
             retries = 0;
             step = 0;
         }
 
         initFrameCounterCache(testDlmsSession.getAso().getSecurityContext());
 
-        do{
+        do {
             try {
                 testDlmsSession.getDlmsV2Connection().connectMAC();
                 testDlmsSession.createAssociation();
@@ -300,16 +297,16 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
                 }
             } catch (CommunicationException ex) {
                 long frameCounter = this.getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter();
-                getLogger().warning("Current frame counter ["+frameCounter+"] is not valid, received exception "+ex.getMessage()+", increasing frame counter by "+step);
+                getLogger().warning("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
                 frameCounter += step;
                 this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
                 setTXFrameCounter(getDlmsSessionProperties().getClientMacAddress(), (int) frameCounter);
-            } catch (Exception ex){
-                getLogger().warning("Received an unexpected exception while testing the frame counter "+ex.getMessage());
+            } catch (Exception ex) {
+                getLogger().warning("Received an unexpected exception while testing the frame counter " + ex.getMessage());
                 throw ex;
             }
             retries--;
-        } while (retries>0);
+        } while (retries > 0);
 
         testDlmsSession.disconnect();
         getLogger().warning("Could not validate the frame counter, seems that it's out-of synch whith the device. You'll have to read a fresh one.");
@@ -326,7 +323,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
         final AM540Properties publicClientProperties = new AM540Properties();
         publicClientProperties.addProperties(publicProperties);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, publicProperties));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, publicProperties));    //SecurityLevel 0:0
 
         final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
         final ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
@@ -352,9 +349,9 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     }
 
     @Override
-    protected ObisCode getFrameCounterForClient(int clientId){
+    protected ObisCode getFrameCounterForClient(int clientId) {
         // handle some special frame-counters for EVN
-        switch (clientId){
+        switch (clientId) {
             case EVN_CLIENT_DATA_READOUT:
                 return EVN_FRAMECOUNTER_DATA_READOUT;
             case EVN_CLIENT_INSTALLATION:

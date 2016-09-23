@@ -1,6 +1,6 @@
 package com.energyict.encryption.asymetric.util;
 
-import com.energyict.encryption.asymetric.ECCCurve;
+import com.energyict.mdw.core.ECCCurve;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;

@@ -308,14 +308,16 @@ public interface DLMSCOSEMGlobals {
     byte AARQ_CALLED_AP_TITLE               =   (byte)0xA2;
     byte AARQ_CALLED_AE_QUALIFIER           =   (byte)0xA3;
     byte AARQ_CALLING_AP_TITLE              = 	(byte)0xA6;
-    byte AARQ_SENDER_ACSE_REQUIREMENTS		= 	(byte)0x8A;
+	byte AARQ_CALLING_AE_QUALIFIER          =   (byte)0xA7;
+	byte AARQ_SENDER_ACSE_REQUIREMENTS		= 	(byte)0x8A;
     byte AARQ_MECHANISM_NAME				=	(byte)0x8B;
     byte AARE_TAG							=	(byte)0x61;
     byte AARE_APPLICATION_CONTEXT_NAME 		= 	(byte)0xA1;
     byte AARE_RESULT 						= 	(byte)0xA2;
     byte AARE_RESULT_SOURCE_DIAGNOSTIC 		= 	(byte)0xA3;
     byte AARE_RESPONING_AP_TITLE 			= 	(byte)0xA4;
-    /** @deprecated this tag-name does not exist in DLMS, use the {@link #AARQ_CALLING_AP_TITLE} instead*/
+	byte AARE_RESPONDING_AE_QUALIFIER       =   (byte)0xA5;
+	/** @deprecated this tag-name does not exist in DLMS, use the {@link #AARQ_CALLING_AP_TITLE} instead*/
     byte AARE_CALLING_AP_TITLE              = 	(byte)0xA6;
 	byte AARE_MECHANISM_NAME				=	(byte)0x89;
 	byte AARE_RESPONDING_AUTHENTICATION_VALUE =	(byte)0xAA;

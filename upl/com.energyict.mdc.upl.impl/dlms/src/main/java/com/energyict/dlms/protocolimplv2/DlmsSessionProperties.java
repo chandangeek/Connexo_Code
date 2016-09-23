@@ -18,6 +18,12 @@ import java.util.TimeZone;
  */
 public interface DlmsSessionProperties extends CommunicationSessionProperties {
 
+    String CLIENT_PRIVATE_KEY_AGREEMENT_KEY = "ClientPrivateKeyAgreementKey";
+    String CLIENT_SIGNING_CERTIFICATE = "ClientSigningCertificate";
+    String CLIENT_PRIVATE_SIGNING_KEY = "ClientPrivateSigningKey";
+    String GENERAL_CIPHERING_KEY_TYPE = "GeneralCipheringKeyType";
+    String SERVER_TLS_CERTIFICATE = "ServerTLSCertificate";
+
     /**
      * The device timezone
      */
@@ -45,9 +51,32 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
     int getAuthenticationSecurityLevel();
 
     /**
-     * Getter for the data transport security level. Can be 0 (no security), 1 (authentication), 2 (encryption) or 3 (both)
+     * Getter for the data transport security level.
+     * <p/>
+     * For suite 0: can be 0 (no security), 1 (authentication), 2 (encryption) or 3 (both)
      */
     int getDataTransportSecurityLevel();
+
+    /**
+     * Set the current data transport security level with a new value.
+     * This is the exceptional case where, in an existing session, the security was raised.
+     */
+    void setDataTransportSecurityLevel(int level);
+
+    /**
+     * The security suite.
+     * Currently 3 suites defined in the DLMS blue book:
+     * - 0 (AES-GCM-128)
+     * - 1 (ECDH-ECDSAAES-GCM-128-SHA-256)
+     * - 2 (ECDH-ECDSAAES-GCM-256-SHA-384)
+     */
+    int getSecuritySuite();
+
+    /**
+     * Set the current security suite with a new value.
+     * This is the exceptional case where, in an existing session, the security suite was changed.
+     */
+    void setSecuritySuite(int securitySuite);
 
     /**
      * Indicates the manufacturer.
@@ -167,5 +196,10 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
      * Returns null if no general ciphering is used.
      */
     GeneralCipheringKeyType getGeneralCipheringKeyType();
+
+    /**
+     * Return true if digital signing is to be used (only possible for DLMS suite 1 and 2)
+     */
+    boolean isGeneralSigning();
 
 }

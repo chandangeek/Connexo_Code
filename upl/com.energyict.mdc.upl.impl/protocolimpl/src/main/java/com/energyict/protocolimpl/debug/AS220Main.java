@@ -4,7 +4,7 @@ import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.LocalSecurityProvider;
-import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityPolicy;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -46,17 +46,20 @@ import java.util.TimeZone;
  */
 public class AS220Main extends AbstractDebuggingMain<AS220> {
 
+    protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("Europe/Paris");
+    protected static final int BAUDRATE = 115200;
+    protected static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
+    protected static final int PARITY = SerialCommunicationChannel.PARITY_NONE;
+    protected static final int STOPBITS = SerialCommunicationChannel.STOPBITS_1;
     private static final String DISCONNECT_EMETER = "<" + AS220Messaging.DISCONNECT_EMETER + ">1</" + AS220Messaging.DISCONNECT_EMETER + ">";
     private static final String CONNECT_EMETER = "<" + AS220Messaging.CONNECT_EMETER + ">1</" + AS220Messaging.CONNECT_EMETER + ">";
     private static final String ARM_EMETER = "<" + AS220Messaging.ARM_EMETER + ">1</" + AS220Messaging.ARM_EMETER + ">";
-
     private static final String RESCAN_PLCBUS = "<" + PLCMessaging.RESCAN_PLCBUS + ">1</" + PLCMessaging.RESCAN_PLCBUS + ">";
     private static final String FORCE_SET_CLOCK = "<" + AS220Messaging.FORCE_SET_CLOCK + ">1</" + AS220Messaging.FORCE_SET_CLOCK + ">";
     private static final String SET_PLC_TIMEOUTS1 = "<SetSFSKMacTimeouts SEARCH_INITIATOR_TIMEOUT=\"01\" SYNCHRONIZATION_CONFIRMATION_TIMEOUT=\"34\" TIME_OUT_NOT_ADDRESSED=\"56\" TIME_OUT_FRAME_NOT_OK=\"78\"> </SetSFSKMacTimeouts>";
     private static final String SET_PLC_TIMEOUTS2 = "<SetSFSKMacTimeouts SEARCH_INITIATOR_TIMEOUT=\"-\" SYNCHRONIZATION_CONFIRMATION_TIMEOUT=\"34\" TIME_OUT_NOT_ADDRESSED=\"56\" TIME_OUT_FRAME_NOT_OK=\"78\"> </SetSFSKMacTimeouts>";
     private static final String SET_PLC_TIMEOUTS3 = "<SetSFSKMacTimeouts SEARCH_INITIATOR_TIMEOUT=\"\" SYNCHRONIZATION_CONFIRMATION_TIMEOUT=\"34\" TIME_OUT_NOT_ADDRESSED=\"56\" TIME_OUT_FRAME_NOT_OK=\"78\"> </SetSFSKMacTimeouts>";
     private static final String SET_PLC_TIMEOUTS4 = "<SetSFSKMacTimeouts SYNCHRONIZATION_CONFIRMATION_TIMEOUT=\"34\" TIME_OUT_NOT_ADDRESSED=\"56\" TIME_OUT_FRAME_NOT_OK=\"78\"> </SetSFSKMacTimeouts>";
-
     private static final String SET_PLC_FREQUENCIES1 = "<SetPlcChannelFrequencies CHANNEL1_FM=\"11\" CHANNEL1_FS=\"12\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
     private static final String SET_PLC_FREQUENCIES2 = "<SetPlcChannelFrequencies CHANNEL1_FM=\"-\" CHANNEL1_FS=\"12\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
     private static final String SET_PLC_FREQUENCIES3 = "<SetPlcChannelFrequencies CHANNEL1_FM=\"\" CHANNEL1_FS=\"12\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
@@ -67,45 +70,43 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     private static final String SET_PLC_FREQUENCIES8 = "<SetPlcChannelFrequencies CHANNEL1_FM=\"11\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
     private static final String SET_PLC_FREQUENCIES9 = "<SetPlcChannelFrequencies CHANNEL1_FM=\"rr\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
     private static final String SET_PLC_FREQUENCIES0 = "<SetPlcChannelFrequencies CHANNEL1_FM=\"72000\" CHANNEL1_FS=\"76800\" CHANNEL2_FM=\"81600\" CHANNEL2_FS=\"67200\" CHANNEL3_FM=\"86400\" CHANNEL3_FS=\"62400\" CHANNEL4_FM=\"91200\" CHANNEL4_FS=\"57600\" CHANNEL5_FM=\"52800\" CHANNEL5_FS=\"48000\" CHANNEL6_FM=\"43200\" CHANNEL6_FS=\"38400\"> </SetPlcChannelFrequencies>";
-
     private static final String SET_PLC_SNR_CREDIT_FREQ0 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"1.7\" CHANNEL1_CREDITWEIGHT=\"0.2\" CHANNEL2_FS=\"81600\" CHANNEL2_FM=\"67200\" CHANNEL2_SNR=\"1.0\" CHANNEL2_CREDITWEIGHT=\"1.0\" CHANNEL3_FS=\"86400\" CHANNEL3_FM=\"62400\" CHANNEL3_SNR=\"1.0\" CHANNEL3_CREDITWEIGHT=\"1.0\" CHANNEL4_FS=\"91200\" CHANNEL4_FM=\"57600\" CHANNEL4_SNR=\"1.0\" CHANNEL4_CREDITWEIGHT=\"1.0\" CHANNEL5_FS=\"52800\" CHANNEL5_FM=\"48000\" CHANNEL5_SNR=\"1.0\" CHANNEL5_CREDITWEIGHT=\"1.0\" CHANNEL6_FS=\"43200\" CHANNEL6_FM=\"38400\" CHANNEL6_SNR=\"1.0\" CHANNEL6_CREDITWEIGHT=\"1.0\"> </SetPlcChannelFrequenciesSnrCredits>";
     private static final String SET_PLC_SNR_CREDIT_FREQ1 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"2.6\" CHANNEL1_CREDITWEIGHT=\"0.4\" CHANNEL3_FS=\"86400\" CHANNEL3_FM=\"62400\" CHANNEL3_SNR=\"1.0\" CHANNEL3_CREDITWEIGHT=\"1.0\" CHANNEL4_FS=\"91200\" CHANNEL4_FM=\"57600\" CHANNEL4_SNR=\"1.0\" CHANNEL4_CREDITWEIGHT=\"1.0\" CHANNEL5_FS=\"52800\" CHANNEL5_FM=\"48000\" CHANNEL5_SNR=\"1.0\" CHANNEL5_CREDITWEIGHT=\"1.0\" CHANNEL6_FS=\"43200\" CHANNEL6_FM=\"38400\" CHANNEL6_SNR=\"1.0\" CHANNEL6_CREDITWEIGHT=\"1.0\"> </SetPlcChannelFrequenciesSnrCredits>";
     private static final String SET_PLC_SNR_CREDIT_FREQ2 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"3.5\" CHANNEL1_CREDITWEIGHT=\"0.6\" CHANNEL4_FS=\"91200\" CHANNEL4_FM=\"57600\" CHANNEL4_SNR=\"1.0\" CHANNEL4_CREDITWEIGHT=\"1.0\" CHANNEL5_FS=\"52800\" CHANNEL5_FM=\"48000\" CHANNEL5_SNR=\"1.0\" CHANNEL5_CREDITWEIGHT=\"1.0\" CHANNEL6_FS=\"43200\" CHANNEL6_FM=\"38400\" CHANNEL6_SNR=\"1.0\" CHANNEL6_CREDITWEIGHT=\"1.0\"> </SetPlcChannelFrequenciesSnrCredits>";
     private static final String SET_PLC_SNR_CREDIT_FREQ3 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"4.4\" CHANNEL1_CREDITWEIGHT=\"0.8\" CHANNEL5_FS=\"52800\" CHANNEL5_FM=\"48000\" CHANNEL5_SNR=\"1.0\" CHANNEL5_CREDITWEIGHT=\"1.0\" CHANNEL6_FS=\"43200\" CHANNEL6_FM=\"38400\" CHANNEL6_SNR=\"1.0\" CHANNEL6_CREDITWEIGHT=\"1.0\"> </SetPlcChannelFrequenciesSnrCredits>";
     private static final String SET_PLC_SNR_CREDIT_FREQ4 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"5.3\" CHANNEL1_CREDITWEIGHT=\"0.0\" CHANNEL6_FS=\"43200\" CHANNEL6_FM=\"38400\" CHANNEL6_SNR=\"1.0\" CHANNEL6_CREDITWEIGHT=\"1.0\"> </SetPlcChannelFrequenciesSnrCredits>";
     private static final String SET_PLC_SNR_CREDIT_FREQ5 = "<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"76800\" CHANNEL1_FM=\"72000\" CHANNEL1_SNR=\"6.2\" CHANNEL1_CREDITWEIGHT=\"0.1\"> </SetPlcChannelFrequenciesSnrCredits>";
-
     private static final String SET_PLC_GAIN0 = "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"-\" SEARCH_INITIATOR_GAIN=\"-\"> </SetSFSKGain>";
     private static final String SET_PLC_GAIN1 = "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"0\" SEARCH_INITIATOR_GAIN=\"-\"> </SetSFSKGain>";
     private static final String SET_PLC_GAIN2 = "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"-\" SEARCH_INITIATOR_GAIN=\"6\"> </SetSFSKGain>";
-
     private static final String SET_PLC_REPEATER_0 = "<SetSFSKRepeater REPEATER=\"0\"> </SetSFSKRepeater>";
     private static final String SET_PLC_REPEATER_1 = "<SetSFSKRepeater REPEATER=\"1\"> </SetSFSKRepeater>";
     private static final String SET_PLC_REPEATER_2 = "<SetSFSKRepeater REPEATER=\"2\"> </SetSFSKRepeater>";
     private static final String SET_PLC_REPEATER_3 = "<SetSFSKRepeater REPEATER=\"3\"> </SetSFSKRepeater>";
-
     private static final String WRITE_IEC_DATA_0 = "<WriteRawIEC1107Class IEC1107ClassId=\"2\" Offset=\"0\" RawData=\"26000000990F0000000C0000000000004803233800400000000000000000005550000000000000000300000000000000000000000000DD0000000000073300000000009903040000000000000000000000000000000000000000000000000000007800000000000000000068\"> </WriteRawIEC1107Class>";
     private static final String WRITE_IEC_DATA_5 = "<WriteRawIEC1107Class IEC1107ClassId=\"2\" Offset=\"0\" RawData=\"26000000990F0000000C0000000000004803233800400000000000000000005550000000000000000300000000000000000000000000DD0000000000073300000000009903040000000000000000000000000000000000000000000000000000007800140000000000000054\"> </WriteRawIEC1107Class>";
-
     private static final String FIRMWARE_UPGRADE = "<FirmwareUpdate><IncludedFile>$CONTENT$</IncludedFile></FirmwareUpdate>";
-
     private static final String ACTIVITY_CALENDAR = "<TimeOfUse>$CONTENT$</TimeOfUse>";
     private static final String ACTIVATE_PASSIVE_CALENDAR = "<ActivatePassiveCalendar ActivationTime=\"$ACT_DATE$\"> </ActivatePassiveCalendar>";
-
     private static final String LOADLIMIT_DURATION_MSG = "<SetLoadLimitDuration LoadLimitDuration=\"$DURATION$\"> </SetLoadLimitDuration>";
     private static final String LOADLIMIT_THRESHOLD_MSG = "<SetLoadLimitThreshold LoadLimitThreshold=\"$THRESHOLD$\"> </SetLoadLimitThreshold>";
-
     private static final String OBSERVER_FILENAME = "c:\\logging\\AS220Main\\communications_"+System.currentTimeMillis()+".log";
-    protected static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("Europe/Paris");
-
     private static final boolean AS1440 = true;
     protected static final String COMPORT = AS1440 ? "COM5" : "COM7";
-    protected static final int BAUDRATE = 115200;
-    protected static final int DATABITS = SerialCommunicationChannel.DATABITS_8;
-    protected static final int PARITY = SerialCommunicationChannel.PARITY_NONE;
-    protected static final int STOPBITS = SerialCommunicationChannel.STOPBITS_1;
-
     private static AS220 as220 = null;
+
+    public static void main(String[] args) throws LinkException, IOException, InterruptedException {
+        AS220Main main = new AS220Main();
+        main.setCommPort(COMPORT);
+        main.setBaudRate(BAUDRATE);
+        main.setDataBits(DATABITS);
+        main.setParity(PARITY);
+        main.setStopBits(STOPBITS);
+        main.setObserverFilename(null);
+        main.setShowCommunication(false);
+        main.setTimeZone(DEFAULT_TIMEZONE);
+        main.run();
+    }
 
     public AS220 getMeterProtocol() {
         if (as220 == null) {
@@ -127,7 +128,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         properties.setProperty("Timeout", "20000");
         properties.setProperty("ForcedDelay", "200");
 
-        properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
+        properties.setProperty("SecurityLevel", "1:" + SecurityPolicy.SECURITYPOLICY_BOTH);
         properties.setProperty("ProfileInterval", "900");
         properties.setProperty("Password", "20100401");
         properties.setProperty("SerialNumber", AS1440 ? "03191576" : "35021373");
@@ -150,7 +151,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     private Properties getOpticalProperties() {
         Properties properties = getProperties();
-        properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
+        properties.setProperty("SecurityLevel", "1:" + SecurityPolicy.SECURITYPOLICY_NONE);
         properties.setProperty("AddressingMode", "2");
         properties.setProperty("Connection", "0");
         properties.setProperty("ClientMacAddress", "1");
@@ -159,7 +160,6 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         properties.setProperty("OpticalBaudrate", "5");
         return properties;
     }
-
 
     public ProfileData readProfile(boolean incluideEvents) throws IOException {
         Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
@@ -501,7 +501,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         System.out.println("Firmware upgrade " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
         System.out.println("Firmware after upgrade: " + getMeterProtocol().getFirmwareVersion());
     }
-
+    
     private String getB64EncodedFirmareString() throws IOException {
         File file = new File("C:\\Documents and Settings\\jme\\Desktop\\AM500_20110607_V2.08\\MeterEandis.v2.08_Serial_Release_ImageTransfer.bin");
         FileInputStream fis = null;
@@ -521,7 +521,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         Base64EncoderDecoder base64Encoder = new Base64EncoderDecoder();
         return base64Encoder.encode(content);
     }
-    
+
     public void activityCalendarUpgrade(String xmlContent) throws IOException {
         MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(xmlContent, "trackGna"));
         System.out.println("ActivityCalender upgrade " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
@@ -582,19 +582,6 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         String message = LOADLIMIT_DURATION_MSG.replace("$DURATION$", duration);
         MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(message, ""));
         System.out.println("Write LoadLimit duration : " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
-    }
-
-    public static void main(String[] args) throws LinkException, IOException, InterruptedException {
-        AS220Main main = new AS220Main();
-        main.setCommPort(COMPORT);
-        main.setBaudRate(BAUDRATE);
-        main.setDataBits(DATABITS);
-        main.setParity(PARITY);
-        main.setStopBits(STOPBITS);
-        main.setObserverFilename(null);
-        main.setShowCommunication(false);
-        main.setTimeZone(DEFAULT_TIMEZONE);
-        main.run();
     }
 
     @Override

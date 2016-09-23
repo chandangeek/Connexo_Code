@@ -79,15 +79,11 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private static final int CONNECTION_MODE_TCPIP = 1;
     private static final int CONNECTION_MODE_COSEM_PDU = 2;
     private static final int CONNECTION_MODE_LLC = 3;
-
-
+    protected int iInterval = -1;
     private boolean debug = false;
-
     private DLMSCache dlmsCache = new DLMSCache();
-
     private String strID;
     private String strPassword;
-
     private int iTimeoutProperty;
     private int iProtocolRetriesProperty;
     private int iRequestTimeZone;
@@ -102,7 +98,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private int transparentBaudrate;
     private String nodeId;
     private String serialNumber;
-    protected int iInterval = -1;
     private int extendedLogging;
     private int opticalBaudrate;
     private int profileType = 0;
@@ -140,6 +135,13 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private boolean readPlcLogbook;
 
     /**
+     * Creates a new instance of DLMSSNAS220, empty constructor
+     */
+    public DLMSSNAS220() {
+
+    }
+
+    /**
      * Do some extra connect settings
      *
      * @throws BusinessException if no correct MBus device is found
@@ -147,13 +149,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     protected abstract void doConnect() throws BusinessException;
 
     protected abstract String getRegistersInfo() throws IOException;
-
-    /**
-     * Creates a new instance of DLMSSNAS220, empty constructor
-     */
-    public DLMSSNAS220() {
-
-    }
 
     /**
      * Getter for the manufacturer deviceId.
@@ -171,10 +166,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
 
     public void setDlmsConnection(DLMSConnection connection) {
         this.dlmsConnection = connection;
-    }
-
-    public void setCosemObjectFactory(CosemObjectFactory cof) {
-        this.cosemObjectFactory = cof;
     }
 
     public int getProfileType() {
@@ -485,12 +476,12 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
             iRequestTimeZone = Integer.parseInt(properties.getProperty(PR_REQUEST_TIME_ZONE, "0").trim());
             setRoundtripCorrection(Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim()));
 
-            String[] securityLevel = properties.getProperty(PR_SECURITY_LEVEL, "0:" + SecurityContext.SECURITYPOLICY_NONE).split(":");
+            String[] securityLevel = properties.getProperty(PR_SECURITY_LEVEL, "0:" + SecurityPolicy.SECURITYPOLICY_NONE).split(":");
             this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
             if (securityLevel.length == 2) {
                 this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
             } else if (securityLevel.length == 1) {
-                this.datatransportSecurityLevel = SecurityContext.SECURITYPOLICY_NONE;
+                this.datatransportSecurityLevel = SecurityPolicy.SECURITYPOLICY_NONE;
             } else {
                 throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty(PR_SECURITY_LEVEL, "0"));
             }
@@ -628,12 +619,12 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return timeZone;
     }
 
-    public void setCache(Object cacheObject) {
-        this.dlmsCache = (DLMSCache) cacheObject;
-    }
-
     public Object getCache() {
         return dlmsCache;
+    }
+
+    public void setCache(Object cacheObject) {
+        this.dlmsCache = (DLMSCache) cacheObject;
     }
 
     public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
@@ -707,6 +698,10 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return cosemObjectFactory;
     }
 
+    public void setCosemObjectFactory(CosemObjectFactory cof) {
+        this.cosemObjectFactory = cof;
+    }
+
     public int getReference() {
         return ProtocolLink.SN_REFERENCE;
     }
@@ -723,15 +718,15 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         this.debug = debug;
     }
 
-    public void setDstFlag(int dstFlag) {
-        this.dstFlag = dstFlag;
-    }
-
     /**
      * @return the dstFlag
      */
     public int getDstFlag() {
         return dstFlag;
+    }
+
+    public void setDstFlag(int dstFlag) {
+        this.dstFlag = dstFlag;
     }
 
     /**
