@@ -1239,13 +1239,13 @@ public class BpmResource {
                         if (taskContentInfo.isPresent()) {
                             if ("TIMESTAMP".equals(taskContentInfo.get().propertyTypeInfo.simplePropertyType)) {
                                 Date date = new Date();
-                                if (taskContentInfo.get().propertyValueInfo.value != null) {
+                                if (taskContentInfo.get().propertyValueInfo != null && taskContentInfo.get().propertyValueInfo.value != null) {
                                     date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
                                     outputBindingContents.put(s.outputBinding, date);
                                 }
                             } else if ("DATE".equals(taskContentInfo.get().propertyTypeInfo.simplePropertyType)) {
                                 Date date = new Date();
-                                if (taskContentInfo.get().propertyValueInfo.value != null) {
+                                if (taskContentInfo.get().propertyValueInfo != null && taskContentInfo.get().propertyValueInfo.value != null) {
                                     date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
                                     outputBindingContents.put(s.outputBinding, date);
                                 }
@@ -1259,10 +1259,14 @@ public class BpmResource {
                                         }
                                     }
                                 } else {
-                                    outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
+                                    if(taskContentInfo.get().propertyValueInfo != null) {
+                                        outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
+                                    }
                                 }
                             } else {
-                                outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
+                                if(taskContentInfo.get().propertyValueInfo != null) {
+                                    outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
+                                }
                             }
                         }
                     });
