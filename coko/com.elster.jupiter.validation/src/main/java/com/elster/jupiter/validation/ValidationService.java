@@ -90,6 +90,8 @@ public interface ValidationService {
 
     Optional<Instant> getLastChecked(ChannelsContainer channelsContainer);
 
+    Optional<Instant> getLastValidationRun(ChannelsContainer channelsContainer);
+
     void updateLastChecked(ChannelsContainer channelsContainer, Instant date);
 
     void updateLastChecked(Channel channel, Instant date);

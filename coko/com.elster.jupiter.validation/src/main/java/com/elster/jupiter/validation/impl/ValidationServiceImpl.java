@@ -375,6 +375,11 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
+    public Optional<Instant> getLastValidationRun(ChannelsContainer channelsContainer) {
+        return activeChannelsContainerValidationsFor(Objects.requireNonNull(channelsContainer)).getLastValidationRun();
+    }
+
+    @Override
     public Optional<Instant> getLastChecked(Channel channel) {
         return activeChannelsContainerValidationsFor(Objects.requireNonNull(channel).getChannelsContainer()).getLastChecked(channel);
     }
