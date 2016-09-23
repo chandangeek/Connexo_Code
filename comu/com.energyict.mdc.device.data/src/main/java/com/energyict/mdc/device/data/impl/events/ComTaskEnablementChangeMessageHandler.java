@@ -69,7 +69,7 @@ public class ComTaskEnablementChangeMessageHandler implements MessageHandler {
                             device.getComTaskExecutions().stream().noneMatch(cte -> cte.getComTasks().stream().anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))).
                             forEach(device -> sendMessageOnSingleQueue(comTaskEnablementConfig,
                                     comTaskEnablementConfig.jsonService.serialize(
-                                            new SingleComTaskEnablementQueueMessage(device.getmRID(), queueMessage.comTaskEnablementId)),
+                                            new SingleComTaskEnablementQueueMessage(device.getId(), queueMessage.comTaskEnablementId)),
                                     COMTASK_ENABLEMENT_SINGLE_ACTION));
                 }
             }
@@ -80,8 +80,8 @@ public class ComTaskEnablementChangeMessageHandler implements MessageHandler {
                 SingleComTaskEnablementQueueMessage queueMessage = comTaskEnablementConfig.jsonService.deserialize(((String) properties.get(COMTASK_ENABLEMENT_MESSAGE_VALUE)), SingleComTaskEnablementQueueMessage.class);
                 createComTaskExecutionsForEnablement(
                         getComTaskEnablement(comTaskEnablementConfig, queueMessage.comTaskEnablementId),
-                        comTaskEnablementConfig.deviceService.findDeviceByMrid(queueMessage.deviceMrid)
-                                .orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(comTaskEnablementConfig.thesaurus, queueMessage.deviceMrid))
+                        comTaskEnablementConfig.deviceService.findDeviceById(queueMessage.deviceId)
+                                .orElseThrow(NoSuchElementException.deviceWithIdNotFound(comTaskEnablementConfig.thesaurus, queueMessage.deviceId))
                 );
             }
 

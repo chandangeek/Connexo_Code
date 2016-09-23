@@ -78,13 +78,13 @@ public class DeviceConfigChangeHandler implements MessageHandler {
                             DeviceConfigChangeInActionImpl deviceConfigChangeInAction = deviceConfigChangeRequest.addDeviceInAction(device);
                             sendMessageOnConfigQueue(configChangeContext,
                                     configChangeContext.jsonService.serialize(
-                                            new SingleConfigChangeQueueMessage(device.getmRID(), queueMessage.destinationDeviceConfigurationId, deviceConfigChangeInAction.getId(), queueMessage.deviceConfigChangeRequestId)),
+                                            new SingleConfigChangeQueueMessage(device.getId(), queueMessage.destinationDeviceConfigurationId, deviceConfigChangeInAction.getId(), queueMessage.deviceConfigChangeRequestId)),
                                     ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SINGLE_START_ACTION);
                         }));
             }
 
             private Stream<Device> getDeviceStream(ConfigChangeContext configChangeContext, ItemizeConfigChangeQueueMessage queueMessage) {
-                if (queueMessage.deviceMRIDs.isEmpty() && queueMessage.search != null) {
+                if (queueMessage.deviceIds.isEmpty() && queueMessage.search != null) {
 
                     /*************************************************************************************************/
                     /** We currently only support this if the user selected the DeviceType and a single DeviceConfig */
@@ -103,7 +103,7 @@ public class DeviceConfigChangeHandler implements MessageHandler {
                     }
                     return searchBuilder.toFinder().stream().map(Device.class::cast);
                 } else {
-                    return queueMessage.deviceMRIDs.stream().map(configChangeContext.deviceService::findDeviceByMrid).filter(Optional::isPresent).map(Optional::get);
+                    return queueMessage.deviceIds.stream().map(configChangeContext.deviceService::findDeviceById).filter(Optional::isPresent).map(Optional::get);
                 }
             }
 
@@ -128,7 +128,7 @@ public class DeviceConfigChangeHandler implements MessageHandler {
                         consumerForAllowedDevices.accept(device);
                     } else {
                         LOGGER.warning(configChangeContext.thesaurus.getFormat(MessageSeeds.CHANGE_CONFIG_WRONG_DEVICE_STATE)
-                                .format(device.getmRID(), getStateName(configChangeContext.thesaurus, device.getState())));
+                                .format(device.getName(), getStateName(configChangeContext.thesaurus, device.getState())));
                     }
                 };
             }
@@ -146,8 +146,8 @@ public class DeviceConfigChangeHandler implements MessageHandler {
             @Override
             void handle(Map<String, Object> properties, ConfigChangeContext configChangeContext) {
                 SingleConfigChangeQueueMessage queueMessage = configChangeContext.jsonService.deserialize(((String) properties.get(ServerDeviceForConfigChange.CONFIG_CHANGE_MESSAGE_VALUE)), SingleConfigChangeQueueMessage.class);
-                Device device = configChangeContext.deviceService.findDeviceByMrid(queueMessage.deviceMrid)
-                        .orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForConfigChange(configChangeContext.thesaurus, queueMessage.deviceMrid));
+                Device device = configChangeContext.deviceService.findDeviceById(queueMessage.deviceId)
+                        .orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForConfigChange(configChangeContext.thesaurus, queueMessage.deviceId));
                 Device deviceWithNewConfig = new DeviceConfigChangeExecutor(configChangeContext.deviceService, configChangeContext.deviceDataModelService.clock()).execute((DeviceImpl) device, configChangeContext.deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(queueMessage.destinationDeviceConfigurationId).get());
                 DeviceConfigChangeInAction deviceConfigInAction = getDeviceConfigInAction(configChangeContext, queueMessage.deviceConfigChangeInActionId);
                 deviceConfigInAction.remove();

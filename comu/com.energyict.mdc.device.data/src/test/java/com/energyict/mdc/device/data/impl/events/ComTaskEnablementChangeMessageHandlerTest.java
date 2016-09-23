@@ -62,8 +62,8 @@ public class ComTaskEnablementChangeMessageHandlerTest {
 
     private static final long DEVICE_CONFIG_ID = 44465L;
     private static final long OTHER_DEVICE_CONFIG_ID = DEVICE_CONFIG_ID + 10;
-    private static final String DEVICE_1_MRID = "MRID_Device_1";
-    private static final String DEVICE_2_MRID = "MRID_DEvice_2";
+    private static final long DEVICE_1_ID = 13L;
+    private static final long DEVICE_2_ID = 14L;
 
     @Mock
     private JsonService jsonService;
@@ -130,10 +130,10 @@ public class ComTaskEnablementChangeMessageHandlerTest {
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(otherComTaskEnablement.getComTask()).thenReturn(otherComTask);
 
-        when(device_1.getmRID()).thenReturn(DEVICE_1_MRID);
-        when(device_2.getmRID()).thenReturn(DEVICE_2_MRID);
-        when(deviceService.findDeviceByMrid(DEVICE_1_MRID)).thenReturn(Optional.of(device_1));
-        when(deviceService.findDeviceByMrid(DEVICE_2_MRID)).thenReturn(Optional.of(device_2));
+        when(device_1.getId()).thenReturn(DEVICE_1_ID);
+        when(device_2.getId()).thenReturn(DEVICE_2_ID);
+        when(deviceService.findDeviceById(DEVICE_1_ID)).thenReturn(Optional.of(device_1));
+        when(deviceService.findDeviceById(DEVICE_2_ID)).thenReturn(Optional.of(device_2));
         when(device_1.newManuallyScheduledComTaskExecution(comTaskEnablement, null)).thenReturn(mock(ComTaskExecutionBuilder.class));
     }
 
@@ -206,7 +206,7 @@ public class ComTaskEnablementChangeMessageHandlerTest {
     public void executeSingleAction() throws JsonProcessingException {
         when(device_1.getComTaskExecutions()).thenReturn(Collections.emptyList()); // The device doesn't have any ComTaskExecutions, so a new one should be created
 
-        SingleComTaskEnablementQueueMessage singleComTaskEnablementQueueMessage = new SingleComTaskEnablementQueueMessage(DEVICE_1_MRID, COMTASK_ENABLEMENT_ID);
+        SingleComTaskEnablementQueueMessage singleComTaskEnablementQueueMessage = new SingleComTaskEnablementQueueMessage(DEVICE_1_ID, COMTASK_ENABLEMENT_ID);
         mockMessageHandlerInternals(singleComTaskEnablementQueueMessage, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_SINGLE_ACTION);
         ComTaskEnablementChangeMessageHandler msgHandler = getTestInstance();
 
@@ -221,7 +221,7 @@ public class ComTaskEnablementChangeMessageHandlerTest {
         when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
         when(device_1.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution)); // The device has a matching ComTaskExecution
 
-        SingleComTaskEnablementQueueMessage singleComTaskEnablementQueueMessage = new SingleComTaskEnablementQueueMessage(DEVICE_1_MRID, COMTASK_ENABLEMENT_ID);
+        SingleComTaskEnablementQueueMessage singleComTaskEnablementQueueMessage = new SingleComTaskEnablementQueueMessage(DEVICE_1_ID, COMTASK_ENABLEMENT_ID);
         mockMessageHandlerInternals(singleComTaskEnablementQueueMessage, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_SINGLE_ACTION);
         ComTaskEnablementChangeMessageHandler msgHandler = getTestInstance();
 

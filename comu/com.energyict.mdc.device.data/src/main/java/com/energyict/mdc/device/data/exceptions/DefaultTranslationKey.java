@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum DefaultTranslationKey implements TranslationKey {
     COM_SCHEDULE_ADDED("AddComSchedule" , "Added ComSchedule {0} on device {1}"),
-    COM_SCHEDULE_REMOVED("RemoveComSchedule" , "Removed ComSchedule {0} from {1}"),
+    COM_SCHEDULE_REMOVED("RemoveComSchedule", "Removed ComSchedule {0} from device {1}"),
     ;
 
     private String key;

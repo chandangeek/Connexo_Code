@@ -434,7 +434,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     void postSave() {
         if (this.meter.isPresent()) {
-            this.meter.get().setMRID(getmRID());
+            this.meter.get().setName(getName());
             this.location.ifPresent(location1 -> this.meter.get().setLocation(location1));
             this.spatialCoordinates.ifPresent(spatialCoordinates1 -> this.meter.get()
                     .setSpatialCoordinates(spatialCoordinates1));
@@ -1312,6 +1312,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
         Meter newMeter = amrSystem.newMeter(String.valueOf(getId()))
                 .setMRID(getmRID())
+                .setName(getName())
                 .setStateMachine(stateMachine)
                 .setSerialNumber(getSerialNumber())
                 .create();

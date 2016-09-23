@@ -182,11 +182,11 @@ public class SearchDevicesGogoCommand {
         }
     }
 
-    public void complexSearch(String mRID) throws InvalidValueException {
+    public void complexSearch(String deviceName) throws InvalidValueException {
         System.out.println(
                 this.searchService
                         .search(Device.class)
-                        .where("mRID").isEqualTo(mRID)
+                        .where("name").isEqualTo(deviceName)
                         .and("statusName").in(
                             DefaultState.IN_STOCK.getKey(),
                             DefaultState.DECOMMISSIONED.getKey())
@@ -198,7 +198,7 @@ public class SearchDevicesGogoCommand {
     }
 
     private String toString(Device device) {
-        return device.getmRID() + " in state " + device.getState().getName();
+        return device.getName() + " in state " + device.getState().getName();
     }
 
     private enum Operator {

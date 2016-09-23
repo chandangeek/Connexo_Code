@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -134,7 +135,7 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public boolean hasDevices(AllowedCalendar allowedCalendar) {
-        if(allowedCalendar.isGhost()) {
+        if (allowedCalendar.isGhost()) {
             return false;
         }
         Condition condition = where(ActiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName()).isEqualTo(allowedCalendar)
@@ -144,14 +145,14 @@ class DeviceServiceImpl implements ServerDeviceService {
                         of(ActiveEffectiveCalendar.class, condition, this.deviceDataModelService.dataModel()).
                         paged(0, 1);
         List<ActiveEffectiveCalendar> allActiveCalendars = page.find();
-        if(!allActiveCalendars.isEmpty()) {
+        if (!allActiveCalendars.isEmpty()) {
             return true;
         }
 
         condition = where(PassiveCalendarImpl.Fields.CALENDAR.fieldName()).isEqualTo(allowedCalendar);
         Finder<PassiveCalendar> pagedPassive =
                 DefaultFinder.of(PassiveCalendar.class, condition, this.deviceDataModelService.dataModel())
-                .paged(0,1);
+                        .paged(0, 1);
         List<PassiveCalendar> allPassiveCalendars = pagedPassive.find();
         return !allPassiveCalendars.isEmpty();
     }
@@ -246,39 +247,45 @@ class DeviceServiceImpl implements ServerDeviceService {
         return device;
     }
 
+    private DataMapper<Device> getDeviceMapper() {
+        return this.deviceDataModelService.dataModel().mapper(Device.class);
+    }
+
     @Override
     public Optional<Device> findDeviceById(long id) {
-        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique("id", id);
+        return getDeviceMapper().getUnique("id", id);
     }
 
     @Override
     public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version) {
-        return this.deviceDataModelService.dataModel().mapper(Device.class).lockObjectIfVersion(version, id);
+        return getDeviceMapper().lockObjectIfVersion(version, id);
     }
 
     @Override
     public Optional<Device> findAndLockDeviceByNameAndVersion(String name, long version) {
-        Optional<Device> deviceOptional = this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.NAME.fieldName(), name);
-        if (deviceOptional.isPresent()) {
-            return this.deviceDataModelService.dataModel().mapper(Device.class).lockObjectIfVersion(version, deviceOptional.get().getId());
-        } else {
-            return Optional.empty();
-        }
+        DataMapper<Device> mapper = getDeviceMapper();
+        return mapper.getUnique(DeviceFields.NAME.fieldName(), name).flatMap(device -> mapper.lockObjectIfVersion(version, device.getId()));
+    }
+
+    @Override
+    public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mRID, long version) {
+        DataMapper<Device> mapper = getDeviceMapper();
+        return mapper.getUnique(DeviceFields.MRID.fieldName(), mRID).flatMap(device -> mapper.lockObjectIfVersion(version, device.getId()));
     }
 
     @Override
     public Optional<Device> findDeviceByMrid(String mrId) {
-        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrId);
+        return getDeviceMapper().getUnique(DeviceFields.MRID.fieldName(), mrId);
     }
 
     @Override
     public Optional<Device> findDeviceByName(String name) {
-        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.NAME.fieldName(), name);
+        return getDeviceMapper().getUnique(DeviceFields.NAME.fieldName(), name);
     }
 
     @Override
     public List<Device> findDevicesBySerialNumber(String serialNumber) {
-        return this.deviceDataModelService.dataModel().mapper(Device.class).find(DeviceFields.SERIALNUMBER.fieldName(), serialNumber);
+        return getDeviceMapper().find(DeviceFields.SERIALNUMBER.fieldName(), serialNumber);
     }
 
     @Override
@@ -298,7 +305,8 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Finder<Device> findDevicesByDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
-        return DefaultFinder.of(Device.class, where("deviceConfiguration").isEqualTo(deviceConfiguration), this.deviceDataModelService.dataModel()).defaultSortColumn("lower(name)");
+        return DefaultFinder.of(Device.class, where("deviceConfiguration").isEqualTo(deviceConfiguration), this.deviceDataModelService.dataModel())
+                .defaultSortColumn("lower(name)");
     }
 
     @Override
@@ -327,7 +335,9 @@ class DeviceServiceImpl implements ServerDeviceService {
             final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
                     .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
                     .orElseThrow(DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
-            final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(deviceConfiguration);
+            final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel()
+                    .getInstance(DeviceConfigChangeRequestImpl.class)
+                    .init(deviceConfiguration);
             deviceConfigChangeRequest.save();
             return Pair.of(device, deviceConfigChangeRequest);
         });
@@ -345,10 +355,12 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs) {
-        final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(destinationDeviceConfiguration);
+    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, Long... deviceIds) {
+        final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel()
+                .getInstance(DeviceConfigChangeRequestImpl.class)
+                .init(destinationDeviceConfiguration);
         deviceConfigChangeRequest.save();
-        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceMRIDs), devicesForConfigChangeSearch, deviceConfigChangeRequest
+        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceIds), devicesForConfigChangeSearch, deviceConfigChangeRequest
                 .getId());
 
         DestinationSpec destinationSpec = deviceDataModelService.messageService()
@@ -445,11 +457,10 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public List<Device> findActiveValidatedDevices(List<Device> domainObjects) {
-        List<Meter> enabledMeters = deviceDataModelService.validationService().validationEnabledMetersIn(domainObjects.stream()
-                .map(Device::getmRID)
-                .collect(Collectors.toList()));
+        List<Meter> enabledMeters = deviceDataModelService.validationService()
+                .validationEnabledMetersIn(domainObjects.stream().map(Device::getName).collect(Collectors.toList()));
         return domainObjects.stream()
-                .filter(device -> enabledMeters.stream().anyMatch(meter -> meter.getMRID().equals(device.getmRID())))
+                .filter(device -> enabledMeters.stream().anyMatch(meter -> meter.getName().equals(device.getName())))
                 .collect(Collectors.toList());
     }
 

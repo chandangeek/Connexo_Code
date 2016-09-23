@@ -61,9 +61,9 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
         return deviceConfigurationChangeException;
     }
 
-    public static DeviceConfigurationChangeException noDeviceFoundForConfigChange(Thesaurus thesaurus, String deviceMrid) {
-        DeviceConfigurationChangeException deviceConfigurationChangeException = new DeviceConfigurationChangeException(thesaurus, MessageSeeds.NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND, deviceMrid);
-        deviceConfigurationChangeException.set("deviceMrid", deviceMrid);
+    public static DeviceConfigurationChangeException noDeviceFoundForConfigChange(Thesaurus thesaurus, long deviceId) {
+        DeviceConfigurationChangeException deviceConfigurationChangeException = new DeviceConfigurationChangeException(thesaurus, MessageSeeds.NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND, deviceId);
+        deviceConfigurationChangeException.set("deviceId", deviceId);
         return deviceConfigurationChangeException;
     }
 

@@ -66,6 +66,8 @@ public interface DeviceService {
 
     Optional<Device> findAndLockDeviceByNameAndVersion(String name, long version);
 
+    Optional<Device> findAndLockDeviceBymRIDAndVersion(String mRID, long version);
+
     /**
      * Finds the Device based on his unique internal name
      *
@@ -143,9 +145,9 @@ public interface DeviceService {
      *
      * @param destinationDeviceConfiguration the configuration which should be applied
      * @param devicesForConfigChangeSearch
-     * @param deviceMRIDs                    a list of device MRIDs
+     * @param deviceIds                    a list of device IDs
      */
-    void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs);
+    void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, Long... deviceIds);
 
     Optional<ActivatedBreakerStatus> getActiveBreakerStatus(Device device);
 

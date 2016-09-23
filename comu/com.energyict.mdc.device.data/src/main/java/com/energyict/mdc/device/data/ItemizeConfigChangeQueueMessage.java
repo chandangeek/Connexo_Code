@@ -12,16 +12,16 @@ public class ItemizeConfigChangeQueueMessage implements QueueMessage {
     public String topic = ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_BULK_SETUP_ACTION;
     public long destinationDeviceConfigurationId;
     public long deviceConfigChangeRequestId;
-    public List<String> deviceMRIDs;
+    public List<Long> deviceIds;
     public DevicesForConfigChangeSearch search;
 
     @SuppressWarnings("unused")
     public ItemizeConfigChangeQueueMessage() {
     }
 
-    public ItemizeConfigChangeQueueMessage(long destinationDeviceConfigurationId, List<String> deviceMRIDs, DevicesForConfigChangeSearch search, long deviceConfigChangeRequestId) {
+    public ItemizeConfigChangeQueueMessage(long destinationDeviceConfigurationId, List<Long> deviceIds, DevicesForConfigChangeSearch search, long deviceConfigChangeRequestId) {
         this.destinationDeviceConfigurationId = destinationDeviceConfigurationId;
-        this.deviceMRIDs = deviceMRIDs;
+        this.deviceIds = deviceIds;
         this.search = search;
         this.deviceConfigChangeRequestId = deviceConfigChangeRequestId;
     }

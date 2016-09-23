@@ -80,7 +80,7 @@ public class EndDeviceCommandImplTest {
     @Rule
     public TestRule expectedRule = new ExpectedExceptionRule();
 
-    private static final String END_DEVICE_MRID = "endDeviceMRID";
+    private static final long DEVICE_ID = 13L;
     private static final long SERVICE_CALL_ID = 1;
 
     @Mock
@@ -137,8 +137,8 @@ public class EndDeviceCommandImplTest {
                 }
             };
         });
-        when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
-        when(deviceService.findDeviceByMrid(END_DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(endDevice.getAmrId()).thenReturn(String.valueOf(DEVICE_ID));
+        when(deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedMessages()).thenReturn(Collections.singleton(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE));
         DeviceProtocolPluggableClass protocolPluggableClass = mock(DeviceProtocolPluggableClass.class);

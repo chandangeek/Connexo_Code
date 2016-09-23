@@ -8,16 +8,15 @@ import com.energyict.mdc.scheduling.ScheduleAction;
  */
 public class ComScheduleOnDeviceQueueMessage implements QueueMessage {
     public long comScheduleId;
-    public String mRID;
+    public long deviceId;
     public ScheduleAction action;
 
     public ComScheduleOnDeviceQueueMessage() {
     }
 
-
-    public ComScheduleOnDeviceQueueMessage(long comScheduleId, String mRID, ScheduleAction action) {
+    public ComScheduleOnDeviceQueueMessage(long comScheduleId, long deviceId, ScheduleAction action) {
         this.comScheduleId = comScheduleId;
-        this.mRID = mRID;
+        this.deviceId = deviceId;
         this.action = action;
     }
 }

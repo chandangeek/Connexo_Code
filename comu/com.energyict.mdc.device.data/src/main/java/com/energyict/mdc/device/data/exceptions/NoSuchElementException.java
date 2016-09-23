@@ -24,8 +24,8 @@ public class NoSuchElementException extends LocalizedException implements Suppli
         return this;
     }
 
-    public static NoSuchElementException deviceWithMRIDNotFound(Thesaurus thesaurus, String mRID) {
-        return new NoSuchElementException(thesaurus, MessageSeeds.NO_SUCH_DEVICE, mRID);
+    public static NoSuchElementException deviceWithIdNotFound(Thesaurus thesaurus, long deviceId) {
+        return new NoSuchElementException(thesaurus, MessageSeeds.NO_SUCH_DEVICE, deviceId);
     }
 
     public static NoSuchElementException comTaskEnablementWithIdNotFound(Thesaurus thesaurus, long comTaskEnablementId) {
