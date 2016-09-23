@@ -83,7 +83,7 @@ public class DemoUsagePointMeterActivationValidatorTest {
     @Before
     public void initialize() {
         when(meter.getMRID()).thenReturn("Test");
-        when(deviceService.findByUniqueMrid("Test")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByMrid("Test")).thenReturn(Optional.of(device));
         when(usagePoint.forCustomProperties()).thenReturn(usagePointCasExtension);
         when(usagePointCasExtension.getAllPropertySets()).thenReturn(Collections.singletonList(usagePointPropertySet));
         when(usagePointPropertySet.getCustomPropertySet()).thenReturn(usagePointCustomPropertySet);

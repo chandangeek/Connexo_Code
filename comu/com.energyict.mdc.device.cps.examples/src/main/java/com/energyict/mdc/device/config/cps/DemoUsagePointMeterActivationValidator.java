@@ -7,13 +7,12 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -68,7 +67,7 @@ public class DemoUsagePointMeterActivationValidator implements CustomUsagePointM
 
 
     private boolean checkMeterConditions(Meter meter) {
-        Device device = deviceService.findByUniqueMrid(meter.getMRID()).get();
+        Device device = deviceService.findDeviceByMrid(meter.getMRID()).get();
         return device.getDeviceType()
                 .getCustomPropertySets()
                 .stream()
