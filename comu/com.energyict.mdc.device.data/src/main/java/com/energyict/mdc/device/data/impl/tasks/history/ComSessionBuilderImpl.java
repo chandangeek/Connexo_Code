@@ -4,7 +4,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.LongCounter;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -46,8 +45,8 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         private final List<ComTaskExecutionSessionBuilderImpl> comTaskExecutions = new ArrayList<>();
 
         @Override
-        public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Instant startDate) {
-            ComTaskExecutionSessionBuilderImpl builder = new ComTaskExecutionSessionBuilderImpl(parentBuilder(), comTaskExecution, comTask, device, startDate);
+        public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Instant startDate) {
+            ComTaskExecutionSessionBuilderImpl builder = new ComTaskExecutionSessionBuilderImpl(parentBuilder(), comTaskExecution, comTask, startDate);
             comTaskExecutions.add(builder);
             return builder;
         }
@@ -290,8 +289,8 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     }
 
     @Override
-    public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Instant startDate) {
-        return state.addComTaskExecutionSession(comTaskExecution, comTask, device, startDate);
+    public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Instant startDate) {
+        return state.addComTaskExecutionSession(comTaskExecution, comTask, startDate);
     }
 
     @Override

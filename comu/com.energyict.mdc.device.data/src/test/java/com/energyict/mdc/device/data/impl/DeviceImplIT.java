@@ -63,7 +63,6 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
-import com.energyict.mdc.device.data.exceptions.MeterActivationTimestampNotAfterLastActivationException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
@@ -132,6 +131,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     private static final TimeDuration interval = TimeDuration.minutes(15);
     private static final BigDecimal overflowValue = BigDecimal.valueOf(1234567);
     private static final int numberOfFractionDigits = 2;
+    private static MeterRole defaultMeterRole;
 
     private ReadingType forwardBulkSecondaryEnergyReadingType;
     private ReadingType forwardDeltaSecondaryEnergyReadingType;
@@ -156,6 +156,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
             deviceProtocolPluggableClass.save();
+            defaultMeterRole = inMemoryPersistence.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
             context.commit();
         }
     }
@@ -2296,7 +2297,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant expectedStart = Instant.ofEpochMilli(907L);
 
         // Business method
-        device.activate(expectedStart, usagePoint);
+        device.activate(expectedStart, usagePoint, defaultMeterRole);
 
         // Asserts
         assertThat(device.getCurrentMeterActivation()).isPresent();
@@ -2317,7 +2318,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         // Business method
         device.activate(expectedStart);
-        device.activate(expectedStartWithUsagePoint, usagePoint);
+        device.activate(expectedStartWithUsagePoint, usagePoint, defaultMeterRole);
         when(inMemoryPersistence.getClock().instant()).thenReturn(expectedStartWithUsagePoint.plus(1, ChronoUnit.MINUTES));
 
         // Asserts
@@ -2330,25 +2331,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Expected(MeterActivationTimestampNotAfterLastActivationException.class)
-    public void reactivateDeviceOnUsagePointBeforeLastActivation() {
-        Instant now = Instant.ofEpochMilli(50L);
-        when(inMemoryPersistence.getClock().instant()).thenReturn(now);
-        Device device = this.createSimpleDeviceWithName("reactivateDeviceOnUsagePointBeforeLastActivation");
-        UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
-        Instant expectedStart = Instant.ofEpochMilli(980000L);
-        Instant expectedStartWithUsagePoint = Instant.ofEpochMilli(9007L);
-
-        // Business method
-        device.activate(expectedStart);
-        device.activate(expectedStartWithUsagePoint, usagePoint);
-
-        // Asserts
-        //exception is thrown
-    }
-
-    @Test
-    @Transactional
     @Expected(UsagePointAlreadyLinkedToAnotherDeviceException.class)
     public void activateDeviceOnUsagePointAlreadyLinkedToAnotherDevice() {
         Instant now = Instant.ofEpochMilli(50L);
@@ -2357,11 +2339,11 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Device anotherDevice = this.createSimpleDeviceWithName("another device");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(97L);
-        anotherDevice.activate(Instant.ofEpochMilli(96L), usagePoint);
+        anotherDevice.activate(Instant.ofEpochMilli(96L), usagePoint, defaultMeterRole);
         usagePoint = inMemoryPersistence.getMeteringService().findUsagePoint(usagePoint.getId()).get();
 
         // Business method
-        device.activate(expectedStart, usagePoint);
+        device.activate(expectedStart, usagePoint, defaultMeterRole);
 
         // Asserts
         //exception is thrown
@@ -2400,7 +2382,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                         "'" + mc2.getName() + "' (" + monthlyDeltaAPlus.getName() + ")");
 
         // Business method
-        getReloadedDevice(device).activate(startMC1, usagePoint);
+        getReloadedDevice(device).activate(startMC1, usagePoint, defaultMeterRole);
 
         // Asserts
         //exception is thrown
@@ -2421,7 +2403,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant expectedStart = Instant.ofEpochMilli(97L);
 
         // Business method
-        device.activate(expectedStart, usagePoint);
+        device.activate(expectedStart, usagePoint, defaultMeterRole);
         when(inMemoryPersistence.getClock().instant()).thenReturn(expectedStart.plus(1, ChronoUnit.MINUTES));
 
         // Asserts

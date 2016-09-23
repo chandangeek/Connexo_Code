@@ -503,9 +503,9 @@ public class ComSessionCrudIT {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder =
                 connectionTaskService
                     .buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, device, task1StartTime)
+                    .addComTaskExecutionSession(comTaskExecution, comTask, task1StartTime)
                     .add(task1StopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, device, task2StartTime)
+                    .addComTaskExecutionSession(comTaskExecution, comTask, task2StartTime)
                     .add(task2StopTime, ComTaskExecutionSession.SuccessIndicator.Success)
                     .endSession(stopTime, ComSession.SuccessIndicator.Success);
             ComSession comSession = endedComSessionBuilder.create();
@@ -555,7 +555,7 @@ public class ComSessionCrudIT {
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, device, taskStartTime)
+                    .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
                     .addSentBytes(128)
                     .addReceivedBytes(64)
                     .addSentPackets(32)
@@ -597,7 +597,7 @@ public class ComSessionCrudIT {
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, device, taskStartTime)
+                    .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
                     .addComCommandJournalEntry(journalEntryTime, CompletionCode.Ok, "AOK", "OpenValve")
                     .addComCommandJournalEntry(journalEntryTime, CompletionCode.NotExecuted, "Whatever")
                     .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConfigurationWarning, "Just a warning", "ConfigurationWarning")
@@ -648,7 +648,7 @@ public class ComSessionCrudIT {
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, device, taskStartTime)
+                    .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
                     .addComTaskExecutionMessageJournalEntry(journalEntryTime, ComServer.LogLevel.INFO, "All is well", "Aok")
                     .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
                     .endSession(stopTime, ComSession.SuccessIndicator.Success);
@@ -693,7 +693,7 @@ public class ComSessionCrudIT {
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, device, taskStartTime)
+                    .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
                     .addComCommandJournalEntry(journalEntryTime, CompletionCode.Ok, "AOK", "OpenValve")
                     .addComTaskExecutionMessageJournalEntry(journalEntryTime, ComServer.LogLevel.INFO, "All is well", "Aok")
                     .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConnectionError, "Oops", "CloseValve")

@@ -217,6 +217,7 @@ public class DeviceDeleteTest {
         when(meterBuilder.setName(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
+        when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
         when(meterBuilder.create()).thenReturn(meter);
 
         when(meter.getLifecycleDates()).thenReturn(lifecycleDates);
