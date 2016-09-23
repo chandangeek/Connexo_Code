@@ -6,6 +6,8 @@ package com.elster.jupiter.nls.impl;
 
 import com.elster.jupiter.nls.NlsKey;
 
+import com.google.common.base.MoreObjects;
+
 import java.util.Objects;
 
 /**
@@ -26,9 +28,21 @@ final class ComponentAndLayer {
         return new ComponentAndLayer(entry.component(), entry.layerAsString());
     }
 
+    static ComponentAndLayer from(String component, String layer) {
+        return new ComponentAndLayer(component, layer);
+    }
+
     private ComponentAndLayer(String component, String layer) {
         this.component = component;
         this.layer = layer;
+    }
+
+    public String component() {
+        return this.component;
+    }
+
+    public String layer() {
+        return this.layer;
     }
 
     @Override
@@ -47,5 +61,13 @@ final class ComponentAndLayer {
     @Override
     public int hashCode() {
         return Objects.hash(component, layer);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("component", component)
+                .add("layer", layer)
+                .toString();
     }
 }

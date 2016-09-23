@@ -137,16 +137,21 @@ class ThesaurusImpl implements IThesaurus {
                 newKeys.add(newNlsKey(translation.getKey(), translation.getDefaultFormat()));
             }
         });
-        addNewTranslations(newKeys, languages);
+        if (!addNewTranslations(newKeys, languages)) {
+            languages.removeAll(provider.getComponentName(), provider.getLayer());
+        }
     }
 
-    private void addNewTranslations(List<NlsKeyImpl> nlsKeys, Languages languages) {
+    private boolean addNewTranslations(List<NlsKeyImpl> nlsKeys, Languages languages) {
         if (!nlsKeys.isEmpty()) {
             Set<String> uniqueIds = new HashSet<>();
             List<NlsKeyImpl> uniqueKeys = nlsKeys.stream().filter(key -> uniqueIds.add(key.getKey())).collect(Collectors.toList());
             languages.addTranslationsTo(uniqueKeys);
             dataModel.mapper(NlsKeyImpl.class).persist(uniqueKeys);
             updateTranslations(nlsKeys);
+            return true;
+        } else {
+            return false;
         }
     }
 
