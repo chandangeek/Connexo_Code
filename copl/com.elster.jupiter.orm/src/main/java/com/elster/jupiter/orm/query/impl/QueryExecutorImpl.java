@@ -66,13 +66,13 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
     }
 
     @Override
-    public Subquery asSubquery(Condition condition, String[] fieldNames, Order[] orderBy) {
-        return new SubqueryImpl(asFragment(condition, fieldNames, orderBy));
+    public Subquery asSubquery(Condition condition, String... fieldNames) {
+        return new SubqueryImpl(asFragment(condition, fieldNames));
     }
 
     @Override
-    public Subquery asSubquery(Condition condition, int from, int to, String[] fieldNames, Order[] orderBy) {
-        return new SubqueryImpl(asFragment(condition, from, to, fieldNames, orderBy));
+    public SqlFragment asFragment(Condition condition, String... fieldNames) {
+        return new JoinExecutor<>(root.copy(), getEffectiveDate()).getSqlBuilder(condition, fieldNames, Order.NOORDER);
     }
 
     @Override

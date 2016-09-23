@@ -29,9 +29,9 @@ public interface QueryExecutor<T> extends BasicQuery<T> {
 
     Object convert(String fieldName, String value);
 
-    Subquery asSubquery(Condition condition, String[] fieldNames, Order[] orderBy);
+    Subquery asSubquery(Condition condition, String... fieldNames);
 
-    Subquery asSubquery(Condition condition, int from, int to, String[] fieldNames, Order[] orderBy);
+    SqlFragment asFragment(Condition condition, String... fieldNames);
 
     SqlFragment asFragment(Condition condition, String[] fieldNames, Order[] orderBy);
 
