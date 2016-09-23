@@ -5,7 +5,6 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
@@ -83,8 +82,7 @@ public class DeviceLifeCycleChangeEventHandler implements TopicHandler {
                 .query(Device.class)
                 .asSubquery(
                         where(DeviceFields.DEVICETYPE.name()).isEqualTo(event.getDeviceType().getId()),
-                        new String[]{"id"}, // Selects only the id field
-                        Order.NOORDER);
+                        "id"); // Selects only the id field
         try {
             this.meteringService.changeStateMachine(
                     event.getTimestamp(),

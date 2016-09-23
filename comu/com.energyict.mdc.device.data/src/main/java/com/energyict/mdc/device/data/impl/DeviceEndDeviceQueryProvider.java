@@ -68,19 +68,18 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
     public List<EndDevice> findEndDevices(Instant instant, List<SearchablePropertyCondition> conditions, int start, int limit) {
         SearchDomain deviceSearchDomain = searchService.findDomain(Device.class.getName()).get();
         Subquery subQuery = () -> deviceSearchDomain.finderFor(conditions).asFragment("id");
-    	Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(subQuery, "amrId"));
+        Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(subQuery, "amrId"));
         Order order = Order.ascending("mRID");
         if (start > -1) {
-            return meteringService.getEndDeviceQuery().select(amrCondition , start + 1, start + limit  + 1, order);
+            return meteringService.getEndDeviceQuery().select(amrCondition, start + 1, start + limit + 1, order);
         } else {
-        	return meteringService.getEndDeviceQuery().select(amrCondition, order);
+            return meteringService.getEndDeviceQuery().select(amrCondition, order);
         }
     }
 
     @Override
     public SqlFragment toFragment(SqlFragment sqlFragment, String columnName) {
         Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(() -> sqlFragment, "amrId"));
-        return meteringService.getEndDeviceQuery().asSubquery(amrCondition, new String[]{columnName}, Order.NOORDER).toFragment();
+        return meteringService.getEndDeviceQuery().asSubquery(amrCondition, columnName).toFragment();
     }
 }
-
