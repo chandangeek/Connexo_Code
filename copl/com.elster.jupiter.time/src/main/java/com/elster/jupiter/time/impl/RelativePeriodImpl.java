@@ -7,6 +7,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.CannotDeleteUsedRelativePeriodException;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.EventType;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
@@ -23,6 +24,7 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -90,7 +92,11 @@ final class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
 
     @Override
     public String getName() {
-        return this.name;
+        return Arrays.stream(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values())
+                .filter(e -> e.getDefaultFormat().equals(name))
+                .findFirst()
+                .map(e -> thesaurus.getFormat(e).format())
+                .orElse(name);
     }
 
     @Override

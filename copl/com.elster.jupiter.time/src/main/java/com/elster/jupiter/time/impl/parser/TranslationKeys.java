@@ -38,6 +38,8 @@ public enum TranslationKeys implements TranslationKey {
     every_x("every_x", "every {0}"),
     at_x("at_x", "at {0}"),
     first("first", "first"),
+    milliseconds("milliseconds", "milliseconds"),
+    seconds("seconds", "seconds"),
     second("second", "second"),
     third("third", "third"),
     fourth("fourth", "fourth"),
