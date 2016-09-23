@@ -216,7 +216,7 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
                 .setAddressDetail(data.getLocation().get(ranking.get("addressDetail")))
                 .setZipCode(data.getLocation().get(ranking.get("zipCode")))
                 .isDaultLocation(true)
-                .setLocale(data.getLocation().get(ranking.get("locale")));
+                .setLocale(data.getLocation().get(ranking.get("locale")) != null ? data.getLocation().get(ranking.get("locale")) : "en");
         return builder;
     }
 }
