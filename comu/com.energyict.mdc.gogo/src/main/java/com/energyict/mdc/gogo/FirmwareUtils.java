@@ -1,5 +1,11 @@
 package com.energyict.mdc.gogo;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -17,12 +23,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -180,8 +180,8 @@ public class FirmwareUtils {
         }
     }
 
-    public void createFirmwareMessageFor(String mridOfDevice, String firwareVersion) {
-        Optional<Device> device = this.deviceService.findByUniqueMrid(mridOfDevice);
+    public void createFirmwareMessageFor(String deviceName, String firwareVersion) {
+        Optional<Device> device = this.deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
             Optional<FirmwareVersion> firmwareVersionByVersion = this.firmwareService.getFirmwareVersionByVersionAndType(firwareVersion, FirmwareType.METER, device.get().getDeviceType());
             firmwareVersionByVersion.ifPresent(firmwareVersion -> executeTransaction(() -> {
@@ -190,16 +190,16 @@ public class FirmwareUtils {
                         .addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, firmwareVersion)
                         .setReleaseDate(clock.instant())
                         .add();
-                System.out.println("Create message for " + mridOfDevice + " with id " + deviceMessage.getId());
+                System.out.println("Create message for " + deviceName + " with id " + deviceMessage.getId());
                 return null;
             }));
         } else {
-            System.out.println("No Device found with the mrid '" + mridOfDevice + "'");
+            System.out.println("No Device found with the name '" + deviceName + "'");
         }
     }
 
-    public void triggerFirmwareTaskFor(String mridOfDevice) {
-        Optional<Device> device = this.deviceService.findByUniqueMrid(mridOfDevice);
+    public void triggerFirmwareTaskFor(String deviceName) {
+        Optional<Device> device = this.deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
             Optional<ComTask> firmwareComTask = this.taskService.findFirmwareComTask();
             if (firmwareComTask.isPresent()) {
@@ -222,7 +222,7 @@ public class FirmwareUtils {
                             firmwareComTaskExecution.runNow();
                             System.out.println("Properly triggered the firmwareComTask, his next timestamp is " + firmwareComTaskExecution.getNextExecutionTimestamp());
                         } else {
-                            System.out.println("There is no 'Firmware management' ComTaskEnablement defined for device " + mridOfDevice);
+                            System.out.println("There is no 'Firmware management' ComTaskEnablement defined for device " + deviceName);
                         }
                     }
                     return null;
@@ -231,7 +231,7 @@ public class FirmwareUtils {
                 System.out.println("There is no 'Firmware management' ComTask defined, run the 'init FWC' command first.");
             }
         } else {
-            System.out.println("No Device found with the mrid '" + mridOfDevice + "'");
+            System.out.println("No Device found with the name '" + deviceName + "'");
         }
     }
 
