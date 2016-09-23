@@ -248,7 +248,7 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Optional<Device> findDeviceById(long id) {
-        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique("id", id);
+        return this.deviceDataModelService.dataModel().mapper(Device.class).getOptional(id);
     }
 
     @Override
