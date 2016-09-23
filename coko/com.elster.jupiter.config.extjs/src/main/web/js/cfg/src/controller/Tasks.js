@@ -129,7 +129,7 @@ Ext.define('Cfg.controller.Tasks', {
                     propertyForm = detailsForm.down('property-form');
 
                 actionsMenu.record = record;
-                actionsMenu.down('#view-details').hide();
+                actionsMenu.down('#view-history').hide();
                 view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('validationtaskload', record);
@@ -338,9 +338,6 @@ Ext.define('Cfg.controller.Tasks', {
         }
 
         switch (item.action) {
-            case 'viewDetails':
-                route = 'administration/validationtasks/validationtask';
-                break;
             case 'editValidationTask':
                 route = 'administration/validationtasks/validationtask/edit';
                 break;
