@@ -477,7 +477,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testComSchedulesBulkAddOnDevice() {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = "add";
-        request.deviceMRIDs = Arrays.asList("mrid1", "mrid2");
+        request.deviceIds = Arrays.asList(13L, 24L);
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
         Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
@@ -494,7 +494,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
         assertThat(jsonModel.<String>get("$.action")).isEqualTo("Add");
-        assertThat(jsonModel.<List>get("$.deviceMRIDs")).containsOnly("mrid1", "mrid2");
+        assertThat(jsonModel.<List>get("$.deviceIds")).containsOnly(13, 24);
         assertThat(jsonModel.<List>get("$.scheduleIds")).containsOnly(1);
     }
 
@@ -502,7 +502,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testComSchedulesBulkAddOnDeviceWithFilter() throws Exception {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = "add";
-        request.filter = "[{'property':'mRID','value':[{'operator':'==','criteria':'DAO*'}]},{'property':'deviceType','value':[{'operator':'==','criteria':['1','2','3']}]}]".replace('\'', '"');
+        request.filter = "[{'property':'name','value':[{'operator':'==','criteria':'DAO*'}]},{'property':'deviceType','value':[{'operator':'==','criteria':['1','2','3']}]}]".replace('\'', '"');
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
         Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
@@ -517,7 +517,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceTypeProperty.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         when(searchDomain.getProperties()).thenReturn(Arrays.asList(mridProperty, deviceTypeProperty));
         SearchablePropertyValue.ValueBean mridBean = new SearchablePropertyValue.ValueBean();
-        mridBean.propertyName = "mrid";
+        mridBean.propertyName = "name";
         mridBean.operator = SearchablePropertyOperator.EQUAL;
         mridBean.values = Collections.singletonList("DAO*");
         SearchablePropertyValue.ValueBean deviceTypeBean = new SearchablePropertyValue.ValueBean();
@@ -540,7 +540,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
         assertThat(jsonModel.<String>get("$.action")).isEqualTo("Add");
-        assertThat(jsonModel.<List>get("$.deviceMRIDs")).isNull();
+        assertThat(jsonModel.<List>get("$.deviceIds")).isNull();
         assertThat(jsonModel.<Map>get("$.filter.properties")).hasSize(2);
         assertThat(jsonModel.<List<String>>get("$.filter.properties.deviceType.values[*]")).containsExactly("1", "2", "3");
         assertThat(jsonModel.<List<Integer>>get("$.scheduleIds")).containsOnly(1);
@@ -578,7 +578,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
         System.out.println(stringArgumentCaptor.getValue());
         assertThat(jsonModel.<String>get("$.action")).isEqualTo("Remove");
-        assertThat(jsonModel.<List>get("$.deviceMRIDs")).isNull();
+        assertThat(jsonModel.<List>get("$.deviceIds")).isNull();
         assertThat(jsonModel.<String>get("$.filter.properties.serialNumber.propertyName")).isEqualTo(serialNumberBean.propertyName);
         assertThat(jsonModel.<String>get("$.filter.properties.serialNumber.operator")).isEqualTo(serialNumberBean.operator.name());
         assertThat(jsonModel.<String>get("$.filter.properties.serialNumber.values[0]")).isEqualTo("*001");

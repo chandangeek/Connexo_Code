@@ -16,6 +16,7 @@ import java.util.Optional;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceAttributesInfo {
     public DeviceAttributeInfo<String> name;
+    public DeviceAttributeInfo<String> mrid;
     public DeviceAttributeInfo<String> deviceType;
     public DeviceAttributeInfo<String> deviceConfiguration;
     public DeviceAttributeInfo<String> serialNumber;
@@ -69,6 +70,12 @@ public class DeviceAttributesInfo {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
                 return Arrays.asList(DefaultState.values());
+            }
+        },
+        MRID {
+            @Override
+            public List<DefaultState> attributeIsEditableForStates() {
+                return Collections.emptyList();
             }
         },
         MULTIPLIER {

@@ -467,9 +467,9 @@ public class ResourceHelper {
 
     private Condition addDeviceQueryCondition(StandardParametersBean params) {
         Condition conditionDevice = Condition.TRUE;
-        String mRID = params.getFirst("mRID");
-        if (mRID != null) {
-            conditionDevice = conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
+        String name = params.getFirst("name");
+        if (name != null) {
+            conditionDevice = conditionDevice.and(where("name").likeIgnoreCase(name));
         }
         String serialNumber = params.getFirst("serialNumber");
         if (serialNumber != null) {
@@ -514,9 +514,9 @@ public class ResourceHelper {
     private Condition addDeviceQueryCondition(MultivaluedMap<String, String> uriParams) {
         Condition conditionDevice = Condition.TRUE;
         JsonQueryFilter filter = new JsonQueryFilter(uriParams.getFirst("filter"));
-        String mRID = filter.getString("mRID");
+        String mRID = filter.getString("name");
         if (mRID != null) {
-            conditionDevice = conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
+            conditionDevice = conditionDevice.and(where("name").likeIgnoreCase(mRID));
         }
         String serialNumber = filter.getString("serialNumber");
         if (serialNumber != null) {

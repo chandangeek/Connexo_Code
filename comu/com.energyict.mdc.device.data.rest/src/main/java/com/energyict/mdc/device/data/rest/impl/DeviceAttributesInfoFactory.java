@@ -87,6 +87,10 @@ public class DeviceAttributesInfoFactory {
         info.name.displayValue = device.getName();
         fillAvailableAndEditable(info.name, DeviceAttribute.NAME, state);
 
+        info.mrid = new DeviceAttributeInfo<>();
+        info.mrid.displayValue = device.getmRID();
+        fillAvailableAndEditable(info.mrid, DeviceAttribute.MRID, state);
+
         info.deviceType = new DeviceAttributeInfo<>();
         info.deviceType.displayValue = device.getDeviceType().getName();
         info.deviceType.attributeId = device.getDeviceType().getId();
@@ -303,7 +307,7 @@ public class DeviceAttributesInfoFactory {
                 List<String> locationData = propertyInfoList.stream()
                         .map(d -> d.propertyValueInfo.value.toString())
                         .collect(Collectors.toList());
-                EndDevice endDevice = meteringService.findEndDevice(device.getmRID()).get();
+                EndDevice endDevice = meteringService.findEndDevice(device.getName()).get();
                 LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder();
                 Map<String, Integer> ranking = meteringService
                         .getLocationTemplate()

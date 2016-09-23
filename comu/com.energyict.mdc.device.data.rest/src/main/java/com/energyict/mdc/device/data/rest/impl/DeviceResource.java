@@ -295,7 +295,7 @@ public class DeviceResource {
         }
         deviceService.changeDeviceConfigurationForDevices(destinationConfiguration,
                 devicesForConfigChangeSearch,
-                request.deviceMRIDs.toArray(new String[request.deviceMRIDs.size()]));
+                request.deviceIds.stream().toArray(Long[]::new));
         return Response.ok().build();
     }
 
@@ -399,7 +399,7 @@ public class DeviceResource {
     private void validateBeforeCreatingNewSlaveViaWizard(String deviceName) {
         Optional<Device> existingDevice = deviceService.findDeviceByName(deviceName);
         if (existingDevice.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.UNIQUE_MRID);
+            throw exceptionFactory.newException(MessageSeeds.UNIQUE_NAME);
         }
     }
 
