@@ -98,7 +98,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.executesComTask(firmwareComTask)).thenReturn(true);
         when(firmwareExecution.getLastSession()).thenReturn(Optional.of(session));
         when(firmwareExecution.getNextExecutionTimestamp()).thenReturn(TIME);
-        when(deviceService.findByUniqueMrid("upgrade")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("upgrade")).thenReturn(Optional.of(device));
         ComTaskEnablement firmwareCheckEnablement = mock(ComTaskEnablement.class);
         when(firmwareCheckEnablement.getComTask()).thenReturn(firmwareCheckComTask);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(firmwareCheckEnablement));

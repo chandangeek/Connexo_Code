@@ -48,7 +48,7 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
 
     @Before
     public void setUpStubs() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
         when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
