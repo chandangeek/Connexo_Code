@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@XmlRootElement
 public class ChannelSpecInfoFactory {
 
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
