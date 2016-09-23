@@ -1,13 +1,5 @@
 package com.energyict.mdc.issue.datacollection.rest.response;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
@@ -33,13 +25,19 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-
 import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
 import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
 import com.energyict.mdc.tasks.ComTask;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component(name="issue.data.collection.info.factory", service = { InfoFactory.class }, immediate = true)
 public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataCollection> {
@@ -92,7 +90,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
             case ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE:
                 UnknownInboundDeviceIssueInfo<?> unknownInboundDeviceIssueInfo = new UnknownInboundDeviceIssueInfo<>(issue, deviceInfoClass);
                 addConnectionAttempts(unknownInboundDeviceIssueInfo, issue);
-                unknownInboundDeviceIssueInfo.deviceMRID = issue.getDeviceMRID();
+                unknownInboundDeviceIssueInfo.deviceName = issue.getDeviceMRID();
                 info = unknownInboundDeviceIssueInfo;
                 break;
             case ModuleConstants.REASON_UNKNOWN_OUTBOUND_DEVICE:
@@ -157,7 +155,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         Optional<Device> deviceRef = deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId()));
         if (deviceRef.isPresent()) {
             Device device = deviceRef.get();
-            info.deviceMRID = device.getmRID();
+            info.deviceName = device.getName();
             info.deviceType = new IdWithNameInfo(device.getDeviceType());
             info.deviceConfiguration = new IdWithNameInfo(device.getDeviceConfiguration());
             info.deviceState = new IdWithNameInfo(device.getState().getId(), getStateName(thesaurus, device.getState()));

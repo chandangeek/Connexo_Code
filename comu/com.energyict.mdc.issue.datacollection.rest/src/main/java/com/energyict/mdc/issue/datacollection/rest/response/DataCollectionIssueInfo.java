@@ -10,7 +10,7 @@ import java.time.Instant;
 public class DataCollectionIssueInfo<T extends DeviceInfo> extends IssueInfo<T, IssueDataCollection> {
 
     //MDC device mRID
-    public String deviceMRID;
+    public String deviceName;
     public IdWithNameInfo deviceState;
     public IdWithNameInfo deviceType;
     public IdWithNameInfo deviceConfiguration;
