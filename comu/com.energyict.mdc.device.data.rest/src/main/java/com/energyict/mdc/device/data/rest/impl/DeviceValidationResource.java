@@ -272,8 +272,8 @@ public class DeviceValidationResource {
     private DeviceValidationStatusInfo determineStatus(Device device) {
         DeviceValidation deviceValidation = device.forValidation();
         Optional<Instant> lastChecked = Optional.empty();
-        if(deviceValidation.getLastChecked().isPresent()){
-            lastChecked = deviceValidation.getLastChecked().equals(Optional.of(device.getMeterActivationsMostRecentFirst().get(0).getStart())) ? Optional.empty() : deviceValidation.getLastChecked();
+        if(deviceValidation.getLastValidationRun().isPresent()){
+            lastChecked = deviceValidation.getLastValidationRun().equals(Optional.of(device.getMeterActivationsMostRecentFirst().get(0).getStart())) ? Optional.empty() : deviceValidation.getLastValidationRun();
         }
         DeviceValidationStatusInfo deviceValidationStatusInfo =
                 new DeviceValidationStatusInfo(

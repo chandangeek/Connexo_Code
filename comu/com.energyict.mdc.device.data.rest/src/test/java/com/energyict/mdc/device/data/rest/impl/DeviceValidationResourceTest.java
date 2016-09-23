@@ -134,6 +134,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         when(device.forValidation()).thenReturn(deviceValidation);
+        when(deviceValidation.getLastValidationRun()).thenReturn(Optional.empty());
         when(ch1.getDevice()).thenReturn(device);
         when(ch2.getDevice()).thenReturn(device);
         when(register1.getDevice()).thenReturn(device);
