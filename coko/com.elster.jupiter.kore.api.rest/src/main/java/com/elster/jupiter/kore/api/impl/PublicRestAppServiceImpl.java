@@ -11,7 +11,6 @@ import org.osgi.service.component.annotations.Component;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,11 +40,12 @@ public class PublicRestAppServiceImpl implements TranslationKeyProvider, Applica
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Stream.of(
-                Arrays.stream(Privileges.values()),
-                Arrays.stream(TranslationKeys.values())
-            )
-            .flatMap(Function.identity())
-            .collect(Collectors.toList());
+        return
+            Stream
+                .concat(
+                    Arrays.stream(Privileges.values()),
+                    Arrays.stream(TranslationKeys.values()))
+                .collect(Collectors.toList());
     }
+
 }
