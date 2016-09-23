@@ -3,9 +3,28 @@ Ext.define('Cps.customattributesets.service.AttributeTransformer', {
 
     transform: function (attributes) {
         var transformedAttributes = [],
-            attributeOrder = 1;
+            attributeOrder = 1,
+            getDefaultValue = function (attribute) {
+                switch (attribute.propertyTypeInfo.simplePropertyType) {
+                    case "BOOLEAN": {
+                        return attribute.propertyValueInfo.defaultValue
+                            ? Uni.I18n.translate('customattributesets.propertyValueInfo.defaultValue.true', 'CPS', 'True')
+                            : Uni.I18n.translate('customattributesets.propertyValueInfo.defaultValue.false', 'CPS', 'False');
+                    }
+                        break;
+                    case "QUANTITY": {
+                        return attribute.propertyValueInfo.defaultValue.id
+                            ? attribute.propertyValueInfo.defaultValue.id.replace(/(-?\d*)\:-?\d*\:.*/, '$1') + ' ' + attribute.propertyValueInfo.defaultValue.displayValue
+                            : '-';
+                    }
+                        break;
+                    default : {
+                        return attribute.propertyValueInfo.defaultValue;
+                    }
+                }
+            };
 
-        Ext.each(attributes, function(attribute) {
+        Ext.each(attributes, function (attribute) {
             var transformedAttribute = {};
 
             transformedAttribute.name = attribute.name;
@@ -13,13 +32,7 @@ Ext.define('Cps.customattributesets.service.AttributeTransformer', {
             transformedAttribute.customAttributeType = {};
             transformedAttribute.customAttributeType.name = attribute.propertyTypeInfo.typeSimpleName;
             transformedAttribute.customAttributeType.possibleValues = attribute.allValues;
-            if(attribute.propertyTypeInfo.simplePropertyType == "BOOLEAN"){
-                transformedAttribute.defaultValue = attribute.propertyValueInfo.defaultValue ?
-                    Uni.I18n.translate('customattributesets.propertyValueInfo.defaultValue.true', 'CPS', 'True') :
-                    Uni.I18n.translate('customattributesets.propertyValueInfo.defaultValue.false', 'CPS', 'False');
-            } else {
-                transformedAttribute.defaultValue = attribute.propertyValueInfo.defaultValue;
-            }
+            transformedAttribute.defaultValue = getDefaultValue(attribute);
             transformedAttribute.description = attribute.description;
             transformedAttribute.order = attributeOrder;
             attributeOrder += 1;
