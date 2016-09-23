@@ -4,14 +4,17 @@ Ext.define('Imt.purpose.view.OutputsList', {
     requires: [
         'Imt.purpose.store.Outputs',
         'Uni.view.toolbar.PagingTop',
-        'Uni.grid.column.ReadingType'
+        'Uni.grid.column.ReadingType',
+        'Uni.store.Periods'
     ],
     store: 'Imt.purpose.store.Outputs',
     overflowY: 'auto',
     itemId: 'outputs-list',
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            periods = Ext.create('Uni.store.Periods');
+
         me.columns = [
             {
                 header: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
@@ -40,7 +43,8 @@ Ext.define('Imt.purpose.view.OutputsList', {
                 flex: 1,
                 dataIndex: 'interval',
                 renderer: function(value){
-                    return Uni.I18n.translate('outputs.interval', 'IMT', '{0} {1}', [value.count, value.timeUnit]);
+                    var period = periods.findRecord('value', value.timeUnit);
+                    return period.get('translate').call(period, value.count);
                 }
             }
         ];
