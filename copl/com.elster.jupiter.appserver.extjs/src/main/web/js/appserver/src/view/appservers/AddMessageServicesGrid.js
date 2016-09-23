@@ -19,6 +19,7 @@ Ext.define('Apr.view.appservers.AddMessageServicesGrid', {
         {
             header: Uni.I18n.translate('general.messageService', 'APR', 'Message service'),
             dataIndex: 'messageService',
+            getSortParam: Ext.emptyFn,
             flex: 1
         }
     ]

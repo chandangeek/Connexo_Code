@@ -3,6 +3,11 @@ Ext.define('Apr.store.ServedMessageServices', {
     model: 'Apr.model.ServedMessageService',
     autoLoad: false,
 
+    sorters: {
+        property: 'messageService',
+        direction: 'ASC'
+    },
+
     proxy: {
         type: 'rest',
         urlTpl: '/api/apr/appserver/{appServerName}',

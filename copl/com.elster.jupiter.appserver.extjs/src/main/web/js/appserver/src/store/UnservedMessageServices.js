@@ -3,6 +3,11 @@ Ext.define('Apr.store.UnservedMessageServices', {
     model: 'Apr.model.UnservedMessageService',
     autoLoad: false,
 
+    sorters: {
+        property: 'messageService',
+        direction: 'ASC'
+    },
+
     proxy: {
         type: 'rest',
         urlTpl: '/api/apr/appserver/{appServerName}/unserved',
