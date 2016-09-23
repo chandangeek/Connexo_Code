@@ -4,9 +4,12 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationSeeds implements TranslationKey {
 
-    TYPE_BIGDECIMAL("java.math.BigDecimal", "BigDecimal"),
+    TYPE_BIGDECIMAL("java.math.BigDecimal", "Big decimal"),
     TYPE_STRING("java.lang.String", "String"),
     TYPE_BOOLEAN("java.lang.Boolean", "Boolean"),
+    TYPE_QUANTITY("com.elster.jupiter.util.units.Quantity", "Quantity"),
+ 	TYPE_LONG("java.lang.Long", "Long"),
+ 	TYPE_INSTANT("java.time.Instant", "Instant"),
     TRUE_VALUE("true", "True"),
     FALSE_VALUE("false", "False"),;
 
