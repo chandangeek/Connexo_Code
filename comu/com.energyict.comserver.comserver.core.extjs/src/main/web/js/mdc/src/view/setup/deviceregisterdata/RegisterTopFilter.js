@@ -1,6 +1,7 @@
 Ext.define('Mdc.view.setup.deviceregisterdata.RegisterTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'mdc-registers-topfilter',
+    hasDefaultFilters: true,
 
     filters: [
         {

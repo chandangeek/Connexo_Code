@@ -56,9 +56,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                         itemId: 'custom-attribute-set-displayfield-id',
                         xtype: 'custom-attribute-set-displayfield',
                         name: 'customPropertySet',
-                        renderer: function (value) {
-                            return (value && value.name) ? value.name : '-';
-                        }
+                        emptyText: '-'
                     }
                 ]
             },

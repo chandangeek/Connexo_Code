@@ -7,8 +7,7 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.RegisterConfigValidationRules',
-        'Mdc.view.setup.registerconfig.RulesForRegisterConfigActionMenu'
+        'Mdc.store.RegisterConfigValidationRules'        
     ],
 
     store: 'RegisterConfigValidationRules',
@@ -56,11 +55,7 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                     return '-';
                 },
                 flex: 10
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                items: 'Mdc.view.setup.registerconfig.RulesForRegisterConfigActionMenu'
-            }
+            }            
         ];
 
         me.dockedItems = [

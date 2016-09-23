@@ -55,13 +55,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     return '-';
                 },
                 flex: 1
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                privileges: Mdc.privileges.DeviceType.admin,
-                menu: {
-                    xtype: 'validation-rule-actionmenu'
-                }
             }
         ];
         me.dockedItems = [
