@@ -8,7 +8,6 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.util.Collections;
@@ -65,6 +64,6 @@ class CustomPropertySetSearchDomainExtension implements SearchDomainExtension {
     public SqlFragment asFragment(List<SearchablePropertyCondition> conditions) {
         return this.dataModel.query(customPropertySet.getPersistenceSupport().persistenceClass())
                 .asFragment(conditions.stream().reduce(Condition.TRUE, (ormCondition, searchCondition) -> ormCondition.and(searchCondition.getCondition()), Condition::and),
-                        new String[]{customPropertySet.getPersistenceSupport().domainFieldName()}, Order.NOORDER);
+                        customPropertySet.getPersistenceSupport().domainFieldName());
     }
 }
