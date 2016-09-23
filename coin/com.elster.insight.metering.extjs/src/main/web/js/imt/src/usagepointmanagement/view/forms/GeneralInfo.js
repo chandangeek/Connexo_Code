@@ -46,6 +46,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
             {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
+                required: true,
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -55,7 +56,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                         xtype: 'combobox',
                         name: 'serviceCategory',
                         itemId: 'up-service-category-combo',
-                        required: true,
                         store: 'Imt.usagepointmanagement.store.ServiceCategories',
                         displayField: 'displayName',
                         valueField: 'name',
