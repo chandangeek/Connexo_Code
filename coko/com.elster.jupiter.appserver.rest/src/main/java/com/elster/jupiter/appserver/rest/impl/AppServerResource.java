@@ -149,7 +149,7 @@ public class AppServerResource {
             AppServer underConstruction = appService.createAppServer(info.name, cronExpressionParser.parse("0 0 * * * ? *").get());
             try (AppServer.BatchUpdate batchUpdate = underConstruction.forBatchUpdate()) {
                 if (info.executionSpecs != null) {
-                    info.executionSpecs.stream()
+                    info.executionSpecs
                             .forEach(spec -> {
                                 SubscriberSpec subscriberSpec = messageService.getSubscriberSpec(spec.subscriberSpec.destination, spec.subscriberSpec.subscriber).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
                                 if (spec.active) {
@@ -200,7 +200,7 @@ public class AppServerResource {
     public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info, @Context UriInfo uriInfo) {
         validatePath(info.exportDirectory, "exportDirectory");
         validatePath(info.importDirectory, "importDirectory");
-        AppServer appServer = null;
+        AppServer appServer;
         try (TransactionContext context = transactionService.getContext()) {
             appServer = fetchAndLockAppServer(appServerName, info);
             doUpdateAppServer(info, appServer);
@@ -421,11 +421,6 @@ public class AppServerResource {
                 )
                 .collect(toList());
         SubscriberSpecInfos subscriberSpecInfos = new SubscriberSpecInfos(subscribers, thesaurus);
-
-        /*for (SubscriberSpecInfo info : subscriberSpecInfos.subscriberSpecs) {
-            info.displayName = thesaurus.getStringBeyondComponent(info.subscriber, info.subscriber);
-        }*/
-
         subscriberSpecInfos.subscriberSpecs.sort(Comparator.comparing(SubscriberSpecInfo::getDestination).thenComparing(SubscriberSpecInfo::getSubscriber));
         return subscriberSpecInfos;
     }
@@ -494,7 +489,7 @@ public class AppServerResource {
         return restQuery.select(queryParameters, Order.ascending("name").toUpperCase());
     }
 
-    private List<ImportSchedule> getImportSchedulesOnAppServer(@PathParam("appserverName") String appServerName) {
+    private List<ImportSchedule> getImportSchedulesOnAppServer(String appServerName) {
         return appService.findAppServer(appServerName)
                 .map(AppServer::getImportSchedulesOnAppServer)
                 .orElseGet(Collections::emptyList)
