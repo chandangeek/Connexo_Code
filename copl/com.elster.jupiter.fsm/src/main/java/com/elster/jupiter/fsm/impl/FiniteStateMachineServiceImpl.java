@@ -329,10 +329,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Override
-    public List<StateTransitionEventType> getStateTransitionEventTypes(String context) {
-        return this.dataModel
-                .query(StateTransitionEventType.class)
-                .select(Where.where(StateTransitionEventTypeImpl.Fields.CONTEXT.fieldName()).isEqualTo(context));
+    public List<StateTransitionEventType> getStateTransitionEventTypes(String... context) {
+        Condition condition = context.length == 0
+                ? Condition.TRUE
+                : Where.where(StateTransitionEventTypeImpl.Fields.CONTEXT.fieldName()).in(Arrays.asList(context));
+        return this.dataModel.query(StateTransitionEventType.class).select(condition);
     }
 
     @Override

@@ -113,9 +113,9 @@ public interface FiniteStateMachineService {
      * Gets all the {@link StateTransitionEventType} that have been defined in the system.
      *
      * @return The List of StateTransitionEventType
-     * @param context    The context/component for which event types are to be retrieved. For standard event types, this would be the scope
+     * @param context    The context/component for which event types are to be retrieved. For standard event types, this would be 'System'
      */
-    List<StateTransitionEventType> getStateTransitionEventTypes(String context);
+    List<StateTransitionEventType> getStateTransitionEventTypes(String... context);
 
     /**
      * Starts the building process for a new {@link FiniteStateMachine}
