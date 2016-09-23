@@ -52,11 +52,12 @@ public class NTASimToolBuilder implements Builder<Void> {
         System.out.println(" ==> Executing the NTA Sim config");
 
         List<String> serialNumbers = new ArrayList<>();
-        int start=0;
+        int start = 0;
         List<String> newSerialNumbers = new ArrayList<>();
         newSerialNumbers.add("sentinal");
         while(!newSerialNumbers.isEmpty()) {
-            newSerialNumbers = deviceService.findAllDevices(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*")).paged(start, 1000)
+            newSerialNumbers = deviceService.findAllDevices(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"))
+                    .paged(start, 999) // Finder returns one additional line after the requested page
                     .stream().map(Device::getSerialNumber).collect(Collectors.toList());
             start+=1000;
             serialNumbers.addAll(newSerialNumbers);
