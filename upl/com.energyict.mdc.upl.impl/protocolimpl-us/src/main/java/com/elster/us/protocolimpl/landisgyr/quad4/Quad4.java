@@ -458,7 +458,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     }
 
     /**
-     * @throws java.io.IOException
+     * @throws IOException
      */
     void doExtendedLogging() throws IOException {
         if ("1".equals(pExtendedLogging)) {
@@ -507,7 +507,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
      * Send the time delta in milliseconds.
      * (non-Javadoc)
      *
-     * @see com.energyict.protocol.MeterProtocol#setTime()
+     * @see MeterProtocol#setTime()
      */
     public void setTime() throws IOException {
 
