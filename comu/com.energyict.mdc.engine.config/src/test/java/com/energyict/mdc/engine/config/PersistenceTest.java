@@ -75,6 +75,7 @@ public class PersistenceTest {
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(ProtocolPluggableService.class); // fake call to make sure component is initialized
             injector.getInstance(UserService.class); // fake call to make sure component is initialized
+            injector.getInstance(EngineConfigurationService.class); // fake call to make sure component is initialized
             ctx.commit();
         }
     }
