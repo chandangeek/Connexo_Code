@@ -1,6 +1,5 @@
 package com.elster.jupiter.calendar;
 
-import com.elster.jupiter.calendar.importers.impl.CalendarImporterFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;

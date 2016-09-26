@@ -68,6 +68,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     @Inject
     public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, UpgradeService upgradeService) {
+        this();
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);

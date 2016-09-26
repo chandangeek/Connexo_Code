@@ -1,8 +1,14 @@
-package com.elster.jupiter.calendar.importers.impl;
+/*
+ * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ */
 
+package com.elster.jupiter.calendar.impl.importers;
+
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
 
@@ -34,7 +40,7 @@ final class Installer implements FullInstaller {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(CalendarImporterMessageHandler.DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(CalendarImporterMessageHandler.SUBSCRIBER_NAME);
+        destinationSpec.subscribe(TranslationKeys.CALENDAR_IMPORTER_MESSAGE_HANDLER_DISPLAYNAME, CalendarService.COMPONENTNAME, Layer.DOMAIN);
     }
 
 }

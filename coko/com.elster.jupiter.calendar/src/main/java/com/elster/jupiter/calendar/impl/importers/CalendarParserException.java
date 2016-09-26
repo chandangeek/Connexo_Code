@@ -1,4 +1,8 @@
-package com.elster.jupiter.calendar.importers.impl;
+/*
+ * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.elster.jupiter.calendar.impl.importers;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
