@@ -126,7 +126,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
         Instant instant = dateTime.minusMonths(1).toInstant();
         channelValidation.updateLastChecked(instant);
         verify(fetcher).ofQualitySystem(QualityCodeSystem.MDM);
-        verify(fetcher).inTimeInterval(Range.greaterThan(instant.minusMillis(1)));
+        verify(fetcher).inTimeInterval(Range.greaterThan(instant));
         verify(fetcher).ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.REASONABILITY, QualityCodeCategory.VALIDATION));
         verify(readingQuality).delete();
     }
