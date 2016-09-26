@@ -20,6 +20,8 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.impl.upgraders.GasDayOptionsCreator;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -374,14 +376,14 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     }
 
     private void createQueues() {
-        this.createQueue(SwitchStateMachineEvent.DESTINATION, SwitchStateMachineEvent.SUBSCRIBER);
+        this.createQueue(SwitchStateMachineEvent.DESTINATION, DefaultTranslationKey.SUBSCRIBER_TRANSLATION);
     }
 
-    private void createQueue(String queueDestination, String queueSubscriber) {
+    private void createQueue(String queueDestination, TranslationKey queueSubscriber) {
         QueueTableSpec defaultQueueTableSpec = this.messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(queueDestination, DEFAULT_RETRY_DELAY_IN_SECONDS);
         destinationSpec.activate();
-        destinationSpec.subscribe(queueSubscriber);
+        destinationSpec.subscribe(queueSubscriber, MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     private void createEndDeviceControlTypes(Logger logger) {
