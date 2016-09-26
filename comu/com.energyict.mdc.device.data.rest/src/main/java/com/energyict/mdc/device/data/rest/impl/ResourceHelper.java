@@ -621,7 +621,6 @@ public class ResourceHelper {
         RegisteredCustomPropertySet registeredCustomPropertySet = device.getDeviceType().getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                .filter(cps -> cps.getCustomPropertySet().isVersioned())
                 .filter(cps -> cps.getId() == cpsId)
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));

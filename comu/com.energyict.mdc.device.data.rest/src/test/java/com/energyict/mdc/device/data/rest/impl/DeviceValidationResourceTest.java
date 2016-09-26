@@ -42,7 +42,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,10 +55,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -137,6 +134,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         when(device.forValidation()).thenReturn(deviceValidation);
+        when(deviceValidation.getLastValidationRun()).thenReturn(Optional.empty());
         when(ch1.getDevice()).thenReturn(device);
         when(ch2.getDevice()).thenReturn(device);
         when(register1.getDevice()).thenReturn(device);
