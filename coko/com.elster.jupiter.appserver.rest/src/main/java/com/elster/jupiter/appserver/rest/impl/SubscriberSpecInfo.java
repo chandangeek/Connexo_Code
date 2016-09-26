@@ -2,7 +2,6 @@ package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.nls.Thesaurus;
 
 public class SubscriberSpecInfo {
 
@@ -13,18 +12,18 @@ public class SubscriberSpecInfo {
     public SubscriberSpecInfo() {
     }
 
-    public SubscriberSpecInfo(String destination, String subscriber, Thesaurus thesaurus) {
+    public SubscriberSpecInfo(String destination, String subscriber, String displayName) {
         this.destination = destination;
         this.subscriber = subscriber;
-        this.displayName = thesaurus.getStringBeyondComponent(subscriber, subscriber);
+        this.displayName = displayName;
     }
 
-    public static SubscriberSpecInfo of(SubscriberExecutionSpec executionSpec, Thesaurus thesaurus) {
-        return of(executionSpec.getSubscriberSpec(), thesaurus);
+    public static SubscriberSpecInfo of(SubscriberExecutionSpec executionSpec) {
+        return of(executionSpec.getSubscriberSpec());
     }
 
-    public static SubscriberSpecInfo of(SubscriberSpec subscriberSpec, Thesaurus thesaurus) {
-        return new SubscriberSpecInfo(subscriberSpec.getDestination().getName(), subscriberSpec.getName(), thesaurus);
+    public static SubscriberSpecInfo of(SubscriberSpec subscriberSpec) {
+        return new SubscriberSpecInfo(subscriberSpec.getDestination().getName(), subscriberSpec.getName(), subscriberSpec.getDisplayName());
     }
 
     public String getDestination() {

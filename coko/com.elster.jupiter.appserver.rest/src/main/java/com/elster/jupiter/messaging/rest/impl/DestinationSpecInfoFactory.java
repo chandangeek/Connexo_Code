@@ -47,7 +47,7 @@ public class DestinationSpecInfoFactory {
         info.subscriberSpecInfos = destinationSpec.getSubscribers()
                 .stream()
                 .filter(not(SubscriberSpec::isSystemManaged))
-                .map(subscriberSpec -> SubscriberSpecInfo.of(subscriberSpec, appService, thesaurus))
+                .map(subscriberSpec -> SubscriberSpecInfo.of(subscriberSpec, appService))
                 .collect(Collectors.toList());
         return info;
     }

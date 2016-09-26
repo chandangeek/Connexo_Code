@@ -1,11 +1,9 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.nls.Thesaurus;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class SubscriberSpecInfos {
 
@@ -15,19 +13,19 @@ public class SubscriberSpecInfos {
     public SubscriberSpecInfos() {
     }
 
-    public SubscriberSpecInfos(Iterable<SubscriberSpec> subscriberSpecs, Thesaurus thesaurus) {
-        addAll(subscriberSpecs, thesaurus);
+    public SubscriberSpecInfos(Iterable<SubscriberSpec> subscriberSpecs) {
+        addAll(subscriberSpecs);
     }
 
-    public void add(SubscriberSpec subscriberSpec, Thesaurus thesaurus) {
-        SubscriberSpecInfo result = SubscriberSpecInfo.of(subscriberSpec, thesaurus);
+    public void add(SubscriberSpec subscriberSpec) {
+        SubscriberSpecInfo result = SubscriberSpecInfo.of(subscriberSpec);
         subscriberSpecs.add(result);
         total++;
     }
 
-    public void addAll(Iterable<SubscriberSpec> subscriberSpecs, Thesaurus thesaurus) {
+    public void addAll(Iterable<SubscriberSpec> subscriberSpecs) {
         for (SubscriberSpec spec : subscriberSpecs) {
-            add(spec, thesaurus);
+            add(spec);
         }
     }
 }

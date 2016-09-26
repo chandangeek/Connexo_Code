@@ -35,7 +35,7 @@ public class AppServerInfo {
         active = appServer.isActive();
         version = appServer.getVersion();
         executionSpecs = appServer.getSubscriberExecutionSpecs().stream()
-                .map(spec -> SubscriberExecutionSpecInfo.of(spec, thesaurus))
+                .map(spec -> SubscriberExecutionSpecInfo.of(spec))
                 .collect(Collectors.toList());
         importServices = appServer.getImportSchedulesOnAppServer()
                 .stream()

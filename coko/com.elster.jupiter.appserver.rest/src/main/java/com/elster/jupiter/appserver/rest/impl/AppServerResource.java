@@ -420,7 +420,7 @@ public class AppServerResource {
                                 .noneMatch(d -> sub.getDestination().getName().equals(d.getName()))
                 )
                 .collect(toList());
-        SubscriberSpecInfos subscriberSpecInfos = new SubscriberSpecInfos(subscribers, thesaurus);
+        SubscriberSpecInfos subscriberSpecInfos = new SubscriberSpecInfos(subscribers);
         subscriberSpecInfos.subscriberSpecs.sort(Comparator.comparing(SubscriberSpecInfo::getDestination).thenComparing(SubscriberSpecInfo::getSubscriber));
         return subscriberSpecInfos;
     }
