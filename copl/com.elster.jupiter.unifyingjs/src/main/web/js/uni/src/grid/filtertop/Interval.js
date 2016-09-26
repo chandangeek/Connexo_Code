@@ -350,6 +350,8 @@ Ext.define('Uni.grid.filtertop.Interval', {
         me.getToDateField().reset();
         me.getToHourField().reset();
         me.getToMinuteField().reset();
+
+        me.getClearButton().setDisabled(true);
         me.updateTitle();
         me.fireEvent('filtervaluechange');
     },
@@ -408,6 +410,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
         } else if (includeUndefined) {
             params[me.dataIndexTo] = undefined;
         }
+        me.getClearButton().setDisabled(false);
     },
 
     setFromDateValue: function (date) {
@@ -494,6 +497,10 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     getIntervalForm: function() {
         return this.down('#uni-interval-form');
+    },
+
+    getClearButton: function () {
+        return this.down('button[action=clear]');
     },
 
     updateTitle: function(title) {

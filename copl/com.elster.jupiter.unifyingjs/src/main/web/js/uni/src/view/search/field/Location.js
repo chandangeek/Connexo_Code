@@ -27,9 +27,6 @@ Ext.define('Uni.view.search.field.Location', {
                         align: 'right',
                         action: 'reset',
                         disabled: true,
-                        style: {
-                            'background-color': '#71adc7'
-                        },
                         handler: me.reset,
                         scope: me
                     }

@@ -87,9 +87,6 @@ Ext.define('Uni.view.search.field.DateTime', {
                         align: 'right',
                         action: 'reset',
                         disabled: true,
-                        style: {
-                            'background-color': '#71adc7'
-                        },
                         handler: me.reset,
                         scope : me
                     }
