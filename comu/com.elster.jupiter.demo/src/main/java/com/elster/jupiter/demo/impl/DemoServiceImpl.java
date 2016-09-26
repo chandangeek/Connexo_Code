@@ -37,6 +37,7 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -145,6 +146,7 @@ public class DemoServiceImpl {
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile FileImportService fileImportService;
     private volatile SearchService searchService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -189,7 +191,8 @@ public class DemoServiceImpl {
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
             DeviceLifeCycleService deviceLifeCycleService,
             FileImportService fileImportService,
-            SearchService searchService) {
+            SearchService searchService,
+            MetrologyConfigurationService metrologyConfigurationService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -227,6 +230,7 @@ public class DemoServiceImpl {
         setDeviceLifeCycleService(deviceLifeCycleService);
         setFileImportService(fileImportService);
         setSearchService(searchService);
+        setMetrologyConfigurationService(metrologyConfigurationService);
         activate();
         reThrowEx = true;
     }
@@ -276,6 +280,7 @@ public class DemoServiceImpl {
                 bind(FileImportService.class).toInstance(fileImportService);
                 bind(EstimationService.class).toInstance(estimationService);
                 bind(SearchService.class).toInstance(searchService);
+                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
             }
         });
         Builders.initWith(this.injector);
@@ -497,6 +502,12 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {
