@@ -96,8 +96,11 @@ public class MeterSearchableProperty implements SearchableUsagePointProperty {
     }
 
     public Condition toCondition(Condition specification) {
-        return ListOperator.IN.contains(meteringService.getDataModel().query(MeterActivation.class)
-                .asSubquery(Where.where("meter").isEqualTo(((Comparison) specification).getValues()[0]), "usagePoint"), "id");
+        return ListOperator.IN.contains(
+                meteringService.getDataModel().query(MeterActivation.class)
+                        .asSubquery(Where.where("meter").isEqualTo(((Comparison) specification).getValues()[0]),
+                                "usagePoint"),
+                "id");
     }
 
     private class MeterValueFactory implements ValueFactory<Meter> {

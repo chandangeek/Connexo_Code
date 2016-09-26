@@ -3,6 +3,8 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
+import java.time.Instant;
+
 public interface MeterBuilder {
 
     Meter create();
@@ -20,6 +22,8 @@ public interface MeterBuilder {
     MeterBuilder setLocation(Location location);
 
     MeterBuilder setSpatialCoordinates(SpatialCoordinates spatialCoordinates);
+
+    MeterBuilder setReceivedDate(Instant receivedDate);
 
     LocationBuilder newLocationBuilder();
 

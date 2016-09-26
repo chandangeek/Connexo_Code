@@ -67,7 +67,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
-import com.elster.jupiter.util.streams.Currying;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.RangeInstantBuilder;
 import com.elster.jupiter.util.units.Quantity;
@@ -87,6 +86,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -464,6 +464,7 @@ public class UsagePointImpl implements UsagePoint {
                 .stream()
                 .filter(notEmpty())
                 .filter(emc -> emc.getRange().isConnected(when) && !emc.getRange().intersection(when).isEmpty())
+                .sorted(Comparator.comparing(EffectiveMetrologyConfigurationOnUsagePoint::getStart))
                 .collect(Collectors.toList());
     }
 
@@ -499,6 +500,7 @@ public class UsagePointImpl implements UsagePoint {
     public List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurations() {
         return this.metrologyConfigurations.stream()
                 .filter(notEmpty())
+                .sorted(Comparator.comparing(EffectiveMetrologyConfigurationOnUsagePoint::getStart))
                 .collect(Collectors.toList());
     }
 
@@ -989,6 +991,7 @@ public class UsagePointImpl implements UsagePoint {
                         .map(MeterRole::getKey)
                         .map(DefaultMeterRole.DEFAULT.getKey()::equals)
                         .orElse(true))
+                .sorted(Comparator.comparing(MeterActivation::getStart))
                 .findFirst();
     }
 
@@ -997,10 +1000,11 @@ public class UsagePointImpl implements UsagePoint {
         return this.meterActivations
                 .stream()
                 .filter(meterActivation -> meterActivation.isEffectiveAt(when))
+                .sorted(Comparator.comparing(MeterActivation::getStart))
                 .collect(Collectors.toList());
     }
 
-    private List<MeterActivation> getMeterActivations(Range<Instant> range) {
+    List<MeterActivation> getMeterActivations(Range<Instant> range) {
         if (range == null) {
             throw new IllegalArgumentException("Range can't be null");
         }
@@ -1012,6 +1016,7 @@ public class UsagePointImpl implements UsagePoint {
                         return false;
                     }
                 })
+                .sorted(Comparator.comparing(MeterActivation::getStart))
                 .collect(Collectors.toList());
     }
 
@@ -1024,6 +1029,7 @@ public class UsagePointImpl implements UsagePoint {
     public List<MeterActivation> getCurrentMeterActivations() {
         return this.meterActivations.stream()
                 .filter(MeterActivation::isCurrent)
+                .sorted(Comparator.comparing(MeterActivation::getStart))
                 .collect(Collectors.toList());
     }
 
@@ -1032,6 +1038,7 @@ public class UsagePointImpl implements UsagePoint {
         return this.meterActivations
                 .stream()
                 .filter(test(this::roleMatches).with(role))
+                .sorted(Comparator.comparing(MeterActivation::getStart))
                 .collect(Collectors.toList());
     }
 
@@ -1090,10 +1097,8 @@ public class UsagePointImpl implements UsagePoint {
     private boolean sameMeterRole(Optional<MeterRole> r1, Optional<MeterRole> r2) {
         if (r1.isPresent() && r2.isPresent()) {
             return Checks.is(r1.get()).equalTo(r2.get());
-        } else if (!r1.isPresent() && !r2.isPresent()) {
-            return true;
         } else {
-            return false;
+            return !r1.isPresent() && !r2.isPresent();
         }
     }
 
