@@ -17,6 +17,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -30,8 +31,8 @@ import java.util.stream.Collectors;
 public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Device> {
 
     private final DeviceConfigurationService deviceConfigurationService;
-    private final DeviceLifeCycleConfigurationService DLCconfigurationService;
-    private final DeviceLifeCycleService DLCService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final DeviceLifeCycleService deviceLifeCycleService;
     private final Clock clock;
 
     private Optional<DeviceLifeCycle> defaultLifeCycle;
@@ -39,11 +40,11 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     private DeviceType deviceType;
 
     @Inject
-    public SetDeviceInActiveLifeCycleStatePostBuilder(DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService DLCconfigurationService, DeviceLifeCycleService DLCService,
+    public SetDeviceInActiveLifeCycleStatePostBuilder(DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DeviceLifeCycleService deviceLifeCycleService,
                                                       Clock clock) {
         this.deviceConfigurationService = deviceConfigurationService;
-        this.DLCconfigurationService = DLCconfigurationService;
-        this.DLCService = DLCService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.deviceLifeCycleService = deviceLifeCycleService;
         this.clock = clock;
     }
 
@@ -65,18 +66,17 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
             List<ExecutableActionProperty> properties =
                     DecoratedStream
                             .decorate(authorizedActionToExecute.getActions().stream())
-                            .flatMap(ma -> this.DLCService.getPropertySpecsFor(ma).stream())
+                            .flatMap(ma -> this.deviceLifeCycleService.getPropertySpecsFor(ma).stream())
                             .distinct(PropertySpec::getName)
-                            .map(ps -> this.toExecutableActionProperty(ps, clock.instant()))
+                            .map(ps -> this.toExecutableActionProperty(ps, clock.instant().plus(1, ChronoUnit.MINUTES)))
                             .collect(Collectors.toList());
-
             System.out.println(" ==> Finding the executable action propertiessetting took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
             executeAuthorizedAction(authorizedActionToExecute, device, properties);
         }
     }
 
     private void initDefaultLifeCycle() {
-        defaultLifeCycle = DLCconfigurationService.findDefaultDeviceLifeCycle();
+        defaultLifeCycle = deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle();
     }
 
     private void initAuthorizedActionsToExecute() {
@@ -92,7 +92,7 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     private ExecutableActionProperty toExecutableActionProperty(PropertySpec propertySpec, Instant effectiveTimestamp) {
         try {
             if (DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key().equals(propertySpec.getName())) {
-                return this.DLCService.toExecutableActionProperty(effectiveTimestamp, propertySpec);
+                return this.deviceLifeCycleService.toExecutableActionProperty(effectiveTimestamp, propertySpec);
             } else {
                 throw new IllegalArgumentException("Unknown or unsupported PropertySpec: " + propertySpec.getName() + " that requires value type: " + propertySpec.getValueFactory().getValueType());
             }
@@ -105,7 +105,7 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     private void executeAuthorizedAction(AuthorizedTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
         long now = Clock.systemDefaultZone().millis();
         try {
-            DLCService.execute(authorizedActionToExecute, device, clock.instant(), properties);
+            deviceLifeCycleService.execute(authorizedActionToExecute, device, clock.instant().plus(1, ChronoUnit.MINUTES), properties);
             System.out.println(" ==> Setting the 'Active' State for device " + device.getmRID() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
         } catch (DeviceLifeCycleActionViolationException e) {
             e.printStackTrace();
