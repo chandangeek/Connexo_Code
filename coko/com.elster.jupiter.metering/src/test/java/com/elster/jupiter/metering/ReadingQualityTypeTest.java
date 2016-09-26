@@ -58,7 +58,7 @@ public class ReadingQualityTypeTest extends EqualsContractTest {
     	ReadingQualityType qualityType = new ReadingQualityType("2.6.1004");
     	assertThat(qualityType.system().get()).isEqualTo(QualityCodeSystem.MDC);
     	assertThat(qualityType.category().get()).isEqualTo(QualityCodeCategory.VALIDATION);
-    	assertThat(qualityType.qualityIndex().isPresent()).isFalse();
+        assertThat(qualityType.qualityIndex().get()).isEqualTo(QualityCodeIndex.VALIDATIONGENERIC);
     	assertThat(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION,1004)).isEqualTo(qualityType);
     }
 }

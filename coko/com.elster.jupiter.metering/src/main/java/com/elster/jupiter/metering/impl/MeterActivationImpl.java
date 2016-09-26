@@ -115,17 +115,22 @@ public final class MeterActivationImpl implements IMeterActivation {
             throw new IllegalArgumentException("You are trying to activate meter on usage point, but you didn't specified a meter role" +
                     " or you specified a meter role, but forgot about meter.");
         }
-        this.meter.set(meter);
-        this.meterRole.set(meterRole);
-        this.usagePoint.set(usagePoint);
-        this.interval = Interval.of(range);
-        this.channelsContainer.set(this.dataModel.getInstance(MeterActivationChannelsContainerImpl.class).init(this));
+        initInternal(meter, meterRole, usagePoint, range);
         if (meter != null) {
             meter.getHeadEndInterface()
                     .map(headEndInterface -> headEndInterface.getCapabilities(meter))
                     .map(EndDeviceCapabilities::getConfiguredReadingTypes)
                     .ifPresent(this::createChannels);
         }
+        return this;
+    }
+
+    private MeterActivationImpl initInternal(Meter meter, MeterRole meterRole, UsagePoint usagePoint, Range<Instant> range) {
+        this.meter.set(meter);
+        this.meterRole.set(meterRole);
+        this.usagePoint.set(usagePoint);
+        this.interval = Interval.of(range);
+        this.channelsContainer.set(this.dataModel.getInstance(MeterActivationChannelsContainerImpl.class).init(this));
         return this;
     }
 
@@ -477,6 +482,35 @@ public final class MeterActivationImpl implements IMeterActivation {
         ChannelDataPresentException() {
             super(thesaurus, MessageSeeds.CHANNEL_DATA_PRESENT);
         }
+    }
+
+    @Override
+    public MeterActivation split(Instant breakTime) {
+        Range<Instant> sourceRange = getRange();
+        if (breakTime == null || !sourceRange.contains(breakTime)) {
+            throw new IllegalArgumentException("Break time is not within meter activation range. Range = " + sourceRange + ", time = " + breakTime);
+        }
+        Range<Instant> newRange = sourceRange.hasUpperBound()
+                ? Range.closedOpen(breakTime, sourceRange.upperEndpoint())
+                : Range.atLeast(breakTime);
+        MeterActivationImpl newActivation = dataModel.getInstance(MeterActivationImpl.class)
+                .initInternal(this.meter.orElse(null), this.meterRole.orElse(null), this.usagePoint.orElse(null), newRange);
+        getMultipliers().entrySet().stream()
+                .forEach(entry -> newActivation.setMultiplier(entry.getKey(), entry.getValue()));
+        // create the same channels for the new activation
+        getChannelsContainer().getChannels().forEach(channel -> {
+            ReadingType[] readingTypesArray = {};
+            List<? extends ReadingType> readingTypes = channel.getReadingTypes();
+            if (readingTypes.size() > 1) {
+                readingTypesArray = new ReadingType[readingTypes.size() - 1];
+                System.arraycopy(readingTypes.toArray(readingTypesArray), 1, readingTypesArray, 0, readingTypes.size() - 1); // skip main channel
+            }
+            newActivation.getChannelsContainer().createChannel(channel.getMainReadingType(), readingTypesArray);
+        });
+        newActivation.moveAllChannelsData(this, newRange);
+        newActivation.save();
+        doEndAt(breakTime);
+        return newActivation;
     }
 
     @Override

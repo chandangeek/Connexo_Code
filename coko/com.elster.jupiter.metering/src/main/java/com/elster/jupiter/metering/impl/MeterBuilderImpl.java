@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Provider;
+import java.time.Instant;
 
 class MeterBuilderImpl implements MeterBuilder {
 
@@ -21,6 +22,7 @@ class MeterBuilderImpl implements MeterBuilder {
     private String serialNumber;
     private Location location;
     private SpatialCoordinates spatialCoordinates;
+    private Instant receivedDate;
 
     MeterBuilderImpl(AmrSystem amrSystem, Provider<MeterImpl> meterFactory, String amrId) {
         this.amrSystem = amrSystem;
@@ -38,6 +40,7 @@ class MeterBuilderImpl implements MeterBuilder {
         meter.setSerialNumber(serialNumber);
         meter.setLocation(location);
         meter.setSpatialCoordinates(spatialCoordinates);
+        meter.getLifecycleDates().setReceivedDate(receivedDate);
         meter.doSave();
         return meter;
     }
@@ -81,6 +84,12 @@ class MeterBuilderImpl implements MeterBuilder {
     @Override
     public MeterBuilder setSpatialCoordinates(SpatialCoordinates geoCoordinates) {
         this.spatialCoordinates = geoCoordinates;
+        return this;
+    }
+
+    @Override
+    public MeterBuilder setReceivedDate(Instant receivedDate) {
+        this.receivedDate = receivedDate;
         return this;
     }
 
