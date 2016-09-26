@@ -55,6 +55,8 @@ public interface MeteringService {
 
     Optional<EndDevice> findEndDevice(String mRid);
 
+    Optional<Meter> findMeterByName(String name);
+
     Optional<MeterActivation> findMeterActivation(long meterActivationId);
 
     Optional<Channel> findChannel(long id);

@@ -215,6 +215,14 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public Optional<Meter> findMeterByName(String name) {
+        return dataModel.stream(Meter.class)
+                .filter(Operator.EQUAL.compare("name", name))
+                .filter(Operator.ISNULL.compare("obsoleteTime"))
+                .findFirst();
+    }
+
+    @Override
     public ReadingStorer createOverrulingStorer() {
         return withListeners(ReadingStorerImpl.createOverrulingStorer(idsService, eventService));
     }
