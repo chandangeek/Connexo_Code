@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleContext;
@@ -33,14 +34,16 @@ public class UpgraderV10_2 implements Upgrader {
     private final ServerMeteringService meteringService;
     private final EventService eventService;
     private final InstallerV10_2Impl installerV10_2;
+    private final UserService userService;
 
     @Inject
-    public UpgraderV10_2(BundleContext bundleContext, DataModel dataModel, ServerMeteringService meteringService, EventService eventService, InstallerV10_2Impl installerV10_2) {
+    public UpgraderV10_2(BundleContext bundleContext, DataModel dataModel, ServerMeteringService meteringService, EventService eventService, InstallerV10_2Impl installerV10_2, UserService userService) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.eventService = eventService;
         this.installerV10_2 = installerV10_2;
+        this.userService = userService;
     }
 
     @Override
@@ -96,6 +99,7 @@ public class UpgraderV10_2 implements Upgrader {
         installNewEventTypes();
         new GasDayOptionsCreator(this.meteringService).createIfMissing(this.bundleContext);
         installerV10_2.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_2.class.getName()));
+        userService.addModulePrivileges(installerV10_2);
     }
 
     private void execute(Statement statement, String sql) {

@@ -19,14 +19,11 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.impl.upgraders.GasDayOptionsCreator;
-import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
@@ -52,7 +49,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class InstallerImpl implements FullInstaller, PrivilegesProvider {
+public class InstallerImpl implements FullInstaller {
 
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final int SLOT_COUNT = 8;
@@ -171,48 +168,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
                 () -> new GasDayOptionsCreator(this.meteringService).createIfMissing(this.bundleContext),
                 logger
         );
-        userService.addModulePrivileges(this);
-    }
-
-    @Override
-    public String getModuleName() {
-        return MeteringDataModelService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(
-                userService.createModuleResourceWithPrivileges(
-                        getModuleName(),
-                        DefaultTranslationKey.RESOURCE_USAGE_POINT.getKey(),
-                        DefaultTranslationKey.RESOURCE_USAGE_POINT_DESCRIPTION.getKey(),
-                        Arrays.asList(
-                                Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
-                                Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
-                                Privileges.Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS)));
-        resources.add(
-                userService.createModuleResourceWithPrivileges(
-                        getModuleName(),
-                        DefaultTranslationKey.RESOURCE_READING_TYPE.getKey(),
-                        DefaultTranslationKey.RESOURCE_READING_TYPE_DESCRIPTION.getKey(),
-                        Arrays.asList(Privileges.Constants.ADMINISTER_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
-        resources.add(
-                userService.createModuleResourceWithPrivileges(
-                        getModuleName(),
-                        DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY.getKey(),
-                        DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY_DESCRIPTION.getKey(),
-                        Collections.singletonList(Privileges.Constants.VIEW_SERVICECATEGORY)));
-
-        resources.add(
-                userService.createModuleResourceWithPrivileges(
-                        getModuleName(),
-                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION.getKey(),
-                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION.getKey(),
-                        Arrays.asList(
-                                Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION,
-                                Privileges.Constants.VIEW_METROLOGY_CONFIGURATION)));
-        return resources;
+        userService.addModulePrivileges(installerV10_2);
     }
 
     private void createEventTypes() {
