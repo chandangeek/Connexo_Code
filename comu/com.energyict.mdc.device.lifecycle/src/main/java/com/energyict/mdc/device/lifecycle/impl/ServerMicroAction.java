@@ -5,7 +5,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.MeterActivationBuilder;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -28,10 +27,6 @@ public interface ServerMicroAction {
      */
     default List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
         return Collections.emptyList();
-    }
-
-    default void buildMeterActivation(MeterActivationBuilder builder, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        // by default do nothing
     }
 
     /**
