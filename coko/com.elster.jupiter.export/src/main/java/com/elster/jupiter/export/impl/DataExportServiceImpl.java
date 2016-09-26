@@ -83,11 +83,11 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public class DataExportServiceImpl implements IDataExportService, TranslationKeyProvider, MessageSeedProvider {
 
-    public static final String DESTINATION_NAME = "DataExport";
-    public static final String SUBSCRIBER_NAME = "DataExport";
-    public static final String SUBSCRIBER_DISPLAYNAME = "Handle data export";
-    public static final String MODULE_DESCRIPTION = "Data Export";
-    public static final String JAVA_TEMP_DIR_PROPERTY = "java.io.tmpdir";
+    static final String DESTINATION_NAME = "DataExport";
+    static final String SUBSCRIBER_NAME = "DataExport";
+    static final String SUBSCRIBER_DISPLAYNAME = "Handle data export";
+    private static final String MODULE_DESCRIPTION = "Data Export";
+    private static final String JAVA_TEMP_DIR_PROPERTY = "java.io.tmpdir";
     private volatile DataModel dataModel;
     private volatile TimeService timeService;
     private volatile TaskService taskService;
