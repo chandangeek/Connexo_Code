@@ -3,6 +3,7 @@ package com.elster.jupiter.yellowfin.groups.impl;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -45,7 +46,11 @@ class Installer implements FullInstaller {
     }
 
     private SubscriberSpec getSubscriberSpec() {
-        return getDestination().getSubscribers().stream().findFirst().orElseGet(() -> getDestination().subscribe(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST));
+        return getDestination()
+                .getSubscribers()
+                .stream()
+                .findFirst()
+                .orElseGet(() -> getDestination().subscribe(TranslationKeys.ADHOC_SEARCH_SUBSCRIBER, YellowfinGroupsService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     private void createTask() {
