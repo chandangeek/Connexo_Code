@@ -759,27 +759,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         return dataModel.mapper(DataValidationOccurrence.class).lock(occurrence.getId());
     }
 
-
-    @Override
-    public Optional<DataValidationKpiScore> getDataValidationKpiScores(long endDeviceGroupId, long deviceId, Range<Instant> interval) {
-        Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
-        Optional<DataValidationKpiScore> score = Optional.empty();
-        if (found.isPresent()) {
-            Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(found.get());
-            if (dataValidationKpi.isPresent()) {
-                score = dataValidationKpi.get().getDataValidationKpiScores(deviceId, interval);
-            }
-        }
-        return score;
-    }
-
-    @Override
-    public List<Long> getDevicesIdsList(long endDeviceGroupId) {
-        return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId)
-                .map(endDeviceGroup -> endDeviceGroup.getMembers(clock.instant()).stream().map(EndDevice::getId).collect(Collectors.toList()))
-                .orElseGet(Collections::emptyList);
-    }
-
     @Override
     public Optional<? extends ValidationRuleSetVersion> findValidationRuleSetVersion(long id) {
         return dataModel.mapper(IValidationRuleSetVersion.class).getOptional(id);
