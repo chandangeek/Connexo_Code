@@ -7,7 +7,9 @@ import com.elster.jupiter.messaging.InactiveDestinationException;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.time.Duration;
@@ -28,7 +30,7 @@ class TransientDestinationSpec implements DestinationSpec {
     private final Thesaurus thesaurus;
     private final boolean buffered;
 
-    public TransientDestinationSpec(QueueTableSpec queueTableSpec, Thesaurus thesaurus, String name, boolean buffered) {
+    TransientDestinationSpec(QueueTableSpec queueTableSpec, Thesaurus thesaurus, String name, boolean buffered) {
         this.queueTableSpec = queueTableSpec;
         this.thesaurus = thesaurus;
         this.name = name;
@@ -84,11 +86,10 @@ class TransientDestinationSpec implements DestinationSpec {
 
     @Override
     public List<SubscriberSpec> getSubscribers() {
-        return Collections.<SubscriberSpec>unmodifiableList(subscribers);
+        return Collections.unmodifiableList(subscribers);
     }
 
-    @Override
-    public SubscriberSpec subscribe(String name) {
+    public SubscriberSpec subscribe(String name, String displayName) {
         if (!active) {
             throw new InactiveDestinationException(thesaurus, this, name);
         }
@@ -100,14 +101,19 @@ class TransientDestinationSpec implements DestinationSpec {
                 throw new DuplicateSubscriberNameException(thesaurus, name);
             }
         }
-        TransientSubscriberSpec subscriberSpec = new TransientSubscriberSpec(this, name);
+        TransientSubscriberSpec subscriberSpec = new TransientSubscriberSpec(this, name, displayName);
         subscribers.add(subscriberSpec);
         return subscriberSpec;
     }
 
     @Override
-    public SubscriberSpec subscribe(String name, Condition filter) {
-        return subscribe(name);
+    public SubscriberSpec subscribe(TranslationKey nameKey, String component, Layer layer) {
+        return this.subscribe(nameKey.getKey(), nameKey.getDefaultFormat());
+    }
+
+    @Override
+    public SubscriberSpec subscribe(TranslationKey nameKey, String component, Layer layer, Condition filter) {
+        return this.subscribe(nameKey, component, layer);
     }
 
     @Override
@@ -115,8 +121,7 @@ class TransientDestinationSpec implements DestinationSpec {
         if (!isActive()) {
             throw new InactiveDestinationException(thesaurus, this, name);
         }
-        List<TransientSubscriberSpec> currentConsumers = subscribers;
-        Optional<TransientSubscriberSpec> subscriberSpecRef = currentConsumers.stream().filter(ss -> ss.getName().equals(subscriberSpecName)).findFirst();
+        Optional<TransientSubscriberSpec> subscriberSpecRef = subscribers.stream().filter(ss -> ss.getName().equals(subscriberSpecName)).findFirst();
         if (subscriberSpecRef.isPresent()) {
             subscribers.remove(subscriberSpecRef.get());
         }
@@ -131,7 +136,7 @@ class TransientDestinationSpec implements DestinationSpec {
 
     @Override
     public SubscriberSpec subscribeSystemManaged(String name) {
-        return subscribe(name);
+        return subscribe(name, name);
     }
 
     @Override
@@ -175,9 +180,7 @@ class TransientDestinationSpec implements DestinationSpec {
 
     @Override
     public void purgeCorrelationId(String correlationId) {
-       subscribers
-               .stream()
-               .forEach(perform(TransientSubscriberSpec::removeMessagesWithCorrelationId).with(correlationId));
+       subscribers.forEach(perform(TransientSubscriberSpec::removeMessagesWithCorrelationId).with(correlationId));
     }
 
     @Override
@@ -195,11 +198,11 @@ class TransientDestinationSpec implements DestinationSpec {
         private final byte[] data;
         private String correlationId;
 
-        public TransientMessageBuilder(String text) {
+        TransientMessageBuilder(String text) {
             data = text.getBytes();
         }
 
-        public TransientMessageBuilder(byte[] bytes) {
+        TransientMessageBuilder(byte[] bytes) {
             data = new byte[bytes.length];
             System.arraycopy(bytes, 0, data, 0, bytes.length);
         }

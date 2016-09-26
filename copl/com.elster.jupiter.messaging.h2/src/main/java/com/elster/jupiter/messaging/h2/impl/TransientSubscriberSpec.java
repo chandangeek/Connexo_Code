@@ -12,12 +12,14 @@ class TransientSubscriberSpec implements SubscriberSpec {
 
     private final TransientDestinationSpec destinationSpec;
     private final String name;
+    private final String displayName;
     private final BlockingQueue<TransientMessage> messages = new LinkedBlockingQueue<>();
     private Thread toCancel;
     private final Object lock = new Object();
 
-    public TransientSubscriberSpec(TransientDestinationSpec destinationSpec, String name) {
+    public TransientSubscriberSpec(TransientDestinationSpec destinationSpec, String name, String displayName) {
         this.name = name;
+        this.displayName = displayName;
         this.destinationSpec = destinationSpec;
     }
 
@@ -62,6 +64,11 @@ class TransientSubscriberSpec implements SubscriberSpec {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return displayName;
     }
 
     public void addMessage(TransientMessage transientMessage) {

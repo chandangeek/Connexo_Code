@@ -1,19 +1,19 @@
 package com.elster.jupiter.messaging.h2.impl;
 
 import com.elster.jupiter.messaging.Message;
+
 import oracle.jdbc.aq.AQMessage;
-import org.junit.After;
+
+import java.sql.SQLException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.sql.SQLException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 public class SubscriberSpecImplTest {
 
     private static final String NAME = "Name";
+    private static final String DISPLAYNAME = "Displayname";
     private static final String DESTINATION = "Destiny";
     private static final String PAYLOAD_TYPE = "RAW";
     private static final byte[] PAYLOAD_BYTES = "Payload".getBytes();
@@ -40,13 +41,7 @@ public class SubscriberSpecImplTest {
         when(message.getPayload()).thenReturn(PAYLOAD_BYTES);
         when(destination.isTopic()).thenReturn(true);
 
-        subscriberSpec = new TransientSubscriberSpec(destination, NAME);
-
-    }
-
-    @After
-    public void tearDown() {
-
+        subscriberSpec = new TransientSubscriberSpec(destination, NAME, DISPLAYNAME);
     }
 
     @Test
@@ -71,12 +66,7 @@ public class SubscriberSpecImplTest {
     @Test(timeout = 2000)
     public void testCancelBreaksOutOfABlockingReceive() throws Exception {
 
-        RunnableFuture<Message> task = new FutureTask<>(new Callable<Message>(){
-            @Override
-            public Message call() {
-                return subscriberSpec.receive();
-            }
-        });
+        RunnableFuture<Message> task = new FutureTask<>(() -> subscriberSpec.receive());
         Thread receiver = new Thread(task);
         receiver.start();
         while (Thread.State.BLOCKED != receiver.getState() && Thread.State.WAITING != receiver.getState()) {
@@ -87,6 +77,5 @@ public class SubscriberSpecImplTest {
 
         assertThat(task.get(1, TimeUnit.SECONDS)).isNull();
     }
-
 
 }
