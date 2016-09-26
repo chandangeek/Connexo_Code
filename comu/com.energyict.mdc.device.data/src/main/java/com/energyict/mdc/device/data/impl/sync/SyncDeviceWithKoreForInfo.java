@@ -84,6 +84,10 @@ public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
         this.currentMeterActivation = meterActivation;
     }
 
+    public void reloadCurrentMeterActivation() {
+        this.currentMeterActivation = null;
+    }
+
     public Optional<UsagePoint> getUsagePoint() {
         if (getCurrentMeterActivation().isPresent()) {
             return currentMeterActivation.get().getUsagePoint();

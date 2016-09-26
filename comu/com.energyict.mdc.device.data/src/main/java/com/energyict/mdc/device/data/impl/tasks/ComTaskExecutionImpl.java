@@ -844,6 +844,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         }
     }
 
+    @Override
+    public long getConnectionTaskId() {
+        return connectionTaskId;
+    }
+
     public abstract static class AbstractComTaskExecutionBuilder<C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionBuilder<C> {
 
         private final CI comTaskExecution;
