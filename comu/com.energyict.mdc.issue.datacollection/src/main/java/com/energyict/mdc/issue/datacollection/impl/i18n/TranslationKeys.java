@@ -1,12 +1,13 @@
 package com.energyict.mdc.issue.datacollection.impl.i18n;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
 
 public enum TranslationKeys implements TranslationKey {
-
+    AQ_DATA_COLLECTION_EVENT_SUBSC(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, ModuleConstants.AQ_DATA_COLLECTION_EVENT_DISPLAYNAME),
     BASIC_TEMPLATE_DATACOLLECTION_NAME("TemplateBasicDataCollectionName", "Create issue when specific event occurs"),
     BASIC_TEMPLATE_DATACOLLECTION_DESCRIPTION("TemplateBasicDataCollectionDescription", "Create issue when specific event occurs"),
     TEMPLATE_EVT_AGGREGATION_NAME("TemplateEvtAggregationName", "Events from meters of concentrator"),
