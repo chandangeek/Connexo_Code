@@ -15,12 +15,12 @@ public enum TranslationSeeds implements TranslationKey {
     CALL_BACK_URL("callback", "Callback URL"),
     PROVIDED_RESPONSE("providedResponse", "Provided response"),
     BREAKER_STATUS("breakerStatus", "Breaker status"),
-    COMPLETION_OPTIONS_MESSAGE_HANDLER_DISPLAYNAME(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER, CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER_DISPLAYNAME)
+    COMPLETION_OPTIONS_MESSAGE_HANDLER(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER, CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER_DISPLAYNAME)
     ;
     private String key;
     private final String defaultFormat;
 
-    private TranslationSeeds(String key, String defaultFormat) {
+    TranslationSeeds(String key, String defaultFormat) {
         this.key = key;
         this.defaultFormat = defaultFormat;
     }

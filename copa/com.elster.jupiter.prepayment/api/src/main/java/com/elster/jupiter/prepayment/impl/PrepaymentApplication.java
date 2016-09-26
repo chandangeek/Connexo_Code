@@ -50,7 +50,7 @@ import java.util.Set;
         property = {"alias=/rkn", "app=MDC", "name=" + PrepaymentApplication.COMPONENT_NAME, "version=v1.0"})
 public class PrepaymentApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
-    public static final String APP_KEY = "MDC";
+    private static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "RKN";
 
     private volatile DataModel dataModel;
