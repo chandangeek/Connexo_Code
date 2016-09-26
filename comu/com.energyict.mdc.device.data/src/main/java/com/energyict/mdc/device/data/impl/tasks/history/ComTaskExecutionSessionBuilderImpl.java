@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.energyict.mdc.device.data.Device;
+import com.elster.jupiter.util.Counters;
+import com.elster.jupiter.util.LongCounter;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
@@ -10,8 +11,6 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.util.Counters;
-import com.elster.jupiter.util.LongCounter;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -30,18 +29,16 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     private LongCounter receivedPackets = Counters.newStrictLongCounter();
     private final ComTaskExecution comTaskExecution;
     private final ComTask comTask;
-    private final Device device;
     private final Instant startDate;
     private Instant stopDate;
     private ComTaskExecutionSession.SuccessIndicator successIndicator;
     private final ComSessionBuilder parentBuilder;
     private List<JournalEntryBuilder> journalEntryBuilders = new ArrayList<>();
 
-    ComTaskExecutionSessionBuilderImpl(ComSessionBuilder parentBuilder, ComTaskExecution comTaskExecution, ComTask comTask, Device device, Instant startDate) {
+    ComTaskExecutionSessionBuilderImpl(ComSessionBuilder parentBuilder, ComTaskExecution comTaskExecution, ComTask comTask, Instant startDate) {
         this.parentBuilder = parentBuilder;
         this.comTaskExecution = comTaskExecution;
         this.comTask = comTask;
-        this.device = device;
         this.startDate = startDate;
     }
 

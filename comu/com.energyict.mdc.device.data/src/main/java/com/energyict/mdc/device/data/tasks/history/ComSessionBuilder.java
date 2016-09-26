@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComServer;
@@ -51,7 +50,7 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     List<ComSessionJournalEntry> getJournalEntries();
 
-    ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Instant startDate);
+    ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Instant startDate);
 
     void addComTaskExecutionSession(ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder);
 

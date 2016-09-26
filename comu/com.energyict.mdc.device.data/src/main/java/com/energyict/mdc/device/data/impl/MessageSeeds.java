@@ -145,7 +145,6 @@ public enum MessageSeeds implements MessageSeed {
     UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(2122, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, "This device doesn’t have the following reading types that are specified in the metrology configurations of the selected usage point: {0}"),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE(2123, "usagePointAlreadyLinkedToAnotherDeviceX", "The usage point is already linked to device {0} starting from {1}"),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(2124, "usagePointAlreadyLinkedToAnotherDeviceXUntil", "The usage point is already linked to device {0} starting from {1} until {2}"),
-    METER_ACTIVATION_TIMESTAMP_NOT_AFTER_LAST_ACTIVATION(2125, "meterActivationTimestampNotAfterLastActivation", "The activation date {0} should be after the last meter activation date {1}"),
     CHANGE_DEVICE_CONFIG_UNSATISFIED_REQUIREMENTS(2126, "changeDeviceConfigUnsatisfiedRequirements", "The device {0} can''t have the device configuration {1} because this device configuration doesn''t have the following reading types that are specified in the metrology configuration versions of the usage points that are linked to this device: \n {2}"),
     NO_SUCH_END_DEVICE_CONTROL_TYPE(2127, "NoSuchEndDeviceControlType", "No end device control type with MRID {0}"),
     NO_SUCH_DEVICE_MESSAGE_SPEC(2128, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
