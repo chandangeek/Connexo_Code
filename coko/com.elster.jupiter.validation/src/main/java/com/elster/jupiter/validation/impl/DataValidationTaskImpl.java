@@ -24,7 +24,6 @@ import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
-import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -37,8 +36,9 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @HasValidGroup(groups = {Save.Create.class, Save.Update.class})
-public final class DataValidationTaskImpl implements DataValidationTask {
+final class DataValidationTaskImpl implements DataValidationTask {
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
 
     @NotEmpty(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
@@ -48,13 +48,16 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     private final TaskService taskService;
     private Instant lastRun;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
     private final Thesaurus thesaurus;
     private transient Instant nextExecution;
-    private final ValidationService dataValidationService;
 
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
@@ -72,10 +75,9 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private QualityCodeSystem qualityCodeSystem;
 
     @Inject
-    DataValidationTaskImpl(DataModel dataModel, TaskService taskService, ValidationService dataValidationService, Thesaurus thesaurus, Provider<DestinationSpec> destinationSpecProvider) {
+    DataValidationTaskImpl(DataModel dataModel, TaskService taskService, Thesaurus thesaurus, Provider<DestinationSpec> destinationSpecProvider) {
         this.taskService = taskService;
         this.dataModel = dataModel;
-        this.dataValidationService = dataValidationService;
         this.thesaurus = thesaurus;
         this.destinationSpecProvider = destinationSpecProvider;
     }

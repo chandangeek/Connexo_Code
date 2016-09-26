@@ -13,6 +13,8 @@ import java.util.Set;
 public interface ValidationContext {
     Set<QualityCodeSystem> getQualityCodeSystems();
 
+    ValidationContext setQualityCodeSystems(Set<QualityCodeSystem> qualityCodeSystems);
+
     ChannelsContainer getChannelsContainer();
 
     Optional<Meter> getMeter();
