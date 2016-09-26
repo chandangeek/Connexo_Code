@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.PurgeConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -105,6 +104,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
 		});
         upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 	}
+
 	@Reference
 	public void setNlsService(NlsService nlsService) {
 		this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
@@ -225,7 +225,6 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
 	@Override
 	public List<TranslationKey> getKeys() {
 		List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(TranslationKeys.values()));
-		translationKeys.add(new SimpleTranslationKey(Installer.DATA_LIFE_CYCLE_DESTINATION_NAME, Installer.DATA_LIFE_CYCLE_DISPLAY_NAME));
 		Arrays.stream(Privileges.values()).forEach(translationKeys::add);
 		return translationKeys;
 	}

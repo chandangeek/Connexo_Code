@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -26,9 +27,10 @@ import java.util.logging.Logger;
 
 class Installer implements FullInstaller, PrivilegesProvider {
 
-    public static final String DATA_LIFE_CYCLE_DESTINATION_NAME = "DataLifeCycle";
-    public static final String DATA_LIFE_CYCLE_DISPLAY_NAME = "Handle purge data";
-    public static final String DATA_LIFECYCLE_RECCURENT_TASK_NAME = "Data Lifecycle";
+    static final String DATA_LIFE_CYCLE_DESTINATION_NAME = "DataLifeCycle";
+    static final String DATA_LIFE_CYCLE_DISPLAY_NAME = "Handle purge data";
+    private static final String DATA_LIFECYCLE_RECCURENT_TASK_NAME = "Data Lifecycle";
+
     private final DataModel dataModel;
     private final MessageService messageService;
     private final TaskService taskService;
@@ -47,7 +49,6 @@ class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        List<LifeCycleCategory> categories = new ArrayList<>();
         for (LifeCycleCategoryKind category : LifeCycleCategoryKind.values()) {
             LifeCycleCategory newCategory = new LifeCycleCategoryImpl(dataModel, meteringService).init(category);
             try {
@@ -56,7 +57,6 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 logger.warning("The LifeCycleCategory '" + newCategory.getName() + "' already exists");
                 throw ex;
             }
-            categories.add(newCategory);
         }
         createTask();
         userService.addModulePrivileges(this);
@@ -81,7 +81,11 @@ class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private SubscriberSpec getSubscriberSpec() {
-        return getDestination().getSubscribers().stream().findFirst().orElseGet(() -> getDestination().subscribe(DATA_LIFE_CYCLE_DESTINATION_NAME));
+        return getDestination()
+                .getSubscribers()
+                .stream()
+                .findFirst()
+                .orElseGet(() -> getDestination().subscribe(TranslationKeys.DATA_LIFE_CYCLE, LifeCycleService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     private void createTask() {

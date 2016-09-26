@@ -10,7 +10,8 @@ public enum TranslationKeys implements TranslationKey {
     LIFE_CYCLE_KIND_ENDDEVICEEVENT (Constants.DATA_LIFECYCLE_CATEGORY_NAME_PREFIX + LifeCycleCategoryKind.ENDDEVICEEVENT.name(), "Event data"),
     LIFE_CYCLE_KIND_LOGGING (Constants.DATA_LIFECYCLE_CATEGORY_NAME_PREFIX + LifeCycleCategoryKind.LOGGING.name(), "Logging data"),
     LIFE_CYCLE_KIND_JOURNAL (Constants.DATA_LIFECYCLE_CATEGORY_NAME_PREFIX + LifeCycleCategoryKind.JOURNAL.name(), "Journal tables"),
-    LIFE_CYCLE_KIND_WEBSERVICES (Constants.DATA_LIFECYCLE_CATEGORY_NAME_PREFIX + LifeCycleCategoryKind.WEBSERVICES.name(), "Web services")
+    LIFE_CYCLE_KIND_WEBSERVICES (Constants.DATA_LIFECYCLE_CATEGORY_NAME_PREFIX + LifeCycleCategoryKind.WEBSERVICES.name(), "Web services"),
+    DATA_LIFE_CYCLE(Installer.DATA_LIFE_CYCLE_DESTINATION_NAME, Installer.DATA_LIFE_CYCLE_DISPLAY_NAME)
     ;
 
     private final String key;
