@@ -53,7 +53,7 @@ public class CreateValidationSetupCommand {
 
     private void createValidationDevice(){
         CreateValidationDeviceCommand command = this.createValidationDeviceCommandProvider.get();
-        command.setMridPrefix(MOCKED_VALIDATION_DEVICE_MRID_PREFIX);
+        command.setDeviceNamePrefix(MOCKED_VALIDATION_DEVICE_MRID_PREFIX);
         command.setSerialNumber("085600010352"); // TODO
         command.run();
     }

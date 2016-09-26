@@ -48,7 +48,7 @@ public class CreateDataLoggerCommand {
 
     //   private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
-    private final static String DATA_LOGGER_MRID = "DemoDataLogger";
+    private final static String DATA_LOGGER_NAME = "DemoDataLogger";
     private final static String DATA_LOGGER_SERIAL = "660-05A043-1428";
     private final static String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";
 
@@ -60,7 +60,7 @@ public class CreateDataLoggerCommand {
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder;
 
     private Map<ComTaskTpl, ComTask> comTasks;
-    private String mRID = DATA_LOGGER_MRID;
+    private String name = DATA_LOGGER_NAME;
     private String serialNumber = DATA_LOGGER_SERIAL;
 
     @Inject
@@ -78,8 +78,8 @@ public class CreateDataLoggerCommand {
         this.lifecyclePostBuilder = lifecyclePostBuilder;
     }
 
-    public void setDataLoggerMrid(String mRID) {
-        this.mRID = mRID;
+    public void setDataLoggerName(String name) {
+        this.name = name;
     }
 
     public void setSerialNumber(String serialNumber) {
@@ -88,9 +88,9 @@ public class CreateDataLoggerCommand {
 
     public void run() {
         // 1. Some basic checks
-        Optional<Device> device = deviceService.findByUniqueMrid(mRID);
+        Optional<Device> device = deviceService.findDeviceByName(name);
         if (device.isPresent()) {
-            System.out.println("Nothing was created since a device with MRID '" + this.mRID + "' already exists!");
+            System.out.println("Nothing was created since a device with MRID '" + this.name + "' already exists!");
             return;
         }
         Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(CONNECTION_TASK_PLUGGABLE_CLASS_NAME);
@@ -145,19 +145,19 @@ public class CreateDataLoggerCommand {
 
     private Device createDataLoggerDevice(DeviceConfiguration configuration) {
         Device device = deviceBuilderProvider.get()
-                .withMrid(mRID)
+                .withName(name)
                 .withSerialNumber(serialNumber)
                 .withDeviceConfiguration(configuration)
                 .withYearOfCertification(2015)
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .get();
         addConnectionTasksToDevice(device);
-        device = deviceBuilderProvider.get().withMrid(mRID).get();
+        device = deviceBuilderProvider.get().withName(name).get();
         addSecurityPropertiesToDevice(device);
-        device = deviceBuilderProvider.get().withMrid(mRID).get();
+        device = deviceBuilderProvider.get().withName(name).get();
         addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA);
         addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA);
-        return deviceBuilderProvider.get().withMrid(mRID).get();
+        return deviceBuilderProvider.get().withName(name).get();
     }
 
 

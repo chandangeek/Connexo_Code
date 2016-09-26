@@ -62,7 +62,7 @@ public class CreateG3SlaveCommand {
             @Override
             MeterConfig getMeterConfig() {
                 return new MeterConfig().setProperty("DeviceTypeName", "Elster AS3000 [AM540]")
-                        .setProperty("MRID", "Demo board AS3000")
+                        .setProperty("name", "Demo board AS3000")
                         .setProperty("propertyID", "E0023000520685414")
                         .setProperty("serialNumber", "E0023000520685414")
                         .setProperty("MAC_address", "02237EFFFEFD835B")
@@ -80,7 +80,7 @@ public class CreateG3SlaveCommand {
             @Override
             MeterConfig getMeterConfig() {
                 return new MeterConfig().setProperty("DeviceTypeName", "Elster AS220 [AM540]")
-                        .setProperty("MRID", "Demo board AS220")
+                        .setProperty("name", "Demo board AS220")
                         .setProperty("propertyID", "123457S")
                         .setProperty("serialNumber", "123457S")
                         .setProperty("MAC_address", "02237EFFFEFD82F4")
@@ -196,7 +196,7 @@ public class CreateG3SlaveCommand {
 
         Device getDevice() {
             return Builders.from(DeviceBuilder.class)
-                    .withMrid((String) props.getProperty("MRID"))
+                    .withName((String) props.getProperty("name"))
                     .withDeviceConfiguration(deviceConfiguration)
                     .withSerialNumber((String) props.getProperty("serialNumber"))
                     .withPostBuilder(new SecurityPropertyPostBuilder(this))

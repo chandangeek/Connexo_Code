@@ -25,14 +25,14 @@ public class CreateValidationDeviceCommand extends CreateDeviceCommand {
     public void run() {
         super.run();
         String ruleSetName = ValidationRuleSetTpl.RESIDENTIAL_CUSTOMERS.getName();
-        String mrid = getMridPrefix() + getSerialNumber();
+        String deviceName = getDeviceNamePrefix() + getSerialNumber();
         Optional<ValidationRuleSet> existingRuleSet = validationService.getValidationRuleSet(ruleSetName);
         if (!existingRuleSet.isPresent()){
-            throw new UnableToCreate("Unable to find validation ruleset with name" + ruleSetName);
+            throw new UnableToCreate("Unable to find validation ruleset with name " + ruleSetName);
         }
-        Optional<Meter> meter = meteringService.findMeter(mrid);
+        Optional<Meter> meter = meteringService.findMeterByName(deviceName);
         if (!meter.isPresent()){
-            throw new UnableToCreate("Unable to find meter with mrid" + mrid);
+            throw new UnableToCreate("Unable to find meter with name " + deviceName);
         }
         validationService.activateValidation(meter.get());
 		validationService.enableValidationOnStorage(meter.get());

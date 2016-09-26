@@ -56,7 +56,7 @@ public class NTASimToolBuilder implements Builder<Void> {
         List<String> newSerialNumbers = new ArrayList<>();
         newSerialNumbers.add("sentinal");
         while(!newSerialNumbers.isEmpty()) {
-            newSerialNumbers = deviceService.findAllDevices(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*")).paged(start, 1000)
+            newSerialNumbers = deviceService.findAllDevices(where("name").like(Constants.Device.STANDARD_PREFIX + "*")).paged(start, 1000)
                     .stream().map(Device::getSerialNumber).collect(Collectors.toList());
             start+=1000;
             serialNumbers.addAll(newSerialNumbers);

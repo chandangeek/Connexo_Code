@@ -63,13 +63,13 @@ public abstract class AddChannelReadingsCommand extends ReadDataFromFileCommand 
             meterReading.addIntervalBlock(block);
         }
         getMeter().store(QualityCodeSystem.MDC, meterReading);
-        setLastReadingTypeForLoadProfile(getMeter().getMRID());
+        setLastReadingTypeForLoadProfile(getMeter().getName());
     }
 
     protected abstract Instant getTimeForReading(ReadingType readingType, Instant startDate, String controlValue);
 
-    private void setLastReadingTypeForLoadProfile(final String mrid) {
-        Device device = deviceService.findByUniqueMrid(mrid).orElse(null);
+    private void setLastReadingTypeForLoadProfile(String deviceName) {
+        Device device = deviceService.findDeviceByName(deviceName).orElse(null);
         List<LoadProfile> loadProfiles = device.getLoadProfiles();
         for (LoadProfile loadProfile : loadProfiles) {
             LoadProfile.LoadProfileUpdater updater = device.getLoadProfileUpdaterFor(loadProfile);

@@ -567,7 +567,7 @@ public class DemoServiceImpl {
         executeTransaction(() -> {
             CreateG3GatewayCommand command = injector.getInstance(CreateG3GatewayCommand.class);
             if (mrid != null){ //Otherwise default mrId is Used
-                command.setGatewayMrid(mrid);
+                command.setGatewayName(mrid);
             }
             command.run();
         });
@@ -598,10 +598,10 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void addIntervalChannelReadings(String mrid, String startDate, String path) {
+    public void addIntervalChannelReadings(String name, String startDate, String path) {
         executeTransaction(() -> {
             AddIntervalChannelReadingsCommand command = injector.getInstance(AddIntervalChannelReadingsCommand.class);
-            command.setMeter(mrid);
+            command.setMeter(name);
             command.setStartDate(startDate);
             command.setSource(path);
             command.run();
@@ -609,10 +609,10 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void addNoneIntervalChannelReadings(String mrid, String startDate, String path) {
+    public void addNoneIntervalChannelReadings(String name, String startDate, String path) {
         executeTransaction(() -> {
             AddNoneIntervalChannelReadingsCommand command = injector.getInstance(AddNoneIntervalChannelReadingsCommand.class);
-            command.setMeter(mrid);
+            command.setMeter(name);
             command.setStartDate(startDate);
             command.setSource(path);
             command.run();
@@ -620,10 +620,10 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void addRegisterReadings(String mrid, String startDate, String path) {
+    public void addRegisterReadings(String name, String startDate, String path) {
         executeTransaction(() -> {
             AddRegisterReadingsCommand command = injector.getInstance(AddRegisterReadingsCommand.class);
-            command.setMeter(mrid);
+            command.setMeter(name);
             command.setStartDate(startDate);
             command.setSource(path);
             command.run();
@@ -748,7 +748,7 @@ public class DemoServiceImpl {
         executeTransaction(() -> {
             CreateValidationDeviceCommand command = injector.getInstance(CreateValidationDeviceCommand.class);
             command.setSerialNumber(serialNumber);
-            command.setMridPrefix(Constants.Device.MOCKED_VALIDATION_DEVICE);
+            command.setDeviceNamePrefix(Constants.Device.MOCKED_VALIDATION_DEVICE);
             command.run();
         });
     }
@@ -758,7 +758,7 @@ public class DemoServiceImpl {
         executeTransaction(() -> {
             CreateDeviceCommand command = injector.getInstance(CreateDeviceCommand.class);
             command.setSerialNumber(serialNumber);
-            command.setMridPrefix(Constants.Device.MOCKED_REALISTIC_DEVICE);
+            command.setDeviceNamePrefix(Constants.Device.MOCKED_REALISTIC_DEVICE);
             command.run();
         });
     }

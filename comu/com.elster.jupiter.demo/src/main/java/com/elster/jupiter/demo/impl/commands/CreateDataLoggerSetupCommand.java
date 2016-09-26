@@ -79,7 +79,7 @@ public class CreateDataLoggerSetupCommand {
                 activeLifeCyclestatePostBuilder
         );
         if (this.dataLoggerMrid != null) {
-            dataLoggerCommand.setDataLoggerMrid(dataLoggerMrid);
+            dataLoggerCommand.setDataLoggerName(dataLoggerMrid);
         }
         if (this.dataLoggerSerial != null) {
             dataLoggerCommand.setSerialNumber(dataLoggerSerial);
@@ -121,7 +121,7 @@ public class CreateDataLoggerSetupCommand {
         for (int i = existing + 1; i <= existing + numberOfSlaves; i++) {
             CreateDataLoggerSlaveCommand slave = new CreateDataLoggerSlaveCommand();
             slave.setActiveLifeCyclestatePostBuilder(this.activeLifeCyclestatePostBuilder);
-            slave.setMridPrefix(DeviceTypeTpl.EIMETER_FLEX.getLongName());
+            slave.setDeviceNamePrefix(DeviceTypeTpl.EIMETER_FLEX.getLongName());
             slave.setSerialNumber("" + i);
             slave.run();
         }

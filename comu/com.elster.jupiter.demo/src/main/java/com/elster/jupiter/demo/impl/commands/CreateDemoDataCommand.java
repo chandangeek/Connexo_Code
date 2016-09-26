@@ -187,7 +187,7 @@ public class CreateDemoDataCommand {
     private void createMockedDataDeviceCommand(){
         CreateDeviceCommand command = this.createDeviceCommandProvider.get();
         command.setSerialNumber("093000020359");
-        command.setMridPrefix(Constants.Device.MOCKED_REALISTIC_DEVICE);
+        command.setDeviceNamePrefix(Constants.Device.MOCKED_REALISTIC_DEVICE);
         command.run();
     }
 

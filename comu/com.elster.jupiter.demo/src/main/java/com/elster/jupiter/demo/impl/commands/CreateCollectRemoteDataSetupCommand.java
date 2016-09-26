@@ -246,11 +246,11 @@ public class CreateCollectRemoteDataSetupCommand {
         for (int i = 0; i < deviceCount; i++) {
             deviceCounter++;
             String serialNumber = "01000001" + String.format("%04d", deviceCounter);
-            String mrid = Constants.Device.STANDARD_PREFIX + serialNumber;
+            String name = Constants.Device.STANDARD_PREFIX + serialNumber;
             if (spatialCoordinates != null) {
-                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), createSpatialCoordinates());
+                createDevice(configuration, name, serialNumber, deviceTypeTpl, createLocation(), createSpatialCoordinates());
             } else {
-                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), spatialCoordinates);
+                createDevice(configuration, name, serialNumber, deviceTypeTpl, createLocation(), spatialCoordinates);
             }
 
         }
@@ -265,9 +265,9 @@ public class CreateCollectRemoteDataSetupCommand {
         return configuration;
     }
 
-    private void createDevice(DeviceConfiguration configuration, String mrid, String serialNumber, DeviceTypeTpl deviceTypeTpl, Location location, SpatialCoordinates geoCoordinates) {
+    private void createDevice(DeviceConfiguration configuration, String name, String serialNumber, DeviceTypeTpl deviceTypeTpl, Location location, SpatialCoordinates geoCoordinates) {
         Builders.from(DeviceBuilder.class)
-                .withMrid(mrid)
+                .withName(name)
                 .withSerialNumber(serialNumber)
                 .withDeviceConfiguration(configuration)
                 .withLocation(location)
