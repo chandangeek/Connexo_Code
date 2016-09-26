@@ -37,6 +37,7 @@ public class MessageServiceImpl implements MessageService {
     private volatile Publisher publisher;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
     private volatile UpgradeService upgradeService;
 
     public MessageServiceImpl() {
@@ -75,6 +76,7 @@ public class MessageServiceImpl implements MessageService {
             protected void configure() {
                 bind(AQFacade.class).toInstance(defaultAQMessageFactory);
                 bind(Publisher.class).toInstance(publisher);
+                bind(NlsService.class).toInstance(nlsService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MessageService.class).toInstance(MessageServiceImpl.this);
@@ -140,6 +142,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(MessageService.COMPONENTNAME, Layer.DOMAIN);
     }
 

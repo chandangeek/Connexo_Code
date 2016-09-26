@@ -5,19 +5,29 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.InactiveDestinationException;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableList;
 import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
 import oracle.jms.AQjmsDestination;
 import oracle.jms.AQjmsDestinationProperty;
 import oracle.jms.AQjmsSession;
+
+import javax.jms.QueueConnection;
+import javax.jms.Session;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,17 +37,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.jms.QueueConnection;
-import javax.jms.Session;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DestinationSpecImplTest {
@@ -47,7 +56,7 @@ public class DestinationSpecImplTest {
     private static final String RAW = "RAW";
     private static final String SUBSCRIBER = "SUBSCRIBER";
     private static final String QUEUE_TABLE_NAME = "QUEUE_TABLE_NAME";
-    public static final int RETRIES = 4;
+    private static final int RETRIES = 4;
 
     private DestinationSpecImpl destinationSpec;
 
@@ -80,6 +89,8 @@ public class DestinationSpecImplTest {
     @Mock
     private DataMapper<DestinationSpec> destinationSpecFactory;
     @Mock
+    private NlsService nlsService;
+    @Mock
     private Thesaurus thesaurus;
     @Mock
     private NlsMessageFormat nlsMessageFormat;
@@ -94,10 +105,11 @@ public class DestinationSpecImplTest {
         when(subscriber.getName()).thenReturn(SUBSCRIBER);
         when(dataModel.getConnection(false)).thenReturn(connection);
         when(dataModel.getInstance(DestinationSpecImpl.class)).thenReturn(new DestinationSpecImpl(dataModel, aqFacade, publisher, thesaurus));
-        when(dataModel.getInstance(SubscriberSpecImpl.class)).thenReturn(new SubscriberSpecImpl(dataModel));
+        when(dataModel.getInstance(SubscriberSpecImpl.class)).thenReturn(new SubscriberSpecImpl(dataModel, nlsService));
         when(dataModel.mapper(SubscriberSpec.class)).thenReturn(subscriberSpecFactory);
         when(dataModel.mapper(DestinationSpec.class)).thenReturn(destinationSpecFactory);
         when(aqFacade.createQueueConnection(connection)).thenReturn(queueConnection);
+        when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
 
         destinationSpec = DestinationSpecImpl.from(dataModel, queueTableSpec, NAME, RETRY_DELAY, RETRIES, false);
@@ -139,7 +151,7 @@ public class DestinationSpecImplTest {
 
     @Test(expected = InactiveDestinationException.class)
     public void testSubscribeOnInactiveDestinationThrowsException() {
-        destinationSpec.subscribe(SUBSCRIBER);
+        destinationSpec.subscribe(new SimpleTranslationKey(SUBSCRIBER, SUBSCRIBER), "TST", Layer.DOMAIN);
     }
 
     @Test
@@ -201,8 +213,8 @@ public class DestinationSpecImplTest {
     public void testGetConsumers() {
 
         destinationSpec.activate();
-        subscriber1 = destinationSpec.subscribe("1");
-        subscriber2 = destinationSpec.subscribe("2");
+        subscriber1 = destinationSpec.subscribe(new SimpleTranslationKey("1", "One"), "TST", Layer.DOMAIN);
+        subscriber2 = destinationSpec.subscribe(new SimpleTranslationKey("2", "Two"), "TST", Layer.DOMAIN);
 
         ImmutableList<SubscriberSpec> subscribers = ImmutableList.of(subscriber1, subscriber2);
 
@@ -217,8 +229,8 @@ public class DestinationSpecImplTest {
 
         assertThat(destinationSpec.isActive()).isTrue();
 
-        destinationSpec.subscribe(SUBSCRIBER);
-        destinationSpec.subscribe(SUBSCRIBER);
+        destinationSpec.subscribe(new SimpleTranslationKey(SUBSCRIBER, SUBSCRIBER), "TST", Layer.DOMAIN);
+        destinationSpec.subscribe(new SimpleTranslationKey(SUBSCRIBER, SUBSCRIBER), "TST", Layer.DOMAIN);
     }
 
     @Test(expected = AlreadyASubscriberForQueueException.class)
@@ -230,8 +242,8 @@ public class DestinationSpecImplTest {
 
         assertThat(destinationSpec.isActive()).isTrue();
 
-        destinationSpec.subscribe("destination");
-        destinationSpec.subscribe(SUBSCRIBER + "2");
+        destinationSpec.subscribe(new SimpleTranslationKey("destination", "destination"), "TST", Layer.DOMAIN);
+        destinationSpec.subscribe(new SimpleTranslationKey(SUBSCRIBER + "2", SUBSCRIBER + "2"), "TST", Layer.DOMAIN);
     }
 
     @Test
@@ -246,7 +258,7 @@ public class DestinationSpecImplTest {
 
         Mockito.reset(preparedStatement); // clear interactions that may have occurred in activate
 
-        SubscriberSpec subscriberSpec = destinationSpec.subscribe(SUBSCRIBER);
+        SubscriberSpec subscriberSpec = destinationSpec.subscribe(new SimpleTranslationKey(SUBSCRIBER, SUBSCRIBER), "TST", Layer.DOMAIN);
 
         assertThat(subscriberSpec.getName()).isEqualTo(SUBSCRIBER);
         assertThat(subscriberSpec.getDestination()).isEqualTo(destinationSpec);

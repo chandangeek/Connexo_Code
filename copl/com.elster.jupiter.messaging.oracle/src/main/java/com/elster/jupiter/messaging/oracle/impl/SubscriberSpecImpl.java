@@ -3,12 +3,16 @@ package com.elster.jupiter.messaging.oracle.impl;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
+
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
@@ -36,6 +40,10 @@ public class SubscriberSpecImpl implements SubscriberSpec {
      */
     private static final Duration DEFAULT_WAIT = Duration.ofSeconds(60);
     private String name;
+    @Size(max = 3)
+    private String nlsComponent;
+    @Size(max = 10)
+    private Layer nlsLayer;
     @Size(max = 4000)
     private String filter;
 
@@ -55,23 +63,19 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     private final Collection<OracleConnection> cancellableConnections = Collections.synchronizedSet(new HashSet<OracleConnection>());
 
     private final DataModel dataModel;
+    private final NlsService nlsService;
 
     @Inject
-    SubscriberSpecImpl(DataModel dataModel) {
+    SubscriberSpecImpl(DataModel dataModel, NlsService nlsService) {
         this.dataModel = dataModel;
+        this.nlsService = nlsService;
     }
 
-    SubscriberSpecImpl init(DestinationSpec destination, String name) {
-        return this.init(destination, name, false);
-    }
-
-    SubscriberSpecImpl init(DestinationSpec destination, String name, boolean systemManaged) {
-        return init(destination, name, systemManaged, null);
-    }
-
-    SubscriberSpecImpl init(DestinationSpec destination, String name, boolean systemManaged, Condition filter) {
+    SubscriberSpecImpl init(DestinationSpec destination, String nameKey, String component, Layer layer, boolean systemManaged, Condition filter) {
         this.destination.set(destination);
-        this.name = name;
+        this.name = nameKey;
+        this.nlsComponent = component;
+        this.nlsLayer = layer;
         this.systemManaged = systemManaged;
         this.filter = toString(filter);
         return this;
@@ -86,16 +90,12 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         return null;
     }
 
-    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name) {
-        return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, name);
+    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String nameKey, String component, Layer layer) {
+        return from(dataModel, destinationSpec, nameKey, component, layer, false, null);
     }
 
-    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name, boolean systemManaged) {
-        return from(dataModel, destinationSpec, name, systemManaged, null);
-    }
-
-    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name, boolean systemManaged, Condition filter) {
-        return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, name, systemManaged, filter);
+    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String nameKey, String component, Layer layer, boolean systemManaged, Condition filter) {
+        return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, nameKey, component, layer, systemManaged, filter);
     }
 
     @Override
@@ -106,6 +106,19 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getDisplayName() {
+        if (!this.systemManaged) {
+            return this.getThesaurus().getString(this.getName(), this.getName());
+        } else {
+            return this.getName();
+        }
+    }
+
+    private Thesaurus getThesaurus() {
+        return this.nlsService.getThesaurus(this.nlsComponent, this.nlsLayer);
     }
 
     @Override

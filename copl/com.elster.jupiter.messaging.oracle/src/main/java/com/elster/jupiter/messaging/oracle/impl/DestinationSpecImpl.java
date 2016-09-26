@@ -11,7 +11,9 @@ import com.elster.jupiter.messaging.MessageSeeds;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.UnderlyingJmsException;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
@@ -171,18 +173,18 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     @Override
-    public SubscriberSpec subscribe(String name) {
-        return subscribe(name, false);
+    public SubscriberSpec subscribe(TranslationKey nameKey, String component, Layer layer) {
+        return subscribe(nameKey.getKey(), component, layer, false);
     }
 
     @Override
-    public SubscriberSpec subscribe(String name, Condition filter) {
-        return subscribe(name, false, filter);
+    public SubscriberSpec subscribe(TranslationKey nameKey, String component, Layer layer, Condition filter) {
+        return subscribe(nameKey.getKey(), component, layer, false, filter);
     }
 
     @Override
     public SubscriberSpec subscribeSystemManaged(String name) {
-        return subscribe(name, true);
+        return subscribe(name, null, null, true);
     }
 
     @Override
@@ -301,24 +303,24 @@ class DestinationSpecImpl implements DestinationSpec {
         return this;
     }
 
-    private SubscriberSpec subscribe(String name, boolean systemManaged) {
-        return subscribe(name, systemManaged, null);
+    private SubscriberSpec subscribe(String nameKey, String component, Layer layer, boolean systemManaged) {
+        return subscribe(nameKey, component, layer, systemManaged, null);
     }
 
-    private SubscriberSpec subscribe(String name, boolean systemManaged, Condition filter) {
+    private SubscriberSpec subscribe(String nameKey, String component, Layer layer, boolean systemManaged, Condition filter) {
         if (!isActive()) {
-            throw new InactiveDestinationException(thesaurus, this, name);
+            throw new InactiveDestinationException(thesaurus, this, nameKey);
         }
         List<SubscriberSpec> currentConsumers = subscribers;
         for (SubscriberSpec each : currentConsumers) {
-            if (each.getName().equals(name)) {
-                throw new DuplicateSubscriberNameException(thesaurus, name);
+            if (each.getName().equals(nameKey)) {
+                throw new DuplicateSubscriberNameException(thesaurus, nameKey);
             }
         }
         if (isQueue() && !currentConsumers.isEmpty()) {
             throw new AlreadyASubscriberForQueueException(thesaurus, this);
         }
-        SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, name, systemManaged, filter);
+        SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, nameKey, component, layer, systemManaged, filter);
         result.subscribe();
         subscribers.add(result);
         dataModel.mapper(DestinationSpec.class).update(this);

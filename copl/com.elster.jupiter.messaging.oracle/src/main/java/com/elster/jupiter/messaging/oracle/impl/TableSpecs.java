@@ -4,12 +4,14 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     MSG_QUEUETABLESPEC {
@@ -48,11 +50,21 @@ public enum TableSpecs {
             table.cache();
             Column destinationColumn = table.column("DESTINATION").varChar(30).notNull().add();
             Column nameColumn = table.column("NAME").varChar(30).notNull().map("name").add();
+            table.column("NLS_COMPONENT").varChar().map("nlsComponent").since(version(10, 2)).add();
+            table.column("NLS_LAYER").varChar().map("nlsLayer").conversion(ColumnConversion.CHAR2ENUM).since(version(10, 2)).add();
             table.column("SYSTEMMANAGED").bool().map("systemManaged").add();
             table.column("filter").varChar().map("filter").add();
             table.addAuditColumns();
             table.primaryKey("MSG_PK_SUBSCRIBERSPEC").on(destinationColumn , nameColumn).add();
-            table.foreignKey("MSG_FK_SUBSCRIBERSPEC").references(MSG_DESTINATIONSPEC.name()).onDelete(CASCADE).map("destination").reverseMap("subscribers").on(destinationColumn).composition().add();
+            table
+                .foreignKey("MSG_FK_SUBSCRIBERSPEC")
+                .references(MSG_DESTINATIONSPEC.name())
+                .onDelete(CASCADE)
+                .map("destination")
+                .reverseMap("subscribers")
+                .on(destinationColumn)
+                .composition()
+                .add();
         }
     };
 

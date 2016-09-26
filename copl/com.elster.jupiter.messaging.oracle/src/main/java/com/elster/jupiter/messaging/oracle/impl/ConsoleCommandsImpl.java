@@ -4,10 +4,13 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+
 import oracle.jdbc.aq.AQMessage;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -27,10 +30,16 @@ import java.util.logging.Logger;
  */
 @Component(name = "com.elster.jupiter.messaging.commands", service = ConsoleCommandsImpl.class,
         property = {"name=" + MessageService.COMPONENTNAME + "2", "osgi.command.scope=messagingoracle",
-                "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable",
-                "osgi.command.function=drain", "osgi.command.function=subscribe", "osgi.command.function=createQueue",
-                "osgi.command.function=destinations", "osgi.command.function=activate", "osgi.command.function=resubscribe",
-                "osgi.command.function=drainToException", "osgi.command.function=enqueue",
+                "osgi.command.function=aqcreatetable",
+                "osgi.command.function=aqdroptable",
+                "osgi.command.function=drain",
+                "osgi.command.function=subscribe",
+                "osgi.command.function=createQueue",
+                "osgi.command.function=destinations",
+                "osgi.command.function=activate",
+                "osgi.command.function=resubscribe",
+                "osgi.command.function=drainToException",
+                "osgi.command.function=enqueue",
                 "osgi.command.function=enqueueMultipleMessages",
                 "osgi.command.function=numberOfMessages",
                 "osgi.command.function=numberOfErrors",
@@ -139,7 +148,7 @@ public class ConsoleCommandsImpl {
         }
     }
 
-    public void subscribe(final String subscriberName, final String destinationName) {
+    public void subscribe(final String subscriberName, final String component, final String layer, final String destinationName) {
         try {
             transactionService.builder()
                     .principal(() -> "Command line")
@@ -148,7 +157,7 @@ public class ConsoleCommandsImpl {
                         if (!destination.isPresent()) {
                             System.err.println("No such destination " + destinationName);
                         }
-                        destination.get().subscribe(subscriberName);
+                        destination.get().subscribe(new SimpleTranslationKey(subscriberName, subscriberName), component, Layer.valueOf(layer));
                     });
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -6,6 +6,8 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -107,7 +109,7 @@ public class DestinationSpecImplIT {
                 destinationSpec.save();
                 destinationSpec.activate();
 
-                destinationSpec.subscribe("A");
+                destinationSpec.subscribe(new SimpleTranslationKey("A", "Subscriber A"), "TST", Layer.DOMAIN);
 
                 Optional<DestinationSpec> found = messageService.getDestinationSpec("name");
                 assertThat(found.isPresent()).isTrue();
@@ -115,6 +117,5 @@ public class DestinationSpecImplIT {
             }
         });
     }
-
 
 }

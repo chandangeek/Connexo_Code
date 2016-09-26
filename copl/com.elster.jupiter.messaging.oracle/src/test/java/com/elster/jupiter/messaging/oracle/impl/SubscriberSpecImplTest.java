@@ -2,18 +2,13 @@ package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
+
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -24,10 +19,21 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubscriberSpecImplTest {
@@ -48,6 +54,8 @@ public class SubscriberSpecImplTest {
     private PreparedStatement preparedStatement;
     @Mock
     private DataModel dataModel;
+    @Mock
+    private NlsService nlsService;
 
     @Before
     public void setUp() throws SQLException {
@@ -58,15 +66,10 @@ public class SubscriberSpecImplTest {
         when(connection.unwrap(any())).thenReturn(connection);
         when(destination.isTopic()).thenReturn(true);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(dataModel.getInstance(SubscriberSpecImpl.class)).thenReturn(new SubscriberSpecImpl(dataModel));
+        when(dataModel.getInstance(SubscriberSpecImpl.class)).thenReturn(new SubscriberSpecImpl(dataModel, nlsService));
         when(dataModel.getConnection(false)).thenReturn(connection);
 
-        subscriberSpec = SubscriberSpecImpl.from(dataModel, destination, NAME);
-    }
-
-    @After
-    public void tearDown() {
-
+        subscriberSpec = SubscriberSpecImpl.from(dataModel, destination, NAME, "TST", Layer.DOMAIN);
     }
 
     @Test
