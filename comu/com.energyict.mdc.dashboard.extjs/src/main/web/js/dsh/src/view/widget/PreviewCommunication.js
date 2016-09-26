@@ -1,6 +1,9 @@
 Ext.define('Dsh.view.widget.PreviewCommunication', {
     extend: 'Ext.form.Panel',
     alias: 'widget.preview_communication',
+    requires: [
+        'Uni.util.Common'
+    ],
     title: '',
     frame: true,
     layout: {
@@ -49,7 +52,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                         var res = '-';
                         if (val) {
                             Mdc.privileges.Device.canViewOrAdministrateDeviceData()
-                                ? res = '<a href="#/devices/' + val.id + '">' + Ext.String.htmlEncode(val.name) + '</a>' : res = Ext.String.htmlEncode(val.name);
+                                ? res = '<a href="#/devices/' + Uni.util.Common.encodeURIComponent(val.id) + '">' + Ext.String.htmlEncode(val.id) + '</a>' : res = Ext.String.htmlEncode(val.name);
                         }
                         return res;
                     }

@@ -52,7 +52,7 @@ Ext.define('Dsh.view.Connections', {
                         itemId: 'communicationspanel',
                         padding: 0,
                         margin: '16 0 0 0',
-                        title: '',
+                        title: ' ',
                         items: [
                             {
                                 xtype: 'preview-container',

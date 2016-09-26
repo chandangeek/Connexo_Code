@@ -19,7 +19,7 @@ Ext.define('Dsh.model.ConnectionTask', {
             name: 'title',
             persist: false,
             mapping: function (data) {
-                return data.connectionMethod.name + ' on ' + data.device.name
+                return Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [data.connectionMethod.name, data.device.id]);
             }
         },
         { name: 'currentState', type: 'auto' },

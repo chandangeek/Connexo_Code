@@ -9,7 +9,8 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Yfn.privileges.Yellowfin',
-        'Dsh.view.widget.ConnectionActionMenu'
+        'Dsh.view.widget.ConnectionActionMenu',
+        'Uni.util.Common'
     ],
     itemId: 'connectionslist',
     store: 'Dsh.store.ConnectionTasks',
@@ -26,7 +27,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 flex: 1,
                 renderer: function (val) {
                     return  (Mdc.privileges.Device.canView() || Mdc.privileges.Device.canAdministrateDeviceData())
-                        ? '<a href="#/devices/' + val.id + '">' + Ext.String.htmlEncode(val.name) + '</a>' : Ext.String.htmlEncode(val.name)
+                        ? '<a href="#/devices/' + Uni.util.Common.encodeURIComponent(val.id) + '">' + Ext.String.htmlEncode(val.id) + '</a>' : Ext.String.htmlEncode(val.name)
                 }
             },
             {

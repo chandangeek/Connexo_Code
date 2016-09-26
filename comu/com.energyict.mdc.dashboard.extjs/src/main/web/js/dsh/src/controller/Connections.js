@@ -187,7 +187,7 @@ Ext.define('Dsh.controller.Connections', {
 
             Ext.suspendLayouts();
             preview.setTitle(title);
-            commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationTasksOfX', 'DSH', 'Communication tasks of {0}',[title]));
+            commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationTasksOfX', 'DSH', 'Communication tasks of {0}', [title], false));
             preview.loadRecord(record);
             Ext.resumeLayouts(true);
 
