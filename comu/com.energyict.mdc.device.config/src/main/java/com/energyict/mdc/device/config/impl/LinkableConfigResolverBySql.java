@@ -4,9 +4,8 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 
@@ -32,22 +31,12 @@ public class LinkableConfigResolverBySql implements LinkableConfigResolver {
 
     @Override
     public List<DeviceConfiguration> getLinkableDeviceConfigurations(final ValidationRuleSet ruleSet) {
-        return query.select(ListOperator.IN.contains(new Subquery() {
-            @Override
-            public SqlFragment toFragment() {
-                return getBuilderFor(ruleSet);
-            }
-        }, "id"), "name");
+        return query.select(ListOperator.IN.contains(() -> getBuilderFor(ruleSet), "id"), Order.ascending("name"));
     }
 
     @Override
     public List<DeviceConfiguration> getLinkableDeviceConfigurations(final EstimationRuleSet ruleSet) {
-        return query.select(ListOperator.IN.contains(new Subquery() {
-            @Override
-            public SqlFragment toFragment() {
-                return getBuilderFor(ruleSet);
-            }
-        }, "id"), "name");
+        return query.select(ListOperator.IN.contains(() -> getBuilderFor(ruleSet), "id"), Order.ascending("name"));
     }
 
     /**
