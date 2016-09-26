@@ -27,7 +27,7 @@ public class UsagePointRequirementSqlBuilder implements Subquery {
 
     @Inject
     public UsagePointRequirementSqlBuilder(UsagePointRequirementsSearchDomain searchDomain, PropertySpecService propertySpecService, SearchService searchService, ServerMetrologyConfigurationService metrologyConfigurationService) {
-        this.searchDomain = searchDomain;
+        this.searchDomain = searchService.findDomain(searchDomain.getId()).get(); // It must exist, we just get the extended domain with CPS support
         this.propertySpecService = propertySpecService;
         this.searchService = searchService;
         this.metrologyConfigurationService = metrologyConfigurationService;
