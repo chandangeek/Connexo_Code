@@ -412,7 +412,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private boolean cancelFirmwareUpload(Optional<ComTaskExecution> fwComTaskExecution) {
         ComTaskExecution comTaskExecution1 = fwComTaskExecution.get();
         if (comTaskExecution1.getNextExecutionTimestamp() != null) {
-            comTaskExecution1.putOnHold();
+            comTaskExecution1.schedule(null);
             cancelPendingFirmwareMessages(comTaskExecution1.getDevice());
             return true;
         } else {
