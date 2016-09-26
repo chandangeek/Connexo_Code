@@ -77,7 +77,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName("serverName");
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -109,7 +108,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         onlineComServer.create();
@@ -132,7 +130,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         onlineComServer.create();
@@ -172,7 +169,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.storeTaskQueueSize(1);
         onlineComServerBuilder.serverName(name);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -200,7 +196,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -226,7 +221,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -252,7 +246,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -278,7 +271,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -304,7 +296,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -330,7 +321,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -354,7 +344,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName("serverName");
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -380,7 +369,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -406,7 +394,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -432,7 +419,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -458,7 +444,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName(name);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -486,7 +471,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
         onlineComServer.serverName("serverName");
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
@@ -511,7 +495,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.storeTaskQueueSize(1);
         onlineComServerBuilder.serverName(name);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
 
@@ -564,7 +547,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServerBuilder.storeTaskThreadPriority(3);
         onlineComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServerBuilder.serverName(name);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
 
@@ -605,7 +587,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServerBuilder.storeTaskThreadPriority(3);
         onlineComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServerBuilder.serverName(name);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
 
@@ -630,15 +611,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // We expect a cause an OnlineComServer cannot be deleted when it is still referenced from a RemoteComServer
     }
 
-    @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER_URI + "}", property = EVENT_REGISTRATION_PORT_PROPERTY)
-    @Transactional
-    public void testUniqueEventRegistrationUriViolation() throws SQLException {
-        createWithoutComPortsWithoutViolations("fist", "serverName", 8888, 8080);
-
-        // Business method
-        createWithoutComPortsWithoutViolations("2th", "serverName", 8888, 8081);
-    }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER_URI + "}", property = MONITOR_PORT_PROPERTY)
@@ -664,13 +636,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         createWithoutComPortsWithoutViolations("fist", 0, ComServer.DEFAULT_STATUS_PORT_NUMBER);
     }
 
-    @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE + "}", property = MONITOR_PORT_PROPERTY)
-    @Transactional
-    public void testInvalidStatusUriViolationStatusPortMissing() throws SQLException {
-        createWithoutComPortsWithoutViolations("fist", ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER, 0);
-    }
-
     private OnlineComServer createWithoutComPortsWithoutViolations(String name) {
         return createWithoutComPortsWithoutViolations(name, ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER, ComServer.DEFAULT_STATUS_PORT_NUMBER);
     }
@@ -690,7 +655,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServerBuilder.serverName(serverName);
         onlineComServerBuilder.queryApiPort(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
-        onlineComServerBuilder.statusPort(statusPort);
         onlineComServerBuilder.eventRegistrationPort(eventRegistrationPort);
         onlineComServerBuilder.numberOfStoreTaskThreads(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);

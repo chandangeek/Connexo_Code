@@ -118,7 +118,6 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
 
         OnlineComServerBuilder queryApiPort(int queryApiPostPort);
 
-        OnlineComServerBuilder statusPort(int statusPort);
     }
 
 }

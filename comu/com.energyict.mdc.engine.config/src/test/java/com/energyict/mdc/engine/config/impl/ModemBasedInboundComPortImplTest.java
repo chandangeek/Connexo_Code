@@ -506,7 +506,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.numberOfStoreTaskThreads(1);
         onlineComServerBuilder.serverName(name);
-        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServerBuilder.create();
     }

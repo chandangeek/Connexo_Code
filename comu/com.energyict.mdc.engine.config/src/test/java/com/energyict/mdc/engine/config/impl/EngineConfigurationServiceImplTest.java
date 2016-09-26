@@ -122,7 +122,6 @@ public class EngineConfigurationServiceImplTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(6);
         onlineComServer.name(name);
         onlineComServer.serverName(serverName);
-        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServer.create();
     }
