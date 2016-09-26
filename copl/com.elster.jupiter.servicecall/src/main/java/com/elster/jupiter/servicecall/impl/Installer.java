@@ -6,6 +6,8 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -53,7 +55,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME, logger);
+        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, logger);
         doTry(
                 "Install default Service Call Life Cycle.",
                 this::installDefaultLifeCycle,
@@ -70,16 +72,26 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_SERVICE_CALL_TYPES.getKey(), Privileges.RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALL_TYPES)));
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_SERVICE_CALL.getKey(), Privileges.RESOURCE_SERVICE_CALL_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.VIEW_SERVICE_CALLS, Privileges.Constants.CHANGE_SERVICE_CALL_STATE)));
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        getModuleName(),
+                        Privileges.RESOURCE_SERVICE_CALL_TYPES.getKey(),
+                        Privileges.RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION.getKey(),
+                        Arrays.asList(
+                                Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES,
+                                Privileges.Constants.VIEW_SERVICE_CALL_TYPES)));
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        getModuleName(),
+                        Privileges.RESOURCE_SERVICE_CALL.getKey(),
+                        Privileges.RESOURCE_SERVICE_CALL_DESCRIPTION.getKey(),
+                        Arrays.asList(
+                                Privileges.Constants.VIEW_SERVICE_CALLS,
+                                Privileges.Constants.CHANGE_SERVICE_CALL_STATE)));
         return resources;
     }
 
-    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, String subscriberName, Logger logger) {
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName, Logger logger) {
         Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
         if (!destinationSpecOptional.isPresent()) {
             DestinationSpec queue = doTry(
@@ -93,7 +105,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             );
             doTry(
                     "Create subsriber " + ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME + " on " + ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME,
-                    () -> queue.subscribe(subscriberName),
+                    () -> queue.subscribe(TranslationKeys.SERVICE_CALL_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, Layer.DOMAIN),
                     logger
             );
         } else {
@@ -107,7 +119,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                         "Create subsriber " + ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME + " on " + ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME,
                         () -> {
                             queue.activate();
-                            queue.subscribe(subscriberName);
+                            queue.subscribe(subscriberName, ServiceCallService.COMPONENT_NAME, Layer.DOMAIN);
                         },
                         logger
                 );
