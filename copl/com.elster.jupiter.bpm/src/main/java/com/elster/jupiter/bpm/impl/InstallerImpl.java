@@ -5,6 +5,7 @@ import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -20,12 +21,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-//import com.elster.jupiter.bpm.security.Privileges;
-
 class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
-    private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
     private static final String BPM_DESIGNER_ROLE = "Business process designer";
     private static final String BPM_DESIGNER_ROLE_DESCRIPTION = "Business process designer privilege";
 
@@ -64,29 +62,43 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.RESOURCE_BPM_PROCESSES
-                        .getKey(), Privileges.RESOURCE_BPM_PROCESSES_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_BPM, Privileges.Constants.DESIGN_BPM, Privileges.Constants.ADMINISTRATE_BPM)));
-        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.RESOURCE_BPM_TASKS
-                        .getKey(), Privileges.RESOURCE_BPM_TASKS_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.ASSIGN_TASK, Privileges.Constants.VIEW_TASK, Privileges.Constants.EXECUTE_TASK)));
-        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.PROCESS_EXECUTION_LEVELS
-                        .getKey(), Privileges.PROCESS_EXECUTION_LEVELS_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.EXECUTE_PROCESSES_LVL_1, Privileges.Constants.EXECUTE_PROCESSES_LVL_2,
-                        Privileges.Constants.EXECUTE_PROCESSES_LVL_3, Privileges.Constants.EXECUTE_PROCESSES_LVL_4)));
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        BpmService.COMPONENTNAME,
+                        Privileges.RESOURCE_BPM_PROCESSES.getKey(),
+                        Privileges.RESOURCE_BPM_PROCESSES_DESCRIPTION.getKey(),
+                        Arrays.asList(
+                            Privileges.Constants.VIEW_BPM,
+                            Privileges.Constants.DESIGN_BPM,
+                            Privileges.Constants.ADMINISTRATE_BPM)));
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        BpmService.COMPONENTNAME,
+                        Privileges.RESOURCE_BPM_TASKS.getKey(),
+                        Privileges.RESOURCE_BPM_TASKS_DESCRIPTION.getKey(),
+                        Arrays.asList(
+                            Privileges.Constants.ASSIGN_TASK,
+                            Privileges.Constants.VIEW_TASK,
+                            Privileges.Constants.EXECUTE_TASK)));
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        BpmService.COMPONENTNAME,
+                        Privileges.PROCESS_EXECUTION_LEVELS.getKey(),
+                        Privileges.PROCESS_EXECUTION_LEVELS_DESCRIPTION.getKey(),
+                        Arrays.asList(
+                            Privileges.Constants.EXECUTE_PROCESSES_LVL_1,
+                            Privileges.Constants.EXECUTE_PROCESSES_LVL_2,
+                            Privileges.Constants.EXECUTE_PROCESSES_LVL_3,
+                            Privileges.Constants.EXECUTE_PROCESSES_LVL_4)));
 
         return resources;
     }
-
 
     private void createBPMQueue() {
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(BpmService.BPM_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
         destinationSpec.activate();
-        destinationSpec.subscribe(BpmService.BPM_QUEUE_SUBSC);
+        destinationSpec.subscribe(TranslationKeys.QUEUE_SUBSCRIBER, BpmService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     private void createDefaultRoles() {
