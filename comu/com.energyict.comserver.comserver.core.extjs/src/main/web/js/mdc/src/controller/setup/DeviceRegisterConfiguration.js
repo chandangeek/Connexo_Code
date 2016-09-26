@@ -274,11 +274,13 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice'),
-            slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveRegisterHistory');
+            slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveRegisterHistory'),
+            registersStore = me.getStore('Mdc.store.RegisterConfigsOfDevice');
 
         me.fromSpecification = true;
         contentPanel.setLoading(true);
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        registersStore.getProxy().extraParams = {mRID: mRID};
+        registersStore.load(Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegisterForPreview');
@@ -356,7 +358,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     }
                 });
             }
-        });
+        }));
     },
 
     showValidateNowMessage: function (record) {
