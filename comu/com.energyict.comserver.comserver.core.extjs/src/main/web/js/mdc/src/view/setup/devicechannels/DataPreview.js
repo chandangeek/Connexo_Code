@@ -90,7 +90,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 me.down('#readingDataValidated').setValue(detailRecord.get('dataValidated'));
                 var dataLoggerSlaveField = me.down('#mdc-channel-data-preview-data-logger-slave');
                 if (dataLoggerSlaveField) {
-                    dataLoggerSlaveField.setValue(detailRecord.get('slaveChannel'));
+                    dataLoggerSlaveField.setValue(record.get('slaveChannel'));
                 }
             }
 
@@ -329,6 +329,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             {
                 fieldLabel: Uni.I18n.translate('devicechannelsreadings.dataValidated.title', 'MDC', 'Data validated'),
                 itemId: 'readingDataValidated',
+                name: 'dataValidated',
                 htmlEncode: false,
                 renderer: function (value) {
                     return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');

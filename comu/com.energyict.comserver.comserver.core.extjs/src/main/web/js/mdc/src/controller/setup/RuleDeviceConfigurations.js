@@ -141,14 +141,21 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             jsonData: Ext.encode(ids),
             success: function () {
                 location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfigurations';
-                var message = Uni.I18n.translatePlural(
+                var message = selection.length
+                ? Uni.I18n.translatePlural(
                     'validation.deviceconfiguration.addSuccess',
                     selection.length,
                     'MDC',
                     'Successfully added {0} device configurations',
                     'Successfully added {0} device configuration',
                     'Successfully added {0} device configurations'
+                )
+                : Uni.I18n.translate(
+                    'validation.deviceconfiguration.addAllSuccess',
+                    'MDC',
+                    'Successfully added all device configurations'
                 );
+
                 me.getApplication().fireEvent('acknowledge', message);
             },
             callback: function () {

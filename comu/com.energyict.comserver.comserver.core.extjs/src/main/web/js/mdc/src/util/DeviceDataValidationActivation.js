@@ -54,15 +54,10 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 
                 } else {
                     var record = Ext.create('Mdc.model.DeviceValidation', res);
-                    if (!view.isDestroyed) {
-                        !!view.down('#deviceDataValidationForm') && view.down('#deviceDataValidationForm').loadRecord(record);
-                        if (view.down('#lnk-validation-result')) {
-                            if (res.loadProfileSuspectCount != 0 || res.registerSuspectCount != 0) {
-                                view.down('#lnk-validation-result').setText(Uni.I18n.translate('device.dataValidation.recentsuspects', 'MDC', 'Recent suspects'));
-                            } else {
-                                view.down('#lnk-validation-result').setText(Uni.I18n.translate('device.dataValidation.nosuspects', 'MDC', 'No suspects'));
-                            }
-                        }
+                    if (!view.isDestroyed
+                    && !!view.down('#deviceDataValidationForm')) {
+                        view.down('#deviceDataValidationForm').loadRecord(record);
+                        view.down('#fld-validation-result').setValue(record);
                     }
                 }
             }
