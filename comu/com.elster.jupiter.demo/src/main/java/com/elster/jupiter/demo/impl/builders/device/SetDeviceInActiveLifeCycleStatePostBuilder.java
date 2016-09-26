@@ -105,13 +105,8 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     private void executeAuthorizedAction(AuthorizedTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties) {
         long now = Clock.systemDefaultZone().millis();
         try {
-<<<<<<< HEAD
-            DLCService.execute(authorizedActionToExecute, device, clock.instant(), properties);
-            System.out.println(" ==> Setting the 'Active' State for device " + device.getName() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
-=======
             deviceLifeCycleService.execute(authorizedActionToExecute, device, clock.instant().plus(1, ChronoUnit.MINUTES), properties);
-            System.out.println(" ==> Setting the 'Active' State for device " + device.getmRID() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
->>>>>>> master
+            System.out.println(" ==> Setting the 'Active' State for device " + device.getName() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
         } catch (DeviceLifeCycleActionViolationException e) {
             e.printStackTrace();
         }

@@ -109,13 +109,8 @@ public class CreateDefaultDeviceLifeCycleCommand {
         long now = Clock.systemDefaultZone().millis();
         try {
             deviceLifeCycleService.execute(authorizedActionToExecute, device, clock.instant(), properties);
-<<<<<<< HEAD
             System.out.println(" ==> Setting the 'Active' State for device " + device.getName() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
-        }catch(DeviceLifeCycleActionViolationException e){
-=======
-            System.out.println(" ==> Setting the 'Active' State for device " + device.getmRID() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
         } catch (DeviceLifeCycleActionViolationException e) {
->>>>>>> master
             e.printStackTrace();
         }
     }

@@ -370,7 +370,7 @@ public class DemoTest {
         // Business method
         demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
+        Optional<Device> spe010000010156 = deviceService.findDeviceByName("SPE010000010001");
         assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
     }
 
@@ -382,7 +382,7 @@ public class DemoTest {
         demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
+        Optional<Device> spe010000010156 = deviceService.findDeviceByName("SPE010000010001");
         assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("TimeZone")).isEqualTo(TimeZone.getTimeZone("Europe/Brussels"));
     }
 
@@ -431,7 +431,7 @@ public class DemoTest {
         String CONNECTION_METHOD_NAME = "Outbound TCP";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> gatewayOptional = deviceService.findByUniqueMrid(mridGateway);
+        Optional<Device> gatewayOptional = deviceService.findDeviceByName(mridGateway);
         assertThat(gatewayOptional.isPresent()).isTrue();
         Device gateway = gatewayOptional.get();
         DeviceType deviceType = gateway.getDeviceType();
@@ -499,7 +499,7 @@ public class DemoTest {
         String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> deviceOptional = deviceService.findByUniqueMrid(mridDevice);
+        Optional<Device> deviceOptional = deviceService.findDeviceByName(mridDevice);
         assertThat(deviceOptional.isPresent()).isTrue();
         Device device = deviceOptional.get();
         assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
