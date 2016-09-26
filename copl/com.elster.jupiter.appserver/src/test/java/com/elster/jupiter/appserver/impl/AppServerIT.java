@@ -22,6 +22,8 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -218,7 +220,7 @@ public class AppServerIT {
             queueTableSpec.activate();
             DestinationSpec destination = queueTableSpec.createDestinationSpec(DESTINATION, 60);
             destination.activate();
-            subscriber = destination.subscribe("subscriber");
+            subscriber = destination.subscribe(new SimpleTranslationKey("subscriber", "Don't care about translation"), "TST", Layer.DOMAIN);
             context.commit();
         }
 
@@ -274,7 +276,7 @@ public class AppServerIT {
             queueTableSpec.activate();
             destination = queueTableSpec.createDestinationSpec(DESTINATION, 60);
             destination.activate();
-            subscriber = destination.subscribe("subscriber");
+            subscriber = destination.subscribe(new SimpleTranslationKey("subscriber", "Don't care about translation"), "TST", Layer.DOMAIN);
             context.commit();
         }
 
@@ -349,19 +351,19 @@ public class AppServerIT {
             queueTableSpec.activate();
             destination1 = queueTableSpec.createDestinationSpec(DESTINATION + '1', 60);
             destination1.activate();
-            subscriber1 = destination1.subscribe("subscriber1");
+            subscriber1 = destination1.subscribe(new SimpleTranslationKey("subscriber1", "Subscriber One"), "TST", Layer.DOMAIN);
             destination2 = queueTableSpec.createDestinationSpec(DESTINATION + '2', 60);
             destination2.activate();
-            subscriber2 = destination2.subscribe("subscriber2");
+            subscriber2 = destination2.subscribe(new SimpleTranslationKey("subscriber2", "Subscriber Two"), "TST", Layer.DOMAIN);
             destination3 = queueTableSpec.createDestinationSpec(DESTINATION + '3', 60);
             destination3.activate();
-            subscriber3 = destination3.subscribe("subscriber3");
+            subscriber3 = destination3.subscribe(new SimpleTranslationKey("subscriber3", "Subscriber Three"), "TST", Layer.DOMAIN);
             context.commit();
         }
 
-        ImportSchedule importSchedule1 = null;
-        ImportSchedule importSchedule2 = null;
-        ImportSchedule importSchedule3 = null;
+        ImportSchedule importSchedule1;
+        ImportSchedule importSchedule2;
+        ImportSchedule importSchedule3;
         try (TransactionContext context = transactionService.getContext()) {
             importSchedule1 = fileImportService.newBuilder()
                     .setImporterName(IMPORTER_NAME)
@@ -399,7 +401,7 @@ public class AppServerIT {
             context.commit();
         }
 
-        AppServer appServer = null;
+        AppServer appServer;
         try (TransactionContext context = transactionService.getContext()) {
             appServer = appService.createAppServer(NAME, injector.getInstance(CronExpressionParser.class).parse("0 * * * * ? *").get());
             try (AppServer.BatchUpdate batchUpdate = appServer.forBatchUpdate()) {
