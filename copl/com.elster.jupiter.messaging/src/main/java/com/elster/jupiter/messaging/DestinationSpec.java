@@ -1,5 +1,7 @@
 package com.elster.jupiter.messaging;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
@@ -69,16 +71,20 @@ public interface DestinationSpec extends HasName {
     List<SubscriberSpec> getSubscribers();
 
     /**
-     * Create a new subscriber with the given name and worker count.
+     * Create a new subscriber whose name and display name
+     * is determined by the TranslationKey.
+     * The key of the TranslationKey is used as the name
+     * and the translation is obviously used as display name.
      *
-     * @param name
-     * @return
+     * @param nameKey The TranslationKey
+     * @param component The component that provides a translation for the specified key
+     * @param layer The layer that contains the translation for the specified key
+     * @return The newly created SubscriberSpec
      */
     @TransactionRequired
-    SubscriberSpec subscribe(String name);
+    SubscriberSpec subscribe(TranslationKey nameKey, String component, Layer layer);
 
-    SubscriberSpec subscribe(String name, Condition filter);
-
+    SubscriberSpec subscribe(TranslationKey nameKey, String component, Layer layer, Condition filter);
 
     SubscriberSpec subscribeSystemManaged(String name);
 

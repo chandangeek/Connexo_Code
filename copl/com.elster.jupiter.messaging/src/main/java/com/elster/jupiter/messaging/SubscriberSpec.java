@@ -1,14 +1,17 @@
 package com.elster.jupiter.messaging;
 
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Models a Subscriber on a Destination.
  */
 @ProviderType
 public interface SubscriberSpec extends HasName {
+
+    String getDisplayName();
 
     /**
      * @return the Destination to which is being subscribed.
@@ -27,4 +30,5 @@ public interface SubscriberSpec extends HasName {
      * Other threads may safely invoke this method to cancel a blocking receive().
      */
     void cancel();
+
 }
