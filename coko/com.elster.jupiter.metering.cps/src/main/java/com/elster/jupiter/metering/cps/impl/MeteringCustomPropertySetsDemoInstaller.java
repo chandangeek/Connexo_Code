@@ -251,7 +251,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 PhaseCode.S2.name(),
                 PhaseCode.S12.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.prepay", SearchablePropertyOperator.EQUAL, "Y"));
+        config.addUsagePointRequirement(getUsagePointRequirement("com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.prepay", SearchablePropertyOperator.EQUAL, "1"));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
