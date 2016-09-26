@@ -17,7 +17,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataMapper;
@@ -209,8 +211,6 @@ public class FileImportServiceIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        //fileImportService = new FileImportServiceImpl();
-
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             fileImportService = injector.getInstance(FileImportServiceImpl.class);
@@ -220,17 +220,12 @@ public class FileImportServiceIT {
 
             return null;
         });
-        //fileImportService.setOrmService(ormService);
-        //fileImportService.setClock(clock);
 
         transactionService.execute(() -> {
-
             queueTableSpec = messageService.createQueueTableSpec(DESTINATION_NAME, "raw", true);
             destination = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 0);
             destination.activate();
-            subscriberSpec = destination.subscribe(DESTINATION_NAME);
-
-
+            subscriberSpec = destination.subscribe(new SimpleTranslationKey(DESTINATION_NAME, DESTINATION_NAME), "TST", Layer.DOMAIN);
             return null;
         });
 
