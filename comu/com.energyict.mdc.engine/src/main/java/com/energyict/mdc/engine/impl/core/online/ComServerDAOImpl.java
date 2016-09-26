@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -13,6 +14,7 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -61,6 +63,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
@@ -94,10 +97,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 
 /**
@@ -254,11 +260,15 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, final ComServer comServer) {
-        Optional reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            return getConnectionTaskService().attemptLockConnectionTask((ScheduledConnectionTask) reloaded.get(), comServer);
+        try {
+            return getConnectionTaskService().attemptLockConnectionTask(connectionTask, comServer);
+        } catch (OptimisticLockException e) {
+            Optional reloaded = refreshConnectionTask(connectionTask);
+            if (reloaded.isPresent()) {
+                return getConnectionTaskService().attemptLockConnectionTask((ScheduledConnectionTask) reloaded.get(), comServer);
+            }
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -308,10 +318,15 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
-        Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            reloaded.get().setProperty(connectionTaskPropertyName, ipAddress);
-            reloaded.get().save();
+        try {
+            connectionTask.setProperty(connectionTaskPropertyName, ipAddress);
+            connectionTask.save();
+        } catch (OptimisticLockException e) {
+            Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+            if (reloaded.isPresent()) {
+                reloaded.get().setProperty(connectionTaskPropertyName, ipAddress);
+                reloaded.get().save();
+            }
         }
     }
 
@@ -354,9 +369,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     public void unlock(final OutboundConnectionTask connectionTask) {
-        Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            getConnectionTaskService().unlockConnectionTask(reloaded.get());
+        try {
+            getConnectionTaskService().unlockConnectionTask(connectionTask);
+        } catch (OptimisticLockException e) {
+            Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+            if (reloaded.isPresent()) {
+                getConnectionTaskService().unlockConnectionTask(reloaded.get());
+            }
         }
     }
 
@@ -380,17 +399,25 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionCompleted(final ConnectionTask connectionTask) {
-        final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            reloaded.get().executionCompleted();
+        try {
+            connectionTask.executionCompleted();
+        } catch (OptimisticLockException e) {
+            final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+            if (reloaded.isPresent()) {
+                reloaded.get().executionCompleted();
+            }
         }
     }
 
     @Override
     public void executionFailed(final ConnectionTask connectionTask) {
-        final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            reloaded.get().executionFailed();
+        try {
+            connectionTask.executionFailed();
+        } catch (OptimisticLockException e) {
+            final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+            if (reloaded.isPresent()) {
+                reloaded.get().executionFailed();
+            }
         }
     }
 
@@ -820,6 +847,58 @@ public class ComServerDAOImpl implements ComServerDAO {
         loadProfileUpdater.update();
     }
 
+    public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> loadProfileUpdate, Map<LogBookIdentifier, Instant> logBookUpdate){
+        Map<DeviceIdentifier<?>, List<Function<Device, Void>>> updateMap = new HashMap<>();
+
+        // first do the loadprofiles
+        loadProfileUpdate.entrySet().stream().forEach(entrySet -> {
+            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
+            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
+            if(functionList == null) {
+                functionList = new ArrayList<>();
+                updateMap.put(deviceIdentifier, functionList);
+            }
+            functionList.add(updateLoadProfile(entrySet.getKey().findLoadProfile(), entrySet.getValue()));
+        });
+        // then do the logbooks
+        logBookUpdate.entrySet().stream().forEach(entrySet -> {
+            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
+            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
+            if(functionList == null) {
+                functionList = new ArrayList<>();
+                updateMap.put(deviceIdentifier, functionList);
+            }
+            functionList.add(updateLogBook(entrySet.getKey().getLogBook(), entrySet.getValue()));
+        });
+
+        // then do your thing
+        updateMap.entrySet().stream().forEach(entrySet -> {
+            Device oldDevice = (Device) entrySet.getKey().findDevice();
+            Device device = this.serviceProvider.deviceService().findDeviceById(oldDevice.getId()).get();
+            entrySet.getValue().stream().forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
+        });
+    }
+
+    private Function<Device, Void> updateLoadProfile(BaseLoadProfile<?> loadProfile, Instant lastReading){
+        return device -> {
+            LoadProfile refreshedLoadProfile = device.getLoadProfiles().stream().filter(each -> each.getId() == loadProfile.getId()).findAny().get();
+            LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
+            loadProfileUpdater.setLastReadingIfLater(lastReading);
+            loadProfileUpdater.update();
+            return null;
+        };
+    }
+
+    private Function<Device, Void> updateLogBook(BaseLogBook logBook, Instant lastLogBook){
+        return device -> {
+            LogBook refreshedLogBook = device.getLogBooks().stream().filter(each -> each.getId() == logBook.getId()).findAny().get();
+            LogBook.LogBookUpdater logBookUpdater = device.getLogBookUpdaterFor(refreshedLogBook);
+            logBookUpdater.setLastReadingIfLater(lastLogBook);
+            logBookUpdater.update();
+            return null;
+        };
+    }
+
     @Override
     public void updateCalendars(CollectedCalendar collectedCalendar) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedCalendar.getDeviceIdentifier());
@@ -967,6 +1046,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         IdentificationService identificationService();
 
         FirmwareService firmwareService();
+
+        DeviceConfigurationService deviceConfigurationService();
     }
 
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
@@ -989,6 +1070,16 @@ public class ComServerDAOImpl implements ComServerDAO {
         @Override
         public IdentificationService identificationService() {
             return serviceProvider.identificationService();
+        }
+
+        @Override
+        public DeviceConfigurationService deviceConfigurationService() {
+            return serviceProvider.deviceConfigurationService();
+        }
+
+        @Override
+        public FirmwareService firmwareService() {
+            return serviceProvider.firmwareService();
         }
 
     }

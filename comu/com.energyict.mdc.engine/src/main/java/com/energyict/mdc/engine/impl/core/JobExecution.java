@@ -13,17 +13,26 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
-import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
-import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionEvent;
+import com.energyict.mdc.engine.impl.commands.store.RescheduleFailedExecution;
+import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.BasicComCommandBehavior;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
@@ -47,7 +56,11 @@ import com.energyict.mdc.tasks.ProtocolTask;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -301,7 +314,6 @@ public abstract class JobExecution implements ScheduledJob {
         this.getExecutionContext().completeSuccessful();
 
         this.getExecutionContext().getStoreCommand().add(new RescheduleSuccessfulExecution(this));
-        this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
         doExecuteStoreCommand();
     }
 
@@ -311,7 +323,6 @@ public abstract class JobExecution implements ScheduledJob {
             this.addCompletionEvent();
             this.getExecutionContext().completeFailure(reason);
             this.getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this));
-            this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
             doExecuteStoreCommand();
         } else {
             /* Failure was in the preparation that creates the ExecutionContext.
@@ -600,26 +611,4 @@ public abstract class JobExecution implements ScheduledJob {
         }
     }
 
-    private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
-
-        @Override
-        public Thesaurus thesaurus() {
-            return serviceProvider.thesaurus();
-        }
-
-        @Override
-        public TopologyService topologyService() {
-            return serviceProvider.topologyService();
-        }
-
-        @Override
-        public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
-            return serviceProvider.engineService().findDeviceCacheByDevice(device);
-        }
-
-        @Override
-        public IdentificationService identificationService() {
-            return serviceProvider.identificationService();
-        }
-    }
 }

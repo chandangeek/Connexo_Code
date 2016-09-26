@@ -51,17 +51,21 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
 
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        CollectedFirmwareVersion firmwareVersions = deviceProtocol.getFirmwareVersions();
-        firmwareVersions.setDataCollectionConfiguration(comTaskExecution);
-        addCollectedDataItem(firmwareVersions);
+        if(getOfflineDevice().firmwareVersionManagementAllowed()){
+            CollectedFirmwareVersion firmwareVersions = deviceProtocol.getFirmwareVersions();
+            firmwareVersions.setDataCollectionConfiguration(comTaskExecution);
+            addCollectedDataItem(firmwareVersions);
+        }
 
         CollectedBreakerStatus breakerStatus = deviceProtocol.getBreakerStatus();
         breakerStatus.setDataCollectionConfiguration(comTaskExecution);
         addCollectedDataItem(breakerStatus);
 
-        CollectedCalendar calendar = deviceProtocol.getCollectedCalendar();
-        calendar.setDataCollectionConfiguration(comTaskExecution);
-        addCollectedDataItem(calendar);
+        if(getOfflineDevice().touCalendarManagementAllowed()){
+            CollectedCalendar calendar = deviceProtocol.getCollectedCalendar();
+            calendar.setDataCollectionConfiguration(comTaskExecution);
+            addCollectedDataItem(calendar);
+        }
     }
 
 }

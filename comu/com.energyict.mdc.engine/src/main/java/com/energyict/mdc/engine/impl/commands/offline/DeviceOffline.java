@@ -53,4 +53,10 @@ public enum DeviceOffline implements OfflineDeviceContext {
         return true;
     }
 
+    @Override
+    public boolean needsTouCalendar() {
+        return true;
+    }
+
+
 }

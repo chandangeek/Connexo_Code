@@ -1,9 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
@@ -13,7 +11,6 @@ import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEven
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 
 import java.time.Instant;

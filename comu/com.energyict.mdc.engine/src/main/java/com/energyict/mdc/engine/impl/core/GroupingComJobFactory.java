@@ -84,11 +84,11 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
 
     private ComTaskExecutionGroup getComTaskGroup(ComTaskExecution comTaskExecution) {
         // ComTaskExecution was returned by task query that joins it with the ConnectionTask so it cannot be <code>null</code>
-        ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask().get();
-        ComTaskExecutionGroup group = this.groups.get(connectionTask.getId());
+        long connectionTaskId = comTaskExecution.getConnectionTaskId();
+        ComTaskExecutionGroup group = this.groups.get(connectionTaskId);
         if (group == null) {
-            group = new ComTaskExecutionGroup((OutboundConnectionTask<?>) connectionTask);
-            this.groups.put(connectionTask.getId(), group);
+            group = new ComTaskExecutionGroup(connectionTaskId);
+            this.groups.put(connectionTaskId, group);
         }
         return group;
     }
