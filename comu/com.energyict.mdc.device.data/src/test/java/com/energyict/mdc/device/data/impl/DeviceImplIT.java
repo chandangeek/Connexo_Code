@@ -94,6 +94,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -1417,11 +1418,11 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void setMultiplierOfOneDoesNotCreateMeterActivationTest() {
+    public void setMultiplierOfOneAlsoCreatesMeterActivationTest() {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "setMultiplierOfOneDoesNotCreateMeterActivationTest", "setMultiplierOfOneDoesNotCreateMeterActivationTest", Instant.now());
+                .newDevice(deviceConfiguration, "setMultiplierOfOneAlsoCreatesMeterActivationTest", "setMultiplierOfOneAlsoCreatesMeterActivationTest", Instant.now());
 
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
 
@@ -1434,6 +1435,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void settingMultiplierBackToOneShouldRemovePreviouslyDefinedMultiplierTest() {
+        // removing is not really the case anymore. If MultiSense indicates that a multiplier will be used, we still set the value of ONE on the meterActivation
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
         Device device = inMemoryPersistence.getDeviceService()
@@ -1448,7 +1450,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.setMultiplier(BigDecimal.ONE);
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
         assertThat(device.getMultiplier()).isEqualTo(BigDecimal.ONE);
-        assertThat(device.getCurrentMeterActivation().get().getMultipliers()).isEmpty();
+        assertThat(device.getCurrentMeterActivation().get().getMultipliers()).hasSize(1);
+        assertThat(new ArrayList<>(device.getCurrentMeterActivation().get().getMultipliers().values()).get(0)).isEqualTo(BigDecimal.ONE);
     }
 
     @Test
@@ -1567,7 +1570,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
-                        !value.getCalculated().isPresent();
+                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getmRID());
             }
         });
     }
@@ -1644,14 +1647,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
-                        !value.getCalculated().isPresent();
+                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getMRID()); // we always use the calculated readingtype when the user defined to use it on config level
             }
         });
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(reverseBulkSecondaryEnergyReadingType.getMRID()) &&
-                        !value.getCalculated().isPresent();
+                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(reverseBulkPrimaryEnergyReadingType.getmRID()); // we always use the calculated readingtype when the user defined to use it on config level
             }
         });
     }
@@ -1763,14 +1766,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
-                        !value.getCalculated().isPresent();
+                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getmRID()); // we always use the calculated readingtype when the user defined to use it on config level
             }
         });
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code()) &&
-                        !value.getCalculated().isPresent() &&
+                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(getForwardBulkPrimaryEnergyReadingType().period(MacroPeriod.MONTHLY).code()) && // we always use the calculated readingtype when the user defined to use it on config level
                         (value.getOverflowValue().isPresent() && value.getOverflowValue().get().compareTo(overflow) == 0) &&
                         value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
             }

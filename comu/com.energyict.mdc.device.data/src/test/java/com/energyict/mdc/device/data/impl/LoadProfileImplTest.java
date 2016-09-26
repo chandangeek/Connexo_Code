@@ -341,7 +341,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
             @Override
             public boolean matches(Channel channel) {
                 return channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).isPresent()
-                        && channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).get().getMRID().equals(deltaActiveEnergySecondary15MinMrid);
+                        && channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).get().getMRID().equals(deltaActiveEnergyPrimary15MinMrid); // we always use the calculated readingtype when the user defined to use it on config level
             }
         });
     }
@@ -377,7 +377,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
                 .newDevice(deviceConfiguration, "getMultiplierOfChannelWhenNoMultiplierOnDeviceTest", MRID, januaryFirst);
         final LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
 
-        assertThat(reloadedLoadProfile.getChannels()).haveExactly(2, new Condition<Channel>(){
+        assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
             @Override
             public boolean matches(Channel channel) {
                 return !channel.getMultiplier(januaryFirst).isPresent();
