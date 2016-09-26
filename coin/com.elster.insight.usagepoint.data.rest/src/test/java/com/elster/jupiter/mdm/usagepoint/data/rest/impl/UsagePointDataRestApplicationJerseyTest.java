@@ -18,6 +18,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
@@ -101,6 +102,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
     @Mock
+    ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
+    @Mock
     LicenseService licenseService;
     @Mock
     IssueService issueService;
@@ -141,13 +144,14 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setServiceCallService(serviceCallService);
         application.setServiceCallInfoFactory(serviceCallInfoFactory);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
+        application.setReadingTypeDeliverableFactory(readingTypeDeliverableFactory);
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLicenseService(licenseService);
         application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 
-    public ReadingType mockReadingType(String mrid) {
+    ReadingType mockReadingType(String mrid) {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn(mrid);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
@@ -178,7 +182,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         }
     }
 
-    public UsagePointMetrologyConfiguration mockMetrologyConfigurationWithContract(long id, String name) {
+    UsagePointMetrologyConfiguration mockMetrologyConfigurationWithContract(long id, String name) {
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
         when(metrologyConfiguration.getId()).thenReturn(id);
         when(metrologyConfiguration.getName()).thenReturn(name);
@@ -249,7 +253,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
 
     private Formula mockFormula(ReadingType readingType, UsagePointMetrologyConfiguration metrologyConfiguration) {
         Formula formula = mock(Formula.class);
-        when(formula.getDescription()).thenReturn("Formula Description");
         ReadingTypeRequirementNode requirementNode = mock(ReadingTypeRequirementNode.class);
         FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
