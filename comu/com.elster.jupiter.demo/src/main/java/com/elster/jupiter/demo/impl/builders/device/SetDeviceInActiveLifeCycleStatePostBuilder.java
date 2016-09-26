@@ -19,7 +19,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -35,7 +34,7 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     private final DeviceLifeCycleService deviceLifeCycleService;
     private final Clock clock;
 
-    private Optional<DeviceLifeCycle> defaultLifeCycle;
+    private DeviceLifeCycle defaultLifeCycle;
     private List<AuthorizedTransitionAction> authorizedActions;
     private DeviceType deviceType;
 
@@ -51,13 +50,13 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     @Override
     public void accept(Device device) {
         initDefaultLifeCycle();
-        if (defaultLifeCycle.isPresent()) {
+        if (defaultLifeCycle != null) {
             initAuthorizedActionsToExecute();
         }
         if (this.deviceType == null || device.getDeviceType().getId() != this.deviceType.getId()) {
             this.deviceType = device.getDeviceType();
             if (this.deviceType.getDeviceLifeCycle() == null) {
-                deviceConfigurationService.changeDeviceLifeCycle(deviceType, defaultLifeCycle.get());
+                deviceConfigurationService.changeDeviceLifeCycle(deviceType, defaultLifeCycle);
             }
         }
         if (!authorizedActions.isEmpty()) {
@@ -76,11 +75,11 @@ public class SetDeviceInActiveLifeCycleStatePostBuilder implements Consumer<Devi
     }
 
     private void initDefaultLifeCycle() {
-        defaultLifeCycle = deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle();
+        defaultLifeCycle = deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle().orElse(null);
     }
 
     private void initAuthorizedActionsToExecute() {
-        authorizedActions = defaultLifeCycle.get().getAuthorizedActions(defaultLifeCycle.get().getFiniteStateMachine().getInitialState())
+        authorizedActions = defaultLifeCycle.getAuthorizedActions(defaultLifeCycle.getFiniteStateMachine().getInitialState())
                 .stream()
                 .filter(action -> action instanceof AuthorizedTransitionAction)
                 .map(action -> (AuthorizedTransitionAction) action)

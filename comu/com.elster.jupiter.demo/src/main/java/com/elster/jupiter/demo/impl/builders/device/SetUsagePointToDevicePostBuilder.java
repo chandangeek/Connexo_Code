@@ -79,7 +79,7 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
         Optional<Meter> meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())
                 .flatMap(amrSystem -> amrSystem.findMeter("" + device.getId()));
         meter.ifPresent(mtr -> {
-            System.out.println("==> activating usage point for meter " + mtr.getMRID());
+            System.out.println("==> activating usage point for meter " + mtr.getName());
             usagePoint.linkMeters()
                     .activate(mtr, this.metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                     .complete();
