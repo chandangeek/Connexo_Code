@@ -31,8 +31,6 @@ Ext.define('Ddv.view.validations.Filter', {
                 itemId: 'validations-topfilter-amount-of-suspects',
                 text: Uni.I18n.translate('validations.filter.amountOfSuspects', 'DDV', 'Amount of suspects')
             },
-
-
             {
                 type: 'combobox',
                 width: 181,
@@ -44,7 +42,7 @@ Ext.define('Ddv.view.validations.Filter', {
                 valueField: 'id',
                 store: 'Ddv.store.Validators'
             }
-        ]
+        ];
         me.callParent(arguments);
     }
 });
