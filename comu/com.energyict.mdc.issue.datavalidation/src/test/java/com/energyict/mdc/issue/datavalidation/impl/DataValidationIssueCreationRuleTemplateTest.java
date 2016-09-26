@@ -45,6 +45,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
@@ -101,6 +102,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         try (TransactionContext ctx = inMemoryPersistence.getTransactionService().getContext()) {
             inMemoryPersistence.getService(FiniteStateMachineService.class);
             inMemoryPersistence.getService(IssueDataValidationService.class);
+            inMemoryPersistence.getService(DeviceDataModelService.class);
             ctx.commit();
         }
     }
