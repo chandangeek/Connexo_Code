@@ -563,6 +563,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(Privileges.values()));
         keys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
         return keys;
     }
 
