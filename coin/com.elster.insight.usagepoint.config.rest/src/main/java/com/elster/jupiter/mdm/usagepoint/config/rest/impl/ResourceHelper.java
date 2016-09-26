@@ -26,7 +26,7 @@ public class ResourceHelper {
         this.customPropertySetService = customPropertySetService;
     }
 
-    public UsagePointMetrologyConfiguration getMetrologyConfigOrThrowException(long metrologyConfigId) {
+    UsagePointMetrologyConfiguration getMetrologyConfigOrThrowException(long metrologyConfigId) {
         MetrologyConfiguration mc = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         if (mc instanceof UsagePointMetrologyConfiguration) {
@@ -36,34 +36,34 @@ public class ResourceHelper {
         }
     }
 
-    public Optional<UsagePointMetrologyConfiguration> getLockedMetrologyConfiguration(long id, long version) {
+    private Optional<UsagePointMetrologyConfiguration> getLockedMetrologyConfiguration(long id, long version) {
         return metrologyConfigurationService
                 .findAndLockMetrologyConfiguration(id, version)
                 .filter(metrologyConfiguration ->  metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
                 .map(UsagePointMetrologyConfiguration.class::cast);
     }
 
-    public Long getCurrentMetrologyConfigurationVersion(long id) {
+    private Long getCurrentMetrologyConfigurationVersion(long id) {
         return metrologyConfigurationService.findMetrologyConfiguration(id)
                 .map(MetrologyConfiguration::getVersion)
                 .orElse(null);
     }
 
-    public UsagePointMetrologyConfiguration findAndLockMetrologyConfiguration(MetrologyConfigurationInfo info) {
+    UsagePointMetrologyConfiguration findAndLockMetrologyConfiguration(MetrologyConfigurationInfo info) {
         return getLockedMetrologyConfiguration(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> getCurrentMetrologyConfigurationVersion(info.id))
                         .supplier());
     }
 
-    public RegisteredCustomPropertySet getRegisteredCustomPropertySetOrThrowException(String id) {
+    RegisteredCustomPropertySet getRegisteredCustomPropertySetOrThrowException(String id) {
         return customPropertySetService.findActiveCustomPropertySet(id)
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     // In fact the CPS values are considered part of the MetrologyConfiguration, so we need to rely on metrology version
-    public UsagePointMetrologyConfiguration findAndLockCPSOnMetrologyConfiguration(CustomPropertySetInfo<MetrologyConfigurationInfo> info) {
+    UsagePointMetrologyConfiguration findAndLockCPSOnMetrologyConfiguration(CustomPropertySetInfo<MetrologyConfigurationInfo> info) {
         return getLockedMetrologyConfiguration(info.parent.id, info.parent.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualParent(() -> getCurrentMetrologyConfigurationVersion(info.parent.id), info.parent.id)
@@ -71,16 +71,17 @@ public class ResourceHelper {
                         .supplier());
     }
 
-    public MetrologyContract findAndLockContractOnMetrologyConfiguration(MetrologyContractInfo metrologyContractInfo) {
+    MetrologyContract findAndLockContractOnMetrologyConfiguration(MetrologyContractInfo metrologyContractInfo) {
         return metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(metrologyContractInfo.name)
                 .withActualVersion(() -> getCurrentMetrologyContractVersion(metrologyContractInfo.id))
                 .supplier());
     }
 
-    public Long getCurrentMetrologyContractVersion(long id) {
+    private Long getCurrentMetrologyContractVersion(long id) {
         return metrologyConfigurationService.findMetrologyContract(id)
                 .map(MetrologyContract::getVersion)
                 .orElse(null);
     }
+
 }
