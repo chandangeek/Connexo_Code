@@ -3,13 +3,11 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 
 import java.util.Locale;
-import java.util.Optional;
 
 /**
  * Implementation of a ComPortListener which servers functionality to use a Jetty server to process
@@ -70,8 +68,8 @@ public class ServletInboundComPortListener extends ServletBasedComPortListenerIm
 
     @Override
     protected void setThreadPrinciple() {
-        Optional<User> user = getServiceProvider().userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        user.ifPresent(u -> getServiceProvider().threadPrincipalService().set(u, "ServletInboundComPortListener", "Executing", u.getLocale().orElse(Locale.ENGLISH)));
+        User comServerUser = getComServerDAO().getComServerUser();
+        getServiceProvider().threadPrincipalService().set(comServerUser, "ServletInboundComPortListener", "Executing", comServerUser.getLocale().orElse(Locale.ENGLISH));
     }
 
 }

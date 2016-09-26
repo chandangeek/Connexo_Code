@@ -3,15 +3,18 @@ package com.energyict.mdc.engine.impl.web;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.impl.monitor.*;
-import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
-import com.energyict.mdc.engine.monitor.InboundComPortOperationalStatistics;
+import com.energyict.mdc.engine.impl.monitor.InboundComPortMonitorImpl;
+import com.energyict.mdc.engine.impl.monitor.InboundComPortOperationalStatisticsImpl;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
@@ -27,8 +30,9 @@ import java.time.Clock;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -71,6 +75,7 @@ public class ComServletTest {
     private UserService userService;
     @Mock
     private User user;
+
     private Clock clock = Clock.systemDefaultZone();
 
     @Before
@@ -90,7 +95,7 @@ public class ComServletTest {
 
     @Test
     public void testDoGetDoesNotFail () throws IOException, ServletException {
-        ComServlet comServlet = new ComServlet(mock(ServletBasedInboundComPort.class), mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.serviceProvider);
+        ComServlet comServlet = new ComServlet(mock(ServletBasedInboundComPort.class), getMockedComServerDAO(), mock(DeviceCommandExecutor.class), this.serviceProvider);
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         PrintWriter printWriter = mock(PrintWriter.class);
         when(servletResponse.getWriter()).thenReturn(printWriter);
@@ -103,6 +108,12 @@ public class ComServletTest {
         verify(servletResponse).setContentType(contentTypeCaptor.capture());
         verify(servletResponse).getWriter();
         assertThat(contentTypeCaptor.getValue()).isEqualTo("text/html");
+    }
+
+    private ComServerDAO getMockedComServerDAO() {
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        when(comServerDAO.getComServerUser()).thenReturn(user);
+        return comServerDAO;
     }
 
     @Test
@@ -123,7 +134,7 @@ public class ComServletTest {
         when(comPort.getId()).thenReturn(COMPORT_ID);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
         when(comPort.getComServer()).thenReturn(comServer);
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        ComServerDAO comServerDAO = getMockedComServerDAO();
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(null);
         ComServlet comServlet = new ComServlet(comPort, comServerDAO, mock(DeviceCommandExecutor.class), this.serviceProvider);
         HttpServletRequest servletRequest = mock(HttpServletRequest.class);

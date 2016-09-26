@@ -102,7 +102,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private AtomicBoolean continueRunning;
     private Thread self;
-    private ComServerDAO comServerDAO;
+    private final ComServerDAO comServerDAO;
     private ScheduledComPortFactory scheduledComPortFactory;
     private ComPortListenerFactory comPortListenerFactory;
     private ThreadFactory threadFactory;
@@ -115,6 +115,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     private ComServerCleanupProcess cleanupProcess;
     private ComServerMonitor operationalMonitor;
     private LoggerHolder loggerHolder;
+
     RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
@@ -131,7 +132,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                         serviceProvider.identificationService(),
                         eventPublisher);
         this.eventMechanism = new EventMechanism(eventPublisher, new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
-        this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory);
+        this.comServerDAO = comServerDAO;
+        this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
         this.initializeDeviceCommandExecutor(comServer);
         this.initializeTimeoutMonitor(comServer);
         this.initializeCleanupProcess(comServer);
@@ -145,7 +147,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
         this.eventMechanism = new EventMechanism(embeddedWebServerFactory);
-        this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory);
+        this.comServerDAO = comServerDAO;
+        this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
         this.initializeDeviceCommandExecutor(comServer);
         this.initializeTimeoutMonitor(comServer);
         this.initializeCleanupProcess(comServer);
@@ -158,6 +161,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.serviceProvider = serviceProvider;
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
+        this.comServerDAO = comServerDAO;
         EventPublisher eventPublisher = new EventPublisherImpl(this);
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
                 new WebSocketEventPublisherFactoryImpl(
@@ -169,7 +173,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                         serviceProvider.identificationService(),
                         eventPublisher);
         this.eventMechanism = new EventMechanism(eventPublisher, new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
-        this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory);
+        this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
         this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
         this.initializeTimeoutMonitor(comServer);
         this.initializeCleanupProcess(comServer);
@@ -183,7 +187,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
         this.eventMechanism = new EventMechanism(embeddedWebServerFactory);
-        this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory);
+        this.comServerDAO = comServerDAO;
+        this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
         this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
         this.initializeTimeoutMonitor(comServer);
         this.initializeCleanupProcess(comServer);
@@ -195,9 +200,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         return nlsService.getThesaurus(EngineService.COMPONENTNAME, Layer.DOMAIN);
     }
 
-    private void initialize(ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory) {
+    private void initialize(ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory) {
         this.loggerHolder = new LoggerHolder(comServer);
-        this.comServerDAO = comServerDAO;
         this.scheduledComPortFactory = scheduledComPortFactory;
         this.comPortListenerFactory = comPortListenerFactory;
         this.threadFactory = threadFactory;
@@ -291,8 +295,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                         this.serviceProvider.clock(),
                         this.comServerDAO,
                         this.eventMechanism.getEventPublisher(),
-                        this.serviceProvider.threadPrincipalService(),
-                        this.serviceProvider.userService());
+                        this.serviceProvider.threadPrincipalService()
+                );
     }
 
     /**

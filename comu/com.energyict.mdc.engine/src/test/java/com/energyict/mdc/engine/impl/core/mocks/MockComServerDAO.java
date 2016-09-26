@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core.mocks;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
@@ -554,5 +555,10 @@ public class MockComServerDAO implements ComServerDAO {
     @Override
     public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile loadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
         throw new UnsupportedOperationException("Method not implemented");
+    }
+
+    @Override
+    public User getComServerUser() {
+        return null;
     }
 }

@@ -2,10 +2,12 @@ package com.energyict.mdc.engine.impl.core.devices;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.impl.EngineServiceImpl;
-import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.FreeUnusedTokenDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.NoResourcesAcquiredException;
 import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
@@ -15,12 +17,29 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
+
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
 import java.text.MessageFormat;
 import java.time.Clock;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,7 +57,6 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private static final int FULL_LOAD_PERCENTAGE = 100;
     private final PriorityConfigurableThreadFactory threadFactory;
     private final Clock clock;
-    private final UserService userService;
     private final ThreadPrincipalService threadPrincipalService;
     private final EventPublisher eventPublisher;
     private final WorkQueue workQueue;
@@ -50,7 +68,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private String name;
     private CompositeDeviceCommandExecutorLogger logger;
 
-    public DeviceCommandExecutorImpl(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, Clock clock, ComServerDAO comServerDAO, EventPublisher eventPublisher, ThreadPrincipalService threadPrincipalService, UserService userService) {
+    public DeviceCommandExecutorImpl(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, Clock clock, ComServerDAO comServerDAO, EventPublisher eventPublisher, ThreadPrincipalService threadPrincipalService) {
         super();
         this.clock = clock;
         this.eventPublisher = eventPublisher;
@@ -61,7 +79,6 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         this.logLevel = logLevel;
         this.comServerDAO = comServerDAO;
         this.threadPrincipalService = threadPrincipalService;
-        this.userService = userService;
         this.initializeLogging();
     }
 
@@ -446,8 +463,8 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
          * Need to do this so the Kore knows who did what in the database.
          */
         private void assignThreadUser() {
-            Optional<User> user = userService.findUser(EngineServiceImpl.COMSERVER_USER);
-            user.ifPresent(u -> threadPrincipalService.set(u, "ComServer", "Store", u.getLocale().orElse(Locale.ENGLISH)));
+            User comServerUser = comServerDAO.getComServerUser();
+            threadPrincipalService.set(comServerUser, "ComServer", "Store", comServerUser.getLocale().orElse(Locale.ENGLISH));
         }
 
         @Override

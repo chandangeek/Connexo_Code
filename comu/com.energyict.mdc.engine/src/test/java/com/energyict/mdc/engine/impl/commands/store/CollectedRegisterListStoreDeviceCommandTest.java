@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -78,6 +79,8 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     private IdentificationService identificationService;
     @Mock
     private ComServerDAOImpl.ServiceProvider serviceProvider;
+    @Mock
+    private User comServerUser;
     private RegisterType registerType;
 
     @Before
@@ -284,7 +287,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     }
 
     private ComServerDAOImpl mockComServerDAOButCallRealMethodForMeterReadingStoring() {
-        final ComServerDAOImpl comServerDAO = spy(new ComServerDAOImpl(this.serviceProvider));
+        final ComServerDAOImpl comServerDAO = spy(new ComServerDAOImpl(this.serviceProvider, comServerUser));
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
         doCallRealMethod().when(comServerDAO).findOfflineRegister(any(RegisterIdentifier.class), any(Instant.class));
         doAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform()).when(comServerDAO).executeTransaction(any());

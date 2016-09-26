@@ -161,7 +161,7 @@ public class ScheduledJobImplTest {
     @Mock
     private ThreadPrincipalService threadPrincipalService;
     @Mock
-    private User user;
+    private User comServerUser;
     @Mock
     private IssueService issueService;
     @Mock
@@ -187,7 +187,7 @@ public class ScheduledJobImplTest {
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
         when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
         when(this.serviceProvider.engineService()).thenReturn(engineService);
-        when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
+        when(this.userService.findUser(anyString())).thenReturn(Optional.of(comServerUser));
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).
                 thenReturn(comSessionBuilder);
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
@@ -387,7 +387,7 @@ public class ScheduledJobImplTest {
 
         final ScheduledComTaskExecutionGroup job = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, serviceProvider);
         job.add(scheduledComTask);
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, userService);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, comServerUser);
         final CountDownLatch startLatch = new CountDownLatch(1);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
@@ -468,7 +468,7 @@ public class ScheduledJobImplTest {
         when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
         final ScheduledComTaskExecutionGroup job = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, serviceProvider);
 
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, userService);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, comServerUser);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
@@ -531,7 +531,7 @@ public class ScheduledJobImplTest {
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
         when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
         final AlwaysFailComTaskExecutionJob job = new AlwaysFailComTaskExecutionJob(comPort, comServerDAO, deviceCommandExecutor, connectionTask, this.serviceProvider);
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, userService);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, comServerUser);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
