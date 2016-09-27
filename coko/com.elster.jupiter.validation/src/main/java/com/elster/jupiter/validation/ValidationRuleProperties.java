@@ -1,5 +1,8 @@
 package com.elster.jupiter.validation;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface ValidationRuleProperties {
     String getName();
 

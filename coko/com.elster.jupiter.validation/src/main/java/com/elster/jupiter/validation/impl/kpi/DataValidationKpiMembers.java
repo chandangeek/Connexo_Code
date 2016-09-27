@@ -2,7 +2,6 @@ package com.elster.jupiter.validation.impl.kpi;
 
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
-import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
 
 import com.google.common.collect.Range;
 

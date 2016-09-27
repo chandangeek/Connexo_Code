@@ -27,12 +27,23 @@ public class ValidationContextImpl implements ValidationContext {
         setQualityCodeSystems(qualityCodeSystems);
     }
 
-    public final ValidationContextImpl setChannelsContainer(ChannelsContainer channelsContainer) {
+    public ValidationContextImpl(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType) {
+        this(qualityCodeSystems, channelsContainer);
+        this.setReadingType(readingType);
+    }
+
+    public ValidationContextImpl(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer, MetrologyContract metrologyContract) {
+        this(qualityCodeSystems, channelsContainer);
+        setMetrologyContract(metrologyContract);
+    }
+
+    private ValidationContext setChannelsContainer(ChannelsContainer channelsContainer) {
         this.channelsContainer = channelsContainer;
         return this;
     }
 
-    public final ValidationContextImpl setQualityCodeSystems(Set<QualityCodeSystem> qualityCodeSystems) {
+    @Override
+    public final ValidationContext setQualityCodeSystems(Set<QualityCodeSystem> qualityCodeSystems) {
         if (qualityCodeSystems == null || qualityCodeSystems.isEmpty()) {
             this.qualityCodeSystems = Collections.emptySet();
         } else {
@@ -41,12 +52,12 @@ public class ValidationContextImpl implements ValidationContext {
         return this;
     }
 
-    public ValidationContextImpl setReadingType(ReadingType readingType) {
+    private ValidationContext setReadingType(ReadingType readingType) {
         this.readingType = readingType;
         return this;
     }
 
-    public ValidationContextImpl setMetrologyContract(MetrologyContract metrologyContract) {
+    private ValidationContext setMetrologyContract(MetrologyContract metrologyContract) {
         this.metrologyContract = metrologyContract;
         return this;
     }

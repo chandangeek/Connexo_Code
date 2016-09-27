@@ -24,6 +24,7 @@ public interface DataValidationKpiService {
 
     Optional<DataValidationKpi> findDataValidationKpi(EndDeviceGroup group);
 
+    @ProviderType
     interface DataValidationKpiBuilder {
 
         DataValidationKpiBuilder frequency(TemporalAmount temporalAmount);

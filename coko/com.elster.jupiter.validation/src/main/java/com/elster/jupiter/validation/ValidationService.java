@@ -2,19 +2,14 @@ package com.elster.jupiter.validation;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
 
 import aQute.bnd.annotation.ProviderType;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
@@ -115,15 +110,11 @@ public interface ValidationService {
      */
     void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType);
 
-    void validate(ValidationContextImpl validationContext, Instant date);
+    void validate(ValidationContext validationContext, Instant date);
 
     ValidationEvaluator getEvaluator();
 
     ValidationEvaluator getEvaluator(Meter meter);
-
-    /*
-     * Following methods for adding resources in a non OSGI environment
-     */
 
     void addValidatorFactory(ValidatorFactory validatorfactory);
 
@@ -141,15 +132,9 @@ public interface ValidationService {
 
     Optional<DataValidationTask> findValidationTaskByName(String name);
 
-    Thesaurus getThesaurus();
-
     DataValidationOccurrence createValidationOccurrence(TaskOccurrence taskOccurrence);
 
     Optional<DataValidationOccurrence> findDataValidationOccurrence(TaskOccurrence occurrence);
-
-    Optional<DataValidationKpiScore> getDataValidationKpiScores(long groupId, long deviceId, Range<Instant> interval);
-
-    List<Long> getDevicesIdsList(long endDeviceGroupId);
 
     Optional<? extends ValidationRuleSetVersion> findValidationRuleSetVersion(long id);
 
@@ -160,10 +145,6 @@ public interface ValidationService {
     Optional<? extends ValidationRule> findAndLockValidationRuleByIdAndVersion(long id, long version);
 
     List<DataValidationTask> findByDeviceGroup(EndDeviceGroup endDevice, int skip, int limit);
-
-    DataModel dataModel();
-
-    KpiService kpiService();
 
     List<DataValidationAssociationProvider> getDataValidationAssociatinProviders();
 

@@ -57,8 +57,6 @@ import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
 import com.elster.jupiter.validation.impl.kpi.DataValidationReportServiceImpl;
-import com.elster.jupiter.validation.kpi.DataValidationKpi;
-import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
@@ -96,14 +94,14 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.validation",
-        service = {ValidationService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {ValidationService.class, ServerValidationService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + ValidationService.COMPONENTNAME,
         immediate = true)
-public class ValidationServiceImpl implements ValidationService, MessageSeedProvider, TranslationKeyProvider {
+public class ValidationServiceImpl implements ServerValidationService, MessageSeedProvider, TranslationKeyProvider {
 
-    public static final String DESTINATION_NAME = "DataValidation";
+    static final String DESTINATION_NAME = "DataValidation";
     public static final String SUBSCRIBER_NAME = "DataValidation";
-    public static final String VALIDATION_USER = "validation";
+    static final String VALIDATION_USER = "validation";
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
@@ -167,6 +165,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(ValidationService.class).toInstance(ValidationServiceImpl.this);
+                bind(ServerValidationService.class).toInstance(ValidationServiceImpl.this);
                 bind(ValidatorCreator.class).toInstance(new DefaultValidatorCreator());
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(KpiService.class).toInstance(kpiService);
@@ -419,20 +418,20 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
     @Override
     public void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType) {
-        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer).setReadingType(readingType));
+        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer, readingType));
     }
 
     @Override
-    public void validate(ValidationContextImpl validationContext, Instant date) {
+    public void validate(ValidationContext validationContext, Instant date) {
         ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(validationContext);
         container.moveLastCheckedBefore(date);
         container.validate();
     }
 
-    public void validate(ValidationContextImpl validationContext) {
+    public void validate(ValidationContext validationContext) {
         Set<QualityCodeSystem> allowedQualityCodeSystems = getQualityCodeSystemsWithAllowedValidation(validationContext);
         if (!allowedQualityCodeSystems.isEmpty()) {
-            // Update the list of requested quality systems, because it is possible that some of them was restricted
+            // Update the list of requested quality systems, because it is possible that some of them were restricted
             validationContext.setQualityCodeSystems(allowedQualityCodeSystems);
             if (validationContext.getReadingType().isPresent()) {
                 updatedChannelsContainerValidationsFor(validationContext).validate(validationContext.getReadingType().get());
@@ -491,11 +490,12 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 .map(ruleSet -> Pair.of(ruleSet, getForRuleSet(persistedChannelsContainerValidations, ruleSet)))
                 .map(validationPair -> validationPair.getLast().orElseGet(() -> applyRuleSet(validationPair.getFirst(), validationContext.getChannelsContainer())))
                 .collect(Collectors.toList());
-        returnList.forEach(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer().getChannels()
-                        .stream()
-                        .filter(channel -> !channelsContainerValidation.getRuleSet().getRules(channel.getReadingTypes()).isEmpty())
-                        .filter(channel -> !channelsContainerValidation.getChannelValidation(channel).isPresent())
-                        .forEach(channelsContainerValidation::addChannelValidation));
+        returnList
+            .forEach(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer().getChannels()
+                    .stream()
+                    .filter(channel -> !channelsContainerValidation.getRuleSet().getRules(channel.getReadingTypes()).isEmpty())
+                    .filter(channel -> !channelsContainerValidation.getChannelValidation(channel).isPresent())
+                    .forEach(channelsContainerValidation::addChannelValidation));
         persistedChannelsContainerValidations.stream()
                 .filter(channelsContainerValidation -> {
                     ValidationRuleSet validationRuleSet = channelsContainerValidation.getRuleSet();
@@ -542,7 +542,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         return channelsContainerValidation;
     }
 
-    public List<? extends ChannelsContainerValidation> getChannelsContainerValidations(ChannelsContainer channelsContainer) {
+    List<? extends ChannelsContainerValidation> getChannelsContainerValidations(ChannelsContainer channelsContainer) {
         return getUpdatedChannelsContainerValidations(new ValidationContextImpl(channelsContainer));
     }
 
@@ -601,7 +601,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         validatorFactories.add(validatorfactory);
     }
 
-    public void removeResource(ValidatorFactory validatorfactory) {
+    void removeResource(ValidatorFactory validatorfactory) {
         validatorFactories.remove(validatorfactory);
     }
 
@@ -745,7 +745,9 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     @Override
     public DataValidationOccurrence createValidationOccurrence(TaskOccurrence taskOccurrence) {
         DataValidationTask task = getDataValidationTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
-        return DataValidationOccurrenceImpl.from(dataModel, taskOccurrence, task);
+        DataValidationOccurrenceImpl occurrence = DataValidationOccurrenceImpl.from(dataModel, taskOccurrence, task);
+        occurrence.persist();
+        return occurrence;
     }
 
     @Override
@@ -753,29 +755,8 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         return dataModel.query(DataValidationOccurrence.class, DataValidationTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
     }
 
-    public DataValidationOccurrence findAndLockDataValidationOccurrence(TaskOccurrence occurrence) {
+    DataValidationOccurrence findAndLockDataValidationOccurrence(TaskOccurrence occurrence) {
         return dataModel.mapper(DataValidationOccurrence.class).lock(occurrence.getId());
-    }
-
-
-    @Override
-    public Optional<DataValidationKpiScore> getDataValidationKpiScores(long endDeviceGroupId, long deviceId, Range<Instant> interval) {
-        Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
-        Optional<DataValidationKpiScore> score = Optional.empty();
-        if (found.isPresent()) {
-            Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(found.get());
-            if (dataValidationKpi.isPresent()) {
-                score = dataValidationKpi.get().getDataValidationKpiScores(deviceId, interval);
-            }
-        }
-        return score;
-    }
-
-    @Override
-    public List<Long> getDevicesIdsList(long endDeviceGroupId) {
-        return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId)
-                .map(endDeviceGroup -> endDeviceGroup.getMembers(clock.instant()).stream().map(EndDevice::getId).collect(Collectors.toList()))
-                .orElseGet(Collections::emptyList);
     }
 
     @Override
@@ -816,7 +797,6 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     public KpiService kpiService() {
         return kpiService;
     }
-
 
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);

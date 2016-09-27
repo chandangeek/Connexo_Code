@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation.impl.kpi;
 
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import com.google.common.collect.Range;
@@ -34,10 +33,6 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
         this.dataValidationKpi = dataValidationKpi;
         this.logger = logger;
         this.dataValidationReportService = dataValidationReportService;
-        this.setClock(clock);
-    }
-
-    public void setClock(Clock clock) {
         this.clock = clock;
     }
 
@@ -48,12 +43,7 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
             dataValidationKpi.dropDataValidationKpi();
             return;
         }
-        DataValidationKpi dataValidationKpiClone = dataValidationKpi;
-        try {
-            dataValidationKpiClone = (DataValidationKpi) dataValidationKpi.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
+        DataValidationKpiImpl dataValidationKpiClone = dataValidationKpi.clone();
         ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
         long dayCount = ChronoUnit.DAYS.between(start, end);
