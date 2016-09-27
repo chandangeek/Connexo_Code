@@ -38,6 +38,7 @@ public enum MessageSeeds implements MessageSeed {
     BAD_METROLOGY_CONFIGURATION(2003, Constants.BAD_METROLOGY_CONFIGURATION, "Can''t process line {0}: No such active metrology configuration", Level.SEVERE),
     SERVICE_CATEGORIES_DO_NOT_MATCH(2004, Constants.SERVICE_CATEGORIES_DO_NOT_MATCH, "Can''t process line {0}: The service category of usage point doesn't match to service category of metrology configuration", Level.SEVERE),
     EMPTY_METROLOGY_CONFIGURATION_TIME(2005, Constants.EMPTY_METROLOGY_CONFIGURATION_TIME, "Can''t process line {0}: Start date of metrology configuration is not specified", Level.SEVERE),
+    NO_SUCH_MANDATORY_CPS_VALUE(2005, Constants.NO_SUCH_MANDATORY_CPS_VALUE, "Can''t process line {0}: Missing mandatory value {1} for custom property set {2}", Level.SEVERE),
     ;
 
     private final int number;
@@ -112,6 +113,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String BAD_METROLOGY_CONFIGURATION = "bad.metrology.configuration";
         public static final String SERVICE_CATEGORIES_DO_NOT_MATCH = "service.categories.do.not.match";
         public static final String EMPTY_METROLOGY_CONFIGURATION_TIME = "empty.metrology.configuration.time";
-
+        public static final String NO_SUCH_MANDATORY_CPS_VALUE = "no.such.mandatory.cps.value";
     }
 }
