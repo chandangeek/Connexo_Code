@@ -5,6 +5,8 @@ import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
@@ -149,7 +151,8 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
 
     private void setUsagePoint(Device device, UsagePoint usagePoint, DeviceInstallationImportRecord data) {
         try {
-            device.activate(data.getTransitionDate().orElse(getContext().getClock().instant()), usagePoint);
+            MeterRole defaultMeterRole = getContext().getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+            device.activate(data.getTransitionDate().orElse(getContext().getClock().instant()), usagePoint, defaultMeterRole);
         } catch (UsagePointAlreadyLinkedToAnotherDeviceException e) {
             rethrowAsProcessorException(e, data, usagePoint);
         } catch (UnsatisfiedReadingTypeRequirementsOfUsagePointException e) {
