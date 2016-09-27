@@ -45,11 +45,9 @@ Ext.define('Ddv.view.validations.Grid', {
                 dataIndex: 'allDataValidated',
                 flex: 1,
                 renderer: function (value) {
-                    if (value===true) {
-                        return 'Yes';
-                    } else {
-                        return 'No';
-                    }
+                    return value
+                        ? Uni.I18n.translate('general.yes', 'DDV', 'Yes')
+                        : Uni.I18n.translate('general.no', 'DDV', 'No');
                 }
             }
         ];

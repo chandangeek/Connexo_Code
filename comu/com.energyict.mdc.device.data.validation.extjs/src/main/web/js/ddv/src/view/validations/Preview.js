@@ -52,11 +52,9 @@ Ext.define('Ddv.view.validations.Preview', {
                                     name: 'allDataValidated',
                                     itemId: 'allDataValidated-validations-preview',
                                     renderer: function (value) {
-                                        if (value === true) {
-                                            return 'Yes';
-                                        } else {
-                                            return 'No';
-                                        }
+                                        return value
+                                            ? Uni.I18n.translate('general.yes', 'DDV', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'DDV', 'No');
                                     }
 
                                 }
@@ -134,11 +132,9 @@ Ext.define('Ddv.view.validations.Preview', {
                                     name: 'thresholdValidator',
                                     itemId: 'thresholdValidator-validations-preview',
                                     renderer: function (value) {
-                                        if (value===true) {
-                                            return 'Yes';
-                                        } else {
-                                            return 'No';
-                                        }
+                                        return value
+                                            ? Uni.I18n.translate('general.yes', 'DDV', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'DDV', 'No');
                                     }
                                 },
                                 {
@@ -146,11 +142,9 @@ Ext.define('Ddv.view.validations.Preview', {
                                     name: 'missingValuesValidator',
                                     itemId: 'missingValuesValidator-validations-preview',
                                     renderer: function (value) {
-                                        if (value===true) {
-                                            return 'Yes';
-                                        } else {
-                                            return 'No';
-                                        }
+                                        return value
+                                            ? Uni.I18n.translate('general.yes', 'DDV', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'DDV', 'No');
                                     }
                                 },
                                 {
@@ -158,11 +152,9 @@ Ext.define('Ddv.view.validations.Preview', {
                                     name: 'readingQualitiesValidator',
                                     itemId: 'readingQualitiesValidator-validations-preview',
                                     renderer: function (value) {
-                                        if (value===true) {
-                                            return 'Yes';
-                                        } else {
-                                            return 'No';
-                                        }
+                                        return value
+                                            ? Uni.I18n.translate('general.yes', 'DDV', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'DDV', 'No');
                                     }
                                 },
                                 {
@@ -170,15 +162,13 @@ Ext.define('Ddv.view.validations.Preview', {
                                     name: 'registerIncreaseValidator',
                                     itemId: 'registerIncreaseValidator-validations-preview',
                                     renderer: function (value) {
-                                        if (value===true) {
-                                            return 'Yes';
-                                        } else {
-                                            return 'No';
-                                        }
+                                        return value
+                                            ? Uni.I18n.translate('general.yes', 'DDV', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'DDV', 'No');
                                     }
-                                },
+                                }
                             ]
-                        }
+                        },
                        /* {
                             itemId: 'type-of-suspects-validations-preview',
                             fieldLabel: Uni.I18n.translate('validations.typeOfSuspects', 'DDV', 'Type of suspects'),
