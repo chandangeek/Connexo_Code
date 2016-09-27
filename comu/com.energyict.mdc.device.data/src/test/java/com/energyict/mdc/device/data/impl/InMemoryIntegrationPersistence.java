@@ -22,7 +22,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -106,7 +105,6 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -347,9 +345,11 @@ public class InMemoryIntegrationPersistence {
 
     private void initializePrivileges() {
         new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources()
-                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
-        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), meteringService, serviceCallService, customPropertySetService).getModuleResources()
-                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
+                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames()
+                        .stream().toArray(String[]::new)));
+        new InstallerV10_2Impl(userService, meteringService, serviceCallService, customPropertySetService).getModuleResources()
+                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames()
+                        .stream().toArray(String[]::new)));
     }
 
     private void initializeMocks(String testName) {
@@ -544,7 +544,7 @@ public class InMemoryIntegrationPersistence {
     }
 
     public String update(String sql) {
-        try (Connection connection = this.dataModel.getConnection(true);) {
+        try (Connection connection = this.dataModel.getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 int numberOfRows = statement.executeUpdate();
                 return "Updated " + numberOfRows + " row(s).";
@@ -590,7 +590,7 @@ public class InMemoryIntegrationPersistence {
         }
     }
 
-    public User getMockedUser(){
+    public User getMockedUser() {
         return this.principal;
     }
 
@@ -614,7 +614,7 @@ public class InMemoryIntegrationPersistence {
         return batchService;
     }
 
-    public DeviceConfigConflictMappingHandler getDeviceConfigConflictMappingHandler(){
+    public DeviceConfigConflictMappingHandler getDeviceConfigConflictMappingHandler() {
         return injector.getInstance(DeviceConfigConflictMappingHandler.class);
     }
 
@@ -626,7 +626,7 @@ public class InMemoryIntegrationPersistence {
         return dataCollectionKpiService;
     }
 
-    public DataValidationKpiService getDataValidationKpiService(){
+    public DataValidationKpiService getDataValidationKpiService() {
         return dataValidationKpiService;
     }
 

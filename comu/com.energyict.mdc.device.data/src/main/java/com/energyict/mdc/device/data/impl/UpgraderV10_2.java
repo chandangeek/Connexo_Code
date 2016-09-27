@@ -10,16 +10,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
 
 class UpgraderV10_2 implements Upgrader {
 
     private final DataModel dataModel;
+    private final InstallerV10_2Impl installerV10_2;
 
     @Inject
-    UpgraderV10_2(DataModel dataModel) {
+    UpgraderV10_2(DataModel dataModel, InstallerV10_2Impl installerV10_2) {
         this.dataModel = dataModel;
+        this.installerV10_2 = installerV10_2;
     }
 
     @Override
@@ -44,6 +47,7 @@ class UpgraderV10_2 implements Upgrader {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
             }
         });
+        installerV10_2.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_2.class.getName()));
     }
 
     private void execute(Statement statement, String sql) {
