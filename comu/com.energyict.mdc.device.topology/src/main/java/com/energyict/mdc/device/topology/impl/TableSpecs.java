@@ -16,6 +16,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Models the database tables that hold the data of the
@@ -31,14 +32,15 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<PhysicalGatewayReference> table = dataModel.addTable(name(), PhysicalGatewayReference.class);
             table.map(AbstractPhysicalGatewayReferenceImpl.IMPLEMENTERS);
-            Column idColumn = table.addAutoIdColumn();
+            Column idColumn = table.addAutoIdColumn().since(version(10, 2));
             Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column physicalGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
             table.addAuditColumns();
-            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            table.primaryKey("PK_DTL_PHYSICALGATEWAYREF").on(idColumn).add();
-            table.unique("DTL_U_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).add();
+            table.column("DISCRIMINATOR").type("char(1)").notNull().map(Column.TYPEFIELDNAME).since(version(10, 2)).installValue("0").add();
+            table.primaryKey("PK_DTL_PHYSICALGATEWAYREF").on(idColumn).since(version(10, 2)).add();
+            table.primaryKey("PK_DTL_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).upTo(version(10, 1)).add();
+            table.unique("DTL_U_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).since(version(10, 2)).add();
             table.foreignKey("FK_DTL_PHYSGATEWAYREF_ORIGIN").
                     on(originId).
                     references(Device.class).
@@ -148,6 +150,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<DataLoggerChannelUsage> table = dataModel.addTable(name(), DataLoggerChannelUsage.class);
             table.map(DataLoggerChannelUsageImpl.class);
+            table.since(version(10, 2));
             Column physicalGateWayReference = table.column(DataLoggerChannelUsageImpl.Field.PHYSICALGATEWAYREF.name())
                     .notNull()
                     .number()
@@ -187,8 +190,7 @@ public enum TableSpecs {
                     add();
 
         }
-    }
-    ;
+    };
 
     abstract void addTo(DataModel component);
 
