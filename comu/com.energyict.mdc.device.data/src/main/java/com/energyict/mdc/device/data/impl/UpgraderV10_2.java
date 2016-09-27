@@ -42,6 +42,8 @@ class UpgraderV10_2 implements Upgrader {
         sql.add("UPDATE DDC_CONNECTIONTASK SET simultaneousconnections = '1' where simultaneousconnections = '0'");
         sql.add("UPDATE DDC_DEVICE SET ESTIMATION_ACTIVE = 'Y' where ID IN (SELECT DEVICE FROM DDC_DEVICEESTACTIVATION WHERE ACTIVE = 'Y')");
         sql.add("UPDATE (SELECT t.id, t. batch_id, s.BATCHID from DDC_DEVICE t, DDC_DEVICEINBATCH s where t.ID = s.DEVICEID) SET BATCH_ID = BATCHID");
+        sql.add("UPDATE DDC_DEVICE SET ESTIMATION_ACTIVE = 'Y' where ID IN (SELECT DEVICE FROM DDC_DEVICEESTACTIVATION WHERE ACTIVE = 'Y')");
+        sql.add("UPDATE DDC_DEVICE d SET d.METERID = (SELECT ed.ID FROM MTR_ENDDEVICE ed where d.ID = ed.AMRID)");
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
