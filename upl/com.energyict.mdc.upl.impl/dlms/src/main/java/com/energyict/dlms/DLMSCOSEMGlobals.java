@@ -96,6 +96,7 @@ public interface DLMSCOSEMGlobals {
 	byte[] LIMITER = {0,0,17,0,0,(byte)255};
 	byte[] PPPSETUP = {0,0,25,3,0,(byte)255};
 	byte[] GPRSMODEMSETUP = {0,0,25,4,0,(byte)255};
+	byte[] USBSETUP = {0,0,(byte)128,0,28,(byte)255};
 
 	//********************************************************************************************************
 	// Reserved SN logical name constants, should be filled in when requesting the object list first.

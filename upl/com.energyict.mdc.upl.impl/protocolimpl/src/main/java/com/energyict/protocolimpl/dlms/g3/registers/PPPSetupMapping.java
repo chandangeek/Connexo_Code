@@ -4,7 +4,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.GPRSModemSetup;
+import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
@@ -30,7 +30,7 @@ public class PPPSetupMapping extends G3Mapping {
         @Override
         //Set the B-Filed to 0
         public ObisCode getBaseObisCode() {                 //Set the E-Filed to 0
-            return ProtocolTools.setObisCodeField(super.getBaseObisCode(), 2, (byte) 0);
+            return ProtocolTools.setObisCodeField(super.getBaseObisCode(), 1, (byte) 0);
         }
 
         @Override
@@ -70,8 +70,8 @@ public class PPPSetupMapping extends G3Mapping {
 
         @Override
         public int getDLMSClassId() {
-            if(getObisCode().equalsIgnoreBChannel(GPRSModemSetup.getDefaultObisCode()) ){
-                return DLMSClassId.GPRS_SETUP.getClassId();
+            if(getObisCode().equalsIgnoreBChannel(PPPSetup.getDefaultObisCode()) ){
+                return DLMSClassId.PPP_SETUP.getClassId();
             } else {
                 return -1;
             }

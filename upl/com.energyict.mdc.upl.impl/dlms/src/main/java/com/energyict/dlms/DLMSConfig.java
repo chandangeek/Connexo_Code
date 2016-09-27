@@ -50,7 +50,7 @@ public final class DLMSConfig {
 	private static final DLMSConfig ACTIVITYCALENDAR = new DLMSConfig("",20,0,0,13,0,0,255);
 	private static final DLMSConfig SPECIALDAYS = new DLMSConfig("",11,0,0,11,0,0,255);
     private static final DLMSConfig SFSKPhyMacSetupSN = new DLMSConfig("",50,0,0,26,0,0,255);
-	private static final DLMSConfig USBSETUP = new DLMSConfig("",20028,0,0,128,0,28,255);
+	private static final DLMSConfig USBSETUP = new DLMSConfig("",0,0,0,128,0,28,255);
 
 
 	private static final DLMSConfig[] configchange = {

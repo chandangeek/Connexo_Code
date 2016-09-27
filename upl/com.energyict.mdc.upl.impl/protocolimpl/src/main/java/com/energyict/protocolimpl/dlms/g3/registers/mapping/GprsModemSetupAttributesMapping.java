@@ -89,23 +89,23 @@ public class GprsModemSetupAttributesMapping extends RegisterMapping {
             case 2:
                 return new RegisterValue(obisCode, "APN: " + abstractDataType.getOctetString().stringValue());
             case 3:
-                return new RegisterValue(obisCode, "Pin code: " + abstractDataType.getInteger64().toString());
+                return new RegisterValue(obisCode, "Pin code: " + abstractDataType.getUnsigned16());
             case 4: 
-                return new RegisterValue(obisCode, "Quality of service:\n" + getQualityOfServiceString(abstractDataType));
+                return new RegisterValue(obisCode, "Quality of service:" + getQualityOfServiceString(abstractDataType));
             case 5:
                 return new RegisterValue(obisCode, "Network Selection Mode:" + (abstractDataType.getTypeEnum().getValue() == MANUAL ? "MANUAL" : "AUTOMATIC"));
             case 6:
                 return new RegisterValue(obisCode, "Preferred operator list: " + abstractDataType.getArray().toString());
             case 7:
-                return new RegisterValue(obisCode, "Intl roaming allowed: " + abstractDataType.getBooleanObject().toString());
+                return new RegisterValue(obisCode, "Intl roaming allowed: " + abstractDataType.getBooleanObject().getState());
             case 8:
-                return new RegisterValue(obisCode, "Minimum RSSI: " + abstractDataType.getUnsigned32().toString());
+                return new RegisterValue(obisCode, "Minimum RSSI: " + abstractDataType.getUnsigned32());
             case 9:
-                return new RegisterValue(obisCode, "Maximum BER: " + abstractDataType.getFloat32().toString());
+                return new RegisterValue(obisCode, "Maximum BER: " + abstractDataType.getFloat32());
             case 10:
                 return new RegisterValue(obisCode, "Network technology: " + abstractDataType.getArray().toString());
             case 11:
-                return new RegisterValue(obisCode, "Is GPRS preferred: " + abstractDataType.getBooleanObject().toString());
+                return new RegisterValue(obisCode, "Is GPRS preferred: " + abstractDataType.getBooleanObject().getState());
             default:
                 throw new NoSuchRegisterException("GPRS Modem Setup attribute [" + obisCode.getB() + "] not supported!");
         }
@@ -134,7 +134,7 @@ public class GprsModemSetupAttributesMapping extends RegisterMapping {
             // parsing for quality of service
             Structure defaultNetworkSpecs = gprsModemSetupAttribute.getStructure().getDataType(0).getStructure();
 
-            builder.append("Default network characteristics:\nPrecedence: ")
+            builder.append(" Default network characteristics - Precedence: ")
                     .append(defaultNetworkSpecs.getStructure().getDataType(0).toBigDecimal())
                     .append(", delay: ")
                     .append(defaultNetworkSpecs.getStructure().getDataType(1).toBigDecimal())
@@ -147,7 +147,7 @@ public class GprsModemSetupAttributesMapping extends RegisterMapping {
 
             Structure requestedNetworkSpecs = gprsModemSetupAttribute.getStructure().getDataType(1).getStructure();
 
-            builder.append("Requested network characteristics:\nPrecedence: ")
+            builder.append(" Requested network characteristics - Precedence: ")
                     .append(requestedNetworkSpecs.getStructure().getDataType(0).toBigDecimal())
                     .append(", delay: ")
                     .append(requestedNetworkSpecs.getStructure().getDataType(1).toBigDecimal())

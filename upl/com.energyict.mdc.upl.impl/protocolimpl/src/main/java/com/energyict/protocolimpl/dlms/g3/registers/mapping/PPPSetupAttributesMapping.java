@@ -79,7 +79,7 @@ public class PPPSetupAttributesMapping extends RegisterMapping {
                 case 5:
                     return new RegisterValue(obisCode, "PPP authentication:" + getPPPAuthenticationString(abstractDataType));
                 case 6:
-                    return new RegisterValue(obisCode, "PPP idle time: " + abstractDataType.getUnsigned32().toString());
+                    return new RegisterValue(obisCode, "PPP idle time: " + abstractDataType.getUnsigned32());
                 default:
                     throw new NoSuchRegisterException("PPP Setup attribute [" + obisCode.getB() + "] not supported!");
             }

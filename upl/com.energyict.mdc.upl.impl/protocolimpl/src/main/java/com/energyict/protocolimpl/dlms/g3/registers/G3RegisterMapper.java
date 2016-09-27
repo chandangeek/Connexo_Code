@@ -265,9 +265,7 @@ public class G3RegisterMapper {
      */
     public G3Mapping getG3Mapping(ObisCode obisCode) {
         for (G3Mapping g3Mapping : getMappings()) {
-            System.out.println("Obis code: "+g3Mapping.getObisCode());
             if (g3Mapping.getObisCode().equals(obisCode)) {
-                System.out.println("Found mapped Obis code: "+g3Mapping.getObisCode());
                 return g3Mapping;
             }
         }
@@ -436,10 +434,10 @@ public class G3RegisterMapper {
 
     protected final List<G3Mapping> getUsbSetupRegistering() {
         final List<G3Mapping> usbSetupMappings = new ArrayList<G3Mapping>();
-        usbSetupMappings.add(new RegisterMapping(USB_SETUP_ATTR1));
-        usbSetupMappings.add(new RegisterMapping(USB_SETUP_ATTR2));
-        usbSetupMappings.add(new RegisterMapping(USB_SETUP_ATTR3));
-        usbSetupMappings.add(new RegisterMapping(USB_SETUP_ATTR4));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR1));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR2));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR3));
+        usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR4));
         return usbSetupMappings;
     }
 

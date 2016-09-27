@@ -11,6 +11,7 @@ import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.cosem.methods.USBSetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
@@ -337,6 +338,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     public GPRSModemSetup getGPRSModemSetup(final ObisCode obisCode) throws NotInObjectListException {
         return new GPRSModemSetup(protocolLink, getObjectReference(obisCode));
+    }
+
+    public USBSetup getUSBSetup() throws NotInObjectListException {
+        return new USBSetup(protocolLink, getObjectReference(USBSETUP, protocolLink.getMeterConfig().getUSBSetupSN()));
+    }
+
+    public USBSetup getUSBSetup(final ObisCode obisCode) throws NotInObjectListException {
+        return new USBSetup(protocolLink, getObjectReference(obisCode));
     }
 
     public SFSKPhyMacSetup getSFSKPhyMacSetup() throws NotInObjectListException {

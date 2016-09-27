@@ -10,6 +10,7 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.GprsModemSetupAttributesMapping;
+import com.energyict.protocolimpl.dlms.g3.registers.mapping.USBSetupAttributesMapping;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -18,11 +19,11 @@ import java.util.Date;
 /**
  * Copywrite EnergyICT 22.09.2016.
  */
-public class GprsModemSetupMapping extends G3Mapping {
+public class USBSetupMapping extends G3Mapping {
 
-    private GprsModemSetupAttributesMapping gprsModemSetupAttributesMapping;
+    private USBSetupAttributesMapping usbSetupAttributesMapping;
 
-    protected GprsModemSetupMapping(ObisCode obis) {
+    protected USBSetupMapping(ObisCode obis) {
         super(obis);
     }
 
@@ -39,8 +40,8 @@ public class GprsModemSetupMapping extends G3Mapping {
     }
 
     private void instantiateMappers(CosemObjectFactory cosemObjectFactory) {
-        if (gprsModemSetupAttributesMapping == null) {
-            gprsModemSetupAttributesMapping = new GprsModemSetupAttributesMapping(cosemObjectFactory);
+        if (usbSetupAttributesMapping == null) {
+            usbSetupAttributesMapping = new USBSetupAttributesMapping(cosemObjectFactory);
         }
     }
 
@@ -53,26 +54,27 @@ public class GprsModemSetupMapping extends G3Mapping {
     public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
         instantiateMappers(null);  //Not used here
 
-        if (gprsModemSetupAttributesMapping.canRead(getObisCode())) {
-            return gprsModemSetupAttributesMapping.parse(getObisCode(), abstractDataType);
+        if (usbSetupAttributesMapping.canRead(getObisCode())) {
+            return usbSetupAttributesMapping.parse(getObisCode(), abstractDataType);
         }
 
         throw new NoSuchRegisterException("Register with obisCode [" + getObisCode() + "] not supported!");
     }
 
     private RegisterValue readRegister(final ObisCode obisCode) throws IOException {
-        if (gprsModemSetupAttributesMapping.canRead(obisCode)) {
-            return gprsModemSetupAttributesMapping.readRegister(obisCode);
+        if (usbSetupAttributesMapping.canRead(obisCode)) {
+            return usbSetupAttributesMapping.readRegister(obisCode);
         }
         throw new NoSuchRegisterException("Register with obisCode [" + obisCode + "] not supported!");
     }
 
     @Override
     public int getDLMSClassId() {
-        if(getObisCode().equalsIgnoreBChannel(GPRSModemSetup.getDefaultObisCode()) ){
-            return DLMSClassId.GPRS_SETUP.getClassId();
+        if (getObisCode().equalsIgnoreBChannel("0.0.128.0.28.255")) {
+            return DLMSClassId.USB_SETUP.getClassId();
         } else {
             return -1;
         }
     }
 }
+

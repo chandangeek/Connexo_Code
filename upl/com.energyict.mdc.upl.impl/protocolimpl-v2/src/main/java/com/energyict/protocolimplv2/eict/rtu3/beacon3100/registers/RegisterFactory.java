@@ -155,15 +155,6 @@ public class RegisterFactory {
                 } else if (universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
                     DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), NPTServerAddressAttributes.NTP_SERVER_NAME.getAttributeNumber(), universalObject.getClassID());
                     composedRegister.setRegisterValue(valueAttribute);
-                } else if (register.getObisCode().equals(USB_STATE)) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(USB_SETUP_OBISCODE, UsbSetupAttribute.USB_STATE.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                } else if (register.getObisCode().equals(USB_ACTIVITY)) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(USB_SETUP_OBISCODE, UsbSetupAttribute.USB_ACTIVITY.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
-                } else if (register.getObisCode().equals(LAST_ACTIVITY_TIMESTAMP)) {
-                    DLMSAttribute valueAttribute = new DLMSAttribute(USB_SETUP_OBISCODE, UsbSetupAttribute.LAST_ACTIVITY_TIMESTAMP.getAttributeNumber(), universalObject.getClassID());
-                    composedRegister.setRegisterValue(valueAttribute);
                 } else if (register.getObisCode().equals(CONNECT_CONTROL_MODE)) {
                     DLMSAttribute valueAttribute = new DLMSAttribute(DISCONNECT_CONTROL_OBISCODE, DisconnectControlAttribute.CONTROL_MODE.getAttributeNumber(), universalObject.getClassID());
                     composedRegister.setRegisterValue(valueAttribute);
@@ -230,31 +221,7 @@ public class RegisterFactory {
                             result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse memory management register, should be a structure with 4 or 8 elements"));
                             continue;
                         }
-                    } else if (universalObject.getClassID() == DLMSClassId.USB_SETUP.getClassId()) {
-                        DLMSAttribute attribute = composedRegister.getRegisterValueAttribute();
-                        AbstractDataType usbSetupAttribute = composedCosemObject.getAttribute(attribute);
-                        switch (attribute.getAttribute()) {
-                            case 1:
-                                registerValue = new RegisterValue(offlineRegister.getObisCode(), offlineRegister.getObisCode().toString());
-                                break;
-                            case 2:
-                                BooleanObject usbState = usbSetupAttribute.getBooleanObject();
-                                registerValue = new RegisterValue(offlineRegister.getObisCode(), usbState.toString());
-                                break;
-                            case 3:
-                                BooleanObject usbActivity = usbSetupAttribute.getBooleanObject();
-                                registerValue = new RegisterValue(offlineRegister.getObisCode(), usbActivity.toString());
-                                break;
-                            case 4:
-                                final String windowStartTime = new AXDRTime((OctetString) usbSetupAttribute).getTime();
-                                registerValue = new RegisterValue(offlineRegister.getObisCode(), windowStartTime);
-                                break;
-                            default:
-                                result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse USB Setup register, should be a structure with 4 or 8 elements"));
-                                continue;
-                        }
-
-                    } else if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
+                    }  else if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
                         //read out upgrade_state, attribute -1
                         AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
                         if (attributeValue instanceof TypeEnum) {
