@@ -43,7 +43,6 @@ import static org.mockito.Mockito.when;
  */
 public class ChangeDeviceLifeCycleWithSuccess extends PersistenceIntegrationTest {
 
-    private static final String DEVICE_NAME = "deviceName";
     public static final String APP_SERVER_NAME = "DLC-IT";
 
     /**
@@ -127,8 +126,8 @@ public class ChangeDeviceLifeCycleWithSuccess extends PersistenceIntegrationTest
         return latch;
     }
 
-    private Device createSimpleDevice(String mRID, Instant deviceCreationTime) {
-        return createSimpleDeviceWithName(DEVICE_NAME, mRID, deviceCreationTime);
+    private Device createSimpleDevice(String deviceName, Instant deviceCreationTime) {
+        return createSimpleDeviceWithName(deviceName, deviceCreationTime);
     }
 
     private class LatchDrivenSwitchStateMachineEventHandlerFactory implements MessageHandlerFactory {
