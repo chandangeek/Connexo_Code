@@ -54,6 +54,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -188,7 +189,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         issueCreationService = dataModel.getInstance(IssueCreationService.class);
         issueActionService = dataModel.getInstance(IssueActionService.class);
         issueAssignmentService = dataModel.getInstance(IssueAssignmentService.class);
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
     }
 
     @Reference

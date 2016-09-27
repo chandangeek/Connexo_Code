@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
@@ -148,7 +149,7 @@ public enum TableSpecs {
             table.cache();
 
             Column key = table.column(ISSUE_TYPE_COLUMN_KEY).map("key").varChar(NAME_LENGTH).notNull().add();
-            table.column(ISSUE_TYPE_COLUMN_PREFIX).map("prefix").varChar(3).notNull().add();
+            table.column(ISSUE_TYPE_COLUMN_PREFIX).map("prefix").varChar(3).notNull().since(Version.version(10, 2)).installValue("'DCI'").add();
             table.column(ISSUE_TYPE_COLUMN_TRANSLATION).map("translationKey").varChar(NAME_LENGTH).notNull().add();
             table.addAuditColumns();
 
