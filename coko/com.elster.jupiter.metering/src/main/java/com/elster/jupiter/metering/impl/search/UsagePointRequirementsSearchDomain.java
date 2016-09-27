@@ -58,4 +58,9 @@ public class UsagePointRequirementsSearchDomain extends UsagePointSearchDomain i
                 .filter(property -> !property.getName().startsWith(LoadLimiterTypeSearchableProperty.FIELD_NAME))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    protected boolean isMultisensePropertiesOnly() {
+        return false;
+    }
 }
