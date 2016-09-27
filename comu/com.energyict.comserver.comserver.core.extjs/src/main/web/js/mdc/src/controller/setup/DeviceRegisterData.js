@@ -29,7 +29,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         'BillingRegisterData',
         'TextRegisterData',
         'FlagsRegisterData',
-        'RegisterConfigsOfDevice',
+        'Mdc.store.RegisterConfigsOfDevice',
         'Mdc.store.RegisterDataDurations'
     ],
 
@@ -72,7 +72,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             registerModel = me.getModel('Mdc.model.Register'),
             router = me.getController('Uni.controller.history.Router'),
-            dependenciesCount = 2,
+            registersStore = me.getStore('Mdc.store.RegisterConfigsOfDevice'),
+            dependenciesCount = 3,
             device,
             onDependenciesLoad = function () {
                 dependenciesCount--;
@@ -92,6 +93,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                             router: router
                         }),
                         dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
+
+                    dataStore.loadData([], false);
 
                     me.getApplication().fireEvent('changecontentevent', widget);
                     widget.down('#registerTabPanel').setTitle(collectedReadingType.fullAliasName);
@@ -117,6 +120,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             };
 
         contentPanel.setLoading();
+        registersStore.getProxy().extraParams = {mRID: mRID};
+        registersStore.load(onDependenciesLoad);
         me.getModel('Mdc.model.Device').load(mRID, {
             success: function (record) {
                 device = record;

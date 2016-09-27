@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
                             {
                                 xtype: 'previous-next-navigation-toolbar',
                                 itemId: 'tabbed-device-register-view-previous-next-navigation-toolbar',
-                                store: 'RegisterConfigsOfDevice',
+                                store: 'Mdc.store.RegisterConfigsOfDevice',
                                 router: me.router,
                                 routerIdArgument: 'registerId',
                                 itemsName: '<a href="' + me.router.getRoute('devices/device/registers').buildUrl() + '">' + Uni.I18n.translate('general.registers', 'MDC', 'Registers').toLowerCase() + '</a>'
