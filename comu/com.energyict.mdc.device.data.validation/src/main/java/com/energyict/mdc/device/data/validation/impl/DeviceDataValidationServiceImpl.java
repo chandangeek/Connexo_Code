@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.validation.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
@@ -17,11 +19,12 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -62,57 +65,48 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
     @Override
     public List<ValidationOverview> getValidationResultsOfDeviceGroup(long groupId, Range<Instant> range) {
         List<ValidationOverview> list = new ArrayList<>();
-        List<Long> deviceIds = validationService.getDevicesIdsList(groupId).stream().filter(deviceId -> getKpiScores(groupId,deviceId,range).isPresent()).collect(Collectors.toList());;
+        Map<Long, DataValidationKpiScore> devicesWithScores = validationService.getDevicesIdsList(groupId)
+                .stream()
+                .map(deviceId -> Pair.of(deviceId, getKpiScores(groupId,deviceId,range)))
+                .filter(pair -> pair.getLast().isPresent())
+                .collect(Collectors.toMap(
+                        Pair::getFirst,
+                        pair -> pair.getLast().get())
+                );
+        List<Long> deviceIds = new ArrayList<>(devicesWithScores.keySet());
+
         SqlBuilder validationOverviewBuilder = new SqlBuilder();
-        validationOverviewBuilder.append("SELECT DEV.mrid, DEV.serialnumber, DT.name, DC.name FROM DDC_DEVICE DEV ");
+        validationOverviewBuilder.append("SELECT DEV.mrid, DEV.serialnumber, DT.name, DC.name, DEV.id FROM DDC_DEVICE DEV ");
         validationOverviewBuilder.append("  LEFT JOIN DTC_DEVICETYPE DT ON dev.devicetype = DT.id");
         validationOverviewBuilder.append("  LEFT JOIN DTC_DEVICECONFIG DC ON dev.deviceconfigid = DC.id");
         whereClause(validationOverviewBuilder, deviceIds);
         try (Connection connection = dataModel.getConnection(false);
              PreparedStatement statement = validationOverviewBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
-                AtomicLong idx = new AtomicLong(0);
                 while (resultSet.next()) {
-                    if(getKpiScores(groupId,deviceIds.get(idx.intValue()),range).isPresent()) {
-                        list.add(new ValidationOverviewImpl(
-                                resultSet.getString(1),
-                                resultSet.getString(2),
-                                resultSet.getString(3),
-                                resultSet.getString(4),
-                                new DeviceValidationKpiResults(
-                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
-                                                .getTotalSuspects()
-                                                .longValue(),
-                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
-                                                .getChannelSuspects()
-                                                .longValue(),
-                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
-                                                .getRegisterSuspects()
-                                                .longValue(),
-                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
-                                                .getAllDataValidated()
-                                                .longValue(),
-                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
-                                                .getTimestamp(),
-                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
-                                                .getThresholdValidator()
-                                                .longValue(),
-                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
-                                                .getMissingValuesValidator()
-                                                .longValue(),
-                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
-                                                .getReadingQualitiesValidator()
-                                                .longValue(),
-                                        getKpiScores(groupId, deviceIds.get(idx.intValue()), range).get()
-                                                .getRegisterIncreaseValidator()
-                                                .longValue()
-                                )));
+                    if (devicesWithScores.containsKey(resultSet.getLong(5))) {
+                        DataValidationKpiScore scores = devicesWithScores.get(resultSet.getLong(5));
+                            list.add(new ValidationOverviewImpl(
+                                    resultSet.getString(1),
+                                    resultSet.getString(2),
+                                    resultSet.getString(3),
+                                    resultSet.getString(4),
+                                    new DeviceValidationKpiResults(
+                                            scores.getTotalSuspects().longValue(),
+                                            scores.getChannelSuspects().longValue(),
+                                            scores.getRegisterSuspects().longValue(),
+                                            scores.getAllDataValidated().longValue(),
+                                            scores.getTimestamp(),
+                                            scores.getThresholdValidator().longValue(),
+                                            scores.getMissingValuesValidator().longValue(),
+                                            scores.getReadingQualitiesValidator().longValue(),
+                                            scores.getRegisterIncreaseValidator().longValue()
+                                    )));
                     }
-                    idx.incrementAndGet();
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
 
         return list;
