@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -100,7 +101,7 @@ public class MdcPluggableRestApplication extends Application implements MessageS
         propertyValueInfoService.addPropertyValueInfoConverter(new PasswordPropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new ReadingTypePropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new RegisterPropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new TimeDurationPropertyValueConverter());
+        propertyValueInfoService.addPropertyValueInfoConverter(new TimeDurationPropertyValueConverter(thesaurus));
         propertyValueInfoService.addPropertyValueInfoConverter(new TimeOfDayPropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new TimeZoneInUsePropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new UsagePointPropertyValueConverter());
@@ -130,7 +131,8 @@ public class MdcPluggableRestApplication extends Application implements MessageS
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.time.TimeDuration;
@@ -13,6 +14,14 @@ import java.util.LinkedHashMap;
  * Created by mbarinov on 31.08.2016.
  */
 public class TimeDurationPropertyValueConverter implements PropertyValueConverter {
+    private  Thesaurus thesaurus;
+
+    public TimeDurationPropertyValueConverter(){
+    }
+
+    public TimeDurationPropertyValueConverter(Thesaurus thesaurus){
+        this.thesaurus = thesaurus;
+    }
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
@@ -38,7 +47,7 @@ public class TimeDurationPropertyValueConverter implements PropertyValueConverte
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        return new TimeDurationInfo((TimeDuration) domainValue);
+        return new TimeDurationInfo((TimeDuration) domainValue, thesaurus);
     }
 
 }
