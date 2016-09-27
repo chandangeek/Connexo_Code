@@ -22,7 +22,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
@@ -344,10 +343,12 @@ public class InMemoryIntegrationPersistence {
 
     private void initializePrivileges() {
         new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources()
-                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
-        new com.energyict.mdc.device.data.impl.Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), meteringService, injector.getInstance(ServiceCallService.class), injector.getInstance(CustomPropertySetService.class))
+                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames()
+                        .stream().toArray(String[]::new)));
+        new com.energyict.mdc.device.data.impl.InstallerV10_2Impl(userService, meteringService, injector.getInstance(ServiceCallService.class), injector.getInstance(CustomPropertySetService.class))
                 .getModuleResources()
-                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
+                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames()
+                        .stream().toArray(String[]::new)));
     }
 
 
@@ -570,7 +571,7 @@ public class InMemoryIntegrationPersistence {
         }
     }
 
-    public User getMockedUser(){
+    public User getMockedUser() {
         return this.principal;
     }
 
@@ -598,7 +599,7 @@ public class InMemoryIntegrationPersistence {
         return batchService;
     }
 
-    public DeviceConfigConflictMappingHandler getDeviceConfigConflictMappingHandler(){
+    public DeviceConfigConflictMappingHandler getDeviceConfigConflictMappingHandler() {
         return injector.getInstance(DeviceConfigConflictMappingHandler.class);
     }
 
