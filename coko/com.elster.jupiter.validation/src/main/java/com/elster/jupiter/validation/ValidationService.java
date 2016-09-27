@@ -165,6 +165,6 @@ public interface ValidationService {
 
     KpiService kpiService();
 
-    List<DataValidationAssociationProvider> getDataValidationAssociatinProviders();
+    List<DataValidationAssociationProvider> getDataValidationAssociationProviders();
 
 }

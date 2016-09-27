@@ -841,7 +841,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public List<DataValidationAssociationProvider> getDataValidationAssociatinProviders() {
-        return this.dataValidationAssociationProviders;
+    public List<DataValidationAssociationProvider> getDataValidationAssociationProviders() {
+        return Collections.unmodifiableList(dataValidationAssociationProviders);
     }
 }

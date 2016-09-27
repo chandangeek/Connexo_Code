@@ -10,14 +10,14 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalTime;
-import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -48,29 +48,29 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
             dataValidationKpi.dropDataValidationKpi();
             return;
         }
-        DataValidationKpi dataValidationKpiClone = dataValidationKpi;
-        try {
-            dataValidationKpiClone = (DataValidationKpi) dataValidationKpi.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+        DataValidationKpi dataValidationKpiClone = dataValidationKpi.clone();
+        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault())
+                .with(LocalTime.MIDNIGHT)
+                .plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
         long dayCount = ChronoUnit.DAYS.between(start, end);
-        ZonedDateTime currentZonedDateTime = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L);
-        Range<Instant> range = Range.closedOpen(currentZonedDateTime.minus(Period.ofDays(1)).toInstant(), currentZonedDateTime.toInstant());
-        currentZonedDateTime = currentZonedDateTime.plus(Period.ofDays(1));
+
         for (int i = 0; i < dayCount; ++i) {
             if (dataValidationKpi.isCancelled()) {
                 dataValidationKpi.dropDataValidationKpi();
                 return;
             }
-            Instant localTimeStamp = currentZonedDateTime.minusDays(i).toInstant();
-            Map<String, List<DataValidationStatus>> registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpiClone.getDeviceGroup(), range);
-            Map<String, List<DataValidationStatus>> channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpiClone.getDeviceGroup(), range);
-            Map<String, Boolean> allDataValidated = dataValidationReportService.getAllDataValidated(dataValidationKpiClone.getDeviceGroup(), range);
+            Range<Instant> range = Range.closedOpen(end.minusDays(2 + i).toInstant(), end.minusDays(1 + i).toInstant());
+
+            Instant localTimeStamp = end.minusDays(i).toInstant();
+            Map<String, List<DataValidationStatus>> registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpiClone
+                    .getDeviceGroup(), range);
+            Map<String, List<DataValidationStatus>> channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpiClone
+                    .getDeviceGroup(), range);
+            Map<String, Boolean> allDataValidated = dataValidationReportService.getAllDataValidated(dataValidationKpiClone
+                    .getDeviceGroup(), range);
             Map<String, BigDecimal> totalSuspects = aggregateSuspects(registerSuspects, channelsSuspects);
-            List<String> ruleValidators = aggregateRuleValidators(registerSuspects, channelsSuspects);
+            Set<String> ruleValidators = aggregateRuleValidators(registerSuspects, channelsSuspects);
             dataValidationKpiClone.getDataValidationKpiChildren().forEach(kpi -> {
                 if (dataValidationKpi.isCancelled()) {
                     dataValidationKpi.dropDataValidationKpi();
@@ -83,10 +83,12 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
                                 return;
                             }
                             if (registerSuspects.get(member.getName()) != null) {
-                                member.score(localTimeStamp, new BigDecimal(registerSuspects.get(member.getName()).size()));
+                                member.score(localTimeStamp, new BigDecimal(registerSuspects.get(member.getName())
+                                        .size()));
                             }
                             if (channelsSuspects.get(member.getName()) != null) {
-                                member.score(localTimeStamp, new BigDecimal(channelsSuspects.get(member.getName()).size()));
+                                member.score(localTimeStamp, new BigDecimal(channelsSuspects.get(member.getName())
+                                        .size()));
                             }
                             if (totalSuspects.get(member.getName()) != null) {
                                 member.score(localTimeStamp, totalSuspects.get(member.getName()));
@@ -99,27 +101,31 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
                             }
                         });
             });
-            range = Range.closedOpen(localTimeStamp.minus(Period.ofDays(1)), localTimeStamp);
             logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!" + " date " + localTimeStamp + " count " + i);
         }
     }
 
-    private List<String> aggregateRuleValidators(Map<String, List<DataValidationStatus>> registerSuspects, Map<String, List<DataValidationStatus>> channelsSuspects) {
-        return Stream.concat(
-                registerSuspects.entrySet().stream()
-                        .flatMap(entry -> entry.getValue().stream()
-                                .map(DataValidationStatus::getOffendedRules)
-                                .flatMap(Collection::stream)
-                                .map(rule -> rule.getImplementation().substring(rule.getImplementation().lastIndexOf(".") + 1))
-                                .map(rule -> rule.toUpperCase() + "_" + entry.getKey().replace(DataValidationKpiMemberTypes.REGISTER.fieldName(), ""))),
-                channelsSuspects.entrySet().stream()
-                        .flatMap(entry -> entry.getValue().stream()
-                                .map(DataValidationStatus::getOffendedRules)
-                                .flatMap(Collection::stream)
-                                .map(rule -> rule.getImplementation().substring(rule.getImplementation().lastIndexOf(".") + 1))
-                                .map(rule -> rule.toUpperCase() + "_" + entry.getKey().replace(DataValidationKpiMemberTypes.CHANNEL.fieldName(), "")))
-        ).distinct().collect(Collectors.toList());
+    private Set<String> aggregateRuleValidators(Map<String, List<DataValidationStatus>> registerSuspects, Map<String, List<DataValidationStatus>> channelsSuspects) {
+        return Stream.of(
+                offendedRuleNames(registerSuspects.entrySet().stream(), DataValidationKpiMemberTypes.REGISTER.fieldName()),
+                offendedRuleNames(channelsSuspects.entrySet().stream(), DataValidationKpiMemberTypes.CHANNEL.fieldName())
+        )
+                .flatMap(Function.identity())
+                .collect(Collectors.toSet());
 
+    }
+
+    private Stream<String> offendedRuleNames(Stream<Map.Entry<String, List<DataValidationStatus>>> stream, String fieldName) {
+        return stream
+                .flatMap(entry -> entry.getValue().stream()
+                        .map(DataValidationStatus::getOffendedRules)
+                        .flatMap(Collection::stream)
+                        .map(rule -> rule.getImplementation()
+                                .substring(rule.getImplementation().lastIndexOf(".") + 1))
+                        .map(rule -> {
+                            return rule.toUpperCase() + "_" + entry.getKey()
+                                    .replace(fieldName, "");
+                        }));
     }
 
     private Map<String, BigDecimal> aggregateSuspects(Map<String, List<DataValidationStatus>> registerSuspects, Map<String, List<DataValidationStatus>> channelsSuspects) {

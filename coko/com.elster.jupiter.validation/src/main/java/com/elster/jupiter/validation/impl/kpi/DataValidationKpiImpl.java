@@ -37,11 +37,13 @@ import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 @MustHaveUniqueEndDeviceGroup(message = MessageSeeds.Constants.DEVICE_GROUP_MUST_BE_UNIQUE, groups = {Save.Create.class, Save.Update.class})
 public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAware, Cloneable {
@@ -167,7 +169,11 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         if (this.childrenKpis != null && !this.childrenKpis.isEmpty()) {
             List<KpiMember> dataValidationKpiMembers = new ArrayList<>();
             this.childrenKpis.forEach(child ->
-                    child.getChildKpi().getMembers().stream().filter(member -> member.getName().endsWith("_" + deviceId)).forEach(dataValidationKpiMembers::add));
+                    child.getChildKpi()
+                            .getMembers()
+                            .stream()
+                            .filter(member -> member.getName().endsWith("_" + deviceId))
+                            .forEach(dataValidationKpiMembers::add));
             return new DataValidationKpiMembers(dataValidationKpiMembers).getScores(interval);
         } else {
             return Optional.empty();
@@ -207,8 +213,12 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    protected final DataValidationKpiImpl clone() {
+        try {
+            return (DataValidationKpiImpl) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e); // should never occur, we are implementing Cloneable
+        }
     }
 
     @Override
@@ -255,44 +265,65 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         if (frequency == null) {
             Optional<RecurrentTask> recurrentTask = dataValidationKpiTask.getOptional();
             if (recurrentTask.isPresent()) {
-                frequency = ((TemporalExpression) (recurrentTask.get().getScheduleExpression())).getEvery().asTemporalAmount();
+                frequency = ((TemporalExpression) (recurrentTask.get().getScheduleExpression())).getEvery()
+                        .asTemporalAmount();
             }
         }
     }
 
     void updateMembers() {
         updateFrequency();
-        EndDeviceGroup endDeviceGroup = getDeviceGroup();
-        List<Long> deviceGroupDeviceIds = endDeviceGroup.getMembers(Instant.now(clock)).stream().map(EndDevice::getId).collect(Collectors.toList());
-        List<Long> dataValidationKpiMembers = new ArrayList<>();
-        this.childrenKpis.forEach(child ->
-                child.getChildKpi().getMembers().stream()
-                        .map(member -> member.getName().substring(member.getName().indexOf("_") + 1))
-                        .map(Long::parseLong).distinct()
-                        .forEach(dataValidationKpiMembers::add));
-        deviceGroupDeviceIds.sort(Comparator.naturalOrder());
-        dataValidationKpiMembers.sort(Comparator.naturalOrder());
+        Set<Long> deviceGroupDeviceIds = deviceIdsInGroup();
+        Set<Long> dataValidationKpiMembers = deviceIdsInKpiMembers();
         if (deviceGroupDeviceIds.equals(dataValidationKpiMembers)) {
             return;
         }
-        List<Long> commonElements = new ArrayList<>(deviceGroupDeviceIds);
-        commonElements.retainAll(dataValidationKpiMembers);
-        if (!deviceGroupDeviceIds.isEmpty()) {
-            deviceGroupDeviceIds.removeAll(commonElements);
-            deviceGroupDeviceIds.forEach(this::createValidationKpiMember);
-            dataValidationKpiMembers.removeAll(commonElements);
-            dataValidationKpiMembers
-                    .forEach(id -> {
-                                List<Kpi> obsoleteKpiList = childrenKpis.stream().map(DataValidationKpiChild::getChildKpi).map(Kpi::getMembers)
-                                        .flatMap(List::stream)
-                                        .filter(member -> member.getName().endsWith("_" + id))
-                                        .map(KpiMember::getKpi)
-                                        .distinct()
-                                        .collect(Collectors.toList());
-                                obsoleteKpiList.forEach(Kpi::remove);
-                            }
-                    );
-        }
+        Set<Long> commonElements = intersection(deviceGroupDeviceIds, dataValidationKpiMembers);
+        deviceGroupDeviceIds.stream()
+                .filter(not(commonElements::contains))
+                .forEach(this::createValidationKpiMember);
+        dataValidationKpiMembers.stream()
+                .filter(not(commonElements::contains))
+                .forEach(id -> {
+                            List<Kpi> obsoleteKpiList = childrenKpis.stream()
+                                    .map(DataValidationKpiChild::getChildKpi)
+                                    .map(Kpi::getMembers)
+                                    .flatMap(List::stream)
+                                    .filter(member -> member.getName().endsWith("_" + id))
+                                    .map(KpiMember::getKpi)
+                                    .distinct()
+                                    .collect(Collectors.toList());
+                            obsoleteKpiList.forEach(Kpi::remove);
+                        }
+                );
+    }
+
+    private Set<Long> intersection(Set<Long> first, Set<Long> second) {
+        return first.stream()
+                .filter(second::contains)
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Long> deviceIdsInKpiMembers() {
+        return childrenKpis.stream()
+                .map(DataValidationKpiChild::getChildKpi)
+                .map(Kpi::getMembers)
+                .flatMap(List::stream)
+                .map(this::deviceIdAsString)
+                .map(Long::parseLong)
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Long> deviceIdsInGroup() {
+        EndDeviceGroup endDeviceGroup = getDeviceGroup();
+        return endDeviceGroup.getMembers(Instant.now(clock))
+                .stream()
+                .map(EndDevice::getId)
+                .collect(Collectors.toSet());
+    }
+
+    private String deviceIdAsString(KpiMember member) {
+        return member.getName().substring(member.getName().indexOf("_") + 1);
     }
 
     private interface RecurrentTaskSaveStrategy {
@@ -311,7 +342,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
         public void save() {
             updateFrequency();
-            DestinationSpec destination = messageService.getDestinationSpec(DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
+            DestinationSpec destination = messageService.getDestinationSpec(DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION)
+                    .get();
             RecurrentTask recurrentTask;
             Optional<RecurrentTask> defaultTask = taskService.getRecurrentTask(taskName());
             if (defaultTask.isPresent()) {

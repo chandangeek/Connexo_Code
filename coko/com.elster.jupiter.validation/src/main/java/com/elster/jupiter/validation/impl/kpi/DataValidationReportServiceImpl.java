@@ -27,12 +27,14 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
     @Override
     public Map<String, List<DataValidationStatus>> getRegisterSuspects(EndDeviceGroup deviceGroup, Range<Instant> range) {
         Map<String, List<DataValidationStatus>> registerSuspects = new HashMap<>();
-        if(!validationService.getDataValidationAssociatinProviders().isEmpty()) {
+        if(!validationService.getDataValidationAssociationProviders().isEmpty()) {
             registerSuspects = deviceGroup.getMembers(Instant.now(clock)).stream()
                     .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.REGISTER.fieldName() + endDevice.getId(),
-                            endDevice -> validationService.getDataValidationAssociatinProviders()
+                            endDevice -> validationService.getDataValidationAssociationProviders()
                                     .get(0)
                                     .getRegisterSuspects(endDevice.getMRID(), range)));
+        } else {
+            throw new IllegalStateException("No DataValidationAssociationProviders were registered.");
         }
         return registerSuspects;
     }
@@ -40,12 +42,14 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
     @Override
     public Map<String, List<DataValidationStatus>> getChannelsSuspects(EndDeviceGroup deviceGroup, Range<Instant> range) {
         Map<String, List<DataValidationStatus>> channelsSuspects = new HashMap<>();
-        if(!validationService.getDataValidationAssociatinProviders().isEmpty()) {
+        if(!validationService.getDataValidationAssociationProviders().isEmpty()) {
             channelsSuspects = deviceGroup.getMembers(Instant.now(clock)).stream()
                     .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.CHANNEL.fieldName() + endDevice.getId(),
-                            endDevice -> validationService.getDataValidationAssociatinProviders()
+                            endDevice -> validationService.getDataValidationAssociationProviders()
                                     .get(0)
                                     .getChannelsSuspects(endDevice.getMRID(), range)));
+        } else {
+            throw new IllegalStateException("No DataValidationAssociationProviders were registered.");
         }
         return channelsSuspects;
     }
@@ -53,12 +57,14 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
     @Override
     public Map<String, Boolean> getAllDataValidated(EndDeviceGroup deviceGroup, Range<Instant> range){
         Map<String, Boolean> allDataValidated = new HashMap<>();
-        if(!validationService.getDataValidationAssociatinProviders().isEmpty()) {
+        if(!validationService.getDataValidationAssociationProviders().isEmpty()) {
             allDataValidated = deviceGroup.getMembers(Instant.now(clock)).stream()
                     .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.ALLDATAVALIDATED.fieldName() + endDevice.getId(),
-                            endDevice -> validationService.getDataValidationAssociatinProviders()
+                            endDevice -> validationService.getDataValidationAssociationProviders()
                                     .get(0)
                                     .isAllDataValidated(endDevice.getMRID(), range)));
+        } else {
+            throw new IllegalStateException("No DataValidationAssociationProviders were registered.");
         }
         return allDataValidated;
     }
