@@ -125,7 +125,7 @@ public class ComTaskResource {
         for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
             Categories category = Categories.valueOf(protocolTaskInfo.categoryId.toUpperCase());
             if (protocolTaskInfo.id != null) {
-                taskService.findProtocolTask(protocolTaskInfo.id).ifPresent(t -> category.updateProtocolTask(masterDataService, t, protocolTaskInfo));
+                comTask.getProtocolTasks().stream().filter(protocolTask -> protocolTask.getId()==protocolTaskInfo.id).findAny().ifPresent(t -> category.updateProtocolTask(masterDataService, t, protocolTaskInfo));
             } else {
                 category.createProtocolTask(masterDataService, comTask, protocolTaskInfo);
             }
