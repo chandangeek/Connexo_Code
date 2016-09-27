@@ -51,6 +51,7 @@ import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -122,9 +123,9 @@ import static java.util.stream.Collectors.toList;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
-@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
+@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, TranslationKeyProvider.class, MessageSeedProvider.class, LockService.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
 @LiteralSql
-public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, TranslationKeyProvider, MessageSeedProvider {
+public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, TranslationKeyProvider, MessageSeedProvider, LockService {
 
     private volatile ProtocolPluggableService protocolPluggableService;
 
@@ -593,6 +594,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
             public void configure() {
                 bind(DeviceConfigurationService.class).toInstance(DeviceConfigurationServiceImpl.this);
                 bind(ServerDeviceConfigurationService.class).toInstance(DeviceConfigurationServiceImpl.this);
+                bind(LockService.class).toInstance(DeviceConfigurationServiceImpl.this);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
@@ -938,4 +940,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return dataModel.getInstance(TimeOfUseOptionsImpl.class).init(deviceType);
     }
 
+    @Override
+    public DeviceType lockDeviceType(long deviceTypeId) {
+        return this.dataModel.mapper(DeviceType.class).lock(deviceTypeId);
+    }
 }
