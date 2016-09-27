@@ -39,7 +39,7 @@ public class DateAndTimeFactory extends AbstractValueFactory<Date> {
 
     private Date valueFromDatabase (Number number) {
         if (number != null) {
-            return new Date(number.longValue() * DateTimeConstants.MILLIS_PER_SECOND);
+            return new Date(number.longValue());
         }
         else {
             return null;
@@ -49,7 +49,7 @@ public class DateAndTimeFactory extends AbstractValueFactory<Date> {
     @Override
     public Object valueToDatabase (Date object) {
         if (object != null) {
-            return object.getTime() / DateTimeConstants.MILLIS_PER_SECOND;
+            return object.getTime();
         }
         else {
             return null;
@@ -63,7 +63,7 @@ public class DateAndTimeFactory extends AbstractValueFactory<Date> {
         }
         else {
             try {
-                return this.valueFromDatabase(new Long(stringValue));
+                return new Date(new Long(stringValue));
             }
             catch (NumberFormatException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
