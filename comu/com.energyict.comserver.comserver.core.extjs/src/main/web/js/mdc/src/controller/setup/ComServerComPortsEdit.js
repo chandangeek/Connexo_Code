@@ -629,7 +629,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     showAddComPortPool: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            widget = Ext.widget('addComPortPool');
+            widget = Ext.widget('addComPortPool', {
+                router: router
+            });
        // me.showAddOutbound(router.arguments.id);
         if (me.portModel) {
             me.saveState();
@@ -679,8 +681,16 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                     ids = addStore.collect('id');
                 outboundStore.load({
                     callback: function () {
+                        var addComPortPoolsView = me.getAddComPortPoolsView();
+
                         me.filterStoreByType(outboundStore, me.portType);
                         me.filterStoreByIds(outboundStore, ids);
+                        if (!outboundStore.getCount()) {
+                            outboundStore.fireEvent('load', outboundStore, [], false);
+                            if (addComPortPoolsView) {
+                                addComPortPoolsView.down('#cancel-add-communication-port-pool').show();
+                            }
+                        }
                     }
                 });
                 break;
