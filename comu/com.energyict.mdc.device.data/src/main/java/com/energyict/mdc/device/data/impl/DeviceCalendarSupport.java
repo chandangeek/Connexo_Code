@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.PassiveCalendar;
@@ -25,14 +26,19 @@ import static com.elster.jupiter.util.Checks.is;
  */
 class DeviceCalendarSupport implements Device.CalendarSupport {
 
-    private final DeviceImpl device;
     private final DataModel dataModel;
     private final Clock clock;
 
+    private DeviceImpl device;
+
     DeviceCalendarSupport(DeviceImpl device, DataModel dataModel, Clock clock) {
-        this.device = device;
         this.dataModel = dataModel;
         this.clock = clock;
+        setDevice(device);
+    }
+
+    private void setDevice(Device device){
+        this.device = (DeviceImpl) device;
     }
 
     @Override
@@ -83,9 +89,15 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
         if (allowedCalendar.isPresent()) {
             this.setActiveCalendar(allowedCalendar.get(), now);
         } else {
-            this.setActiveCalendar(
-                    this.device.getDeviceType().addGhostCalendar(calendarName),
-                    now);
+            setDevice(this.device.getDeviceService().lockDevice(this.device.getId()));
+            DeviceType lockDeviceType = this.device.getLockService().lockDeviceType(this.device.getDeviceType().getId());
+            Optional<AllowedCalendar> existingCalendar = lockDeviceType.getAllowedCalendars().stream().filter(allowedCalendar1 -> allowedCalendar1.getName().equals(calendarName)).findAny();
+            if (existingCalendar.isPresent()) {
+                this.setActiveCalendar(existingCalendar.get(), now);
+            } else {
+                this.setActiveCalendar(lockDeviceType.addGhostCalendar(calendarName), now);
+
+            }
         }
     }
 
@@ -133,7 +145,14 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
             if (allowedCalendar.isPresent()) {
                 this.setPassiveCalendar(allowedCalendar.get(), now);
             } else {
-                this.setPassiveCalendar(this.device.getDeviceType().addGhostCalendar(calendarName), now);
+                setDevice(this.device.getDeviceService().lockDevice(this.device.getId()));
+                DeviceType lockDeviceType = this.device.getLockService().lockDeviceType(this.device.getDeviceType().getId());
+                Optional<AllowedCalendar> existingCalendar = lockDeviceType.getAllowedCalendars().stream().filter(allowedCalendar1 -> allowedCalendar1.getName().equals(calendarName)).findAny();
+                if (existingCalendar.isPresent()) {
+                    this.setPassiveCalendar(existingCalendar.get(), now);
+                } else {
+                    this.setPassiveCalendar(lockDeviceType.addGhostCalendar(calendarName), now);
+                }
             }
         }
     }

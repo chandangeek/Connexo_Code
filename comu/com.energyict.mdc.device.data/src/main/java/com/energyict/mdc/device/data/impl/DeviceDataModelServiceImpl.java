@@ -22,7 +22,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -35,6 +34,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -148,6 +148,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ServiceCallService serviceCallService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile LockService lockService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -180,7 +181,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
-            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService) {
+            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService, LockService lockService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -215,6 +216,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setMetrologyConfigurationService(metrologyConfigurationService);
         setServiceCallService(serviceCallService);
         setThreadPrincipalService(threadPrincipalService);
+        setLockService(lockService);
         activate(bundleContext);
     }
 
@@ -507,6 +509,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
+    @Reference
+    public void setLockService(LockService lockService){
+        this.lockService = lockService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -560,6 +567,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(UserPreferencesService.class).toInstance(userService.getUserPreferencesService());
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(DeviceMessageService.class).toInstance(deviceMessageService);
+                bind(LockService.class).toInstance(lockService);
             }
         };
     }
