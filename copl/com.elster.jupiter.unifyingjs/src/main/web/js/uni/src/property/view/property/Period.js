@@ -27,7 +27,7 @@ Ext.define('Uni.property.view.property.Period', {
                 itemId: me.key + 'combobox',
                 name: me.getName() + '.combobox',
                 store: 'Uni.property.store.TimeUnits',
-                displayField: 'timeUnit',
+                displayField: 'localizedValue',
                 valueField: 'timeUnit',
                 width: me.unitComboWidth,
                 forceSelection: false,
@@ -79,9 +79,11 @@ Ext.define('Uni.property.view.property.Period', {
 
     setValue: function (value) {
         var unit = null,
+            localizedTimeUnit = null,
             count = null,
             timeDuration = null;
         if (Ext.isObject(value)) {
+            localizedTimeUnit = value.localizedTimeUnit;
             unit = value.timeUnit;
             count = value.count;
             timeDuration = this.getValueAsDisplayString(value);
@@ -93,6 +95,7 @@ Ext.define('Uni.property.view.property.Period', {
             } else {
                 this.getField().setValue(count);
                 this.getComboField().setValue(unit);
+                this.getComboField().setRawValue(localizedTimeUnit);
             }
         } else {
             this.callParent([timeDuration]);
@@ -158,7 +161,7 @@ Ext.define('Uni.property.view.property.Period', {
 
     getValueAsDisplayString: function (value) {
         if (Ext.isObject(value)) {
-            return value.count + ' ' + value.timeUnit;
+            return value.count + ' ' + value.localizedTimeUnit;
         } else {
             this.callParent(arguments);
         }
