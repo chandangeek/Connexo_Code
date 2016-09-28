@@ -33,8 +33,8 @@ import java.util.Set;
  */
 public class VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes implements CustomPropertySet<TestDomain, VersionedDomainExtensionForTestingPurposes> {
 
-    public static final String TABLE_NAME = "T05_CUSTOM_BILLING";
-    public static final String FK_CUST_BILLING_DOMAIN = "FK_05CUST_BILLING_DOMAIN";
+    private static final String TABLE_NAME = "T05_CUSTOM_BILLING";
+    private static final String FK_CUST_BILLING_DOMAIN = "FK_05CUST_BILLING_DOMAIN";
 
     private final PropertySpecService propertySpecService;
 
@@ -56,6 +56,11 @@ public class VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTesting
     @Override
     public Class<TestDomain> getDomainClass() {
         return TestDomain.class;
+    }
+
+    @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
     }
 
     @Override

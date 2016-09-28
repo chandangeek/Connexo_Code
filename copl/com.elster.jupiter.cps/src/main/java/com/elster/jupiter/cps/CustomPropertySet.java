@@ -81,6 +81,18 @@ public interface CustomPropertySet<D, T extends PersistentDomainExtension<D>> {
      */
     Class<D> getDomainClass();
 
+    /**
+     * Gets the human readable name of the domain class.
+     * Preferable, this name is translated from the domain class
+     * so that each language supported by Connexo has a proper display name.
+     *
+     * @return The display name of the domain class
+     * #see {@link #getDomainClass()}
+     */
+    default String getDomainClassDisplayName() {
+        return getDomainClass().getSimpleName();
+    }
+
     PersistenceSupport<D, T> getPersistenceSupport();
 
     /**
