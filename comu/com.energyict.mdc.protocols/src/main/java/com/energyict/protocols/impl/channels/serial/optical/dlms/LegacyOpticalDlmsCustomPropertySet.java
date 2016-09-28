@@ -59,6 +59,11 @@ public class LegacyOpticalDlmsCustomPropertySet implements CustomPropertySet<Con
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.CONNECTION_PROVIDER_DOMAIN_NAME).format();
+    }
+
+    @Override
     public PersistenceSupport<ConnectionProvider, LegacyOpticalDlmsConnectionProperties> getPersistenceSupport() {
         return new LegacyOpticalDlmsConnectionPropertiesPersistenceSupport();
     }

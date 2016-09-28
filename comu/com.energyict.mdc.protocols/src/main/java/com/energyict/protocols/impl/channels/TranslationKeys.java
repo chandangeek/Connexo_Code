@@ -1,6 +1,7 @@
 package com.energyict.protocols.impl.channels;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.serial.optical.dlms.LegacyOpticalDlmsConnectionProperties;
 
 /**
@@ -10,6 +11,7 @@ import com.energyict.protocols.impl.channels.serial.optical.dlms.LegacyOpticalDl
  * @since 2015-12-08 (13:52)
  */
 public enum TranslationKeys implements TranslationKey {
+    CONNECTION_PROVIDER_DOMAIN_NAME(ConnectionProvider.class.getName(), "Connection method"),
     LEGACY_OPTICAL_DLMS_ADDRESSING_MODE("LegacyOpticalDlms." + LegacyOpticalDlmsConnectionProperties.Field.ADDRESSING_MODE.javaName(), "Addressing mode"),
     DATA_LINK_LAYER_TYPE("LegacyOpticalDlms.DATA_LINK_LAYER_TYPE", "Data link layer type"),
     SERVER_MAC_ADDRESS("LegacyOpticalDlms.SERVER_MAC_ADDRESS", "Server mac address"),
