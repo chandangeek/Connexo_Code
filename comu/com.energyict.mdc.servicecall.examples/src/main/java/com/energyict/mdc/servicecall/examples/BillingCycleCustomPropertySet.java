@@ -70,6 +70,11 @@ public class BillingCycleCustomPropertySet implements CustomPropertySet<ServiceC
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Service call";
+    }
+
+    @Override
     public PersistenceSupport<ServiceCall, BillingCycleDomainExtension> getPersistenceSupport() {
         return new MyPersistenceSupport();
     }
