@@ -36,6 +36,11 @@ public class ProtocolDialectCustomPropertySet implements CustomPropertySet<Devic
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getSimpleName();
+    }
+
+    @Override
     public PersistenceSupport<DeviceProtocolDialectPropertyProvider, PersistentProtocolDialectProperties> getPersistenceSupport() {
         return new ProtocolDialectPropertiesPersistenceSupport();
     }

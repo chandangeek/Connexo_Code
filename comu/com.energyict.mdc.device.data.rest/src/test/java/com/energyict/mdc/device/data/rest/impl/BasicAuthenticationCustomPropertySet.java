@@ -24,6 +24,11 @@ public class BasicAuthenticationCustomPropertySet extends SecurityCustomProperty
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
+    }
+
+    @Override
     public BasicAuthenticationPersistenceSupport getPersistenceSupport() {
         return new BasicAuthenticationPersistenceSupport();
     }
