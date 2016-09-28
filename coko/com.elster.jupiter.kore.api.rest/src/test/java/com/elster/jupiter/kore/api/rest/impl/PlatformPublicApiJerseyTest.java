@@ -268,7 +268,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
 
     protected void mockCommands() {
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        UsagePointCommandCustomPropertySet customPropertySet = new UsagePointCommandCustomPropertySet(propertySpecService);
+        UsagePointCommandCustomPropertySet customPropertySet = new UsagePointCommandCustomPropertySet(propertySpecService, thesaurus);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         ServiceCall serviceCall = mock(ServiceCall.class);

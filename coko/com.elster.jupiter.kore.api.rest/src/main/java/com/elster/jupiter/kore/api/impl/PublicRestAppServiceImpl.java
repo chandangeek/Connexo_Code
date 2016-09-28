@@ -1,6 +1,7 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.security.Privileges;
+import com.elster.jupiter.kore.api.impl.servicecall.TranslationKeys;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -8,9 +9,10 @@ import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 
 import org.osgi.service.component.annotations.Component;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.pulse.api.rest.app",
         service = {TranslationKeyProvider.class, ApplicationPrivilegesProvider.class},
@@ -38,6 +40,10 @@ public class PublicRestAppServiceImpl implements TranslationKeyProvider, Applica
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(Privileges.values());
+        ArrayList<TranslationKey> keys = new ArrayList<>();
+        Stream.of(Privileges.values()).filter(keys::add);
+        Stream.of(TranslationKeys.values()).filter(keys::add);
+        return keys;
     }
+
 }

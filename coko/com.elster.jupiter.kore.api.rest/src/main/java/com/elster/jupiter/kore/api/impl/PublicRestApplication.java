@@ -87,6 +87,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
 
@@ -258,7 +259,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     }
 
     private void registerCustomPropertySets(){
-        customPropertySetService.addCustomPropertySet(new UsagePointCommandCustomPropertySet(propertySpecService));
+        customPropertySetService.addCustomPropertySet(new UsagePointCommandCustomPropertySet(propertySpecService, thesaurus));
     }
 
 }
