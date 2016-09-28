@@ -45,6 +45,11 @@ class SDKTimeDialectCustomPropertySet implements CustomPropertySet<DeviceProtoco
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
+    }
+
+    @Override
     public PersistenceSupport<DeviceProtocolDialectPropertyProvider, SDKTimeDialectProperties> getPersistenceSupport() {
         return new SDKTimeDialectPropertyPersistenceSupport();
     }

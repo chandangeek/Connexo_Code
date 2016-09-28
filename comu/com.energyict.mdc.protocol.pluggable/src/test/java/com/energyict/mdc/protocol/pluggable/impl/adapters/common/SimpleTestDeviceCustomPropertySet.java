@@ -25,6 +25,11 @@ public class SimpleTestDeviceCustomPropertySet extends SecurityCustomPropertySet
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
+    }
+
+    @Override
     public SimpleTestDevicePersistenceSupport getPersistenceSupport() {
         return new SimpleTestDevicePersistenceSupport();
     }

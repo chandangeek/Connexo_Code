@@ -45,6 +45,11 @@ class SDKLoadProfileDialectCustomPropertySet implements CustomPropertySet<Device
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
+    }
+
+    @Override
     public PersistenceSupport<DeviceProtocolDialectPropertyProvider, SDKLoadProfileDialectProperties> getPersistenceSupport() {
         return new SDKLoadProfileDialectPropertyPersistenceSupport();
     }

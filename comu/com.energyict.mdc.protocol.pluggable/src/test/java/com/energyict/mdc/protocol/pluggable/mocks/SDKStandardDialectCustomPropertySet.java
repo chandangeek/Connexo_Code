@@ -45,6 +45,11 @@ class SDKStandardDialectCustomPropertySet implements CustomPropertySet<DevicePro
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
+    }
+
+    @Override
     public PersistenceSupport<DeviceProtocolDialectPropertyProvider, SDKStandardDialectProperties> getPersistenceSupport() {
         return new SDKStandardDialectPropertyPersistenceSupport();
     }

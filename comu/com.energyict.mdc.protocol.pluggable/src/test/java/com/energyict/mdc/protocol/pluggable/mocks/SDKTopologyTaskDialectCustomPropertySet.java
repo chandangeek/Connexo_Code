@@ -45,6 +45,11 @@ class SDKTopologyTaskDialectCustomPropertySet implements CustomPropertySet<Devic
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
+    }
+
+    @Override
     public PersistenceSupport<DeviceProtocolDialectPropertyProvider, SDKTopologyTaskDialectProperties> getPersistenceSupport() {
         return new SDKTopologyTaskDialectPropertyPersistenceSupport();
     }
