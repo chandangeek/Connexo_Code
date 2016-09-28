@@ -50,7 +50,7 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
    *
    * @param loadProfileReaders a list of definitions of expected loadProfiles to read
    * @return the list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are in the device
-   * @throws java.io.IOException when error occurred during dataFetching or -Parsing
+   * @throws IOException when error occurred during dataFetching or -Parsing
    */
   public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
     LDPData results = meterProtocol.getConnection().readLoadProfileConfig(loadProfileReaders.get(0).getMeterSerialNumber());
@@ -116,7 +116,7 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
   /**
    * <p>
    * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-   * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+   * channels({@link LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
    * if not then all channels may be returned in the <CODE>ProfileData</CODE>. If {@link LoadProfileReader#channelInfos} contains an empty list
    * or null, then all channels from the corresponding LoadProfile should be fetched.
    * </p>
@@ -127,7 +127,7 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
    *
    * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
    * @return a list of <CODE>ProfileData</CODE> objects containing interval records
-   * @throws java.io.IOException if a communication or parsing error occurred
+   * @throws IOException if a communication or parsing error occurred
    */
   public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
 
@@ -139,25 +139,6 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
           CollectedLoadProfile profileData1 = new DeviceLoadProfile(lpi);
           profileDataList.add(profileData1);
 
-          // These are the channels we are interested in...
-          List<ChannelInfo> channelInfosFromEiServer = lpr.getChannelInfos();
-          List<Integer> interestedIn = new ArrayList<Integer>();
-
-          for (ChannelInfo channelInfo : channelInfosFromEiServer) {
-              int index = -1;
-              try {
-                  ObisCode obis = channelInfo.getChannelObisCode();
-                  index = channelObisCodes.indexOf(obis);
-              } catch (IOException ioe) {
-                  // TODO
-                  ioe.printStackTrace();
-              }
-
-              if (index != -1) {
-                  interestedIn.add(index);
-              }
-          }
-
           List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
           CollectedLoadProfileConfiguration clpc = getLoadProfileConfiguration(lpr);
           int intvlLength = clpc.getProfileInterval(); //returns interval in seconds
@@ -165,34 +146,34 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
           // TODO: set start/end times correctly using timezone
           LDPData results = meterProtocol.getConnection().readLoadProfileData(lpr, intvlLength);
           LoadProfileEIServerFormatter formatter = new LoadProfileEIServerFormatter(results, meterProtocol.getProperties());
+          
+          // These are the channels we are interested in...
+          List<ChannelInfo> channelInfosFromEiServer = lpr.getChannelInfos();
+          List<Integer> interestedIn = new ArrayList<Integer>();
+          for (ChannelInfo channelInfo : channelInfosFromEiServer) {
+            if(results.getMeterConfig().getRecorderNames().get(0).equalsIgnoreCase("EOI")) {
+              channelInfo.setCumulative();
+            }
+            int index = -1;
+            try {
+                ObisCode obis = channelInfo.getChannelObisCode();
+                index = channelObisCodes.indexOf(obis);
+            } catch (IOException ioe) {
+                // TODO
+                ioe.printStackTrace();
+            }
+
+            if (index != -1) {
+                interestedIn.add(index);
+            }
+          }
+          
           intervalDatas = formatter.getIntervalData(interestedIn);
           profileData1.setCollectedIntervalData(intervalDatas, channelInfosFromEiServer);
       }
       return profileDataList;
   }
 
-  /**
-   * Merge two sets of IntervalData together.
-   *
-   * @param collectedIntervalData The set of IntervalData, who contains values of all channels
-   * @param channelIntervalData   The set of IntervalData, only containing values for one channel
-   * @return the merged set of IntervalData
-   */
-  private List<IntervalData> mergeChannelIntervalData(List<IntervalData> collectedIntervalData, List<IntervalData> channelIntervalData) throws IOException {
-      if (collectedIntervalData.size() == 0) {
-          return channelIntervalData;
-      } else if (collectedIntervalData.size() == channelIntervalData.size()) {
-          for (int i = 0; i < collectedIntervalData.size(); i++) {
-              IntervalData collectedData = collectedIntervalData.get(i);
-              IntervalData channelData = channelIntervalData.get(i);
-              IntervalValue channelValue = (IntervalValue) channelData.getIntervalValues().get(0);
-              collectedData.addValue(channelValue.getNumber(), channelValue.getProtocolStatus(), channelValue.getEiStatus());
-          }
-          return collectedIntervalData;
-      } else {
-          throw new IOException("Failed to merge the interval data of the different channels.");
-      }
-  }
 
   /**
    * Look for the <CODE>DeviceLoadProfileConfiguration</CODE> in the previously build up list
@@ -209,12 +190,4 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
       return null;
   }
   
-  private void setUnits(LDPData results) {
-    if(results.getMeterConfig().getChannelNames().size() >= 2) {
-      UnitMapper.setEnergyUnits(results.getMeterConfig().getChannelNames().get(0), meterProtocol.getLogger());
-      UnitMapper.setVoltageAmpereUnits(results.getMeterConfig().getChannelNames().get(1), meterProtocol.getLogger());
-    } else {
-      meterProtocol.getLogger().warning("expected min. 2 units from lp config, but received: " + results.getMeterConfig().getChannelNames().size());
-    }
-  }
 }

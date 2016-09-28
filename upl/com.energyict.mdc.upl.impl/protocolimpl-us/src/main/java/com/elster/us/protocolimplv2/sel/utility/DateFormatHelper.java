@@ -6,6 +6,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.elster.us.protocolimplv2.sel.SELProperties;
+
 public class DateFormatHelper {
   private static Map<String, SimpleDateFormat> formatters = new HashMap<String,SimpleDateFormat>();
 
@@ -57,6 +59,35 @@ public class DateFormatHelper {
           }
           count++;
       }
+  }
+  
+  public static Date convertTimeZone(Date date, String inTimeZone, String outTimeZone) {
+    SimpleDateFormat format = new SimpleDateFormat("ddMMyyyyHHmmss");
+    String str = format.format(date);
+    format.setTimeZone(TimeZone.getTimeZone(inTimeZone));
+    Date d1 = null;
+    try {
+        d1 = format.parse(str);
+    } catch (ParseException e) {
+        e.printStackTrace();
+    }
+    
+    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(inTimeZone));
+    cal.setTime(d1);
+    TimeZone tz = getTimeZone(outTimeZone); //Get the timezone that we are running in
+    if(tz != null)
+      cal.setTimeZone(tz);
+    else
+      cal.setTimeZone(TimeZone.getDefault());
+
+    return cal.getTime();
+  }
+  
+  private static TimeZone getTimeZone(String timeZone) {
+    if(timeZone != null)
+      return TimeZone.getTimeZone(timeZone);
+    else
+      return null;
   }
 
 }

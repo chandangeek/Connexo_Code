@@ -235,7 +235,7 @@ public class MiniMax implements DeviceProtocol {
      *
      * @param loadProfilesToRead the <CODE>List</CODE> of <CODE>LoadProfileReaders</CODE> to indicate which profiles will be read
      * @return a list of <CODE>LoadProfileConfiguration</CODE> objects corresponding with the meter
-     * @throws java.io.IOException if a communication or parsing error occurred
+     * @throws IOException if a communication or parsing error occurred
      */
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
@@ -316,7 +316,7 @@ public class MiniMax implements DeviceProtocol {
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * channels({@link LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
      * if not then all channels may be returned in the <CODE>ProfileData</CODE>. If {@link LoadProfileReader#channelInfos} contains an empty list
      * or null, then all channels from the corresponding LoadProfile should be fetched.
      * </p>
@@ -327,7 +327,7 @@ public class MiniMax implements DeviceProtocol {
      *
      * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
      * @return a list of <CODE>ProfileData</CODE> objects containing interval records
-     * @throws java.io.IOException if a communication or parsing error occurred
+     * @throws IOException if a communication or parsing error occurred
      */
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {

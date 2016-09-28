@@ -54,7 +54,10 @@ public enum SecurityPropertySpecName {
     AUTHENTICATION_KEY_EXT_DATA("AuthenticationKeyExtData"),
     AUTHENTICATION_KEY_MANAGEMENT("AuthenticationKeyManagement"),
     AUTHENTICATION_KEY_FIRMWARE("AuthenticationKeyFirmware"),
-    AUTHENTICATION_KEY_MANUFACTURER("AuthenticationKeyManufacturer");
+    AUTHENTICATION_KEY_MANUFACTURER("AuthenticationKeyManufacturer"),
+
+    SERVER_SIGNING_CERTIFICATE("ServerSigningCertificate"),
+    SERVER_KEY_AGREEMENT_CERTIFICATE("ServerKeyAgreementCertificate");
 
     private final String name;
 

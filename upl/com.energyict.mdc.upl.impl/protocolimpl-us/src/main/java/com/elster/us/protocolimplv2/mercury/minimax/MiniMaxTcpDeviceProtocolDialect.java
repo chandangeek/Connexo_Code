@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for a TCP connection type
+ * Models a {@link DeviceProtocolDialect} for a TCP connection type
  *
  * @author: khe
  * @since: 16/10/12 (113:25)

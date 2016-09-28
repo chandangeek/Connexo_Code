@@ -324,7 +324,7 @@ public class DlmsSession implements ProtocolLink {
      * @return
      */
     protected ApplicationServiceObject buildAso(String calledSystemTitle){
-        return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), calledSystemTitle.getBytes(), null);
+        return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), calledSystemTitle.getBytes(), null, null);
     }
 
     /**
@@ -378,7 +378,7 @@ public class DlmsSession implements ProtocolLink {
         return new SecurityContext(
                 getProperties().getDataTransportSecurityLevel(),
                 getProperties().getAuthenticationSecurityLevel(),
-                0, // TODO: check what this means
+                0, // Suite 0: AES-GCM-128
                 (getProperties().getSystemIdentifier() == null) ? null : getProperties().getSystemIdentifier(),
                 getProperties().getSecurityProvider(),
                 getProperties().getCipheringType().getType()

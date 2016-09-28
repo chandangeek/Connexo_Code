@@ -1,13 +1,14 @@
 package com.energyict.encryption.asymetric.keyagreement;
 
 import com.energyict.encryption.AlgorithmID;
-import com.energyict.encryption.asymetric.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.KDF;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
+import com.energyict.mdw.core.ECCCurve;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.Test;
 
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -151,8 +152,8 @@ public class KeyAgreementImplTest {
         KeyAgreement agreementServerSide = new KeyAgreementImpl(ECCCurve.P256_SHA256);
 
         //Generate the secret, using our private and key and the public key of the other party
-        byte[] clientSecret = agreementClientSide.generateSecret(agreementServerSide.getPublicKey());
-        byte[] serverSecret = agreementServerSide.generateSecret(agreementClientSide.getPublicKey());
+        byte[] clientSecret = agreementClientSide.generateSecret(agreementServerSide.getEphemeralPublicKey());
+        byte[] serverSecret = agreementServerSide.generateSecret(agreementClientSide.getEphemeralPublicKey());
 
         assertArrayEquals(clientSecret, serverSecret);
 
@@ -171,8 +172,8 @@ public class KeyAgreementImplTest {
         KeyAgreement agreementServerSide = new KeyAgreementImpl(ECCCurve.P384_SHA384);
 
         //Generate the secret, using our private and key and the public key of the other party
-        byte[] clientSecret = agreementClientSide.generateSecret(agreementServerSide.getPublicKey());
-        byte[] serverSecret = agreementServerSide.generateSecret(agreementClientSide.getPublicKey());
+        byte[] clientSecret = agreementClientSide.generateSecret(agreementServerSide.getEphemeralPublicKey());
+        byte[] serverSecret = agreementServerSide.generateSecret(agreementClientSide.getEphemeralPublicKey());
 
         assertArrayEquals(clientSecret, serverSecret);
 
@@ -219,5 +220,33 @@ public class KeyAgreementImplTest {
         final KDF kdf = NIST_SP_800_56_KDF.getInstance();
         final byte[] key = kdf.derive(KDF.HashFunction.SHA256, secret, AlgorithmID.AES_GCM_128, SYSTEM_TITLE_SERVER, SYSTEM_TITLE_CLIENT);
         assertThat(key).isEqualTo(EXPECTED_GENERAL_CIPHERING_KEY_CLIENT);
+    }
+
+    /**
+     * Test rekeying using the Ephemeral Unified Model C(2e, 0s, ECC CDH) scheme, suite 1
+     */
+    @Test
+    public void testRekeyingSuite1() throws GeneralSecurityException {
+        KeyPair ephemeralClientKeyPair = KeyUtils.generateECCKeyPair(ECCCurve.P256_SHA256);
+        KeyPair ephemeralServerKeyPair = KeyUtils.generateECCKeyPair(ECCCurve.P256_SHA256);
+
+        byte[] clientSecret = new KeyAgreementImpl(ECCCurve.P256_SHA256, ephemeralClientKeyPair).generateSecret(ephemeralServerKeyPair.getPublic());
+        byte[] serverSecret = new KeyAgreementImpl(ECCCurve.P256_SHA256, ephemeralServerKeyPair).generateSecret(ephemeralClientKeyPair.getPublic());
+
+        assertArrayEquals(clientSecret, serverSecret);
+    }
+
+    /**
+     * Test rekeying using the Ephemeral Unified Model C(2e, 0s, ECC CDH) scheme, suite 2
+     */
+    @Test
+    public void testRekeyingSuite2() throws GeneralSecurityException {
+        KeyPair ephemeralClientKeyPair = KeyUtils.generateECCKeyPair(ECCCurve.P384_SHA384);
+        KeyPair ephemeralServerKeyPair = KeyUtils.generateECCKeyPair(ECCCurve.P384_SHA384);
+
+        byte[] clientSecret = new KeyAgreementImpl(ECCCurve.P384_SHA384, ephemeralClientKeyPair).generateSecret(ephemeralServerKeyPair.getPublic());
+        byte[] serverSecret = new KeyAgreementImpl(ECCCurve.P384_SHA384, ephemeralServerKeyPair).generateSecret(ephemeralClientKeyPair.getPublic());
+
+        assertArrayEquals(clientSecret, serverSecret);
     }
 }

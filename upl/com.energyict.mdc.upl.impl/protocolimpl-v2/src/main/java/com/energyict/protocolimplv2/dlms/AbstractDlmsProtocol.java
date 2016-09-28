@@ -12,10 +12,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -46,7 +43,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     protected OfflineDevice offlineDevice;
     protected ConfigurationSupport dlmsConfigurationSupport;
     protected DLMSCache dlmsCache;
-    protected DeviceProtocolSecurityCapabilities  dlmsSecuritySupport;
+    protected DeviceProtocolSecurityCapabilities dlmsSecuritySupport;
     private ComposedMeterInfo meterInfo;
     private DlmsSession dlmsSession;
     /**

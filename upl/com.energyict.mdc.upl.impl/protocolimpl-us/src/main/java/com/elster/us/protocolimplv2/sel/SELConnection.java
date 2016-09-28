@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import com.elster.us.protocolimplv2.sel.utility.DateFormatHelper;
 import com.elster.us.protocolimplv2.sel.utility.ObisCodeMapper;
 import com.elster.us.protocolimplv2.sel.utility.UnitMapper;
 import com.elster.us.protocolimplv2.sel.events.EventFormatter;
@@ -371,7 +373,7 @@ public List<CollectedRegister> readRegisters(List<OfflineRegister> list) {
 public LDPData readLoadProfileData(Date start, Date end, String serialNumber, int intervalLength) {
   //FILE READ ldp_data.bin MM/DD/YYYY HH:MM:SS MM/DD/YYYY HH:MM:SS
   Date startReadingTime = adjustStartTime(start,intervalLength);
-  Date endReadingTime = adjustEndTime(end);
+  Date endReadingTime = end; //adjustEndTime(end);
   LDPData results = null;
   sendSELASCIICommand(getLoadProfileCommand(startReadingTime, endReadingTime));
   wait(2000);
@@ -388,10 +390,8 @@ public LDPData readLoadProfileData(Date start, Date end, String serialNumber, in
       LDPParser ldpParser = new LDPParser();
       results = ldpParser.parseYModemFile(new DataInputStream(new FileInputStream(lpFile))); 
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   } else {
@@ -421,7 +421,6 @@ public LDPData readLoadProfileConfig(String serialNumber) {
   ResponseFrame response = receiveUnformattedResponse();
   if (getString(response.getData().getCommandCode()).contains("Ready to send file")) {
     sendSpecialCommand(CONTROL_CRC);
-    //String yFile = "LDP_DATA.BIN";
     String yFile = "LDP_DATA_" + serialNumber + ".BIN";
     YModem yModem = new YModem(comChannel);
     try {
@@ -431,10 +430,8 @@ public LDPData readLoadProfileConfig(String serialNumber) {
       LDPParser ldpParser = new LDPParser();
       results = ldpParser.parseYModemFile(new DataInputStream(new FileInputStream(lpFile)));  
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   } else {
@@ -444,19 +441,27 @@ public LDPData readLoadProfileConfig(String serialNumber) {
 }
 
 private String getLoadProfileCommand(Date start, Date end) {
-  DateFormat df = new SimpleDateFormat(LDP_DATE_FORMAT);
   StringBuilder sb = new StringBuilder("FILE READ");
   sb.append(" ldp_data.bin ");
-  sb.append(df.format(start));
+  sb.append(convertTimeZone(start));
   if(end != null) {
-    sb.append(" " + df.format(end));
+    sb.append(" " + convertTimeZone(end));
   }
   return sb.toString();
 }
 
+private String convertTimeZone(Date readingTime) {
+  Calendar startTimeCal = Calendar.getInstance();
+  startTimeCal.setTime(readingTime);
+  startTimeCal.setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+  SimpleDateFormat format = new SimpleDateFormat(LDP_DATE_FORMAT);
+  format.setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
+  return format.format(readingTime);
+}
+
 private boolean isDateMoreThan1WeekOld(Date start) {
   Calendar now = Calendar.getInstance();
-  now.add(Calendar.DATE, -5);
+  now.add(Calendar.DATE, -7);
   if(now.getTime().before(start))
     return false;
   return true;
@@ -465,13 +470,10 @@ private boolean isDateMoreThan1WeekOld(Date start) {
 private Date adjustStartTime(Date readingTime, int intervalLength) {
   Calendar cal = Calendar.getInstance();
   if(readingTime == null || isDateMoreThan1WeekOld(readingTime)) {
-    cal.add(Calendar.DATE, -5);
+    cal.add(Calendar.DATE, -7);
   } else {
     cal.setTime(readingTime);
   }
-  //capture previous interval in order to calculate COI for cumulative(EOI) meters.
-  cal.add(Calendar.SECOND, -intervalLength);
-  cal.setTimeZone(TimeZone.getTimeZone(properties.getDeviceTimezone()));
   return cal.getTime();
 }
 

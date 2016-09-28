@@ -188,7 +188,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     @Override
     public String getSerialNumber() {
         try {
-            return getMeterSerial();
+            return ProtocolTools.removeLeadingZerosFromString(getMeterSerial());
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
         }

@@ -10,7 +10,6 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.EventPushNotificationConfig;
-
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -65,17 +64,15 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private static final int WRAP_AS_SERVER_EVENT = 3;
     private static final int RELAYED_EVENT = 4;
     private static final int INTERNAL_EVENT = 5;
-
-    private ComChannel comChannel;
     protected ObisCode logbookObisCode;
     protected CollectedLogBook collectedLogBook;
-    private DeviceProtocolSecurityPropertySet securityPropertySet;
     protected DeviceIdentifier deviceIdentifier;
+    private ComChannel comChannel;
+    private DeviceProtocolSecurityPropertySet securityPropertySet;
     private DeviceIdentifier originDeviceId;
     private int sourceSAP = 0;
     private int destinationSAP = 0;
     private int notificationType = 0;
-
 
     public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
         super(comChannel, context);
@@ -118,7 +115,6 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     public void readAndParseInboundFrame(ByteBuffer inboundFrame) {
         byte tag = inboundFrame.get();
-
         switch (tag) {
             case DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST:
                 parsePlainEventAPDU(inboundFrame);
@@ -158,7 +154,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         try {
             decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(securityContext, generalGlobalResponse));
         } catch (DLMSConnectionException e) {
-            e.printStackTrace();
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         }
         deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(securityContext.getResponseSystemTitle());
 
@@ -178,7 +174,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         try {
             decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(securityContext, generalCipheredResponse));
         } catch (DLMSConnectionException e) {
-            e.printStackTrace();
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         }
         deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(securityContext.getResponseSystemTitle());
 
@@ -190,19 +186,12 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         byte[] systemTitle = initializeDeviceIdentifier(inboundFrame.asReadOnlyBuffer());
         SecurityContext securityContext = getSecurityContext();
         securityContext.setResponseSystemTitle(systemTitle);
-        int remainingLength = inboundFrame.get() & 0xFF;
-        int securityPolicy = inboundFrame.get() & 0xFF;
 
-        ByteBuffer decryptedFrame;
-        byte[] cipherFrame = new byte[inboundFrame.remaining()];
-        inboundFrame.get(cipherFrame);
-        byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00, (byte) remainingLength, (byte) securityPolicy}, cipherFrame);
-        try {
-            decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportDecryption(securityContext, fullCipherFrame));
-        } catch (DLMSConnectionException e) {
-            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
-        }
+        byte[] remaining = new byte[inboundFrame.remaining()];
+        inboundFrame.get(remaining);
+        byte[] generalSignedResponse = ProtocolTools.concatByteArrays(new byte[]{DLMSCOSEMGlobals.GENERAL_SIGNING}, remaining);
 
+        ByteBuffer decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.unwrapGeneralSigning(securityContext, generalSignedResponse));
         deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(securityContext.getResponseSystemTitle());
 
         //Now parse the resulting APDU again, it could be a plain or a ciphered APDU.
@@ -289,6 +278,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     /**
      * It will initialize the deviceIdentifier object based on the system title then return the system title
+     *
      * @param inboundFrame
      * @return the system title
      */
@@ -305,16 +295,16 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
      * - long-invoke-id-and-priority (LONG)
      * - date-time (OCTET STRING, optional)
      * - notification-body (Data)
-     *         STRUCTURE {
-     *         Equipment-Identifier  OCTET STRING,  (RTU serial number)
-     *         Logical-Device-Id     Unsigned16     (Originating logical device (fixed to 1))
-     *         Event-Payload ::= STRUCTURE {
-     *             TimeStamp         COSEM DATE TIME   ( Timestamp of event )
-     *             Event-Code        Unsigned16        ( Event code )
-     *             Device-Code       Unsigned16        ( Device code )
-     *             Event-Message     OCTET-STRING      ( Additional message )
-     *             }
-     *         }
+     * STRUCTURE {
+     * Equipment-Identifier  OCTET STRING,  (RTU serial number)
+     * Logical-Device-Id     Unsigned16     (Originating logical device (fixed to 1))
+     * Event-Payload ::= STRUCTURE {
+     * TimeStamp         COSEM DATE TIME   ( Timestamp of event )
+     * Event-Code        Unsigned16        ( Event code )
+     * Device-Code       Unsigned16        ( Device code )
+     * Event-Message     OCTET-STRING      ( Additional message )
+     * }
+     * }
      */
     protected void parsePlainDataAPDU(ByteBuffer inboundFrame) {
 
@@ -544,7 +534,6 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 
-
     //TODO this might change in the RTU3
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
         String serialNumber = new String(systemTitle);
@@ -759,7 +748,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     protected void createCollectedLogBook(List<MeterEvent> meterEvents) {
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
-        for(MeterEvent meterEvent: meterEvents){
+        for (MeterEvent meterEvent : meterEvents) {
             meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(meterEvent));
         }
         collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
@@ -800,7 +789,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         }
     }
 
-    private int getAlarmRegister(ObisCode obisCode){
+    private int getAlarmRegister(ObisCode obisCode) {
         if (obisCode.equals(ObisCode.fromString("0.0.97.98.20.255"))) {
             return 1;
         } else if (obisCode.equals(ObisCode.fromString("0.0.97.98.21.255"))) {
@@ -813,12 +802,12 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         return sourceSAP;
     }
 
-    public int getDestinationSAP() {
-        return destinationSAP;
-    }
-
     public void setSourceSAP(int logicalDeviceID) {
         sourceSAP = logicalDeviceID;
+    }
+
+    public int getDestinationSAP() {
+        return destinationSAP;
     }
 
     public void setDestinationSAP(int clientID) {

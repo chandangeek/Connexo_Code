@@ -74,7 +74,8 @@ public class SELProperties implements ConfigurationSupport {
   
   public String getTimezone() {
     try {
-      return properties.getStringProperty(TIMEZONE);
+      String runningTz = properties.getStringProperty(TIMEZONE);
+      return (runningTz != null) ? runningTz : DEFAULT_TIMEZONE;
     } catch (Throwable t) {
       return DEFAULT_TIMEZONE;
     }

@@ -4,7 +4,6 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.XdlmsApduTags;
-import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
@@ -327,25 +326,44 @@ public class GeneralBlockTransferHandler {
         if (getDlmsV2Connection() instanceof SecureConnection) {
             SecureConnection secureConnection = (SecureConnection) getDlmsV2Connection();
 
+            // If it's a general-signing APDU, check its signature and unwrap it.
+            // Note that its contents can still be a ciphered APDU, it will be decrypted below.
+            byte cipheredTag = getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG];
+            if (cipheredTag == DLMSCOSEMGlobals.GENERAL_SIGNING) {
+                responseData = unwrapGeneralSigning(secureConnection, getResponseData());
+                cipheredTag = getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG];
+            }
+
             /* Check if security is applied or not */
-            if (secureConnection.getAso().getSecurityContext().getSecurityPolicy() != SecurityContext.SECURITYPOLICY_NONE) {
-                byte cipheredTag = getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG];
-                if (XdlmsApduTags.contains(cipheredTag)) {
-                    this.responseData = decrypt(secureConnection, getResponseData());
-                } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
-                    this.responseData = decryptGloOrDedGeneralCiphering(secureConnection, getResponseData());
-                } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
-
-                    //TODO general ciphering
-
-                } else {
-                    //TODO general signing
-
-                    IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG]);
-                    throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
+            if (XdlmsApduTags.isPlainTag(cipheredTag)) {
+                if (!secureConnection.getAso().getSecurityContext().getSecurityPolicy().isResponsePlain()) {
+                    ProtocolException protocolException = new ProtocolException("Received an unsecured response, this is not allowed according to the configured (minimum) security policy for responses. Aborting.");
+                    throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
                 }
+            } else if (XdlmsApduTags.contains(cipheredTag)) {
+                this.responseData = decrypt(secureConnection, getResponseData());
+            } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
+                this.responseData = decryptGloOrDedGeneralCiphering(secureConnection, getResponseData());
+            } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
+                this.responseData = decryptGeneralCiphering(secureConnection, getResponseData());
+            } else {
+                IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG]);
+                throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
             }
         }
+    }
+
+    private byte[] decryptGeneralCiphering(SecureConnection secureConnection, byte[] securedResponse) {
+        try {
+            return SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+        } catch (DLMSConnectionException e) {
+            //Invalid frame counter
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
+    }
+
+    private byte[] unwrapGeneralSigning(SecureConnection secureConnection, byte[] securedResponse) {
+        return SecurityContextV2EncryptionHandler.unwrapGeneralSigning(secureConnection.getAso().getSecurityContext(), securedResponse);
     }
 
     private byte[] decrypt(SecureConnection secureConnection, byte[] securedResponse) {
