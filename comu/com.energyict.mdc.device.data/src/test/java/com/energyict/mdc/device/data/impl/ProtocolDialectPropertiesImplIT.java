@@ -644,6 +644,11 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         }
 
         @Override
+        public String getDomainClassDisplayName() {
+            return this.getDomainClass().getName();
+        }
+
+        @Override
         public PersistenceSupport<DeviceProtocolDialectPropertyProvider, PersistentProtocolDialectProperties> getPersistenceSupport() {
             return new ProtocolDialectPropertiesPersistenceSupport();
         }

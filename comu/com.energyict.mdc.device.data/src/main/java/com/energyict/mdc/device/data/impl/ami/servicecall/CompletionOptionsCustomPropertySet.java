@@ -88,6 +88,11 @@ public class CompletionOptionsCustomPropertySet implements CustomPropertySet<Ser
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(CustomPropertySetsTranslationKeys.DOMAIN_NAME).format();
+    }
+
+    @Override
     public PersistenceSupport<ServiceCall, CompletionOptionsServiceCallDomainExtension> getPersistenceSupport() {
         return new MyPersistenceSupport();
     }

@@ -89,6 +89,11 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(CustomPropertySetsTranslationKeys.DOMAIN_NAME).format();
+    }
+
+    @Override
     public PersistenceSupport<ServiceCall, CommandServiceCallDomainExtension> getPersistenceSupport() {
         return new MyPersistenceSupport();
     }

@@ -5,12 +5,16 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.device.data.DeviceDataServices;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -33,15 +37,18 @@ public class OnDemandReadServiceCallCustomPropertySet implements CustomPropertyS
     public static final String CUSTOM_PROPERTY_SET_NAME = "OnDemandReadServiceCallCustomPropertySet";
 
     private volatile PropertySpecService propertySpecService;
+    private volatile Thesaurus thesaurus;
     private volatile CustomPropertySetService customPropertySetService;
 
     public OnDemandReadServiceCallCustomPropertySet() {
     }
 
     @Inject
-    public OnDemandReadServiceCallCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
-        this.propertySpecService = propertySpecService;
-        customPropertySetService.addCustomPropertySet(this);
+    public OnDemandReadServiceCallCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setCustomPropertySetService(customPropertySetService);
+        this.thesaurus = thesaurus;
     }
 
     @Reference
@@ -60,6 +67,11 @@ public class OnDemandReadServiceCallCustomPropertySet implements CustomPropertyS
         this.customPropertySetService.addCustomPropertySet(this);
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
     @Activate
     public void activate() {
     }
@@ -72,6 +84,11 @@ public class OnDemandReadServiceCallCustomPropertySet implements CustomPropertyS
     @Override
     public Class<ServiceCall> getDomainClass() {
         return ServiceCall.class;
+    }
+
+    @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(CustomPropertySetsTranslationKeys.DOMAIN_NAME).format();
     }
 
     @Override

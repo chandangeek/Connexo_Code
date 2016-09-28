@@ -40,6 +40,11 @@ public class ModemConnectionCustomPropertySet implements CustomPropertySet<Conne
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
+    }
+
+    @Override
     public PersistenceSupport<ConnectionProvider, ModemConnectionPropertyValues> getPersistenceSupport() {
         return new ModemConnectionPersistenceSupport();
     }
