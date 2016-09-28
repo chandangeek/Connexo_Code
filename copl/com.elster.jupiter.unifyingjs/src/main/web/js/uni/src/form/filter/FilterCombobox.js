@@ -12,7 +12,7 @@ Ext.define('Uni.form.filter.FilterCombobox', {
         var me = this;
         me.listConfig = {
             getInnerTpl: function () {
-                return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {' + me.displayField + '}</div>';
+                return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" style="  top: 2px; left: -2px; position: relative;" /> {' + me.displayField + '}</div>';
             }
         };
 

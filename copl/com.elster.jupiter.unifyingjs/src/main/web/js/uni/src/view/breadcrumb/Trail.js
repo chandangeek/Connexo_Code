@@ -30,7 +30,6 @@ Ext.define('Uni.view.breadcrumb.Trail', {
 
         if (me.rendered) {
             Ext.resumeLayouts(isHidden !== me.hidden);
-            me.doLayout();
         }
     },
 
