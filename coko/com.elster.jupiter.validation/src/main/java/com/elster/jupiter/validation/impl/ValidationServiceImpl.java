@@ -101,9 +101,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public class ValidationServiceImpl implements ValidationService, MessageSeedProvider, TranslationKeyProvider {
 
-    public static final String DESTINATION_NAME = "DataValidation";
+    static final String DESTINATION_NAME = "DataValidation";
     public static final String SUBSCRIBER_NAME = "DataValidation";
-    public static final String VALIDATION_USER = "validation";
+    static final String VALIDATION_USER = "validation";
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
@@ -181,9 +181,13 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         });
         this.registerDataValidationKpiService(context);
         this.registerDataValidationReportService(context);
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                Version.version(10, 2), UpgraderV10_2.class
-        ));
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", COMPONENTNAME),
+                dataModel,
+                InstallerImpl.class,
+                ImmutableMap.of(
+                    Version.version(10, 2), UpgraderV10_2.class
+                ));
     }
 
     @Deactivate

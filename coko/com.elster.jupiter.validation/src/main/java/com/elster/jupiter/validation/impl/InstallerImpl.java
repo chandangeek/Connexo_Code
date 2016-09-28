@@ -27,8 +27,6 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 public class InstallerImpl implements FullInstaller, PrivilegesProvider {
-    private static final String DESTINATION_NAME = ValidationServiceImpl.DESTINATION_NAME;
-    public static final String SUBSCRIBER_NAME = ValidationServiceImpl.SUBSCRIBER_NAME;
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
@@ -98,7 +96,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     private void createMessageHandlers() {
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         this.createMessageHandler(defaultQueueTableSpec, DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
-        this.createMessageHandler(defaultQueueTableSpec, DESTINATION_NAME, TranslationKeys.MESSAGE_SPEC_SUBSCRIBER);
+        this.createMessageHandler(defaultQueueTableSpec, ValidationServiceImpl.DESTINATION_NAME, TranslationKeys.MESSAGE_SPEC_SUBSCRIBER);
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName) {
