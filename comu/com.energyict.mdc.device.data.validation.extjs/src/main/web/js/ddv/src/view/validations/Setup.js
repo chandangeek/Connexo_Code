@@ -45,6 +45,7 @@ Ext.define('Ddv.view.validations.Setup', {
                 dockedItems: [
                     {
                         dock: 'top',
+                        itemId: 'ddv-validations-filter-panel-top',
                         xtype: 'ddv-validations-filter'
                     }
                 ]
