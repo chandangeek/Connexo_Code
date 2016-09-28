@@ -29,6 +29,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 
@@ -57,6 +58,7 @@ final class ExportTaskImpl implements IExportTask {
     private String dataSelector;
     private transient ScheduleExpression scheduleExpression;
     private transient Instant nextExecution;
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private List<DataExportProperty> properties = new ArrayList<>();
@@ -64,9 +66,13 @@ final class ExportTaskImpl implements IExportTask {
     private transient boolean scheduleImmediately;
     private transient boolean recurrentTaskDirty;
     private transient boolean propertiesDirty;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
     @Valid
     private Reference<IStandardDataSelector> readingTypeDataSelector = Reference.empty();
@@ -140,8 +146,8 @@ final class ExportTaskImpl implements IExportTask {
 
         List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForFormatter(dataFormatter);
         List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(dataSelector);
-        List<DataExportProperty> processorProperties = new ArrayList<DataExportProperty>();
-        List<DataExportProperty> selectorProperties = new ArrayList<DataExportProperty>();
+        List<DataExportProperty> processorProperties = new ArrayList<>();
+        List<DataExportProperty> selectorProperties = new ArrayList<>();
         for (DataExportProperty property : properties) {
             for (PropertySpec processorPropertySpec : propertiesSpecsForProcessor) {
                 if (property.instanceOfSpec(processorPropertySpec)) {
