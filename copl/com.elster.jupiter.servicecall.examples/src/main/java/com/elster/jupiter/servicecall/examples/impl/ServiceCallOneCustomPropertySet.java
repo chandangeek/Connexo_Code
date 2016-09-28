@@ -61,6 +61,11 @@ public class ServiceCallOneCustomPropertySet implements CustomPropertySet<Servic
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Service call";
+    }
+
+    @Override
     public PersistenceSupport<ServiceCall, ServiceCallDomainExtension> getPersistenceSupport() {
         return new RegisterTypeFivePersistenceSupport();
     }
