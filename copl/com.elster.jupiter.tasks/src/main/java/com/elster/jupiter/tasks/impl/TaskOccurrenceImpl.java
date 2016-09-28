@@ -169,6 +169,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         return new TaskOccurrenceMessage(this);
     }
 
+    @Override
     public void start() {
         if (TaskStatus.NOT_EXECUTED_YET.equals(status)) {
             this.startDate = clock.instant();
