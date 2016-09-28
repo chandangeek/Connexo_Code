@@ -102,10 +102,6 @@ public class NlsModule extends AbstractModule {
             }
         }
 
-        @Override
-        public boolean hasKey(String key){
-            return false;
-        }
     }
 
 }
