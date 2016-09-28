@@ -2,10 +2,13 @@ package com.elster.jupiter.tasks;
 
 import com.elster.jupiter.util.logging.LogEntryFinder;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface TaskOccurrence {
 
     String getPayLoad();

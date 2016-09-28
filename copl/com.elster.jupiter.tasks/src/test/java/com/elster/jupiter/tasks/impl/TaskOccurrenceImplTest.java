@@ -2,6 +2,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -51,6 +52,8 @@ public class TaskOccurrenceImplTest {
     private ValidatorFactory validatorFactory;
     @Mock
     private Validator validator;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
