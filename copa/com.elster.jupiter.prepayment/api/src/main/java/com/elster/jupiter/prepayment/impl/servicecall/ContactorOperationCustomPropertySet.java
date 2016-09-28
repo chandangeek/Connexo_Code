@@ -89,6 +89,11 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationSeeds.CPS_DOMAIN_NAME).format();
+    }
+
+    @Override
     public PersistenceSupport<ServiceCall, ContactorOperationDomainExtension> getPersistenceSupport() {
         return new MyPersistenceSupport();
     }

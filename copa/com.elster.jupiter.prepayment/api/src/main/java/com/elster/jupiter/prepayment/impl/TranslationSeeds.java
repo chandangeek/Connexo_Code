@@ -1,12 +1,14 @@
 package com.elster.jupiter.prepayment.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.servicecall.ServiceCall;
 
 /**
  * Created by bvn on 7/13/15.
  */
 public enum TranslationSeeds implements TranslationKey {
 
+    CPS_DOMAIN_NAME(ServiceCall.class.getName(), "Service call"),
     CONNECTION_TASK_STATUS_INCOMPLETE("Incomplete" , "Incomplete"),
     CONNECTION_TASK_STATUS_ACTIVE("Active", "Active"),
     CONNECTION_TASK_STATUS_INACTIVE("Inactive", "Inactive"),
