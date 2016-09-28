@@ -33,7 +33,7 @@ class TranslationCsvEntry {
     private final String translation;
 
     static TranslationCsvEntry parseFrom(String csvLine, Locale locale, String separator) {
-        String[] values = csvLine.split(separator, 4);
+        String[] values = csvLine.split(separator, 5);
         return new TranslationCsvEntry(locale, values[0], values[1], values[2], values[3]);
     }
 
@@ -107,6 +107,11 @@ class TranslationCsvEntry {
                 .add("layerAsString", this.layerAsString)
                 .add("key", this.key)
                 .toString();
+    }
+
+    public static void main(String[] args) {
+        TranslationCsvEntry csvEntry = parseFrom("APR;REST;appServers.configureWebServicesSuccess;Webservice-Endpunkte gespeichert;", Locale.GERMANY, ";");
+        System.out.println("csvEntry = " + csvEntry);
     }
 
 }
