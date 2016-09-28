@@ -42,7 +42,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                             route: '{name}/{version}/activate',
                             controller: 'Bpm.processes.controller.Processes',
                             privileges: Bpm.privileges.BpmManagement.administrateProcesses,
-                            action: 'editProcess',
+                            action: 'activateProcess',
                             params: {
                                 activate: true
                             },
