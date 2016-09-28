@@ -48,7 +48,7 @@ public class CustomPropertySetInfoFactory {
             info.customPropertySetId = cps.getId();
             info.name = cps.getName();
             info.domainNameUntranslated = cps.getDomainClass().getName();
-            info.domainName = thesaurus.getStringBeyondComponent(info.domainNameUntranslated, info.domainNameUntranslated);
+            info.domainName = cps.getDomainClassDisplayName();
 
             info.isVersioned = cps.isVersioned();
             info.isRequired = cps.isRequired();

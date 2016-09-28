@@ -15,6 +15,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Pair;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -73,9 +74,9 @@ public class CustomPropertySetResource {
     public PagedInfoList getDomains(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         List<IdWithDisplayValueInfo> domainExtensions = customPropertySetService.findActiveCustomPropertySets()
                 .stream()
-                .map(m -> m.getCustomPropertySet().getDomainClass().getName())
+                .map(m -> Pair.of(m.getCustomPropertySet().getDomainClass().getName(), m.getCustomPropertySet().getDomainClassDisplayName()))
                 .distinct()
-                .map(domainExtension -> new IdWithDisplayValueInfo<>(domainExtension, thesaurus.getStringBeyondComponent(domainExtension, domainExtension)))
+                .map(pair -> new IdWithDisplayValueInfo<>(pair.getFirst(), pair.getLast()))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("domainExtensions", domainExtensions, queryParameters);
     }
