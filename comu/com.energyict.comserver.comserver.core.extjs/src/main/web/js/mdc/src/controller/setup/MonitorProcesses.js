@@ -96,7 +96,7 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                 var widget;
 
                 me.getApplication().fireEvent('loadDevice', device);
-
+                viewport.setLoading(false);
                 widget = Ext.widget('device-processes-start', {
                     device: device,
                     properties: {
@@ -125,7 +125,7 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
-                viewport.setLoading(false);
+
 
             },
             failure: function (response) {
@@ -146,7 +146,7 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                 var widget;
 
                 me.getApplication().fireEvent('usagePointLoaded', usagepoint);
-
+                viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-start', {
                     router: me.getController('Uni.controller.history.Router'),
                     mRID: usagepoint,
@@ -175,7 +175,6 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getOverviewLink().setText(usagepoint.get('mRID'));
-                viewport.setLoading(false);
             },
             failure: function (response) {
                 viewport.setLoading(false);
