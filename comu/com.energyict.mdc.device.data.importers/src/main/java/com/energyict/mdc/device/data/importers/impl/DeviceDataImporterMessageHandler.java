@@ -14,6 +14,7 @@ import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -21,8 +22,9 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.device.data.importers.DeviceDataImporterMessageHandler",
         service = {MessageHandlerFactory.class, TranslationKeyProvider.class, MessageSeedProvider.class},
@@ -80,7 +82,13 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
                 bind(MessageService.class).toInstance(messageService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceDataImporterMessageHandler.COMPONENT), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(
+                InstallIdentifier.identifier("MultiSense", DeviceDataImporterMessageHandler.COMPONENT),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        version(10, 2), UpgraderV10_2.class
+                ));
     }
 
     @Reference
