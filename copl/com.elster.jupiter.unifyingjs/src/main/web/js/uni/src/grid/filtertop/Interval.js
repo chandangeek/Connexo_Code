@@ -351,7 +351,6 @@ Ext.define('Uni.grid.filtertop.Interval', {
         me.getToHourField().reset();
         me.getToMinuteField().reset();
 
-        debugger;
         me.getClearButton().setDisabled(true);
         me.updateTitle();
         me.fireEvent('filtervaluechange');

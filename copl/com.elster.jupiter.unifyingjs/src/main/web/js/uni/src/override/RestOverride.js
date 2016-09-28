@@ -6,6 +6,18 @@
 Ext.define('Uni.override.RestOverride', {
     override: 'Ext.data.proxy.Rest',
 
+    setParams: function() {
+        var
+            me = this,
+            params = arguments;
+
+        if (this.url) {
+            _.map(me.url.match(/\{[^\}]+\}/g), function(param, idx) {
+                me.setExtraParam(param.slice(1, -1), params[idx]);
+            });
+        }
+    },
+
     buildUrl: function (request) {
         var me = this,
             operation = request.operation,
