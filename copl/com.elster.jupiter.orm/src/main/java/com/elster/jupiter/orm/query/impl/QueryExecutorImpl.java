@@ -72,16 +72,16 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 
     @Override
     public SqlFragment asFragment(Condition condition, String... fieldNames) {
-        return new JoinExecutor<>(root.copy(), getEffectiveDate()).getSqlBuilder(condition, fieldNames, Order.NOORDER);
+        return new JoinExecutor<>(root.copy(), getEffectiveDate()).getSqlBuilder(restriction.and(condition), fieldNames, Order.NOORDER);
     }
 
     @Override
     public SqlFragment asFragment(Condition condition, String[] fieldNames, Order[] orderBy) {
-        return new JoinExecutor<>(root.copy(), getEffectiveDate()).getSqlBuilder(condition, fieldNames, orderBy);
+        return new JoinExecutor<>(root.copy(), getEffectiveDate()).getSqlBuilder(restriction.and(condition), fieldNames, orderBy);
     }
 
     public SqlFragment asFragment(Condition condition, int from, int to, String[] fieldNames, Order[] orderBy) {
-        return new JoinExecutor<>(root.copy(), getEffectiveDate(), from, to).getSqlBuilder(condition, fieldNames, orderBy);
+        return new JoinExecutor<>(root.copy(), getEffectiveDate(), from, to).getSqlBuilder(restriction.and(condition), fieldNames, orderBy);
     }
 
     public Object convert(String fieldName, String value) {
