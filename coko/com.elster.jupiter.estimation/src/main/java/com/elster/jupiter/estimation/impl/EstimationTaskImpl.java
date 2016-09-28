@@ -178,6 +178,10 @@ final class EstimationTaskImpl implements IEstimationTask {
     @Override
     public void triggerNow() {
         recurrentTask.get().triggerNow();
+        Optional<TaskOccurrence> lastOccurence = recurrentTask.get().getLastOccurrence();
+        if(lastOccurence.isPresent() && lastOccurence.get().getStatus().equals(TaskStatus.NOT_EXECUTED_YET)){
+            lastOccurence.get().start();
+        }
     }
 
     @Override
