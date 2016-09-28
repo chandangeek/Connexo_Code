@@ -674,6 +674,11 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         }
 
         @Override
+        public String getDomainClassDisplayName() {
+            return this.getDomainClass().getName();
+        }
+
+        @Override
         public PersistenceSupport<UsagePoint, AntennaDetails> getPersistenceSupport() {
             return new AntennaDetailsPersistenceSupport();
         }

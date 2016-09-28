@@ -65,6 +65,11 @@ public class UsagePointTestCustomPropertySet implements CustomPropertySet<UsageP
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
+    }
+
+    @Override
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec nameSpec = this.propertySpecService.stringSpec()
                 .named(CustomPropertySetAttributes.NAME.propertyKey(), CustomPropertySetAttributes.NAME.propertyKey())
