@@ -511,7 +511,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                 .setAddressDetail(location.get(ranking.get("addressDetail")))
                 .setZipCode(location.get(ranking.get("zipCode")))
                 .isDaultLocation(true)
-                .setLocale(location.get(ranking.get("locale")));
+                .setLocale(data.getLocation().get(ranking.get("locale")) == null || data.getLocation().get(ranking.get("locale")).equals("") ? "en" : data.getLocation().get(ranking.get("locale")));
         return builder;
     }
 }
