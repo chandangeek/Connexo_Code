@@ -561,6 +561,21 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final Instant sentDate, final String protocolInformation) {
         DeviceMessage deviceMessage = messageIdentifier.getDeviceMessage();
+        try {
+            updateDeviceMessage(newDeviceMessageStatus, sentDate, protocolInformation, deviceMessage);
+        } catch (OptimisticLockException e) { // if someone tried to update the message while the ComServer was executing it ...
+            DeviceMessage<Device> reloadedDeviceMessage = getDeviceDataService().findDeviceById(deviceMessage.getDevice().getId())
+                    .get()
+                    .getMessages()
+                    .stream()
+                    .filter(deviceDeviceMessage -> deviceDeviceMessage.getId() == deviceMessage.getId())
+                    .findAny()
+                    .get();
+            updateDeviceMessage(newDeviceMessageStatus, sentDate, protocolInformation, reloadedDeviceMessage);
+        }
+    }
+
+    private void updateDeviceMessage(DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation, DeviceMessage deviceMessage) {
         deviceMessage.setSentDate(sentDate);
         deviceMessage.setProtocolInformation(protocolInformation);
         deviceMessage.updateDeviceMessageStatus(newDeviceMessageStatus);
