@@ -7,7 +7,7 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
     itemsDefaultConfig: {},
 
     getField: function() {
-        return this.down('#filter-input')
+        return this.down('#filter-input');
     },
 
     isValid: function() {
@@ -32,7 +32,10 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
     },
 
     onChange: function() {
-        this.getField().validate();
+        if (this.validateOnChange) {
+            this.getField().validate();
+        }
+
         this.fireEvent('change', this, this.getValue());
     },
 

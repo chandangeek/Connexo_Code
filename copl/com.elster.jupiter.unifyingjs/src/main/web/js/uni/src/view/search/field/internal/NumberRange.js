@@ -30,8 +30,11 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
     },
 
     onChange: function () {
-        this.down('#from').validate();
-        this.down('#to').validate();
+        if (this.validateOnChange) {
+            this.down('#from').validate();
+            this.down('#to').validate();
+        }
+
         this.fireEvent('change', this, this.getValue());
     },
 
@@ -60,6 +63,7 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
             {
                 xtype: 'uni-search-internal-numberfield',
                 itemId: 'from',
+                validateOnChange: me.validateOnChange,
                 itemsDefaultConfig: me.itemsDefaultConfig,
                 listeners: {
                     change: function (field, newValue) {
@@ -71,6 +75,7 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
             {
                 xtype: 'uni-search-internal-numberfield',
                 itemId: 'to',
+                validateOnChange: me.validateOnChange,
                 itemsDefaultConfig: me.itemsDefaultConfig,
                 listeners: {
                     change: function (field, newValue) {

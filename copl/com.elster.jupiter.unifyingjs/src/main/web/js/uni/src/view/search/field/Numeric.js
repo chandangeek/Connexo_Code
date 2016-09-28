@@ -7,6 +7,7 @@ Ext.define('Uni.view.search.field.Numeric', {
     ],
     items: [],
     itemsDefaultConfig: {},
+    validateOnChange: true,
     minWidth: 455,
     defaults: {
         margin: 0,
@@ -48,6 +49,7 @@ Ext.define('Uni.view.search.field.Numeric', {
         return Ext.apply({
             xtype: 'uni-search-internal-criterialine',
             itemsDefaultConfig: me.itemsDefaultConfig,
+            validateOnChange: me.validateOnChange,
             width: '455',
             operator: '==',
             removable: false,
@@ -66,7 +68,7 @@ Ext.define('Uni.view.search.field.Numeric', {
                     scope: me
                 }
             }
-        }, config)
+        }, config);
     },
 
     initComponent: function () {

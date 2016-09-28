@@ -9,6 +9,7 @@ Ext.define('Uni.grid.filtertop.Numeric', {
     ],
     initComponent: function () {
         var me = this;
+
         me.items = [
             {
                 xtype: 'button',
@@ -21,13 +22,7 @@ Ext.define('Uni.grid.filtertop.Numeric', {
                         width: 100,
                         xtype: 'uni-search-criteria-numeric',
                         itemId: 'uni-search-criteria-numeric',
-                        listeners: {
-                            change: function(cmp, value) {
-                                if (value) {
-                                    me.down('button[action=apply]').setDisabled(!cmp.isValid())
-                                }
-                            }
-                        }
+                        validateOnChange: false
                     }
                 ]
             }
@@ -67,9 +62,11 @@ Ext.define('Uni.grid.filtertop.Numeric', {
     onApplyValues: function () {
         var me = this;
 
-        me.fireFilterUpdateEvent();
-        me.down('button[action=chooseValues]').hideMenu();
-        me.updateTitle();
+        if (me.down('uni-search-criteria-numeric').isValid()) {
+            me.fireFilterUpdateEvent();
+            me.down('button[action=chooseValues]').hideMenu();
+            me.updateTitle();
+        }
     },
 
     onClearValues: function () {
