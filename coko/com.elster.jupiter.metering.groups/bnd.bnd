@@ -2,4 +2,4 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.metering.groups.impl,\
     com.elster.jupiter.metering.groups.impl.query
-Export-Package: com.elster.jupiter.metering.groups
+Export-Package: com.elster.jupiter.metering.groups, com.elster.jupiter.metering.groups.spi

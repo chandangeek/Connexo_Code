@@ -1,4 +1,8 @@
-package com.elster.jupiter.metering.groups;
+/*
+ * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.elster.jupiter.metering.groups.spi;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
