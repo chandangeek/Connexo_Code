@@ -150,9 +150,11 @@ Ext.define('Bpm.processes.controller.Processes', {
     editProcess: function (name, version, activate) {
         var me = this,
             editProcessModel = me.getModel('Bpm.processes.model.EditProcess'),
-            view = Ext.widget('bpm-edit-process');
+            view = Ext.widget('bpm-edit-process'),
+            viewport = Ext.ComponentQuery.query('viewport')[0];
 
         // load associations store
+        viewport.setLoading();
         me.getAssociatedCombo().getStore().load({
             callback: function (records, operation, success) {
 
@@ -183,19 +185,69 @@ Ext.define('Bpm.processes.controller.Processes', {
                 });
             }
         });
-        return;
+    },
+
+    activateProcess: function (name, version, activate) {
+        var me = this,
+            editProcessModel = me.getModel('Bpm.processes.model.EditProcess'),
+            view = Ext.widget('bpm-edit-process'),
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        // load associations store
+        viewport.setLoading();
+        me.getAssociatedCombo().getStore().load({
+            callback: function (records, operation, success) {
+
+                // load privileges store
+                me.getStore('Bpm.processes.store.Privileges').load({
+                    callback: function (records, operation, success) {
+
+                        editProcessModel.getProxy().extraParams = {
+                            version: version,
+                            association: me.getAssociatedCombo().getStore().first().get('type')
+                        };
+
+                        editProcessModel.getProxy().setUrl('/api/bpm/runtime/process');
+                        editProcessModel.load(name, {
+                            success: function (process) {
+                                if (process.get('type') != '') {
+                                    editProcessModel.getProxy().extraParams = {
+                                        version: version,
+                                        association: process.get('type')
+                                    };
+                                    editProcessModel.load(name, {
+                                        success: function (process) {
+                                            me.getAssociatedCombo().setValue(process.get('type'));
+                                            me.loadEditProcess(name, version, activate, process, view);
+                                        }
+                                    });
+                                }
+                                else {
+                                    me.loadEditProcess(name, version, activate, process, view);
+                                }
+                            },
+                            failure: function (record, operation) {
+                                view.destroy();
+                            }
+                        });
+                    }
+                });
+            }
+        });
     },
 
     loadEditProcess: function (name, version, activate, record, view) {
         var me = this,
             editProcessForm = view.down('#frm-edit-process'),
-            privilegesGrid, propertyForm;
+            privilegesGrid, propertyForm,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
         me.getApplication().fireEvent('changecontentevent', view);
 
         editProcessForm.editProcessRecord = record;
         me.getApplication().fireEvent(activate ? 'activateProcesses' : 'editProcesses', name + ':' + version);
 
-        if (activate) {
+        if (record.get('type') == '') {
             me.getAssociatedCombo().setValue(me.getAssociatedCombo().getStore().first().get(me.getAssociatedCombo().valueField));
         }
         else {
@@ -229,6 +281,7 @@ Ext.define('Bpm.processes.controller.Processes', {
         else {
             editProcessForm.setTitle(Uni.I18n.translate('editProcess.edit', 'BPM', "Edit '{0}'", name + ':' + version));
         }
+        viewport.setLoading(false);
     },
 
     updateAssociatedData: function (control, records) {
