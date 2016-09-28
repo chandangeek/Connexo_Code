@@ -103,6 +103,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                             {
                                 ui: 'medium',
                                 xtype: 'panel',
+                                style: 'padding-left: 0; padding-right: 0',
                                 title: Uni.I18n.translate('general.purposes', 'IMT', 'Purposes'),
                                 itemId: 'metrology-configuration-purposes-panel',
                                 items: [
@@ -149,6 +150,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
         if (!Ext.isEmpty(me.meterRolesAvailable)) {
             me.down('#metrology-configuration-details-form').insert(2, {
                 xtype: 'meter-roles-grid',
+                style: 'padding-left: 0; padding-right: 0',
                 store: meterRolesStore,
                 router: me.router,
                 itemId: 'metrology-configuration-meter-roles-grid'
