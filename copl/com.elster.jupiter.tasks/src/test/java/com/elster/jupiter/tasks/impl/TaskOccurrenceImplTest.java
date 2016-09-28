@@ -10,12 +10,6 @@ import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -25,6 +19,13 @@ import java.util.HashSet;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.anyObject;
@@ -54,7 +55,7 @@ public class TaskOccurrenceImplTest {
     @Before
     public void setUp() {
         when(dataModel.getInstance(RecurrentTaskImpl.class)).thenReturn(new RecurrentTaskImpl(dataModel, mock(ScheduleExpressionParser.class), mock(MessageService.class), mock(JsonService.class), clock));
-        when(dataModel.getInstance(TaskOccurrenceImpl.class)).thenAnswer(invocation -> new TaskOccurrenceImpl(dataModel, clock));
+        when(dataModel.getInstance(TaskOccurrenceImpl.class)).thenAnswer(invocation -> new TaskOccurrenceImpl(dataModel, clock, thesaurus));
         when(dataModel.getInstance(TaskLogEntryImpl.class)).thenAnswer(invocation -> new TaskLogEntryImpl());
         when(dataModel.mapper(RecurrentTask.class)).thenReturn(mapper);
         when(dataModel.mapper(TaskOccurrence.class)).thenReturn(occurrenceMapper);

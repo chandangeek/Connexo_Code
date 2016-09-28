@@ -20,6 +20,14 @@ public interface TaskOccurrence {
 
     TaskStatus getStatus();
 
+    /**
+     * Returns the name of the status of this TaskOccurrence
+     * in the user's preferred language.
+     *
+     * @return The name of the status of this TaskOccurrence
+     */
+    String getStatusName();
+
     void save();
 
     long getId();
