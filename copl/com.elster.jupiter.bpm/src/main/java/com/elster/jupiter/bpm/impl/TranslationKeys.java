@@ -5,7 +5,6 @@
 package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.BpmAppService;
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.nls.TranslationKey;
 
 /**
@@ -16,7 +15,7 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum TranslationKeys implements TranslationKey {
     APPLICATION(BpmAppService.APPLICATION_KEY, BpmAppService.APPLICATION_NAME),
-    QUEUE_SUBSCRIBER(BpmService.BPM_QUEUE_SUBSC, BpmService.BPM_QUEUE_DISPLAYNAME);
+    QUEUE_SUBSCRIBER(BpmServiceImpl.BPM_QUEUE_SUBSC, BpmServiceImpl.BPM_QUEUE_DISPLAYNAME);
 
     private final String key;
     private final String defaultFormat;

@@ -12,9 +12,6 @@ import java.util.Optional;
 @ProviderType
 public interface BpmService {
     String COMPONENTNAME = "BPM";
-    String BPM_QUEUE_DEST = "BpmQueueDest";
-    String BPM_QUEUE_SUBSC = "BpmQueueSubsc";
-    String BPM_QUEUE_DISPLAYNAME = "Handle Connexo Flow";
 
     @Deprecated
     List<String> getProcesses();

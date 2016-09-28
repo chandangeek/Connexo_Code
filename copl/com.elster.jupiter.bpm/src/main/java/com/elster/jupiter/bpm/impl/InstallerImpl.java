@@ -96,7 +96,7 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     private void createBPMQueue() {
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(BpmService.BPM_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
+        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(BpmServiceImpl.BPM_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
         destinationSpec.activate();
         destinationSpec.subscribe(TranslationKeys.QUEUE_SUBSCRIBER, BpmService.COMPONENTNAME, Layer.DOMAIN);
     }
