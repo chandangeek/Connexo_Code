@@ -50,6 +50,7 @@ public final class DLMSConfig {
 	private static final DLMSConfig ACTIVITYCALENDAR = new DLMSConfig("",20,0,0,13,0,0,255);
 	private static final DLMSConfig SPECIALDAYS = new DLMSConfig("",11,0,0,11,0,0,255);
     private static final DLMSConfig SFSKPhyMacSetupSN = new DLMSConfig("",50,0,0,26,0,0,255);
+	private static final DLMSConfig USBSETUP = new DLMSConfig("",0,0,0,128,0,28,255);
 
 
 	private static final DLMSConfig[] configchange = {
@@ -1256,6 +1257,17 @@ public final class DLMSConfig {
         checkEmptyObjectList(objectList, "DLMSConfig, GPRSModemSetup, objectlist empty!");
         for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(GPRSMODEMSETUP)) {
+				return objectList[i].getBaseName();
+			}
+		}
+		return 0;
+	}
+
+
+	public int getUSBSetupSN(UniversalObject[] objectList) throws NotInObjectListException{
+		checkEmptyObjectList(objectList, "DLMSConfig, USBSetup, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(USBSETUP)) {
 				return objectList[i].getBaseName();
 			}
 		}

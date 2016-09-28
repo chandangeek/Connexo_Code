@@ -26,6 +26,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String PSK_ENCRYPTION_KEY = "PSKEncryptionKey";
     public static final String DLMS_WAN_KEK = "DlmsWanKEK";
     public static final String POLLING_DELAY = "PollingDelay";
+    public static final String REQUEST_AUTHENTICATED_FRAME_COUNTER = "RequestAuthenticatedFrameCounter";
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
@@ -35,18 +36,23 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(dlmsWANKEKPropertySpec());
         optionalProperties.add(pskEncryptionKeyPropertySpec());
         optionalProperties.add(generalCipheringKeyTypePropertySpec());
+        optionalProperties.add(pollingDelayPropertySpec());
+        optionalProperties.add(requestAuthenticatedFrameCounter());
         optionalProperties.add(clientPrivateSigningKeyPropertySpec());
         optionalProperties.add(clientPrivateKeyAgreementKeyPropertySpec());
         optionalProperties.add(clientSigningCertificate());
         optionalProperties.add(serverTLSCertificate());
         optionalProperties.add(callingAPTitlePropertySpec());
-        optionalProperties.add(pollingDelayPropertySpec());
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
         optionalProperties.remove(fixMbusHexShortIdPropertySpec());
         optionalProperties.remove(serverLowerMacAddressPropertySpec()); //Only TCP connection is supported, so no use for server lower mac address
         optionalProperties.remove(deviceId());
         return optionalProperties;
+    }
+
+    private PropertySpec requestAuthenticatedFrameCounter() {
+        return PropertySpecFactory.booleanPropertySpec(REQUEST_AUTHENTICATED_FRAME_COUNTER);
     }
 
     private PropertySpec pollingDelayPropertySpec() {

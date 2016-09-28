@@ -1,26 +1,43 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
+import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.EventPushNotificationConfig;
+
+import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedRegisterList;
+import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.inbound.g3.DummyComChannel;
 import com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.SecurityProperty;
+
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
@@ -28,9 +45,11 @@ import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130Properties;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
+import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_TIMEZONE;
@@ -44,29 +63,76 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
  * @author sva
  * @since 13/04/2015 - 16:45
  */
-public class DataPushNotificationParser extends EventPushNotificationParser {
+public class DataPushNotificationParser {
 
     CollectedRegisterList collectedRegisters;
+    private ComChannel comChannel;
+    public InboundDAO inboundDAO;
+    public InboundComPort inboundComPort;
+    protected final ObisCode logbookObisCode;
+    protected DeviceIdentifier deviceIdentifier;
+    private DeviceProtocolSecurityPropertySet securityPropertySet;
+    protected CollectedLogBook collectedLogBook;
+
+    private static final ObisCode DEFAULT_OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
+    private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
 
     public DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
-        super(comChannel, context);
+        this.comChannel = comChannel;
+        this.inboundDAO = context.getInboundDAO();
+        this.inboundComPort = context.getComPort();
+        this.logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
     }
 
-    @Override
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
         String serverSystemTitle = ProtocolTools.getHexStringFromBytes(systemTitle, "");
         serverSystemTitle = serverSystemTitle.replace("454C53", "ELS-");      // Replace HEX 454C53 by its ASCII 'ELS'
         return new DialHomeIdDeviceIdentifier(serverSystemTitle);
     }
 
-    @Override
     protected DlmsProperties getNewInstanceOfProperties() {
         return new AM130Properties();
     }
 
-    @Override
     protected byte getCosemNotificationAPDUTag() {
         return DLMSCOSEMGlobals.COSEM_DATA_NOTIFICATION;
+    }
+
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
+    }
+
+    public void parseInboundFrame() {
+        ByteBuffer inboundFrame = readInboundFrame();
+        byte[] header = new byte[8];
+        inboundFrame.get(header);
+        byte tag = inboundFrame.get();
+        if (tag == getCosemNotificationAPDUTag()) {
+            parseAPDU(inboundFrame);
+        } else if (tag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING) {
+            parseEncryptedFrame(inboundFrame);
+        } else {
+            //TODO support general ciphering & general signing (suite 0, 1 and 2)
+            throw DataParseException.ioException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" + getCosemNotificationAPDUTag() + "' or '" + DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "'"));
+        }
+    }
+
+    public ByteBuffer readInboundFrame() {
+        byte[] header = new byte[8];
+        getComChannel().startReading();
+        int readBytes = getComChannel().read(header);
+        if (readBytes != 8) {
+            throw DataParseException.ioException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
+        }
+
+        int length = ProtocolTools.getIntFromBytes(header, 6, 2);
+
+        byte[] frame = new byte[length];
+        readBytes = getComChannel().read(frame);
+        if (readBytes != length) {
+            throw DataParseException.ioException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
+        }
+        return ByteBuffer.wrap(ProtocolTools.concatByteArrays(header, frame));
     }
 
     /**
@@ -75,8 +141,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
      * - date-time (OCTET STRING)
      * - notification-body
      */
-    @Override
-    protected void parsePlainAPDU(ByteBuffer inboundFrame) {
+    protected void parseAPDU(ByteBuffer inboundFrame) {
         // 1. long-invoke-id-and-priority
         byte[] invokeIdAndPriority = new byte[4];   // 32-bits long format used
         inboundFrame.get(invokeIdAndPriority);
@@ -110,7 +175,77 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
         parseRegisters(structure);
     }
 
-    private void parseRegisters(Structure structure) {
+    protected void parseEncryptedFrame(ByteBuffer inboundFrame) {
+        int systemTitleLength = inboundFrame.get() & 0xFF;
+        byte[] systemTitle = new byte[systemTitleLength];
+        inboundFrame.get(systemTitle);
+        deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(systemTitle);
+
+        int remainingLength = inboundFrame.get() & 0xFF;
+        int securityPolicy = inboundFrame.get() & 0xFF;
+
+        if (getSecurityPropertySet().getEncryptionDeviceAccessLevel() != (securityPolicy / 16)) {
+            throw DataParseException.ioException(new ProtocolException(
+                    "Security mismatch: received incoming event push notification encrypted with security policy " + (securityPolicy / 16) + ", but device in EIServer is configured with security level " + getSecurityPropertySet().getEncryptionDeviceAccessLevel()));
+        }
+
+        SecurityContext securityContext = getSecurityContext();
+        securityContext.setResponseSystemTitle(systemTitle);
+
+        ByteBuffer decryptedFrame;
+        byte[] cipherFrame = new byte[inboundFrame.remaining()];
+        inboundFrame.get(cipherFrame);
+        byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00, (byte) remainingLength, (byte) securityPolicy}, cipherFrame);
+        try {
+            decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportDecryption(securityContext, fullCipherFrame));
+        } catch (DLMSConnectionException e) {
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
+        byte plainTag = decryptedFrame.get();
+        if (plainTag != getCosemEventNotificationAPDUTag()) {
+            throw DataParseException.ioException(new ProtocolException("Unexpected tag after decrypting an incoming event push notification: " + plainTag + ", expected " + getCosemEventNotificationAPDUTag()));
+        }
+
+        parseAPDU(decryptedFrame);
+    }
+
+    public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
+        if (securityPropertySet == null) {
+            List<SecurityProperty> securityProperties = inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, inboundComPort);
+            if (securityProperties != null && !securityProperties.isEmpty()) {
+                this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(securityProperties);
+            } else {
+                throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
+            }
+        }
+        return this.securityPropertySet;
+    }
+
+    protected SecurityContext getSecurityContext() {
+        DlmsProperties securityProperties = getNewInstanceOfProperties();
+        securityProperties.setSecurityPropertySet(getSecurityPropertySet());
+        securityProperties.addProperties(getSecurityPropertySet().getSecurityProperties());
+
+        DummyComChannel dummyComChannel = new DummyComChannel();    //Dummy channel, no bytes will be read/written
+        TypedProperties comChannelProperties = TypedProperties.empty();
+        comChannelProperties.setProperty(ComChannelType.TYPE, ComChannelType.SocketComChannel.getType());
+        dummyComChannel.addProperties(comChannelProperties);
+
+        DlmsSession dlmsSession = new DlmsSession(dummyComChannel, securityProperties);
+        SecurityContext securityContext = dlmsSession.getAso().getSecurityContext();
+        securityContext.getSecurityProvider().setRespondingFrameCounterHandling(new DefaultRespondingFrameCounterHandler());
+        return securityContext;
+    }
+
+    protected byte getCosemEventNotificationAPDUTag() {
+        return DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST;
+    }
+
+    protected byte getCosemDataNotificationAPDUTag() {
+        return DLMSCOSEMGlobals.COSEM_DATANOTIFICATIONREQUEST;
+    }
+
+    protected void parseRegisters(Structure structure) {
         while (structure.hasMoreElements()) {
             AbstractDataType logicalName = structure.getNextDataType();
             if (!(logicalName instanceof OctetString)) {
@@ -161,7 +296,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
         }
     }
 
-    private void addCollectedRegister(ObisCode obisCode, long value, ScalerUnit scalerUnit, Date eventTime, String text) {
+    protected void addCollectedRegister(ObisCode obisCode, long value, ScalerUnit scalerUnit, Date eventTime, String text) {
         CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(
                 new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier())
         );
@@ -176,7 +311,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
         getCollectedRegisters().addCollectedRegister(deviceRegister);
     }
 
-    private Date parseDateTime(OctetString octetString) {
+    protected Date parseDateTime(OctetString octetString) {
         try {
             return new AXDRDateTime(octetString.getBEREncodedByteArray(), 0, getDeviceTimeZone()).getValue().getTime(); // Make sure to pass device TimeZone, as deviation info is unspecified
         } catch (ProtocolException e) {
@@ -203,5 +338,13 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
             this.collectedRegisters = MdcManager.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
         }
         return this.collectedRegisters;
+    }
+
+    protected ComChannel getComChannel() {
+        return comChannel;
+    }
+
+    protected InboundDAO getInboundDAO() {
+        return inboundDAO;
     }
 }

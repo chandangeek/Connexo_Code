@@ -366,6 +366,6 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-07-15 09:43:47 +0200 (Fri, 15 Jul 2016)$";
+        return "$Date: 2016-07-11 09:53:54 +0300 (Mon, 11 Jul 2016)$";
     }
 }

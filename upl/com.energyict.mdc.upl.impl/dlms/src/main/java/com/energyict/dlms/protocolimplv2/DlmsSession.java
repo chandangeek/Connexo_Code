@@ -41,16 +41,22 @@ public class DlmsSession implements ProtocolLink {
         this(comChannel, properties, null, "");
     }
 
+    public DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, String calledSystemTitle) {
+        this.comChannel = comChannel;
+        this.properties = properties;
+        init(null, "", calledSystemTitle);
+    }
+
     public DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, HHUSignOnV2 hhuSignOn, String deviceId) {
         this.comChannel = comChannel;
         this.properties = properties;
-        init(hhuSignOn, deviceId);
+        init(hhuSignOn, deviceId, null);
     }
 
-    protected void init(HHUSignOnV2 hhuSignOn, String deviceId) {
+    protected void init(HHUSignOnV2 hhuSignOn, String deviceId, String calledSystemTitle) {
         this.cosemObjectFactory = new CosemObjectFactory(this, getProperties().isBulkRequest());
         this.dlmsMeterConfig = DLMSMeterConfig.getInstance(getProperties().getManufacturer());
-        this.aso = buildAso();
+        this.aso = buildAso(calledSystemTitle);
         this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
         this.dlmsConnection.setInvokeIdAndPriorityHandler(getProperties().getInvokeIdAndPriorityHandler());
         if (hhuSignOn != null) {
@@ -139,10 +145,23 @@ public class DlmsSession implements ProtocolLink {
      */
     protected ApplicationServiceObjectV2 buildAso() {
         if (getProperties().isNtaSimulationTool()) {
-            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null, null);
+            return buildAso( getProperties().getSerialNumber());
         } else {
             return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), null, null, getCallingAEQualifier());
         }
+    }
+
+    /**
+     * Build a new ApplicationServiceObject, using the DlmsSessionProperties and a specific calledSystemTitle
+     */
+    protected ApplicationServiceObjectV2 buildAso(String calledSystemTitle){
+        if (calledSystemTitle == null && getProperties().isNtaSimulationTool()){
+            calledSystemTitle = getProperties().getSerialNumber();
+        }
+        if (calledSystemTitle!=null)
+            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), calledSystemTitle.getBytes(), null, null);
+        else
+            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId());
     }
 
     /**
@@ -174,6 +193,7 @@ public class DlmsSession implements ProtocolLink {
         }
         return null;
     }
+
 
     /**
      * Build a new xDLMSAse, using the DlmsSessionProperties

@@ -1,10 +1,13 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
@@ -31,6 +34,23 @@ public class AM540Properties extends IDISProperties {
             securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), DLMSConnectionException.REASON_CONTINUE_INVALID_FRAMECOUNTER);
         }
         return securityProvider;
+    }
+
+    @Override
+    public ConformanceBlock getConformanceBlock() {
+        ConformanceBlock conformanceBlock = super.getConformanceBlock();
+
+        conformanceBlock.setGeneralBlockTransfer(useGeneralBlockTransfer());
+        conformanceBlock.setGeneralProtection(getCipheringType().equals(CipheringType.GENERAL_DEDICATED) || getCipheringType().equals(CipheringType.GENERAL_GLOBAL));
+
+        conformanceBlock.setGeneralProtection(true);
+        conformanceBlock.setAccess(true);
+        conformanceBlock.setDataNotification(true);
+        conformanceBlock.setAction(true);
+        conformanceBlock.setPriorityManagementSupported(false);
+        conformanceBlock.setEventNotification(false);
+
+        return conformanceBlock;
     }
 
     @Override
@@ -100,7 +120,12 @@ public class AM540Properties extends IDISProperties {
 
     public boolean useBeaconMirrorDeviceDialect() {
         String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
-        return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_MIRROR_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+        if (dialectName == null) {
+            return false;
+        }
+        MirrorTcpDeviceProtocolDialect dialect = new MirrorTcpDeviceProtocolDialect();
+        // for compatibility with ProtocolTester - here the protocol dialect is the "display name"
+        return dialect.getDisplayName().equals(dialectName) || dialect.getDeviceProtocolDialectName().equals(dialectName);
     }
 
     public boolean useBeaconGatewayDeviceDialect() {
@@ -146,6 +171,29 @@ public class AM540Properties extends IDISProperties {
 
     public String getTransparentSecurityLevel() {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.METER_SECURITY_LEVEL, "1:0");
+    }
+
+    public boolean getRequestAuthenticatedFrameCounter() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false);
+    }
+
+    public boolean useCachedFrameCounter() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false);
+    }
+    public boolean validateCachedFrameCounter() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, true);
+    }
+
+    public int getFrameCounterRecoveryRetries(){
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100)).intValue();
+    }
+
+    public int getFrameCounterRecoveryStep(){
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE).intValue();
+    }
+
+    public BigDecimal getInitialFrameCounter(){
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER);
     }
 
 }

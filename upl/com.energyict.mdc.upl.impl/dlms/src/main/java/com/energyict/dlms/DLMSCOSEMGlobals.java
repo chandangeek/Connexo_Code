@@ -96,6 +96,7 @@ public interface DLMSCOSEMGlobals {
 	byte[] LIMITER = {0,0,17,0,0,(byte)255};
 	byte[] PPPSETUP = {0,0,25,3,0,(byte)255};
 	byte[] GPRSMODEMSETUP = {0,0,25,4,0,(byte)255};
+	byte[] USBSETUP = {0,0,(byte)128,0,28,(byte)255};
 
 	//********************************************************************************************************
 	// Reserved SN logical name constants, should be filled in when requesting the object list first.
@@ -219,6 +220,7 @@ public interface DLMSCOSEMGlobals {
     byte COSEM_SETRESPONSE_FOR_DATABLOCK=2;
     byte COSEM_SETRESPONSE_FOR_LAST_DATABLOCK=3;
     byte COSEM_EVENTNOTIFICATIONRESUEST = (byte)0xC2;
+	byte COSEM_DATANOTIFICATIONREQUEST = (byte)0x0F;
 	byte COSEM_ACTIONREQUEST=(byte)0xC3;
 	byte COSEM_ACTIONREQUEST_NORMAL=1;
 	byte COSEM_ACTIONRESPONSE=(byte)0xC7;

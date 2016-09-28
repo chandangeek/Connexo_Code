@@ -52,6 +52,14 @@ public class DeviceMessageConstants {
     public static final String resumeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.resume";
     public static final String plcTypeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.plc";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
+    public static final String SkipStepEnable = "FirmwareDeviceMessage.SkipStepEnable";
+    public static final String SkipStepVerify = "FirmwareDeviceMessage.SkipStepVerify";
+    public static final String SkipStepActivate = "FirmwareDeviceMessage.SkipStepActivate";
+    public static final String UnicastFrameCounterType = "FirmwareDeviceMessage.UnicastFrameCounterType";
+    public static final String MeterTimeZone = "FirmwareDeviceMessage.TimeZone";
+    public static final String SecurityLevelMulticast = "FirmwareDeviceMessage.SecurityLevelMulticast";
+    public static final String SecurityPolicyMulticastV0 = "FirmwareDeviceMessage.SecurityPolicyMulticastV0";
+
     public static final String contractAttributeName = "contract";
     public static final String defaultTariffCodeAttrributeName = "ActivityCalendarDeviceMessage.default.tariff";
     public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";
@@ -70,6 +78,7 @@ public class DeviceMessageConstants {
     public static final String clientMacAddress = "ClientMacAddress";
     public static final String masterKey = "SecurityMessage.masterkey";
     public static final String pskAttributeName = "SecurityMessage.psk";
+    public static final String clientCertificateAttributeName = "SecurityMessage.new.clientcertificate";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
     public static final String newHexPasswordAttributeName = "SecurityMessage.newhexpassword";
     public static final String preparedDataAttributeName = "SecurityMessage.prepareddata";
@@ -191,6 +200,8 @@ public class DeviceMessageConstants {
 
     public static final String phaseAttributeName = "LoadBalanceDeviceMessage.phase";
     public static final String thresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.thresholdinampere";
+    public static final String positiveThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.positivethresholdinampere";
+    public static final String negativeThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.negativethresholdinampere";
     public static final String capturePeriodAttributeName = "LoadProfileConfigurationMessage.captureperiod";
     public static final String consumerProducerModeAttributeName = "LoadProfileConfigurationMessage.consumerproducermode";
     public static final String monitorInstanceAttributeName = "LoadBalanceDeviceMessage.monitorInstance";
@@ -228,6 +239,7 @@ public class DeviceMessageConstants {
     public static final String SetGatewayAttributeName = "NetworkConnectivityMessage.setgateway";
     public static final String SetNameServerAttributeName = "NetworkConnectivityMessage.setnameserver";
     public static final String SetHttpPortAttributeName = "NetworkConnectivityMessage.sethttpport";
+    public static final String SetHttpsPortAttributeName = "NetworkConnectivityMessage.SET_HTTPS_PORT";
     public static final String NetworkConnectivityIPAddressAttributeName = "NetworkConnectivityMessage.ipaddress";
     public static final String NetworkConnectivityIntervalAttributeName = "NetworkConnectivityMessage.interval";
     public static final String preferGPRSUpstreamCommunication = "NetworkConnectivityMessage.preferGPRSUpstreamCommunication";
@@ -591,6 +603,8 @@ public class DeviceMessageConstants {
     public static final String minBe = "PLCConfigurationDeviceMessage.minBe";
     public static final String plcSecurityLevel = "PLCConfigurationDeviceMessage.plcSecurityLevel";
     public static final String weakLQIValueAttributeName = "PLCConfigurationDeviceMessage.weaklqivalue";
+    public static final String lowLQIValueAttributeName = "PLCConfigurationDeviceMessage.lowlqivalue";
+    public static final String highLQIValueAttributeName = "PLCConfigurationDeviceMessage.highlqivalue";
     public static final String plcG3TimeoutAttributeName = "PLCConfigurationDeviceMessage.plcg3timeout";
     public static final String G3PanIdAttributename = "PLCConfigurationDeviceMessage.g3panid";
     public static final String adp_Kr = "PLCConfigurationDeviceMessage.adp_Kr";
@@ -603,6 +617,7 @@ public class DeviceMessageConstants {
     public static final String adp_RLC_enabled = "PLCConfigurationDeviceMessage.adp_RLC_enabled";
     public static final String adp_net_traversal_time = "PLCConfigurationDeviceMessage.adp_net_traversal_time";
     public static final String adp_routing_table_entry_TTL = "PLCConfigurationDeviceMessage.adp_routing_table_entry_TTL";
+    public static final String adp_routing_tuple_TTL = "PLCConfigurationDeviceMessage.adp_routing_tuple_TTL";
     public static final String adp_RREQ_RERR_wait = "PLCConfigurationDeviceMessage.adp_RREQ_RERR_wait";
     public static final String adp_Blacklist_table_entry_TTL = "PLCConfigurationDeviceMessage.adp_Blacklist_table_entry_TTL";
     public static final String adp_unicast_RREQ_gen_enable = "PLCConfigurationDeviceMessage.adp_unicast_RREQ_gen_enable";
@@ -722,4 +737,14 @@ public class DeviceMessageConstants {
     public static final String SPECIAL_LOAD_PROFILE_INTERVAL = "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE_INTERVAL";
     public static final String SPECIAL_LOAD_PROFILE_MAX_NO = "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE_MAX_NO";
     public static final String DISPLAY_MESSAGE = "Display_Message";
+    public static final String ETHERNET_WAN = "NetworkConnectivityMessage.Ethernet_WAN";
+    public static final String ETHERNET_LAN = "NetworkConnectivityMessage.Ethernet_LAN";
+    public static final String WIRELESS_WAN = "NetworkConnectivityMessage.Wireless_WAN";
+    public static final String IP6_TUNNEL = "NetworkConnectivityMessage.IP6_Tunnel";
+    public static final String PLC_NETWORK = "NetworkConnectivityMessage.PLC_Network";
+    public static final String ENABLE_GZIP_COMPRESSION = "ConfigurationChangeDeviceMessage.ENABLE_GZIP_COMPRESSION";
+    public static final String SET_AUTHENTICATION_MECHANISM = "ConfigurationChangeDeviceMessage.SET_AUTHENTICATION_MECHANISM";
+    public static final String SET_MAX_LOGIN_ATTEMPTS = "ConfigurationChangeDeviceMessage.SET_MAX_LOGIN_ATTEMPTS";
+    public static final String SET_LOCKOUT_DURATION = "ConfigurationChangeDeviceMessage.SET_LOCKOUT_DURATION";
+    public static final String executionMinutesForEachHour = "ConfigurationChangeDeviceMessage.executionMinutesForEachHour";
 }

@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>9.1.36-SNAPSHOT</version>
+        <version>9.1.40-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -57,9 +57,9 @@
         </dependency>
 
         <dependency>
-			<groupId>org.easytesting</groupId>
-			<artifactId>fest-assert-core</artifactId>
-		</dependency>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-assert-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

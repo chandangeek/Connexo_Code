@@ -56,6 +56,13 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
     ENABLE_EVENT_NOTIFICATIONS(10,
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.EnableEventNotifications)
     ),
+    RESET_DESCRIPTOR_FOR_ALARM_REGISTER(11,
+            alarmRegisterAttributeFor3Objects(),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmBitMaskAttributeName)),
+    RESET_BITS_IN_ALARM_REGISTER(12, alarmRegisterAttributeFor3Objects()),
+    WRITE_FILTER_FOR_ALARM_REGISTER(13,
+            alarmRegisterAttributeFor3Objects(),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName)),
     ;
 
 
@@ -160,6 +167,15 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
                 DeviceMessageConstants.alarmRegisterAttributeName,
                 BigDecimal.valueOf(1),
                 BigDecimal.valueOf(2));
+    }
+
+    private static PropertySpec<BigDecimal> alarmRegisterAttributeFor3Objects() {
+        return PropertySpecFactory.bigDecimalPropertySpecWithValues(
+                DeviceMessageConstants.alarmRegisterAttributeName,
+                BigDecimal.valueOf(1),
+                BigDecimal.valueOf(2),
+                BigDecimal.valueOf(3)
+                );
     }
 
     private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.ALARM_CONFIGURATION;

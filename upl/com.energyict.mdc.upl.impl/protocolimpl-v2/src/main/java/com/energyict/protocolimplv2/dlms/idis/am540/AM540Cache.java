@@ -4,21 +4,27 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.mdc.protocol.DeviceProtocolCacheXmlMarshallAdapter;
 import com.energyict.mdc.protocol.ServerDeviceProtocolCache;
+import com.energyict.protocol.support.FrameCounterCache;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author sva
  * @since 27/08/2015 - 11:54
  */
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
-public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, Serializable {
+public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, FrameCounterCache, Serializable {
 
     private boolean connectionToBeaconMirror;
 
     UniversalObject[] mirrorObjectList;
     UniversalObject[] gatewayObjectList;
+
+    protected Map<Integer, Long> frameCountersGateway = new HashMap<>();
+    protected Map<Integer, Long> frameCountersMirror = new HashMap<>();
 
     public AM540Cache(boolean connectionToBeaconMirror) {
         this.connectionToBeaconMirror = connectionToBeaconMirror;
@@ -58,4 +64,33 @@ public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, 
     public int getConfProgChange() {
         return super.getConfProgChange();
     }
+
+
+    @Override
+    public void setTXFrameCounter(final int clientId, int frameCounter){
+        if (isConnectionToBeaconMirror()) {
+            frameCountersMirror.put(clientId, Long.valueOf(frameCounter));
+        } else {
+            frameCountersGateway.put(clientId, Long.valueOf(frameCounter));
+        }
+        setChanged(true);
+    }
+
+    @Override
+    public long getTXFrameCounter(final int clientId){
+        if (isConnectionToBeaconMirror()) {
+            if (frameCountersMirror.containsKey(clientId)) {
+                return frameCountersMirror.get(clientId);
+            } else {
+                return -1;
+            }
+        } else {
+            if (frameCountersGateway.containsKey(clientId)) {
+                return frameCountersGateway.get(clientId);
+            } else {
+                return -1;
+            }
+        }
+    }
+
 }

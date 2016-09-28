@@ -57,6 +57,10 @@ public class PLCConfigurationDeviceMessageExecutor {
             setMaxNumberOfHops(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName)) {
             setWeakLQIValue(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetLowLQIValueAttributeName)) {
+            setLowLQIValue(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetHighLQIValueAttributeName)) {
+            setHighLQIValue(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSecurityLevel)) {
             setSecurityLevelpendingMessage(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetRoutingConfiguration)) {
@@ -165,6 +169,18 @@ public class PLCConfigurationDeviceMessageExecutor {
         cof.getSixLowPanAdaptationLayerSetup().writeWeakLqiValue(value);
     }
 
+    private void setLowLQIValue(OfflineDeviceMessage pendingMessage) throws IOException {
+        int value = getSingleIntegerAttribute(pendingMessage);
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getSixLowPanAdaptationLayerSetup().writeLowLqiValue(value);
+    }
+
+    private void setHighLQIValue(OfflineDeviceMessage pendingMessage) throws IOException {
+        int value = getSingleIntegerAttribute(pendingMessage);
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getSixLowPanAdaptationLayerSetup().writeHighLqiValue(value);
+    }
+
     private void setSecurityLevelpendingMessage(OfflineDeviceMessage pendingMessage) throws IOException {
         int value = getSingleIntegerAttribute(pendingMessage);
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
@@ -176,6 +192,7 @@ public class PLCConfigurationDeviceMessageExecutor {
 
         int adp_net_traversal_time = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.adp_net_traversal_time).getDeviceMessageAttributeValue());
         int adp_routing_table_entry_TTL = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.adp_routing_table_entry_TTL).getDeviceMessageAttributeValue());
+        int adp_routing_tuple_TTL = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.adp_routing_tuple_TTL).getDeviceMessageAttributeValue());
         int adp_Kr = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.adp_Kr).getDeviceMessageAttributeValue());
         int adp_Km = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.adp_Km).getDeviceMessageAttributeValue());
         int adp_Kc = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.adp_Kc).getDeviceMessageAttributeValue());
@@ -192,6 +209,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         cof.getSixLowPanAdaptationLayerSetup().writeRoutingConfiguration(
                 adp_net_traversal_time,
                 adp_routing_table_entry_TTL,
+                adp_routing_tuple_TTL,
                 adp_Kr,
                 adp_Km,
                 adp_Kc,

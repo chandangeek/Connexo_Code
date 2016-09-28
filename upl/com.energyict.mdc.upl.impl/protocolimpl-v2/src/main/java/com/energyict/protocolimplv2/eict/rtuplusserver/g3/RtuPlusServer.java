@@ -86,7 +86,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-07-14 15:32:13 +0200 (Thu, 14 Jul 2016)$";
+        return "$Date: 2016-03-24 17:55:37 +0100 (Thu, 24 Mar 2016)$";
     }
 
     public DlmsSession getDlmsSession() {

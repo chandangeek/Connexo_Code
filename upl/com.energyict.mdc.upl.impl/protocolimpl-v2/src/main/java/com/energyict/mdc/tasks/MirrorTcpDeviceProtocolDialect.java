@@ -24,6 +24,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
 public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public static final int DEFAULT_TCP_TIMEOUT = 30;
+    public static final String BEACON_DC_MIRROR_TCP_DLMS = "Beacon DC Mirror TCP DLMS";
 
     @Override
     public String getDeviceProtocolDialectName() {
@@ -32,7 +33,7 @@ public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialec
 
     @Override
     public String getDisplayName() {
-        return "Beacon DC Mirror TCP DLMS";
+        return BEACON_DC_MIRROR_TCP_DLMS;
     }
 
     @Override

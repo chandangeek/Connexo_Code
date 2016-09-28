@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.energyict.dlms.cosem.attributes;
 
 

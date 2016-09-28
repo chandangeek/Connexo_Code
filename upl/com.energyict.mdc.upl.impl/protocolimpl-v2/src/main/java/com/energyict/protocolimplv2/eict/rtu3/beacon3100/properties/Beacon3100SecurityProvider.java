@@ -24,7 +24,6 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECPoint;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Random;
 
 /**
  * Copyrights EnergyICT

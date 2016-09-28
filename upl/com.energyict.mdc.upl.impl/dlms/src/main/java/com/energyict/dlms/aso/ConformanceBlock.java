@@ -61,8 +61,8 @@ public class ConformanceBlock{
 	public static final int BIT_BLOCK_TRANSF_ACTION = 13;
 	public static final int BIT_MULTIPLE_REFS = 14;
 	public static final int BIT_INFORMATION_REPORT = 15;
-//    public static final int BIT_RESERVED_SIXTEEN = 16;
-//    public static final int BIT_RESERVED_SEVENTEEN = 17;
+    public static final int BIT_DATA_NOTIFICATION = 16;
+    public static final int BIT_ACCESS = 17;
 	public static final int BIT_PARAMETERIZED_ACCESS = 18;
 	public static final int BIT_GET = 19;
 	public static final int BIT_SET = 20;
@@ -240,6 +240,15 @@ public class ConformanceBlock{
         return block[BIT_UNCONFIRMED_WRITE];
     }
 
+    public boolean isDataNotification() {
+        return block[BIT_DATA_NOTIFICATION];
+    }
+
+    public boolean isAccess() {
+        return block[BIT_ACCESS];
+    }
+
+
     public boolean isWrite() {
         return block[BIT_WRITE];
     }
@@ -330,6 +339,14 @@ public class ConformanceBlock{
 
     public void setAction(boolean value) {
         setBit(BIT_ACTION, value);
+    }
+
+    public void setAccess(boolean value) {
+        setBit(BIT_ACCESS, value);
+    }
+
+    public void setDataNotification(boolean value) {
+        setBit(BIT_DATA_NOTIFICATION, value);
     }
 
     @Override

@@ -183,9 +183,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
                 // send the encrypted request to the DLMSConnection
                 byte[] securedResponse = communicate(securedRequest, send, receive);
-
                 byte[] decryptedResponse = null;
-                byte cipheredTag;
 
                 /**
                  * Decrypt the received APDU.
@@ -203,7 +201,8 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
                             // If it's a general-signing APDU, check its signature and unwrap it.
                             // Note that its contents can still be a ciphered APDU, it will be decrypted below.
-                            cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
+                            byte cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
+
                             if (cipheredTag == DLMSCOSEMGlobals.GENERAL_SIGNING) {
                                 securedResponse = unwrapGeneralSigning(ProtocolUtils.getSubArray(securedResponse, 3));
                                 securedResponse = ProtocolUtils.concatByteArrays(leading, securedResponse);
@@ -241,6 +240,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                                 IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
                                 throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
                             }
+
                         }
                     } catch (DLMSConnectionException e) {
                         //Received an invalid frame counter (not greater than the previous frame counter)

@@ -140,6 +140,16 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.PPPDaemonResetThreshold),
             PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.modemResetThreshold),
             PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.systemRebootThreshold)
+    ),
+    EnableNetworkInterfaces(51,
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.ETHERNET_WAN),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.ETHERNET_LAN),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.WIRELESS_WAN),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.IP6_TUNNEL),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.PLC_NETWORK)
+    ),
+    SetHttpsPort(52,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetHttpsPortAttributeName)
     );
 
     private final List<PropertySpec> deviceMessagePropertySpecs;

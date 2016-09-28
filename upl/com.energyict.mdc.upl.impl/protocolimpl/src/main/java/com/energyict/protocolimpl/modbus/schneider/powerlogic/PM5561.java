@@ -1,32 +1,38 @@
 package com.energyict.protocolimpl.modbus.schneider.powerlogic;
 
 
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
+import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadHoldingRegistersRequest;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
 import com.energyict.protocolimpl.modbus.schneider.powerlogic.profile.ProfileBuilder;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public class PM5561 extends PM5560 implements SerialNumberSupport {
-    private static final String TIMEZONE = "deviceTimeZone";
-    private static final String APPLY_CTRATIO = "ApplyCTRatio";
-    public static final int SETCLOCK			= 0x0104;
     private ProfileBuilder profileBuilder;
-    private boolean applyCtRatio;
-    private String timeZone;
+    private String timeZone = "UTC";
 
     @Override
     public String getSerialNumber() {
@@ -39,8 +45,12 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
 
     @Override
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setTimeZone(properties.getProperty(TIMEZONE, "GMT"));
-        applyCtRatio = Integer.parseInt(properties.getProperty(APPLY_CTRATIO, "0").trim()) == 1;
+        setTimeZone(properties.getProperty(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, "UTC"));
+        setConnectionMode(Integer.parseInt(properties.getProperty("Connection", "1").trim()));
+        setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty("PhysicalLayer", "1").trim()));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","10000").trim()));
+        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","30").trim()));
+
     }
 
     private void setTimeZone(String timeZone) {
@@ -60,7 +70,10 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
             Object value = register.value();
             if (value instanceof BigDecimal) {
                 return new RegisterValue(obisCode, new Quantity((BigDecimal) value, register.getUnit()));
-            } else if (value instanceof String) {
+            } else if (value instanceof Double){
+                return new RegisterValue(obisCode, new Quantity((Double) value, register.getUnit()));
+            }
+            else if (value instanceof String) {
                 return new RegisterValue(obisCode, (String) value);
             }  else if (value instanceof ReadStatuses) {
                 ReadStatuses readStatuses = (ReadStatuses) value;
@@ -84,6 +97,11 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     @Override
     public int getProfileInterval() throws IOException {
         return getProfileBuilder().getProfileInterval();
+    }
+
+    @Override
+    public ProfileData getProfileData(boolean includeEvents) throws IOException {
+        return super.getProfileData(includeEvents);
     }
 
     @Override
@@ -111,12 +129,6 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
         return this.profileBuilder;
     }
 
-
-    public boolean isApplyCtRatio() {
-        return applyCtRatio;
-    }
-
-
     /**
      * Setter for the {@link ModbusConnection}
      *
@@ -139,30 +151,88 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
      * The protocol version date
      */
     public String getProtocolVersion() {
-        return "$Date: 2016-06-16 16:58:46 +0300 (Thu, 16 Jun 2016)$";
+        return "$Date: 2016-07-19 10:58:46 +0300 (Tu, 19 Jul 2016)$";
     }
 
     @Override
     public TimeZone getTimeZone(){
-        if (timeZone == null) {
-            timeZone = String.valueOf(TimeZone.getDefault());
-            getLogger().warning("Using default time zone.");
-        }
         return TimeZone.getTimeZone(timeZone);
     }
 
-
     @Override
     public Date getTime() throws IOException {
-        return DateTime.parseDateTime(getDateTimeRegister().values(), getTimeZone()).getMeterCalender().getTime();
+        return new DateTime().parseDateTime(getDateTimeRegister().values()).getMeterCalender().getTime();
     }
 
     @Override
     public void setTime() throws IOException {
-        getDateTimeRegister().getWriteMultipleRegisters(DateTime.getCurrentDate(getTimeZone()));
+        Calendar instTime = Calendar.getInstance( gettimeZone() );
+        FunctionCodeFactory fcf = new FunctionCodeFactory(this);
+        ReadHoldingRegistersRequest registersRequest = fcf.getReadHoldingRegistersRequest(getCommandSemaphoreRegister().getReg(), 1);
+        int result[] = registersRequest.getRegisters();
+        String sResult = Integer.toString(result[0], 16);
+        byte[] rawDate = getBytesFromDate(instTime.getTime(), sResult, gettimeZone());
+        fcf.getWriteMultipleRegisters(getChangeDateTimeRegister().getReg(), 9, rawDate);
+        ReadHoldingRegistersRequest commandParameterRequest = fcf.getReadHoldingRegistersRequest(getCommandParameterRegister().getReg(), 1);
+        commandParameterRequest.getRegisters();
+        if(sResult.length() == 4) {
+            fcf.getWriteMultipleRegisters(getCommandSemaphoreRegister().getReg(), 1,
+                    new byte[]{(byte) Integer.parseInt(sResult.substring(0, 2), 16),
+                            (byte) Integer.parseInt(sResult.substring(2, 4), 16)});
+        }
     }
+
+
+    public static byte[] getBytesFromDate(Date date, String commandCode, TimeZone timezone) {
+        Calendar calendar = Calendar.getInstance(timezone);
+        calendar.setTime(date);
+        byte[] returnValue = new byte[18];
+        int index = 0;
+        returnValue[index++] = 0x03;
+        returnValue[index++] = (byte) 0xeb;
+        if(commandCode.length() == 4) {
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(0, 2), 16);
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(2, 4), 16);
+        }else{
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(0, 2), 16);
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(2, 3), 16);
+        }
+        String year = Integer.toString(calendar.get(Calendar.YEAR), 16);
+        returnValue[index++] = (byte) Integer.parseInt(year.substring(0,1), 16);
+        returnValue[index++] = (byte) Integer.parseInt(year.substring(1,3), 16);
+        String month = Integer.toString(calendar.get(Calendar.MONTH) + 1);
+        returnValue[index++] = 0x0;
+        returnValue[index++] = Byte.parseByte(month.length() == 2? month.substring(0, 2): month.substring(0, 1));
+        String day = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH));
+        returnValue[index++] = 0x0;
+        returnValue[index++] = Byte.parseByte(day.length() == 2? day.substring(0, 2): day.substring(0, 1));
+        String hours = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY));
+        returnValue[index++] = 0x0;
+        returnValue[index++] = Byte.parseByte(hours.length() == 2? hours.substring(0, 2): hours.substring(0, 1));
+        String minutes = Integer.toString(calendar.get(Calendar.MINUTE));
+        returnValue[index++] = 0x0;
+        returnValue[index++] = Byte.parseByte(minutes.length() == 2? minutes.substring(0, 2): minutes.substring(0, 1));
+        String seconds = Integer.toString(calendar.get(Calendar.SECOND));
+        returnValue[index++] = 0x0;
+        returnValue[index++] = Byte.parseByte(seconds.length() == 2? seconds.substring(0, 2): seconds.substring(0, 1));
+        returnValue[index++] = 0x0;
+        returnValue[index++] = 0x0;
+        return returnValue;
+    }
+
     private AbstractRegister getDateTimeRegister() throws IOException {
         return getRegisterFactory().findRegister(PM5561RegisterFactory.CurrentDateTime);
     }
 
+    private AbstractRegister getChangeDateTimeRegister() throws IOException {
+        return getRegisterFactory().findRegister(PM5561RegisterFactory.ChangeDateTime);
+    }
+
+    private AbstractRegister getCommandSemaphoreRegister() throws IOException {
+        return getRegisterFactory().findRegister(PM5561RegisterFactory.CommandSemaphore);
+    }
+
+    private AbstractRegister getCommandParameterRegister() throws IOException {
+        return getRegisterFactory().findRegister(PM5561RegisterFactory.CommandParameter);
+    }
 }

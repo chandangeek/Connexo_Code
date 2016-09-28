@@ -8,6 +8,7 @@ import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
@@ -79,6 +80,10 @@ public class Beacon3100Properties extends DlmsProperties {
     @Override
     public TimeDuration getPollingDelay() {
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.POLLING_DELAY, new TimeDuration(0));
+    }
+
+    public boolean getRequestAuthenticatedFrameCounter() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false);
     }
 
     /**

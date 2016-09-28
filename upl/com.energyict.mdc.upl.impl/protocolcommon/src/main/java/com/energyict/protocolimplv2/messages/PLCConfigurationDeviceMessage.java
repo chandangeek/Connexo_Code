@@ -74,6 +74,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.adp_RLC_enabled),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_net_traversal_time),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_routing_table_entry_TTL),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_routing_tuple_TTL),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_RREQ_RERR_wait),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.adp_Blacklist_table_entry_TTL),
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.adp_unicast_RREQ_gen_enable),
@@ -193,7 +194,9 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
     RemoveMetersFromBlackList(74, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.macAddresses)),
     KickMeter(75, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.macAddress)),
     PathRequestWithTimeout(76, PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName),
-            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.timeout));
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.timeout)),
+    SetLowLQIValueAttributeName(77, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.lowLQIValueAttributeName)),
+    SetHighLQIValueAttributeName(78, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.highLQIValueAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PLC_CONFIGURATION;
 

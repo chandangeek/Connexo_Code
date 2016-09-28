@@ -56,11 +56,11 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
     public ApplicationServiceObjectV2(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId, byte[] calledAPTitle, byte[] calledAEQualifier, byte[] callingAEQualifier) {
         super(xDlmsAse, protocolLink, securityContext, contextId, calledAPTitle, calledAEQualifier, callingAEQualifier);
     }
-
+/*
     public ApplicationServiceObjectV2(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext) {
         super(xDlmsAse, protocolLink, securityContext);
     }
-
+*/
     /**
      * Create an ApplicationAssociation.
      * Depending on the securityLevel encrypted challenges will be used to authenticate the client and server
@@ -214,37 +214,37 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 this.associationStatus = ASSOCIATION_CONNECTED;
                 break;
             case HLS3_MD5: {
-                    plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
-                    decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
-                    analyzeDecryptedResponse(decryptedResponse);
+                plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
+                decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
+                analyzeDecryptedResponse(decryptedResponse);
             }
 
             break;
             case HLS4_SHA1: {
-                    plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
-                    decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
-                    analyzeDecryptedResponse(decryptedResponse);
+                plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
+                decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
+                analyzeDecryptedResponse(decryptedResponse);
             }
 
             break;
             case HLS5_GMAC: {
-                    decryptedResponse = replyToHLSAuthentication(this.securityContext.highLevelAuthenticationGMAC(this.acse.getRespondingAuthenticationValue()));
-                    analyzeDecryptedResponse(decryptedResponse);
+                decryptedResponse = replyToHLSAuthentication(this.securityContext.highLevelAuthenticationGMAC(this.acse.getRespondingAuthenticationValue()));
+                analyzeDecryptedResponse(decryptedResponse);
             }
             break;
             case HLS6_SHA256: {
-                    plainText = ProtocolTools.concatByteArrays(
-                            this.securityContext.getSecurityProvider().getHLSSecret(),
-                            this.securityContext.getSystemTitle(),
-                            this.securityContext.getResponseSystemTitle(),
-                            this.acse.getRespondingAuthenticationValue(),
-                            this.securityContext.getSecurityProvider().getCallingAuthenticationValue()
-                    );
+                plainText = ProtocolTools.concatByteArrays(
+                        this.securityContext.getSecurityProvider().getHLSSecret(),
+                        this.securityContext.getSystemTitle(),
+                        this.securityContext.getResponseSystemTitle(),
+                        this.acse.getRespondingAuthenticationValue(),
+                        this.securityContext.getSecurityProvider().getCallingAuthenticationValue()
+                );
 
-                    byte[] digest = associationEncryption(plainText);   //Hash the plaintext with SHA-256
-                    decryptedResponse = replyToHLSAuthentication(digest);
+                byte[] digest = associationEncryption(plainText);   //Hash the plaintext with SHA-256
+                decryptedResponse = replyToHLSAuthentication(digest);
 
-                    analyzeDecryptedResponse(decryptedResponse);
+                analyzeDecryptedResponse(decryptedResponse);
             }
             break;
             case HLS7_ECDSA: {

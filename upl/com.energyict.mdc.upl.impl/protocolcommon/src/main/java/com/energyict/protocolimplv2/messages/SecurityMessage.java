@@ -8,6 +8,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
+import com.energyict.protocolimplv2.messages.enums.UserNames;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -181,6 +182,10 @@ public enum SecurityMessage implements DeviceMessageSpec {
     ),
     GENERATE_CSR(44,
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues())
+    ),
+    CHANGE_WEBPORTAL_PASSWORD(45,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.usernameAttributeName, UserNames.getAllNames()),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)
     );
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;

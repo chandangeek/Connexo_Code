@@ -37,7 +37,7 @@ public class MeterEventParser {
             if (alarmRegister == 1){
                 //do nothing
             } else if (alarmRegister == 2) {
-                meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 82, "Voltage Missing Phase L1"));
+                meterEvents.add(new MeterEvent(date, MeterEvent.PHASE_FAILURE, 82, "Voltage Missing Phase L1"));
                 //TODO use proper event code
             }
         }
@@ -46,7 +46,7 @@ public class MeterEventParser {
             if (alarmRegister == 1){
                 //do nothing
             } else if (alarmRegister == 2) {
-                meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 83, "Voltage Missing Phase L2"));
+                meterEvents.add(new MeterEvent(date, MeterEvent.PHASE_FAILURE, 83, "Voltage Missing Phase L2"));
             }
         }
 
@@ -54,7 +54,7 @@ public class MeterEventParser {
             if (alarmRegister == 1){
                 //do nothing
             } else if (alarmRegister == 2) {
-                meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 84, "Voltage Missing Phase L3"));
+                meterEvents.add(new MeterEvent(date, MeterEvent.PHASE_FAILURE, 84, "Voltage Missing Phase L3"));
             }
         }
 
@@ -62,7 +62,7 @@ public class MeterEventParser {
             if (alarmRegister == 1){
                 //do nothing
             } else if (alarmRegister == 2) {
-                meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 85, "Voltage Normal Phase L1"));
+                meterEvents.add(new MeterEvent(date, MeterEvent.PHASE_FAILURE, 85, "Voltage Normal Phase L1"));
             }
         }
 
@@ -70,7 +70,7 @@ public class MeterEventParser {
             if (alarmRegister == 1){
                 //do nothing
             } else if (alarmRegister == 2) {
-                meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 86, "Voltage Normal Phase L2"));
+                meterEvents.add(new MeterEvent(date, MeterEvent.PHASE_FAILURE, 86, "Voltage Normal Phase L2"));
             }
         }
 
@@ -78,7 +78,7 @@ public class MeterEventParser {
             if (alarmRegister == 1){
                 //do nothing
             } else if (alarmRegister == 2) {
-                meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 87, "Voltage Normal Phase L3"));
+                meterEvents.add(new MeterEvent(date, MeterEvent.PHASE_FAILURE, 87, "Voltage Normal Phase L3"));
             }
         }
 
@@ -94,7 +94,7 @@ public class MeterEventParser {
             if (alarmRegister == 1){
                 meterEvents.add(new MeterEvent(date, MeterEvent.RAM_MEMORY_ERROR, 13, "RAM error"));
             } else if (alarmRegister == 2) {
-                meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 90, "Phase Asymmetry"));
+                meterEvents.add(new MeterEvent(date, MeterEvent.PHASE_FAILURE, 90, "Phase Asymmetry"));
             }
         }
 
@@ -110,7 +110,7 @@ public class MeterEventParser {
             if (alarmRegister == 1){
                 meterEvents.add(new MeterEvent(date, MeterEvent.MEASUREMENT_SYSTEM_ERROR, 16, "Measurement system error"));
             } else if (alarmRegister == 2) {
-                meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 88, "Wrong Phase Sequence"));
+                meterEvents.add(new MeterEvent(date, MeterEvent.REVERSE_RUN, 88, "Wrong Phase Sequence"));
             }
         }
 
@@ -135,7 +135,7 @@ public class MeterEventParser {
             if (alarmRegister == 1){
                 //do nothing
             } else if (alarmRegister == 2) {
-                meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 92, "Bad Voltage Quality L1"));
+                meterEvents.add(new MeterEvent(date, MeterEvent.PHASE_FAILURE, 92, "Bad Voltage Quality L1"));
             }
         }
 
@@ -252,7 +252,7 @@ public class MeterEventParser {
             }
         }
 
-        if (ProtocolTools.isBitSet(meterEventCode, 28)) {
+        if (ProtocolTools.isBitSet(meterEventCode, 29)) {
             if (alarmRegister == 1){
                 meterEvents.add(new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, 113, "Battery low on M-bus ch2"));
             } else if (alarmRegister == 2) {

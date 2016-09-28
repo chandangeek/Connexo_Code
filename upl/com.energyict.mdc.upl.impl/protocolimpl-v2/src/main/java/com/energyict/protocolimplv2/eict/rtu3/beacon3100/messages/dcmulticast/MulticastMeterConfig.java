@@ -41,7 +41,12 @@ public class MulticastMeterConfig {
         result.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getDeviceIdentifier(), "")));
         result.addDataType(OctetString.fromString(getMeterSerialNumber()));
         result.addDataType(getUnicastSecurity().toDataType());
+
+        /**
+        Olivier: The multicast keys are not required.
+         https://jira.eict.vpdc/browse/G3INTDC-994?focusedCommentId=125395&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-125395
         result.addDataType(getMulticastSecurity().toDataType());
+         */
         return result;
     }
 

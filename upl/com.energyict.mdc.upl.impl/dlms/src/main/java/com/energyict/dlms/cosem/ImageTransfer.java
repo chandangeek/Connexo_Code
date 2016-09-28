@@ -177,6 +177,30 @@ public class ImageTransfer extends AbstractCosemObject {
         return -1;
     }
 
+    public void enableImageTransfer() throws IOException {
+        if (!isResume()) {
+            writeImageTransferEnabledState(true);
+        }
+    }
+
+    public void enableImageTransfer(ImageBlockSupplier dataSupplier, String imageIdentifier) throws IOException {
+        // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
+        updateState(ImageTransferCallBack.ImageTransferState.ENABLE_IMAGE_TRANSFER, imageIdentifier, 0, dataSupplier.getSize(), 0);
+        if (!isResume()) {
+            writeImageTransferEnabledState(true);
+        }
+    }
+
+    public void initiateImageTransfer(String imageIdentifier) throws IOException {
+        updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size != null ? size.intValue() : 0, 0);
+        Structure imageInitiateStructure = new Structure();
+        imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
+        imageInitiateStructure.addDataType(this.size);
+        if (!isResume()) {
+            imageTransferInitiate(imageInitiateStructure);
+        }
+    }
+
     /**
      * Start the automatic upgrade procedure. You may choose to add additional zeros at in the last block to match the blockSize for each block.
      *
@@ -188,11 +212,7 @@ public class ImageTransfer extends AbstractCosemObject {
      */
     public final void upgrade(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier, final boolean checkForMissingBlocks) throws IOException {
 
-        // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
-        updateState(ImageTransferCallBack.ImageTransferState.ENABLE_IMAGE_TRANSFER, imageIdentifier, 0, dataSupplier.getSize(), 0);
-        if (!isResume()) {
-            writeImageTransferEnabledState(true);
-        }
+        enableImageTransfer(dataSupplier, imageIdentifier);
 
         if (getImageTransferEnabledState().getState()) {
             initializeAndTransferBlocks(dataSupplier, additionalZeros, imageIdentifier);
@@ -274,17 +294,10 @@ public class ImageTransfer extends AbstractCosemObject {
         }
 
         // Step2: Initiate the image transfer
-        updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size != null ? size.intValue() : 0, 0);
-        Structure imageInitiateStructure = new Structure();
-        imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
-        imageInitiateStructure.addDataType(this.size);
-        if (!isResume()) {
-            imageTransferInitiate(imageInitiateStructure);
-        }
+        initiateImageTransfer(imageIdentifier);
 
-        if (delayBeforeSendingBlocks > 0) {
-            DLMSUtils.delay(delayBeforeSendingBlocks);  //Wait a bit before sending the blocks
-        }
+        //add delay
+        initializationBeforeSendingOfBlocks();
 
         // Step3: Transfer image blocks
         transferImageBlocks(additionalZeros);

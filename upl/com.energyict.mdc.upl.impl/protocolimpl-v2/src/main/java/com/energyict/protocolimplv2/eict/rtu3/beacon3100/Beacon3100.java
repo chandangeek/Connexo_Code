@@ -8,12 +8,13 @@ import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
@@ -32,12 +33,14 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
@@ -52,7 +55,6 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -65,18 +67,15 @@ import java.util.List;
  */
 public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
 
-    private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
-
     // https://confluence.eict.vpdc/display/G3IntBeacon3100/DLMS+management
     // https://jira.eict.vpdc/browse/COMMUNICATION-1552
-    private static final ObisCode FRAMECOUNTER_OBISCODE_1_MNG = ObisCode.fromString("0.0.43.1.1.255");
-    private static final ObisCode FRAMECOUNTER_OBISCODE_32_RW = ObisCode.fromString("0.0.43.1.2.255");
-    private static final ObisCode FRAMECOUNTER_OBISCODE_64_FW = ObisCode.fromString("0.0.43.1.3.255");
-
-    private static final int CLIENT_1_MNG = 1;
-    private static final int CLIENT_32_RW = 32;
-    private static final int CLIENT_64_MNG = 64;
-
+    public static final ObisCode FRAMECOUNTER_OBISCODE_1_MNG = ObisCode.fromString("0.0.43.1.1.255");
+    public static final ObisCode FRAMECOUNTER_OBISCODE_32_RW = ObisCode.fromString("0.0.43.1.2.255");
+    public static final ObisCode FRAMECOUNTER_OBISCODE_64_FW = ObisCode.fromString("0.0.43.1.3.255");
+    public static final int CLIENT_1_MNG = 1;
+    public static final int CLIENT_32_RW = 32;
+    public static final int CLIENT_64_MNG = 64;
+    private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final String MIRROR_LOGICAL_DEVICE_PREFIX = "ELS-MIR-";
     private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
     private static final String UTF_8 = "UTF-8";
@@ -85,11 +84,14 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private Beacon3100Messaging beacon3100Messaging;
     private G3GatewayEvents g3GatewayEvents;
     private RegisterFactory registerFactory;
+    private Beacon3100LogBookFactory logBookFactory;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
+        getLogger().info("-version: " + getVersion());
         readFrameCounter(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
@@ -141,31 +143,52 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     /**
      * First read out the frame counter for the management client, using the public client. It has a pre-established association.
      * Note that this happens without setting up an association, since the it's pre-established for the public client.
+     * <p/>
+     * For EVN we'll read the frame counter using the frame counter provider custom method in the beacon
      */
     protected void readFrameCounter(ComChannel comChannel) {
-        if (usesSessionKey()) {
+        if (this.usesSessionKey()) {
             //No need to read out the global FC if we're going to use a new session key in this AA.
             return;
         }
+        // construct a temporary session with 0:0 security and clientId=16 (public)
+        final TypedProperties publicProperties = getDlmsSessionProperties().getProperties().clone();
+        publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
+        final Beacon3100Properties publicClientProperties = new Beacon3100Properties();
+        publicClientProperties.addProperties(publicProperties);
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, publicProperties));    //SecurityLevel 0:0
 
-        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
-        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
-        Beacon3100Properties publicClientProperties = new Beacon3100Properties();
-        publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
+        final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
+        final ObisCode frameCounterObisCode = this.getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress());
+        final long frameCounter;
 
-        DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
-        publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
-        long frameCounter;
-        try {
-            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress())).getValueAttr().longValue();
-        } catch (DataAccessResultException | ProtocolException e) {
-            frameCounter = new SecureRandom().nextInt();
-        } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+        if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
+            publicDlmsSession.getDlmsV2Connection().connectMAC();
+            publicDlmsSession.createAssociation();
+            try {
+
+                FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
+                frameCounter = frameCounterProvider.getFrameCounter(publicDlmsSession.getProperties().getSecurityProvider().getAuthenticationKey());
+
+            } catch (IOException e) {
+                throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+            } catch (Exception e) {
+                final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
+                throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+            } finally {
+                publicDlmsSession.disconnect();
+            }
+        } else {
+            /* Pre-established */
+            publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
+            try {
+                frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
+            } catch (IOException e) {
+                throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+            }
+            //frameCounter = new SecureRandom().nextInt();
         }
-
-        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
 
     /**
@@ -191,7 +214,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(), new InboundIpConnectionType());
+        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(), new InboundIpConnectionType(), new TLSConnectionType());
     }
 
     @Override
@@ -209,19 +232,16 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         return Collections.emptyList(); //Not supported
     }
 
-    /**
-     * Note that the logbook (and it's possible entries) are exactly the same as for the G3 gateway.
-     */
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        return getG3GatewayEvents().readEvents(logBooks);
+        return getBeacon3100LogBookFactory().getLogBookData(logBooks);
     }
 
-    private G3GatewayEvents getG3GatewayEvents() {
-        if (g3GatewayEvents == null) {
-            g3GatewayEvents = new G3GatewayEvents(getDlmsSession());
+    private Beacon3100LogBookFactory getBeacon3100LogBookFactory() {
+        if (logBookFactory == null) {
+            logBookFactory = new Beacon3100LogBookFactory(this);
         }
-        return g3GatewayEvents;
+        return logBookFactory;
     }
 
     @Override
@@ -307,9 +327,16 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     BigDecimal gatewayLogicalDeviceId = BigDecimal.valueOf(sapAssignmentItem.getSap());
                     BigDecimal mirrorLogicalDeviceId = BigDecimal.valueOf(findMatchingMirrorLogicalDevice(macAddress, sapAssignmentList));
                     BigDecimal lastSeenDate = BigDecimal.valueOf(g3Node.getLastSeenDate().getTime());
-                    BigDecimal persistedGatewayLogicalDeviceId = getGeneralProperty(macAddress, AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
-                    BigDecimal persistedMirrorLogicalDeviceId = getGeneralProperty(macAddress, AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
-                    BigDecimal persistedLastSeenDate = getGeneralProperty(macAddress, G3Properties.PROP_LASTSEENDATE);
+                    BigDecimal persistedGatewayLogicalDeviceId = null;
+                    BigDecimal persistedMirrorLogicalDeviceId = null;
+                    BigDecimal persistedLastSeenDate = null;
+                    try {
+                        getGeneralProperty(macAddress, AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
+                        getGeneralProperty(macAddress, AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
+                        getGeneralProperty(macAddress, G3Properties.PROP_LASTSEENDATE);
+
+                    } catch (Exception ex) {
+                    }
 
                     DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);  //Using callHomeId as a general property
                     LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
@@ -399,7 +426,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-07-15 09:48:36 +0200 (Fri, 15 Jul 2016)$";
+        return "$Date: 2016-09-02 14:48:00 +0200 (Mon, 11 Jul 2016)$";
     }
 
     @Override

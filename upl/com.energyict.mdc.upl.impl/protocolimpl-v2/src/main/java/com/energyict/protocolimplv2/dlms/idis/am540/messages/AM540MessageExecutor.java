@@ -49,6 +49,8 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         } else { // if it was not a PLC message
             if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.VerifyAndActivateFirmware)) {
                 collectedMessage = verifyAndActivateFirmware(pendingMessage, collectedMessage);
+            } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ENABLE_IMAGE_TRANSFER)) {
+                collectedMessage = enableImageTransfer(collectedMessage, pendingMessage);
             }  else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR)) {
                 collectedMessage = updateSupervisionMonitor(collectedMessage, pendingMessage);
             }
@@ -59,7 +61,19 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         return collectedMessage;
     }
 
-    private CollectedMessage verifyAndActivateFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    private CollectedMessage enableImageTransfer(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        try {
+            ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
+            imageTransfer.enableImageTransfer();
+        } catch (IOException e) {
+            String errorMsg = "Failed to enable image transfer: " + e.getMessage();
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, errorMsg));
+        }
+        return collectedMessage;
+    }
+
+    protected CollectedMessage verifyAndActivateFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
 
         ImageTransferStatus imageTransferStatus = imageTransfer.readImageTransferStatus();
@@ -110,7 +124,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         return plcConfigurationDeviceMessageExecutor;
     }
 
-    private boolean isTemporaryFailure(Throwable e) {
+    protected boolean isTemporaryFailure(Throwable e) {
          if (e == null) {
              return false;
          } else if (e instanceof DataAccessResultException) {

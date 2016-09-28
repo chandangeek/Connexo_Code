@@ -54,33 +54,4 @@ public class EventPushNotificationConfig extends AbstractCosemObject {
         write(EventPushNotificationAttributes.PUSH_OBJECT_LIST, objectDefinitions.getBEREncodedByteArray());
     }
 
-    public class ObjectDefinition {
-        private int classId;
-        private ObisCode obisCode;
-        int attributeIndex;
-        int dataIndex;
-
-        public ObjectDefinition(int classId, ObisCode obisCode, int attributeIndex, int dataIndex) {
-            this.classId = classId;
-            this.obisCode = obisCode;
-            this.attributeIndex = attributeIndex;
-            this.dataIndex = dataIndex;
-        }
-
-        public int getClassId() {
-            return classId;
-        }
-
-        public ObisCode getObisCode() {
-            return obisCode;
-        }
-
-        public int getAttributeIndex() {
-            return attributeIndex;
-        }
-
-        public int getDataIndex() {
-            return dataIndex;
-        }
-    }
 }
