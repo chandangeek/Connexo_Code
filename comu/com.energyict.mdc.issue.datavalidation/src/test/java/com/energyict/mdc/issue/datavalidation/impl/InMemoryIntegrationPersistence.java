@@ -37,6 +37,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
@@ -194,6 +195,7 @@ public class InMemoryIntegrationPersistence {
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             if (deviceConfigurationService != null) {
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
+                bind(LockService.class).toInstance(mock(LockService.class));
             }
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
