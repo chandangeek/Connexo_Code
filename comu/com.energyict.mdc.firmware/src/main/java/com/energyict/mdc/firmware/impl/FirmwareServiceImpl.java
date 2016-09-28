@@ -19,7 +19,6 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -59,6 +58,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -77,6 +77,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
@@ -484,7 +485,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(PropertySpecService.class).toInstance(propertySpecService);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier("MultiSense", FirmwareService.COMPONENTNAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
+            upgradeService.register(
+                    InstallIdentifier.identifier("MultiSense", FirmwareService.COMPONENTNAME),
+                    dataModel,
+                    Installer.class,
+                    ImmutableMap.of(
+                        version(10, 2), UpgraderV10_2.class
+                    ));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
