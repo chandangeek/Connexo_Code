@@ -85,10 +85,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             },
             '#loadProfileConfigurationDetailRulesGrid': {
                 selectionchange: this.previewValidationRule
-            },
-            'loadProfileConfigurationDetailSetup validation-rule-actionmenu': {
-                click: this.chooseRuleAction
-            },
+            },           
             'loadProfileConfigurationDetailForm #mdc-channel-config-multiplierRadioGroup': {
                 change: this.onMultiplierChange
             },
@@ -445,14 +442,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     },
                     previewComponent: {
                         xtype: 'validation-rule-preview',
-                        tools: [
-                            {
-                                xtype: 'uni-button-action',
-                                menu: {
-                                    xtype: 'validation-rule-actionmenu'
-                                }
-                            }
-                        ]
+                        noActionsButton: true
                     }
                 }
             );
@@ -625,12 +615,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         } else {
             this.getPage().down('validation-rule-preview').hide();
         }
-    },
-
-    chooseRuleAction: function (menu, item) {
-        var record = menu.record || this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getSelectionModel().getLastSelected();
-        location.href = '#/administration/validation/rulesets/' + encodeURIComponent(record.get('ruleSet').id) + '/rules/' + encodeURIComponent(record.getId());
-    },
+    },    
 
     onRegisterTypeChange: function (field, value) {
         var me = this,

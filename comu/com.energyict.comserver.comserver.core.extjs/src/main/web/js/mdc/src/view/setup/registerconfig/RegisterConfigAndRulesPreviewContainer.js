@@ -47,14 +47,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
             },
             previewComponent: {
                 xtype: 'validation-rule-preview',
-                tools: [
-                    {
-                        xtype: 'uni-button-action',
-                        menu: {
-                            xtype: 'rules-for-registerconfig-actionmenu'
-                        }
-                    }
-                ]
+                noActionsButton: true
             }
         }
     ]
