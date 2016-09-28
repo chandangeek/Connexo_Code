@@ -15,7 +15,7 @@ Ext.define('Mdc.store.UsagePointsForDeviceAttributes',{
             root: 'usagePoints'
         },
         extraParams: {
-            sort: 'mrid',
+            sort: 'name',
             dir: 'ASC'
         }
     }

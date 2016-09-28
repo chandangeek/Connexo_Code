@@ -8,14 +8,10 @@ Ext.define('Mdc.store.DeviceCommands', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/devicemessages',
+        url: '/api/ddr/devices/{deviceId}/devicemessages',
         reader: {
             type: 'json',
             root: 'deviceMessages'
-        },
-
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
 });

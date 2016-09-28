@@ -21,6 +21,6 @@ Ext.define('Mdc.model.DeviceCommunicationTask', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mrid}/comtasks'
+        url: '/api/ddr/devices/{deviceId}/comtasks'
     }
 });

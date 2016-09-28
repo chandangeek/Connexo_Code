@@ -84,7 +84,7 @@ Ext.define('Mdc.usagepointmanagement.view.EditUsagePointForm', {
                         xtype: 'button',
                         ui: 'link',
                         itemId: 'cancelLink',
-                        href: me.router.getRoute('usagepoints/usagepoint').buildUrl({mRID: me.mRID})
+                        href: me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: me.usagePointId})
                     }
                 ]
             }

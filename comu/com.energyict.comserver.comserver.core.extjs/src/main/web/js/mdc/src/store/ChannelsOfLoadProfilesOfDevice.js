@@ -5,15 +5,12 @@ Ext.define('Mdc.store.ChannelsOfLoadProfilesOfDevice', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/channels',
+        url: '/api/ddr/devices/{deviceId}/channels',
         reader: {
             type: 'json',
             root: 'channels',
             totalProperty: 'total'
         },
-        timeout: 300000,
-        setUrl: function (mRID) {
-                this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID))
-        }
+        timeout: 300000
     }
 });

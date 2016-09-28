@@ -4,14 +4,9 @@ Ext.define('Mdc.store.DeviceConfigurationResults',{
     storeId: 'DeviceTypes',
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/validationrulesets/validationmonitoring/configurationview',
+        url: '/api/ddr/devices/{deviceId}/validationrulesets/validationmonitoring/configurationview',
         reader: {
             type: 'json'
-        },
-
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
-
 });

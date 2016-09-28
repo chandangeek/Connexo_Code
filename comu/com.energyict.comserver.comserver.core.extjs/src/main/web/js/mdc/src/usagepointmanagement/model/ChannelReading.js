@@ -37,13 +37,9 @@ Ext.define('Mdc.usagepointmanagement.model.ChannelReading', {
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/upr/usagepoints/{mRID}/channels/{channelId}/data',
+        url: '/api/upr/usagepoints/{usagePointId}/channels/{channelId}/data',
         reader: {
             type: 'json'
-        },
-        setUrl: function (mRID, channelId) {
-            this.url = this.urlTpl.replace('{mRID}', mRID)
-                .replace('{channelId}', channelId);
         }
     }
 });

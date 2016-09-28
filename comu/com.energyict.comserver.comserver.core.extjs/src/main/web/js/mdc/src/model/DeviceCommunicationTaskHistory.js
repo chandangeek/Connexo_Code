@@ -26,6 +26,6 @@ Ext.define('Mdc.model.DeviceCommunicationTaskHistory', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mRID}/comtasks/{comTaskId}/comtaskexecutionsessions'
+        url: '/api/ddr/devices/{deviceId}/comtasks/{comTaskId}/comtaskexecutionsessions'
     }
 });

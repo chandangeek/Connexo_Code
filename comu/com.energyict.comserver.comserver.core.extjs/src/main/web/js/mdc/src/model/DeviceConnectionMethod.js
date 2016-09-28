@@ -37,6 +37,6 @@ Ext.define('Mdc.model.DeviceConnectionMethod', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mrid}/connectionmethods'
+        url: '/api/ddr/devices/{deviceId}/connectionmethods'
     }
 });

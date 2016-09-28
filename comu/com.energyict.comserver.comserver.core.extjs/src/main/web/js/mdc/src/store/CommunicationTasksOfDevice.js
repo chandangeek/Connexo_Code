@@ -5,7 +5,7 @@ Ext.define('Mdc.store.CommunicationTasksOfDevice', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mrid}/comtasks',
+        url: '/api/ddr/devices/{deviceId}/comtasks',
         reader: {
             type: 'json',
             root: 'comTasks'

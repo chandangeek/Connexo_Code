@@ -73,7 +73,7 @@ Ext.define('Mdc.controller.history.Setup', {
                 },
                 device: {
                     title: Uni.I18n.translate('general.device', 'MDC', 'Device'),
-                    route: '{mRID}',
+                    route: '{deviceId}',
                     controller: 'Mdc.controller.setup.Devices',
                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
                     action: 'showDeviceDetailsView',

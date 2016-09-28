@@ -101,13 +101,10 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{0}/channels',
+        url: '/api/ddr/devices/{deviceId}/channels',
         reader: {
             type: 'json'
         },
-        timeout: 300000,
-        setUrl: function (deviceMRID) {
-            this.url = Ext.String.format(this.urlTpl, encodeURIComponent(deviceMRID));
-        }
+        timeout: 300000
     }
 });

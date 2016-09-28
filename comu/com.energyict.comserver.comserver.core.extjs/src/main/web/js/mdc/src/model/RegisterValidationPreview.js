@@ -17,13 +17,9 @@ Ext.define('Mdc.model.RegisterValidationPreview', {
     proxy: {
         type: 'rest',
         timeout: 120000,
-        urlTpl: '/api/ddr/devices/{mRID}/registers/{registerID}/validationpreview',
+        url: '/api/ddr/devices/{deviceId}/registers/{registerID}/validationpreview',
         reader: {
             type: 'json'
-        },
-
-        setUrl: function (mRID, registerId) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{registerID}', registerId);
         }
     }
 });

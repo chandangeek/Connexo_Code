@@ -28,7 +28,7 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                 startTime,
                                 endTime,
                                 versionsLink = '<a href="'
-                                    + me.router.getRoute('usagepoints/usagepoint/history').buildUrl({usagePointId: record.get('mRID'), tab: 'metrologyconfigurationversion'})
+                                    + me.router.getRoute('usagepoints/usagepoint/history').buildUrl({usagePointId: record.get('name'), tab: 'metrologyconfigurationversion'})
                                     + '">Versions</a>';
 
                             if (value) {
@@ -63,7 +63,7 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                 startTime,
                                 endTime,
                                 versionsLink = '<a href="'
-                                    + me.router.getRoute('usagepoints/usagepoint/history').buildUrl({usagePointId: record.get('mRID')},{historyTab: 'meterActivation'})
+                                    + me.router.getRoute('usagepoints/usagepoint/history').buildUrl({usagePointId: record.get('name')},{historyTab: 'meterActivation'})
                                     + '">Versions</a>';
 
                             if (value) {
@@ -72,10 +72,10 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                 endTime = value.end;
                                 if (canViewDevice) {
                                     result += '<a href="'
-                                        + me.router.getRoute('devices/device').buildUrl({mRID: value.meter.mRID})
+                                        + me.router.getRoute('devices/device').buildUrl({deviceId: value.meter.name})
                                         + '">';
                                 }
-                                result += value.meter.mRID;
+                                result += value.meter.name;
                                 if (canViewDevice) {
                                     result += '</a>';
                                 }

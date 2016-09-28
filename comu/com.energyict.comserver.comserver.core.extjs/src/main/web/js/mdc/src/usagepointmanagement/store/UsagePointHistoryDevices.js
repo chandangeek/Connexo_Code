@@ -6,7 +6,7 @@ Ext.define('Mdc.usagepointmanagement.store.UsagePointHistoryDevices', {
     model: 'Mdc.usagepointmanagement.model.UsagePointHistoryDevice',
     proxy: {
         type: 'rest',
-        url: '/api/upr/usagepoints/{mRID}/history/devices',
+        url: '/api/upr/usagepoints/{usagePointId}/history/devices',
         reader: {
             type: 'json',
             root: 'devices',

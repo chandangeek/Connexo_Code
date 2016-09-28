@@ -17,7 +17,7 @@ Ext.define('Mdc.model.DeviceDataEstimationRulesSet', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mRID}/estimationrulesets',
+        url: '/api/ddr/devices/{deviceId}/estimationrulesets',
         timeout: 60000,
         reader: {
             type: 'json'

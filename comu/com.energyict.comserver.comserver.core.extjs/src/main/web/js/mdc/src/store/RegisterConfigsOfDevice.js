@@ -9,7 +9,7 @@ Ext.define('Mdc.store.RegisterConfigsOfDevice', {
     proxy: {
         type: 'rest',
         timeout: 90000,
-        url: '/api/ddr/devices/{mRID}/registers',
+        url: '/api/ddr/devices/{deviceId}/registers',
         reader: {
             type: 'json',
             root: 'data'

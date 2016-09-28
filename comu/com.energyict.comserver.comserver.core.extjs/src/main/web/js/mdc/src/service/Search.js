@@ -4,8 +4,8 @@ Ext.define('Mdc.service.Search', {
     init: function () {
         var me = this;
         me.defaultColumns = {
-            'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state', 'location'],
-            'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayMetrologyConfiguration']
+            'com.energyict.mdc.device.data.Device': ['id', 'name', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state', 'location'],
+            'com.elster.jupiter.metering.UsagePoint': ['name', 'displayServiceCategory', 'displayMetrologyConfiguration']
         };
         me.callParent(arguments);
     },
@@ -14,19 +14,19 @@ Ext.define('Mdc.service.Search', {
         var me = this,
             column = this.callParent(arguments);
 
-        if (column && column.dataIndex === 'mRID') {
+        if (column && column.dataIndex === 'name') {
             if (me.searchDomain.getId() === 'com.energyict.mdc.device.data.Device') {
                 column.renderer = function (value, metaData, record) {
-                    var url = me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(value)});
+                    var url = me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(value)});
                     metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';
                     return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
-                }
+                };
             } else if (me.searchDomain.getId() === 'com.elster.jupiter.metering.UsagePoint') {
                 column.renderer = function (value, metaData, record) {
                     var url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: encodeURIComponent(value)});
                     metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';
                     return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
-                }
+                };
             }
         }
         else if (column.xtype != 'uni-date-column'

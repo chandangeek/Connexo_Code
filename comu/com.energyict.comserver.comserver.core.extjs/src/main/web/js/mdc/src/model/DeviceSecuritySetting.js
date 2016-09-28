@@ -23,6 +23,6 @@ Ext.define('Mdc.model.DeviceSecuritySetting', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mrid}/securityproperties'
+        url: '/api/ddr/devices/{deviceId}/securityproperties'
     }
 });

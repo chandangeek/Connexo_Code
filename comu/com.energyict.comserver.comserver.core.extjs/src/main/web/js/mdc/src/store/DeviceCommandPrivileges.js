@@ -9,20 +9,13 @@ Ext.define('Mdc.store.DeviceCommandPrivileges', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/devicemessages/privileges',
-
+        url: '/api/ddr/devices/{deviceId}/devicemessages/privileges',
         reader: {
             type: 'json',
             root: 'privileges'
         },
-
         pageParam: false,
         startParam: false,
-        limitParam: false,
-
-        setUrl: function(params) {
-            this.url = this.urlTpl.replace('{mRID}', params.mRID);
-        }
-
+        limitParam: false
     }
 });

@@ -47,15 +47,11 @@ Ext.define('Mdc.model.DeviceConnection', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/connections',
+        url: '/api/ddr/devices/{deviceId}/connections',
         reader: {
             type: 'json',
             root: 'connections',
             totalProperty: 'total'
-        },
-
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
 });

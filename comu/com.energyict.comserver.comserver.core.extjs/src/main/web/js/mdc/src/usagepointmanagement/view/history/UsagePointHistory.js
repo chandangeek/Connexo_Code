@@ -9,7 +9,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistory', {
     ],
 
     router: null,
-    mRID: null,
+    usagePointId: null,
     usagePoint: null,
 
     initComponent: function () {
@@ -22,7 +22,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistory', {
                     xtype: 'usage-point-management-side-menu',
                     itemId: 'usage-point-management-side-menu-history',
                     router: me.router,
-                    mRID: me.mRID
+                    usagePointId: me.usagePointId
                 }
             ]
         };

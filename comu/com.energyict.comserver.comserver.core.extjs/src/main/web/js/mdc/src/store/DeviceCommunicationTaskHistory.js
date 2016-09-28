@@ -7,7 +7,7 @@ Ext.define('Mdc.store.DeviceCommunicationTaskHistory', {
 
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mRID}/comtasks/{comTaskId}/comtaskexecutionsessions',
+        url: '/api/ddr/devices/{deviceId}/comtasks/{comTaskId}/comtaskexecutionsessions',
         reader: {
             type: 'json',
             root: 'comTaskExecutionSessions'

@@ -11,13 +11,9 @@ Ext.define('Mdc.model.LogbookOfDevice', {
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/logbooks',
+        url: '/api/ddr/devices/{deviceId}/logbooks',
         reader: {
             type: 'json'
-        },
-
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
 });

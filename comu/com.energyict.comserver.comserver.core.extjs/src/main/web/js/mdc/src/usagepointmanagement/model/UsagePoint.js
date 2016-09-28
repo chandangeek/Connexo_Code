@@ -21,6 +21,5 @@ Ext.define('Mdc.usagepointmanagement.model.UsagePoint', {
         setUrl: function (url) {
             this.url = url;
         }
-    },
-    
+    }
 });

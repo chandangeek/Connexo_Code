@@ -8,6 +8,7 @@ Ext.define('Mdc.model.Device', {
     ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
+        {name: 'name', type: 'string', useNull: true},
         {name: 'mRID', type: 'string', useNull: true},
         {name: 'state', defaultValue: null},
         {name: 'serialNumber', type: 'string', useNull: true},
@@ -98,6 +99,5 @@ Ext.define('Mdc.model.Device', {
             type: 'json'
         }
     }
-
 });
 

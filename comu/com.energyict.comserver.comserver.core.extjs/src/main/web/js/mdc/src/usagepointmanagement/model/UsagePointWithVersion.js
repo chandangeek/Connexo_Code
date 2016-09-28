@@ -21,18 +21,14 @@ Ext.define('Mdc.usagepointmanagement.model.UsagePointWithVersion', {
             },
             defaultValue: null,
             useNull: true
-        },
+        }
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/mtr/usagepoints/{mRID}/metrologyconfigurationversion',
+        url: '/api/mtr/usagepoints/{usagePointId}/metrologyconfigurationversion',
         timeout: 240000,
         reader: {
             type: 'json'
-        },
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
-
 });

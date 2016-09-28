@@ -8,7 +8,7 @@ Ext.define('Mdc.store.LoadProfilesOfDeviceData', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/loadprofiles/{loadProfileId}/data',
+        url: '/api/ddr/devices/{deviceId}/loadprofiles/{loadProfileId}/data',
         reader: {
             type: 'json',
             root: 'data'
@@ -16,10 +16,6 @@ Ext.define('Mdc.store.LoadProfilesOfDeviceData', {
         timeout: 300000,
         pageParam: false,
         startParam: false,
-        limitParam: false,
-
-        setUrl: function (params) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{loadProfileId}', params.loadProfileId);
-        }
+        limitParam: false
     }
 });

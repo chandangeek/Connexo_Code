@@ -23,7 +23,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarSetup', {
                 items: [
                     {
                         xtype: 'tou-device-send-cal-form',
-                        mRID: me.device.get('mRID')
+                        deviceId: me.device.get('name')
                     }
                 ]
             }

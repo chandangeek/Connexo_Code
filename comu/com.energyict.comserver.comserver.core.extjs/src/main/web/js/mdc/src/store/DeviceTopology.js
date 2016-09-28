@@ -14,11 +14,6 @@ Ext.define('Mdc.store.DeviceTopology', {
             type: 'json',
             root: 'slaveDevices'
         },
-        setUrl: function(mRID) {
-            this.url = '/api/ddr/devices/' + encodeURIComponent(mRID) + '/topology/communication'
-        }
-
+        url: '/api/ddr/devices/{deviceId}/topology/communication'
     }
-
-
 });

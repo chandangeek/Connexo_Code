@@ -4,7 +4,7 @@ Ext.define('Mdc.timeofuseondevice.view.ActivatePassiveCalendarWindow', {
     modal: true,
     title: Uni.I18n.translate('timeofuse.activatePassiveCalendar', 'MDC', 'Activate passive calendar'),
     record: null,
-    mRID: null,
+    deviceId: null,
     requires: [
         'Uni.property.form.Property'
     ],
@@ -16,7 +16,7 @@ Ext.define('Mdc.timeofuseondevice.view.ActivatePassiveCalendarWindow', {
             xtype: 'form',
             itemId: 'activate-passive-window-form',
             padding: 0,
-            mRID: me.mRID,
+            deviceId: me.deviceId,
             defaults: {
                 labelWidth: 200
             },

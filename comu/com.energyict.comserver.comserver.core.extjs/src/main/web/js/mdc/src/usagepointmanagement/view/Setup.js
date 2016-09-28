@@ -43,7 +43,7 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
                             xtype: 'usage-point-action-menu',
                             itemId: 'usagePointActionMenu',
                             router: me.router,
-                            mRID: me.mRID
+                            usagePointId: me.usagePointId
                         }
                     }
                 ]
@@ -58,7 +58,7 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                        mRID: me.mRID
+                        usagePointId: me.usagePointId
                     }
                 ]
             }
