@@ -545,6 +545,11 @@ public class ServiceCallTransitionIT {
         }
 
         @Override
+        public String getDomainClassDisplayName() {
+            return this.getDomainClass().getName();
+        }
+
+        @Override
         public PersistenceSupport<ServiceCall, MyExtension> getPersistenceSupport() {
             return new PersistenceSupport<ServiceCall, MyExtension>() {
                 @Override

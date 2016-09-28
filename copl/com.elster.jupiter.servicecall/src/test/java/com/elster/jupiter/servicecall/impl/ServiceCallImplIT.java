@@ -520,6 +520,11 @@ public class ServiceCallImplIT {
         }
 
         @Override
+        public String getDomainClassDisplayName() {
+            return this.getDomainClass().getName();
+        }
+
+        @Override
         public PersistenceSupport<ServiceCall, MyPersistentExtension> getPersistenceSupport() {
             return new PersistenceSupport<ServiceCall, MyPersistentExtension>() {
                 @Override

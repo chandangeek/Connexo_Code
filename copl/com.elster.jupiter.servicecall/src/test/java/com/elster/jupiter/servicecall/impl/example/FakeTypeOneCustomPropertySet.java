@@ -62,6 +62,11 @@ public class FakeTypeOneCustomPropertySet implements CustomPropertySet<ServiceCa
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
+    }
+
+    @Override
     public PersistenceSupport<ServiceCallLifeCycle, ServiceCallLifeCycleDomainExtension> getPersistenceSupport() {
         return new ServiceCallLifeCyclePersistenceSupport();
     }

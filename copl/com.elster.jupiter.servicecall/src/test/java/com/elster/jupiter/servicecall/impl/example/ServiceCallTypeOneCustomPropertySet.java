@@ -61,6 +61,11 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
+    }
+
+    @Override
     public PersistenceSupport<ServiceCall, ServiceCallTypeDomainExtension> getPersistenceSupport() {
         return new RegisterTypeFivePersistenceSupport();
     }
