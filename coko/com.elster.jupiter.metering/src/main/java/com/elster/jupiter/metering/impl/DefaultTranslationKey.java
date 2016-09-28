@@ -13,7 +13,7 @@ public enum DefaultTranslationKey implements TranslationKey {
     RESOURCE_METROLOGY_CONFIGURATION("usagePoint.metrologyConfiguration", "Metrology configurations"),
     RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION("usagePoint.metrologyConfiguration.description", "Manage metrology configurations"),
 
-    SUBSCRIBER_TRANSLATION(SwitchStateMachineEvent.SUBSCRIBER, SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION),;
+    SWITCH_STATE_MACHINE_SUBSCRIBER(SwitchStateMachineEvent.SUBSCRIBER, SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION),;
 
     private String key;
     private String format;

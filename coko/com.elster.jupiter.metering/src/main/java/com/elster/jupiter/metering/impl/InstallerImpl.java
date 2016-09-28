@@ -376,7 +376,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     }
 
     private void createQueues() {
-        this.createQueue(SwitchStateMachineEvent.DESTINATION, DefaultTranslationKey.SUBSCRIBER_TRANSLATION);
+        this.createQueue(SwitchStateMachineEvent.DESTINATION, DefaultTranslationKey.SWITCH_STATE_MACHINE_SUBSCRIBER);
     }
 
     private void createQueue(String queueDestination, TranslationKey queueSubscriber) {
