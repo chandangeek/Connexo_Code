@@ -26,7 +26,7 @@ public class HasUniqueDetailsValidator implements ConstraintValidator<HasUniqueD
 
     @Override
     public boolean isValid(UsagePointDetailImpl usagePointDetail, ConstraintValidatorContext constraintValidatorContext) {
-        if (usagePointDetail.getUsagePoint().getDetail(usagePointDetail.getRange().lowerEndpoint()).isPresent()) {
+        if (usagePointDetail.getUsagePoint().getDetails().stream().filter(detail -> detail.getRange().contains(usagePointDetail.getRange().lowerEndpoint())).findFirst().isPresent()) {
             constraintValidatorContext.buildConstraintViolationWithTemplate(message).addPropertyNode("interval").addConstraintViolation()
                     .disableDefaultConstraintViolation();
             return false;
