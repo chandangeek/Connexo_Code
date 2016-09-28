@@ -6,6 +6,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -28,11 +30,11 @@ import java.util.Set;
 
 @Component(
         name = "com.elster.jupiter.estimation.rest",
-        service = {Application.class, MessageSeedProvider.class},
+        service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/est", "app=SYS", "name=" + EstimationApplication.COMPONENT_NAME})
-public class EstimationApplication extends Application implements MessageSeedProvider {
-    public static final String COMPONENT_NAME = "EST";
+public class EstimationApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
+    static final String COMPONENT_NAME = "EST";
 
     private volatile EstimationService estimationService;
     private volatile TransactionService transactionService;
@@ -45,7 +47,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
     private volatile Thesaurus thesaurus;
 
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(
+        return ImmutableSet.of(
                 EstimationResource.class,
                 MeterGroupsResource.class);
     }
@@ -107,6 +109,16 @@ public class EstimationApplication extends Application implements MessageSeedPro
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(TranslationKeys.values());
     }
 
     class HK2Binder extends AbstractBinder {

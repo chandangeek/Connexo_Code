@@ -38,7 +38,7 @@ public class EstimationTaskHistoryInfo {
         this.startedOn = taskOccurrence.getStartDate().map(this::toLong).orElse(null);
         this.finishedOn = taskOccurrence.getEndDate().map(this::toLong).orElse(null);
         this.duration = calculateDuration(startedOn, finishedOn);
-        this.status = getName(taskOccurrence.getStatus(), thesaurus);
+        this.status = taskOccurrence.getStatusName();
         this.lastRun = taskOccurrence.getTriggerTime().toEpochMilli();
         setStatusOnDate(taskOccurrence, thesaurus);
         History<EstimationTask> estTaskHistory = estimationTask.getHistory();
@@ -63,10 +63,6 @@ public class EstimationTaskHistoryInfo {
         }
     }
 
-    private static String getName(TaskStatus status, Thesaurus thesaurus) {
-        return thesaurus.getStringBeyondComponent(status.toString(), status.toString());
-    }
-
     private Long toLong(Instant instant) {
         return instant == null ? null : instant.toEpochMilli();
     }
@@ -80,15 +76,16 @@ public class EstimationTaskHistoryInfo {
 
     private void setStatusOnDate(TaskOccurrence taskOccurrence, Thesaurus thesaurus) {
         TaskStatus taskStatus = taskOccurrence.getStatus();
-        String statusTranslation = thesaurus.getStringBeyondComponent(taskStatus.toString(), taskStatus.toString());
+        String statusTranslation = taskOccurrence.getStatusName();
         if (TaskStatus.BUSY.equals(taskStatus)) {
-            this.statusPrefix = statusTranslation + " " + thesaurus.getString("since", "since");
+            this.statusPrefix = thesaurus.getFormat(TranslationKeys.SINCE).format(statusTranslation);
             this.statusDate = startedOn;
         } else if ((TaskStatus.FAILED.equals(taskStatus)) || (TaskStatus.SUCCESS.equals(taskStatus))) {
-            this.statusPrefix = statusTranslation + " " + thesaurus.getString("on", "on");
+            this.statusPrefix = thesaurus.getFormat(TranslationKeys.ON).format(statusTranslation);
             this.statusDate = finishedOn;
         } else {
             this.statusPrefix = statusTranslation;
         }
     }
+
 }
