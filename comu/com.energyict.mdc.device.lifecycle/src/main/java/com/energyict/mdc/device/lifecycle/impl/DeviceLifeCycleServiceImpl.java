@@ -340,8 +340,9 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      * @return A flag that indicates if the AuthorizedAction is compatible with one of the triggerExecution methods
      */
     private boolean isExecutable(AuthorizedAction action) {
-        return action instanceof AuthorizedTransitionAction
-                || action instanceof AuthorizedBusinessProcessAction;
+        return action instanceof AuthorizedBusinessProcessAction
+                || (action instanceof AuthorizedTransitionAction
+                && ((AuthorizedTransitionAction) action).getStateTransition().getEventType() instanceof CustomStateTransitionEventType);
     }
 
     private boolean userHasExecutePrivilege(AuthorizedAction action) throws SecurityException {
