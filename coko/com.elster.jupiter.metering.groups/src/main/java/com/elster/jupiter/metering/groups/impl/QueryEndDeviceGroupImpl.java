@@ -1,8 +1,10 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -18,6 +20,8 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.ExecutionTimer;
@@ -64,14 +68,16 @@ class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEnd
     private List<QueryEndDeviceGroupCondition> conditions = new ArrayList<>();
 
     private final MeteringGroupsService meteringGroupService;
+    private final MeteringService meteringService;
     private final SearchService searchService;
     private final ExecutionTimer endDeviceGroupMemberCountTimer;
     private final Thesaurus thesaurus;
 
     @Inject
-    QueryEndDeviceGroupImpl(DataModel dataModel, MeteringGroupsService meteringGroupService, EventService eventService, SearchService searchService, ExecutionTimer endDeviceGroupMemberCountTimer, Thesaurus thesaurus) {
+    QueryEndDeviceGroupImpl(DataModel dataModel, MeteringGroupsService meteringGroupService, MeteringService meteringService, EventService eventService, SearchService searchService, ExecutionTimer endDeviceGroupMemberCountTimer, Thesaurus thesaurus) {
         super(eventService, dataModel);
         this.meteringGroupService = meteringGroupService;
+        this.meteringService = meteringService;
         this.searchService = searchService;
         this.endDeviceGroupMemberCountTimer = endDeviceGroupMemberCountTimer;
         this.thesaurus = thesaurus;
@@ -160,6 +166,12 @@ class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEnd
     }
 
     @Override
+    public Subquery toSubQuery(String... fields) {
+        Query<EndDevice> endDeviceQuery = getEndDeviceQueryProvider().getEndDeviceQuery(getSearchablePropertyConditions());
+        return endDeviceQuery.asSubquery(Condition.TRUE, fields);
+    }
+
+    @Override
     public List<SearchablePropertyValue> getSearchablePropertyValues() {
         return getSearchDomain().getPropertiesValues(this::mapper);
     }
@@ -190,13 +202,12 @@ class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEnd
 
     void addQueryEndDeviceGroupCondition(SearchablePropertyValue searchablePropertyValue) {
         QueryEndDeviceGroupCondition condition =
-            this.getDataModel()
-                .getInstance(QueryEndDeviceGroupCondition.class)
-                .init(
-                    this,
-                    searchablePropertyValue.getValueBean().propertyName,
-                    searchablePropertyValue.getValueBean().operator,
-                    searchablePropertyValue.getValueBean().values);
+                this.getDataModel()
+                        .getInstance(QueryEndDeviceGroupCondition.class)
+                        .init(this,
+                                searchablePropertyValue.getValueBean().propertyName,
+                                searchablePropertyValue.getValueBean().operator,
+                                searchablePropertyValue.getValueBean().values);
         Save.CREATE.validate(this.getDataModel(), condition);
         this.getDataModel().persist(condition);
         this.conditions.add(condition);

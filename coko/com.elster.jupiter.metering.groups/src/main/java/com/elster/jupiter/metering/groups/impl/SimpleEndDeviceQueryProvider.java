@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
@@ -7,7 +8,6 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.conditions.Condition;
 
-import com.elster.jupiter.util.sql.SqlFragment;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -50,7 +50,10 @@ public class SimpleEndDeviceQueryProvider implements EndDeviceQueryProvider {
     }
 
     @Override
-    public SqlFragment toFragment(SqlFragment sqlFragment, String columnName) {
-        return sqlFragment;
+    public Query<EndDevice> getEndDeviceQuery(List<SearchablePropertyCondition> conditions) {
+        Optional<Condition> condition = conditions.stream().map(SearchablePropertyCondition::getCondition).reduce(Condition::and);
+        Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
+        endDeviceQuery.setRestriction(condition.orElse(Condition.TRUE));
+        return endDeviceQuery;
     }
 }
