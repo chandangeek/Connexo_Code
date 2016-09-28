@@ -4,10 +4,11 @@
 
 package com.elster.jupiter.metering.imports.impl;
 
-import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
 
@@ -17,26 +18,26 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Insert your comments here.
+ * Upgrades the database to version 10.2.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-09-26 (16:33)
  */
 public class UpgraderV10_2 implements Upgrader {
-    private final DataModel dataModel;
+    private final OrmService ormService;
 
     @Inject
-    UpgraderV10_2(DataModel dataModel) {
-        this.dataModel = dataModel;
+    UpgraderV10_2(OrmService ormService) {
+        this.ormService = ormService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        this.upgradeSubscriberSpecs();
+        this.upgradeSubscriberSpecs(this.ormService.getDataModel(MessageService.COMPONENTNAME).get());
     }
 
-    private void upgradeSubscriberSpecs() {
-        try (Connection connection = this.dataModel.getConnection(true)) {
+    private void upgradeSubscriberSpecs(DataModel dataModel) {
+        try (Connection connection = dataModel.getConnection(true)) {
             this.upgradeSubscriberSpecs(connection);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -53,8 +54,8 @@ public class UpgraderV10_2 implements Upgrader {
 
     private PreparedStatement upgradeSubscriberSpecsStatement(Connection connection) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("UPDATE MSG_SUBSCRIBERSPEC SET nls_component = ?, nls_layer = ? WHERE name = ?");
-        statement.setString(1, FileImportService.COMPONENT_NAME);
-        statement.setString(2, Layer.REST.name());
+        statement.setString(1, UsagePointFileImporterMessageHandler.COMPONENT_NAME);
+        statement.setString(2, Layer.DOMAIN.name());
         statement.setString(3, TranslationKeys.Labels.USAGEPOINT_MESSAGE_SUBSCRIBER.getKey());
         return statement;
     }

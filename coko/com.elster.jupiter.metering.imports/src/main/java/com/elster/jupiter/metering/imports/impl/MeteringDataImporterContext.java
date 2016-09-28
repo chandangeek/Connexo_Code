@@ -68,7 +68,7 @@ public class MeteringDataImporterContext {
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(UsagePointFileImporterMessageHandler.APP_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(UsagePointFileImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     public MeteringService getMeteringService() {

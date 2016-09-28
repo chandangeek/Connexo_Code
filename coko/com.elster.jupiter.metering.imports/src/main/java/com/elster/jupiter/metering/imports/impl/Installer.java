@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.imports.impl;
 
-import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -36,7 +35,7 @@ final class Installer implements FullInstaller {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(UsagePointFileImporterMessageHandler.DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(TranslationKeys.Labels.USAGEPOINT_MESSAGE_SUBSCRIBER, FileImportService.COMPONENT_NAME, Layer.REST);
+        destinationSpec.subscribe(TranslationKeys.Labels.USAGEPOINT_MESSAGE_SUBSCRIBER, UsagePointFileImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
     }
 
 }
