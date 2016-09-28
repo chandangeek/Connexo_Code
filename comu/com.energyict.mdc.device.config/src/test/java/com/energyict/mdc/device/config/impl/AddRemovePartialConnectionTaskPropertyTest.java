@@ -172,6 +172,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         nlsService = mock(NlsService.class);
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         publisher = mock(Publisher.class);
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
         validationService = mock(ValidationService.class);
         estimationService = mock(EstimationService.class);
         meteringService = mock(MeteringService.class);
@@ -238,6 +239,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
 
         // Business method
         partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "localhost");
@@ -260,6 +262,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
 
         // Business method
         partialConnectionTask.removeProperty(HOST_PROPERTY_SPEC_NAME);
@@ -280,6 +283,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
 
         // Business method
         partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "localhost");
@@ -303,6 +307,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
 
         // Business method
         partialConnectionTask.removeProperty(HOST_PROPERTY_SPEC_NAME);
@@ -326,6 +331,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
 
         // Business method
         partialConnectionTask.removeProperty(HOST_PROPERTY_SPEC_NAME);
@@ -349,6 +355,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
 
         // Business method
         partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "some.host");
@@ -374,6 +381,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
 
         // Business method
         partialConnectionTask.setProperty(TIMEOUT_PROPERTY_SPEC_NAME, BigDecimal.ONE);
@@ -397,6 +405,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
 
         // Business method
         partialConnectionTask.removeProperty(TIMEOUT_PROPERTY_SPEC_NAME);
@@ -419,6 +428,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
 
         // Business method
         partialConnectionTask.setProperty(TIMEOUT_PROPERTY_SPEC_NAME, BigDecimal.TEN);
@@ -443,6 +453,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
 
         // Business method
         partialConnectionTask.removeProperty(TIMEOUT_PROPERTY_SPEC_NAME);
