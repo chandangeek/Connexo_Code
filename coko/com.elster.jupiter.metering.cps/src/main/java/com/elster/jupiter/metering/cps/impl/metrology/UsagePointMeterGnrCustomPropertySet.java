@@ -57,6 +57,11 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.CPS_DOMAIN_NAME).format();
+    }
+
+    @Override
     public PersistenceSupport<UsagePoint, UsagePointMeterGnrDomainExtension> getPersistenceSupport() {
         return new UsagePointMtrGeneralPersistSupp(this.getThesaurus());
     }

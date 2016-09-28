@@ -59,6 +59,11 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.CPS_DOMAIN_NAME).format();
+    }
+
+    @Override
     public PersistenceSupport<UsagePoint, UsagePointDecentProdDomExt> getPersistenceSupport() {
         return new UsagePointDecentrProdPS(this.getThesaurus());
     }
