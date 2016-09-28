@@ -9,12 +9,13 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.Collections;
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.elster.jupiter.metering.imports.impl.UsagePointFileImporterMessageHandler",
         property = {"subscriber=" + UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME,
@@ -45,7 +46,13 @@ public class UsagePointFileImporterMessageHandler implements MessageHandlerFacto
 
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("Pulse", UsagePointFileImporterMessageHandler.APP_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", UsagePointFileImporterMessageHandler.APP_NAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        version(10, 2), UpgraderV10_2.class
+                ));
     }
 
     @Reference
