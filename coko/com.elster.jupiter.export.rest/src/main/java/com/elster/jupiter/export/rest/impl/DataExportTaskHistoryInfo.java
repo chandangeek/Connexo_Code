@@ -7,6 +7,7 @@ import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.StandardDataSelector;
+import com.elster.jupiter.export.impl.TranslationKeys;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
@@ -74,7 +75,7 @@ public class DataExportTaskHistoryInfo {
         this.startedOn = dataExportOccurrence.getStartDate().map(this::toLong).orElse(null);
         this.finishedOn = dataExportOccurrence.getEndDate().map(this::toLong).orElse(null);
         this.duration = calculateDuration(startedOn, finishedOn);
-        this.status = getName(dataExportOccurrence.getStatus(), thesaurus);
+        this.status = dataExportOccurrence.getStatusName();
         this.reason = dataExportOccurrence.getFailureReason();
         this.lastRun = dataExportOccurrence.getTriggerTime().toEpochMilli();
         ExportTask version = history.getVersionAt(dataExportOccurrence.getStartDate().get())
@@ -140,13 +141,12 @@ public class DataExportTaskHistoryInfo {
 
     private void setStatusOnDate(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
         DataExportStatus dataExportStatus = dataExportOccurrence.getStatus();
-        String statusTranslation =
-                thesaurus.getStringBeyondComponent(dataExportStatus.toString(), dataExportStatus.toString());
+        String statusTranslation = dataExportOccurrence.getStatusName();
         if (DataExportStatus.BUSY.equals(dataExportStatus)) {
-            this.statusPrefix = statusTranslation + " " + thesaurus.getString("since", "since");
+            this.statusPrefix = thesaurus.getFormat(TranslationKeys.SINCE).format(statusTranslation);
             this.statusDate = startedOn;
         } else if ((DataExportStatus.FAILED.equals(dataExportStatus)) || (DataExportStatus.SUCCESS.equals(dataExportStatus))) {
-            this.statusPrefix = statusTranslation + " " + thesaurus.getString("on", "on");
+            this.statusPrefix = thesaurus.getFormat(TranslationKeys.ON).format(statusTranslation);
             this.statusDate = finishedOn;
         } else {
             this.statusPrefix = statusTranslation;
@@ -162,10 +162,6 @@ public class DataExportTaskHistoryInfo {
 
     private Long toLong(Instant instant) {
         return instant == null ? null : instant.toEpochMilli();
-    }
-
-    private static String getName(DataExportStatus status, Thesaurus thesaurus) {
-        return thesaurus.getStringBeyondComponent(status.getKey(), status.getDefaultFormat());
     }
 
     private String getScheduledTriggerDescription(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
