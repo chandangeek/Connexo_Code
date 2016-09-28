@@ -23,23 +23,27 @@ public interface Thesaurus extends MessageInterpolator {
 	// It needs to honor the Locale (or LanguageTag) hierarchy.
 	//
 
+    @Deprecated
     String getStringBeyondComponent(String key, String defaultMessage);
 
+    @Deprecated
     String getStringBeyondComponent(Locale locale, String key, String defaultMessage);
 
+    @Deprecated
     String getString(String key, String defaultMessage);
 
+    @Deprecated
     String getString(Locale locale, String key, String defaultMessage);
 
 	NlsMessageFormat getFormat(MessageSeed seed);
 
 	NlsMessageFormat getFormat(TranslationKey key);
 
+    @Deprecated
     Map<String, String> getTranslations();
 
     Thesaurus join(Thesaurus thesaurus);
 
     DateTimeFormatter forLocale(DateTimeFormatter dateTimeFormatter);
 
-    boolean hasKey(String key);
 }
