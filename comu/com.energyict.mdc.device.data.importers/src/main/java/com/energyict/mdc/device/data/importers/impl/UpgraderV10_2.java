@@ -4,9 +4,11 @@
 
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
 
@@ -15,8 +17,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static com.elster.jupiter.orm.Version.version;
-
 /**
  * Upgrades the database to version 10.2.
  *
@@ -24,21 +24,20 @@ import static com.elster.jupiter.orm.Version.version;
  * @since 2016-09-26 (16:27)
  */
 public class UpgraderV10_2 implements Upgrader {
-    private final DataModel dataModel;
+    private final OrmService ormService;
 
     @Inject
-    UpgraderV10_2(DataModel dataModel) {
-        this.dataModel = dataModel;
+    UpgraderV10_2(OrmService ormService) {
+        this.ormService = ormService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, version(10, 2));
-        this.upgradeSubscriberSpecs();
+        this.upgradeSubscriberSpecs(ormService.getDataModel(MessageService.COMPONENTNAME).get());
     }
 
-    private void upgradeSubscriberSpecs() {
-        try (Connection connection = this.dataModel.getConnection(true)) {
+    private void upgradeSubscriberSpecs(DataModel dataModel) {
+        try (Connection connection = dataModel.getConnection(true)) {
             this.upgradeSubscriberSpecs(connection);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
