@@ -36,7 +36,7 @@ Ext.define('Yfn.view.ReportView', {
                             labelWidth:50,
                             fieldLabel: Uni.I18n.translate('generatereport.wizard.mandatoryFilters', 'YFN', 'Mandatory filters'),
                             hidden:true,
-                            labelStyle: 'color:#cccccc',
+                            //labelStyle: 'color:#cccccc',
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
@@ -49,7 +49,7 @@ Ext.define('Yfn.view.ReportView', {
                             labelWidth:50,
 
                             margin:'0 0 0 30', //trbl
-                            labelStyle: 'color:#cccccc',
+                            //labelStyle: 'color:#cccccc',
                             labelAlign: 'top',
                             fieldLabel: Uni.I18n.translate('generatereport.wizard.optionalFilters', 'YFN', 'In report filters'),
                             flex: 1,

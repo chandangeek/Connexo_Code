@@ -33,7 +33,8 @@ Ext.define('Yfn.view.controls.MultiSelectCombo', {
                 displayField: me.displayField,
                 focusOnToFront: false,
                 pageSize: me.pageSize,
-                tpl: me.tpl
+                tpl: me.tpl,
+                emptyText: ' '
             }, me.listConfig, me.defaultListConfig);
 
         picker = me.picker = Ext.widget(pickerCfg);

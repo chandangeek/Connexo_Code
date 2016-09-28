@@ -72,13 +72,13 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
                 },
                 {
                     xtype: 'container',
+                    margin: 5,
                     items: [
                         {
                             xtype: 'button',
-                            text: Uni.I18n.translate('general.selectAll','YFN','Select All'),
+                            text: Uni.I18n.translate('general.selectAllButton', 'YFN', 'Select all'),
                             handler: function(btn, e) {
                                 combo.select(combo.getStore().getRange());
-
                                 var dynIdClearButton = btn.up('container').up('toolbar').items.items[2].items.items[0].id;
                                 Ext.getCmp(dynIdClearButton).enable();
                                 //combo.setSelectedCount(combo.getStore().getRange().length);
@@ -89,11 +89,12 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
                 },
                 {
                     xtype: 'container',
+                    margin: 5,
                     items: [
                         {
                             xtype: 'button',
                             id: this.id + '-clear-all-button',
-                            text: Uni.I18n.translate('general.clearAll','YFN','Clear All'),
+                            text: Uni.I18n.translate('general.clearAllButton', 'YFN', 'Clear all'),
                             cls:'x-btn-default-small',
                             disabled: true,
                             handler: function(btn, e) {
@@ -130,8 +131,10 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
 
     initComponent: function () {
         var me = this;
-        if(me.pickerField && me.pickerField.multiSelect)
+        if (me.pickerField && me.pickerField.multiSelect) {
             me.selectToolbar = me.createSelectToolbar();
+            me.selectToolbar.down('#' + this.id + '-clear-all-button').setDisabled(this.pickerField.getValue().length == 0);
+        }
         me.callParent();
     }
 });

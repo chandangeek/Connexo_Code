@@ -238,19 +238,19 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
 
                     if (filterDisplayType == "DATE") {
                         if (filterType == "BETWEEN")
-                            value = (value[0] ? Ext.Date.format(Ext.Date.parse(value[0], "Y-m-d"), 'n/j/Y') : '') +
+                            value = (value[0] ? Uni.DateTime.formatDateLong(Ext.Date.parse(value[0], "Y-m-d")) : '') +
                                 ' - ' +
-                                (value[1] ? Ext.Date.format(Ext.Date.parse(value[1], "Y-m-d"), 'n/j/Y') : '');
+                                (value[1] ? Uni.DateTime.formatDateLong(Ext.Date.parse(value[1], "Y-m-d")) : '');
                         else
-                            value = value ? Ext.Date.format(Ext.Date.parse(value, "Y-m-d"), 'n/j/Y') : '';
+                            value = value ? Uni.DateTime.formatDateLong(Ext.Date.parse(value, "Y-m-d")) : '';
                     }
                     if (filterDisplayType == "TIMESTAMP") {
                         if (filterType == "BETWEEN")
-                            value = (value[0] ? Ext.Date.format(Ext.Date.parse(value[0], "Y-m-d H:i:s"), 'n/j/Y g:i A') : '') +
+                            value = (value[0] ? Uni.DateTime.formatDateTime(Ext.Date.parse(value[0], "Y-m-d H:i:s"), Uni.DateTime.LONG, Uni.DateTime.SHORT) : '') +
                                 ' - ' +
-                                (value[1] ? Ext.Date.format(Ext.Date.parse(value[1], "Y-m-d H:i:s"), 'n/j/Y g:i A') : '');
+                                (value[1] ? Uni.DateTime.formatDateTime(Ext.Date.parse(value[1], "Y-m-d H:i:s"), Uni.DateTime.LONG, Uni.DateTime.SHORT) : '');
                         else
-                            value = value ? Ext.Date.format(Ext.Date.parse(value, "Y-m-d H:i:s"), 'n/j/Y g:i A') : '';
+                            value = value ? Uni.DateTime.formatDateTime(Ext.Date.parse(value, "Y-m-d H:i:s"), Uni.DateTime.LONG, Uni.DateTime.SHORT) : '';
                     }
 
 

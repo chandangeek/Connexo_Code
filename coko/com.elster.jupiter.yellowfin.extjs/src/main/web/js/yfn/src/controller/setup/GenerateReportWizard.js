@@ -210,7 +210,24 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         step1.down('#step1-generatereport-errors').setVisible(false);
         var form = page.down("form") ;
         form = form && form.getForm();
-        return (!form || form.isValid());
+        var customValidation = me.isValid(page);
+        return (!form || (form.isValid() && customValidation));
+    },
+
+    isValid: function (page) {
+        var components,
+            isInvalid = false;
+
+        components = page.down('[customType="BETWEEN"]');
+        Ext.Array.each(components, function (component) {
+            isInvalid = isInvalid || !component.validate();
+        });
+
+        components = page.down('[customType="NOTBETWEEN"]');
+        Ext.Array.each(components, function (component) {
+            isInvalid = isInvalid || !component.validate();
+        });
+        return !isInvalid;
     },
 
     loadReportTypes: function () {
@@ -380,7 +397,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                             align: 'stretch'
                         },
                         columnWidth: 0.5,
-                        maxWidth: 250,
+                        maxWidth: 280,
                         padding:20,
                         items:formFields
                     };
@@ -550,6 +567,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
 
         return controls;
     },
+
     createDateTimeBetweenControls: function (filterRecord, fieldType, defaultValue) {
         var me = this;
         fieldType = fieldType || 'filter';
@@ -561,6 +579,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                 {
                     xtype: 'fieldset',
                     fieldType:fieldType,
+                    customType: filterType,
                     record:filterRecord,
                     border: false,
                     margin:0,
@@ -568,9 +587,28 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     defaults: {
                         border: false
                     },
+                    validate: function () {
+                        var me = this,
+                            errorMsg = me.down('#interval-error-msg'),
+                            startDateTime = me.down('#start-period'),
+                            endDateTime = me.down('#end-period'),
+                            startDateTimeValue = startDateTime && startDateTime.getValue(),
+                            endDateTimeValue = endDateTime && endDateTime.getValue();
+
+                        if (startDateTimeValue == null || endDateTimeValue == null) {
+                            return true;
+                        }
+                        if (startDateTimeValue.getTime() > endDateTimeValue.getTime()) {
+                            errorMsg.show();
+                            return false;
+                        }
+                        errorMsg.hide();
+                        return true;
+                    },
                     items: [
                         {
                             xtype: 'date-time',
+                            itemId: 'start-period',
                             //disabled:fieldType != 'filter' && defaultValue,
                             value: (defaultValue && defaultValue.from) || me.getDefaultDateValue(filterRecord.get('filterDefaultValue1')),
                             dateConfig:{
@@ -584,6 +622,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         },
                         {
                             xtype: 'date-time',
+                            itemId: 'end-period',
                             //disabled:fieldType != 'filter' && defaultValue,
                             value:(defaultValue && defaultValue.to) ||  me.getDefaultDateValue(filterRecord.get('filterDefaultValue2')),
                             dateConfig:{
@@ -594,6 +633,15 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                                 //disabled:fieldType != 'filter' && defaultValue
                             },
                             name: 'to'
+                        },
+                        {
+                            xtype: 'label',
+                            text: Uni.I18n.translate('generatereport.interval.invalid', 'YFN', "The start date must be before the end date"),
+                            margins: '0 8 0 160',
+                            itemId: 'interval-error-msg',
+                            cls: 'x-form-invalid-under',
+                            hidden: true,
+                            height: 25
                         }
                     ],
                     setValue : function(value){
@@ -607,8 +655,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     },
                     getValue : function(){
                         return {
-                            from:  Ext.Date.format(this.query('date-time')[0].getValue(),'Y-m-d H:i:s'),
-                            to:Ext.Date.format(this.query('date-time')[1].getValue(),'Y-m-d H:i:s')
+                            from: Uni.DateTime.formatDateTime(this.query('date-time')[0].getValue(), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                            to: Uni.DateTime.formatDateTime(this.query('date-time')[1].getValue(), Uni.DateTime.LONG, Uni.DateTime.SHORT)
                         };
                     },
                     getFieldValue : function (){
@@ -617,8 +665,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     getFieldDisplayValue : function(){
                         var rawValue = this.getRawValue();
                         return Ext.String.format("{0} - {1}",
-                            rawValue.from ? Ext.Date.format(rawValue.from, 'n/j/Y g:i A') : '',
-                            rawValue.to ? Ext.Date.format(rawValue.to, 'n/j/Y g:i A') : ''
+                            rawValue.from ? Uni.DateTime.formatDateTime(rawValue.from, Uni.DateTime.LONG, Uni.DateTime.SHORT) : '',
+                            rawValue.to ? Uni.DateTime.formatDateTime(rawValue.to, Uni.DateTime.LONG, Uni.DateTime.SHORT) : ''
                         );
                     }
                 }
@@ -647,9 +695,28 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     defaults: {
                         border: false
                     },
+                    validate: function () {
+                        var me = this,
+                            errorMsg = me.down('#interval-error-msg'),
+                            startDateTime = me.down('#start-period'),
+                            endDateTime = me.down('#end-period'),
+                            startDateTimeValue = startDateTime && startDateTime.getValue(),
+                            endDateTimeValue = endDateTime && endDateTime.getValue();
+
+                        if (startDateTimeValue == null || endDateTimeValue == null) {
+                            return true;
+                        }
+                        if (startDateTimeValue.getTime() > endDateTimeValue.getTime()) {
+                            errorMsg.show();
+                            return false;
+                        }
+                        errorMsg.hide();
+                        return true;
+                    },
                     items: [
                         {
                             xtype: 'datefield',
+                            itemId: 'start-period',
                             allowBlank: fieldType == 'filter',
                             value: fromDate,
                             width: '100%',
@@ -666,6 +733,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         {
                             xtype: 'datefield',
                             value : toDate,
+                            itemId: 'end-period',
                             //disabled:fieldType != 'filter' && defaultValue,
                             allowBlank: fieldType == 'filter',
                             width: '100%',
@@ -677,6 +745,15 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                                     this.setValue(this.value);
                                 }
                             }
+                        },
+                        {
+                            xtype: 'label',
+                            text: Uni.I18n.translate('generatereport.interval.invalid', 'YFN', "The start date must be before the end date"),
+                            margins: '0 8 0 160',
+                            itemId: 'interval-error-msg',
+                            cls: 'x-form-invalid-under',
+                            hidden: true,
+                            height: 25
                         }
                     ],
                     setValue : function(value){
@@ -690,8 +767,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     },
                     getValue : function(){
                         return {
-                            from:  Ext.Date.format(this.query('datefield')[0].getValue(),'Y-m-d'),
-                            to:Ext.Date.format(this.query('datefield')[1].getValue(),'Y-m-d')
+                            from: Uni.DateTime.formatDateLong(this.query('datefield')[0].getValue()),
+                            to: Uni.DateTime.formatDateLong(this.query('datefield')[1].getValue())
                         };
                     },
                     getFieldValue : function (){
@@ -700,8 +777,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     getFieldDisplayValue : function(){
                         var rawValue = this.getRawValue();
                         return Ext.String.format("{0} - {1}",
-                            rawValue.from ? Ext.Date.format(rawValue.from, 'n/j/Y') : '',
-                            rawValue.to ? Ext.Date.format(rawValue.to, 'n/j/Y') : ''
+                            rawValue.from ? Uni.DateTime.formatDateLong(rawValue.from) : '',
+                            rawValue.to ? Uni.DateTime.formatDateLong(rawValue.to) : ''
                         );
                     }
                 }
@@ -853,7 +930,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             fieldsContainer = summaryContainer.add({
                 xtype: 'fieldcontainer',
                 labelAlign: 'left',
-                labelStyle: 'color:#cccccc',
+                //labelStyle: 'color:#cccccc',
                 fieldLabel: Uni.I18n.translate('generatereport.wizard.mandatoryFilters', 'YFN', 'Mandatory filters')
             });
 
@@ -886,7 +963,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         fieldsContainer = summaryContainer.add({
             xtype: 'fieldcontainer',
             labelAlign: 'left',
-            labelStyle: 'color:#cccccc',
+            //labelStyle: 'color:#cccccc',
             fieldLabel: Uni.I18n.translate('generatereport.wizard.optionalFilters', 'YFN', 'In report filters')
         });
 
@@ -918,29 +995,52 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     },
     translateFilterType : function(filterType){
         switch(filterType){
-            case 'EQUAL': return Uni.I18n.translate('generatereport.filterTypeEQUAL', 'YFN', 'Equal to');
-            case 'NOTEQUAL': return Uni.I18n.translate('generatereport.filterTypeNOTEQUAL', 'YFN', 'Different from');
-            case 'GREATER': return Uni.I18n.translate('generatereport.filterTypeGREATER', 'YFN', 'Greater than');
-            case 'GREATEREQUAL': return Uni.I18n.translate('generatereport.filterTypeGREATEREQUAL', 'YFN', 'Greater than or equal to');
-            case 'LESS': return Uni.I18n.translate('generatereport.filterTypeLESS', 'YFN', 'Less than');
-            case 'LESSEQUAL': return Uni.I18n.translate('generatereport.filterTypeLESSEQUAL', 'YFN', 'Less than or equal to');
-            case 'BETWEEN': return Uni.I18n.translate('generatereport.filterTypeBETWEEN', 'YFN', 'Between');
-            case 'NOTBETWEEN': return Uni.I18n.translate('generatereport.filterTypeNOTBETWEEN', 'YFN', 'Not Between');
-            case 'INLIST': return Uni.I18n.translate('generatereport.filterTypeINLIST', 'YFN', 'In List');
-            case 'NOTINLIST': return Uni.I18n.translate('generatereport.filterTypeNOTINLIST', 'YFN', 'Not In List');
-            case 'ISNULL': return Uni.I18n.translate('generatereport.filterTypeISNULL', 'YFN', 'Is Null');
-            case 'ISNOTNULL': return Uni.I18n.translate('generatereport.filterTypeISNOTNULL', 'YFN', 'Is Not Null');
-            case 'EQUALCOLUMN': return Uni.I18n.translate('generatereport.filterTypeEQUALCOLUMN', 'YFN', 'Equals Column');
-            case 'NOTEQUALCOLUMN': return Uni.I18n.translate('generatereport.filterTypeNOTEQUALCOLUMN', 'YFN', 'Different from Column');
-            case 'GREATERCOLUMN': return Uni.I18n.translate('generatereport.filterTypeGREATERCOLUMN', 'YFN', 'Greater than Column');
-            case 'GREATEREQUALCOLUMN': return Uni.I18n.translate('generatereport.filterTypeGREATEREQUALCOLUMN', 'YFN', 'Greater than or Equal to Column');
-            case 'LESSCOLUMN': return Uni.I18n.translate('generatereport.filterTypeLESSCOLUMN', 'YFN', 'Less than Column');
-            case 'LESSEQUALCOLUMN': return Uni.I18n.translate('generatereport.filterTypeLESSEQUALCOLUMN', 'YFN', 'Less than or Equal to Column');
-            case 'MINIMUMDATE': return Uni.I18n.translate('generatereport.filterTypeMINIMUMDATE', 'YFN', 'Minimum Date');
-            case 'MAXIMUMDATE': return Uni.I18n.translate('generatereport.filterTypeMAXIMUMDATE', 'YFN', 'Maximum Date');
-            case 'LINKFILTER': return Uni.I18n.translate('generatereport.filterTypeLINKFILTER', 'YFN', 'Link to Filter');
-            case 'CONTAINS': return Uni.I18n.translate('generatereport.filterTypeCONTAINS', 'YFN', 'Contains');
-            case 'NOTCONTAINS': return Uni.I18n.translate('generatereport.filterTypeNOTCONTAINS', 'YFN', 'Does not contain');
+            case 'EQUAL':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeEQUAL', 'YFN', 'equal to');
+            case 'NOTEQUAL':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeNOTEQUAL', 'YFN', 'different from');
+            case 'GREATER':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeGREATER', 'YFN', 'greater than');
+            case 'GREATEREQUAL':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeGREATEREQUAL', 'YFN', 'greater than or equal to');
+            case 'LESS':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeLESS', 'YFN', 'less than');
+            case 'LESSEQUAL':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeLESSEQUAL', 'YFN', 'less than or equal to');
+            case 'BETWEEN':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeBETWEEN', 'YFN', 'between');
+            case 'NOTBETWEEN':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeNOTBETWEEN', 'YFN', 'not between');
+            case 'INLIST':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeINLIST', 'YFN', 'in list');
+            case 'NOTINLIST':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeNOTINLIST', 'YFN', 'not in list');
+            case 'ISNULL':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeISNULL', 'YFN', 'is null');
+            case 'ISNOTNULL':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeISNOTNULL', 'YFN', 'is not null');
+            case 'EQUALCOLUMN':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeEQUALCOLUMN', 'YFN', 'equals column');
+            case 'NOTEQUALCOLUMN':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeNOTEQUALCOLUMN', 'YFN', 'different from column');
+            case 'GREATERCOLUMN':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeGREATERCOLUMN', 'YFN', 'greater than column');
+            case 'GREATEREQUALCOLUMN':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeGREATEREQUALCOLUMN', 'YFN', 'greater than or equal to column');
+            case 'LESSCOLUMN':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeLESSCOLUMN', 'YFN', 'less than column');
+            case 'LESSEQUALCOLUMN':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeLESSEQUALCOLUMN', 'YFN', 'less than or equal to column');
+            case 'MINIMUMDATE':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeMINIMUMDATE', 'YFN', 'minimum date');
+            case 'MAXIMUMDATE':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeMAXIMUMDATE', 'YFN', 'maximum date');
+            case 'LINKFILTER':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeLINKFILTER', 'YFN', 'link to filter');
+            case 'CONTAINS':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeCONTAINS', 'YFN', 'contains');
+            case 'NOTCONTAINS':
+                return Uni.I18n.translate('generatereport.yfnFilterTypeNOTCONTAINS', 'YFN', 'does not contain');
             default: return filterType;
         }
     },
