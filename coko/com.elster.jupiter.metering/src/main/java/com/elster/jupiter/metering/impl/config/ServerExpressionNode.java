@@ -4,6 +4,8 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.impl.aggregation.IntermediateDimension;
 import com.elster.jupiter.orm.DataModel;
 
+import java.util.List;
+
 /**
  * Adds behavior to {@link ExpressionNode} that is reserved
  * for server side components.
@@ -12,6 +14,8 @@ import com.elster.jupiter.orm.DataModel;
  * @since 2016-04-25 (15:41)
  */
 public interface ServerExpressionNode extends ExpressionNode {
+
+    List<ServerExpressionNode> getServerSideChildren();
 
     IntermediateDimension getIntermediateDimension();
 

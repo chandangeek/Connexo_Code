@@ -35,7 +35,7 @@ class ReadingTypeGeneratorForDataLogger extends AbstractReadingTypeGenerator {
 
         @Override
         public String getName() {
-            return "DataLogger " + argumentNominator;
+            return "Generic pulse " + argumentNominator;
         }
 
         @Override

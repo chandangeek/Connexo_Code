@@ -271,7 +271,8 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
             Condition mappingCondition = where(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.fieldName())
                     .in(filter.getMetrologyContracts());
             Subquery subquery = getDataModel().query(MetrologyContractReadingTypeDeliverableUsage.class)
-                    .asSubquery(mappingCondition, MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName());
+                    .asSubquery(mappingCondition,
+                            MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName());
             condition = condition.and(ListOperator.IN.contains(subquery, "id"));
         }
         if (!filter.getMetrologyConfigurations().isEmpty()) {
