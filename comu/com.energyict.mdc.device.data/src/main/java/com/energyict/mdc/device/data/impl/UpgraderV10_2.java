@@ -98,9 +98,9 @@ class UpgraderV10_2 implements Upgrader {
         private void appendTo(SqlBuilder sqlBuilder, SubscriberTranslationKeys key) {
             if (notFirst) {
                 sqlBuilder.append(", ");
-                notFirst = false;
             }
             sqlBuilder.addObject(key.getKey());
+            notFirst = true;
         }
 
     }

@@ -558,7 +558,13 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     public void activate(BundleContext bundleContext) {
         this.createRealServices();
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceDataServices.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
+        upgradeService.register(
+                InstallIdentifier.identifier("MultiSense", DeviceDataServices.COMPONENT_NAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        version(10, 2), UpgraderV10_2.class)
+        );
         this.registerRealServices(bundleContext);
     }
 
