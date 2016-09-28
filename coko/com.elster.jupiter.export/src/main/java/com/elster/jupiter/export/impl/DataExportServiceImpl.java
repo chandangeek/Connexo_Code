@@ -73,6 +73,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -325,7 +326,13 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
             } else {
                 tempDirectory = fileSystem.getPath(tempDirectoryPath);
             }
-            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(
+                    InstallIdentifier.identifier("Pulse", COMPONENTNAME),
+                    dataModel,
+                    Installer.class,
+                    ImmutableMap.of(
+                            version(10, 2), UpgraderV10_2.class
+                    ));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
