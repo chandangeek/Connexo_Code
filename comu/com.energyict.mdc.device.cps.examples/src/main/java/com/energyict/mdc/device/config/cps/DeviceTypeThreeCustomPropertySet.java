@@ -73,6 +73,11 @@ public class DeviceTypeThreeCustomPropertySet implements CustomPropertySet<Devic
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Device";
+    }
+
+    @Override
     public PersistenceSupport<Device, DeviceTypeThreeDomainExtension> getPersistenceSupport() {
         return new DeviceThreePeristenceSupport();
     }

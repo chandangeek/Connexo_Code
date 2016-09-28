@@ -73,6 +73,11 @@ public class RegisterTypeFiveCustomPropertySet implements CustomPropertySet<Regi
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Register";
+    }
+
+    @Override
     public PersistenceSupport<RegisterSpec, RegisterTypeFiveDomainExtension> getPersistenceSupport() {
         return new RegisterTypeFivePeristenceSupport();
     }

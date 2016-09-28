@@ -73,6 +73,11 @@ public class LoadProfileTypeOneCustomPropertySet implements CustomPropertySet<Ch
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Channel";
+    }
+
+    @Override
     public PersistenceSupport<ChannelSpec, LoadProfileTypeOneDomainExtension> getPersistenceSupport() {
         return new LoadProfileTypeOnePeristenceSupport();
     }

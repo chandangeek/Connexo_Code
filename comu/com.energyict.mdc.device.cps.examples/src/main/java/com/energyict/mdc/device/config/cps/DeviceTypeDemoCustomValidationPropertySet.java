@@ -12,7 +12,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -57,11 +56,6 @@ public class DeviceTypeDemoCustomValidationPropertySet implements CustomProperty
         this.setDeviceService(deviceService);
     }
 
-    @Activate
-    public void activate() {
-        System.out.println(TABLE_NAME);
-    }
-
     @Override
     public String getName() {
         return "MeterSpecs";
@@ -70,6 +64,11 @@ public class DeviceTypeDemoCustomValidationPropertySet implements CustomProperty
     @Override
     public Class<Device> getDomainClass() {
         return Device.class;
+    }
+
+    @Override
+    public String getDomainClassDisplayName() {
+        return "Device";
     }
 
     @Override

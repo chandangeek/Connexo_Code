@@ -73,6 +73,11 @@ public class RegisterTypeTwoVersionedCustomPropertySet implements CustomProperty
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Register";
+    }
+
+    @Override
     public PersistenceSupport<RegisterSpec, RegisterTypeTwoVersionedDomainExtension> getPersistenceSupport() {
         return new RegisterTypeTwoVersionedPeristenceSupport();
     }

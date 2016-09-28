@@ -73,6 +73,11 @@ public class DeviceTypeTwoVersionedCustomPropertySet implements CustomPropertySe
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Device";
+    }
+
+    @Override
     public PersistenceSupport<Device, DeviceTypeTwoVersionedDomainExtension> getPersistenceSupport() {
         return new DeviceTypeTwoVersionedPeristenceSupport();
     }
