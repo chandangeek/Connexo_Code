@@ -6,10 +6,6 @@ Ext.define('Mdc.customattributesonvaluesobjects.model.AttributeSetOnDevice', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/customproperties',
-
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
-        }
+        url: '/api/ddr/devices/{deviceId}/customproperties'
     }
 });

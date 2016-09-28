@@ -9,22 +9,22 @@ Ext.define('Mdc.customattributesonvaluesobjects.model.AttributeSetVersionPeriod'
     proxy: {
         type: 'rest',
 
-        setDeviceUrl: function (mRID, customPropertySetId) {
-            var urlTpl = '/api/ddr/devices/{mRID}/customproperties/{customPropertySetId}';
+        setDeviceUrl: function (deviceId, customPropertySetId) {
+            var urlTpl = '/api/ddr/devices/{deviceId}/customproperties/{customPropertySetId}';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId);
+            this.url = urlTpl.replace('{deviceId}', encodeURIComponent(deviceId)).replace('{customPropertySetId}', customPropertySetId);
         },
 
-        setChannelUrl: function (mRID, channelId, customPropertySetId) {
-            var urlTpl = '/api/ddr/devices/{mRID}/channels/{channelId}/customproperties/{customPropertySetId}';
+        setChannelUrl: function (deviceId, channelId, customPropertySetId) {
+            var urlTpl = '/api/ddr/devices/{deviceId}/channels/{channelId}/customproperties/{customPropertySetId}';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{channelId}', channelId).replace('{customPropertySetId}', customPropertySetId);
+            this.url = urlTpl.replace('{deviceId}', encodeURIComponent(deviceId)).replace('{channelId}', channelId).replace('{customPropertySetId}', customPropertySetId);
         },
 
-        setRegisterUrl: function (mRID, registerId, customPropertySetId) {
-            var urlTpl = '/api/ddr/devices/{mRID}/registers/{registerId}/customproperties/{customPropertySetId}';
+        setRegisterUrl: function (deviceId, registerId, customPropertySetId) {
+            var urlTpl = '/api/ddr/devices/{deviceId}/registers/{registerId}/customproperties/{customPropertySetId}';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{registerId}', registerId).replace('{customPropertySetId}', customPropertySetId);
+            this.url = urlTpl.replace('{deviceId}', encodeURIComponent(deviceId)).replace('{registerId}', registerId).replace('{customPropertySetId}', customPropertySetId);
         }
     }
 });

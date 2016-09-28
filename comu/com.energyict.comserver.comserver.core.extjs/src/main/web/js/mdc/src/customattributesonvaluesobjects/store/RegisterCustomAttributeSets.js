@@ -7,16 +7,13 @@ Ext.define('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSet
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/registers/{registerId}/customproperties',
+        url: '/api/ddr/devices/{deviceId}/registers/{registerId}/customproperties',
         reader: {
             type: 'json',
             root: 'customproperties'
         },
         pageParam: false,
         startParam: false,
-        limitParam: false,
-        setUrl: function (mRID, channelId) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{registerId}', channelId);
-        }
+        limitParam: false
     }
 });
