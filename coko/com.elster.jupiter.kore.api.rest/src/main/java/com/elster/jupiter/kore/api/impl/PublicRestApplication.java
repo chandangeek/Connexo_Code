@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
@@ -63,6 +64,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile TransactionService transactionService;
+    private volatile OrmService ormService;
     private volatile Clock clock;
     private volatile MeteringService meteringService;
     private volatile CustomPropertySetService customPropertySetService;
@@ -88,6 +90,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(OrmService.class).toInstance(ormService);
             }
         });
 
@@ -131,6 +134,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
     }
 
     @Override
