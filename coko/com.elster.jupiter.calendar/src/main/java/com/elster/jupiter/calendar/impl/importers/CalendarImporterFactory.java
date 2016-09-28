@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.calendar.impl.importers;
 
+import com.elster.jupiter.calendar.impl.TranslationKeys;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
@@ -34,6 +35,7 @@ public class CalendarImporterFactory implements FileImporterFactory {
 
     @Inject
     public CalendarImporterFactory(CalendarImporterContext context) {
+        this();
         setCalendarImporterContext(context);
     }
 

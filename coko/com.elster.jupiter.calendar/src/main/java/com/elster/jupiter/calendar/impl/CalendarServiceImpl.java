@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -61,6 +62,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile EventService eventService;
+    private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
 
     private final List<CalendarResolver> calendarResolvers = new CopyOnWriteArrayList<>();
@@ -69,13 +71,14 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Inject
-    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, UpgradeService upgradeService) {
+    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, UpgradeService upgradeService, MessageService messageService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
+        setMessageService(messageService);
         activate();
     }
 
@@ -107,6 +110,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         this.upgradeService = upgradeService;
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
@@ -130,6 +138,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                 bind(EventService.class).toInstance(eventService);
                 bind(ServerCalendarService.class).toInstance(CalendarServiceImpl.this);
                 bind(UserService.class).toInstance(userService);
+                bind(MessageService.class).toInstance(messageService);
             }
         };
     }

@@ -34,6 +34,7 @@ public class CalendarImporterContext {
                                      ThreadPrincipalService threadPrincipalService,
                                      CalendarService calendarService,
                                      Clock clock) {
+        this();
         setNlsService(nlsService);
         setUserService(userService);
         setThreadPrincipalService(threadPrincipalService);
@@ -51,7 +52,7 @@ public class CalendarImporterContext {
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(CalendarImporterMessageHandler.COMPONENT, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(CalendarService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Reference
