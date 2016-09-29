@@ -13,7 +13,7 @@ Ext.define('Cps.customattributesets.service.AttributeTransformer', {
                     }
                         break;
                     case "QUANTITY": {
-                        return attribute.propertyValueInfo.defaultValue.id
+                        return attribute.propertyValueInfo.defaultValue && attribute.propertyValueInfo.defaultValue.id
                             ? attribute.propertyValueInfo.defaultValue.id.replace(/(-?\d*)\:-?\d*\:.*/, '$1') + ' ' + attribute.propertyValueInfo.defaultValue.displayValue
                             : '-';
                     }
