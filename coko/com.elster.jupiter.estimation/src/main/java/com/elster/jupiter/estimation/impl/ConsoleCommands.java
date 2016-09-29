@@ -1,7 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
-import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
@@ -17,7 +16,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -29,7 +27,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
@@ -70,9 +67,7 @@ import java.util.stream.Stream;
                 "osgi.command.function=removeRule",
                 "osgi.command.function=updateRule",
                 "osgi.command.function=createEstimationTask",
-                "osgi.command.function=log",
-                "osgi.command.function=testSuspectGroups"
-
+                "osgi.command.function=log"
         },
         immediate = true)
 public class ConsoleCommands {
@@ -431,14 +426,4 @@ public class ConsoleCommands {
                 .forEach(prop -> builder.append('\t').append('\t').append(prop.getName()).append(" : ").append(prop.getValue()).append('\n'));
     }
 
-    public void testSuspectGroups() {
-        meteringGroupsService.findEndDeviceGroups().forEach(group -> {
-            System.out.println("group.getName() = " + group.getName());
-            List<Meter> select = meteringService.getMeterWithReadingQualitiesQuery(Range.all(), ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))
-                    .select(ListOperator.IN.contains(group.toSubQuery("id"), "id"));
-            select.forEach(meter -> System.out.println("   " + meter.getMRID()));
-            System.out.println("   size() = " + select.size());
-
-        });
-    }
 }

@@ -93,7 +93,7 @@ class EstimationTaskExecutor implements TaskExecutor {
             }
         } catch (Exception ex) {
             transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate " + meterActivation.getMeter().map(IdentifiedObject::getMRID)
-                    .orElse(meterActivation.getUsagePoint(triggerTime).map(IdentifiedObject::getMRID).orElse("Unknown"))
+                    .orElseGet(() -> meterActivation.getUsagePoint(triggerTime).map(IdentifiedObject::getMRID).orElse("Unknown"))
                     + " . Error: " + ex.getLocalizedMessage(), ex));
         }
     }
