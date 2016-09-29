@@ -17,6 +17,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -113,6 +114,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile MeteringService meteringService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile LocationService locationService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile RestQueryService restQueryService;
@@ -390,6 +392,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
     public void setLocationService(LocationService locationService) {
         this.locationService = locationService;
     }
@@ -507,6 +514,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(validationService).to(ValidationService.class);
             bind(estimationService).to(EstimationService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(meteringTranslationService).to(MeteringTranslationService.class);
             bind(locationService).to(LocationService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(restQueryService).to(RestQueryService.class);

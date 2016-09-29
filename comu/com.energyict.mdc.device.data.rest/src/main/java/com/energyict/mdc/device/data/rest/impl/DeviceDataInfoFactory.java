@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  */
 public class DeviceDataInfoFactory {
 
-    private final MeteringService meteringService;
+    private final MeteringTranslationService meteringTranslationService;
     private final ValidationInfoFactory validationInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
@@ -59,8 +59,8 @@ public class DeviceDataInfoFactory {
     private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceDataInfoFactory(MeteringService meteringService, ValidationInfoFactory validationInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, ValidationRuleInfoFactory validationRuleInfoFactory, Clock clock, ResourceHelper resourceHelper) {
-        this.meteringService = meteringService;
+    public DeviceDataInfoFactory(MeteringTranslationService meteringTranslationService, ValidationInfoFactory validationInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, ValidationRuleInfoFactory validationRuleInfoFactory, Clock clock, ResourceHelper resourceHelper) {
+        this.meteringTranslationService = meteringTranslationService;
         this.validationInfoFactory = validationInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
@@ -127,7 +127,7 @@ public class DeviceDataInfoFactory {
      * Find translation of the index of the given reading quality CIM code.
      */
     private String getSimpleName(ReadingQualityType type) {
-        return this.meteringService.getDisplayName(type.qualityIndex().get());
+        return this.meteringTranslationService.getDisplayName(type.qualityIndex().get());
     }
 
     private void addCalculatedValueInfo(Channel channel, ChannelDataInfo channelIntervalInfo, IntervalReadingRecord reading) {
@@ -258,7 +258,7 @@ public class DeviceDataInfoFactory {
                 .filter(type -> type.system().isPresent())
                 .filter(type -> type.category().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
-                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringService, type))
+                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringTranslationService, type))
                 .collect(Collectors.toList());
     }
 

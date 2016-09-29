@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityType;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -30,12 +30,12 @@ public class ReadingQualityInfo {
     public ReadingQualityInfo() {
     }
 
-    public static ReadingQualityInfo fromReadingQualityType(MeteringService meteringService, ReadingQualityType type) {
+    public static ReadingQualityInfo fromReadingQualityType(MeteringTranslationService meteringTranslationService, ReadingQualityType type) {
         ReadingQualityInfo result = new ReadingQualityInfo();
         result.setCimCode(type.getCode());
-        result.setSystemName(type.system().map(meteringService::getDisplayName).orElse(""));
-        result.setCategoryName(type.category().map(meteringService::getDisplayName).orElse(""));
-        result.setIndexName(type.qualityIndex().map(meteringService::getDisplayName).orElse(""));
+        result.setSystemName(type.system().map(meteringTranslationService::getDisplayName).orElse(""));
+        result.setCategoryName(type.category().map(meteringTranslationService::getDisplayName).orElse(""));
+        result.setIndexName(type.qualityIndex().map(meteringTranslationService::getDisplayName).orElse(""));
         return result;
     }
 
