@@ -22,10 +22,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-
 @Component(name = "com.elster.jupiter.prepayment.export.redknee.ReadingDataFormatterFactory",
         property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_READING_DATA_TYPE,
-                    "DisplayName="+ReadingDataFormatterFactory.DISPLAY_NAME },
+                    "DisplayName=" + ReadingDataFormatterFactory.DISPLAY_NAME },
         service = DataFormatterFactory.class,
         immediate = true)
 public class ReadingDataFormatterFactory implements DataFormatterFactory {
@@ -53,8 +52,9 @@ public class ReadingDataFormatterFactory implements DataFormatterFactory {
 
         // If name not found default (PIPE) will be used;
         static String separatorForName(String name){
-            if (name == null)
+            if (name == null) {
                 return PIPE.symbol;
+            }
             return Stream.of(values()).filter(x -> x.getName().equals(name)).findFirst().orElse(PIPE).getSymbol();
         }
     }
@@ -72,6 +72,7 @@ public class ReadingDataFormatterFactory implements DataFormatterFactory {
 
     @Inject
     public ReadingDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService) {
+        this();
         this.propertySpecService = propertySpecService;
         this.dataExportService = dataExportService;
     }
@@ -139,7 +140,7 @@ public class ReadingDataFormatterFactory implements DataFormatterFactory {
                 x -> checkInvalidChars((String) x.getValue(), x.getName(), NON_PATH_INVALID));
     }
 
-    protected void checkInvalidChars(String value, String fieldName, String invalidCharacters) {
+    private void checkInvalidChars(String value, String fieldName, String invalidCharacters) {
         for (int i = 0; i < invalidCharacters.length(); i++) {
             char invalidChar = invalidCharacters.charAt(i);
             if (value.indexOf(invalidChar) != -1) {
@@ -155,6 +156,6 @@ public class ReadingDataFormatterFactory implements DataFormatterFactory {
 
     @Override
     public String getDisplayName() {
-        return DISPLAY_NAME;
+        return this.thesaurus.getFormat(Translations.Labels.CSV_FORMATTER).format();
     }
 }
