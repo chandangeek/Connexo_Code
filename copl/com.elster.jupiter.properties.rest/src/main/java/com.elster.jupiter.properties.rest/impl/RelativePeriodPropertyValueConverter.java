@@ -31,7 +31,7 @@ public class RelativePeriodPropertyValueConverter implements PropertyValueConver
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        return new RelativePeriodInfo((RelativePeriod) domainValue);
+        return RelativePeriodInfo.from((RelativePeriod) domainValue);
     }
 
 }
