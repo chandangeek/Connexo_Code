@@ -9,7 +9,6 @@ import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -55,9 +54,7 @@ import java.util.stream.Collectors;
 @Path("/importservices")
 public class FileImportScheduleResource {
 
-    private static final String NON_PATH_INVALID = "\":*?<>|";
     private final FileImportService fileImportService;
-    private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final PropertyValueInfoService propertyValueInfoService;
     private final FileSystem fileSystem;
@@ -66,9 +63,8 @@ public class FileImportScheduleResource {
     private final Validator validator;
 
     @Inject
-    public FileImportScheduleResource(FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, Validator validator) {
+    public FileImportScheduleResource(FileImportService fileImportService, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, Validator validator) {
         this.fileImportService = fileImportService;
-        this.thesaurus = thesaurus;
         this.transactionService = transactionService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.fileSystem = fileSystem;
@@ -92,7 +88,7 @@ public class FileImportScheduleResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public PagedInfoList getImportSchedulesList(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         List<ImportSchedule> list = fileImportService.findAllImportSchedules(applicationName).from(queryParameters).find();
-        List<ImportServiceNameInfo> data = list.stream().map(each -> new ImportServiceNameInfo(each, thesaurus)).collect(Collectors.toList());
+        List<ImportServiceNameInfo> data = list.stream().map(ImportServiceNameInfo::new).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("importSchedules", data, queryParameters);
     }
 
@@ -145,7 +141,7 @@ public class FileImportScheduleResource {
         return Response.status(Response.Status.CREATED).entity(fileImportScheduleInfoFactory.asInfo(importSchedule)).build();
     }
 
-    public void validate(Object info, Class<?> clazz) {
+    private void validate(Object info, Class<?> clazz) {
         Set<ConstraintViolation<Object>> violations = validator.validate(info, clazz);
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
@@ -215,7 +211,7 @@ public class FileImportScheduleResource {
                                                       @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                       @Context SecurityContext securityContext) {
         List<FileImportOccurrence> fileImportOccurences = getFileImportOccurrences(queryParameters, filter, applicationName, importServiceId);
-        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(each -> FileImportOccurrenceInfo.of(each, thesaurus)).collect(Collectors.toList());
+        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(FileImportOccurrenceInfo::of).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", data, queryParameters);
     }
 
@@ -228,7 +224,7 @@ public class FileImportScheduleResource {
                                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                            @Context SecurityContext securityContext) {
         List<FileImportOccurrence> fileImportOccurences = getFileImportOccurrences(queryParameters, filter, applicationName, null);
-        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(each -> FileImportOccurrenceInfo.of(each, thesaurus)).collect(Collectors.toList());
+        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(FileImportOccurrenceInfo::of).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", data, queryParameters);
     }
 
@@ -279,7 +275,7 @@ public class FileImportScheduleResource {
                                                           @Context SecurityContext securityContext) {
 
         return FileImportOccurrenceInfo.of(
-                fileImportService.getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)), thesaurus);
+                fileImportService.getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)));
     }
 
     @GET
@@ -295,7 +291,7 @@ public class FileImportScheduleResource {
                 .getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
                 .getLogsFinder().from(queryParameters).find();
 
-        List<ImportLogEntryInfo> data = logEntries.stream().map(each -> new ImportLogEntryInfo(each, thesaurus)).collect(Collectors.toList());
+        List<ImportLogEntryInfo> data = logEntries.stream().map(ImportLogEntryInfo::new).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", data, queryParameters);
     }
 

@@ -17,8 +17,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.validator.HibernateValidator;
 import org.osgi.service.component.annotations.Component;
@@ -26,12 +24,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorFactory;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import javax.validation.spi.ValidationProvider;
 import javax.ws.rs.core.Application;
 import java.nio.file.FileSystem;
 import java.util.Arrays;
@@ -47,7 +42,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
         immediate = true,
         property = {"alias=/fir", "app=SYS", "name=" + FileImportApplication.COMPONENT_NAME})
 public class FileImportApplication extends Application implements MessageSeedProvider, AppNamesProvider {
-    public static final String COMPONENT_NAME = "FIR";
+    static final String COMPONENT_NAME = "FIR";
 
     private volatile FileImportService fileImportService;
     private volatile AppService appService;
@@ -153,9 +148,8 @@ public class FileImportApplication extends Application implements MessageSeedPro
     private Factory<Validator> getValidatorFactory() {
             return new Factory<Validator>() {
                 private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
-                        .providerResolver(() -> ImmutableList.<ValidationProvider<?>>of(new HibernateValidator()))
+                        .providerResolver(() -> ImmutableList.of(new HibernateValidator()))
                         .configure()
-//                    .constraintValidatorFactory(getConstraintValidatorFactory())
                         .messageInterpolator(thesaurus)
                         .buildValidatorFactory();
 
@@ -171,22 +165,6 @@ public class FileImportApplication extends Application implements MessageSeedPro
             };
     }
 
-    public ConstraintValidatorFactory getConstraintValidatorFactory() {
-        return new ConstraintValidatorFactory() {
-
-            @Override
-            public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> aClass) {
-                ServiceLocatorFactory factory = ServiceLocatorFactory.getInstance();
-                ServiceLocator serviceLocator = factory.create("rest");
-                return serviceLocator.getService(aClass);
-            }
-            @Override
-            public void releaseInstance(ConstraintValidator<?, ?> constraintValidator) {
-                // noop
-            }
-        };
-    }
-
     @Override
     public Layer getLayer() {
         return Layer.REST;
@@ -196,4 +174,5 @@ public class FileImportApplication extends Application implements MessageSeedPro
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
+
 }

@@ -1,7 +1,6 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.nls.Thesaurus;
 
 /**
  * Created by Lucian on 6/2/2015.
@@ -11,13 +10,12 @@ public class ImportServiceNameInfo {
     public String name;
 
     public ImportServiceNameInfo() {
-
     }
 
-    public ImportServiceNameInfo(ImportSchedule importSchedule, Thesaurus thesaurus) {
-
+    public ImportServiceNameInfo(ImportSchedule importSchedule) {
+        this();
         this.id = importSchedule.getId();
         this.name = importSchedule.getName();
-
     }
+
 }
