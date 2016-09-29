@@ -1,5 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
@@ -132,6 +135,21 @@ public class MeteringServiceImpl implements ServerMeteringService {
     public Optional<HeadEndInterface> getHeadEndInterface(String amrSystem) {
         return getHeadEndInterfaces().stream()
                 .filter(itf -> itf.getAmrSystem().equalsIgnoreCase(amrSystem)).findFirst();
+    }
+
+    @Override
+    public String getDisplayName(QualityCodeIndex index) {
+        return this.thesaurus.getFormat(index.getTranslationKey()).format();
+    }
+
+    @Override
+    public String getDisplayName(QualityCodeSystem system) {
+        return this.thesaurus.getFormat(system.getTranslationKey()).format();
+    }
+
+    @Override
+    public String getDisplayName(QualityCodeCategory category) {
+        return this.thesaurus.getFormat(category.getTranslationKey()).format();
     }
 
     @Override
