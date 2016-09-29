@@ -132,6 +132,9 @@ public class LogBookResource {
         if (jsonQueryFilter.hasProperty(INTERVAL_END)) {
             intervalEnd = jsonQueryFilter.getInstant(INTERVAL_END);
         }
+        if (intervalStart != null && intervalEnd != null && intervalStart.isAfter(intervalEnd)) {
+            throw exceptionFactory.newException(MessageSeeds.INTERVAL_START_AFTER_END);
+        }
         filter.range = Interval.of(intervalStart, intervalEnd).toClosedOpenRange();
         if (jsonQueryFilter.hasProperty(DOMAIN)) {
             filter.domain = jsonQueryFilter.getProperty(DOMAIN, new EndDeviceDomainAdapter());
