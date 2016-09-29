@@ -4,7 +4,9 @@ import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.PurgeConfiguration;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.JournalEntry;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -13,7 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-public final class LifeCycleCategoryImpl implements LifeCycleCategory {
+final class LifeCycleCategoryImpl implements LifeCycleCategory {
 
 	private LifeCycleCategoryKind kind;
 	private int partitionSize;
@@ -21,18 +23,21 @@ public final class LifeCycleCategoryImpl implements LifeCycleCategory {
 
 	@SuppressWarnings("unused")
 	private Instant createTime;
+	@SuppressWarnings("unused")
 	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
 	@SuppressWarnings("unused")
 	private long version;
 
-	private DataModel dataModel;
-	private MeteringService meteringService;
+	private final DataModel dataModel;
+	private final Thesaurus thesaurus;
+	private final MeteringService meteringService;
 
 	@Inject
-	LifeCycleCategoryImpl(DataModel dataModel, MeteringService meteringService) {
+	LifeCycleCategoryImpl(DataModel dataModel, Thesaurus thesaurus, MeteringService meteringService) {
 		this.dataModel = dataModel;
+		this.thesaurus = thesaurus;
 		this.meteringService = meteringService;
 	}
 
@@ -85,8 +90,12 @@ public final class LifeCycleCategoryImpl implements LifeCycleCategory {
 	}
 
 	@Override
-	public String getTranslationKey() {
-    	return TranslationKeys.Constants.DATA_LIFECYCLE_CATEGORY_NAME_PREFIX + kind.name();
+	public String getDisplayName() {
+		return LifeCycleCategoryKindTranslationKeys
+				.from(this.kind)
+                .map(this.thesaurus::getFormat)
+                .map(nlsMessageFormat -> nlsMessageFormat.format())
+                .orElseGet(() -> this.kind.name());
 	}
 
 	Optional<LifeCycleCategoryImpl> asOf(Instant instant) {
@@ -95,7 +104,7 @@ public final class LifeCycleCategoryImpl implements LifeCycleCategory {
 
 		}
 		return dataModel.mapper(LifeCycleCategoryImpl.class).getJournalEntry(instant, kind)
-			.map(journalEntry -> journalEntry.get());
+			.map(JournalEntry::get);
 	}
 
 	@Override
@@ -121,4 +130,5 @@ public final class LifeCycleCategoryImpl implements LifeCycleCategory {
 	public int hashCode() {
 		return Objects.hash(kind);
 	}
+
 }

@@ -224,7 +224,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
 
 	@Override
 	public List<TranslationKey> getKeys() {
-		List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(TranslationKeys.values()));
+		List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(LifeCycleCategoryKindTranslationKeys.values()));
 		translationKeys.add(new SimpleTranslationKey(Installer.DATA_LIFE_CYCLE_DESTINATION_NAME, Installer.DATA_LIFE_CYCLE_DISPLAY_NAME));
 		Arrays.stream(Privileges.values()).forEach(translationKeys::add);
 		return translationKeys;

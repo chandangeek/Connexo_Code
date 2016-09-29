@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -26,18 +27,21 @@ import java.util.logging.Logger;
 
 class Installer implements FullInstaller, PrivilegesProvider {
 
-    public static final String DATA_LIFE_CYCLE_DESTINATION_NAME = "DataLifeCycle";
-    public static final String DATA_LIFE_CYCLE_DISPLAY_NAME = "Handle purge data";
-    public static final String DATA_LIFECYCLE_RECCURENT_TASK_NAME = "Data Lifecycle";
+    static final String DATA_LIFE_CYCLE_DESTINATION_NAME = "DataLifeCycle";
+    static final String DATA_LIFE_CYCLE_DISPLAY_NAME = "Handle purge data";
+    private static final String DATA_LIFECYCLE_RECCURENT_TASK_NAME = "Data Lifecycle";
+
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
     private final MessageService messageService;
     private final TaskService taskService;
     private final MeteringService meteringService;
     private final UserService userService;
 
     @Inject
-    Installer(DataModel dataModel, MessageService messageService, TaskService taskService, MeteringService meteringService, UserService userService) {
+    Installer(DataModel dataModel, Thesaurus thesaurus, MessageService messageService, TaskService taskService, MeteringService meteringService, UserService userService) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
         this.messageService = messageService;
         this.taskService = taskService;
         this.meteringService = meteringService;
@@ -49,7 +53,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         List<LifeCycleCategory> categories = new ArrayList<>();
         for (LifeCycleCategoryKind category : LifeCycleCategoryKind.values()) {
-            LifeCycleCategory newCategory = new LifeCycleCategoryImpl(dataModel, meteringService).init(category);
+            LifeCycleCategory newCategory = new LifeCycleCategoryImpl(dataModel, thesaurus, meteringService).init(category);
             try {
                 dataModel.persist(newCategory);
             } catch (UnderlyingSQLFailedException ex){
