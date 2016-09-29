@@ -48,7 +48,7 @@ public class EstimationTaskHistoryInfo {
                         .orElse(estimationTask));
 
         task = new EstimationTaskInfo();
-        task.populate(version, thesaurus);
+        task.populate(version);
 
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(taskOccurrence.getTriggerTime());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {

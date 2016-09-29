@@ -31,7 +31,7 @@ public class EstimationTaskInfo {
     }
 
     public EstimationTaskInfo(EstimationTask estimationTask, Thesaurus thesaurus) {
-        populate(estimationTask, thesaurus);
+        populate(estimationTask);
         if (Never.NEVER.equals(estimationTask.getScheduleExpression())) {
             schedule = null;
         } else {
@@ -45,12 +45,12 @@ public class EstimationTaskInfo {
         lastEstimationOccurrence = estimationTask.getLastOccurrence().map(occurrence -> new EstimationTaskHistoryInfo(estimationTask, occurrence, thesaurus)).orElse(null);
     }
 
-    void populate(EstimationTask estimationTask, Thesaurus thesaurus) {
+    void populate(EstimationTask estimationTask) {
         id = estimationTask.getId();
         name = estimationTask.getName();
         active = estimationTask.isActive();
         deviceGroup = new MeterGroupInfo(estimationTask.getEndDeviceGroup());
-        estimationTask.getPeriod().ifPresent(period -> this.period = new RelativePeriodInfo(period, thesaurus));
+        estimationTask.getPeriod().ifPresent(period -> this.period = RelativePeriodInfo.withCategories(period));
 
         Instant nextExecution = estimationTask.getNextExecution();
         if (nextExecution != null) {
