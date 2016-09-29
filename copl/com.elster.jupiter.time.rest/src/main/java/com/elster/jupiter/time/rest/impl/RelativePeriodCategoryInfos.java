@@ -14,7 +14,7 @@ public class RelativePeriodCategoryInfos {
     }
 
     public RelativePeriodCategoryInfos(List<RelativePeriodCategory> categories, Thesaurus thesaurus) {
-        categories.stream().forEach(c -> data.add(new RelativePeriodCategoryInfo(c, thesaurus)));
+        categories.stream().forEach(c -> data.add(new RelativePeriodCategoryInfo(c)));
         total = categories.size();
     }
 
