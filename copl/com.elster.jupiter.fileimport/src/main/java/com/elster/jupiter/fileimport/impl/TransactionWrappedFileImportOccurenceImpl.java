@@ -20,18 +20,17 @@ import java.util.logging.Logger;
 /**
  * Created by bbl on 2/12/2015.
  */
-public class TransactionWrappedFileImportOccurenceImpl implements FileImportOccurrence {
+class TransactionWrappedFileImportOccurenceImpl implements FileImportOccurrence {
 
     private final ServerFileImportOccurrence fileImportOccurrence;
     private final TransactionService transactionService;
     private final BufferedLogHandler logHandler;
 
-    public TransactionWrappedFileImportOccurenceImpl(TransactionService transactionService, ServerFileImportOccurrence fileImportOccurrence) {
+    TransactionWrappedFileImportOccurenceImpl(TransactionService transactionService, ServerFileImportOccurrence fileImportOccurrence) {
         this.transactionService = transactionService;
         this.fileImportOccurrence = fileImportOccurrence;
         this.logHandler = new BufferedLogHandler();
     }
-
 
     @Override
     public InputStream getContents() {
@@ -46,6 +45,11 @@ public class TransactionWrappedFileImportOccurenceImpl implements FileImportOccu
     @Override
     public Status getStatus() {
         return fileImportOccurrence.getStatus();
+    }
+
+    @Override
+    public String getStatusName() {
+        return fileImportOccurrence.getStatusName();
     }
 
     @Override
@@ -119,10 +123,10 @@ public class TransactionWrappedFileImportOccurenceImpl implements FileImportOccu
 
     private class BufferedLogHandler extends Handler {
 
-        private final static int BUFFER_SIZE = 100;
+        private static final int BUFFER_SIZE = 100;
         private List<LogRecord> logRecords;
 
-        public BufferedLogHandler() {
+        BufferedLogHandler() {
             initLogRecords();
         }
 

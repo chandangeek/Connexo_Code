@@ -123,6 +123,11 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
     }
 
     @Override
+    public String getStatusName() {
+        return this.thesaurus.getFormat(this.getStatus()).format();
+    }
+
+    @Override
     public void markFailure(String message) {
         validateStatus();
         this.message = message;
@@ -230,8 +235,6 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
     private void saveLogEntries() {
         Arrays.stream(getLogger().getHandlers()).filter(FileImportLogHandler.class::isInstance).forEach(handler -> ((FileImportLogHandler) handler).saveLogEntries());
     }
-
-
 
     private void flushLogEntries() {
         Arrays.stream(getLogger().getHandlers()).filter(FileImportLogHandler.class::isInstance).forEach(Handler::flush);
