@@ -175,7 +175,7 @@ public class ComSessionImpl implements ComSession {
                 ComSessionJournalEntry.class,
                 where("logLevel").in(new ArrayList<>(levels)).and(where("comSession").isEqualTo(this)),
                 this.dataModel).
-                defaultSortColumn("timestamp desc");
+                defaultSortColumn("timestamp", false);
     }
 
     @Override
@@ -186,7 +186,7 @@ public class ComSessionImpl implements ComSession {
                         .and(where("logLevel").in(new ArrayList<>(levels))),
                 this.dataModel,
                 ComTaskExecutionSession.class).
-                defaultSortColumn("timestamp desc");
+                defaultSortColumn("timestamp", false);
     }
 
     @Override
