@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.device.data.Device;
@@ -9,6 +8,7 @@ import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent.Type;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -19,11 +19,11 @@ import java.util.Optional;
 
 public class DeviceLifeCycleHistoryInfoFactory {
 
-    private final Thesaurus thesaurus;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Inject
-    public DeviceLifeCycleHistoryInfoFactory(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
+    public DeviceLifeCycleHistoryInfoFactory(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     public DeviceLifeCycleChangeInfos createDeviceLifeCycleChangeInfos(Device device) {
@@ -77,12 +77,10 @@ public class DeviceLifeCycleHistoryInfoFactory {
     }
 
     private String getStateName(State state) {
-        Optional<DefaultState> defaultState = DefaultState.from(state);
-        if (defaultState.isPresent()) {
-            return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
-        } else {
-            return state.getName();
-        }
+        return DefaultState
+                .from(state)
+                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .orElseGet(state::getName);
     }
 
     static class DeviceLifeCycleChangeInfos {

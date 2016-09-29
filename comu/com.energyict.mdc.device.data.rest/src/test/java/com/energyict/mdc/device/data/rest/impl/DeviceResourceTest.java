@@ -85,6 +85,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.impl.DataLoggerLinkException;
@@ -132,9 +133,12 @@ import java.util.stream.Stream;
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -150,15 +154,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    public static final Instant NOW = Instant.ofEpochMilli(1409738114);
-    public ReadingType readingType;
-    public static final long startTimeFirst = 1416403197000L;
-    public static final long endTimeFirst = 1479561597000L;
-    public static final long endTimeSecond = 1489561597000L;
-    public static final long startTimeNew = 1469561597000L;
-    public static final long endTimeNew = 1499561597000L;
+    private static final Instant NOW = Instant.ofEpochMilli(1409738114);
+    private static final long startTimeFirst = 1416403197000L;
+    private static final long endTimeFirst = 1479561597000L;
+    private static final long endTimeSecond = 1489561597000L;
+    private static final long startTimeNew = 1469561597000L;
+    private static final long endTimeNew = 1499561597000L;
+
+    @Mock
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+
+    private ReadingType readingType;
 
     @Before
     public void setupStubs() {
@@ -1307,7 +1316,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
 
-        List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline, thesaurus);
+        List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline, deviceLifeCycleConfigurationService);
 
         assertThat(infos.size()).isEqualTo(5);
         assertThat(infos.get(0).mRID).isEqualTo("slave7");
@@ -1318,7 +1327,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         slaves = new HashSet<>(Arrays.<Device>asList(slave1));
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
-        infos = DeviceTopologyInfo.from(topologyTimeline, thesaurus);
+        infos = DeviceTopologyInfo.from(topologyTimeline, deviceLifeCycleConfigurationService);
         assertThat(infos.size()).isEqualTo(1);
     }
 

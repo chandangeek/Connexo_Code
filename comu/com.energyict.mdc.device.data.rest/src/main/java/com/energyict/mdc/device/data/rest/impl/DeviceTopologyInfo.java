@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -24,14 +24,14 @@ public class DeviceTopologyInfo {
     public long creationTime;
     public String state;
 
-    public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, Thesaurus thesaurus) {
+    public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         return timeline.getAllDevices().stream()
                 .sorted(new DeviceRecentlyAddedComporator(timeline))
-                .map(d -> from(d, timeline.mostRecentlyAddedOn(d), thesaurus))
+                .map(d -> from(d, timeline.mostRecentlyAddedOn(d), deviceLifeCycleConfigurationService))
                 .collect(Collectors.toList());
     }
 
-    public static DeviceTopologyInfo from(Device device, Optional<Instant> linkingTimeStamp, Thesaurus thesaurus) {
+    public static DeviceTopologyInfo from(Device device, Optional<Instant> linkingTimeStamp, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         DeviceTopologyInfo info = new DeviceTopologyInfo();
         info.id = device.getId();
         info.mRID = device.getmRID();
@@ -42,15 +42,14 @@ public class DeviceTopologyInfo {
         if (linkingTimeStamp.isPresent()) {
             info.linkingTimeStamp = linkingTimeStamp.get().toEpochMilli();
         }
-        String key = DefaultState.from(device.getState()).get().getKey();
-        info.state = thesaurus.getString(key, key);
+        info.state = DefaultState.from(device.getState()).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(device.getState()::getName);
         return info;
     }
 
     private static class DeviceRecentlyAddedComporator implements Comparator<Device> {
         private TopologyTimeline timeline;
 
-        public DeviceRecentlyAddedComporator(TopologyTimeline timeline) {
+        DeviceRecentlyAddedComporator(TopologyTimeline timeline) {
             this.timeline = timeline;
         }
 

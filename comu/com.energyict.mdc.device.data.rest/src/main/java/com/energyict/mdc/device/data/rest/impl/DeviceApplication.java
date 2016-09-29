@@ -58,6 +58,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -140,6 +141,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile CalendarService calendarService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -472,6 +474,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.searchService = searchService;
     }
 
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -558,6 +565,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
             bind(MeterActivationInfoFactory.class).to(MeterActivationInfoFactory.class);
+            bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
         }
     }
 }

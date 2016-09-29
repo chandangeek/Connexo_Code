@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
@@ -38,11 +38,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceTopologyInfoTest {
 
-    private final static long DEVICE_ID = 222L;
-    private final static String DEVICE_MRID  = "mRID";
-    private final static String DEVICE_SERIAL_NUMBER = "serialNumber";
-    private final static String DEVICE_TYPE_NAME = "deviceTypeName";
-    private final static String DEVICE_CONFIGURATION_NAME = "deviceConfigurarionName";
+    private static final long DEVICE_ID = 222L;
+    private static final String DEVICE_MRID  = "mRID";
+    private static final String DEVICE_SERIAL_NUMBER = "serialNumber";
+    private static final String DEVICE_TYPE_NAME = "deviceTypeName";
+    private static final String DEVICE_CONFIGURATION_NAME = "deviceConfigurarionName";
 
     @Mock
     private DeviceConfiguration deviceConfiguration;
@@ -55,12 +55,11 @@ public class DeviceTopologyInfoTest {
     @Mock
     private Clock clock;
     @Mock
-    private Thesaurus thesaurus;
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Before
     public void setup() {
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
-
     }
 
     @Test
@@ -94,7 +93,7 @@ public class DeviceTopologyInfoTest {
         when(deviceConfiguration.getName()).thenReturn(DEVICE_CONFIGURATION_NAME);
         when(device.getCreateTime()).thenReturn(initialTimestamp);
 
-        DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp), thesaurus);
+        DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp), deviceLifeCycleConfigurationService);
 
         assertThat(info.id).isEqualTo(DEVICE_ID);
         assertThat(info.mRID).isEqualTo(DEVICE_MRID);

@@ -25,6 +25,8 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.annotation.security.RolesAllowed;
@@ -51,6 +53,7 @@ public class DeviceLifeCycleActionResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final DeviceLifeCycleActionInfoFactory deviceLifeCycleActionInfoFactory;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final Clock clock;
     private final Thesaurus thesaurus;
 
@@ -60,6 +63,7 @@ public class DeviceLifeCycleActionResource {
             TransactionService transactionService, ResourceHelper resourceHelper,
             ExceptionFactory exceptionFactory,
             DeviceLifeCycleActionInfoFactory deviceLifeCycleActionInfoFactory,
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
             Clock clock,
             Thesaurus thesaurus) {
         this.deviceLifeCycleService = deviceLifeCycleService;
@@ -67,6 +71,7 @@ public class DeviceLifeCycleActionResource {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceLifeCycleActionInfoFactory = deviceLifeCycleActionInfoFactory;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.clock = clock;
         this.thesaurus = thesaurus;
     }
@@ -139,7 +144,6 @@ public class DeviceLifeCycleActionResource {
     private void wrapWithFormValidationErrorAndRethrow(RequiredMicroActionPropertiesException violationEx) {
         RestValidationBuilder formValidationErrorBuilder = new RestValidationBuilder();
         violationEx.getViolatedPropertySpecNames()
-                .stream()
                 .forEach( propertyName ->
                     formValidationErrorBuilder.addValidationError(
                             new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, propertyName)));
@@ -148,7 +152,10 @@ public class DeviceLifeCycleActionResource {
 
     private String getTargetStateName(AuthorizedTransitionAction requestedAction) {
         State targetState  = requestedAction.getStateTransition().getTo();
-        return DeviceAttributesInfoFactory.getStateName(thesaurus, targetState);
+        return DefaultState
+                .from(targetState)
+                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .orElseGet(targetState::getName);
     }
 
     private void getFailedExecutionMessage(MultipleMicroCheckViolationsException microChecksViolationEx, DeviceLifeCycleActionResultInfo wizardResult) {

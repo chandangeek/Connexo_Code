@@ -46,6 +46,7 @@ import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
@@ -113,6 +114,7 @@ public class DeviceResource {
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
@@ -153,7 +155,7 @@ public class DeviceResource {
 
     @Inject
     public DeviceResource(
-            ResourceHelper resourceHelper,
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, ResourceHelper resourceHelper,
             ExceptionFactory exceptionFactory,
             DeviceService deviceService,
             TopologyService topologyService,
@@ -193,6 +195,7 @@ public class DeviceResource {
             DeviceMessageService deviceMessageService,
             Clock clock,
             DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -453,9 +456,9 @@ public class DeviceResource {
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
         List<DeviceTopologyInfo> slaves;
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
-            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT), resourceHelper.getThesaurus());
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT), deviceLifeCycleConfigurationService);
         } else {
-            slaves = DeviceTopologyInfo.from(topologyService.getPysicalTopologyTimeline(device), resourceHelper.getThesaurus());
+            slaves = DeviceTopologyInfo.from(topologyService.getPysicalTopologyTimeline(device), deviceLifeCycleConfigurationService);
         }
         return slaves;
     }
@@ -809,9 +812,7 @@ public class DeviceResource {
                 DefaultState.ONGOING,
                 DefaultState.WAITING);
 
-        serviceCallService.findServiceCalls(device, states)
-                .stream()
-                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
+        serviceCallService.findServiceCalls(device, states).forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
         return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
     }
@@ -878,7 +879,7 @@ public class DeviceResource {
         if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
             stream = stream.skip(queryParameters.getStart().get());
         }
-        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), resourceHelper.getThesaurus()))
+        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), deviceLifeCycleConfigurationService))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
     }
@@ -912,7 +913,7 @@ public class DeviceResource {
 
     private Condition getUnlinkedSlaveDevicesCondition(String dbSearchText) {
         // a. Datalogger slave devices
-        String regex = "*".concat(dbSearchText.replace(" ", "*").concat("*"));
+        String regex = "*" + dbSearchText.replace(" ", "*") + "*";
         Condition a = Where.where("mRID").likeIgnoreCase(regex)
             .and(Where.where("deviceType.deviceTypePurpose").isEqualTo(DeviceTypePurpose.DATALOGGER_SLAVE));
         // b. that are not linked yet to a data logger
