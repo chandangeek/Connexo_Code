@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.streams.Functions;
 
 import java.util.EnumSet;
@@ -16,23 +17,31 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-12 (10:37)
  */
-public enum DefaultState  {
+public enum DefaultState implements TranslationKey {
 
-    IN_STOCK("dlc.default.inStock"),
-    COMMISSIONING("dlc.default.commissioning"),
-    ACTIVE("dlc.default.active"),
-    INACTIVE("dlc.default.inactive"),
-    DECOMMISSIONED("dlc.default.decommissioned"),
-    REMOVED("dlc.default.removed");
+    IN_STOCK("dlc.default.inStock", "In stock"),
+    COMMISSIONING("dlc.default.commissioning", "Commissioning"),
+    ACTIVE("dlc.default.active", "Active"),
+    INACTIVE("dlc.default.inactive", "Inactive"),
+    DECOMMISSIONED("dlc.default.decommissioned", "Decommissioned"),
+    REMOVED("dlc.default.removed", "Removed");
 
     private final String key;
+    private final String defaultFormat;
 
-    DefaultState(String key) {
+    DefaultState(String key, String defaultFormat) {
         this.key = key;
+        this.defaultFormat = defaultFormat;
     }
 
+    @Override
     public String getKey() {
         return key;
+    }
+
+    @Override
+    public String getDefaultFormat() {
+        return defaultFormat;
     }
 
     /**

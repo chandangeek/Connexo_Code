@@ -1,11 +1,12 @@
 package com.energyict.mdc.device.lifecycle.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -168,4 +169,13 @@ public interface DeviceLifeCycleConfigurationService {
     Optional<AuthorizedAction> findAuthorizedActionById(long id);
 
     Optional<AuthorizedAction> findAndLockAuthorizedActionByIdAndVersion(long id, long version);
+
+    /**
+     * Gets the display name for the specified {@link DefaultState}.
+     *
+     * @param state The DefaultState
+     * @return The display name
+     */
+    String getDisplayName(DefaultState state);
+
 }
