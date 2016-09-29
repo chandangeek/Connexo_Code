@@ -13,6 +13,7 @@ import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
+import com.energyict.mdc.device.data.impl.TaskStatusTranslationKeys;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionFilterSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -179,7 +180,7 @@ public class ComTaskStatusSearchableProperty extends AbstractSearchableDevicePro
 
         @Override
         public String getName() {
-            return thesaurus.getStringBeyondComponent(taskStatus.name(), taskStatus.name());
+            return thesaurus.getFormat(TaskStatusTranslationKeys.from(taskStatus)).format();
         }
 
         public TaskStatus getStatus() {
