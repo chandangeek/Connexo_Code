@@ -17,8 +17,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
 public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTaskBuilder> {
     private final DataExportService dataExportService;
     private final MeteringGroupsService meteringGroupsService;
@@ -61,7 +59,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
         com.elster.jupiter.export.DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(getName())
                 .setApplication("Admin")
-                .setDataFormatterName("standardCsvDataProcessorFactory")
+                .setDataFormatterFactoryName("standardCsvDataProcessorFactory")
                 .setScheduleExpression(new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(11)))
                 .setNextExecution(startOn.toInstant(ZoneOffset.UTC))
                 .selectingReadingTypes()
