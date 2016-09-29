@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
         'Mdc.view.setup.deviceloadprofiles.ValidationPreview'
     ],
 
-    mRID: null,
+    deviceId: null,
     router: null,
 
     initComponent: function () {
@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                         renderer: function (value) {
                             var res = '';
                             if (value && value.id && value.name) {
-                                var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({mRID: encodeURIComponent(me.mRID), loadProfileId: value.id});
+                                var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({deviceId: encodeURIComponent(me.deviceId), loadProfileId: value.id});
                                 res = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>'
                             }
                             return res;
@@ -95,7 +95,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                 xtype: 'reading-type-displayfield',
                 fieldLabel: undefined,
                 value: channel.readingType,
-                link: me.router.getRoute('devices/device/channels/channeldata').buildUrl({mRID: encodeURIComponent(me.mRID), channelId: channel.id})
+                link: me.router.getRoute('devices/device/channels/channeldata').buildUrl({deviceId: encodeURIComponent(me.deviceId), channelId: channel.id})
             });
         });
         if (Ext.isEmpty(channels)) {

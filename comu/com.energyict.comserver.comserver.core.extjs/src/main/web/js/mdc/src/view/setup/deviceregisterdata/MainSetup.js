@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.deviceregisterdata.MainSetup', {
     extend: 'Ext.container.Container',
     alias: 'widget.deviceRegisterDataPage',
-    mRID: null,
+    deviceId: null,
     registerId: null,
     requires: [
         'Mdc.view.setup.deviceregisterdata.RegisterTopFilter'

@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
     alias: 'widget.deviceProtocolDialectEdit',
     itemId: 'deviceProtocolDialectEdit',
     edit: false,
-    mRID: null,
+    deviceId: null,
 
     required: [
         'Uni.property.form.Property'
@@ -137,7 +137,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
                                         xtype: 'button',
                                         ui: 'link',
                                         itemId: 'cancelLink',
-                                        href: '#/devices/' + encodeURIComponent(this.mRID) + '/'
+                                        href: '#/devices/' + encodeURIComponent(this.deviceId) + '/'
                                     }
                                 ]
                             }

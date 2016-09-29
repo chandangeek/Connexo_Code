@@ -120,7 +120,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'deviceConnectionLogGrid',
-                            mrid: me.mrid
+                            deviceId: me.deviceId
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',

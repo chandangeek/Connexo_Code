@@ -22,7 +22,7 @@ Ext.define('Mdc.model.DeviceRegisterForPreview', {
         {name: 'timeStamp', mapping: 'lastReading.timeStamp', useNull: true},
         {name: 'interval', mapping: 'lastReading.interval', useNull: true},
         {name: 'detailedValidationInfo', type: 'auto'},
-        {name: 'dataloggerSlavemRID', type: 'string'},
+        {name: 'dataloggerSlaveName', type: 'string'},
         {
             name: 'value',
             useNull: true,

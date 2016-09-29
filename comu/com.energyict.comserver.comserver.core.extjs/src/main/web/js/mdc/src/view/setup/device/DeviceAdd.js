@@ -50,9 +50,9 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             },
                             {
                                 xtype: 'textfield',
-                                name: 'mRID',
-                                itemId: 'deviceAddMRID',
-                                fieldLabel: Uni.I18n.translate('deviceAdd.mrid', 'MDC', 'MRID'),
+                                name: 'name',
+                                itemId: 'deviceAddName',
+                                fieldLabel: Uni.I18n.translate('deviceAdd.name', 'MDC', 'Name'),
                                 required: true,
                                 msgTarget: 'under',
                                 maxLength: 80,

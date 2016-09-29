@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.LoadProfileList', {
     alias: 'widget.mdc-load-profile-list',
     store: 'ext-empty-store',
     router: null,
-    mRID: null,
+    deviceId: null,
     columns: {
         items: [
             {

@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceLoadProfileChannelsSetup',
     itemId: 'deviceLoadProfileChannelsSetup',
-    mRID: null,
+    deviceId: null,
     router: null,
     device: null,
 
@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                         itemId: 'stepsMenu',
                         device: me.device,
                         toggleId: 'channelsLink',
-                        mRID: me.mRID
+                        deviceId: me.deviceId
                     }
                 ]
             }
@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'deviceLoadProfileChannelsGrid',
-                        mRID: me.mRID,
+                        deviceId: me.deviceId,
                         router: me.router,
                         showDataLoggerSlaveColumn: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')
                     },

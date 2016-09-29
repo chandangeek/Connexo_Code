@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
     device: null,
     initComponent: function () {
         var me = this;
-        me.mRID = me.device.get('mRID');
+        me.deviceId = me.device.get('name');
         me.columns = [
             {
                 header: Uni.I18n.translate('deviceCommands.view.cmdName', 'MDC', 'Command name'),
@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 menu: {
                     xtype: 'device-command-action-menu',
                     device: me.device,
-                    mRID: me.device.get('mRID')
+                    deviceId: me.device.get('name')
                 },
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges,
                 isDisabled: me.fnIsDisabled
@@ -92,7 +92,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                         privileges: Mdc.privileges.DeviceCommands.executeCommands,
                         text: Uni.I18n.translate('devicecommands.addCommand','MDC','Add command'),
                         itemId: 'deviceAddCommandButton',
-                        mRID: me.mRID,
+                        deviceId: me.deviceId,
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
                     }
                 ]

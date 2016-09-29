@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
     alias: 'widget.deviceProtocolDialectsGrid',
     overflowY: 'auto',
     itemId: 'deviceprotocoldialectsgrid',
-    mRID: null,
+    deviceId: null,
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 params: [
-                    {mRID: this.mRID}
+                    {deviceId: this.deviceId}
                 ],
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('protocolDialects.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Protocol dialects per page')

@@ -16,8 +16,8 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesTopFilter', {
         me.filters = [
             {
                 type: 'text',
-                dataIndex: 'mRID',
-                emptyText: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID')
+                dataIndex: 'name',
+                emptyText: Uni.I18n.translate('searchItems.name', 'MDC', 'Name')
             },
             {
                 type: 'text',

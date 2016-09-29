@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
       }
     },
 
-    setProcessMenu: function(mRID, router) {
+    setProcessMenu: function(deviceId, router) {
         var me = this;
         if (Mdc.privileges.Device.canViewProcessMenu()) {
 
@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
                 itemId: 'action-menu-item-start-proc',
                 privileges: Mdc.privileges.Device.deviceProcesses && Mdc.privileges.Device.deviceExecuteProcesses,
                 text: Uni.I18n.translate('deviceconfiguration.process.startProcess', 'MDC', 'Start process'),
-                href: '#/devices/' + encodeURIComponent(mRID) + '/processes/start'
+                href: '#/devices/' + encodeURIComponent(deviceId) + '/processes/start'
             })
         }
 

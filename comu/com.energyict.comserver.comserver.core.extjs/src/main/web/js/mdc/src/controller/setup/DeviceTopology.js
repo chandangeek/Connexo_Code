@@ -76,7 +76,7 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
                 me.updateDevice(
                     {
                         masterDeviceId: null,
-                        masterDevicemRID: null,
+                        masterDeviceName: null,
                         acknowledgeMessage: Uni.I18n.translate('deviceCommunicationTopology.masterRemoved', 'MDC', 'Master removed')
                     }
                 );
@@ -84,7 +84,7 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
                 me.updateDevice(
                     {
                         masterDeviceId: masterCombo.getValue(),
-                        masterDevicemRID: masterCombo.getRawValue(),
+                        masterDeviceName: masterCombo.getRawValue(),
                         acknowledgeMessage: Uni.I18n.translate('deviceCommunicationTopology.masterSaved', 'MDC', 'Master saved')
                     }
                 );
@@ -99,14 +99,14 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
             deviceTopologyContent = me.getDeviceTopology();
 
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('deviceCommunicationTopology.removeMasterConfirmation.title', 'MDC', "Remove '{0}' as master device?", deviceTopologyContent.device.get('masterDevicemRID')),
+            title: Uni.I18n.translate('deviceCommunicationTopology.removeMasterConfirmation.title', 'MDC', "Remove '{0}' as master device?", deviceTopologyContent.device.get('masterDeviceName')),
             msg: Uni.I18n.translate('deviceCommunicationTopology.removeMasterConfirmation.message', 'MDC', "This device will no longer be the master of '{0}'", deviceTopologyContent.device.get('mRID'), false),
             fn: function (action) {
                 if (action === 'confirm') {
                     me.updateDevice(
                         {
                             masterDeviceId: null,
-                            masterDevicemRID: null,
+                            masterDeviceName: null,
                             acknowledgeMessage: Uni.I18n.translate('deviceCommunicationTopology.masterRemoved', 'MDC', 'Master removed')
                         }
                     );
@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
 
         deviceTopologyContent.setLoading(true);
         deviceTopologyContent.device.set('masterDeviceId', data.masterDeviceId);
-        deviceTopologyContent.device.set('masterDevicemRID', data.masterDevicemRID);
+        deviceTopologyContent.device.set('masterDeviceName', data.masterDeviceName);
         deviceTopologyContent.device.save({
             isNotEdit: true,
             success: function (deviceData) {

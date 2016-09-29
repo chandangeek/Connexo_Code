@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Overview', {
         'Mdc.view.setup.deviceloadprofiles.ActionMenu'
     ],
     device: null,
-    mRID: null,
+    deviceId: null,
     router: null,
     initComponent: function () {
         var me = this;
@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Overview', {
                         flex: 1,
                         items:  {
                             xtype: 'deviceLoadProfilesPreviewForm',
-                            mRID: me.mRID,
+                            deviceId: me.deviceId,
                             router: me.router,
                             margin: '0 0 0 100'
                         }

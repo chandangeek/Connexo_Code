@@ -29,8 +29,8 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
         me.items = [
             {
                 xtype: 'textfield',
-                name: 'mRID',
-                fieldLabel: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID')
+                name: 'name',
+                fieldLabel: Uni.I18n.translate('searchItems.name', 'MDC', 'Name')
             },
             {
                 xtype: 'textfield',

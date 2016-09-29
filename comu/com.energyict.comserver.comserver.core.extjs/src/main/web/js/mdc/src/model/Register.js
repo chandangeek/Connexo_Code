@@ -61,7 +61,7 @@ Ext.define('Mdc.model.Register', {
             }
         },
         {name: 'mRID', type: 'string'},
-        {name: 'dataloggerSlavemRID', type: 'string'}
+        {name: 'dataloggerSlaveName', type: 'string'}
     ],
     proxy: {
         type: 'rest',

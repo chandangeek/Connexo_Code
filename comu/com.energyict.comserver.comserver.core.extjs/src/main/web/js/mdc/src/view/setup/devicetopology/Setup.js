@@ -106,13 +106,13 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                     {
                         xtype: 'displayfield',
                         renderer: function() {
-                            var masterMRID = me.device.get('masterDevicemRID');
+                            var masterId = me.device.get('masterDeviceName');
 
-                            if (masterMRID) {
+                            if (masterId) {
                                 return Ext.String.format(
                                     '<a href="{0}">{1}</a>',
-                                    me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(masterMRID)}),
-                                    Ext.String.htmlEncode(masterMRID)
+                                    me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(masterId)}),
+                                    Ext.String.htmlEncode(masterId)
                                 );
                             } else {
                                 return '-';
@@ -134,7 +134,7 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                         ui: 'blank',
                         text: '<span class="icon-cancel-circle2" style="display:inline-block; font-size:16px;"></span>',
                         tooltip: Uni.I18n.translate('deviceCommunicationTopology.removeMaster.tooltip', 'MDC', 'Remove master'),
-                        hidden: Ext.isEmpty(me.device.get('masterDevicemRID'))
+                        hidden: Ext.isEmpty(me.device.get('masterDeviceName'))
                     }
                 ]
             }
@@ -191,7 +191,7 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
         me.setLoading(true);
         var combo = masterContainer.down('#mdc-topology-masterCandidatesCombo'),
             masterStore = combo.getStore();
-        masterStore.getProxy().setExtraParam('excludeDeviceMRID', me.device.get('mRID'));
+        masterStore.getProxy().setExtraParam('excludeDeviceName', me.device.get('name'));
         masterStore.load({
             callback: function () {
                 if (me.device.get('masterDeviceId')) {

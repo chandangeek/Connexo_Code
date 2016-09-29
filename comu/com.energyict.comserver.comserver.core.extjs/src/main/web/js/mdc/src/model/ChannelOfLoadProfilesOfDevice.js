@@ -24,7 +24,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         {name: 'validationInfo', type: 'auto'},
         {name: 'loadProfileId', type: 'auto'},
         {name: 'loadProfileName', type: 'string'},
-        {name: 'dataloggerSlavemRID', type: 'string'},
+        {name: 'dataloggerSlaveName', type: 'string'},
         {
             name: 'validationInfo_validationActive',
             persist: false,

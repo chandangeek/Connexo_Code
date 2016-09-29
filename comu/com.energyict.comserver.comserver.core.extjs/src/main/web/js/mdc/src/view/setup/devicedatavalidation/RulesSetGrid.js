@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
     ],
     store: 'DeviceDataValidationRulesSet',
     overflowY: 'auto',
-    mRID: null,
+    deviceId: null,
     initComponent: function () {
         var me = this;
         me.columns = [

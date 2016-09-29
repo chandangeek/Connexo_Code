@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.monitorprocesses.UsagePointStartProcess', {
                                 xtype: 'usage-point-management-side-menu',
                                 itemId: 'usage-point-management-side-menu',
                                 router: me.router,
-                                mRID: me.mRID
+                                deviceId: me.deviceId
                             }
                         ]
                     }

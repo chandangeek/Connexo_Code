@@ -79,13 +79,13 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
-                                            name: 'dataloggerSlavemRID',
+                                            name: 'dataloggerSlaveName',
                                             hidden: Ext.isEmpty(me.device.get('isDataLogger')) || !me.device.get('isDataLogger'),
                                             renderer: function(value) {
                                                 if (Ext.isEmpty(value)) {
                                                     return '-';
                                                 }
-                                                var href = me.router.getRoute('devices/device/channels').buildUrl({mRID: encodeURIComponent(value)});
+                                                var href = me.router.getRoute('devices/device/channels').buildUrl({deviceId: encodeURIComponent(value)});
                                                 return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                                             }
                                         },
@@ -114,18 +114,18 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                                     device;
                                                 if (value instanceof Mdc.model.LoadProfileOfDevice) {
                                                     var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({
-                                                        mRID: encodeURIComponent(me.device.get('mRID')),
+                                                        deviceId: encodeURIComponent(me.device.get('name')),
                                                         loadProfileId: value.get('id')
                                                     });
                                                     res = '<a href="' + url + '">' + Ext.String.htmlEncode(value.get('name')) + '</a>';
                                                 } else if (Ext.isNumber(value)) {
                                                     var loadProfile = Mdc.model.LoadProfileOfDevice;
-                                                    loadProfile.getProxy().setUrl(me.device.get('mRID'));
+                                                    loadProfile.getProxy().setExtraParam('deviceId', me.device.get('name'));
                                                     loadProfile.load(value, {
                                                         success: function (record) {
                                                             me.down('[name=loadProfileId]').setValue(record)
                                                         }
-                                                    })
+                                                    });
                                                 }
                                                 return res
                                             }
