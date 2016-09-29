@@ -71,14 +71,6 @@ Ext.define('Uni.controller.Navigation', {
         me.getApplication().on('onnavigationtitlechanged', me.onNavigationTitleChanged, me);
         me.getApplication().on('onnavigationtogglesearch', me.onNavigationToggleSearch, me);
 
-        var defer = Ext.isFunction(window.requestAnimationFrame) ? window.requestAnimationFrame : setTimeout;
-        me.getController('Uni.controller.history.Router').on('routematch', function(){
-            me.getApplication().on('changecontentevent',
-                defer.bind(undefined, me.initBreadcrumbs.bind(me)),
-                me,
-                {single: true}
-            );
-        }, me);
         me.getController('Uni.controller.history.Router').on('routechange', me.updateBreadcrumb, me);
     },
 
