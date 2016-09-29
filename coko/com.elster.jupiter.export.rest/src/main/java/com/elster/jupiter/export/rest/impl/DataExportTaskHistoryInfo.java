@@ -103,7 +103,7 @@ public class DataExportTaskHistoryInfo {
         version.getDestinations(dataExportOccurrence.getStartDate().get()).stream()
                 .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
                 .forEach(destination -> task.destinations.add(typeOf(destination).toInfo(destination)));
-        task.dataProcessor.properties = propertyValueInfoService.getPropertyInfos(version.getDataProcessorPropertySpecs(), version.getProperties());
+        task.dataProcessor.properties = propertyValueInfoService.getPropertyInfos(version.getDataFormatterPropertySpecs(), version.getProperties());
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getStartDate().get());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
             task.schedule = null;

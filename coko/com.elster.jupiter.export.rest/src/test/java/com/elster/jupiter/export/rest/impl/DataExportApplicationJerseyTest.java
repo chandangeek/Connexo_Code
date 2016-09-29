@@ -119,7 +119,6 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         doReturn(restQuery).when(restQueryService).wrap(query);
         doReturn(asList(exportTask)).when(restQuery).select(any(), any());
         doReturn(Optional.of(standardDataSelector)).when(exportTask).getReadingTypeDataSelector();
-        when(exportTask.getDataSelector()).thenReturn("Standard Data Selector");
         when(standardDataSelector.getEndDeviceGroup()).thenReturn(endDeviceGroup);
         when(standardDataSelector.getExportPeriod()).thenReturn(exportPeriod);
         when(exportPeriod.getRelativeDateFrom()).thenReturn(new RelativeDate(RelativeField.DAY.minus(1)));

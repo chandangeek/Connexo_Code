@@ -138,7 +138,7 @@ public class DataExportTaskResource {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
                 .setApplication(info.application)
-                .setDataFormatterName(info.dataProcessor.name)
+                .setDataFormatterFactoryName(info.dataProcessor.name)
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
 
@@ -146,7 +146,7 @@ public class DataExportTaskResource {
             builder.selectingCustom(info.dataSelector.name).endSelection();
             List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
 
-            propertiesSpecsForDataSelector.stream()
+            propertiesSpecsForDataSelector
                     .forEach(spec -> {
                         Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
                         builder.addProperty(spec.getName()).withValue(value);
@@ -190,17 +190,17 @@ public class DataExportTaskResource {
 
         List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
 
-        propertiesSpecsForProcessor.stream()
+        propertiesSpecsForProcessor
                 .forEach(spec -> {
                     Object value = propertyValueInfoService.findPropertyValue(spec, info.dataProcessor.properties);
                     builder.addProperty(spec.getName()).withValue(value);
                 });
 
-        ExportTask dataExportTask = null;
+        ExportTask dataExportTask;
         try (TransactionContext context = transactionService.getContext()) {
             dataExportTask = builder.create();
             ExportTask exportTask = dataExportTask;
-            info.destinations.stream()
+            info.destinations
                     .forEach(destinationInfo -> destinationInfo.type.create(exportTask, destinationInfo));
             context.commit();
         }
@@ -252,7 +252,7 @@ public class DataExportTaskResource {
                 if (info.destinations.isEmpty()) {
                     throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
                 }
-                String selectorString = task.getDataSelector();
+                String selectorString = task.getDataSelectorFactory().getName();
                 SelectorType selectorType = SelectorType.forSelector(selectorString);
                 if(selectorType.equals(SelectorType.DEFAULT_READINGS)){
                     StandardDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
@@ -292,8 +292,7 @@ public class DataExportTaskResource {
                         .noneMatch(m -> t.getCode().equals(m)))
                 .map(EndDeviceEventTypeFilter::getCode)
                 .collect(Collectors.toSet());
-        toRemove.stream()
-                .forEach(selector::removeEventTypeFilter);
+        toRemove.forEach(selector::removeEventTypeFilter);
         info.standardDataSelector.eventTypeCodes.stream()
                 .map(r -> r.eventFilterCode)
                 .filter(m -> selector.getEventTypeFilters()
@@ -409,21 +408,18 @@ public class DataExportTaskResource {
 
     private void updateProperties(DataExportTaskInfo info, ExportTask task) {
         List<PropertySpec> propertiesSpecsForDataProcessor = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
-        List<PropertySpec> propertiesSpecsOfCurrentTask = dataExportService.getPropertiesSpecsForFormatter(task.getDataFormatter());
-        propertiesSpecsOfCurrentTask.stream()
-                .forEach(spec -> {
-                    task.removeProperty(spec);
-                });
+        List<PropertySpec> propertiesSpecsOfCurrentTask = task.getDataFormatterFactory().getPropertySpecs();
+        propertiesSpecsOfCurrentTask.forEach(task::removeProperty);
 
-        task.setDataFormatter(info.dataProcessor.name);
-        propertiesSpecsForDataProcessor.stream()
+        task.setDataFormatterFactoryName(info.dataProcessor.name);
+        propertiesSpecsForDataProcessor
                 .forEach(spec -> {
                     Object value = propertyValueInfoService.findPropertyValue(spec, info.dataProcessor.properties);
                     task.setProperty(spec.getName(), value);
                 });
         if (info.dataSelector.selectorType == SelectorType.CUSTOM) {
             List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
-            propertiesSpecsForDataSelector.stream()
+            propertiesSpecsForDataSelector
                     .forEach(spec -> {
                         Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
                         task.setProperty(spec.getName(), value);
@@ -444,12 +440,10 @@ public class DataExportTaskResource {
         // update the ones that stay
         info.destinations.stream()
                 .filter(isNewDestination().negate())
-                .forEach(destinationInfo -> {
-                    task.getDestinations().stream()
-                            .filter(destination -> destination.getId() == destinationInfo.id)
-                            .findAny()
-                            .ifPresent(destination -> destinationInfo.type.update(destination, destinationInfo));
-                });
+                .forEach(destinationInfo -> task.getDestinations().stream()
+                        .filter(destination -> destination.getId() == destinationInfo.id)
+                        .findAny()
+                        .ifPresent(destination -> destinationInfo.type.update(destination, destinationInfo)));
     }
 
     private Predicate<DestinationInfo> isNewDestination() {

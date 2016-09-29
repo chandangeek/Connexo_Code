@@ -72,7 +72,7 @@ public class DataExportTaskInfo {
         name = dataExportTask.getName();
 
         active = dataExportTask.isActive();
-        String selector = dataExportTask.getDataSelector();
+        String selector = dataExportTask.getDataSelectorFactory().getName();
         SelectorType selectorType = SelectorType.forSelector(selector);
         if (selectorType.equals(SelectorType.DEFAULT_READINGS)) {
             populateReadingTypeDataExport(dataExportTask, thesaurus);
@@ -80,16 +80,21 @@ public class DataExportTaskInfo {
             populateEventTypeDataExport(dataExportTask,thesaurus);
         }
 
-
-        String dataFormatter = dataExportTask.getDataFormatter();
-        dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter),
-                propertyValueInfoService.getPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties())) ;
+        dataProcessor =
+                new ProcessorInfo(
+                    dataExportTask.getDataFormatterFactory().getName(),
+                        dataExportTask.getDataFormatterFactory().getDisplayName(),
+                        propertyValueInfoService.getPropertyInfos(
+                                dataExportTask.getDataFormatterPropertySpecs(),
+                                dataExportTask.getProperties()));
 
         dataSelector =
                 new SelectorInfo(
-                        selector,
-                        thesaurus.getStringBeyondComponent(selector, selector),
-                        propertyValueInfoService.getPropertyInfos(dataExportTask.getDataSelectorPropertySpecs(), dataExportTask.getProperties()),
+                        dataExportTask.getDataSelectorFactory().getName(),
+                        dataExportTask.getDataSelectorFactory().getDisplayName(),
+                        propertyValueInfoService.getPropertyInfos(
+                                dataExportTask.getDataSelectorPropertySpecs(),
+                                dataExportTask.getProperties()),
                         selectorType);
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {

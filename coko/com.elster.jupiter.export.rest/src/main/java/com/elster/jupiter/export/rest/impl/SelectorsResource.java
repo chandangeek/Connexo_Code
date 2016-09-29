@@ -3,7 +3,6 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.security.Privileges;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
 import javax.annotation.security.RolesAllowed;
@@ -20,13 +19,11 @@ import java.util.List;
 public class SelectorsResource {
 
     private final DataExportService dataExportService;
-    private final Thesaurus thesaurus;
     private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    public SelectorsResource(DataExportService dataExportService, Thesaurus thesaurus, PropertyValueInfoService propertyValueInfoService) {
+    public SelectorsResource(DataExportService dataExportService, PropertyValueInfoService propertyValueInfoService) {
         this.dataExportService = dataExportService;
-        this.thesaurus = thesaurus;
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
@@ -37,7 +34,7 @@ public class SelectorsResource {
         SelectorInfos infos = new SelectorInfos();
         List<DataSelectorFactory> selectors = dataExportService.getAvailableSelectors();
         for (DataSelectorFactory selector : selectors) {
-            infos.add(selector.getName(), thesaurus.getStringBeyondComponent(selector.getName(), selector.getDisplayName()),
+            infos.add(selector.getName(), selector.getDisplayName(),
                     propertyValueInfoService.getPropertyInfos(selector.getPropertySpecs()), SelectorType.forSelector(selector.getName()));
         }
 
