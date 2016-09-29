@@ -388,7 +388,8 @@ public class ChannelResource {
             @PathParam("epochMillis") long epochMillis) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         Instant to = Instant.ofEpochMilli(epochMillis);
-        Instant from = to.minusMillis(channel.getInterval().getMilliSeconds());
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, channel.getDevice().getZone());
+        Instant from = zonedDateTime.minus(channel.getInterval().asTemporalAmount()).toInstant();
         Range<Instant> range = Ranges.openClosed(from, to);
         List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
         Optional<VeeReadingInfo> veeReadingInfo = channelTimeLine.stream()
