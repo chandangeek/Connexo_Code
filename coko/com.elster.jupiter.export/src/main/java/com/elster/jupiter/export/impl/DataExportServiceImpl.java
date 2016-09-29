@@ -35,6 +35,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -78,10 +79,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.export",
-        service = {DataExportService.class, IDataExportService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {DataExportService.class, IDataExportService.class, TranslationKeyProvider.class, MessageSeedProvider.class, RelativePeriodCategoryTranslationProvider.class},
         property = "name=" + DataExportService.COMPONENTNAME,
         immediate = true)
-public class DataExportServiceImpl implements IDataExportService, TranslationKeyProvider, MessageSeedProvider {
+public class DataExportServiceImpl implements IDataExportService, TranslationKeyProvider, MessageSeedProvider, RelativePeriodCategoryTranslationProvider {
 
     static final String DESTINATION_NAME = "DataExport";
     static final String SUBSCRIBER_NAME = "DataExport";
