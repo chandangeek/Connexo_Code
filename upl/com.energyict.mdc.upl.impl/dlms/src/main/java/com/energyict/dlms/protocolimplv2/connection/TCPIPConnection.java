@@ -1,14 +1,17 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
+import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ServerComChannel;
+
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ServerComChannel;
+import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationConsumer;
+import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationHandler;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -24,7 +27,7 @@ import java.nio.ByteBuffer;
  * Class that implements the TCPIP transport layer wrapper protocol.
  * Use this for all V2 protocols.
  */
-public class TCPIPConnection implements DlmsV2Connection {
+public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2PreparationConsumer {
 
     private static final long TIMEOUT = 300000;
     private static final int WRAPPER_VERSION = 0x0001;
@@ -49,6 +52,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     private boolean switchAddresses = false;
     private boolean useGeneralBlockTransfer;
     private int generalBlockTransferWindowSize;
+    private boolean incrementFrameCounterForRetries;
     private long pollingDelay;
 
     /**
@@ -60,6 +64,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     private HHUSignOnV2 hhuSignOn = null;
     private String meterId = "";
     private int numberOfDroppedWPDUs = 0;
+    private RetryRequestV2PreparationHandler retryRequestPreparationHandler;
 
     public TCPIPConnection(ComChannel comChannel, CommunicationSessionProperties properties) {
         this.comChannel = comChannel;
@@ -73,6 +78,7 @@ public class TCPIPConnection implements DlmsV2Connection {
         this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
         this.useGeneralBlockTransfer = properties.useGeneralBlockTransfer();
         this.generalBlockTransferWindowSize = properties.getGeneralBlockTransferWindowSize();
+        this.incrementFrameCounterForRetries = properties.incrementFrameCounterForRetries();
         this.pollingDelay = properties.getPollingDelay().getMilliSeconds();
         this.timeoutMeansBrokenConnection = properties.timeoutMeansBrokenConnection();
         this.comChannel.setTimeout(this.timeout);
@@ -394,7 +400,7 @@ public class TCPIPConnection implements DlmsV2Connection {
         boolean firstRead = true;
         // this.currentTryCount contains the current try number - we should not start again from 0, but continue from current try number
 
-        // strip the HDLC LLC header. This is because of the code inherited from  the days only HDLC existed...
+        // strip the HDLC LLC header. This is because of the code inherited from the days only HDLC existed...
         byte[] byteRequestBuffer = new byte[retryRequest.length - 3];
         System.arraycopy(retryRequest, 3, byteRequestBuffer, 0, byteRequestBuffer.length);
 
@@ -417,6 +423,8 @@ public class TCPIPConnection implements DlmsV2Connection {
                     } else {
                         throw ConnectionCommunicationException.numberOfRetriesReachedWithConnectionStillIntact(e, maxRetries + 1);
                     }
+                } else {
+                    retryRequest = getRetryRequestPreparationHandler().prepareRetryRequest(retryRequest);
                 }
             }
         }
@@ -442,6 +450,8 @@ public class TCPIPConnection implements DlmsV2Connection {
                     } else {
                         throw ConnectionCommunicationException.numberOfRetriesReachedWithConnectionStillIntact(e, maxRetries + 1);
                     }
+                }  else {
+                    data = getRetryRequestPreparationHandler().prepareRetryRequest(data);
                 }
             }
         }
@@ -475,6 +485,8 @@ public class TCPIPConnection implements DlmsV2Connection {
                     } else {
                         throw ConnectionCommunicationException.numberOfRetriesReachedWithConnectionStillIntact(e, maxRetries + 1);
                     }
+                } else {
+                    data = getRetryRequestPreparationHandler().prepareRetryRequest(data);
                 }
             }
         }
@@ -574,6 +586,27 @@ public class TCPIPConnection implements DlmsV2Connection {
         if (comChannel instanceof ServerComChannel) {
             ((ServerComChannel) comChannel).sessionCountersStartWriting();
         }
+    }
+
+    @Override
+    public boolean incrementFrameCounterForRetries() {
+        return incrementFrameCounterForRetries;
+    }
+
+    public void setRetryRequestPreparationHandler(RetryRequestV2PreparationHandler retryRequestPreparationHandler) {
+        this.retryRequestPreparationHandler = retryRequestPreparationHandler;
+    }
+
+    public RetryRequestV2PreparationHandler getRetryRequestPreparationHandler() {
+        if (this.retryRequestPreparationHandler == null) {
+            this.retryRequestPreparationHandler = new RetryRequestV2PreparationHandler() {
+                @Override
+                public byte[] prepareRetryRequest(byte[] originalRequest) {
+                    return originalRequest; // Return the original request as-is
+                }
+            };
+        }
+        return retryRequestPreparationHandler;
     }
 
     private enum State {
