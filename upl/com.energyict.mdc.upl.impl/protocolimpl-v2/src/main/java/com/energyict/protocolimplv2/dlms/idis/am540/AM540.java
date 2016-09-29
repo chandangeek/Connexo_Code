@@ -17,9 +17,11 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
@@ -31,6 +33,8 @@ import com.energyict.protocol.exceptions.*;
 import com.energyict.protocol.support.FrameCounterCache;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.g3.G3Properties;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
@@ -41,6 +45,7 @@ import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.io.IOException;
@@ -525,5 +530,24 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     @Override
     public long getTXFrameCounter(int clientId) {
         return 0;
+    }
+
+
+    @Override
+    public CollectedTopology getDeviceTopology() {
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(getOfflineDevice().getId());
+        CollectedTopology deviceTopology = super.getDeviceTopology();
+        Date now = new Date();
+
+        // save the last see date when the meter is read-out successfully
+        deviceTopology.addAdditionalCollectedDeviceInfo(
+                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        deviceIdentifier,
+                        G3Properties.PROP_LASTSEENDATE,
+                        BigDecimal.valueOf(now.getTime())
+                )
+        );
+
+        return super.getDeviceTopology();
     }
 }
