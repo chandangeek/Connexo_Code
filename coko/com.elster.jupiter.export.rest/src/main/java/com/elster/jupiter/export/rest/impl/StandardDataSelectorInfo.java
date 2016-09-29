@@ -1,6 +1,11 @@
 package com.elster.jupiter.export.rest.impl;
 
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.EndDeviceEventTypeFilter;
+import com.elster.jupiter.export.EventDataExportStrategy;
+import com.elster.jupiter.export.EventDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
+import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
@@ -47,7 +52,7 @@ public class StandardDataSelectorInfo {
     private void populateFrom(EventDataSelector selector, Thesaurus thesaurus) {
         id = selector.getId();
         deviceGroup = new MeterGroupInfo(selector.getEndDeviceGroup());
-        exportPeriod = new RelativePeriodInfo(selector.getExportPeriod(), thesaurus);
+        exportPeriod = RelativePeriodInfo.withCategories(selector.getExportPeriod());
         EventDataExportStrategy strategy = selector.getEventStrategy();
         exportContinuousData = strategy.isExportContinuousData();
     }
@@ -56,7 +61,7 @@ public class StandardDataSelectorInfo {
         id = selector.getId();
 
         deviceGroup = new MeterGroupInfo(selector.getEndDeviceGroup());
-        exportPeriod = new RelativePeriodInfo(selector.getExportPeriod(), thesaurus);
+        exportPeriod = RelativePeriodInfo.withCategories(selector.getExportPeriod());
         DataExportStrategy strategy = selector.getStrategy();
         populateFrom(strategy, thesaurus);
     }
@@ -66,11 +71,10 @@ public class StandardDataSelectorInfo {
         exportComplete = strategy.isExportCompleteData();
         exportUpdate = strategy.isExportUpdate();
         strategy.getUpdatePeriod()
-                .ifPresent(relativePeriod -> updatePeriod = new RelativePeriodInfo(relativePeriod, thesaurus));
+                .ifPresent(relativePeriod -> updatePeriod = RelativePeriodInfo.withCategories(relativePeriod));
         strategy.getUpdateWindow()
-                .ifPresent(relativePeriod -> updateWindow = new RelativePeriodInfo(relativePeriod, thesaurus));
+                .ifPresent(relativePeriod -> updateWindow = RelativePeriodInfo.withCategories(relativePeriod));
         validatedDataOption = strategy.getValidatedDataOption();
     }
-
 
 }
