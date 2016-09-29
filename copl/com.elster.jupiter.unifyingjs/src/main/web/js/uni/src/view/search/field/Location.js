@@ -8,6 +8,7 @@ Ext.define('Uni.view.search.field.Location', {
     alias: 'widget.uni-search-criteria-location',
     minWidth: 350,
     value: null,
+    selType: 'rowmodel',
     initComponent: function () {
         var me = this;
 
@@ -35,6 +36,7 @@ Ext.define('Uni.view.search.field.Location', {
         ];
 
         me.callParent(arguments);
+        me.down('#grid-selection').selModel.updateHeaderState = Ext.emptyFn;
         me.on('afterrender', me.createCriteriaLine, me);
     },
 
