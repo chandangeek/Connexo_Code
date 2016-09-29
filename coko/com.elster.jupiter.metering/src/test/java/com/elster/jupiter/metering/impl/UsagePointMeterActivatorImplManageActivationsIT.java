@@ -1,15 +1,18 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -56,8 +59,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointMeterActivatorImplManageActivationsIT {
 
-    public static final String READING_TYPE_MRID = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule(READING_TYPE_MRID);
+    public static final String BULK_READING_TYPE_MRID = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    public static final String DELTA_READING_TYPE_MRID = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule(DELTA_READING_TYPE_MRID, BULK_READING_TYPE_MRID);
     private static Instant INSTALLATION_TIME = ZonedDateTime.of(2016, 7, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
     private static Instant THREE_DAYS_BEFORE = INSTALLATION_TIME.minus(3, ChronoUnit.DAYS);
     private static Instant TWO_DAYS_BEFORE = INSTALLATION_TIME.minus(2, ChronoUnit.DAYS);
@@ -290,35 +294,53 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
     public void testCopyDataFromEffectiveConfiguration() {
         MeterActivation activationWithReadings = meter.activate(Range.closedOpen(TWO_DAYS_BEFORE, TWO_DAYS_AFTER));
         meter.activate(Range.closedOpen(TWO_DAYS_AFTER, THREE_DAYS_AFTER));
-        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().getReadingType(READING_TYPE_MRID).get();
-        activationWithReadings.getChannelsContainer().createChannel(readingType);
+        ReadingType bulkReadingType = inMemoryBootstrapModule.getMeteringService().getReadingType(BULK_READING_TYPE_MRID).get();
+        ReadingType deltaReadingType = inMemoryBootstrapModule.getMeteringService().getReadingType(DELTA_READING_TYPE_MRID).get();
+        activationWithReadings.getChannelsContainer().createChannel(bulkReadingType);
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(READING_TYPE_MRID);
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.minus(45, ChronoUnit.MINUTES), BigDecimal.valueOf(1045, 2)));
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.minus(30, ChronoUnit.MINUTES), BigDecimal.valueOf(1030, 2)));
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.minus(15, ChronoUnit.MINUTES), BigDecimal.valueOf(1015, 2)));
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.plus(30, ChronoUnit.MINUTES), BigDecimal.valueOf(2030, 2)));
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.plus(45, ChronoUnit.MINUTES), BigDecimal.valueOf(2045, 2)));
+        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(BULK_READING_TYPE_MRID);
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.minus(45, ChronoUnit.MINUTES),
+                BigDecimal.valueOf(155), Collections.singleton(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.minus(30, ChronoUnit.MINUTES),
+                BigDecimal.valueOf(175), Collections.singleton(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.minus(15, ChronoUnit.MINUTES),
+                BigDecimal.valueOf(185), Collections.singleton(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME,
+                BigDecimal.valueOf(195), Collections.singleton(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.plus(15, ChronoUnit.MINUTES),
+                BigDecimal.valueOf(215), Collections.singleton(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.plus(30, ChronoUnit.MINUTES),
+                BigDecimal.valueOf(220), Collections.singleton(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(INSTALLATION_TIME.plus(45, ChronoUnit.MINUTES),
+                BigDecimal.valueOf(245), Collections.singleton(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))));
         meterReading.addIntervalBlock(intervalBlock);
         meter.store(QualityCodeSystem.MDC, meterReading);
-        inMemoryBootstrapModule.getMeteringDataModelService().addHeadEndInterface(new TestHeadEndInterface(readingType));
+        inMemoryBootstrapModule.getMeteringDataModelService().addHeadEndInterface(new TestHeadEndInterface(deltaReadingType, bulkReadingType));
         usagePoint.linkMeters().activate(meter, meterRole).complete();
         reloadObjects();
 
         List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         assertThat(meterActivations).hasSize(3);
         assertThat(meterActivations.get(0).getRange()).isEqualTo(Range.closedOpen(TWO_DAYS_BEFORE, INSTALLATION_TIME));
-        List<BaseReadingRecord> readings = meterActivations.get(0).getChannelsContainer()
-                .getChannel(readingType).get().getReadings(Range.closedOpen(TWO_DAYS_BEFORE, INSTALLATION_TIME));
+        Channel channel = meterActivations.get(0).getChannelsContainer().getChannel(deltaReadingType).get();
+        List<BaseReadingRecord> readings = channel.getReadings(Range.all());
         assertThat(readings).hasSize(3);
-        assertThat(readings.stream().map(reading -> reading.getQuantity(0).getValue()).collect(Collectors.toList()))
-                .containsExactly(BigDecimal.valueOf(1045, 2), BigDecimal.valueOf(1030, 2), BigDecimal.valueOf(1015, 2));
+        assertThat(readings.stream().map(reading -> reading.getQuantity(bulkReadingType).getValue()).collect(Collectors.toList()))
+                .containsExactly(BigDecimal.valueOf(155), BigDecimal.valueOf(175), BigDecimal.valueOf(185));
+        assertThat(readings.stream().map(reading -> reading.getQuantity(deltaReadingType) != null ? reading.getQuantity(deltaReadingType).getValue() : null).collect(Collectors.toList()))
+                .containsExactly(null, BigDecimal.valueOf(20), BigDecimal.valueOf(10));
+        assertThat(channel.findReadingQualities().collect()).hasSize(3);
+
+        channel = meterActivations.get(1).getChannelsContainer().getChannel(deltaReadingType).get();
+        readings = meterActivations.get(1).getChannelsContainer().getChannel(deltaReadingType).get().getReadings(Range.all());
+        assertThat(readings).hasSize(4);
         assertThat(meterActivations.get(1).getRange()).isEqualTo(Range.closedOpen(INSTALLATION_TIME, TWO_DAYS_AFTER));
-        readings = meterActivations.get(1).getChannelsContainer().getChannel(readingType).get()
-                .getReadings(Range.closedOpen(INSTALLATION_TIME, TWO_DAYS_AFTER));
-        assertThat(readings).hasSize(2);
-        assertThat(readings.stream().map(reading -> reading.getQuantity(0).getValue()).collect(Collectors.toList()))
-                .containsExactly(BigDecimal.valueOf(2030, 2), BigDecimal.valueOf(2045, 2));
+        assertThat(readings.stream().map(reading -> reading.getQuantity(bulkReadingType).getValue()).collect(Collectors.toList()))
+                .containsExactly(BigDecimal.valueOf(195), BigDecimal.valueOf(215), BigDecimal.valueOf(220), BigDecimal.valueOf(245));
+        assertThat(readings.stream().map(reading -> reading.getQuantity(deltaReadingType) != null ? reading.getQuantity(deltaReadingType).getValue() : null).collect(Collectors.toList()))
+                .containsExactly(BigDecimal.valueOf(10), BigDecimal.valueOf(20), BigDecimal.valueOf(5), BigDecimal.valueOf(25));
+        assertThat(channel.findReadingQualities().collect()).hasSize(4);
+
         assertThat(meterActivations.get(2).getRange()).isEqualTo(Range.atLeast(TWO_DAYS_AFTER));
     }
 
