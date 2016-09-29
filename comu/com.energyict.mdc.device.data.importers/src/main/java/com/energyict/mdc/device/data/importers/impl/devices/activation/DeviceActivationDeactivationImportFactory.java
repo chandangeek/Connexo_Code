@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.FileImportRecord;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -49,8 +50,7 @@ public class DeviceActivationDeactivationImportFactory extends AbstractDeviceDat
 
     @Override
     public String getDisplayName() {
-        return getContext().getThesaurus()
-                .getString(DEVICE_ACTIVATION_DEACTIVATION_IMPORTER.getKey(), DEVICE_ACTIVATION_DEACTIVATION_IMPORTER.getDefaultFormat());
+        return getContext().getThesaurus().getFormat(DEVICE_ACTIVATION_DEACTIVATION_IMPORTER).format();
     }
 
     @Override
@@ -59,8 +59,9 @@ public class DeviceActivationDeactivationImportFactory extends AbstractDeviceDat
         String dateFormat = (String) properties.get(DATE_FORMAT.getPropertyKey());
         String timeZone = (String) properties.get(TIME_ZONE.getPropertyKey());
 
-        FileImportParser<DeviceActivationDeactivationRecord> parser = new FileImportDescriptionBasedParser(
-                new DeviceActivationDeactivationImportDescription(dateFormat, timeZone));
+        FileImportParser<DeviceActivationDeactivationRecord> parser =
+                new FileImportDescriptionBasedParser(
+                        new DeviceActivationDeactivationImportDescription(dateFormat, timeZone));
         FileImportProcessor<DeviceActivationDeactivationRecord> processor = new DeviceActivationDeactivationImportProcessor(getContext());
         FileImportLogger<FileImportRecord> logger = new DevicePerLineFileImportLogger(getContext());
         return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build();
