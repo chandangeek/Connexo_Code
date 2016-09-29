@@ -69,6 +69,11 @@ public final class DefaultFinder<T> implements Finder<T> {
         return this;
     }
 
+    public DefaultFinder<T> defaultSortColumn(String sortColumn, boolean ascending) {
+        this.defaultSort = ascending ? Order.ascending(sortColumn).toLowerCase() : Order.descending(sortColumn).toLowerCase();
+        return this;
+    }
+
     @Override
     public List<T> find() {
         Range<Integer> limits = getActualPageLimits();
