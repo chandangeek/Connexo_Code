@@ -5,12 +5,6 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -19,7 +13,11 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
@@ -33,6 +31,13 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.MyOwnPrivateRegister;
@@ -489,7 +494,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
-                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE, e);
         }
         return collectedCalendar;
     }
@@ -501,7 +506,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
-                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE, e);
         }
         try {
             collectedCalendar.setPassiveCalendar(activityCalendar.readCalendarNamePassive().stringValue());
@@ -509,7 +514,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
-                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE, e);
         }
     }
 
