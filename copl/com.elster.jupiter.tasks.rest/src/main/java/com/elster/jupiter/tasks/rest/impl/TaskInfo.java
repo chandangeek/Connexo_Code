@@ -6,7 +6,6 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.Never;
@@ -35,11 +34,10 @@ public class TaskInfo {
     public Long lastRunDate;
     public Long lastRunDuration;
 
+    private static final String PLANNED = "Planned";
+    private static final String BUSY = "Busy";
 
-    static String PLANNED = "Planned";
-    static String BUSY = "Busy";
-
-    public TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
+    TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
         name = recurrentTask.getName();
         application = recurrentTask.getApplication();
         queue = recurrentTask.getDestination().getName();
@@ -105,10 +103,10 @@ public class TaskInfo {
             return null;
         }
         if (scheduleExpression instanceof PeriodicalScheduleExpression) {
-            return fromPeriodicalScheduleExpression((PeriodicalScheduleExpression) scheduleExpression, timeService);
+            return timeService.toLocalizedString((PeriodicalScheduleExpression) scheduleExpression);
         }
         if (scheduleExpression instanceof TemporalExpression) {
-            return fromTemporalExpression((TemporalExpression) scheduleExpression, thesaurus);
+            return timeService.toLocalizedString((TemporalExpression) scheduleExpression);
         }
         if (scheduleExpression instanceof CronExpression) {
             return timeService.toLocalizedString((CronExpression) scheduleExpression, locale);
@@ -116,63 +114,4 @@ public class TaskInfo {
         return scheduleExpression.toString();
     }
 
-    private String fromPeriodicalScheduleExpression(PeriodicalScheduleExpression scheduleExpression, TimeService timeService) {
-        return timeService.toLocalizedString(scheduleExpression);
-    }
-
-    private String fromTemporalExpression(TemporalExpression scheduleExpression, Thesaurus thesaurus) {
-        TimeDuration every = scheduleExpression.getEvery();
-        int count = every.getCount();
-        TimeDuration.TimeUnit unit = every.getTimeUnit();
-        String everyTranslation = thesaurus.getStringBeyondComponent("every", "every");
-
-        String unitTranslation = unit.getDescription();
-        if (unit.equals(TimeDuration.TimeUnit.MINUTES)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getStringBeyondComponent("minute", "minute");
-            } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("minutes", "minutes");
-            }
-        }
-        else if (unit.equals(TimeDuration.TimeUnit.HOURS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getStringBeyondComponent("hour", "hour");
-            } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("hours", "hours");
-            }
-        }
-        else if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getStringBeyondComponent("day", "day");
-            } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("days", "days");
-            }
-        }
-        else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getStringBeyondComponent("week", "week");
-            } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("weeks", "weeks");
-            }
-        }
-        else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getStringBeyondComponent("month", "month");
-            } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("months", "months");
-            }
-        }
-        else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getStringBeyondComponent("year", "year");
-            } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("years", "years");
-            }
-        }
-        if (count == 1) {
-            return everyTranslation + " " + unitTranslation;
-        } else {
-            return everyTranslation + " " + count + " " + unitTranslation;
-        }
-    }
 }
