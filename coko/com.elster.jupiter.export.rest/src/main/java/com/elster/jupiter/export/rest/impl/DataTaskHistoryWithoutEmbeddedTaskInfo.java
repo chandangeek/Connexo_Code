@@ -1,10 +1,8 @@
 package com.elster.jupiter.export.rest.impl;
 
-import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
-import com.elster.jupiter.export.impl.TranslationKeys;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
@@ -15,7 +13,6 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Optional;
 
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.NONRECURRING;
@@ -40,6 +37,7 @@ public class DataTaskHistoryWithoutEmbeddedTaskInfo {
     }
 
     public DataTaskHistoryWithoutEmbeddedTaskInfo(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
+        this();
         populate(dataExportOccurrence, thesaurus, timeService, propertyValueInfoService);
     }
 
@@ -70,13 +68,6 @@ public class DataTaskHistoryWithoutEmbeddedTaskInfo {
         if (dataExportOccurrence.wasScheduled() && (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get()))) {
             this.trigger = NONRECURRING.translate(thesaurus);
         }
-    }
-
-    private DestinationType typeOf(DataExportDestination destination) {
-        return Arrays.stream(DestinationType.values())
-                .filter(type -> type.getDestinationClass().isInstance(destination))
-                .findAny()
-                .orElseThrow(IllegalArgumentException::new);
     }
 
     private void setStatusOnDate(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {

@@ -7,7 +7,6 @@ import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.StandardDataSelector;
-import com.elster.jupiter.export.impl.TranslationKeys;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
