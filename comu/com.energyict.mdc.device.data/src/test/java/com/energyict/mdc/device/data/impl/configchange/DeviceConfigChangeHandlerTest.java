@@ -32,6 +32,7 @@ import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeExcepti
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -103,6 +104,8 @@ public class DeviceConfigChangeHandlerTest {
     private DeviceConfigChangeInActionImpl deviceConfigChangeInAction;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock(extraInterfaces = HasId.class)
     private DeviceType deviceType;
     @Mock(extraInterfaces = HasId.class)
@@ -344,7 +347,7 @@ public class DeviceConfigChangeHandlerTest {
     }
 
     private DeviceConfigChangeHandler.ConfigChangeContext getConfigChangeContext() {
-        return new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, deviceService, deviceDataModelService, deviceConfigurationService);
+        return new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, deviceService, deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService);
     }
 
 

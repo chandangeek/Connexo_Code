@@ -13,6 +13,8 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -34,6 +36,7 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
     private volatile DeviceService deviceService;
     private volatile DeviceDataModelService deviceDataModelService;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     /*OSGI*/
     @SuppressWarnings("unused")
@@ -42,7 +45,7 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
 
     @Override
     public MessageHandler newMessageHandler() {
-        DeviceConfigChangeHandler.ConfigChangeContext configChangeContext = new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, ((ServerDeviceService) deviceService), deviceDataModelService, deviceConfigurationService);
+        DeviceConfigChangeHandler.ConfigChangeContext configChangeContext = new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, ((ServerDeviceService) deviceService), deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService);
         return new DeviceConfigChangeHandler(jsonService, configChangeContext);
     }
 
@@ -76,4 +79,10 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService){
         this.deviceConfigurationService = deviceConfigurationService;
     }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
 }

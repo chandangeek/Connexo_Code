@@ -22,7 +22,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -69,6 +68,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -148,6 +148,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ServiceCallService serviceCallService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -397,6 +398,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
     @Override
     public TransactionService getTransactionService() {
         return transactionService;
@@ -560,6 +566,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(UserPreferencesService.class).toInstance(userService.getUserPreferencesService());
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(DeviceMessageService.class).toInstance(deviceMessageService);
+                bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
             }
         };
     }

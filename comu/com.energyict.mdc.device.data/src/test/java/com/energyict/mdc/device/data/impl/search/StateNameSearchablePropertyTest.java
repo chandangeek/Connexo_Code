@@ -22,6 +22,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 
@@ -31,8 +32,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -53,8 +55,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class StateNameSearchablePropertyTest {
 
-    public static final long STATE_1_ID = 101L;
-    public static final long STATE_2_ID = 201L;
+    private static final long STATE_1_ID = 101L;
+    private static final long STATE_2_ID = 201L;
+
     @Mock
     private DeviceSearchDomain domain;
     @Mock
@@ -71,6 +74,8 @@ public class StateNameSearchablePropertyTest {
     private OrmService ormService;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
     private BeanService beanService = new DefaultBeanService();
@@ -344,7 +349,7 @@ public class StateNameSearchablePropertyTest {
     }
 
     private StateNameSearchableProperty getTestInstance() {
-        return new StateNameSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.deviceTypeSearchableProperty);
+        return new StateNameSearchableProperty(this.deviceLifeCycleConfigurationService, this.propertySpecService, this.thesaurus).init(this.domain, this.deviceTypeSearchableProperty);
     }
 
 }
