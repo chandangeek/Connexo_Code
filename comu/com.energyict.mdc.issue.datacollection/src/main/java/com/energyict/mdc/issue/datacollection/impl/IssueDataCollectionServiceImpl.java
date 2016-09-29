@@ -16,6 +16,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.nls.Layer;
@@ -64,8 +65,11 @@ import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.energyict.mdc.issue.datacollection", service = {TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataCollectionService.class, IssueProvider.class}, property = "name=" + IssueDataCollectionService.COMPONENT_NAME, immediate = true)
-public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, MessageSeedProvider, IssueDataCollectionService, IssueProvider {
+@Component(name = "com.energyict.mdc.issue.datacollection",
+        service = {TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataCollectionService.class, IssueProvider.class, IssueGroupTranslationProvider.class},
+        property = "name=" + IssueDataCollectionService.COMPONENT_NAME,
+        immediate = true)
+public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, MessageSeedProvider, IssueDataCollectionService, IssueProvider, IssueGroupTranslationProvider {
     private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
     private volatile MessageService messageService;
