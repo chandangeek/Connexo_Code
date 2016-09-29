@@ -27,6 +27,7 @@ class UpgraderV10_2 implements Upgrader {
         List<String> sql = new ArrayList<>();
         sql.add("ALTER TABLE DDC_DEVICEESTRULESETACTIVATION ADD DEVICE NUMBER");
         sql.add("UPDATE DDC_DEVICEESTRULESETACTIVATION SET DEVICE = ESTIMATIONACTIVATION");
+        sql.add("UPDATE DDC_DEVICE dev SET dev.NAME = dev.MRID, dev.MRID = (SELECT MRID FROM MTR_ENDDEVICE WHERE AMRSYSTEMID = 1 AND AMRID = dev.ID)");
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
