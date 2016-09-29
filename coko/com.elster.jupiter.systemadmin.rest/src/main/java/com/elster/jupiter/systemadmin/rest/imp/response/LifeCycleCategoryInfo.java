@@ -1,7 +1,7 @@
 package com.elster.jupiter.systemadmin.rest.imp.response;
 
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
-import com.elster.jupiter.nls.Thesaurus;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -12,13 +12,15 @@ public class LifeCycleCategoryInfo {
     public int retention;
     public long version;
 
-    public LifeCycleCategoryInfo(){}
+    public LifeCycleCategoryInfo() {}
 
-    public LifeCycleCategoryInfo(LifeCycleCategory category, Thesaurus thesaurus){
+    public LifeCycleCategoryInfo(LifeCycleCategory category) {
+        this();
         this.kind = category.getKind().name();
-        this.name = thesaurus.getStringBeyondComponent(category.getTranslationKey(), category.getName());
+        this.name = category.getDisplayName();
         this.retainedPartitionCount = category.getRetainedPartitionCount();
         this.retention = category.getRetention().getDays();
         this.version = category.getVersion();
     }
+
 }
