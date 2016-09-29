@@ -5,6 +5,8 @@ import com.energyict.mdc.issues.Issue;
 
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Provides a default implementation for the {@link Issue} interface.
@@ -17,6 +19,8 @@ public abstract class IssueDefaultImplementation implements Issue {
     private final String description;
     private final Object source;
     private final Instant timestamp;
+    private final Object[] messageArguments;
+    private Optional<Exception> exception = Optional.empty();
 
     public IssueDefaultImplementation(Thesaurus thesaurus, Instant timestamp, String description) {
         this(thesaurus, timestamp, null, description);
@@ -26,7 +30,15 @@ public abstract class IssueDefaultImplementation implements Issue {
         super();
         this.timestamp = timestamp;
         this.source = source;
-        this.description = MessageFormat.format(convertSingleQuoteArgumentsToDoubleQuoteArguments(thesaurus.getString(description, description)), arguments);
+        this.messageArguments = Stream.of(arguments).map(o -> {
+            if (o instanceof Exception) {
+                exception = Optional.of((Exception) o);
+                return null;
+            } else {
+                return o;
+            }
+        }).toArray(Object[]::new);
+        this.description = MessageFormat.format(convertSingleQuoteArgumentsToDoubleQuoteArguments(thesaurus.getString(description, description)), messageArguments);
     }
 
     /**
@@ -67,6 +79,11 @@ public abstract class IssueDefaultImplementation implements Issue {
     @Override
     public boolean isProblem () {
         return false;
+    }
+
+    @Override
+    public Optional<Exception> getException() {
+        return exception;
     }
 
     /**

@@ -3,6 +3,7 @@ package com.energyict.mdc.issues;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Models issues that are found by a process while it's executing.
@@ -54,4 +55,5 @@ public interface Issue {
      */
     public boolean isProblem();
 
+    Optional<Exception> getException();
 }
