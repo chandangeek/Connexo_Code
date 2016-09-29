@@ -15,7 +15,7 @@ use Archive::Zip;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20160830";
+my $INSTALL_VERSION="v20160928";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -66,9 +66,9 @@ sub check_root {
         exit (0);
     }
     if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-        if (mkdir 'c:/windows/admintest/') {
-            rmdir 'c:/windows/admintest/'
-        } else {
+        my $output=`C:/Windows/system32/net.exe session 2>&1`;
+        my $return_code = $? >> 8;
+        if ($return_code != 0) {
             print "Please run this script as administrator\n";
             exit (0);
         }
@@ -104,12 +104,12 @@ sub check_create_users {
     if ("$OS" eq "linux") {
         if ("$INSTALL_CONNEXO" eq "yes") {
             if (`cat /etc/passwd|grep connexo:` eq "") {
-                system("useradd -U -r connexo") == 0 or die "system useradd -U -r connexo failed: $?";
+                system("useradd -U -r -m connexo") == 0 or die "system useradd -U -r -m connexo failed: $?";
             }
         }
         if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
             if (`cat /etc/passwd|grep tomcat:` eq "") {
-                system("useradd -U -r tomcat") == 0 or die "system useradd -U -r tomcat failed: $?";
+                system("useradd -U -r -m tomcat") == 0 or die "system useradd -U -r -m tomcat failed: $?";
             }
         }
     }
@@ -588,13 +588,13 @@ sub install_flow {
 		unlink("$FLOW_DIR/flow.war");
 
 		copy("$CONNEXO_DIR/partners/flow/resources.properties","$CATALINA_HOME/conf/resources.properties");
-		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${jdbc}',"$FLOW_JDBC_URL");
-		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${user}',"$FLOW_DB_USER");
-		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${password}',"$FLOW_DB_PASSWORD");
+		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\$\{jdbc\}',"$FLOW_JDBC_URL");
+		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\$\{user\}',"$FLOW_DB_USER");
+		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\$\{password\}',"$FLOW_DB_PASSWORD");
 
 		copy("$CONNEXO_DIR/partners/flow/kie-wb-deployment-descriptor.xml","$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
-		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\${user}',"$CONNEXO_ADMIN_ACCOUNT");
-		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\${password}',"$CONNEXO_ADMIN_PASSWORD");
+		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\$\{user\}',"$CONNEXO_ADMIN_ACCOUNT");
+		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\$\{password\}',"$CONNEXO_ADMIN_PASSWORD");
 		copy("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml","$FLOW_DIR/WEB-INF/classes/META-INF/kie-wb-deployment-descriptor.xml");
 		unlink("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
 
@@ -680,11 +680,19 @@ sub activate_sso {
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<class>org.jbpm.services.cdi.producer.JAASUserGroupInfoProducer</class>","<!--class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class-->");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<!--class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class-->","<class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class>");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<!--class>com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService</class-->","<class>com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService</class>");
+
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","");
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.user=$CONNEXO_ADMIN_ACCOUNT");
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.password=$CONNEXO_ADMIN_PASSWORD");
             }
 
             if ("$INSTALL_FACTS" eq "yes") {
                 replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!--filter>","<filter>");
                 replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
+
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","");
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.yellowfin.admin.usr=$CONNEXO_ADMIN_ACCOUNT");
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.yellowfin.admin.pwd=$CONNEXO_ADMIN_PASSWORD");
             }
             
             add_to_file("$CATALINA_BASE/conf/connexo.properties","");
@@ -960,22 +968,28 @@ sub perform_upgrade {
         exit (0);
     }
 
-    # stop connexo
-    print "Stopping Connexo service\n";
+    # stop connexo & tomcat
+    print "Stopping Connexo & ConnexoTomcat services\n";
     if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
         system("sc stop Connexo$SERVICE_VERSION");
+        system("sc stop ConnexoTomcat$SERVICE_VERSION");
     } else {
         system("/sbin/service Connexo$SERVICE_VERSION stop");
+        system("/sbin/service ConnexoTomcat$SERVICE_VERSION stop");
     }
 
+    #rename bundles folder
     print "Renaming bundles to bundles_obsolete\n";
     rename("$CONNEXO_DIR/bundles","$CONNEXO_DIR/bundles_obsolete");
     print "Creating new bundles folder\n";
     make_path("$CONNEXO_DIR/bundles");
+
     foreach my $zipfile (@ZIPfiles) {
         print "Extracting $zipfile\n";
         my $zip = Archive::Zip->new($zipfile);
         $zip->extractTree("","$UPGRADE_PATH/temp/");
+
+        #copy content of bundles folder
         if (! -d "$UPGRADE_PATH/temp/bundles") {
             print "No bundles folder found in $zipfile.\n";
         } else {
@@ -1057,25 +1071,142 @@ sub perform_upgrade {
 
     close($upgrade_log);
     
-    if ( ! $parameter_file ) {
-        print "\n";
-        print "Are you sure you want to do the upgrade: (yes/no)";
-        chomp(my $CONT_UPG=<STDIN>);
-        if ("$CONT_UPG" eq "no") {
-            unlink("$CONNEXO_DIR/bundles");
-            rename("$CONNEXO_DIR/bundles_obsolete","$CONNEXO_DIR/bundles");
-        }
+    print "\n\n";
+    print "Make sure you have made a backup of your oracle schemas before starting the upgrade.\n";
+    print "Without backup you won't be able to re-install Connexo if changes were already made to the oracle schemas.\n\n";
+    print "If, and only if, this is an upgrade from 10.1 to 10.2 you need to execute the following sql script on the Connexo database : flywaymeta.sql\n";
+    print "(make sure to use ',' (comma) as decimal separator)\n";
+    print "This file can be found in the folder ".dirname(abs_path($0))."\n\n";
+    my $CONT_UPG = "";
+    while (("$CONT_UPG" ne "yes") && ("$CONT_UPG" ne "no")) {
+        print "Are you sure you want to do the upgrade (yes/no): ";
+        chomp($CONT_UPG=<STDIN>);
     }
-    #rmtree("$CONNEXO_DIR/bundles_obsolete");
-    #print "Removing felix-cache\n";
-    #rmtree("$CONNEXO_DIR/felix-cache");
+    if ("$CONT_UPG" eq "no") {
+        #upgrade cancelled; revert bundles folder
+        open my $upgrade_log, '>>', $UPGRADE_PATH.'/upgrade.log' or die "$!";
+        print_screen_file($upgrade_log,"\nUpgrade cancelled!!!\n");
+        close($upgrade_log);
+        rmtree("$CONNEXO_DIR/bundles");
+        rename("$CONNEXO_DIR/bundles_obsolete","$CONNEXO_DIR/bundles");
+    } else {
+        #also start copying all other folders
 
-    # start connexo
-    print "\nStarting Connexo service\n";
+        #rename lib folder
+        print "Renaming lib to lib_obsolete\n";
+        rename("$CONNEXO_DIR/lib","$CONNEXO_DIR/lib_obsolete");
+        print "Creating new lib folder\n";
+        make_path("$CONNEXO_DIR/lib");
+
+        #rename licenses folder
+        print "Renaming licenses to licenses_obsolete\n";
+        rename("$CONNEXO_DIR/licenses","$CONNEXO_DIR/licenses_obsolete");
+        print "Creating new licenses folder\n";
+        make_path("$CONNEXO_DIR/licenses");
+
+        #rename partners folder
+        print "Copying partners to partners_obsolete\n";
+        dircopy("$CONNEXO_DIR/partners","$CONNEXO_DIR/partners_obsolete");
+
+        #rename bin folder
+        print "Renaming bin to bin_obsolete\n";
+        make_path("$CONNEXO_DIR/bin_obsolete");
+        my @BINfiles = glob( $CONNEXO_DIR . '/bin/*' );
+        foreach my $binfile (@BINfiles) {
+            if ((basename($binfile) eq "config.cmd") || (basename($binfile) eq "install.exe") || (basename($binfile) eq "install.pl")) {
+                copy("$binfile","$CONNEXO_DIR/bin_obsolete");
+            } else {
+                move("$binfile","$CONNEXO_DIR/bin_obsolete/".basename($binfile));
+            }
+        }
+
+        foreach my $zipfile (@ZIPfiles) {
+            print "Extracting $zipfile\n";
+            my $zip = Archive::Zip->new($zipfile);
+            $zip->extractTree("","$UPGRADE_PATH/temp/");
+
+            #copy content of lib folder
+            if (! -d "$UPGRADE_PATH/temp/lib") {
+                print "No lib folder found in $zipfile.\n";
+            } else {
+                print "Copying upgrade lib\n";
+                dircopy("$UPGRADE_PATH/temp/lib","$CONNEXO_DIR/lib");
+            }
+
+            #copy content of licenses folder
+            if (! -d "$UPGRADE_PATH/temp/licenses") {
+                print "No licenses folder found in $zipfile.\n";
+            } else {
+                print "Copying upgrade licenses\n";
+                dircopy("$UPGRADE_PATH/temp/licenses","$CONNEXO_DIR/licenses");
+            }
+
+            #copy content of partners folder
+            if (! -d "$UPGRADE_PATH/temp/partners") {
+                print "No partners folder found in $zipfile.\n";
+            } else {
+                print "Starting upgrade of partners\n";
+                my $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.pl";
+                if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+                    $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.exe";
+                }
+                if (-e "$upgrade_exe") {
+                    system($upgrade_exe);
+                } else {
+                    print "No upgrade of facts/flow found.\n";
+                }
+            }
+
+            #copy content of bin folder
+            if (! -d "$UPGRADE_PATH/temp/bin") {
+                print "No bin folder found in $zipfile.\n";
+            } else {
+                print "Copying upgrade bin\n";
+                my @BINfiles = glob( $UPGRADE_PATH . '/temp/bin/*' );
+                foreach my $binfile (@BINfiles) {
+                    if ((basename($binfile) ne "config.cmd") && (basename($binfile) ne "install.exe") && (basename($binfile) ne "install.pl")) {
+                        copy("$binfile","$CONNEXO_DIR/bin");
+                    }
+                    if ((basename($binfile) eq "install.exe") || (basename($binfile) eq "install.pl")) {
+                        print "IMPORTANT: when this script is finished, manually copy $binfile to $CONNEXO_DIR/bin.\n";
+                    }
+                    if (basename($binfile) eq "config.cmd") {
+                        open(my $FH,"< $binfile") or die "Could not open $binfile: $!";
+                        open(my $FH2,">> $CONNEXO_DIR/bin/config.cmd") or die "Could not open $CONNEXO_DIR/bin_obsolete/config.cmd : $!";
+                        open(my $FH3,"< $CONNEXO_DIR/bin_obsolete/config.cmd") or die "Could not open $CONNEXO_DIR/bin_obsolete/config.cmd : $!";
+                        my @config_data = <$FH3>;
+                        close($FH3);
+                        while (my $row = <$FH>) {
+                            $row=~s/set (.*)/$1/;
+                            chomp($row);
+                            if ( "$row" ne "") {
+                                my @val=split('=',$row);
+                                my $my_search = "set ".$val[0]."=";
+                                my @match=grep{/$my_search/}@config_data;
+                                if (! @match) {
+                                    print $FH2 "\nset $row";
+                                }
+                            }
+                        }
+                        close($FH);
+                        close($FH2);
+                    }
+                }
+            }
+            rmtree("$UPGRADE_PATH/temp");
+        }
+        print "Removing felix-cache\n";
+        rmtree("$CONNEXO_DIR/felix-cache");
+    }
+
+    # start connexo & tomcat
+    print "\nStarting Connexo & ConnexoTomcat services\n";
     if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
         system("sc start Connexo$SERVICE_VERSION");
+        system("sc start ConnexoTomcat$SERVICE_VERSION");
     } else {
         system("/sbin/service Connexo$SERVICE_VERSION start");
+        system("/sbin/service ConnexoTomcat$SERVICE_VERSION start");
     }
 }
 
