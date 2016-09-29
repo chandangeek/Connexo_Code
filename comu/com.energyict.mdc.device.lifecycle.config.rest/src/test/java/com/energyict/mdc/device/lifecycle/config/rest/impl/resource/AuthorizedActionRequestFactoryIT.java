@@ -76,6 +76,8 @@ public class AuthorizedActionRequestFactoryIT {
 
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private ResourceHelper resourceHelper;
     private MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory;
     private AuthorizedActionInfoFactory authorizedActionInfoFactory;
@@ -138,7 +140,7 @@ public class AuthorizedActionRequestFactoryIT {
 
     @Before
     public void setupResourceHelper() {
-        this.inMemoryPersistence.getService(OrmService.class).invalidateCache(FiniteStateMachineService.COMPONENT_NAME, TableSpecs.FSM_FINITE_STATE_MACHINE.name());
+        inMemoryPersistence.getService(OrmService.class).invalidateCache(FiniteStateMachineService.COMPONENT_NAME, TableSpecs.FSM_FINITE_STATE_MACHINE.name());
         this.resourceHelper =
                 new ResourceHelper(
                         getDeviceLifeCycleConfigurationService(),
@@ -148,7 +150,7 @@ public class AuthorizedActionRequestFactoryIT {
                         inMemoryPersistence.getService(EventService.class),
                         new ConcurrentModificationExceptionFactory(this.thesaurus));
         microActionAndCheckInfoFactory = new MicroActionAndCheckInfoFactory(deviceLifeCycleService, thesaurus);
-        authorizedActionInfoFactory = new AuthorizedActionInfoFactory(thesaurus, microActionAndCheckInfoFactory);
+        authorizedActionInfoFactory = new AuthorizedActionInfoFactory(thesaurus, deviceLifeCycleConfigurationService, microActionAndCheckInfoFactory);
     }
 
     @Transactional

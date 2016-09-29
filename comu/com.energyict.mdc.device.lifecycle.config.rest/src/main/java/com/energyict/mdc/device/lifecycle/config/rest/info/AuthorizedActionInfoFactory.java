@@ -6,6 +6,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
@@ -18,12 +19,14 @@ import java.util.stream.Collectors;
 
 public class AuthorizedActionInfoFactory {
 
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final Thesaurus thesaurus;
     private final MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory;
 
     @Inject
-    public AuthorizedActionInfoFactory(Thesaurus thesaurus, MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory) {
+    public AuthorizedActionInfoFactory(Thesaurus thesaurus, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory) {
         this.thesaurus = thesaurus;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.microActionAndCheckInfoFactory = microActionAndCheckInfoFactory;
     }
 
@@ -47,8 +50,8 @@ public class AuthorizedActionInfoFactory {
 
     private void fromBasicAction(AuthorizedActionInfo info, AuthorizedTransitionAction action){
         info.name = action.getName();
-        info.fromState = new DeviceLifeCycleStateInfo(thesaurus, action.getDeviceLifeCycle(), action.getStateTransition().getFrom());
-        info.toState = new DeviceLifeCycleStateInfo(thesaurus, action.getDeviceLifeCycle(), action.getStateTransition().getTo());
+        info.fromState = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, action.getDeviceLifeCycle(), action.getStateTransition().getFrom());
+        info.toState = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, action.getDeviceLifeCycle(), action.getStateTransition().getTo());
         info.triggeredBy = new StateTransitionEventTypeFactory(thesaurus).from(action.getStateTransition().getEventType());
         Set<MicroAction> microActions = action.getActions();
         if (!microActions.isEmpty()){
