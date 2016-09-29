@@ -34,6 +34,9 @@ public class TranslationKeyProvider implements com.elster.jupiter.nls.Translatio
         List<TranslationKey> keys = new ArrayList<>();
         Collections.addAll(keys, AverageWithSamplesEstimator.TranslationKeys.values());
         Collections.addAll(keys, EqualDistribution.TranslationKeys.values());
+        Collections.addAll(keys, LinearInterpolation.TranslationKeys.values());
+        Collections.addAll(keys, PowerGapFill.TranslationKeys.values());
+        Collections.addAll(keys, ValueFillEstimator.TranslationKeys.values());
         return keys;
     }
 

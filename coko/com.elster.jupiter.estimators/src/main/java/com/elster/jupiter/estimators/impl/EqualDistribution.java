@@ -61,6 +61,7 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
      * @since 2015-12-07 (14:03)
      */
     public enum TranslationKeys implements TranslationKey {
+        ESTIMATOR_NAME(EqualDistribution.class.getName(), "Equal distribution"),
         MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS("equaldistribution.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects"),
         MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("equaldistribution.maxNumberOfConsecutiveSuspects.description",
                 "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated."),
@@ -371,7 +372,7 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
 
     @Override
     public String getDefaultFormat() {
-        return "Equal distribution";
+        return TranslationKeys.ESTIMATOR_NAME.getDefaultFormat();
     }
 
     @Override

@@ -44,6 +44,7 @@ public class ValueFillEstimator extends AbstractEstimator {
      * @since 2015-12-07 (14:03)
      */
     public enum TranslationKeys implements TranslationKey {
+        ESTIMATOR_NAME(ValueFillEstimator.class.getName(), "Value fill"),
         MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS("valuefill.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects"),
         MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("valuefill.maxNumberOfConsecutiveSuspects.description", "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated."),
         FILL_VALUE("valuefill.fillValue", "Fill value"),
@@ -141,7 +142,7 @@ public class ValueFillEstimator extends AbstractEstimator {
 
     @Override
     public String getDefaultFormat() {
-        return "Value fill";
+        return TranslationKeys.ESTIMATOR_NAME.getDefaultFormat();
     }
 
     @Override

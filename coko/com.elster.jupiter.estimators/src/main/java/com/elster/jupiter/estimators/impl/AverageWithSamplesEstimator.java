@@ -68,6 +68,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
      * @since 2015-12-07 (14:03)
      */
     public enum TranslationKeys implements TranslationKey {
+        ESTIMATOR_NAME(AverageWithSamplesEstimator.class.getName(), "Average with samples"),
         MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS("averagewithsamples.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects"),
         MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("averagewithsamples.maxNumberOfConsecutiveSuspects.description",
                 "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated."),
@@ -192,7 +193,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
 
     @Override
     public String getDefaultFormat() {
-        return "Average with samples";
+        return TranslationKeys.ESTIMATOR_NAME.getDefaultFormat();
     }
 
     @Override
