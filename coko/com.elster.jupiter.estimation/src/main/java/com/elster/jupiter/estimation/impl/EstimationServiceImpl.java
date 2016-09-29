@@ -38,6 +38,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
@@ -82,8 +83,11 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@Component(name = "com.elster.jupiter.estimation", service = {EstimationService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
-public class EstimationServiceImpl implements IEstimationService, TranslationKeyProvider, MessageSeedProvider {
+@Component(name = "com.elster.jupiter.estimation",
+        service = {EstimationService.class, TranslationKeyProvider.class, MessageSeedProvider.class, RelativePeriodCategoryTranslationProvider.class},
+        property = "name=" + EstimationService.COMPONENTNAME,
+        immediate = true)
+public class EstimationServiceImpl implements IEstimationService, TranslationKeyProvider, MessageSeedProvider, RelativePeriodCategoryTranslationProvider {
 
     static final String ESTIMATION_TASKS_USER = "estimation";
     static final String DESTINATION_NAME = "EstimationTask";
