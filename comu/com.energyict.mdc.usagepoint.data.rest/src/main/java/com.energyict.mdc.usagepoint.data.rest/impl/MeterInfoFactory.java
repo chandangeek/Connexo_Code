@@ -4,33 +4,32 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collector;
 
 public class MeterInfoFactory {
-    private volatile DeviceService deviceService;
-    private volatile Thesaurus thesaurus;
+    private final DeviceService deviceService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Inject
-    public MeterInfoFactory(DeviceService deviceService, Thesaurus thesaurus) {
+    public MeterInfoFactory(DeviceService deviceService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceService = deviceService;
-        this.thesaurus = thesaurus;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     private static class MACollector {
         List<MeterInfo> meterInfos = new ArrayList<>();
 
-        public void add(MeterInfo meterInfo) {
+        void add(MeterInfo meterInfo) {
             if (!meterInfos.isEmpty()) {
                 MeterInfo previous = meterInfos.get(meterInfos.size() - 1);
                 if (previous.mRID.equals(meterInfo.mRID)) {
@@ -44,12 +43,12 @@ public class MeterInfoFactory {
             }
         }
 
-        public List<MeterInfo> getMeterInfos() {
+        List<MeterInfo> getMeterInfos() {
             return this.meterInfos;
         }
     }
 
-    public List<MeterInfo> getDevicesHistory(UsagePoint usagePoint) {
+    List<MeterInfo> getDevicesHistory(UsagePoint usagePoint) {
         MACollector maCollector = usagePoint.getMeterActivations()
                 .stream()
                 .filter(ma -> {
@@ -69,12 +68,7 @@ public class MeterInfoFactory {
         meterInfo.mRID = meter.getMRID();
         meterInfo.serialNumber = device.getSerialNumber();
         meterInfo.deviceType = new IdWithNameInfo(device.getDeviceType().getId(), device.getDeviceType().getName());
-        Optional<DefaultState> defaultState = DefaultState.from(device.getState());
-        if (defaultState.isPresent()) {
-            meterInfo.state = thesaurus.getString(defaultState.get().getKey(), defaultState.get().getKey());
-        } else {
-            meterInfo.state = device.getState().getName();
-        }
+        meterInfo.state = DefaultState.from(device.getState()).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(device.getState()::getName);
         meterInfo.start = meterActivation.getStart().toEpochMilli();
         if (meterActivation.getEnd() != null) {
             meterInfo.end = meterActivation.getEnd().toEpochMilli();
