@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.imports.impl;
 
-import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -18,12 +17,12 @@ public class TranslationKeys implements TranslationKeyProvider, MessageSeedProvi
 
     @Override
     public String getComponentName() {
-        return FileImportService.COMPONENT_NAME;
+        return UsagePointFileImporterMessageHandler.APP_NAME;
     }
 
     @Override
     public Layer getLayer() {
-        return Layer.REST;
+        return Layer.DOMAIN;
     }
 
     @Override
