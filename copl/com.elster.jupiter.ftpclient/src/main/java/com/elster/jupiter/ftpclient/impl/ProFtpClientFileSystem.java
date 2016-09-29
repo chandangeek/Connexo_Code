@@ -180,8 +180,11 @@ abstract class ProFtpClientFileSystem<S extends ProFTPClient, T extends ProFtpCl
             throw new NoSuchFileException(path.toString());
         }
         try {
-            FTPFile ftpFile = ftpClient.fileDetails(path.toString());
-            String permissions = ftpFile.getPermissions();
+            String permissions = null;
+            if (ftpClient.existsFile(path.toString())) {
+                FTPFile ftpFile = ftpClient.fileDetails(path.toString());
+                permissions = ftpFile.getPermissions();
+            }
             if (permissions == null) {
                 permissions = "-rwxrwxrwx";
             }

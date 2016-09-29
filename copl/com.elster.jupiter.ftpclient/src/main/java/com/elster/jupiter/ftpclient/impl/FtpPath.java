@@ -1,5 +1,8 @@
 package com.elster.jupiter.ftpclient.impl;
 
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.collections.DualIterable;
+
 import com.google.common.collect.ImmutableList;
 
 import java.io.File;
@@ -171,12 +174,12 @@ final class FtpPath implements Path {
     }
 
     @Override
-    public Path resolve(Path other) {
+    public FtpPath resolve(Path other) {
         if (!(other instanceof FtpPath)) {
             throw new IllegalArgumentException();
         }
         if (other.isAbsolute()) {
-            return other;
+            return (FtpPath) other;
         }
         ArrayList<String> resolved = new ArrayList<>(names);
         resolved.addAll(((FtpPath) other).names);
@@ -211,7 +214,22 @@ final class FtpPath implements Path {
         }
         FtpPath otherFtpPath = (FtpPath) other; // TODO
 
-        return null;
+        FtpPath relativization = fileSystem.getPath("");
+        FtpPath up = fileSystem.getPath("../");
+        boolean eatingCommonParents = true;
+        for (Pair<Path, Path> pair : DualIterable.endWithLongest(this, otherFtpPath)) {
+            if (!eatingCommonParents || !Objects.equals(pair.getFirst(), pair.getLast())) {
+                eatingCommonParents = false;
+                if (pair.getFirst() != null) {
+                    relativization = up.resolve(relativization);
+                }
+                if (pair.getLast() != null) {
+                    relativization = relativization.resolve(pair.getLast());
+                }
+            }
+        }
+
+        return relativization;
     }
 
     @Override

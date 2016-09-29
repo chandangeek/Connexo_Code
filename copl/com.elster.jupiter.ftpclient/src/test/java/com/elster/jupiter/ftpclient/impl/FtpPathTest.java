@@ -1,12 +1,6 @@
 package com.elster.jupiter.ftpclient.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,6 +9,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -341,11 +342,6 @@ public class FtpPathTest extends EqualsContractTest {
     }
 
     @Test
-    public void testRelativize() throws Exception {
-//TODO
-    }
-
-    @Test
     public void testToUri() throws Exception {
         Path path = fileSystem.getPath("directory/sub1/sub2/sub3/sub4");
 
@@ -417,6 +413,39 @@ public class FtpPathTest extends EqualsContractTest {
                 fileSystem.getPath("/sub4")
         );
 
+    }
+
+    @Test
+    public void testRelativizeSelf() {
+        FtpPath path = fileSystem.getPath("a/b/c");
+
+        assertThat(path.relativize(path)).isEqualTo(fileSystem.getPath(""));
+    }
+
+    @Test
+    public void testRelativizeFullyDifferent() {
+        FtpPath path = fileSystem.getPath("a/b/c");
+        FtpPath target = fileSystem.getPath("c/d/e");
+
+        assertThat(path.relativize(target)).isEqualTo(fileSystem.getPath("../../../c/d/e"));
+    }
+
+    @Test
+    public void testRelativizeCommonParent() {
+        FtpPath path = fileSystem.getPath("a/b/c");
+        FtpPath target = fileSystem.getPath("a/b/d/e");
+
+        assertThat(path.relativize(target)).isEqualTo(fileSystem.getPath("../d/e"));
+        assertThat(target.relativize(path)).isEqualTo(fileSystem.getPath("../../c"));
+    }
+
+    @Test
+    public void testRelativizeFromRoot() {
+        FtpPath path = fileSystem.getPath("/");
+        FtpPath target = fileSystem.getPath("/a/b/d/e");
+
+        assertThat(path.relativize(target)).isEqualTo(fileSystem.getPath("a/b/d/e"));
+        assertThat(target.relativize(path)).isEqualTo(fileSystem.getPath("../../../.."));
     }
 
 }

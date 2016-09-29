@@ -11,9 +11,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 
-@Component(name = "com.elster.jupiter.ftpclient", service = {FtpClientService.class}, property = "name=" + FtpClientService.COMPONENT_NAME, immediate = true)
+@Component(name = "com.elster.jupiter.ftpclient", service = {FtpClientService.class}, property = {"name=" + FtpClientService.COMPONENT_NAME,
+        "osgi.command.scope=ftpclient",
+        "osgi.command.function=testftp"
+}, immediate = true)
 public class FtpClientServiceImpl implements FtpClientService {
 
     private final FtpFileSystemProvider ftpProvider = new FtpFileSystemProvider();
@@ -95,5 +100,24 @@ public class FtpClientServiceImpl implements FtpClientService {
                 }
             }
         };
+    }
+
+    public void testftp() {
+        FtpSessionFactory ftpFactory = new FtpClientServiceImpl().getFtpFactory("localhost", 2122, "tgr", "tgr");
+
+        try {
+            ftpFactory.runInSession(fileSystem -> {
+                Path remoteFile = fileSystem.getPath("/dir1/file1.txt");
+                Files.createDirectories(remoteFile.getParent());
+                Files.createFile(remoteFile);
+                Files.list(fileSystem.getPath("/")).map(Path::toString).forEach(System.out::println);
+                System.out.println(Files.exists(fileSystem.getPath("TTT.txt")));
+                System.out.println(Files.exists(fileSystem.getPath("SSS.txt")));
+                System.out.println(Files.exists(fileSystem.getPath("datadir")));
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

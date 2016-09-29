@@ -1,12 +1,9 @@
 package com.elster.jupiter.ftpclient.impl;
 
 import com.elster.jupiter.ftpclient.FtpSessionFactory;
+
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.mockftpserver.fake.FakeFtpServer;
 import org.mockftpserver.fake.UserAccount;
 import org.mockftpserver.fake.filesystem.DirectoryEntry;
@@ -22,6 +19,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,6 +45,7 @@ public class FTPTest {
 
         fakeFileSystem = new WindowsFakeFileSystem();
         fakeFileSystem.add(new DirectoryEntry("c:\\data"));
+        fakeFileSystem.add(new DirectoryEntry("c:\\data\\existingDir"));
         fakeFileSystem.add(new FileEntry("c:\\data\\file1.txt", REMOTE_CONTENT));
         fakeFileSystem.add(new FileEntry("c:\\data\\run.exe"));
         fakeFtpServer.setFileSystem(fakeFileSystem);
