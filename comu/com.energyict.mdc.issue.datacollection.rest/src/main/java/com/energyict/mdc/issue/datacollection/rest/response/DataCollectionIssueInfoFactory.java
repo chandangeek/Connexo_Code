@@ -1,23 +1,13 @@
 package com.energyict.mdc.issue.datacollection.rest.response;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -30,41 +20,44 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-
-import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
 import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
 import com.energyict.mdc.tasks.ComTask;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Component(name="issue.data.collection.info.factory", service = { InfoFactory.class }, immediate = true)
 public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataCollection> {
 
-    private DeviceService deviceService;
-    private Thesaurus thesaurus;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile DeviceService deviceService;
 
     public DataCollectionIssueInfoFactory() {}
 
     @Inject
-    public DataCollectionIssueInfoFactory(DeviceService deviceService, Thesaurus thesaurus) {
+    public DataCollectionIssueInfoFactory(DeviceService deviceService) {
+        this();
         this.deviceService = deviceService;
-        this.thesaurus = thesaurus;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        Thesaurus domainThesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN);
-        Thesaurus restThesaurus = nlsService.getThesaurus(IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT, Layer.REST);
-        this.thesaurus = domainThesaurus.join(restThesaurus);
     }
 
     public DataCollectionIssueInfo<?> asInfo(IssueDataCollection issue, Class<? extends DeviceInfo> deviceInfoClass) {
@@ -111,14 +104,10 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
     }
 
     private Long getComTask(ComSession comSession, ComTaskExecution comTaskExecution) {
-       /* if (!comTaskExecution.getComTasks().isEmpty()) {
-            return comTaskExecution.getComTasks().get(0).getId();//Get first com task: works ok for manually scheduled comtask execution, but scheduled comtask execution?
-        }
-        return null;*/
         return comSession.getComTaskExecutionSessions().stream()
                 .filter(es -> es.getComTaskExecution().getId() == comTaskExecution.getId())
                 .findFirst().map(ComTaskExecutionSession::getComTask)
-                .map(es -> es.getId()).orElse(null);
+                .map(HasId::getId).orElse(null);
     }
 
     private Long getComTaskExecutionSession(ComSession comSession, ComTaskExecution comTaskExecution) {
@@ -126,7 +115,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
                 .filter(es -> es.getComTaskExecution().getId() == comTaskExecution.getId() &&
                              (es.getSuccessIndicator() == ComTaskExecutionSession.SuccessIndicator.Failure || es.getSuccessIndicator() == ComTaskExecutionSession.SuccessIndicator.Interrupted))
                 .findFirst()
-                .map(es -> es.getId()).orElse(null);
+                .map(HasId::getId).orElse(null);
     }
 
     @Override
@@ -160,7 +149,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
             info.deviceMRID = device.getmRID();
             info.deviceType = new IdWithNameInfo(device.getDeviceType());
             info.deviceConfiguration = new IdWithNameInfo(device.getDeviceConfiguration());
-            info.deviceState = new IdWithNameInfo(device.getState().getId(), getStateName(thesaurus, device.getState()));
+            info.deviceState = new IdWithNameInfo(device.getState().getId(), getStateName(device.getState()));
         }
     }
 
@@ -252,12 +241,11 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         return info;
     }
 
-    public static String getStateName(Thesaurus thesaurus, State state) {
-        Optional<DefaultState> defaultState = DefaultState.from(state);
-        if (defaultState.isPresent()) {
-            return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
-        } else {
-            return state.getName();
-        }
+    private String getStateName(State state) {
+        return DefaultState
+                .from(state)
+                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .orElseGet(state::getName);
     }
+
 }
