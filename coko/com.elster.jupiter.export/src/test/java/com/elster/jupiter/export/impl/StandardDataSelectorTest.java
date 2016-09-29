@@ -29,6 +29,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.Range;
 
 import javax.validation.Validator;
@@ -45,9 +46,12 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -157,15 +161,15 @@ public class StandardDataSelectorTest {
         when(taskLogHandler.asHandler()).thenReturn(logRecorder);
         when(dataExportService.createExportOccurrence(occurrence)).thenReturn(dataExportOccurrence);
         when(dataExportService.findDataExportOccurrence(occurrence)).thenReturn(Optional.of(dataExportOccurrence));
-        when(dataExportService.getDataFormatterFactory("CSV")).thenReturn(Optional.of(dataFormatterFactory));
-        when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(thesaurus)));
+        StandardDataSelectorFactory dataSelectorFactory = new StandardDataSelectorFactory(thesaurus);
+        when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR)).thenReturn(Optional.of(dataSelectorFactory));
         when(dataExportOccurrence.getTask()).thenReturn(task);
         when(dataExportOccurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.of((DefaultSelectorOccurrence) dataExportOccurrence));
         when(((DefaultSelectorOccurrence) dataExportOccurrence).getExportedDataInterval()).thenReturn(exportPeriod);
         when(dataExportOccurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());
-        when(task.getDataFormatter()).thenReturn("CSV");
-        when(task.getDataSelector()).thenReturn(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR);
-        when(task.getDataExportProperties()).thenReturn(Arrays.asList(dataExportProperty));
+        when(task.getDataFormatterFactory()).thenReturn(dataFormatterFactory);
+        when(task.getDataSelectorFactory()).thenReturn(dataSelectorFactory);
+        when(task.getDataExportProperties()).thenReturn(Collections.singletonList(dataExportProperty));
         when(dataExportProperty.getName()).thenReturn("name");
         when(dataExportProperty.getValue()).thenReturn("CSV");
         when(meter1.is(meter1)).thenReturn(true);

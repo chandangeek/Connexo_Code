@@ -46,13 +46,13 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private String application;
 
     private interface ReadingTypeDefinition {
-        public void addTo(StandardDataSelector standardDataSelector);
+        void addTo(StandardDataSelector standardDataSelector);
     }
 
-    public class ReadingTypeByMrid implements ReadingTypeDefinition {
+    private class ReadingTypeByMrid implements ReadingTypeDefinition {
         private final String mrid;
 
-        public ReadingTypeByMrid(String mrid) {
+        ReadingTypeByMrid(String mrid) {
             this.mrid = mrid;
         }
 
@@ -62,11 +62,11 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
     }
 
-    public class ReadingTypeHolder implements ReadingTypeDefinition {
+    private class ReadingTypeHolder implements ReadingTypeDefinition {
 
         private final ReadingType readingType;
 
-        public ReadingTypeHolder(ReadingType readingType) {
+        ReadingTypeHolder(ReadingType readingType) {
             this.readingType = readingType;
         }
 
@@ -77,7 +77,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
 
-    public DataExportTaskBuilderImpl(DataModel dataModel) {
+    DataExportTaskBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
@@ -118,21 +118,21 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
                 readingTypeDataSelector.setExportContinuousData(exportContinuousData);
                 readingTypeDataSelector.setUpdateWindow(updateWindow);
                 readingTypeDataSelector.setExportOnlyIfComplete(exportComplete);
-                readingTypes.stream().forEach(readingTypeDefinition -> readingTypeDefinition.addTo(readingTypeDataSelector));
+                readingTypes.forEach(readingTypeDefinition -> readingTypeDefinition.addTo(readingTypeDataSelector));
                 exportTask.setReadingTypeDataSelector(readingTypeDataSelector);
                 break;
             }
             case EVENTTYPES: {
                 StandardDataSelectorImpl readingTypeDataSelector = StandardDataSelectorImpl.from(dataModel, exportTask, exportPeriod, endDeviceGroup);
                 readingTypeDataSelector.setExportContinuousData(exportContinuousData);
-                eventTypeFilters.stream().forEach(readingTypeDataSelector::addEventTypeFilter);
+                eventTypeFilters.forEach(readingTypeDataSelector::addEventTypeFilter);
                 exportTask.setReadingTypeDataSelector(readingTypeDataSelector);
                 break;
             }
             case CUSTOM:
             default:
         }
-        properties.stream().forEach(p -> exportTask.setProperty(p.name, p.value));
+        properties.forEach(p -> exportTask.setProperty(p.name, p.value));
         exportTask.doSave();
         return exportTask;
     }
@@ -144,7 +144,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
-    public DataExportTaskBuilderImpl setDataFormatterName(String dataFormatter) {
+    public DataExportTaskBuilderImpl setDataFormatterFactoryName(String dataFormatter) {
         this.dataFormatter = dataFormatter;
         return this;
     }
@@ -163,7 +163,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         return new EventSelectorBuilderImpl();
     }
 
-    class EventSelectorBuilderImpl implements EventSelectorBuilder {
+    private class EventSelectorBuilderImpl implements EventSelectorBuilder {
         @Override
         public EventSelectorBuilderImpl fromExportPeriod(RelativePeriod relativePeriod) {
             exportPeriod = relativePeriod;

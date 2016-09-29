@@ -25,6 +25,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.RelativePeriod;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -309,7 +310,7 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
     }
 
     private State getState() {
-        switch (getExportTask().getDataSelector()) {
+        switch (getExportTask().getDataSelectorFactory().getName()) {
             case DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR:
                 return State.READINGTYPES;
             case DataExportService.STANDARD_EVENT_DATA_SELECTOR:

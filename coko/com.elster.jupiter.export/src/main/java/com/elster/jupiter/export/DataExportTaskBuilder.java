@@ -21,7 +21,7 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder setName(String string);
 
-    DataExportTaskBuilder setDataFormatterName(String dataFormatter);
+    DataExportTaskBuilder setDataFormatterFactoryName(String dataFormatter);
 
     ReadingTypeSelectorBuilder selectingReadingTypes();
 

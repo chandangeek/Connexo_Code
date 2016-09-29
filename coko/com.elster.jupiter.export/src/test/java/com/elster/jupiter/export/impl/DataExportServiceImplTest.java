@@ -179,7 +179,7 @@ public class DataExportServiceImplTest {
         when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenReturn(selectorImpl);
         DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel)
                 .setName(NAME)
-                .setDataFormatterName(DATA_FORMATTER)
+                .setDataFormatterFactoryName(DATA_FORMATTER)
                 .setNextExecution(nextExecution)
                 .selectingReadingTypes()
                 .fromEndDeviceGroup(endDeviceGroup)

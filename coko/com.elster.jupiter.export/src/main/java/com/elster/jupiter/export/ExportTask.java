@@ -6,11 +6,14 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface ExportTask extends HasName, HasAuditInfo {
     long getId();
 
@@ -32,15 +35,15 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     boolean isActive();
 
-    String getDataFormatter();
+    DataFormatterFactory getDataFormatterFactory();
 
-    String getDataSelector();
+    DataSelectorFactory getDataSelectorFactory();
 
     List<PropertySpec> getPropertySpecs();
 
     List<PropertySpec> getDataSelectorPropertySpecs();
 
-    List<PropertySpec> getDataProcessorPropertySpecs();
+    List<PropertySpec> getDataFormatterPropertySpecs();
 
     ScheduleExpression getScheduleExpression();
 
@@ -60,7 +63,7 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     void updateLastRun(Instant triggerTime);
 
-    void setDataFormatter(String formatter);
+    void setDataFormatterFactoryName(String formatter);
 
     void removeProperty(PropertySpec propertySpec);
 

@@ -457,7 +457,7 @@ public class ExportTaskImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = dataExportService.newBuilder()
                     .scheduleImmediately()
-                    .setDataFormatterName(FORMATTER)
+                    .setDataFormatterFactoryName(FORMATTER)
                     .setName(NAME)
                     .setApplication("Admin")
                     .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
@@ -644,7 +644,7 @@ public class ExportTaskImplIT {
     private ExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
         return dataExportService.newBuilder()
                 .scheduleImmediately()
-                .setDataFormatterName(FORMATTER)
+                .setDataFormatterFactoryName(FORMATTER)
                 .setName(name)
                 .setApplication("Admin")
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
