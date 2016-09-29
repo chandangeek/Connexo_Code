@@ -1,8 +1,9 @@
 package com.elster.jupiter.time;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.cron.CronExpression;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Locale;
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 @ProviderType
 public interface TimeService {
-    static String COMPONENT_NAME = "TME";
+    String COMPONENT_NAME = "TME";
 
     List<RelativePeriod> getRelativePeriods();
     Optional<RelativePeriod> findRelativePeriod(long relativePeriodId);
@@ -28,6 +29,7 @@ public interface TimeService {
 
     String toLocalizedString(PeriodicalScheduleExpression expression);
     String toLocalizedString(CronExpression expression, Locale locale);
+    String toLocalizedString(TemporalExpression expression);
 
     RelativePeriod getAllRelativePeriod();
 }

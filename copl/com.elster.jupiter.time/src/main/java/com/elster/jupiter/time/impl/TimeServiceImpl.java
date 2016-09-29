@@ -16,6 +16,8 @@ import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.parser.CronExpressionDescriptorImpl;
 import com.elster.jupiter.time.impl.parser.TranslationKeys;
@@ -99,7 +101,7 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
         relativePeriod.setRelativeDateFrom(from);
         relativePeriod.setRelativeDateTo(to);
         relativePeriod.setIsCreatedByInstaller(true);
-        categories.stream().forEach(relativePeriod::addRelativePeriodCategory);
+        categories.forEach(relativePeriod::addRelativePeriodCategory);
         relativePeriod.save();
         return relativePeriod;
     }
@@ -111,7 +113,7 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
         relativePeriod.setName(name);
         relativePeriod.setRelativeDateFrom(from);
         relativePeriod.setRelativeDateTo(to);
-        categories.stream().forEach(relativePeriod::addRelativePeriodCategory);
+        categories.forEach(relativePeriod::addRelativePeriodCategory);
         relativePeriod.save();
         return relativePeriod;
     }
@@ -184,6 +186,63 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
     @Override
     public String toLocalizedString(CronExpression expression, Locale locale) {
         return new CronExpressionDescriptorImpl(thesaurus).getDescription(expression.toString(), locale);
+    }
+
+    @Override
+    public String toLocalizedString(TemporalExpression expression) {
+        TimeDuration every = expression.getEvery();
+        int count = every.getCount();
+        TimeDuration.TimeUnit unit = every.getTimeUnit();
+        String everyTranslation = thesaurus.getFormat(TranslationKeys.every).format();
+
+        String unitTranslation = unit.getDescription();
+        if (unit.equals(TimeDuration.TimeUnit.MINUTES)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.minute).format();
+            } else {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.minutes).format();
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.HOURS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.hour).format();
+            } else {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.hours).format();
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.day).format();
+            } else {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.days).format();
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.week).format();
+            } else {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.weeks).format();
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.month).format();
+            } else {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.months).format();
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.year).format();
+            } else {
+                unitTranslation = thesaurus.getFormat(TranslationKeys.years).format();
+            }
+        }
+        if (count == 1) {
+            return everyTranslation + " " + unitTranslation;
+        } else {
+            return everyTranslation + " " + count + " " + unitTranslation;
+        }
     }
 
     @Override
