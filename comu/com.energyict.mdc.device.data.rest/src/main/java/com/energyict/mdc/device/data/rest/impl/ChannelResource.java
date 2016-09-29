@@ -56,6 +56,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -387,7 +388,7 @@ public class ChannelResource {
             @PathParam("epochMillis") long epochMillis) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         Instant to = Instant.ofEpochMilli(epochMillis);
-        Instant from = to.minus(channel.getInterval().asTemporalAmount());
+        Instant from = to.minusMillis(channel.getInterval().getMilliSeconds());
         Range<Instant> range = Ranges.openClosed(from, to);
         List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
         Optional<VeeReadingInfo> veeReadingInfo = channelTimeLine.stream()
