@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 public class StandardCsvEventDataFormatterFactory implements DataFormatterFactory {
 
     static final String NAME = "standardCsvEventDataProcessorFactory";
-    static final String DISPLAY_NAME = "CSV formatter";
     private static final String NON_PATH_INVALID = "\":*?<>|";
 
     private volatile PropertySpecService propertySpecService;
@@ -137,13 +136,13 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
     }
 
     private String asString(String invalidCharacters) {
-        String and = ' ' + Translations.Labels.AND.translate(thesaurus) + ' ';
+        String and = ' ' + thesaurus.getFormat(Translations.Labels.AND).format() + ' ';
         return Pattern.compile("").splitAsStream(invalidCharacters).collect(FancyJoiner.joining(", ", and));
     }
 
     @Override
     public String getDisplayName() {
-        return DISPLAY_NAME;
+        return this.thesaurus.getFormat(Translations.Labels.CSV_EVENTS_FORMATTER).format();
     }
 
 }

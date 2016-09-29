@@ -3,10 +3,10 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
@@ -43,9 +43,9 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
         return Arrays.asList(MessageSeeds.values());
     }
 
-    static enum Labels implements TranslationKey {
-        CSV_PROCESSSOR(StandardCsvDataFormatterFactory.NAME, StandardCsvDataFormatterFactory.DISPLAY_NAME),
-        CSV_EVENTS_PROCESSSOR(StandardCsvEventDataFormatterFactory.NAME, StandardCsvEventDataFormatterFactory.DISPLAY_NAME),
+    enum Labels implements TranslationKey {
+        CSV_FORMATTER(StandardCsvDataFormatterFactory.NAME, "CSV formatter"),
+        CSV_EVENTS_FORMATTER(StandardCsvEventDataFormatterFactory.NAME, "CSV formatter"),
         AND("des.processor.and", "and");
 
         private final String key;
@@ -66,8 +66,5 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
             return defaultFormat;
         }
 
-        public String translate(Thesaurus thesaurus) {
-            return thesaurus.getString(key, defaultFormat);
-        }
     }
 }
