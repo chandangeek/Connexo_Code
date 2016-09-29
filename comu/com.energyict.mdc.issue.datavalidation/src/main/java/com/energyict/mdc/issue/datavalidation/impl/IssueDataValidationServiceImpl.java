@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
@@ -53,10 +54,10 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation",
-           service = { TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataValidationService.class, IssueProvider.class },
+           service = { TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataValidationService.class, IssueProvider.class, IssueGroupTranslationProvider.class},
            property = "name=" + IssueDataValidationService.COMPONENT_NAME,
            immediate = true)
-public class IssueDataValidationServiceImpl implements IssueDataValidationService, TranslationKeyProvider, MessageSeedProvider, IssueProvider {
+public class IssueDataValidationServiceImpl implements IssueDataValidationService, TranslationKeyProvider, MessageSeedProvider, IssueProvider, IssueGroupTranslationProvider {
 
     private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
@@ -65,7 +66,6 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
     private volatile MeteringService meteringService;
-
 
     private volatile DataModel dataModel;
 
