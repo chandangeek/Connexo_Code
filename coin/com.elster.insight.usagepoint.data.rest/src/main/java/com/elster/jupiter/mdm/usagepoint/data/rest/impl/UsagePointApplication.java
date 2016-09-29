@@ -29,6 +29,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
@@ -50,10 +51,10 @@ import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.elster.insight.udr.rest",
-        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class, RelativePeriodCategoryTranslationProvider.class},
         immediate = true,
         property = {"alias=/udr", "app=INS", "name=" + UsagePointApplication.COMPONENT_NAME})
-public class UsagePointApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
+public class UsagePointApplication extends Application implements TranslationKeyProvider, MessageSeedProvider, RelativePeriodCategoryTranslationProvider {
     private static final String APP_KEY = "INS";
     static final String COMPONENT_NAME = "UDR";
 
@@ -300,4 +301,4 @@ public class UsagePointApplication extends Application implements TranslationKey
         }
     }
 
-        }
+}
