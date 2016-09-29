@@ -644,36 +644,38 @@ sub activate_sso {
             #} else {
             #    #install Linux daemon
             #}
-            add_to_file_if("$APACHE_PATH/conf/httpd.conf","Include conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf");
-            replace_in_file("$APACHE_PATH/conf/httpd.conf","#LoadModule proxy_module modules/mod_proxy.so","LoadModule proxy_module modules/mod_proxy.so");
-            replace_in_file("$APACHE_PATH/conf/httpd.conf","#LoadModule proxy_http_module modules/mod_proxy_http.so","LoadModule proxy_http_module modules/mod_proxy_http.so");
-            replace_in_file("$APACHE_PATH/conf/httpd.conf","#LoadModule rewrite_module modules/mod_rewrite.so","LoadModule rewrite_module modules/mod_rewrite.so");
-            open(my $FH,"> $APACHE_PATH/conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf") or die "Could not open $APACHE_PATH/conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf: $!";
-            print $FH "Define HOSTNAME $HOST_NAME\n";
-            print $FH "\n";
-            print $FH "<VirtualHost *:80>\n";
-            print $FH "ServerName \${HOSTNAME}\n";
-            print $FH "\n";
-            print $FH "RewriteEngine On\n";
-            print $FH "   ProxyPreserveHost on\n";
-            print $FH "\n";
-            print $FH "   RedirectMatch ^/\$ http://\${HOSTNAME}/apps/login/index.html\n";
-            print $FH "\n";
-            print $FH "   ProxyPass /flow/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/flow/\n";
-            print $FH "   ProxyPassReverse /flow/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/flow/\n";
-            print $FH "   ProxyPassReverse /flow/ http://\${HOSTNAME}/flow/\n";
-            print $FH "   ProxyPass /facts/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts/\n";
-            print $FH "   ProxyPassReverse /facts/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts/\n";
-            print $FH "   ProxyPassReverse /facts/ http://\${HOSTNAME}/facts/\n";
-            print $FH "\n";
-            print $FH "   ProxyPassReverse / http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/\n";
-            print $FH "   DirectoryIndex index.html\n";
-            print $FH "\n";
-            print $FH "   RewriteRule ^/apps/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/apps/\$1 [P]\n";
-            print $FH "   RewriteRule ^/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/api/\$1 [P]\n";
-            print $FH "   RewriteRule ^/public/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/public/api/\$1 [P]\n";
-            print $FH "</VirtualHost>\n";
-            close $FH;
+            if("$UPGRADE" ne "yes") {
+                add_to_file_if("$APACHE_PATH/conf/httpd.conf","Include conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf");
+                replace_in_file("$APACHE_PATH/conf/httpd.conf","#LoadModule proxy_module modules/mod_proxy.so","LoadModule proxy_module modules/mod_proxy.so");
+                replace_in_file("$APACHE_PATH/conf/httpd.conf","#LoadModule proxy_http_module modules/mod_proxy_http.so","LoadModule proxy_http_module modules/mod_proxy_http.so");
+                replace_in_file("$APACHE_PATH/conf/httpd.conf","#LoadModule rewrite_module modules/mod_rewrite.so","LoadModule rewrite_module modules/mod_rewrite.so");
+                open(my $FH,"> $APACHE_PATH/conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf") or die "Could not open $APACHE_PATH/conf/extra/httpd-connexo-vhosts$SERVICE_VERSION.conf: $!";
+                print $FH "Define HOSTNAME $HOST_NAME\n";
+                print $FH "\n";
+                print $FH "<VirtualHost *:80>\n";
+                print $FH "ServerName \${HOSTNAME}\n";
+                print $FH "\n";
+                print $FH "RewriteEngine On\n";
+                print $FH "   ProxyPreserveHost on\n";
+                print $FH "\n";
+                print $FH "   RedirectMatch ^/\$ http://\${HOSTNAME}/apps/login/index.html\n";
+                print $FH "\n";
+                print $FH "   ProxyPass /flow/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/flow/\n";
+                print $FH "   ProxyPassReverse /flow/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/flow/\n";
+                print $FH "   ProxyPassReverse /flow/ http://\${HOSTNAME}/flow/\n";
+                print $FH "   ProxyPass /facts/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts/\n";
+                print $FH "   ProxyPassReverse /facts/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts/\n";
+                print $FH "   ProxyPassReverse /facts/ http://\${HOSTNAME}/facts/\n";
+                print $FH "\n";
+                print $FH "   ProxyPassReverse / http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/\n";
+                print $FH "   DirectoryIndex index.html\n";
+                print $FH "\n";
+                print $FH "   RewriteRule ^/apps/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/apps/\$1 [P]\n";
+                print $FH "   RewriteRule ^/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/api/\$1 [P]\n";
+                print $FH "   RewriteRule ^/public/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/public/api/\$1 [P]\n";
+                print $FH "</VirtualHost>\n";
+                close $FH;
+            }
 
             if ("$INSTALL_FLOW" eq "yes") {
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!--filter>","<filter>");
@@ -1255,13 +1257,13 @@ sub perform_upgrade {
 
 			print "Install new versions for tomcat and partner apps";
 			install_tomcat();
-			install_facts();
+			dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/webapps/facts", "$CONNEXO_DIR/partners/tomcat/webapps/facts");
 			install_flow();
 			
 			#copy existing flow repository
             print "Copying Flow repository\n";
-            dircopy("$CONNEXO_DIR/partners/tomcat/repositories", "$UPGRADE_PATH/temp/repositories");
-				
+            dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/repositories", "$CONNEXO_DIR/partners/tomcat/repositories");
+
 			activate_sso();
 			change_owner();
 
