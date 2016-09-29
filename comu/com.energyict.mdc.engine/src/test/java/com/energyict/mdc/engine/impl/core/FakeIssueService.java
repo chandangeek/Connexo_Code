@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.issues.IssueCollector;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import java.time.Instant;
+import java.util.Optional;
 
 import org.mockito.ArgumentCaptor;
 
@@ -47,6 +47,7 @@ public class FakeIssueService implements IssueService {
         when(problem.isProblem()).thenReturn(true);
         when(problem.isWarning()).thenReturn(false);
         when(problem.getDescription()).thenReturn(description);
+        when(problem.getException()).thenReturn(Optional.empty());
         return problem;
     }
 
@@ -61,6 +62,7 @@ public class FakeIssueService implements IssueService {
         when(warning.isWarning()).thenReturn(true);
         when(warning.isWarning()).thenReturn(false);
         when(warning.getDescription()).thenReturn(description);
+        when(warning.getException()).thenReturn(Optional.empty());
         return warning;
     }
 

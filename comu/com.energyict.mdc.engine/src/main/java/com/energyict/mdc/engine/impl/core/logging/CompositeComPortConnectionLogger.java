@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core.logging;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
 import java.util.ArrayList;

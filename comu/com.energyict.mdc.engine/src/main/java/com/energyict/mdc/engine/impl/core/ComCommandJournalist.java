@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.tools.StackTracePrinter;
 import com.energyict.mdc.issues.Issue;
 
 import java.text.DecimalFormat;
@@ -91,6 +92,7 @@ public class ComCommandJournalist {
         builder.append('\n').append('\t').append(NUMBER_FORMAT.format(issueNumber)).append('.').append(' ');
         builder.append(issue.getDescription());
         builder.append(' ').append('(').append(DATE_FORMAT.format(issue.getTimestamp())).append(')');
+        issue.getException().ifPresent(ex -> builder.append("\r\n").append(StackTracePrinter.print(ex)));
     }
 
 }
