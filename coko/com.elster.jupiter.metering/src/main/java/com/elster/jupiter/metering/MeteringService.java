@@ -11,6 +11,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -83,6 +84,17 @@ public interface MeteringService {
     Condition hasAccountability(Instant when);
 
     Query<Meter> getMeterQuery();
+
+    /**
+     * Creates a query to retrieve Meter that have (measurement) data in the readingQualityTimestamp period
+     * that have reading qualities of the passed ReadingQualityTypes
+     *
+     * @param readingQualityTimestamp the period of data that
+     * @param readingQualityTypes the ReadingQualityTypes
+     * @return a query that retrieves Meter
+     * @since 4.0
+     */
+    Query<Meter> getMeterWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes);
 
     Optional<UsagePoint> findUsagePoint(String mRID);
 
