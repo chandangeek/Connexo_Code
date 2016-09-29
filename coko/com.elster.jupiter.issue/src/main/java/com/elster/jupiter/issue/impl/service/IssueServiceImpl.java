@@ -37,6 +37,7 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
@@ -78,7 +79,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -104,7 +107,10 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private Set<ComponentAndLayer> alreadyJoined = ConcurrentHashMap.newKeySet();
+    private final Object thesaurusLock = new Object();
 
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
     private volatile KnowledgeBaseFactoryService knowledgeBaseFactoryService;
@@ -203,6 +209,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
@@ -261,6 +268,24 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         this.clock = clock;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @SuppressWarnings("unused") // Called by OSGi framework when IssueGroupTranslationProvider component activates
+    public void addIssueGroupTranslationProvider(IssueGroupTranslationProvider provider) {
+        synchronized (this.thesaurusLock) {
+            ComponentAndLayer componentAndLayer = ComponentAndLayer.from(provider);
+            if (!this.alreadyJoined.contains(componentAndLayer)) {
+                Thesaurus providerThesaurus = this.nlsService.getThesaurus(provider.getComponentName(), provider.getLayer());
+                this.thesaurus = this.thesaurus.join(providerThesaurus);
+                this.alreadyJoined.add(componentAndLayer);
+            }
+        }
+    }
+
+    @SuppressWarnings("unused") // Called by OSGi framework when IssueGroupTranslationProvider component deactivates
+    public void removeIssueGroupTranslationProvider(IssueGroupTranslationProvider obsolete) {
+        // Don't bother unjoining the provider's thesaurus
+    }
+
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
@@ -293,7 +318,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
     }
 
-    public void removeCreationRuleTemplate(CreationRuleTemplate template) {
+    void removeCreationRuleTemplate(CreationRuleTemplate template) {
         creationRuleTemplates.remove(template.getName());
         if (issueCreationService != null) {
             issueCreationService.reReadRules();
@@ -425,7 +450,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public List<IssueGroup> getIssueGroupList(IssueGroupFilter filter) {
-        return IssuesGroupOperation.from(filter, this.dataModel/*, this.meteringGroupsService*/, thesaurus).execute();
+        return IssuesGroupOperation.from(filter, this.dataModel, thesaurus).execute();
     }
 
     @Override
@@ -581,6 +606,38 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             return Long.parseLong(id);
         } catch (NumberFormatException e) {
             return 0;
+        }
+    }
+
+    private static final class ComponentAndLayer {
+        private final String componentName;
+        private final Layer layer;
+
+        private ComponentAndLayer(String componentName, Layer layer) {
+            this.componentName = componentName;
+            this.layer = layer;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            ComponentAndLayer that = (ComponentAndLayer) o;
+            return Objects.equals(componentName, that.componentName) &&
+                    layer == that.layer;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(componentName, layer);
+        }
+
+        public static ComponentAndLayer from(IssueGroupTranslationProvider provider) {
+            return new ComponentAndLayer(provider.getComponentName(), provider.getLayer());
         }
     }
 }

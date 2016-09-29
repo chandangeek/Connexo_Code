@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.issue.share.entity.IssueGroup;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 
 public class IssueGroupImpl implements IssueGroup {
@@ -28,7 +29,7 @@ public class IssueGroupImpl implements IssueGroup {
     }
 
     public String getGroupName() {
-        return thesaurus.getStringBeyondComponent(groupName, groupName);
+        return thesaurus.getFormat(new SimpleTranslationKey(groupName, groupName)).format();
     }
 
     public Object getGroupKey() {

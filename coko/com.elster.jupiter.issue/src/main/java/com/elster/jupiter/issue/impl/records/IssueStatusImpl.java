@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
@@ -51,7 +52,7 @@ public final class IssueStatusImpl extends EntityImpl implements IssueStatus{
     }
 
     public String getName() {
-        return thesaurus.getStringBeyondComponent(this.translationKey, this.translationKey);
+        return thesaurus.getFormat(new SimpleTranslationKey(this.translationKey, this.translationKey)).format();
     }
 
     public boolean isHistorical() {

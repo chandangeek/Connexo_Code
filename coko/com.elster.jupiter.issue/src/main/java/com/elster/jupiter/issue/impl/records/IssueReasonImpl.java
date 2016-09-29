@@ -3,6 +3,7 @@ package com.elster.jupiter.issue.impl.records;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
@@ -13,11 +14,9 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.text.MessageFormat;
 import java.util.Objects;
 
-public final class IssueReasonImpl extends EntityImpl implements IssueReason{
-    public static final String ISSUE_REASON_DESCRIPTION_TRANSLATION_SUFFIX = "Description";
+public final class IssueReasonImpl extends EntityImpl implements IssueReason {
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -42,7 +41,7 @@ public final class IssueReasonImpl extends EntityImpl implements IssueReason{
         this.thesaurus = thesaurus;
     }
 
-    public IssueReasonImpl init(String key, IssueType issueType, TranslationKey name, TranslationKey description){
+    public IssueReasonImpl init(String key, IssueType issueType, TranslationKey name, TranslationKey description) {
         this.key = key;
         this.issueType.set(issueType);
         if (name != null) {
@@ -68,12 +67,11 @@ public final class IssueReasonImpl extends EntityImpl implements IssueReason{
 
     @Override
     public String getName() {
-        return this.thesaurus.getStringBeyondComponent(this.translationKey, this.translationKey);
+        return this.thesaurus.getFormat(new SimpleTranslationKey(this.translationKey, this.translationKey)).format();
     }
 
-    public String getDescriptionFor(String deviceMrid) {
-        String description = this.thesaurus.getStringBeyondComponent(this.descrTranslationKey, this.descrTranslationKey);
-        return new MessageFormat(description).format(new Object[]{deviceMrid}, new StringBuffer(), null).toString();
+    String getDescriptionFor(String deviceMrid) {
+        return this.thesaurus.getFormat(new SimpleTranslationKey(this.descrTranslationKey, this.descrTranslationKey)).format(deviceMrid);
     }
 
     @Override
