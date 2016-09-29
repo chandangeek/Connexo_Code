@@ -2,13 +2,15 @@ package com.elster.jupiter.time.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.RelativePeriodCategory;
+
+import java.util.Collections;
+
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Collections;
 
 import static org.fest.reflect.core.Reflection.field;
 
@@ -22,6 +24,8 @@ public class RelativePeriodCategoryTest extends EqualsContractTest {
     private DataModel dataModel;
     @Mock
     private EventService eventService;
+    @Mock
+    private Thesaurus thesaurus;
 
     private RelativePeriodCategory relativePeriodCategory;
 
@@ -32,7 +36,7 @@ public class RelativePeriodCategoryTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (relativePeriodCategory == null) {
-            relativePeriodCategory = new RelativePeriodCategoryImpl(dataModel, eventService);
+            relativePeriodCategory = new RelativePeriodCategoryImpl(dataModel, eventService, thesaurus);
             setId(relativePeriodCategory, ID);
         }
         return relativePeriodCategory;
@@ -40,14 +44,14 @@ public class RelativePeriodCategoryTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        RelativePeriodCategory relativePeriodCategory = new RelativePeriodCategoryImpl(dataModel, eventService);
+        RelativePeriodCategory relativePeriodCategory = new RelativePeriodCategoryImpl(dataModel, eventService, thesaurus);
         setId(relativePeriodCategory, ID);
         return relativePeriodCategory;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        RelativePeriodCategory relativePeriodCategory = new RelativePeriodCategoryImpl(dataModel, eventService);
+        RelativePeriodCategory relativePeriodCategory = new RelativePeriodCategoryImpl(dataModel, eventService, thesaurus);
         setId(relativePeriodCategory, OTHER_ID);
         return Collections.singletonList(relativePeriodCategory);
     }
