@@ -1,5 +1,6 @@
 package com.elster.jupiter.cbo.impl;
 
+import com.elster.jupiter.cbo.I18N;
 import com.elster.jupiter.cbo.MessageSeeds;
 import com.elster.jupiter.cbo.TranslationKeys;
 import com.elster.jupiter.nls.Layer;
@@ -7,6 +8,7 @@ import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Arrays;
@@ -15,10 +17,9 @@ import java.util.List;
 @Component(
         name = "com.elster.jupiter.cbo.impl.CboMessageSeedProvider",
         service = {TranslationKeyProvider.class, MessageSeedProvider.class},
-        property = {"name=" + CboTranslationProvider.COMPONENT_NAME},
+        property = {"name=" + I18N.COMPONENT_NAME},
         immediate = true)
 public class CboTranslationProvider implements TranslationKeyProvider, MessageSeedProvider {
-    public static final String COMPONENT_NAME = "CBO";
 
     @Override
     public Layer getLayer() {
@@ -32,7 +33,7 @@ public class CboTranslationProvider implements TranslationKeyProvider, MessageSe
 
     @Override
     public String getComponentName() {
-        return COMPONENT_NAME;
+        return I18N.COMPONENT_NAME;
     }
 
     @Override

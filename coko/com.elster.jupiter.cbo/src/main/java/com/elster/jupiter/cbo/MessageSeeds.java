@@ -1,6 +1,5 @@
 package com.elster.jupiter.cbo;
 
-import com.elster.jupiter.cbo.impl.CboTranslationProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -18,7 +17,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return CboTranslationProvider.COMPONENT_NAME;
+        return I18N.COMPONENT_NAME;
     }
 
     @Override
