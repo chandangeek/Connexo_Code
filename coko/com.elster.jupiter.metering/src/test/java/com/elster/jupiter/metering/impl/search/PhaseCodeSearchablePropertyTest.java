@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -50,6 +51,8 @@ public class PhaseCodeSearchablePropertyTest {
     private OrmService ormService;
     @Mock
     private Clock clock;
+    @Mock
+    private MeteringTranslationService meteringTranslationService;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -186,6 +189,6 @@ public class PhaseCodeSearchablePropertyTest {
     }
 
     private PhaseCodeSearchableProperty getTestInstance() {
-        return new PhaseCodeSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, new ElectricityAttributesSearchablePropertyGroup(thesaurus), this.clock);
+        return new PhaseCodeSearchableProperty(this.propertySpecService, this.meteringTranslationService, this.thesaurus).init(this.domain, new ElectricityAttributesSearchablePropertyGroup(thesaurus), this.clock);
     }
 }

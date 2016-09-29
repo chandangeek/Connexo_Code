@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -53,6 +54,8 @@ public class ServiceCategorySearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private MeteringTranslationService meteringTranslationService;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -202,7 +205,7 @@ public class ServiceCategorySearchablePropertyTest {
     }
 
     private ServiceCategorySearchableProperty getTestInstance() {
-        return new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+        return new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.meteringTranslationService, this.thesaurus);
     }
 
 }

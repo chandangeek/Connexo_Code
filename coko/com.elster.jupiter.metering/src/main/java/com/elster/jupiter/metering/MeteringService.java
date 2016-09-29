@@ -1,8 +1,5 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.cbo.QualityCodeCategory;
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -180,11 +177,5 @@ public interface MeteringService {
     List<HeadEndInterface> getHeadEndInterfaces();
 
     Optional<HeadEndInterface> getHeadEndInterface(String amrSystem);
-
-    String getDisplayName(QualityCodeIndex index);
-
-    String getDisplayName(QualityCodeSystem system);
-
-    String getDisplayName(QualityCodeCategory category);
 
 }

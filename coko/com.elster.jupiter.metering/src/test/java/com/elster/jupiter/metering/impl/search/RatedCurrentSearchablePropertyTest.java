@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -50,6 +51,8 @@ public class RatedCurrentSearchablePropertyTest {
     private OrmService ormService;
     @Mock
     private Clock clock;
+    @Mock
+    private MeteringTranslationService meteringTranslationService;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -186,7 +189,7 @@ public class RatedCurrentSearchablePropertyTest {
     }
 
     private RatedCurrentSearchableProperty getTestInstance() {
-        return new RatedCurrentSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, new ElectricityAttributesSearchablePropertyGroup(thesaurus), this.clock);
+        return new RatedCurrentSearchableProperty(this.propertySpecService, this.meteringTranslationService, this.thesaurus).init(this.domain, new ElectricityAttributesSearchablePropertyGroup(thesaurus), this.clock);
     }
 
 }

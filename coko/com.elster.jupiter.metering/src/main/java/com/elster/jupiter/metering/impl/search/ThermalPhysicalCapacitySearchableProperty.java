@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -15,8 +16,8 @@ class ThermalPhysicalCapacitySearchableProperty extends PhysicalCapacitySearchab
     private static final String FIELD_NAME = "detail.loadLimit";
 
     @Inject
-    ThermalPhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super(propertySpecService, thesaurus);
+    ThermalPhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, MeteringTranslationService meteringTranslationService, Thesaurus thesaurus) {
+        super(propertySpecService, meteringTranslationService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }

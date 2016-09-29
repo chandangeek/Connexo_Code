@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -44,6 +45,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMeteringService meteringService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
     private volatile Clock clock;
     private volatile LicenseService licenseService;
@@ -56,10 +58,11 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     // For Testing purposes
     @Inject
-    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock) {
+    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, MeteringTranslationService meteringTranslationService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock) {
         this();
         this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
+        this.setMeteringTranslationService(meteringTranslationService);
         this.setServerMetrologyConfigurationService(metrologyConfigurationService);
         this.setClock(clock);
     }
@@ -72,6 +75,11 @@ public class UsagePointSearchDomain implements SearchDomain {
     @Reference
     public void setMeteringService(ServerMeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference
@@ -296,7 +304,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     private List<SearchableProperty> getMultisenseProperties() {
         return Arrays.asList(new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new ServiceCategorySearchableProperty(this, this.propertySpecService, meteringTranslationService, this.meteringService.getThesaurus()),
                 new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
                 new InstallationTimeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()));
@@ -305,7 +313,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     private List<SearchableProperty> getInsightProperties() {
         return new ArrayList<>(Arrays.asList(
                 new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new ServiceCategorySearchableProperty(this, this.propertySpecService, meteringTranslationService, this.meteringService.getThesaurus()),
                 new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
                 new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
                 new LocationSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
@@ -333,5 +341,9 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     protected PropertySpecService getPropertySpecService() {
         return this.propertySpecService;
+    }
+
+    protected MeteringTranslationService getMeteringTranslationService() {
+        return meteringTranslationService;
     }
 }

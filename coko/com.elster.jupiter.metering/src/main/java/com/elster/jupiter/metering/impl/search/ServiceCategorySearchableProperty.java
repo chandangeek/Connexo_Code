@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.EnumFactory;
@@ -27,13 +28,15 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
+    private final MeteringTranslationService meteringTranslationService;
     private final Thesaurus thesaurus;
     static final String FIELD_NAME = "SERVICEKIND";
 
-    public ServiceCategorySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public ServiceCategorySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, MeteringTranslationService meteringTranslationService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
+        this.meteringTranslationService = meteringTranslationService;
         this.thesaurus = thesaurus;
     }
 
@@ -71,7 +74,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
     public String toDisplay(Object value) {
         if (value instanceof ServiceKind) {
             ServiceKind serviceKind = (ServiceKind) value;
-            return thesaurus.getStringBeyondComponent(serviceKind.getKey(), serviceKind.getDefaultFormat());
+            return this.meteringTranslationService.getDisplayName(serviceKind);
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }

@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -23,6 +24,7 @@ import java.util.Optional;
 class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
+    private final MeteringTranslationService meteringTranslationService;
     private final Thesaurus thesaurus;
 
     private SearchDomain domain;
@@ -32,8 +34,9 @@ class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
     private String uniqueName;
 
     @Inject
-    LoadLimitSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    LoadLimitSearchableProperty(PropertySpecService propertySpecService, MeteringTranslationService meteringTranslationService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
+        this.meteringTranslationService = meteringTranslationService;
         this.thesaurus = thesaurus;
     }
 
@@ -43,6 +46,14 @@ class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
         this.clock = clock;
         this.uniqueName = FIELD_NAME + "." + group.getId();
         return this;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Override
@@ -105,7 +116,7 @@ class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.singletonList(new LimiterSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.group, this.clock));
+        return Collections.singletonList(new LimiterSearchableProperty(this.propertySpecService, meteringTranslationService, this.thesaurus).init(this.domain, this.group, this.clock));
     }
 
     @Override

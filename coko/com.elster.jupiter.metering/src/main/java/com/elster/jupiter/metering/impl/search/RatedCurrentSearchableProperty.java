@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -23,6 +24,7 @@ import java.util.Optional;
 class RatedCurrentSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
+    private final MeteringTranslationService meteringTranslationService;
     private final Thesaurus thesaurus;
 
     private SearchDomain domain;
@@ -31,8 +33,9 @@ class RatedCurrentSearchableProperty implements SearchableUsagePointProperty {
     private static final String FIELD_NAME = "detail.ratedCurrent";
 
     @Inject
-    RatedCurrentSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    RatedCurrentSearchableProperty(PropertySpecService propertySpecService, MeteringTranslationService meteringTranslationService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
+        this.meteringTranslationService = meteringTranslationService;
         this.thesaurus = thesaurus;
     }
 
@@ -96,7 +99,7 @@ class RatedCurrentSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.singletonList(new ServiceCategorySearchableProperty(domain, propertySpecService, thesaurus));
+        return Collections.singletonList(new ServiceCategorySearchableProperty(domain, propertySpecService, meteringTranslationService, thesaurus));
     }
 
     @Override

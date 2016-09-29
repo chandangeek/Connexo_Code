@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
@@ -112,6 +113,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     private MeteringServiceImpl meteringService;
+    private MeteringTranslationServiceImpl meteringTranslationService;
     private InstantTruncaterFactory truncaterFactory;
     private DataAggregationService dataAggregationService;
     private UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
@@ -184,6 +186,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.meteringService = new MeteringServiceImpl(this, getDataModel(), getThesaurus(), getClock(), this.idsService,
                 this.eventService, this.queryService, this.messageService, this.jsonService, this.upgradeService);
         this.meteringService.defineLocationTemplates(bundleContext, createDefaultLocationTemplate); // This call has effect on resulting table spec!
+        this.meteringTranslationService = new MeteringTranslationServiceImpl(this.thesaurus);
         this.truncaterFactory = new InstantTruncaterFactory(this.meteringService);
         if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
             this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService, this.truncaterFactory, this.customPropertySetService);
@@ -203,6 +206,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(MeteringServiceImpl.class).toInstance(meteringService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(ServerMeteringService.class).toInstance(meteringService);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
                 bind(InstantTruncaterFactory.class).toInstance(truncaterFactory);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
@@ -239,6 +243,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     private void registerServices(BundleContext bundleContext) {
         registerMeteringService(bundleContext);
+        registerMeteringTranslationService(bundleContext);
         registerTruncationFactory(bundleContext);
         registerDataAggregationService(bundleContext);
         registerMetrologyConfigurationService(bundleContext); // Search domain must already be registered
@@ -256,6 +261,16 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                     MeteringService.class.getName(),
                                     ServerMeteringService.class.getName()},
                             this.meteringService,
+                            noServiceProperties()));
+        }
+    }
+
+    private void registerMeteringTranslationService(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            this.serviceRegistrations.add(
+                    bundleContext.registerService(
+                            MeteringTranslationService.class,
+                            this.meteringTranslationService,
                             noServiceProperties()));
         }
     }

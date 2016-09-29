@@ -47,7 +47,7 @@ public class UsagePointRequirementsSearchDomain extends UsagePointSearchDomain i
     @Override
     public List<SearchableProperty> getProperties() {
         return new ArrayList<>(Arrays.asList(
-                new ServiceCategorySearchableProperty(this, getPropertySpecService(), getMetrologyConfigurationService().getThesaurus()),
+                new ServiceCategorySearchableProperty(this, getPropertySpecService(), getMeteringTranslationService(), getMetrologyConfigurationService().getThesaurus()),
                 new TypeSearchableProperty(this, getPropertySpecService(), getMetrologyConfigurationService().getThesaurus())));
     }
 
