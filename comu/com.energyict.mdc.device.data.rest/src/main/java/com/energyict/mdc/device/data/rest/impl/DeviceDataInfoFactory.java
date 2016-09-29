@@ -2,12 +2,11 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
@@ -52,18 +51,18 @@ import java.util.stream.Collectors;
  */
 public class DeviceDataInfoFactory {
 
+    private final MeteringService meteringService;
     private final ValidationInfoFactory validationInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
-    private final Thesaurus thesaurus;
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final Clock clock;
     private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceDataInfoFactory(ValidationInfoFactory validationInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, Thesaurus thesaurus, ValidationRuleInfoFactory validationRuleInfoFactory, Clock clock, ResourceHelper resourceHelper) {
+    public DeviceDataInfoFactory(MeteringService meteringService, ValidationInfoFactory validationInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, ValidationRuleInfoFactory validationRuleInfoFactory, Clock clock, ResourceHelper resourceHelper) {
+        this.meteringService = meteringService;
         this.validationInfoFactory = validationInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
-        this.thesaurus = thesaurus;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.clock = clock;
         this.resourceHelper = resourceHelper;
@@ -128,8 +127,7 @@ public class DeviceDataInfoFactory {
      * Find translation of the index of the given reading quality CIM code.
      */
     private String getSimpleName(ReadingQualityType type) {
-        TranslationKey translationKey = type.qualityIndex().get().getTranslationKey();
-        return thesaurus.getStringBeyondComponent(translationKey.getKey(), translationKey.getDefaultFormat());
+        return this.meteringService.getDisplayName(type.qualityIndex().get());
     }
 
     private void addCalculatedValueInfo(Channel channel, ChannelDataInfo channelIntervalInfo, IntervalReadingRecord reading) {
@@ -260,7 +258,7 @@ public class DeviceDataInfoFactory {
                 .filter(type -> type.system().isPresent())
                 .filter(type -> type.category().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
-                .map(type -> ReadingQualityInfo.fromReadingQualityType(thesaurus, type))
+                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringService, type))
                 .collect(Collectors.toList());
     }
 

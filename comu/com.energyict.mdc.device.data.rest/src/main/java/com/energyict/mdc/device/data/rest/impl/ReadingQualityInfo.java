@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.TranslationKeys;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -32,42 +30,12 @@ public class ReadingQualityInfo {
     public ReadingQualityInfo() {
     }
 
-    public ReadingQualityInfo(String cimCode, String systemName, String categoryName, String fullName) {
-        this.cimCode = cimCode;
-        this.systemName = systemName;
-        this.categoryName = categoryName;
-        this.indexName = fullName;
-    }
-
-    public static ReadingQualityInfo fromReadingQualityType(Thesaurus thesaurus, ReadingQualityType type) {
+    public static ReadingQualityInfo fromReadingQualityType(MeteringService meteringService, ReadingQualityType type) {
         ReadingQualityInfo result = new ReadingQualityInfo();
-
         result.setCimCode(type.getCode());
-
-        if (type.system().isPresent()) {
-            TranslationKeys translationKey = type.system().get().getTranslationKey();
-            String translatedSystem = thesaurus.getString(translationKey.getKey(), translationKey.getDefaultFormat());
-            result.setSystemName(translatedSystem);
-        } else {
-            result.setSystemName("");
-        }
-
-        if (type.category().isPresent()) {
-            TranslationKeys translationKey = type.category().get().getTranslationKey();
-            String translatedCategory = thesaurus.getString(translationKey.getKey(), translationKey.getDefaultFormat());
-            result.setCategoryName(translatedCategory);
-        } else {
-            result.setCategoryName("");
-        }
-
-        if (type.qualityIndex().isPresent()) {
-            TranslationKey translationKey = type.qualityIndex().get().getTranslationKey();
-            String translatedIndex = thesaurus.getString(translationKey.getKey(), translationKey.getDefaultFormat());
-            result.setIndexName(translatedIndex);
-        } else {
-            result.setIndexName("");
-        }
-
+        result.setSystemName(type.system().map(meteringService::getDisplayName).orElse(""));
+        result.setCategoryName(type.category().map(meteringService::getDisplayName).orElse(""));
+        result.setIndexName(type.qualityIndex().map(meteringService::getDisplayName).orElse(""));
         return result;
     }
 

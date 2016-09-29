@@ -4,11 +4,11 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
@@ -49,18 +49,18 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
  */
 public class ValidationInfoFactory {
 
+    private final MeteringService meteringService;
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final PropertyValueInfoService propertyValueInfoService;
-    private final Thesaurus thesaurus;
     private final ResourceHelper resourceHelper;
 
     @Inject
-    public ValidationInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, ResourceHelper resourceHelper) {
+    public ValidationInfoFactory(MeteringService meteringService, ValidationRuleInfoFactory validationRuleInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, PropertyValueInfoService propertyValueInfoService, ResourceHelper resourceHelper) {
+        this.meteringService = meteringService;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.propertyValueInfoService = propertyValueInfoService;
-        this.thesaurus = thesaurus;
         this.resourceHelper = resourceHelper;
     }
 
@@ -277,7 +277,7 @@ public class ValidationInfoFactory {
                 .filter(type -> type.category().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
                 .filter(type -> type.system().get() != QualityCodeSystem.MDM || !type.hasValidationCategory())
-                .map(type -> ReadingQualityInfo.fromReadingQualityType(thesaurus, type))
+                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringService, type))
                 .collect(Collectors.toList());
     }
 
