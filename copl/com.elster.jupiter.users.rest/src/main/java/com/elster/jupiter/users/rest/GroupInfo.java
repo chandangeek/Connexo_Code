@@ -2,15 +2,16 @@ package com.elster.jupiter.users.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.Privilege;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -37,7 +38,7 @@ public class GroupInfo {
         privileges.addAll(group.getPrivileges()
                 .entrySet()
                 .stream()
-                .flatMap(x->x.getValue().stream().map(p->PrivilegeInfo.asApllicationPrivilege(thesaurus, x.getKey(), p)))
+                .flatMap(x->x.getValue().stream().map(p->PrivilegeInfo.asApplicationPrivilege(thesaurus, x.getKey(), p)))
                 .collect(Collectors.toList()));
 
         Collections.sort(privileges, (p1, p2) -> {
@@ -53,5 +54,5 @@ public class GroupInfo {
         }
         return false;
     }
-    
+
 }

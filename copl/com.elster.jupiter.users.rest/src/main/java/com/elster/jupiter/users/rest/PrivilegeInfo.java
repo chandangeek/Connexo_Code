@@ -15,7 +15,7 @@ public class PrivilegeInfo {
     public String applicationName;
     public String translatedApplicationName;
 
-    public static PrivilegeInfo asApllicationPrivilege(Thesaurus thesaurus, String applicationName, Privilege privilege){
+    public static PrivilegeInfo asApplicationPrivilege(Thesaurus thesaurus, String applicationName, Privilege privilege){
         PrivilegeInfo privilegeInfo = new PrivilegeInfo(thesaurus, privilege);
         privilegeInfo.applicationName = applicationName;
         privilegeInfo.translatedApplicationName = thesaurus.getStringBeyondComponent(applicationName, applicationName);
