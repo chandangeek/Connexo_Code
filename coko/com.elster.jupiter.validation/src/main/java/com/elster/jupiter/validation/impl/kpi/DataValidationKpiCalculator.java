@@ -17,7 +17,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -90,7 +89,6 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
                         });
             });
             range = Range.closedOpen(localTimeStamp.minus(Period.ofDays(1)), localTimeStamp);
-            logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!" + " date " + localTimeStamp + " count " + i);
         }
     }
 
