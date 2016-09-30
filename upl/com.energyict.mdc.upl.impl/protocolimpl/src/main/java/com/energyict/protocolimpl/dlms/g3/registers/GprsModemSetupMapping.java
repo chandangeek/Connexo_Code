@@ -46,7 +46,33 @@ public class GprsModemSetupMapping extends G3Mapping {
 
     @Override
     public int getAttributeNumber() {
-        return getObisCode().getB();        //The B-field of the obiscode indicates which attribute is being read
+        int attributeValue; // indicates which attribute is being read
+        switch (getObisCode().getB()) {
+            case 1: attributeValue = 1;
+                break;
+            case 2: attributeValue = 2;
+                break;
+            case 3: attributeValue = 3;
+                break;
+            case 4: attributeValue = 4;
+                break;
+            case 5: attributeValue = -1;
+                break;
+            case 6: attributeValue = -2;
+                break;
+            case 7: attributeValue = -4;
+                break;
+            case 8: attributeValue = -5;
+                break;
+            case 9: attributeValue = -6;
+                break;
+            case 10: attributeValue = -7;
+                break;
+            case 11: attributeValue = -8;
+                break;
+            default: attributeValue = 0;
+        }
+        return attributeValue;
     }
 
     @Override

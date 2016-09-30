@@ -29,7 +29,7 @@ public class PPPSetupMapping extends G3Mapping {
 
         @Override
         //Set the B-Filed to 0
-        public ObisCode getBaseObisCode() {                 //Set the E-Filed to 0
+        public ObisCode getBaseObisCode() {                 //Set the B-Filed to 0
             return ProtocolTools.setObisCodeField(super.getBaseObisCode(), 1, (byte) 0);
         }
 
@@ -45,10 +45,26 @@ public class PPPSetupMapping extends G3Mapping {
             }
         }
 
-        @Override
-        public int getAttributeNumber() {
-            return getObisCode().getB();        //The B-field of the obiscode indicates which attribute is being read
+    @Override
+    public int getAttributeNumber() {
+        int attributeValue; // indicates which attribute is being read
+        switch (getObisCode().getB()) {
+            case 1: attributeValue = 1;
+                break;
+            case 2: attributeValue = 2;
+                break;
+            case 3: attributeValue = 3;
+                break;
+            case 4: attributeValue = 4;
+                break;
+            case 5: attributeValue = 5;
+                break;
+            case 6: attributeValue = -1;
+                break;
+            default: attributeValue = 0;
         }
+        return attributeValue;
+    }
 
         @Override
         public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {

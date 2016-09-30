@@ -21,7 +21,7 @@ import java.io.IOException;
 public class GprsModemSetupAttributesMapping extends RegisterMapping {
 
     private static final int MIN_ATTR = 1;
-    private static final int MAX_ATTR = 8;
+    private static final int MAX_ATTR = 11;
 
     private static final int AUTOMATIC = 0;
     private static final int MANUAL = 1;
@@ -93,9 +93,9 @@ public class GprsModemSetupAttributesMapping extends RegisterMapping {
             case 4: 
                 return new RegisterValue(obisCode, "Quality of service:" + getQualityOfServiceString(abstractDataType));
             case 5:
-                return new RegisterValue(obisCode, "Network Selection Mode:" + (abstractDataType.getTypeEnum().getValue() == MANUAL ? "MANUAL" : "AUTOMATIC"));
+                return new RegisterValue(obisCode, "Network Selection Mode:" + (abstractDataType.getTypeEnum().getValue() == MANUAL ? " MANUAL" : " AUTOMATIC"));
             case 6:
-                return new RegisterValue(obisCode, "Preferred operator list: " + abstractDataType.getArray().toString());
+                return new RegisterValue(obisCode, "Preferred operator list: " + getPreferredOperatorListString(abstractDataType));
             case 7:
                 return new RegisterValue(obisCode, "Intl roaming allowed: " + abstractDataType.getBooleanObject().getState());
             case 8:
@@ -103,11 +103,28 @@ public class GprsModemSetupAttributesMapping extends RegisterMapping {
             case 9:
                 return new RegisterValue(obisCode, "Maximum BER: " + abstractDataType.getFloat32());
             case 10:
-                return new RegisterValue(obisCode, "Network technology: " + abstractDataType.getArray().toString());
+                return new RegisterValue(obisCode, "Network technology: " + getNetworkTechnologyString(abstractDataType));
             case 11:
                 return new RegisterValue(obisCode, "Is GPRS preferred: " + abstractDataType.getBooleanObject().getState());
             default:
                 throw new NoSuchRegisterException("GPRS Modem Setup attribute [" + obisCode.getB() + "] not supported!");
+        }
+    }
+
+    public String getPreferredOperatorListString(AbstractDataType gprsModemSetupAttribute) throws IOException {
+        StringBuffer builder = new StringBuffer();
+
+        if (gprsModemSetupAttribute.isArray()) {
+            int numberOfArrayEntries = gprsModemSetupAttribute.getArray().nrOfDataTypes();
+
+            Array networkTechnologies = gprsModemSetupAttribute.getArray();
+            for (int index = 0; index < numberOfArrayEntries; index++) {
+                builder.append((index+1) + ". ");
+                builder.append(networkTechnologies.getDataType(index).getOctetString().stringValue());
+            }
+            return builder.toString();
+        } else {
+            throw new ProtocolException("Could not get a correct GPRS modem setup Network Technology attribute format.");
         }
     }
 

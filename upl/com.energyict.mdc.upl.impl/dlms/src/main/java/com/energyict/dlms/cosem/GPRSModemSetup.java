@@ -39,6 +39,18 @@ public class GPRSModemSetup extends AbstractCosemObject {
      */
     // none
 
+    private static final int LOGICAL_NAME = 1;
+    private static final int APN = 2;
+    private static final int PIN_CODE =3;
+    private static final int QUALITY_OF_SERVICE = 4;
+    private static final int NETWORK_SELECTION_MODE = -1;
+    private static final int PREFERRED_OPERATOR_LIST = -2;
+    private static final int INTL_ROAMING_ALLOWED = -4;
+    private static final int MINIMUM_RSSI = -5;
+    private static final int MAXIMUM_BER = -6;
+    private static final int NETWORK_TECHNOLOGY = -7;
+    private static final int IS_GPRS_PREFERRED = -8;
+
     private static final int QOS_DEFAULT = 0;
     private static final int QOS_REQUESTED = 1;
 
@@ -264,7 +276,8 @@ public class GPRSModemSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public TypeEnum readNetworkSelectionMode() throws IOException {
-            this.networkSelectionMode = new TypeEnum(getResponseData(GprsModemSetupAttributes.NETWORK_SELECTION_MODE), 0);
+        System.out.println("NETWORK_SELECTION_MODE: "+ GprsModemSetupAttributes.NETWORK_SELECTION_MODE.getAttributeNumber());
+            this.networkSelectionMode = new TypeEnum(getResponseData(NETWORK_SELECTION_MODE), 0);
             return this.networkSelectionMode;
     }
 
@@ -275,7 +288,8 @@ public class GPRSModemSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public Array readPreferredOperatorList() throws IOException {
-        this.preferredOperatorList = new Array(getResponseData(GprsModemSetupAttributes.PREFERRED_OPERATOR_LIST), 0, 0);
+        System.out.println("NETWORK_SELECTION_MODE: "+ GprsModemSetupAttributes.PREFERRED_OPERATOR_LIST.getAttributeNumber());
+        this.preferredOperatorList = new Array(getResponseData(PREFERRED_OPERATOR_LIST), 0, 0);
         return this.preferredOperatorList;
     }
 
@@ -286,7 +300,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public BooleanObject readIntlRoamingAllowed() throws IOException {
-        this.intlRoamingAllowed = new BooleanObject(getResponseData(GprsModemSetupAttributes.INTL_ROAMING_ALLOWED), 0);
+        this.intlRoamingAllowed = new BooleanObject(getResponseData(INTL_ROAMING_ALLOWED), 0);
         return this.intlRoamingAllowed;
     }
 
@@ -297,7 +311,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public Unsigned32 readMinimumRssi() throws IOException {
-        this.minimumRSSI = new Unsigned32(getResponseData(GprsModemSetupAttributes.MINIMUM_RSSI), 0);
+        this.minimumRSSI = new Unsigned32(getResponseData(MINIMUM_RSSI), 0);
         return this.minimumRSSI;
     }
 
@@ -308,7 +322,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public Float32 readMaximumBer() throws IOException {
-        this.maximumBer = new Float32(getResponseData(GprsModemSetupAttributes.MAXIMUM_BER), 0);
+        this.maximumBer = new Float32(getResponseData(MAXIMUM_BER), 0);
         return this.maximumBer;
     }
 
@@ -319,7 +333,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public Array readNetworkTechnology() throws IOException {
-        this.networkTechnology = new Array(getResponseData(GprsModemSetupAttributes.NETWORK_TECHNOLOGY), 0, 0);
+        this.networkTechnology = new Array(getResponseData(NETWORK_TECHNOLOGY), 0, 0);
         return this.networkTechnology;
     }
 
@@ -330,7 +344,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public BooleanObject readIsGprsPreferred() throws IOException {
-        this.isGprsPreferred = new BooleanObject(getResponseData(GprsModemSetupAttributes.IS_GPRS_PREFERRED), 0);
+        this.isGprsPreferred = new BooleanObject(getResponseData(IS_GPRS_PREFERRED), 0);
         return this.isGprsPreferred;
     }
 }
