@@ -146,10 +146,6 @@ public interface ValidationService {
 
     List<DataValidationTask> findByDeviceGroup(EndDeviceGroup endDevice, int skip, int limit);
 
-    DataModel dataModel();
-
-    KpiService kpiService();
-
     List<DataValidationAssociationProvider> getDataValidationAssociationProviders();
 
 }
