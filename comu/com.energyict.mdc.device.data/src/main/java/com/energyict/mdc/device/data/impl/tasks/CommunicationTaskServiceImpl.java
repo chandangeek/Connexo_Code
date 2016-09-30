@@ -442,7 +442,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     private SqlBuilder suspendAllSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration) {
         SqlBuilder sqlBuilder = new SqlBuilder("update ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" set nextExecutionTimestamp = null");
+        sqlBuilder.append(" set nextExecutionTimestamp = null, onHold = 1");
         sqlBuilder.append("   where device in (select id from ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
@@ -451,7 +451,6 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append("   and comtask =");
         sqlBuilder.addLong(comTask.getId());
         sqlBuilder.append("   and comport is null");    // exclude tasks that are currently executing
-        sqlBuilder.append("   and plannedNextExecutionTimestamp is not null");  // Exclude tasks that have been put on hold manually
         return sqlBuilder;
     }
 
@@ -463,7 +462,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     private SqlBuilder resumeAllSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration) {
         SqlBuilder sqlBuilder = new SqlBuilder("update ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" set nextExecutionTimestamp = plannedNextExecutionTimestamp");
+        sqlBuilder.append(" set onHold = 0, nextExecutionTimestamp = plannedNextExecutionTimestamp");
         sqlBuilder.append("   where device in (select id from ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
@@ -471,8 +470,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(")");
         sqlBuilder.append("   and comtask =");
         sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append("   and nextExecutionTimestamp is null");      // Only tasks that were suspended
-        sqlBuilder.append("   and plannedNextExecutionTimestamp is not null");  // Only tasks that were suspended
+        sqlBuilder.append("   and onHold = 1");      // Only tasks that were suspended
         return sqlBuilder;
     }
 
