@@ -118,7 +118,6 @@ public class UsagePointResource {
                                                            @Context UriInfo uriInfo,
                                                            @BeanParam JsonQueryParameters queryParameters) {
         UsagePointFilter usagePointFilter = new UsagePointFilter();
-        usagePointFilter.setMrid(null);
         usagePointFilter.setAccountabilityOnly(false);
         List<UsagePointInfo> infos = meteringService.getUsagePoints(usagePointFilter)
                 .from(queryParameters).stream()

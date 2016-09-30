@@ -204,7 +204,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         Response response = target("/usagepoints").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         assertThat(response.getLocation()).isEqualTo(new URI("http://localhost:9998/usagepoints/6"));
-        verify(usagePointBuilder).withName("naam");
+        verify(serviceCategory).newUsagePoint("naam", now);
         verify(usagePointBuilder).withAliasName("alias");
         verify(usagePointBuilder).withDescription("desc");
         verify(usagePointBuilder).withOutageRegion("outage");
@@ -260,6 +260,6 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         Assertions.assertThat(model.<String>get("status")).isEqualTo("FAILED");
-        Assertions.assertThat(model.<String>get("id")).isEqualTo("MRID");
+        Assertions.assertThat(model.<String>get("id")).isEqualTo("usage point");
     }
 }

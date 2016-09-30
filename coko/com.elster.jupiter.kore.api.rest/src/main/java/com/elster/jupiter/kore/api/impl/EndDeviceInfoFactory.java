@@ -23,13 +23,10 @@ import static java.util.stream.Collectors.toList;
 
 public class EndDeviceInfoFactory extends SelectableFieldFactory<EndDeviceInfo, Meter> {
 
-    private final Provider<UsagePointInfoFactory> usagePointInfoFactory;
     private final Provider<Clock> clock;
 
-
     @Inject
-    public EndDeviceInfoFactory(Provider<UsagePointInfoFactory> usagePointInfoFactory, Provider<Clock> clock) {
-        this.usagePointInfoFactory = usagePointInfoFactory;
+    public EndDeviceInfoFactory(Provider<Clock> clock) {
         this.clock = clock;
     }
 

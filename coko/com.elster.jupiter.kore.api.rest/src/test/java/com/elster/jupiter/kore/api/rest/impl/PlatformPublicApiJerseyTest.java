@@ -65,6 +65,7 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.mockito.Mock;
 
@@ -83,6 +84,9 @@ import static org.mockito.Mockito.when;
 public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest {
     public static final Clock clock = Clock.fixed(LocalDateTime.of(2016, 5, 1, 12, 0)
             .toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
+    private static final Pattern MRID_PATTERN = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
+    private static final String MRID_REPLACEMENT = "$1-$2-$3-$4-$5";
+
     @Mock
     MeteringService meteringService;
     @Mock
@@ -191,7 +195,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         doReturn(Optional.ofNullable(detail)).when(usagePoint).getDetail(any(Instant.class));
         doReturn(Collections.singletonList(detail)).when(usagePoint).getDetails();
         doReturn(Collections.singletonList(detail)).when(usagePoint).getDetail(eq(Range.all()));
-        when(usagePoint.getMRID()).thenReturn("MRID");
+        when(usagePoint.getMRID()).thenReturn(MRID_PATTERN.matcher(String.format("%032x", id)).replaceAll(MRID_REPLACEMENT));
         when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0)
                 .toInstant(ZoneOffset.UTC));
         when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");

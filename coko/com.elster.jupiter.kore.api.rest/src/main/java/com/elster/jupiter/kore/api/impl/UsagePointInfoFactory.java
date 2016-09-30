@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
@@ -23,7 +22,6 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,27 +34,19 @@ import static java.util.stream.Collectors.toList;
 
 public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo, UsagePoint> {
 
-    private final Clock clock;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final Provider<EffectiveMetrologyConfigurationInfoFactory> effectiveMetrologyConfigurationInfoFactory;
-    private final MetrologyConfigurationService metrologyConfigurationService;
     private final Provider<MeterActivationInfoFactory> meterActivationInfoFactory;
-    private final ResourceHelper  resourceHelper;
 
     @Inject
-    public UsagePointInfoFactory(Clock clock, MeteringService meteringService, ExceptionFactory exceptionFactory,
+    public UsagePointInfoFactory(MeteringService meteringService, ExceptionFactory exceptionFactory,
                                  Provider<EffectiveMetrologyConfigurationInfoFactory> effectiveMetrologyConfigurationInfoFactory,
-                                 MetrologyConfigurationService metrologyConfigurationService,
-                                 Provider<MeterActivationInfoFactory> meterActivationInfoFactory,
-                                 ResourceHelper  resourceHelper) {
-        this.clock = clock;
+                                 Provider<MeterActivationInfoFactory> meterActivationInfoFactory) {
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
         this.effectiveMetrologyConfigurationInfoFactory = effectiveMetrologyConfigurationInfoFactory;
-        this.metrologyConfigurationService = metrologyConfigurationService;
         this.meterActivationInfoFactory = meterActivationInfoFactory;
-        this.resourceHelper = resourceHelper;
     }
 
     LinkInfo asLink(UsagePoint usagePoint, Relation relation, UriInfo uriInfo) {
@@ -179,19 +169,17 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
     }
 
     public UsagePoint createUsagePoint(UsagePointInfo usagePointInfo) {
-        UsagePoint usagePoint = meteringService.getServiceCategory(usagePointInfo.serviceKind)
+        return meteringService.getServiceCategory(usagePointInfo.serviceKind)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CATEGORY))
-                .newUsagePoint(usagePointInfo.mrid, usagePointInfo.installationTime)
+                .newUsagePoint(usagePointInfo.name, usagePointInfo.installationTime)
                 .withAliasName(usagePointInfo.aliasName)
                 .withDescription(usagePointInfo.description)
-                .withName(usagePointInfo.name)
                 .withOutageRegion(usagePointInfo.outageRegion)
                 .withReadRoute(usagePointInfo.readRoute)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
                 .withServiceLocationString(usagePointInfo.serviceLocation)
                 .withServicePriority(usagePointInfo.servicePriority)
                 .create();
-        return usagePoint;
     }
 
     void updateUsagePoint(UsagePoint usagePoint, UsagePointInfo usagePointInfo) {
@@ -199,7 +187,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         usagePoint.setAliasName(usagePointInfo.aliasName);
         usagePoint.setDescription(usagePointInfo.description);
         usagePoint.setInstallationTime(usagePointInfo.installationTime);
-        usagePoint.setMRID(usagePointInfo.mrid);
         usagePoint.setOutageRegion(usagePointInfo.outageRegion);
         usagePoint.setReadRoute(usagePointInfo.readRoute);
         usagePoint.setServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark);
@@ -240,6 +227,5 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 .anyMatch(metrologyContract -> metrologyContract.isMandatory() && !(metrologyContract.getStatus(usagePoint).getKey().equalsIgnoreCase("COMPLETE")))) {
             throw exceptionFactory.newException(MessageSeeds.METROLOGY_CONTRACTS_INCOMPLETE);
         }
-
     }
 }
