@@ -68,7 +68,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DynamicDeviceGroupImplIT {
 
-    private static final String ED_MRID = "DYNAMIC_GROUP_MRID";
+    private static final String ED_NAME = "DYNAMIC_GROUP_NAME";
 
     private Injector injector;
 
@@ -150,7 +150,7 @@ public class DynamicDeviceGroupImplIT {
         EndDevice endDevice;
         try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
+            endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_NAME).create();
             ctx.commit();
         }
 
@@ -163,9 +163,9 @@ public class DynamicDeviceGroupImplIT {
             builder.setQueryProviderName(SimpleEndDeviceQueryProvider.SIMPLE_ENDDEVICE_QUERYPRVIDER);
             SearchDomain searchDomain = mockSearchDomain(EndDevice.class);
             builder.setSearchDomain(searchDomain);
-            SearchableProperty mrid = mockSearchableProperty("mRID");
+            SearchableProperty mrid = mockSearchableProperty("name");
             when(searchDomain.getProperties()).thenReturn(Collections.singletonList(mrid));
-            builder.withConditions(mockSearchablePropertyValue(mrid, SearchablePropertyOperator.EQUAL, Collections.singletonList(ED_MRID)));
+            builder.withConditions(mockSearchablePropertyValue(mrid, SearchablePropertyOperator.EQUAL, Collections.singletonList(ED_NAME)));
             queryEndDeviceGroup = builder.create();
             ctx.commit();
         }
