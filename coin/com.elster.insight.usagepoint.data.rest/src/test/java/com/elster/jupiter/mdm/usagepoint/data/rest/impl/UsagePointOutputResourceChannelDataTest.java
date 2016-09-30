@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -63,6 +64,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     private ChannelsContainer channelsContainer;
     @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Before
     public void before() {
@@ -256,7 +259,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testReadingValidationInfoForMissedReadingInTheMiddleOfValidatedData() {
-        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService));
+        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory));
         IntervalReadingWithValidationStatus status = mock(IntervalReadingWithValidationStatus.class);
         when(status.getTimeStamp()).thenReturn(timeStamp.minus(1, ChronoUnit.DAYS));
         when(status.getTimePeriod()).thenReturn(Range.closedOpen(timeStamp.minus(1, ChronoUnit.DAYS), timeStamp));
@@ -270,7 +273,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testReadingValidationInfoForMissedReadingAfterLastCheckedDate() {
-        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService));
+        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory));
         IntervalReadingWithValidationStatus status = mock(IntervalReadingWithValidationStatus.class);
         Instant dayAfter = timeStamp.plus(1, ChronoUnit.DAYS);
         when(status.getTimeStamp()).thenReturn(dayAfter);
