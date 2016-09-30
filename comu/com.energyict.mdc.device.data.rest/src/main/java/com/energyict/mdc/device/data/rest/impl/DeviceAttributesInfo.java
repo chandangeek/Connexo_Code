@@ -24,7 +24,7 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<Integer> yearOfCertification;
     public DeviceAttributeInfo<String> lifeCycleState;
     public DeviceAttributeInfo<String> batch;
-    public UsagePointAttributeInfo<String> usagePoint;
+    public DeviceAttributeInfo<String> usagePoint;
     public DeviceAttributeInfo<Instant> shipmentDate;
     public DeviceAttributeInfo<Instant> installationDate;
     public DeviceAttributeInfo<Instant> deactivationDate;

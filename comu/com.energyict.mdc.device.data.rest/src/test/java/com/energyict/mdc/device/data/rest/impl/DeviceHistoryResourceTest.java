@@ -74,7 +74,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getHistory(any(Instant.class))).thenReturn(Optional.of(device));
         when(device.getMultiplierAt(any(Instant.class))).thenReturn(Optional.of(BigDecimal.TEN));
         when(usagePoint.getId()).thenReturn(1L);
-        when(usagePoint.getMRID()).thenReturn("UsagePoint");
+        when(usagePoint.getName()).thenReturn("UsagePoint");
         when(meterActivation.getId()).thenReturn(1L);
         when(meterActivation.getVersion()).thenReturn(1L);
         when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));

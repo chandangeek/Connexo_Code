@@ -125,11 +125,10 @@ public class DeviceAttributesInfoFactory {
         });
         fillAvailableAndEditable(info.batch, DeviceAttribute.BATCH, state);
 
-        info.usagePoint = new UsagePointAttributeInfo<>();
+        info.usagePoint = new DeviceAttributeInfo<>();
         device.getUsagePoint().ifPresent(usagePoint -> {
-            info.usagePoint.displayValue = usagePoint.getMRID();
-            info.usagePoint.mRID = usagePoint.getMRID();
             info.usagePoint.attributeId = usagePoint.getId();
+            info.usagePoint.displayValue = usagePoint.getName();
         });
         fillAvailableAndEditable(info.usagePoint, DeviceAttribute.USAGE_POINT, state);
 
@@ -308,7 +307,7 @@ public class DeviceAttributesInfoFactory {
                         .map(d -> d.propertyValueInfo.value.toString())
                         .collect(Collectors.toList());
                 EndDevice endDevice = meteringService.findEndDevice(device.getName()).get();
-                LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder();
+                LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId(), "Fake").newLocationBuilder();
                 Map<String, Integer> ranking = meteringService
                         .getLocationTemplate()
                         .getTemplateMembers()

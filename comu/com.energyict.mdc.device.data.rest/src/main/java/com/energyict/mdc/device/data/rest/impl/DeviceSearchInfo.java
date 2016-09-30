@@ -52,7 +52,7 @@ public class DeviceSearchInfo {
 
         searchInfo.hasOpenDataCollectionIssues = issueService.hasOpenDataCollectionIssues(device);
         device.getUsagePoint().ifPresent(usagePoint -> {
-            searchInfo.usagePoint = usagePoint.getMRID();
+            searchInfo.usagePoint = usagePoint.getName();
             searchInfo.serviceCategory = usagePoint.getServiceCategory().getName();
         });
         searchInfo.yearOfCertification = device.getYearOfCertification();

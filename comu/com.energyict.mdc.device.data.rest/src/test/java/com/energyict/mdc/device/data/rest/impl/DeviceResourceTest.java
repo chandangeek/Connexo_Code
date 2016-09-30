@@ -1327,7 +1327,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         DeviceConfiguration deviceConfig = device.getDeviceConfiguration();
-        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         Device gateway = mockDeviceForTopologyTest("gateway");
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
@@ -1378,7 +1378,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mockDeviceForTopologyTest("device");
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
-        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
@@ -1423,7 +1423,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
@@ -1728,7 +1728,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration slaveDeviceConfig = mock(DeviceConfiguration.class);
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
@@ -1791,7 +1791,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration slaveDeviceConfig = mock(DeviceConfiguration.class);
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
@@ -1839,7 +1839,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration slaveDeviceConfig = mock(DeviceConfiguration.class);
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
@@ -1913,7 +1913,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
@@ -2009,7 +2009,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
@@ -2171,7 +2171,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration slaveDeviceConfig = mock(DeviceConfiguration.class);
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
@@ -2758,6 +2758,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getStart()).thenReturn(shipmentDate);
         doReturn(Optional.of(meterActivation)).when(device).getCurrentMeterActivation();
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
         when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
@@ -2798,7 +2799,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getBatch()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
         when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
@@ -2838,7 +2839,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getBatch()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
         when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);

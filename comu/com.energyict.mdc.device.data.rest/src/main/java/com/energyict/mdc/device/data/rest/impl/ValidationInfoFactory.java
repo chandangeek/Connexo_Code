@@ -86,12 +86,8 @@ public class ValidationInfoFactory {
         detailedValidationRuleSetVersionInfo.id = validationRuleSetVersion.getId();
         detailedValidationRuleSetVersionInfo.status = validationRuleSetVersion.getStatus();
         detailedValidationRuleSetVersionInfo.description = validationRuleSetVersion.getDescription();
-        Optional.ofNullable(validationRuleSetVersion.getStartDate()).ifPresent(sd -> {
-            detailedValidationRuleSetVersionInfo.startDate = sd.toEpochMilli();
-        });
-        Optional.ofNullable(validationRuleSetVersion.getEndDate()).ifPresent(ed -> {
-            detailedValidationRuleSetVersionInfo.endDate = ed.toEpochMilli();
-        });
+        Optional.ofNullable(validationRuleSetVersion.getStartDate()).ifPresent(sd -> detailedValidationRuleSetVersionInfo.startDate = sd.toEpochMilli());
+        Optional.ofNullable(validationRuleSetVersion.getEndDate()).ifPresent(ed -> detailedValidationRuleSetVersionInfo.endDate = ed.toEpochMilli());
         detailedValidationRuleSetVersionInfo.ruleSet = new ValidationRuleSetInfo(validationRuleSetVersion.getRuleSet());
         List<? extends ValidationRule> validationRules = validationRuleSetVersion.getRules();
         detailedValidationRuleSetVersionInfo.numberOfRules = validationRules.size();
@@ -130,25 +126,13 @@ public class ValidationInfoFactory {
         monitorValidationInfo.detailedValidationLoadProfile = new ArrayList<>();
         monitorValidationInfo.detailedValidationRegister = new ArrayList<>();
         loadProfileStatus.entrySet().stream()
-                .sorted((lps1, lps2) -> lps1.getKey()
-                        .getLoadProfileSpec()
-                        .getLoadProfileType()
-                        .getName()
-                        .compareTo(lps2.getKey().getLoadProfileSpec().getLoadProfileType().getName()))
-                .forEach(lp -> {
-                    monitorValidationInfo.detailedValidationLoadProfile.add(new DetailedValidationLoadProfileInfo(lp.getKey(), new Long(lp.getValue().size())));
-                });
+                .sorted(Comparator.comparing(lps -> lps.getKey().getLoadProfileSpec().getLoadProfileType().getName()))
+                .forEach(lp -> monitorValidationInfo.detailedValidationLoadProfile
+                        .add(new DetailedValidationLoadProfileInfo(lp.getKey(), (long) lp.getValue().size())));
         registerStatus.entrySet().stream()
-                .sorted((regs1, regs2) -> regs1.getKey()
-                        .getRegisterSpec()
-                        .getReadingType()
-                        .getFullAliasName()
-                        .compareTo(regs2.getKey().getRegisterSpec().getReadingType().getFullAliasName()))
-                .forEach(reg -> {
-                    monitorValidationInfo.detailedValidationRegister.add(new DetailedValidationRegisterInfo(reg.getKey(), new Long(reg
-                            .getValue()
-                            .size())));
-                });
+                .sorted(Comparator.comparing(rs -> rs.getKey().getRegisterSpec().getReadingType().getFullAliasName()))
+                .forEach(reg -> monitorValidationInfo.detailedValidationRegister
+                        .add(new DetailedValidationRegisterInfo(reg.getKey(), (long) reg.getValue().size())));
         return monitorValidationInfo;
     }
 
@@ -166,7 +150,7 @@ public class ValidationInfoFactory {
         Map<ValidationRule, Long> suspectReasonMap = new HashMap<>();
         Map<ValidationRuleSet, Long> suspectReasonRuleSetMap = new HashMap<>();
         Map<ValidationRuleSetVersion, Long> suspectReasonRuleSetVersionMap = new HashMap<>();
-        dataValidationStatuses.stream().forEach(s -> {
+        dataValidationStatuses.forEach(s -> {
             ImmutableList.Builder<ValidationRule> validationRules = ImmutableList.builder();
             validationRules.addAll(s.getOffendedRules());
             validationRules.addAll(s.getBulkOffendedRules());
@@ -177,9 +161,8 @@ public class ValidationInfoFactory {
 
     private List<DetailedValidationRuleSetInfo> computeRuleSetVersionChain(Map<ValidationRuleSet, Long> suspectReasonRuleSetMap, Map<ValidationRuleSetVersion, Long> suspectReasonRuleSetVersionMap, Map<ValidationRule, Long> suspectReasonMap) {
         List<DetailedValidationRuleSetInfo> result = new ArrayList<>();
-        suspectReasonRuleSetMap.entrySet().stream().forEach(ruleSet -> {
-            result.add(createDetailedValidationRuleSetInfo(ruleSet.getKey(), ruleSet.getValue(), suspectReasonRuleSetVersionMap, suspectReasonMap));
-        });
+        suspectReasonRuleSetMap.entrySet().forEach(ruleSet -> result.add(
+                createDetailedValidationRuleSetInfo(ruleSet.getKey(), ruleSet.getValue(), suspectReasonRuleSetVersionMap, suspectReasonMap)));
         return result;
     }
 
@@ -199,17 +182,14 @@ public class ValidationInfoFactory {
 
     private List<DetailedValidationRuleSetVersionInfo> computeRuleSetVersionChain(Map<ValidationRuleSetVersion, Long> suspectReasonRuleSetVersionMap, Map<ValidationRule, Long> suspectReasonMap) {
         List<DetailedValidationRuleSetVersionInfo> result = new ArrayList<>();
-        suspectReasonRuleSetVersionMap.entrySet().stream().forEach(version -> {
-            result.add(createDetailedValidationRuleSetVersionInfo(version.getKey(), version.getValue(), suspectReasonMap));
-        });
+        suspectReasonRuleSetVersionMap.entrySet().forEach(version -> result.add(
+                createDetailedValidationRuleSetVersionInfo(version.getKey(), version.getValue(), suspectReasonMap)));
         return result;
     }
 
     private List<DetailedValidationRuleInfo> computeRules(Map<ValidationRule, Long> suspectReasonMap) {
         List<DetailedValidationRuleInfo> result = new ArrayList<>();
-        suspectReasonMap.entrySet().stream().forEach(rule -> {
-            result.add(createDetailedValidationRuleInfo(rule.getKey(), rule.getValue()));
-        });
+        suspectReasonMap.entrySet().forEach(rule -> result.add(createDetailedValidationRuleInfo(rule.getKey(), rule.getValue())));
         return result;
     }
 
@@ -361,7 +341,7 @@ public class ValidationInfoFactory {
 
     private Map<ValidationRuleInfo, Long> getSuspectReasonMap(List<DataValidationStatus> dataValidationStatuses) {
         Map<ValidationRule, Long> suspectReasonMap = new HashMap<>();
-        dataValidationStatuses.stream().forEach(s -> {
+        dataValidationStatuses.forEach(s -> {
             ImmutableList.Builder<ValidationRule> validationRules = ImmutableList.builder();
             validationRules.addAll(s.getOffendedRules());
             validationRules.addAll(s.getBulkOffendedRules());

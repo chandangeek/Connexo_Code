@@ -17,7 +17,7 @@ public class MeterActivationInfoFactory {
         info.active = meterActivation.isCurrent();
         info.start = meterActivation.getStart();
         info.end = meterActivation.getEnd();
-        info.usagePoint = meterActivation.getUsagePoint().map(up -> new IdWithNameInfo(up.getId(), up.getMRID())).orElse(null);
+        info.usagePoint = meterActivation.getUsagePoint().map(up -> new IdWithNameInfo(up.getId(), up.getName())).orElse(null);
         info.multiplier = device.getMultiplierAt(meterActivation.getStart()).map(BigDecimal::longValue).orElse(null);
         info.deviceConfiguration = getEffectiveDeviceConfigurationInfo(meterActivation, device);
         return info;

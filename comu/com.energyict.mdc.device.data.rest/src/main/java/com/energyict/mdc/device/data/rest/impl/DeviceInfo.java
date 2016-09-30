@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.Entity;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
@@ -92,7 +91,10 @@ public class DeviceInfo extends DeviceVersionInfo {
         return deviceInfo;
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, TopologyService topologyService, IssueRetriever issueRetriever, Thesaurus thesaurus, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, TopologyService topologyService,
+                                  IssueRetriever issueRetriever, Thesaurus thesaurus,
+                                  DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location,
+                                  String geoCoordinates, Clock clock) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = from(device, location, geoCoordinates);
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().map(HasId::getId).orElse(0L);
@@ -119,15 +121,10 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.isGateway = deviceConfiguration.canActAsGateway();
         deviceInfo.isDataLogger = deviceConfiguration.isDataloggerEnabled();
         deviceInfo.isDataLoggerSlave = device.getDeviceType().isDataloggerSlave();
-        Optional<? extends MeterActivation> meterActivation = device.getCurrentMeterActivation();
-        if (meterActivation.isPresent()) {
-            meterActivation.map(MeterActivation::getUsagePoint)
-                    .ifPresent(up ->
-                            up.ifPresent(usagePoint -> {
-                                deviceInfo.usagePoint = usagePoint.getMRID();
-                                deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();
-                            }));
-        }
+        device.getUsagePoint().ifPresent(usagePoint -> {
+            deviceInfo.usagePoint = usagePoint.getName();
+            deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();
+        });
         deviceInfo.estimationStatus = new DeviceEstimationStatusInfo(device);
         State deviceState = device.getState();
         deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, null, deviceState);

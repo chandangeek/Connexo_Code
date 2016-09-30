@@ -103,7 +103,7 @@ public class DeviceInfoFactoryTest {
     private final static String STATE_NAME = "dlc.default.active";
     private final static String STATE_TRANSLATION = "Active";
 
-    private final static String USAGEPOINT_MRID = "TheUsagePointMrid";
+    private final static String USAGEPOINT_NAME = "TheUsagePoint";
     private final static String SERVICE_CATEGORY_NAME = "TheServiceCategoryName";
 
     private final static int ISSUE_COUNT = 2;
@@ -155,7 +155,6 @@ public class DeviceInfoFactoryTest {
     private Batch batch;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
-
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
@@ -200,7 +199,6 @@ public class DeviceInfoFactoryTest {
 
     @Before
     public void initMocks() {
-
         when(readingTypeForChannel1.getMRID()).thenReturn(READING_TYPE_MRID_1);
         when(readingTypeForChannel2.getMRID()).thenReturn(READING_TYPE_MRID_2);
         when(readingTypeForChannel3.getMRID()).thenReturn(READING_TYPE_MRID_3);
@@ -257,7 +255,6 @@ public class DeviceInfoFactoryTest {
         when(topologyService.availabilityDate(any(Channel.class))).thenReturn(Optional.empty());
         when(topologyService.availabilityDate(any(Register.class))).thenReturn(Optional.empty());
 
-
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(2);
         when(channelSpec.isUseMultiplier()).thenReturn(false);
         when(channelSpec.getOverflow()).thenReturn(Optional.of(new BigDecimal(999999)));
@@ -273,7 +270,6 @@ public class DeviceInfoFactoryTest {
         CIMLifecycleDates lifecycleDatesSlave1 = mock(CIMLifecycleDates.class);
         when(lifecycleDatesSlave1.getReceivedDate()).thenReturn(Optional.of(LocalDateTime.of(2015, 8, 19, 0, 0).toInstant(ZoneOffset.UTC)));
         when(slave1.getLifecycleDates()).thenReturn(lifecycleDatesSlave1);
-
 
         when(slave2.getDeviceType()).thenReturn(slaveDeviceType2);
         when(slaveDeviceType2.getName()).thenReturn(SLAVE_DEVICE_TYPE_NAME_2);
@@ -319,10 +315,10 @@ public class DeviceInfoFactoryTest {
         when(dateLoggerDeviceConfiguration.getVersion()).thenReturn(DATALOGGER_DEVICE_CONFIGURATION_VERSION);
 
         when(usagePoint.getCurrentMeterActivations()).thenReturn(Arrays.asList(meterActivation));
-        when(usagePoint.getMRID()).thenReturn(USAGEPOINT_MRID);
+        when(usagePoint.getName()).thenReturn(USAGEPOINT_NAME);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
 
-        when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(serviceCategory.getName()).thenReturn(SERVICE_CATEGORY_NAME);
 
         when(deviceEstimation.isEstimationActive()).thenReturn(true);
@@ -464,7 +460,6 @@ public class DeviceInfoFactoryTest {
         when(mockedChannel.getChannelSpec()).thenReturn(channelSpec);
         when(mockedChannel.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(mockedChannel.getOverflow()).thenReturn(Optional.empty());
-
     }
 
     @Test
@@ -496,7 +491,7 @@ public class DeviceInfoFactoryTest {
         assertThat(info.isGateway).isFalse();
         assertThat(info.isDataLogger).isTrue();
         assertThat(info.isDataLoggerSlave).isFalse();
-        assertThat(info.usagePoint).isEqualTo(USAGEPOINT_MRID);
+        assertThat(info.usagePoint).isEqualTo(USAGEPOINT_NAME);
         assertThat(info.serviceCategory).isEqualTo(SERVICE_CATEGORY_NAME);
         assertThat(info.estimationStatus.active).isTrue();
         assertThat(info.state.name).isEqualTo(STATE_TRANSLATION);
