@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.prepayment.impl.servicecall.ContactorOperationCustomPropertySet;
 import com.elster.jupiter.prepayment.impl.servicecall.OperationHandler;
@@ -77,7 +78,8 @@ public class Installer implements FullInstaller {
             DestinationSpec destinationSpec = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
                     .createDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION, DESTINATION_SPEC_RETRY_DELAY);
             destinationSpec.activate();
-            destinationSpec.subscribe(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER);
+            destinationSpec.subscribe(TranslationSeeds.COMPLETION_OPTIONS_MESSAGE_HANDLER, PrepaymentApplication.COMPONENT_NAME, Layer.REST);
         }
     }
+
 }

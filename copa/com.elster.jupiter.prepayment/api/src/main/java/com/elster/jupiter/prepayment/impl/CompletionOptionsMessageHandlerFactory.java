@@ -22,6 +22,7 @@ public class CompletionOptionsMessageHandlerFactory implements MessageHandlerFac
 
     public static final String COMPLETION_OPTIONS_DESTINATION = "RknComplOptTopic";
     public static final String COMPLETION_OPTIONS_TASK_SUBSCRIBER = "RknComplOptSubscriber";
+    public static final String COMPLETION_OPTIONS_TASK_SUBSCRIBER_DISPLAYNAME = "Handle prepayment response";
 
     private volatile JsonService jsonService;
     private volatile ServiceCallService serviceCallService;
