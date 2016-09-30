@@ -192,7 +192,7 @@ public class ValidationAddRemoveIT {
                     .code();
             ReadingType readingType1 = meteringService.getReadingType(readingType).get();
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("2331").create();
+            meter = amrSystem.newMeter("2331", "myName").create();
             meter.update();
             meterActivation = meter.activate(date1);
             meterActivation.getChannelsContainer().createChannel(readingType1);

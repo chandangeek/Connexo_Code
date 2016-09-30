@@ -130,7 +130,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                         transactionContext.commit();
                     }
                 }
-                transactionService.execute(VoidTransaction.of(() -> MessageSeeds.DEVICE_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate()
+                transactionService.execute(VoidTransaction.of(() -> MessageSeeds.DEVICE_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getName(), occurrence.getStartDate()
                         .get())));
             }
         }
@@ -144,8 +144,8 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                     validateUsagePointInputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, effectiveMetrologyConfiguration);
                     // Validate outputs provided by metrology configuration
                     validateUsagePointOutputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, effectiveMetrologyConfiguration);
-                    transactionService.execute(VoidTransaction.of(() -> MessageSeeds.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, effectiveMetrologyConfiguration.getUsagePoint()
-                            .getMRID(), occurrence.getStartDate().get())));
+                    transactionService.execute(VoidTransaction.of(() -> MessageSeeds.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus,
+                            effectiveMetrologyConfiguration.getUsagePoint().getName(), occurrence.getStartDate().get())));
                 });
     }
 
