@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.imports.impl;
 
-import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -18,12 +17,12 @@ public class TranslationKeys implements TranslationKeyProvider, MessageSeedProvi
 
     @Override
     public String getComponentName() {
-        return FileImportService.COMPONENT_NAME;
+        return UsagePointFileImporterMessageHandler.COMPONENT_NAME;
     }
 
     @Override
     public Layer getLayer() {
-        return Layer.REST;
+        return Layer.DOMAIN;
     }
 
     @Override
@@ -47,8 +46,6 @@ public class TranslationKeys implements TranslationKeyProvider, MessageSeedProvi
         DATA_IMPORTER_TIMEZONE_DESCRIPTION("timeZone.description", "The unique identifier of the Timezone in which date properties are specified"),
         DATA_IMPORTER_NUMBER_FORMAT("numberFormat", "Number format"),
         DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION("numberFormat.description", "The format that is used for numerical properties"),
-
-        DATA_IMPORTER_SUBSCRIBER(UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME, "Handle data import"),
 
         IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED("ImportResultNoUPWereProcessed", "Failed to complete, no usage points have been processed."),
         IMPORT_RESULT_FAIL("ImportResultFail", "Failed to complete. {0} usage point(s) processed successfully."),

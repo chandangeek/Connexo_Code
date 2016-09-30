@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.imports.impl;
 
-import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -55,7 +54,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return FileImportService.COMPONENT_NAME;
+        return UsagePointFileImporterMessageHandler.COMPONENT_NAME;
     }
 
     @Override

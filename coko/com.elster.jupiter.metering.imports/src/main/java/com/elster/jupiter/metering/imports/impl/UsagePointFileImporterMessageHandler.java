@@ -5,30 +5,34 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.Collections;
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.elster.jupiter.metering.imports.impl.UsagePointFileImporterMessageHandler",
         property = {"subscriber=" + UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME,
                 "destination=" + UsagePointFileImporterMessageHandler.DESTINATION_NAME,
-                "name=" + UsagePointFileImporterMessageHandler.APP_NAME},
+                "name=" + UsagePointFileImporterMessageHandler.COMPONENT_NAME},
         service = {MessageHandlerFactory.class}, immediate = true)
 public class UsagePointFileImporterMessageHandler implements MessageHandlerFactory {
-    public static final String APP_NAME = "MTI";
-    public static final String DESTINATION_NAME = "UsagePointFileImport";
-    public static final String SUBSCRIBER_NAME = "UsagePointFileImport";
+    static final String COMPONENT_NAME = "MTI";
+    static final String DESTINATION_NAME = "UsagePointFileImport";
+    static final String SUBSCRIBER_NAME = "UsagePointFileImport";
+
     private volatile FileImportService fileImportService;
     private volatile MessageService messageService;
     private volatile TransactionService transactionService;
     private volatile UpgradeService upgradeService;
+    private volatile OrmService ormService;
 
     @Override
     public MessageHandler newMessageHandler() {
@@ -42,10 +46,17 @@ public class UsagePointFileImporterMessageHandler implements MessageHandlerFacto
             @Override
             protected void configure() {
                 bind(MessageService.class).toInstance(messageService);
+                bind(OrmService.class).toInstance(ormService);
 
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("Pulse", UsagePointFileImporterMessageHandler.APP_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", UsagePointFileImporterMessageHandler.COMPONENT_NAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        version(10, 2), UpgraderV10_2.class
+                ));
     }
 
     @Reference
@@ -67,4 +78,10 @@ public class UsagePointFileImporterMessageHandler implements MessageHandlerFacto
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
     }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
+    }
+
 }
