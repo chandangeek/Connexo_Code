@@ -42,6 +42,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -101,6 +102,8 @@ public class DeviceTypeResource {
     private final CalendarService calendarService;
     private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
+    private final RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory;
+    private final RegisterTypeInfoFactory registerTypeInfoFactory;
 
     @Inject
     public DeviceTypeResource(
@@ -114,7 +117,8 @@ public class DeviceTypeResource {
             ConcurrentModificationExceptionFactory conflictFactory, CalendarInfoFactory calendarInfoFactory,
             CalendarService calendarService,
             ExceptionFactory exceptionFactory,
-            Thesaurus thesaurus) {
+            Thesaurus thesaurus,
+            RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory, RegisterTypeInfoFactory registerTypeInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -128,6 +132,8 @@ public class DeviceTypeResource {
         this.calendarService = calendarService;
         this.exceptionFactory = exceptionFactory;
         this.thesaurus = thesaurus;
+        this.registerTypeOnDeviceTypeInfoFactory = registerTypeOnDeviceTypeInfoFactory;
+        this.registerTypeInfoFactory = registerTypeInfoFactory;
     }
 
     @GET
@@ -278,7 +284,7 @@ public class DeviceTypeResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public DeviceTypeInfo findDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes());
+        return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes(), registerTypeInfoFactory);
     }
 
     @GET
@@ -482,7 +488,7 @@ public class DeviceTypeResource {
                                                                  @PathParam("registerTypeId") long registerTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         RegisterType registerType = resourceHelper.findRegisterTypeByIdOrThrowException(registerTypeId);
-        return new RegisterTypeOnDeviceTypeInfo(registerType,
+        return registerTypeOnDeviceTypeInfoFactory.asInfo(registerType,
                 false, false, false,
                 deviceType.getRegisterTypeTypeCustomPropertySet(registerType),
                 masterDataService.getOrCreatePossibleMultiplyReadingTypesFor(registerType.getReadingType()),
@@ -816,7 +822,7 @@ public class DeviceTypeResource {
                     .isEmpty();
             boolean isLinkedByInactiveRegisterSpec = !deviceConfigurationService.findInactiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType)
                     .isEmpty();
-            RegisterTypeOnDeviceTypeInfo info = new RegisterTypeOnDeviceTypeInfo(
+            RegisterTypeOnDeviceTypeInfo info = registerTypeOnDeviceTypeInfoFactory.asInfo(
                     registerType,
                     isLinkedByDeviceType,
                     isLinkedByActiveRegisterSpec,

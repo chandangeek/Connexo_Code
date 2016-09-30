@@ -7,20 +7,39 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
+import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LoadProfileConfigurationResource {
@@ -30,14 +49,20 @@ public class LoadProfileConfigurationResource {
     private final MasterDataService masterDataService;
     private final Thesaurus thesaurus;
     private MdcReadingTypeUtilService readingTypeUtilService;
+    private final ChannelSpecInfoFactory channelSpecInfoFactory;
+    private final LoadProfileSpecInfoFactory loadProfileSpecInfoFactory;
+    private final LoadProfileTypeInfoFactory loadProfileTypeInfoFactory;
 
     @Inject
-    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus, MdcReadingTypeUtilService readingTypeUtilService) {
+    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus, MdcReadingTypeUtilService readingTypeUtilService, ChannelSpecInfoFactory channelSpecInfoFactory, LoadProfileSpecInfoFactory loadProfileSpecInfoFactory, LoadProfileTypeInfoFactory loadProfileTypeInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.masterDataService = masterDataService;
         this.thesaurus = thesaurus;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.channelSpecInfoFactory = channelSpecInfoFactory;
+        this.loadProfileSpecInfoFactory = loadProfileSpecInfoFactory;
+        this.loadProfileTypeInfoFactory = loadProfileTypeInfoFactory;
     }
 
     @GET @Transactional
@@ -51,7 +76,7 @@ public class LoadProfileConfigurationResource {
         Collections.sort(loadProfileSpecs, new LoadProfileSpecComparator());
         List<LoadProfileSpecInfo> loadProfileSpecInfos = new ArrayList<>(loadProfileSpecs.size());
         for (LoadProfileSpec spec : loadProfileSpecs) {
-            loadProfileSpecInfos.add(LoadProfileSpecInfo.from(spec, spec.getChannelSpecs()));
+            loadProfileSpecInfos.add(loadProfileSpecInfoFactory.from(spec, spec.getChannelSpecs()));
         }
         return Response.ok(PagedInfoList.fromPagedList("data", loadProfileSpecInfos, queryParameters)).build();
     }
@@ -67,7 +92,7 @@ public class LoadProfileConfigurationResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         Collection<LoadProfileType> loadProfileTypes = findAvailableLoadProfileTypesForDeviceConfiguration(deviceType, deviceConfiguration);
-        return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileTypeInfo.from(loadProfileTypes), queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", loadProfileTypeInfoFactory.from(loadProfileTypes), queryParameters)).build();
     }
 
     @GET @Transactional
@@ -80,7 +105,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam JsonQueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
-        return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, loadProfileSpec.getChannelSpecs())).build();
+        return Response.ok(loadProfileSpecInfoFactory.from(loadProfileSpec, loadProfileSpec.getChannelSpecs())).build();
     }
 
     @POST @Transactional
@@ -102,7 +127,7 @@ public class LoadProfileConfigurationResource {
             specBuilder.setOverruledObisCode(request.overruledObisCode);
         }
         LoadProfileSpec newLoadProfileSpec = specBuilder.add();
-        return Response.ok(LoadProfileSpecInfo.from(newLoadProfileSpec, null)).build();
+        return Response.ok(loadProfileSpecInfoFactory.from(newLoadProfileSpec, null)).build();
     }
 
     @PUT @Transactional
@@ -115,7 +140,7 @@ public class LoadProfileConfigurationResource {
         LoadProfileSpec loadProfileSpec = resourceHelper.lockLoadProfileSpecOrThrowException(info);
         LoadProfileSpec.LoadProfileSpecUpdater specUpdater = loadProfileSpec.getDeviceConfiguration().getLoadProfileSpecUpdaterFor(loadProfileSpec);
         specUpdater.setOverruledObisCode(info.overruledObisCode).update();
-        return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, null)).build();
+        return Response.ok(loadProfileSpecInfoFactory.from(loadProfileSpec, null)).build();
     }
 
     @DELETE @Transactional
@@ -142,7 +167,8 @@ public class LoadProfileConfigurationResource {
             @BeanParam JsonQueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
         List<ChannelSpec> channelSpecs = loadProfileSpec.getChannelSpecs().stream().sorted(new LoadProfileChannelComparator()).collect(Collectors.toList());
-        List<ChannelSpecInfo> channelSpecInfos = channelSpecs.stream().map(channelSpec -> ChannelSpecFullInfo.from(
+        List<ChannelSpecInfo> channelSpecInfos = channelSpecs.stream()
+                .map(channelSpec -> channelSpecInfoFactory.asFullInfo(
                 channelSpec,
                 channelSpec.getReadingType(),
                 getPossibleMultiplyReadingTypesFor(getReadingTypeForMultiplyCalculation(channelSpec.getReadingType())),
@@ -162,7 +188,7 @@ public class LoadProfileConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         ChannelSpec channelSpec = resourceHelper.findChannelSpecOrThrowException(channelId);
 
-        return Response.ok(ChannelSpecFullInfo.from(
+        return Response.ok(channelSpecInfoFactory.asFullInfo(
                 channelSpec,
                 channelSpec.getReadingType(),
                 getPossibleMultiplyReadingTypesFor(getReadingTypeForMultiplyCalculation(channelSpec.getReadingType())),
@@ -193,7 +219,7 @@ public class LoadProfileConfigurationResource {
             channelBuilder.noMultiplier();
         }
         ChannelSpec newChannelSpec = channelBuilder.add();
-        return Response.ok(ChannelSpecFullInfo.from(
+        return Response.ok(channelSpecInfoFactory.asFullInfo(
                 newChannelSpec,
                 newChannelSpec.getReadingType(),
                 getPossibleMultiplyReadingTypesFor(getReadingTypeForMultiplyCalculation(newChannelSpec.getReadingType())),
@@ -231,7 +257,7 @@ public class LoadProfileConfigurationResource {
             specUpdater.noMultiplier();
         }
         specUpdater.update();
-        return Response.ok(ChannelSpecFullInfo.from(
+        return Response.ok(channelSpecInfoFactory.asFullInfo(
                 channelSpec,
                 channelSpec.getReadingType(),
                 getPossibleMultiplyReadingTypesFor(getReadingTypeForMultiplyCalculation(channelSpec.getReadingType())),
@@ -269,7 +295,7 @@ public class LoadProfileConfigurationResource {
             channelTypes.remove(channelSpec.getChannelType().getId());
         }
         List<ChannelSpecShortInfo> channelSpecShortInfos = channelTypes.values().stream()
-                .map(channelType -> new ChannelSpecShortInfo(
+                .map(channelType -> channelSpecInfoFactory.asShortInfo(
                         channelType,
                         channelType.getReadingType(),
                         getPossibleMultiplyReadingTypesFor(getReadingTypeForMultiplyCalculation(channelType.getReadingType()))

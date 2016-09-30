@@ -33,12 +33,14 @@ public class RegisterGroupResource {
     public static final String ALL = "all";
     private final MasterDataService masterDataService;
     private final ResourceHelper resourceHelper;
+    private final RegisterGroupInfoFactory registerGroupInfoFactory;
 
     @Inject
-    public RegisterGroupResource(MasterDataService masterDataService, ResourceHelper resourceHelper) {
+    public RegisterGroupResource(MasterDataService masterDataService, ResourceHelper resourceHelper, RegisterGroupInfoFactory registerGroupInfoFactory) {
         super();
         this.masterDataService = masterDataService;
         this.resourceHelper = resourceHelper;
+        this.registerGroupInfoFactory = registerGroupInfoFactory;
     }
 
     @GET @Transactional
@@ -50,7 +52,7 @@ public class RegisterGroupResource {
         List<RegisterGroupInfo> registerGroupInfos =
                 allRegisterGroups
                         .stream()
-                        .map(registerGroup -> new RegisterGroupInfo(registerGroup.getId(), registerGroup.getName(), registerGroup.getVersion()))
+                        .map(registerGroup -> registerGroupInfoFactory.asInfo(registerGroup.getId(), registerGroup.getName(), registerGroup.getVersion()))
                         .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("registerGroups", registerGroupInfos, queryParameters);
     }
@@ -60,7 +62,7 @@ public class RegisterGroupResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public RegisterGroupInfo getRegisterGroup(@PathParam("id") long id) {
-        return new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
+        return registerGroupInfoFactory.asInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
     }
 
     @GET @Transactional
@@ -68,7 +70,7 @@ public class RegisterGroupResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
-        RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
+        RegisterGroupInfo registerGroupInfo = registerGroupInfoFactory.asInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
         return Response.ok(PagedInfoList.fromCompleteList("registerTypes", registerGroupInfo.registerTypes, queryParameters)).build();
     }
 
@@ -111,7 +113,7 @@ public class RegisterGroupResource {
     private RegisterGroupInfo updateRegisterTypeInGroup(RegisterGroup group, RegisterGroupInfo registerGroupInfo, boolean all) {
         group.updateRegisterTypes(extractMappings(registerGroupInfo, all));
         group.save();
-        return new RegisterGroupInfo(group);
+        return registerGroupInfoFactory.asInfo(group);
     }
 
     private List<RegisterType> extractMappings(RegisterGroupInfo registerGroupInfo, boolean all) {

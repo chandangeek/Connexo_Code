@@ -1,10 +1,14 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,9 +44,17 @@ public class LoadProfileTypeResourceTest {
     @Mock
     private LoadProfileType loadProfileType1, loadProfileType2;
 
+    private ReadingTypeInfoFactory readingTypeInfoFactory;
+    private RegisterTypeInfoFactory registerTypeInfoFactory;
+    private LoadProfileTypeOnDeviceTypeInfoFactory loadProfileTypeOnDeviceTypeInfoFactory;
+
     @Before
     public void setUp() {
-        loadProfileTypeResource = new LoadProfileTypeResource(resourceHelper, masterDataService, thesaurus);
+
+        readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
+        registerTypeInfoFactory = new RegisterTypeInfoFactory(readingTypeInfoFactory);
+        loadProfileTypeOnDeviceTypeInfoFactory = new LoadProfileTypeOnDeviceTypeInfoFactory(registerTypeInfoFactory);
+        loadProfileTypeResource = new LoadProfileTypeResource(resourceHelper, masterDataService, thesaurus, loadProfileTypeOnDeviceTypeInfoFactory);
 
         when(resourceHelper.findDeviceTypeByIdOrThrowException(DEVICETYPE_ID)).thenReturn(deviceType);
         when(masterDataService.findLoadProfileType(LPT_ID1)).thenReturn(Optional.of(loadProfileType1));
