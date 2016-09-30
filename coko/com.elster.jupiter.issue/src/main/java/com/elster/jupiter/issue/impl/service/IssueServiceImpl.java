@@ -7,6 +7,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.IssueFilterImpl;
 import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -60,6 +61,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.kie.api.io.KieResources;
@@ -88,6 +90,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue",
@@ -194,7 +197,13 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         issueCreationService = dataModel.getInstance(IssueCreationService.class);
         issueActionService = dataModel.getInstance(IssueActionService.class);
         issueAssignmentService = dataModel.getInstance(IssueAssignmentService.class);
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", COMPONENT_NAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        version(10, 2), UpgraderV10_2.class
+                ));
     }
 
     @Reference
