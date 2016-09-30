@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
@@ -51,10 +52,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceValidationTest extends UsagePointDataRestApplicationJerseyTest {
-    public static final Instant NOW = ZonedDateTime.of(2016, 6, 1, 12, 40, 30, 0, ZoneId.systemDefault()).toInstant();
-    public static final Instant DAY_BEFORE = NOW.minus(1, ChronoUnit.DAYS);
-    public static final String FORMULA_DESCR = "divide(15min A+ Wh, constant(1000))";
-    public static final String READING_TYPE_MRID = "13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final Instant NOW = ZonedDateTime.of(2016, 6, 1, 12, 40, 30, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant DAY_BEFORE = NOW.minus(1, ChronoUnit.DAYS);
+    private static final String READING_TYPE_MRID = "13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String EXPECTED_FORMULA_DESCRIPTION = "15min A+ Wh / 1000";
 
     @Rule
     public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
@@ -122,6 +123,10 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(dataValidationStatus.completelyValidated()).thenReturn(false);
         when(validationEvaluator.getValidationStatus(anySetOf(QualityCodeSystem.class), eq(Collections.singletonList(cimChannel)), eq(Collections.emptyList()), any()))
                 .thenReturn(Collections.singletonList(dataValidationStatus));
+        ReadingTypeDeliverablesInfo readingTypeDeliverablesInfo = new ReadingTypeDeliverablesInfo();
+        readingTypeDeliverablesInfo.formula = new com.elster.jupiter.mdm.usagepoint.config.rest.FormulaInfo();
+        readingTypeDeliverablesInfo.formula.description = EXPECTED_FORMULA_DESCRIPTION;
+        when(readingTypeDeliverableFactory.asInfo(any(ReadingTypeDeliverable.class))).thenReturn(readingTypeDeliverablesInfo);
     }
 
     private void setDataValidationTaskStub() {
@@ -172,7 +177,6 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
 
     private void setDeliverableStub() {
         Formula formula = mock(Formula.class);
-        when(formula.getDescription()).thenReturn(FORMULA_DESCR);
         when(deliverable.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(deliverable.getReadingType()).thenReturn(readingType);
         when(deliverable.getName()).thenReturn("Deliverable");
@@ -223,7 +227,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         assertThat(jsonModel.<Number>get("$.outputs[0].interval.count")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.outputs[0].interval.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo(READING_TYPE_MRID);
-        assertThat(jsonModel.<String>get("$.outputs[0].formula.description")).isEqualTo(FORMULA_DESCR);
+        assertThat(jsonModel.<String>get("$.outputs[0].formula.description")).isEqualTo(EXPECTED_FORMULA_DESCRIPTION);
         assertThat(jsonModel.<Boolean>get("$.outputs[0].validationInfo.hasSuspects")).isTrue();
     }
 
@@ -236,7 +240,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         assertThat(jsonModel.<Number>get("$.interval.count")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.interval.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo(READING_TYPE_MRID);
-        assertThat(jsonModel.<String>get("$.formula.description")).isEqualTo(FORMULA_DESCR);
+        assertThat(jsonModel.<String>get("$.formula.description")).isEqualTo(EXPECTED_FORMULA_DESCRIPTION);
         assertThat(jsonModel.<Boolean>get("$.validationInfo.validationActive")).isTrue();
         assertThat(jsonModel.<Boolean>get("$.validationInfo.allDataValidated")).isFalse();
         assertThat(jsonModel.<Boolean>get("$.validationInfo.hasSuspects")).isTrue();

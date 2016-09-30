@@ -69,7 +69,7 @@ public class UsagePointOutputResource {
     private static final String INTERVAL_END = "intervalEnd";
 
     @Inject
-    public UsagePointOutputResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
+    UsagePointOutputResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
                                     ValidationService validationService,
                                     OutputInfoFactory outputInfoFactory,
                                     OutputChannelDataInfoFactory outputChannelDataInfoFactory,
@@ -260,20 +260,20 @@ public class UsagePointOutputResource {
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, purposeId);
         usagePoint.update();
         effectiveMC.getChannelsContainer(metrologyContract)
-                .ifPresent(channelsContainer -> validationService.validate(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer)
-                        .setMetrologyContract(metrologyContract), purposeInfo.validationInfo.lastChecked));
+                .ifPresent(channelsContainer ->
+                        validationService.validate(
+                                new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, metrologyContract),
+                                purposeInfo.validationInfo.lastChecked));
 
         effectiveMC.getUsagePoint().getCurrentMeterActivations()
                 .stream()
                 .map(MeterActivation::getChannelsContainer)
-                .forEach(channelsContainer -> {
-                    validationService.validate(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer).setMetrologyContract(metrologyContract), purposeInfo.validationInfo.lastChecked);
-                });
+                .forEach(channelsContainer ->
+                        validationService.validate(
+                            new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, metrologyContract),
+                            purposeInfo.validationInfo.lastChecked));
 
         return Response.status(Response.Status.OK).build();
     }
-
-
-
 
 }

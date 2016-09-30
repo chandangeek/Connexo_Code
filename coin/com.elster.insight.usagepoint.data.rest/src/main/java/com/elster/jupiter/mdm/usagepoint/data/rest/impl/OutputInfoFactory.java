@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeUnitConversion;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.mdm.common.rest.TimeDurationInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -22,13 +23,16 @@ import static com.elster.jupiter.mdm.usagepoint.data.rest.impl.OutputInfo.Regist
 public class OutputInfoFactory {
 
     private final ValidationStatusFactory validationStatusFactory;
+    private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Inject
     public OutputInfoFactory(ValidationStatusFactory validationStatusFactory,
+                             ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
                              ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.validationStatusFactory = validationStatusFactory;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
+        this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
     }
 
     public OutputInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
@@ -51,7 +55,7 @@ public class OutputInfoFactory {
         outputInfo.id = readingTypeDeliverable.getId();
         outputInfo.name = readingTypeDeliverable.getName();
         outputInfo.readingType = readingTypeInfoFactory.from(readingTypeDeliverable.getReadingType());
-        outputInfo.formula = readingTypeDeliverable.getFormula() != null ? FormulaInfo.asInfo(readingTypeDeliverable.getFormula()) : null;
+        outputInfo.formula = readingTypeDeliverable.getFormula() != null ? FormulaInfo.asInfo(readingTypeDeliverableFactory.asInfo(readingTypeDeliverable).formula.description) : null;
     }
 
     private RegisterOutputInfo asRegisterOutputInfo(ReadingTypeDeliverable readingTypeDeliverable) {

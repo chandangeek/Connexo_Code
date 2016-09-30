@@ -1,9 +1,12 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.mdm.usagepoint.config.rest.FormulaInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.validation.ValidationContextImpl;
 
@@ -24,6 +27,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJerseyTest {
+
+    private static final String EXPECTED_FORMULA_DESCRIPTION = "Formula Description";
+
     @Mock
     private UsagePoint usagePoint;
     @Mock
@@ -41,6 +47,10 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
         when(channelsContainer.getChannel(any())).thenReturn(Optional.empty());
+        ReadingTypeDeliverablesInfo readingTypeDeliverablesInfo = new ReadingTypeDeliverablesInfo();
+        readingTypeDeliverablesInfo.formula = new FormulaInfo();
+        readingTypeDeliverablesInfo.formula.description = EXPECTED_FORMULA_DESCRIPTION;
+        when(readingTypeDeliverableFactory.asInfo(any(ReadingTypeDeliverable.class))).thenReturn(readingTypeDeliverablesInfo);
     }
 
     @Test
@@ -58,13 +68,13 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(jsonModel.<Number>get("$.outputs[0].interval.count")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.outputs[0].interval.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
-        assertThat(jsonModel.<String>get("$.outputs[0].formula.description")).isEqualTo("Formula Description");
+        assertThat(jsonModel.<String>get("$.outputs[0].formula.description")).isEqualTo(EXPECTED_FORMULA_DESCRIPTION);
         // register output
         assertThat(jsonModel.<Number>get("$.outputs[1].id")).isEqualTo(2);
         assertThat(jsonModel.<String>get("$.outputs[1].outputType")).isEqualTo("register");
         assertThat(jsonModel.<String>get("$.outputs[1].name")).isEqualTo("2 irregular RT");
         assertThat(jsonModel.<String>get("$.outputs[1].readingType.mRID")).isEqualTo("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
-        assertThat(jsonModel.<String>get("$.outputs[1].formula.description")).isEqualTo("Formula Description");
+        assertThat(jsonModel.<String>get("$.outputs[1].formula.description")).isEqualTo(EXPECTED_FORMULA_DESCRIPTION);
     }
 
     @Test
@@ -80,7 +90,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(jsonModel.<Number>get("$.interval.count")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.interval.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
-        assertThat(jsonModel.<String>get("$.formula.description")).isEqualTo("Formula Description");
+        assertThat(jsonModel.<String>get("$.formula.description")).isEqualTo(EXPECTED_FORMULA_DESCRIPTION);
     }
 
     @Test
