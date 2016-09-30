@@ -318,7 +318,7 @@ public class CreateCollectRemoteDataSetupCommand {
 
 
     private Location createLocation() {
-        LocationBuilder builder = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get().newMeter(String.valueOf(KnownAmrSystem.MDC.getId())).newLocationBuilder();
+        LocationBuilder builder = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get().newMeter(Integer.toString(KnownAmrSystem.MDC.getId()), "Fake").newLocationBuilder();
         setLocationAttributes(builder.member()).add();
         return builder.create();
     }

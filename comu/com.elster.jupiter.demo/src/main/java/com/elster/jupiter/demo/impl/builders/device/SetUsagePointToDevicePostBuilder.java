@@ -43,7 +43,7 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
 
     @Override
     public void accept(Device device) {
-        Log.write(this.usagePointBuilder.withMRID(newMRID()).withName(device.getName())
+        Log.write(this.usagePointBuilder.withName(newName())
                 .withInstallationTime(clock.instant())
                 .withLocation(device.getLocation().orElse(null))
                 .withGeoCoordinates(device.getSpatialCoordinates().orElse(null)));
@@ -71,7 +71,7 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
         return values;
     }
 
-    private String newMRID() {
+    private String newName() {
         return String.format("UP_%04d", ++newUsagePointId);
     }
 
