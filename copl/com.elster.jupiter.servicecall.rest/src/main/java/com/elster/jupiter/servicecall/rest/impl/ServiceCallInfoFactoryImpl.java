@@ -9,7 +9,6 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.whiteboard.ReferenceInfo;
 import com.elster.jupiter.rest.whiteboard.ReferenceResolver;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -70,14 +69,10 @@ public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
     @Override
     public ServiceCallInfo detailed(ServiceCall serviceCall, Map<DefaultState, Long> childrenInformation) {
         ServiceCallInfo serviceCallInfo = summarized(serviceCall);
-        Optional<Instant> lastCompletedOptional = serviceCall.getLastCompletedTime();
-        if (lastCompletedOptional.isPresent()) {
-            serviceCallInfo.lastCompletedTime = lastCompletedOptional.get().toEpochMilli();
-        }
+        serviceCall.getLastCompletedTime().map(Instant::toEpochMilli).ifPresent(time -> serviceCallInfo.lastCompletedTime = time);
         serviceCallInfo.state = toInfo(serviceCall.getState());
-        serviceCallInfo.origin = serviceCall.getOrigin().isPresent() ? serviceCall.getOrigin().get() : null;
-        Optional<ReferenceInfo> referenceInfo = serviceCall.getTargetObject().isPresent() ? referenceResolver.resolve(serviceCall.getTargetObject().get()) : Optional.empty();
-        serviceCallInfo.targetObject = referenceInfo.isPresent() ? referenceInfo.get() : null;
+        serviceCallInfo.origin = serviceCall.getOrigin().orElse(null);
+        serviceCallInfo.targetObject = serviceCall.getTargetObject().flatMap(referenceResolver::resolve).orElse(null);
         addCustomPropertySetInfos(serviceCall, serviceCallInfo);
         addParents(serviceCallInfo, serviceCall.getParent());
         addChildrenInfo(serviceCallInfo, childrenInformation);

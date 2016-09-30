@@ -32,8 +32,8 @@ public class ServiceCallTypeInfoFactory {
         info.logLevel = new IdWithDisplayValueInfo<>(serviceCallType.getLogLevel().name(), serviceCallType.getLogLevel()
                 .getDisplayName(thesaurus));
         ServiceCallLifeCycle serviceCallLifeCycle = serviceCallType.getServiceCallLifeCycle();
-        info.serviceCallLifeCycle = new IdWithNameInfo(serviceCallLifeCycle.getId(), thesaurus.getString(serviceCallLifeCycle
-                .getName(), serviceCallLifeCycle.getName()));
+        info.serviceCallLifeCycle = new IdWithNameInfo(serviceCallLifeCycle.getId(),
+                thesaurus.getString(serviceCallLifeCycle.getName(), serviceCallLifeCycle.getName()));
         info.customPropertySets = new ArrayList<>();
         serviceCallType
                 .getCustomPropertySets()
