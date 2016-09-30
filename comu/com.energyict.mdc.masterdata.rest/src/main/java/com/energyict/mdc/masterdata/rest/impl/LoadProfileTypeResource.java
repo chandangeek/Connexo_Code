@@ -36,6 +36,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +87,8 @@ public class LoadProfileTypeResource {
     public Response getAllProfileTypes(@BeanParam JsonQueryParameters queryParameters) {
         List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
 
-        allProfileTypes = ListPager.of(allProfileTypes, (lp1, lp2) -> lp1.getName().compareToIgnoreCase(lp2.getName())).from(queryParameters).find();
+        allProfileTypes = ListPager.of(allProfileTypes, Comparator.comparing(LoadProfileType::getName, String.CASE_INSENSITIVE_ORDER))
+                .from(queryParameters).find();
         return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileTypeInfo.from(allProfileTypes), queryParameters)).build();
     }
 
