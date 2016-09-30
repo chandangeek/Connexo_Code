@@ -18,7 +18,7 @@ public class PrivilegeInfo {
     public static PrivilegeInfo asApplicationPrivilege(NlsService nlsService, String applicationName, Privilege privilege){
         PrivilegeInfo privilegeInfo = new PrivilegeInfo(nlsService, privilege);
         privilegeInfo.applicationName = applicationName;
-        privilegeInfo.translatedApplicationName = nlsService.getPrivilegeThesaurus().get(applicationName);
+        privilegeInfo.translatedApplicationName = nlsService.getPrivilegeThesaurus().translateComponentName(applicationName);
         return privilegeInfo;
     }
 
@@ -28,13 +28,13 @@ public class PrivilegeInfo {
     public PrivilegeInfo(NlsService nlsService, Privilege privilege) {
         this();
         this.name = privilege.getName();
-        this.translatedName = nlsService.getPrivilegeThesaurus().get(this.name);
+        this.translatedName = nlsService.getPrivilegeThesaurus().translatePrivilegeKey(this.name);
     }
 
     public PrivilegeInfo(NlsService nlsService, String applicationName, Privilege privilege) {
         this(nlsService, privilege);
         this.applicationName = applicationName;
-        this.translatedApplicationName = nlsService.getPrivilegeThesaurus().get(applicationName);
+        this.translatedApplicationName = nlsService.getPrivilegeThesaurus().translateComponentName(applicationName);
     }
 
     public String getApplicationName(){
