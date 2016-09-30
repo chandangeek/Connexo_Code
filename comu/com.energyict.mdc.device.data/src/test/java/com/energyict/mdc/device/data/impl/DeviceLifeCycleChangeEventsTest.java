@@ -174,6 +174,8 @@ public class DeviceLifeCycleChangeEventsTest {
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
         when(meterBuilder.create()).thenReturn(meter);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.MIN);
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
         when(meter.getMeterActivations()).thenReturn(Collections.emptyList());
         when(meter.getMeterActivation(any(Instant.class))).thenReturn(Optional.empty());
         when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());

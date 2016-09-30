@@ -225,6 +225,8 @@ public class DeviceMultiplierTest {
         when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.MIN);
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
     }
 
