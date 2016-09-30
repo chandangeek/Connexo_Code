@@ -29,6 +29,7 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -166,7 +167,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().map(mc -> mc.getMetrologyConfiguration().getName()).orElse(null);
         info.displayType = this.getUsagePointDisplayType(usagePoint);
-        info.displayConnectionState = usagePoint.getConnectionState().getDisplayName(thesaurus);
+        info.displayConnectionState = usagePoint.getConnectionStateDisplayName();
         info.geoCoordinates = usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null);
         info.location = usagePoint.getLocation().map(Location::toString).orElse(null);
         return info;
@@ -188,8 +189,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.version = usagePoint.getVersion();
         info.createTime = usagePoint.getCreateDate().toEpochMilli();
         info.modTime = usagePoint.getModificationDate().toEpochMilli();
-        info.connectionState = new IdWithNameInfo(usagePoint.getConnectionState().getId(), thesaurus.getFormat(ConnectionStateTranslationKeys
-                .getTranslatedKeys(usagePoint.getConnectionState())).format());
+        info.connectionState = new IdWithNameInfo(usagePoint.getConnectionState().getId(), usagePoint.getConnectionStateDisplayName());
         info.displayConnectionState = usagePoint.getConnectionState().getName();
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayType = this.getUsagePointDisplayType(usagePoint);
@@ -261,8 +261,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     private PropertyDescriptionInfo createDescription(UsagePointModelTranslationKeys propertyName, Class<?> aClass) {
-        return new PropertyDescriptionInfo(propertyName.getKey(), aClass, thesaurus.getString(propertyName.getKey(), propertyName
-                .getDefaultFormat()));
+        return new PropertyDescriptionInfo(
+                propertyName.getKey(),
+                aClass,
+                thesaurus.getFormat(new SimpleTranslationKey(propertyName.getKey(), propertyName.getDefaultFormat())).format());
     }
 
     private String getUsagePointDisplayType(UsagePoint usagePoint) {
