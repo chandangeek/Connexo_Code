@@ -49,7 +49,7 @@ import java.util.stream.Stream;
 public class ReadingTypeDeliverableFactoryImpl implements ReadingTypeDeliverableFactory {
 
     private volatile Thesaurus thesaurus;
-    private volatile ReadingTypeInfoFactory readingTypeInfoFactory;
+    private ReadingTypeInfoFactory readingTypeInfoFactory;
 
     // For OSGi purposes
     public ReadingTypeDeliverableFactoryImpl() {
@@ -58,15 +58,16 @@ public class ReadingTypeDeliverableFactoryImpl implements ReadingTypeDeliverable
 
     // For Testing purposes
     @Inject
-    public ReadingTypeDeliverableFactoryImpl(Thesaurus thesaurus, ReadingTypeInfoFactory readingTypeInfoFactory) {
+    public ReadingTypeDeliverableFactoryImpl(Thesaurus thesaurus) {
         this();
         this.thesaurus = thesaurus;
-        this.readingTypeInfoFactory = readingTypeInfoFactory;
+        this.readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(UsagePointConfigurationApplication.COMPONENT_NAME, Layer.REST);
+        this.readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
     }
 
     @Override
