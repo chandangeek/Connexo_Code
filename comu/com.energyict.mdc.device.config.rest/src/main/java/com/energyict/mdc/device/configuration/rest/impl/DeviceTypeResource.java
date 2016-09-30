@@ -76,6 +76,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -543,10 +544,10 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE_TYPE)
     public Response getFiles(@PathParam("id") long id) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<DeviceMessageFileInfo> files = deviceType.getDeviceMessageFiles()
+        List<DeviceMessageFileInfo> files = resourceHelper.findDeviceTypeByIdOrThrowException(id)
+                .getDeviceMessageFiles()
                 .stream()
-                .sorted((f1,f2) -> f1.getName().compareTo(f2.getName()))
+                .sorted(Comparator.comparing(DeviceMessageFile::getName))
                 .map(DeviceMessageFileInfo::new)
                 .collect(Collectors.toList());
 

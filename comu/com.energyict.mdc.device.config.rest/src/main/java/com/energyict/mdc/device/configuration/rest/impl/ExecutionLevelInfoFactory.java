@@ -1,16 +1,17 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -40,7 +41,7 @@ public class ExecutionLevelInfoFactory {
         info.name = SecurityPropertySetPrivilegeTranslationKeys.translationFor(userAction.getPrivilege(), thesaurus);
         info.userRoles = allGroups.stream()
                 .filter(group -> group.hasPrivilege("MDC", userAction.getPrivilege()))
-                .sorted((group1, group2) -> group1.getName().compareToIgnoreCase(group2.getName()))
+                .sorted(Comparator.comparing(Group::getName, String.CASE_INSENSITIVE_ORDER))
                 .map(group -> new IdWithNameInfo(group.getId(), group.getName()))
                 .collect(toList());
         info.parent = new VersionInfo<>(securityPropertySet.getId(), securityPropertySet.getVersion());

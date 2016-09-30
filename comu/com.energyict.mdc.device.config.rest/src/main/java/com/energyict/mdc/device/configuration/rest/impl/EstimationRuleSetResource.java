@@ -6,8 +6,8 @@ import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.collections.KPermutation;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
@@ -28,6 +28,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -124,7 +125,7 @@ public class EstimationRuleSetResource {
         return estimationService.getEstimationRuleSets().stream()
                 .filter(ruleSet -> !ruleSet.getRules(relatedToConfiguration).isEmpty())
                 .filter(ruleSet -> !deviceConfiguration.getEstimationRuleSets().contains(ruleSet))
-                .sorted((rs1, rs2) -> rs1.getName().compareToIgnoreCase(rs2.getName()))
+                .sorted(Comparator.comparing(EstimationRuleSet::getName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.<EstimationRuleSet>toList());
     }
 }
