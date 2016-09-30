@@ -1,6 +1,6 @@
 package com.elster.jupiter.parties.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.parties.PartyRepresentation;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,36 +11,36 @@ import java.util.List;
 public class PartyRepresentationInfos {
 
     public int total;
-    private Thesaurus thesaurus;
-
     public List<PartyRepresentationInfo> delegates = new ArrayList<>();
 
-    PartyRepresentationInfos() {
+    private NlsService nlsService;
+
+    private PartyRepresentationInfos() {
     }
 
-    private PartyRepresentationInfos(Thesaurus thesaurus) {
+    private PartyRepresentationInfos(NlsService nlsService) {
         this();
-        this.thesaurus = thesaurus;
+        this.nlsService = nlsService;
     }
 
-    PartyRepresentationInfos(PartyRepresentation partyRepresentation, Thesaurus thesaurus) {
-        this(thesaurus);
+    PartyRepresentationInfos(PartyRepresentation partyRepresentation, NlsService nlsService) {
+        this(nlsService);
         add(partyRepresentation);
     }
 
-    PartyRepresentationInfos(Iterable<? extends PartyRepresentation> partyRepresentations, Thesaurus thesaurus) {
-        this(thesaurus);
+    PartyRepresentationInfos(Iterable<? extends PartyRepresentation> partyRepresentations, NlsService nlsService) {
+        this(nlsService);
         addAll(partyRepresentations);
     }
 
     PartyRepresentationInfo add(PartyRepresentation partyRepresentation) {
-        PartyRepresentationInfo result = new PartyRepresentationInfo(this.thesaurus, partyRepresentation);
+        PartyRepresentationInfo result = new PartyRepresentationInfo(this.nlsService, partyRepresentation);
         delegates.add(result);
         total++;
         return result;
     }
 
-    void addAll(Iterable<? extends PartyRepresentation> representations) {
+    private void addAll(Iterable<? extends PartyRepresentation> representations) {
         for (PartyRepresentation each : representations) {
             add(each);
         }

@@ -1,6 +1,6 @@
 package com.elster.jupiter.parties.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;
@@ -13,20 +13,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-public class UpdatePartyRepresentationsTransaction implements Transaction<List<? extends PartyRepresentation>> {
+class UpdatePartyRepresentationsTransaction implements Transaction<List<? extends PartyRepresentation>> {
 
     private final PartyRepresentationInfos infos;
     private final long id;
     private final Clock clock;
-    private final Thesaurus thesaurus;
+    private final NlsService nlsService;
     private final Fetcher fetcher;
 
     @Inject
-    public UpdatePartyRepresentationsTransaction(long id, PartyRepresentationInfos infos, Clock clock, Thesaurus thesaurus, Fetcher fetcher) {
+    UpdatePartyRepresentationsTransaction(long id, PartyRepresentationInfos infos, Clock clock, NlsService nlsService, Fetcher fetcher) {
         this.id = id;
         this.infos = infos;
         this.clock = clock;
-        this.thesaurus = thesaurus;
+        this.nlsService = nlsService;
         this.fetcher = fetcher;
     }
 
@@ -43,7 +43,7 @@ public class UpdatePartyRepresentationsTransaction implements Transaction<List<?
     private void handleRemovals(List<PartyRepresentation> preEdit) {
         Instant now = clock.instant();
         for (PartyRepresentation partyRepresentation : preEdit) {
-            PartyRepresentationInfo delegate = new PartyRepresentationInfo(this.thesaurus, partyRepresentation);
+            PartyRepresentationInfo delegate = new PartyRepresentationInfo(this.nlsService, partyRepresentation);
             delegate.end = now;
             new UpdatePartyRepresentationTransaction(delegate, fetcher).perform();
         }
