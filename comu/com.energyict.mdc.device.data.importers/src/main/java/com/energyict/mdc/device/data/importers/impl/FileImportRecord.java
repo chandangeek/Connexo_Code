@@ -6,7 +6,7 @@ import java.util.List;
 public class FileImportRecord {
 
     private long lineNumber;
-    private String deviceMRID;
+    private String deviceIdentifier;
     private List<String> location = new ArrayList<>();
     private List<String> geoCoordinates = new ArrayList<>();
 
@@ -21,16 +21,16 @@ public class FileImportRecord {
         this.lineNumber = lineNumber;
     }
 
-    public void setDeviceMRID(String deviceMRID) {
-        this.deviceMRID = deviceMRID;
+    public void setDeviceIdentifier(String deviceIdentifier) {
+        this.deviceIdentifier = deviceIdentifier;
     }
 
     public long getLineNumber() {
         return lineNumber;
     }
 
-    public String getDeviceMRID() {
-        return deviceMRID;
+    public String getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     public List<String> getLocation() {

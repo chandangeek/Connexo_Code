@@ -89,6 +89,7 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         context.setFiniteStateMachineService(finiteStateMachineService);
         context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
+        when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -109,7 +110,7 @@ public class DeviceActivationDeactivationImporterFactoryTest {
 
     @Test
     public void testActivateTransitionIsNotSupportedByImporter() {
-        String csv = "Device MRID;Transition date;Activate\n" +
+        String csv = "Device name;Transition date;Activate\n" +
                 "VPB0001;01/08/2015 00:30;true";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
 
@@ -135,10 +136,9 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         verify(logger, never()).severe(Matchers.anyString());
     }
 
-
     @Test
     public void testDeactivateTransitionIsNotSupportedByImporter() {
-        String csv = "Device MRID;Transition date;Activate\n" +
+        String csv = "Device name;Transition date;Activate\n" +
                 "VPB0001;01/08/2015 00:30;false";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
 

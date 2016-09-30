@@ -26,16 +26,19 @@ public class DeviceCommissioningImportDescription implements FileImportDescripti
     public List<FileImportField<?>> getFields(DeviceTransitionRecord record) {
         List<FileImportField<?>> fields = new ArrayList<>();
         LiteralStringParser stringParser = new LiteralStringParser();
+        //Device mRID or name
         fields.add(CommonField.withParser(stringParser)
-                .withSetter(record::setDeviceMRID)
+                .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
+        // Transition date
         fields.add(CommonField.withParser(dateParser)
                 .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
+        // Master device mRID or Name
         fields.add(CommonField.withParser(stringParser)
-                .withSetter(record::setMasterDeviceMrid)
+                .withSetter(record::setMasterDeviceIdentifier)
                 .build());
         return fields;
     }

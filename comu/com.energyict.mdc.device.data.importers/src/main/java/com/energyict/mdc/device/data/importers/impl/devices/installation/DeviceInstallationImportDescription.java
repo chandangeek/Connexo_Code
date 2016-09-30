@@ -34,14 +34,17 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
         List<FileImportField<?>> fields = new ArrayList<>();
         LiteralStringParser stringParser = new LiteralStringParser();
         BigDecimalParser bigDecimalParser = new BigDecimalParser(SupportedNumberFormat.FORMAT3);
+        // Device mRID or name
         fields.add(CommonField.withParser(stringParser)
-                .withSetter(record::setDeviceMRID)
+                .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
+        // Transition date
         fields.add(CommonField.withParser(dateParser)
                 .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
+        // Geo coordinates
         IntStream.range(0, 3).forEach(cnt ->
                 fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setGeoCoordinates)
@@ -52,21 +55,27 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
                 .forEach(s-> fields.add(CommonField.withParser(stringParser)
                         .withSetter(record::addLocation)
                         .build()));
+        // Master device mRID or name
         fields.add(CommonField.withParser(stringParser)
-                .withSetter(record::setMasterDeviceMrid)
+                .withSetter(record::setMasterDeviceIdentifier)
                 .build());
+        // Usage point mRID or name
         fields.add(CommonField.withParser(stringParser)
-                .withSetter(record::setUsagePointMrid)
+                .withSetter(record::setUsagePointIdentifier)
                 .build());
+        // Service category
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setServiceCategory)
                 .build());
+        // Install inactive flag
         fields.add(CommonField.withParser(new BooleanParser())
                 .withSetter(record::setInstallInactive)
                 .build());
+        // Start validation date
         fields.add(CommonField.withParser(dateParser)
                 .withSetter(record::setStartValidationDate)
                 .build());
+        // Multiplier
         fields.add(CommonField.withParser(bigDecimalParser)
                 .withSetter(record::setMultiplier)
                 .build());

@@ -44,7 +44,7 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
             // Always specify line number and device mrid
             message = this.context.getThesaurus()
                     .getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE)
-                    .format(data.getLineNumber(), data.getDeviceMRID(), exception.getLocalizedMessage());
+                    .format(data.getLineNumber(), data.getDeviceIdentifier(), exception.getLocalizedMessage());
         }
         fileImportOccurrence.getLogger().warning(message);
     }

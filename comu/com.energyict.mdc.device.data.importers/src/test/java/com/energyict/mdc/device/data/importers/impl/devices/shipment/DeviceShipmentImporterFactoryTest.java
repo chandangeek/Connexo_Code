@@ -96,7 +96,7 @@ public class DeviceShipmentImporterFactoryTest {
 
     @Test
     public void testSuccessCase() {
-        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+        String csv = "name;device type;device configuration;shipment date;serial number;year of certification;batch\n" +
                      "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015;batch";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
@@ -126,7 +126,7 @@ public class DeviceShipmentImporterFactoryTest {
 
     @Test
     public void testBadColumnNumberCase() {
-        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+        String csv = "name;device type;device configuration;shipment date;serial number;year of certification;batch\n" +
                 "VPB0001;Iskra 382";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
@@ -138,7 +138,7 @@ public class DeviceShipmentImporterFactoryTest {
 
     @Test
     public void testMissingMandatoryDeviceTypeValueCase() {
-        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+        String csv = "name;device type;device configuration;shipment date;serial number;year of certification;batch\n" +
                 "VPB0001; ;Default;01/08/2015 00:30;0001;2015;batch";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
@@ -150,7 +150,7 @@ public class DeviceShipmentImporterFactoryTest {
 
     @Test
     public void testMissingMandatoryDeviceConfigurationValueCase() {
-        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+        String csv = "name;device type;device configuration;shipment date;serial number;year of certification;batch\n" +
                 "VPB0001;Iskra 382;    ;01/08/2015 00:30;0001;2015;batch";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
@@ -162,7 +162,7 @@ public class DeviceShipmentImporterFactoryTest {
 
     @Test
     public void testMissingMandatoryShipmentDateValueCase() {
-        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+        String csv = "name;device type;device configuration;shipment date;serial number;year of certification;batch\n" +
                 "VPB0001;Iskra 382;Default;   ;0001;2015;batch";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
@@ -174,7 +174,7 @@ public class DeviceShipmentImporterFactoryTest {
 
     @Test
     public void testBadDeviceTypeName() {
-        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+        String csv = "name;device type;device configuration;shipment date;serial number;year of certification;batch\n" +
                 "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015;batch";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
@@ -191,7 +191,7 @@ public class DeviceShipmentImporterFactoryTest {
 
     @Test
     public void testBadDeviceConfigurationName() {
-        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+        String csv = "name;device type;device configuration;shipment date;serial number;year of certification;batch\n" +
                 "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015;batch";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
@@ -209,7 +209,7 @@ public class DeviceShipmentImporterFactoryTest {
     }
     @Test
     public void testSomeExceptionDuringDeviceCreation() {
-        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+        String csv = "name;device type;device configuration;shipment date;serial number;year of certification;batch\n" +
                 "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015;batch";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
@@ -232,7 +232,7 @@ public class DeviceShipmentImporterFactoryTest {
 
     @Test
     public void testDeviceWithMridAlreadyExists() {
-        String csv = "mrid;device type;device configuration;shipment date; serial number; year of certification;batch\n" +
+        String csv = "name;device type;device configuration;shipment date;serial number;year of certification;batch\n" +
                 "VPB0001;Iskra 382;Default;01/08/2015 00:30;0001;2015;batch";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceShipmentImporter();
