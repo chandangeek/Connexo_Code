@@ -24,9 +24,6 @@ public interface Thesaurus extends MessageInterpolator {
 	//
 
     @Deprecated
-    String getStringBeyondComponent(String key, String defaultMessage);
-
-    @Deprecated
     String getString(String key, String defaultMessage);
 
     @Deprecated

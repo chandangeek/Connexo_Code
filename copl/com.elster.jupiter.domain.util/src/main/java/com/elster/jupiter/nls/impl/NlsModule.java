@@ -26,16 +26,6 @@ public class NlsModule extends AbstractModule {
         INSTANCE;
 
         @Override
-        public String getStringBeyondComponent(String key, String defaultMessage) {
-            return defaultMessage;
-        }
-
-        @Override
-        public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
-            return defaultMessage;
-        }
-
-        @Override
         public String getString(String key, String defaultMessage) {
             return defaultMessage;
         }

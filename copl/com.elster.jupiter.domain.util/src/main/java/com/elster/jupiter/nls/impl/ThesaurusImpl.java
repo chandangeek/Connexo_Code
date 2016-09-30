@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -72,32 +71,6 @@ class ThesaurusImpl implements IThesaurus {
     private List<NlsKeyImpl> getNlsKeys(String componentName, Layer layer) {
         Condition condition = Operator.EQUAL.compare("layer", layer).and(Operator.EQUAL.compare("componentName", componentName));
         return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition);
-    }
-
-    private Optional<NlsKeyImpl> getAdditionalKey(String key) {
-        Condition condition = Operator.EQUAL.compare("key", key);
-        return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition).stream().findFirst();
-    }
-
-    @Override
-    public String getStringBeyondComponent(String key, String defaultMessage) {
-        return this.getStringBeyondComponent(getLocale(), key, defaultMessage);
-    }
-
-    private String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
-        if (translations.containsKey(key)) {
-            return translations.get(key).translate(locale).orElse(defaultMessage);
-        } else {
-            Optional<NlsKeyImpl> first = getAdditionalKey(key);
-            if (first.isPresent()) {
-                // Load translations to avoid that they are not loaded when this happens to be the first call
-                this.ensureTranslationsLoaded();
-                translations.put(key, first.get());
-                return translations.get(key).translate(locale).orElse(defaultMessage);
-            } else {
-                return defaultMessage;
-            }
-        }
     }
 
     @Override
