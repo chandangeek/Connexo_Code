@@ -1,25 +1,18 @@
 package com.energyict.mdc.device.data.validation;
 
+import aQute.bnd.annotation.ProviderType;
 
+@ProviderType
 public interface ValidationOverview {
 
-    String getMrid();
+    String getDevice_mRID();
 
-    void setMrid(String mrid);
+    String getDeviceSerialNumber();
 
-    String getSerialNumber();
+    String getDeviceTypeName();
 
-    void setSerialNumber(String serialNumber);
-
-    String getDeviceType();
-
-    void setDeviceType(String deviceType);
-
-    String getDeviceConfig();
-
-    void setDeviceConfig(String deviceConfig);
+    String getDeviceConfigurationName();
 
     DeviceValidationKpiResults getDeviceValidationKpiResults();
 
-    void setDeviceValidationKpiResults(DeviceValidationKpiResults deviceValidationKpiResults);
 }
