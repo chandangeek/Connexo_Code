@@ -619,7 +619,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
         Collections.addAll(keys, TranslationKeys.values());
-        Collections.addAll(keys, DataValidationTaskStatus.DataValidationTaskStatusTranslationKeys.values());
+        Collections.addAll(keys, DataValidationTaskStatus.values());
         return keys;
     }
 
