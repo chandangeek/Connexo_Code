@@ -3,6 +3,7 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -11,7 +12,6 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.security.Privileges;
 
@@ -79,7 +79,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 for (FirmwareCampaignHandler.Handler handler : FirmwareCampaignHandler.Handler.values()) {
                     or = or.or(DestinationSpec.whereCorrelationId().isEqualTo(handler.getTopic()));
                 }
-                jupiterEvents.subscribe(FirmwareCampaignHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER, or);
+                jupiterEvents.subscribe(TranslationKeys.FIRMWARE_CAMPAIGNS_SUBSCRIBER, FirmwareService.COMPONENTNAME, Layer.DOMAIN, or);
             }
         }
     }
