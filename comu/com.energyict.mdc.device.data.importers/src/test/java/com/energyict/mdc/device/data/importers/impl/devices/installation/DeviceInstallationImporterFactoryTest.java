@@ -128,8 +128,6 @@ public class DeviceInstallationImporterFactoryTest {
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
-        when(thesaurus.getStringBeyondComponent(anyString(), anyString()))
-                .thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         context.setTopologyService(topologyService);

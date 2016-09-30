@@ -40,7 +40,6 @@ import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterPro
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -79,8 +78,6 @@ public class DeviceActivationDeactivationImporterFactoryTest {
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
-        when(thesaurus.getStringBeyondComponent(anyString(), anyString()))
-                .thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         context.setTopologyService(topologyService);
