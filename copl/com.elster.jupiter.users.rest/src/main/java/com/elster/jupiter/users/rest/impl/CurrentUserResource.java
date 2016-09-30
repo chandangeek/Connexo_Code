@@ -1,6 +1,10 @@
 package com.elster.jupiter.users.rest.impl;
 
-import java.util.List;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.rest.UserInfo;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -10,32 +14,27 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserPreference;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.rest.UserInfo;
+import java.util.List;
 
 @Path("/currentuser")
 public class CurrentUserResource {
-    
+
     private final UserService userService;
-    private final Thesaurus thesaurus;
-    
+    private final NlsService nlsService;
+
     @Inject
-    public CurrentUserResource(UserService userService, Thesaurus thesaurus) {
+    public CurrentUserResource(UserService userService, NlsService nlsService) {
         this.userService = userService;
-        this.thesaurus = thesaurus;
+        this.nlsService = nlsService;
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getCurrentUser(@Context SecurityContext securityContext) {
         User user = fetchUser((User) securityContext.getUserPrincipal());
-        return Response.ok(new UserInfo(thesaurus, user)).build();
+        return Response.ok(new UserInfo(nlsService, user)).build();
     }
-    
+
     @GET
     @Path("/preferences")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -44,7 +43,7 @@ public class CurrentUserResource {
         List<UserPreference> preferences = userService.getUserPreferencesService().getPreferences(user);
         return Response.ok(new UserPreferenceInfos(preferences)).build();
     }
-    
+
     private User fetchUser(User cachedUser) {
         return userService.getUser(cachedUser.getId()).orElse(null);
     }

@@ -1,6 +1,6 @@
 package com.elster.jupiter.users.rest;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.users.User;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -17,24 +17,26 @@ public class UserInfos {
     public UserInfos() {
     }
 
-    public UserInfos(Thesaurus thesaurus, User user) {
-        add(thesaurus, user);
+    public UserInfos(NlsService nlsService, User user) {
+        this();
+        add(nlsService, user);
     }
 
-    public UserInfos(Thesaurus thesaurus, Iterable<? extends User> users) {
-        addAll(thesaurus, users);
+    public UserInfos(NlsService nlsService, Iterable<? extends User> users) {
+        this();
+        addAll(nlsService, users);
     }
 
-    public UserInfo add(Thesaurus thesaurus, User user) {
-        UserInfo result = new UserInfo(thesaurus, user);
+    public UserInfo add(NlsService nlsService, User user) {
+        UserInfo result = new UserInfo(nlsService, user);
         users.add(result);
         total++;
         return result;
     }
 
-    void addAll(Thesaurus thesaurus, Iterable<? extends User> users) {
+    private void addAll(NlsService nlsService, Iterable<? extends User> users) {
         for (User each : users) {
-            add(thesaurus, each);
+            add(nlsService, each);
         }
     }
 

@@ -1,14 +1,8 @@
 package com.elster.jupiter.users.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.User;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.impl.UserInGroup;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.UserInfos;
 import com.elster.jupiter.users.security.Privileges;
@@ -20,13 +14,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Created by dragos on 11/20/2015.
@@ -34,32 +23,27 @@ import java.util.stream.Collectors;
 @Path("/findgroups")
 public class FindGroupResource {
     private final UserService userService;
-    private final RestQueryService restQueryService;
-    private final Thesaurus thesaurus;
+    private final NlsService nlsService;
 
     @Inject
-    public FindGroupResource(UserService userService, RestQueryService restQueryService, Thesaurus thesaurus) {
+    public FindGroupResource(UserService userService, NlsService nlsService) {
         this.userService = userService;
-        this.restQueryService = restQueryService;
-        this.thesaurus = thesaurus;
+        this.nlsService = nlsService;
     }
 
     @GET
     @Path("/{group}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
-    public GroupInfo getGroup(@PathParam("group") String group) {
-        Optional<Group> found = null;
+    public GroupInfo getGroup(@PathParam("group") String groupName) {
         try {
-            found = userService.getGroup(URLDecoder.decode(group, "UTF-8"));
+            return userService
+                    .getGroup(URLDecoder.decode(groupName, "UTF-8"))
+                    .map(group -> new GroupInfo(this.nlsService, group))
+                    .orElse(null);
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            throw new UnderlyingIOException(e);
         }
-        if(found.isPresent()){
-            return new GroupInfo(thesaurus, found.get());
-        }
-
-        return null;
     }
 
     @GET
@@ -68,12 +52,10 @@ public class FindGroupResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
     public UserInfos getGroupUsers(@PathParam("group") String group) {
         try {
-            return new UserInfos(thesaurus, userService.getGroupMembers(URLDecoder.decode(group, "UTF-8")));
+            return new UserInfos(this.nlsService, userService.getGroupMembers(URLDecoder.decode(group, "UTF-8")));
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            throw new UnderlyingIOException(e);
         }
-
-        return null;
     }
 
 }

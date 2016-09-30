@@ -1,6 +1,6 @@
 package com.elster.jupiter.users.rest;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 
@@ -11,26 +11,26 @@ import java.util.List;
 @XmlRootElement
 public class UserInGroupInfos {
     public int total;
-
     public List<UserInGroupInfo> userInGroupInfos = new ArrayList<>();
 
     UserInGroupInfos() {
     }
 
-    UserInGroupInfos(Thesaurus thesaurus, User user, Group group) {
-        add(thesaurus, user, group);
+    UserInGroupInfos(NlsService nlsService, User user, Group group) {
+        this();
+        add(nlsService, user, group);
     }
 
-    UserInGroupInfo add(Thesaurus thesaurus, User user, Group group) {
-        UserInGroupInfo result = new UserInGroupInfo(thesaurus, user, group);
+    UserInGroupInfo add(NlsService nlsService, User user, Group group) {
+        UserInGroupInfo result = new UserInGroupInfo(nlsService, user, group);
         userInGroupInfos.add(result);
         total++;
         return result;
     }
 
-    void addAll(Thesaurus thesaurus, User user, Iterable<? extends Group> groups) {
+    void addAll(NlsService nlsService, User user, Iterable<? extends Group> groups) {
         for (Group each : groups) {
-            add(thesaurus, user, each);
+            add(nlsService, user, each);
         }
     }
 

@@ -3,7 +3,6 @@ package com.elster.jupiter.users.rest.impl;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.rest.GroupInfo;
-import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -11,6 +10,8 @@ import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.when;
 
 public class GroupResourceTest extends UsersRestApplicationJerseyTest {
 
-    public static final Instant NOW = Instant.now();
+    private static final Instant NOW = Instant.now();
 
     private Group mockGroup() {
         Group group = mock(Group.class);

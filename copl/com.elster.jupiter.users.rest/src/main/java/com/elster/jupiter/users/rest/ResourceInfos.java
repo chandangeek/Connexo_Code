@@ -1,41 +1,41 @@
 package com.elster.jupiter.users.rest;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.users.Resource;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.users.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class ResourceInfos {
 
     public int total;
-
     public List<ResourceInfo> resources = new ArrayList<>();
 
     public ResourceInfos() {
     }
 
-    public ResourceInfos(Thesaurus thesaurus, Resource resource) {
-        add(thesaurus, resource);
+    public ResourceInfos(NlsService nlsService, Resource resource) {
+        this();
+        add(nlsService, resource);
     }
 
-    public ResourceInfos(Thesaurus thesaurus, Iterable<? extends Resource> resources) {
-        addAll(thesaurus, resources);
+    public ResourceInfos(NlsService nlsService, Iterable<? extends Resource> resources) {
+        this();
+        addAll(nlsService, resources);
     }
 
-    public ResourceInfo add(Thesaurus thesaurus, Resource resource) {
-        ResourceInfo result = new ResourceInfo(thesaurus, resource);
+    public ResourceInfo add(NlsService nlsService, Resource resource) {
+        ResourceInfo result = new ResourceInfo(nlsService, resource);
         resources.add(result);
         total++;
         return result;
     }
 
-    public void addAll(Thesaurus thesaurus, Iterable<? extends Resource> resources) {
+    public void addAll(NlsService nlsService, Iterable<? extends Resource> resources) {
         for (Resource each : resources) {
-            add(thesaurus, each);
+            add(nlsService, each);
         }
     }
 

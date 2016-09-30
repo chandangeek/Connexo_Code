@@ -1,6 +1,6 @@
 package com.elster.jupiter.users.rest;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.users.Privilege;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -17,24 +17,26 @@ public class PrivilegeInfos {
     public PrivilegeInfos() {
     }
 
-    public PrivilegeInfos(Thesaurus thesaurus, Privilege privilege) {
-        add(thesaurus, null, privilege);
+    public PrivilegeInfos(NlsService nlsService, Privilege privilege) {
+        this();
+        add(nlsService, null, privilege);
     }
 
-    public PrivilegeInfos(Thesaurus thesaurus, Iterable<? extends Privilege> privileges) {
-        addAll(thesaurus, null, privileges);
+    public PrivilegeInfos(NlsService nlsService, Iterable<? extends Privilege> privileges) {
+        this();
+        addAll(nlsService, null, privileges);
     }
 
-    public PrivilegeInfo add(Thesaurus thesaurus, String application, Privilege privilege) {
-        PrivilegeInfo result = new PrivilegeInfo(thesaurus, application, privilege);
+    public PrivilegeInfo add(NlsService nlsService, String application, Privilege privilege) {
+        PrivilegeInfo result = new PrivilegeInfo(nlsService, application, privilege);
         privileges.add(result);
         total++;
         return result;
     }
 
-    public void addAll(Thesaurus thesaurus, String application, Iterable<? extends Privilege> privileges) {
+    public void addAll(NlsService nlsService, String application, Iterable<? extends Privilege> privileges) {
         for (Privilege each : privileges) {
-            add(thesaurus, application, each);
+            add(nlsService, application, each);
         }
     }
 

@@ -1,39 +1,34 @@
 package com.elster.jupiter.users.rest.impl;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.rest.LocaleInfo;
+import com.elster.jupiter.users.rest.UserInfo;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.Locale;
+import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.internal.verification.VerificationModeFactory;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
-import java.util.Locale;
-import java.util.Optional;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
-import com.elster.jupiter.nls.Thesaurus;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.internal.verification.VerificationModeFactory;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.rest.UserInfo;
-
 public class UserResourceTest extends UsersRestApplicationJerseyTest {
 
     @Test
     public void testNothingToUpdate() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(mock(Thesaurus.class), user);
-        
+        UserInfo info = new UserInfo(mock(NlsService.class), user);
+
         target("/users/1").request().put(Entity.json(info));
-        
+
         verify(user, VerificationModeFactory.times(0)).setDescription("description");
         verify(user, VerificationModeFactory.times(0)).setLocale(Locale.ENGLISH);
         verify(user, VerificationModeFactory.times(0)).update();
@@ -42,36 +37,36 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
     @Test
     public void testUpdateUserLocale() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(mock(Thesaurus.class), user);
+        UserInfo info = new UserInfo(mock(NlsService.class), user);
         info.language = new LocaleInfo();
         info.language.languageTag = Locale.US.toLanguageTag();
-        
+
         target("/users/1").request().put(Entity.json(info));
-        
+
         verify(user).setLocale(Locale.US);
         verify(user).update();
     }
-    
+
     @Test
     public void testReleaseUserLocale() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(mock(Thesaurus.class), user);
+        UserInfo info = new UserInfo(mock(NlsService.class), user);
         info.language = null;
-        
+
         target("/users/1").request().put(Entity.json(info));
-        
+
         verify(user).setLocale(null);
         verify(user).update();
     }
-    
+
     @Test
     public void testUpdateDescription() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(mock(Thesaurus.class), user);
+        UserInfo info = new UserInfo(mock(NlsService.class), user);
         info.description = "new description";
-        
+
         target("/users/1").request().put(Entity.json(info));
-        
+
         verify(user).setDescription("new description");
         verify(user).update();
     }
@@ -82,7 +77,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         reset(userService);
         when(userService.findAndLockUserByIdAndVersion(1L, 1L)).thenReturn(Optional.empty());
         when(userService.getUser(1L)).thenReturn(Optional.empty());
-        UserInfo info = new UserInfo(mock(Thesaurus.class), user);
+        UserInfo info = new UserInfo(mock(NlsService.class), user);
 
         Response response = target("/users/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());

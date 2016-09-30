@@ -1,8 +1,7 @@
 package com.elster.jupiter.users.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.users.User;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfos;
 import com.elster.jupiter.users.rest.UserInfo;
@@ -17,7 +16,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Optional;
 
 /**
  * Created by dragos on 11/20/2015.
@@ -26,49 +24,42 @@ import java.util.Optional;
 @Path("/findusers")
 public class FindUserResource {
     private final UserService userService;
-    private final RestQueryService restQueryService;
-    private final Thesaurus thesaurus;
+    private final NlsService nlsService;
 
     @Inject
-    public FindUserResource(UserService userService, RestQueryService restQueryService, Thesaurus thesaurus) {
+    public FindUserResource(UserService userService, NlsService nlsService) {
         this.userService = userService;
-        this.restQueryService = restQueryService;
-        this.thesaurus = thesaurus;
+        this.nlsService = nlsService;
     }
 
     @GET
     @Path("/{user}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
-    public UserInfo getUser(@PathParam("user") String user) {
-        Optional<User> found = null;
+    public UserInfo getUser(@PathParam("user") String authenticationName) {
         try {
-            found = userService.findUser(URLDecoder.decode(user, "UTF-8"));
+            return userService
+                    .findUser(URLDecoder.decode(authenticationName, "UTF-8"))
+                    .map(user -> new UserInfo(this.nlsService, user))
+                    .orElse(null);
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            throw new UnderlyingIOException(e);
         }
-        if(found.isPresent()){
-            return new UserInfo(thesaurus, found.get());
-        }
-
-        return null;
     }
 
     @GET
     @Path("/{user}/groups")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
-    public GroupInfos getUserGroups(@PathParam("user") String user) {
-        Optional<User> found = null;
+    public GroupInfos getUserGroups(@PathParam("user") String authenticationName) {
         try {
-            found = userService.findUser(URLDecoder.decode(user, "UTF-8"));
+            return userService
+                    .findUser(URLDecoder.decode(authenticationName, "UTF-8"))
+                    .map(user -> new GroupInfos(this.nlsService, user.getGroups()))
+                    .orElse(null);
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            throw new UnderlyingIOException(e);
         }
-        if(found.isPresent()){
-             return new GroupInfos(thesaurus, found.get().getGroups());
-        }
-
-        return null;
     }
+
 }

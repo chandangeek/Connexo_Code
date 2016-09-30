@@ -1,16 +1,14 @@
 package com.elster.jupiter.users.rest;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.rest.impl.LocaleInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -33,7 +31,7 @@ public class UserInfo {
     public UserInfo() {
     }
 
-    public UserInfo(Thesaurus thesaurus, User user) {
+    public UserInfo(NlsService nlsService, User user) {
         id = user.getId();
         authenticationName = user.getName();
         description = user.getDescription();
@@ -46,14 +44,10 @@ public class UserInfo {
         lastSuccessfulLogin = user.getLastSuccessfulLogin() == null ? null : user.getLastSuccessfulLogin().toString();
         lastUnSuccessfulLogin = user.getLastUnSuccessfulLogin() == null ? null : user.getLastUnSuccessfulLogin().toString();
         for (Group group : user.getGroups()) {
-            groups.add(new GroupInfo(thesaurus, group));
+            groups.add(new GroupInfo(nlsService, group));
         }
 
-        Collections.sort(groups, new Comparator<GroupInfo>() {
-            public int compare(GroupInfo g1, GroupInfo g2) {
-                return g1.name.compareTo(g2.name);
-            }
-        });
+        Collections.sort(groups, (g1, g2) -> g1.name.compareTo(g2.name));
     }
 
     public boolean update(User user) {

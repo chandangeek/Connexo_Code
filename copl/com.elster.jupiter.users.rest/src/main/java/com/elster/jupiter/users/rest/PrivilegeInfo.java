@@ -1,6 +1,6 @@
 package com.elster.jupiter.users.rest;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.users.Privilege;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -15,26 +15,26 @@ public class PrivilegeInfo {
     public String applicationName;
     public String translatedApplicationName;
 
-    public static PrivilegeInfo asApplicationPrivilege(Thesaurus thesaurus, String applicationName, Privilege privilege){
-        PrivilegeInfo privilegeInfo = new PrivilegeInfo(thesaurus, privilege);
+    public static PrivilegeInfo asApplicationPrivilege(NlsService nlsService, String applicationName, Privilege privilege){
+        PrivilegeInfo privilegeInfo = new PrivilegeInfo(nlsService, privilege);
         privilegeInfo.applicationName = applicationName;
-        privilegeInfo.translatedApplicationName = thesaurus.getStringBeyondComponent(applicationName, applicationName);
+        privilegeInfo.translatedApplicationName = nlsService.getPrivilegeThesaurus().get(applicationName);
         return privilegeInfo;
     }
 
     public PrivilegeInfo() {
     }
 
-    public PrivilegeInfo(Thesaurus thesaurus, Privilege privilege) {
+    public PrivilegeInfo(NlsService nlsService, Privilege privilege) {
         this();
         this.name = privilege.getName();
-        this.translatedName = thesaurus.getStringBeyondComponent(this.name, this.name);
+        this.translatedName = nlsService.getPrivilegeThesaurus().get(this.name);
     }
 
-    public PrivilegeInfo(Thesaurus thesaurus, String applicationName, Privilege privilege) {
-        this(thesaurus, privilege);
+    public PrivilegeInfo(NlsService nlsService, String applicationName, Privilege privilege) {
+        this(nlsService, privilege);
         this.applicationName = applicationName;
-        this.translatedApplicationName = thesaurus.getStringBeyondComponent(applicationName, applicationName);
+        this.translatedApplicationName = nlsService.getPrivilegeThesaurus().get(applicationName);
     }
 
     public String getApplicationName(){

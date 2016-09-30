@@ -1,7 +1,21 @@
 package com.elster.jupiter.users.rest.impl;
 
-import java.util.List;
-import java.util.Optional;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.rest.GroupInfo;
+import com.elster.jupiter.users.rest.GroupInfos;
+import com.elster.jupiter.users.rest.actions.CreateGroupTransaction;
+import com.elster.jupiter.users.rest.actions.DeleteGroupTransaction;
+import com.elster.jupiter.users.rest.actions.UpdateGroupTransaction;
+import com.elster.jupiter.users.security.Privileges;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -18,23 +32,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.rest.GroupInfo;
-import com.elster.jupiter.users.rest.GroupInfos;
-import com.elster.jupiter.users.rest.actions.CreateGroupTransaction;
-import com.elster.jupiter.users.rest.actions.DeleteGroupTransaction;
-import com.elster.jupiter.users.rest.actions.UpdateGroupTransaction;
-import com.elster.jupiter.users.security.Privileges;
-import com.elster.jupiter.util.conditions.Order;
+import java.util.List;
+import java.util.Optional;
 
 @Path("/groups")
 public class GroupResource {
@@ -43,15 +42,15 @@ public class GroupResource {
     private final UserService userService;
     private final RestQueryService restQueryService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
-    private final Thesaurus thesaurus;
+    private final NlsService nlsService;
 
     @Inject
-    public GroupResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus) {
+    public GroupResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory, NlsService nlsService) {
         this.transactionService = transactionService;
         this.userService = userService;
         this.restQueryService = restQueryService;
         this.conflictFactory = conflictFactory;
-        this.thesaurus = thesaurus;
+        this.nlsService = nlsService;
     }
 
     @POST
@@ -60,7 +59,7 @@ public class GroupResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
     public GroupInfos createOrganization(GroupInfo info) {
         GroupInfos result = new GroupInfos();
-        result.add(thesaurus, transactionService.execute(new CreateGroupTransaction(info, userService)));
+        result.add(this.nlsService, transactionService.execute(new CreateGroupTransaction(info, userService)));
         return result;
     }
 
@@ -81,7 +80,7 @@ public class GroupResource {
     public GroupInfos getGroup(@PathParam("id") long id) {
         Optional<Group> group = userService.getGroup(id);
         if (group.isPresent()) {
-            return new GroupInfos(thesaurus, group.get());
+            return new GroupInfos(this.nlsService, group.get());
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -92,7 +91,7 @@ public class GroupResource {
     public GroupInfos getGroups(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Group> list = getGroupRestQuery().select(queryParameters, Order.ascending("name").toLowerCase());
-        GroupInfos infos = new GroupInfos(thesaurus, queryParameters.clipToLimit(list));
+        GroupInfos infos = new GroupInfos(this.nlsService, queryParameters.clipToLimit(list));
         infos.total = queryParameters.determineTotal(list.size());
         return infos;
     }

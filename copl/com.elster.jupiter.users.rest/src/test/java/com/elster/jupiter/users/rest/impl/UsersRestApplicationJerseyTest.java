@@ -1,9 +1,7 @@
 package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.PrivilegeThesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
@@ -18,17 +16,18 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+
+    @Mock
+    static SecurityContext securityContext;
 
     @Mock
     RestQueryService restQueryService;
@@ -39,8 +38,7 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     @Mock
     ThreadPrincipalService threadPrincipalService;
     @Mock
-    static SecurityContext securityContext;
-
+    PrivilegeThesaurus privilegeThesaurus;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -75,7 +73,9 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     @Override
     public void setupMocks() {
         super.setupMocks();
+        when(this.nlsService.getPrivilegeThesaurus()).thenReturn(this.privilegeThesaurus);
         when(transactionService.execute(any(Transaction.class))).thenAnswer(
                 invocation -> ((Transaction)invocation.getArguments()[0]).perform());
     }
+
 }

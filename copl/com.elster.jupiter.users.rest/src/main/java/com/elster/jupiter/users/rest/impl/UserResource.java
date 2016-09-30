@@ -1,7 +1,7 @@
 package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -43,15 +43,15 @@ public class UserResource {
     private final UserService userService;
     private final RestQueryService restQueryService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
-    private final Thesaurus thesaurus;
+    private final NlsService nlsService;
 
     @Inject
-    public UserResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus) {
+    public UserResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory, NlsService nlsService) {
         this.transactionService = transactionService;
         this.userService = userService;
         this.restQueryService = restQueryService;
         this.conflictFactory = conflictFactory;
-        this.thesaurus = thesaurus;
+        this.nlsService = nlsService;
     }
 
 // - To be added in the future?
@@ -86,7 +86,7 @@ public class UserResource {
         if (!user.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-            return new UserInfos(thesaurus, user.get());
+            return new UserInfos(this.nlsService, user.get());
     }
 
     @GET
@@ -95,7 +95,7 @@ public class UserResource {
     public UserInfos getUsers(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<User> list = getUserRestQuery().select(queryParameters, Order.ascending("authenticationName").toLowerCase());
-        UserInfos infos = new UserInfos(thesaurus, queryParameters.clipToLimit(list));
+        UserInfos infos = new UserInfos(this.nlsService, queryParameters.clipToLimit(list));
         infos.total = queryParameters.determineTotal(list.size());
         return infos;
     }
@@ -107,8 +107,8 @@ public class UserResource {
         User user = (User) securityContext.getUserPrincipal();
         Map<String, List<Privilege>> privileges = user.getApplicationPrivileges();
         PrivilegeInfos infos = new PrivilegeInfos();
-        for(String application : privileges.keySet()){
-            infos.addAll(thesaurus, application, privileges.get(application));
+        for (String application : privileges.keySet()){
+            infos.addAll(this.nlsService, application, privileges.get(application));
         }
         return infos;
     }

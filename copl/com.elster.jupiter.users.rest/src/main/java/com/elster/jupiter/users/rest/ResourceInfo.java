@@ -1,16 +1,14 @@
 package com.elster.jupiter.users.rest;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.PrivilegeThesaurus;
 import com.elster.jupiter.users.Resource;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -20,25 +18,26 @@ public class ResourceInfo {
     public String name;
     public String qualifiedName;
     public String description;
-    public List<PrivilegeInfo> privileges = new ArrayList<>();
+    public List<PrivilegeInfo> privileges;
 
-    public ResourceInfo(Thesaurus thesaurus, Resource resource) {
+    public ResourceInfo(NlsService nlsService, Resource resource) {
+        this();
+        PrivilegeThesaurus thesaurus = nlsService.getPrivilegeThesaurus();
         componentName = resource.getComponentName();
-        translatedName = thesaurus.getStringBeyondComponent(resource.getComponentName(), resource.getComponentName());
-        name = thesaurus.getStringBeyondComponent(resource.getName(), resource.getName());
-        description = thesaurus.getStringBeyondComponent(resource.getDescription(), resource.getDescription());
+        translatedName = thesaurus.translateComponentName(resource.getComponentName());
+        name = thesaurus.translateResourceName(resource.getName());
+        description = thesaurus.translatePrivilegeKey(resource.getDescription());
         qualifiedName = componentName + "." + name;
-        for (Privilege privilege : resource.getPrivileges()) {
-            privileges.add(new PrivilegeInfo(thesaurus, privilege));
-        }
-
-        Collections.sort(privileges, new Comparator<PrivilegeInfo>() {
-            public int compare(PrivilegeInfo p1, PrivilegeInfo p2) {
-                return p1.name.compareTo(p2.name);
-            }
-        });
+        privileges =
+            resource
+                .getPrivileges()
+                .stream()
+                .map(privilege -> new PrivilegeInfo(nlsService, privilege))
+                .sorted((p1, p2) -> p1.name.compareTo(p2.name))
+                .collect(Collectors.toList());
     }
 
     public ResourceInfo() {
     }
+
 }

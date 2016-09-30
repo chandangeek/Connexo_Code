@@ -1,18 +1,7 @@
 package com.elster.jupiter.users.rest.impl;
 
-import java.util.List;
-
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
-
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -22,18 +11,28 @@ import com.elster.jupiter.users.rest.PrivilegeInfos;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Order;
 
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+import java.util.List;
+
 @Path("/privileges")
 public class PrivilegeResource {
 
     private final UserService userService;
     private final RestQueryService restQueryService;
-    private final Thesaurus thesaurus;
+    private final NlsService nlsService;
 
     @Inject
-    public PrivilegeResource(UserService userService, RestQueryService restQueryService, Thesaurus thesaurus) {
+    public PrivilegeResource(UserService userService, RestQueryService restQueryService, NlsService nlsService) {
         this.userService = userService;
         this.restQueryService = restQueryService;
-        this.thesaurus = thesaurus;
+        this.nlsService = nlsService;
     }
 
     @GET
@@ -42,7 +41,7 @@ public class PrivilegeResource {
     public PrivilegeInfos getPrivileges(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Privilege> list = getPrivilegeRestQuery().select(queryParameters, Order.ascending("name"));
-        PrivilegeInfos infos = new PrivilegeInfos(thesaurus, queryParameters.clipToLimit(list));
+        PrivilegeInfos infos = new PrivilegeInfos(this.nlsService, queryParameters.clipToLimit(list));
         infos.total = queryParameters.determineTotal(list.size());
         return infos;
     }
