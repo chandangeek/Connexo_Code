@@ -148,7 +148,6 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
         setEndPointConfigurationService(endPointConfigurationService);
         setEventService(eventService);
         activate(bundleContext);
-        delayedNotifications.ready();
     }
 
     @Activate
@@ -182,6 +181,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
             upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
 
             tryActivate(context);
+            delayedNotifications.ready();
 
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
