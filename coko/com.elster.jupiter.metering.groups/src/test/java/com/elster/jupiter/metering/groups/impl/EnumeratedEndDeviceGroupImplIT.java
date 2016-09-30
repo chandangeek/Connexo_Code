@@ -5,6 +5,8 @@ import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -28,7 +30,6 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -49,16 +50,16 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,36 +68,23 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public class EnumeratedEndDeviceGroupImplIT {
 
-    private static final String ED_MRID = " ( ";
+    private static final String ED_NAME = " ( ";
+    private static Injector injector;
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-    private Injector injector;
-
-    @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private UserService userService;
-    @Mock
-    private EventAdmin eventAdmin;
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-    private class MockModule extends AbstractModule {
-
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(UserService.class).toInstance(mock(UserService.class));
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
-    @Before
-    public void setUp() throws SQLException {
+    @BeforeClass
+    public static void setUp() throws SQLException {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
@@ -127,29 +115,28 @@ public class EnumeratedEndDeviceGroupImplIT {
         });
     }
 
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();
     }
 
+    @Rule
+    public TransactionalRule transactional = new TransactionalRule(injector.getInstance(TransactionService.class));
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+
     @Test
+    @Transactional
     public void testPersistence() {
-        EndDevice endDevice;
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
-            ctx.commit();
-        }
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_NAME).create();
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
-                    .at(Instant.EPOCH)
-                    .setName("Mine")
-                    .setMRID("mine")
-                    .create();
-            ctx.commit();
-        }
+        meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
+                .at(Instant.EPOCH)
+                .setName("Mine")
+                .setMRID("mine")
+                .create();
 
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup("mine");
         assertThat(found.isPresent()).isTrue();
@@ -161,23 +148,19 @@ public class EnumeratedEndDeviceGroupImplIT {
     }
 
     @Test
+    @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.DUPLICATE_NAME + "}")
     public void testPersistenceDuplicateName() {
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            meteringGroupsService.createEnumeratedEndDeviceGroup().setName("Mine").setMRID("mine").create();
-            meteringGroupsService.createEnumeratedEndDeviceGroup().setName("Mine").setMRID("mine").create();
-        }
+        meteringGroupsService.createEnumeratedEndDeviceGroup().setName("Mine").setMRID("mine").create();
+        meteringGroupsService.createEnumeratedEndDeviceGroup().setName("Mine").setMRID("mine").create();
     }
 
     @Test
+    @Transactional
     public void findEndDeviceContainmentWithoutGroups() {
-        EndDevice endDevice;
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
-            ctx.commit();
-        }
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_NAME).create();
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
 
@@ -189,30 +172,23 @@ public class EnumeratedEndDeviceGroupImplIT {
     }
 
     @Test
+    @Transactional
     public void findEndDeviceContainmentWithMultipleGroupsThatDoNotContainTheDevice() {
-        EndDevice endDevice;
-        EndDevice otherDevice;
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
-            otherDevice = meteringService.findAmrSystem(1).get().newMeter("2").setMRID("OTHER").create();
-            ctx.commit();
-        }
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_NAME).create();
+        EndDevice otherDevice = meteringService.findAmrSystem(1).get().newMeter("2", "OTHER").create();
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EnumeratedEndDeviceGroup group1 = meteringGroupsService.createEnumeratedEndDeviceGroup(otherDevice)
-                    .setName("First")
-                    .at(Instant.EPOCH)
-                    .setMRID("first")
-                    .create();
-            EnumeratedEndDeviceGroup group2 = meteringGroupsService.createEnumeratedEndDeviceGroup(otherDevice)
-                    .setName("Second")
-                    .at(Instant.EPOCH)
-                    .setMRID("second")
-                    .create();
-            ctx.commit();
-        }
+        meteringGroupsService.createEnumeratedEndDeviceGroup(otherDevice)
+                .setName("First")
+                .at(Instant.EPOCH)
+                .setMRID("first")
+                .create();
+        meteringGroupsService.createEnumeratedEndDeviceGroup(otherDevice)
+                .setName("Second")
+                .at(Instant.EPOCH)
+                .setMRID("second")
+                .create();
 
         // Business method
         List<EnumeratedEndDeviceGroup> deviceGroups = meteringGroupsService.findEnumeratedEndDeviceGroupsContaining(endDevice);
@@ -222,25 +198,19 @@ public class EnumeratedEndDeviceGroupImplIT {
     }
 
     @Test
+    @Transactional
     public void findEndDeviceContainmentWithGroupContainingTheDeviceInThePast() {
-        EndDevice endDevice;
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
-            ctx.commit();
-        }
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_NAME).create();
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
-                    .setName("Mine")
-                    .setMRID("mine")
-                    .at(Instant.EPOCH)
-                    .create();
-            enumeratedEndDeviceGroup.endMembership(endDevice, Instant.ofEpochMilli(86400L));
-            enumeratedEndDeviceGroup.update();
-            ctx.commit();
-        }
+        EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
+                .setName("Mine")
+                .setMRID("mine")
+                .at(Instant.EPOCH)
+                .create();
+        enumeratedEndDeviceGroup.endMembership(endDevice, Instant.ofEpochMilli(86400L));
+        enumeratedEndDeviceGroup.update();
 
         // Business method
         List<EnumeratedEndDeviceGroup> deviceGroups = meteringGroupsService.findEnumeratedEndDeviceGroupsContaining(endDevice);
@@ -250,31 +220,23 @@ public class EnumeratedEndDeviceGroupImplIT {
     }
 
     @Test
+    @Transactional
     public void findEndDeviceContainment() {
-        EndDevice endDevice;
-        EndDevice otherDevice;
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
-            otherDevice = meteringService.findAmrSystem(1).get().newMeter("2").setMRID("OTHER").create();
-            ctx.commit();
-        }
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_NAME).create();
+        EndDevice otherDevice = meteringService.findAmrSystem(1).get().newMeter("2", "OTHER").create();
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-        EnumeratedEndDeviceGroup expectedGroup;
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            expectedGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
-                    .setName("First")
-                    .setMRID("first")
-                    .at(Instant.EPOCH)
-                    .create();
-            meteringGroupsService.createEnumeratedEndDeviceGroup(otherDevice)
-                    .setName("Second")
-                    .setMRID("second")
-                    .at(Instant.EPOCH)
-                    .create();
-            ctx.commit();
-        }
+        EnumeratedEndDeviceGroup expectedGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
+                .setName("First")
+                .setMRID("first")
+                .at(Instant.EPOCH)
+                .create();
+        meteringGroupsService.createEnumeratedEndDeviceGroup(otherDevice)
+                .setName("Second")
+                .setMRID("second")
+                .at(Instant.EPOCH)
+                .create();
 
         // Business method
         List<EnumeratedEndDeviceGroup> deviceGroups = meteringGroupsService.findEnumeratedEndDeviceGroupsContaining(endDevice);
@@ -285,41 +247,35 @@ public class EnumeratedEndDeviceGroupImplIT {
     }
 
     @Test
+    @Transactional
     public void testAmrIdQuey() {
         int NUMBER_OF_DEVICES_IN_GROUP = 24;
         List<EndDevice> endDevices = new ArrayList<>();
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         AmrSystem MDC = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalStateException::new);
         AmrSystem EAMS = meteringService.findAmrSystem(KnownAmrSystem.ENERGY_AXIS.getId()).orElseThrow(IllegalStateException::new);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            for (int i = 0; i < 2 * NUMBER_OF_DEVICES_IN_GROUP; i++) {
-                EndDevice endDevice = (i % 2 == 0 ? MDC : EAMS).newMeter("" + i).setMRID("MRID" + i).create();
-                endDevices.add(endDevice);
-            }
-            ctx.commit();
+        for (int i = 0; i < 2 * NUMBER_OF_DEVICES_IN_GROUP; i++) {
+            EndDevice endDevice = (i % 2 == 0 ? MDC : EAMS).newMeter("" + i, "MRID" + i).create();
+            endDevices.add(endDevice);
         }
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EndDevice[] list = new EndDevice[NUMBER_OF_DEVICES_IN_GROUP];
-            for (int i = 0; i < NUMBER_OF_DEVICES_IN_GROUP; i++) {
-                EndDevice endDevice = endDevices.get(i);
-                list[i] = endDevice;
-            }
-
-            meteringGroupsService.createEnumeratedEndDeviceGroup(list)
-                    .at(Instant.EPOCH)
-                    .setName("Mine")
-                    .setMRID("mine")
-                    .create();
-            ctx.commit();
+        EndDevice[] list = new EndDevice[NUMBER_OF_DEVICES_IN_GROUP];
+        for (int i = 0; i < NUMBER_OF_DEVICES_IN_GROUP; i++) {
+            EndDevice endDevice = endDevices.get(i);
+            list[i] = endDevice;
         }
+
+        meteringGroupsService.createEnumeratedEndDeviceGroup(list)
+                .at(Instant.EPOCH)
+                .setName("Mine")
+                .setMRID("mine")
+                .create();
 
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup("mine");
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get()).isInstanceOf(EnumeratedEndDeviceGroup.class);
         EnumeratedEndDeviceGroup group = (EnumeratedEndDeviceGroup) found.get();
-
 
         // get all
         Subquery subQuery = group.getAmrIdSubQuery();
@@ -332,36 +288,31 @@ public class EnumeratedEndDeviceGroupImplIT {
     }
 
     @Test
+    @Transactional
     public void testGetDevicesPagination() {
         int NUMBER_OF_DEVICES_IN_GROUP = 24;
         List<EndDevice> endDevices = new ArrayList<>();
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         AmrSystem MDC = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalStateException::new);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            for (int i = NUMBER_OF_DEVICES_IN_GROUP; i > 0; i--) {
-                EndDevice endDevice = MDC.newMeter("" + i).setMRID("MRID" + i).create();
-                endDevices.add(endDevice);
-            }
-            ctx.commit();
+        for (int i = NUMBER_OF_DEVICES_IN_GROUP; i > 0; i--) {
+            EndDevice endDevice = MDC.newMeter("" + i, "Name" + i).create();
+            endDevices.add(endDevice);
         }
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EndDevice[] list = new EndDevice[NUMBER_OF_DEVICES_IN_GROUP];
-            for (int i = 0; i < NUMBER_OF_DEVICES_IN_GROUP; i++) {
-                EndDevice endDevice = endDevices.get(i);
-                list[i] = endDevice;
-            }
-
-            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(list)
-                    .setName("Mine")
-                    .setMRID("STATIC DEVICE GROUP")
-                    .at(Instant.now())
-                    .create();
-            enumeratedEndDeviceGroup.endMembership(endDevices.get(23), Instant.now());
-            enumeratedEndDeviceGroup.update();
-            ctx.commit();
+        EndDevice[] list = new EndDevice[NUMBER_OF_DEVICES_IN_GROUP];
+        for (int i = 0; i < NUMBER_OF_DEVICES_IN_GROUP; i++) {
+            EndDevice endDevice = endDevices.get(i);
+            list[i] = endDevice;
         }
+
+        EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(list)
+                .setName("Mine")
+                .setMRID("STATIC DEVICE GROUP")
+                .at(Instant.now())
+                .create();
+        enumeratedEndDeviceGroup.endMembership(endDevices.get(23), Instant.now());
+        enumeratedEndDeviceGroup.update();
 
         Optional<EndDeviceGroup> optDeviceGroup = meteringGroupsService.findEndDeviceGroup("STATIC DEVICE GROUP");
         assertThat(optDeviceGroup.isPresent()).isTrue();
@@ -372,13 +323,13 @@ public class EnumeratedEndDeviceGroupImplIT {
         //page 1
         List<EndDevice> devicesPage_1 = group.getMembers(Instant.now(), 0, 10);
         assertThat(devicesPage_1).hasSize(11);
-        assertThat(devicesPage_1).isSortedAccordingTo((d1, d2) -> d1.getMRID().toUpperCase().compareTo(d2.getMRID().toUpperCase()));
-        assertThat(devicesPage_1.get(0).getMRID()).isEqualTo("MRID10");
+        assertThat(devicesPage_1).isSortedAccordingTo(Comparator.comparing(EndDevice::getName, String.CASE_INSENSITIVE_ORDER));
+        assertThat(devicesPage_1.get(0).getName()).isEqualTo("Name10");
         //page 2
         List<EndDevice> devicesPage_2 = group.getMembers(Instant.now(), 10, 10);
         assertThat(devicesPage_2).hasSize(11);
-        assertThat(devicesPage_2).isSortedAccordingTo((d1, d2) -> d1.getMRID().toUpperCase().compareTo(d2.getMRID().toUpperCase()));
-        assertThat(devicesPage_2.get(0).getMRID()).isEqualTo("MRID2");
+        assertThat(devicesPage_2).isSortedAccordingTo(Comparator.comparing(EndDevice::getName, String.CASE_INSENSITIVE_ORDER));
+        assertThat(devicesPage_2.get(0).getName()).isEqualTo("Name2");
         //page 3
         List<EndDevice> devicesPage_3 = group.getMembers(Instant.now(), 20, 100);
         assertThat(devicesPage_3).hasSize(3);

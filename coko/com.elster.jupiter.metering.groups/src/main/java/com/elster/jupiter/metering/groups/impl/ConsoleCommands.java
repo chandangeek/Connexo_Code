@@ -157,9 +157,9 @@ public class ConsoleCommands {
 
     public void endDeviceGroups() {
         meteringGroupsService.findEndDeviceGroups().stream()
-                .peek(group -> System.out.println(group.getId() + " " + group.getName()))
+                .peek(group -> System.out.println(group.getId() + ' ' + group.getName()))
                 .flatMap(group -> group.getMembers(clock.instant()).stream())
-                .map(device -> "\t" + device.getId() + " " + device.getMRID())
+                .map(device -> '\t' + device.getId() + ' ' + device.getName() + ' ' + device.getMRID())
                 .forEach(System.out::println);
     }
 

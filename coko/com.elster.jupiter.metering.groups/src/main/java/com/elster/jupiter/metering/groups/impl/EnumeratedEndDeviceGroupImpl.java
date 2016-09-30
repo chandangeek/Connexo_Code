@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -178,7 +177,8 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
         return getMemberships().stream()
                 .sorted(Comparator.comparing(m -> m.getEndDevice().getName()))
                 .filter(Active.at(instant))
-                .map(To.END_DEVICE);
+                .map(EndDeviceMembership::getEndDevice)
+                .sorted(Comparator.comparing(EndDevice::getName, String.CASE_INSENSITIVE_ORDER));
     }
 
     @Override
@@ -198,7 +198,7 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
         Condition condition = where("endDeviceGroup").isEqualTo(this).and(where("interval").isEffective(instant));
         int from = start + 1;
         int to = from + limit;
-        List<Entry> entryList = query.select(condition, from, to, Order.ascending("endDevice.mRID").toUpperCase());
+        List<Entry> entryList = query.select(condition, from, to, Order.ascending("endDevice.name").toUpperCase());
         return entryList.stream().map(Entry::getEndDevice).collect(Collectors.toList());
     }
 
@@ -359,16 +359,6 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
         @Override
         public boolean test(EndDeviceMembershipImpl membership) {
             return membership != null && membership.getRanges().contains(instant);
-        }
-    }
-
-    private enum To implements Function<EndDeviceMembership, EndDevice> {
-
-        END_DEVICE;
-
-        @Override
-        public EndDevice apply(EndDeviceMembership membership) {
-            return membership.getEndDevice();
         }
     }
 
