@@ -309,11 +309,8 @@ Ext.define('Uni.service.Search', {
                 Ext.Ajax.resumeEvent('requestexception');
             }
             searchResults.addFilter(me.getFilters(), false);
-            searchResults.loadPage(1, {
-                callback: function () {
-                    me.fireEvent('applyFilters', me, filters);
-                }
-            });
+            me.fireEvent('applyFilters', me, filters);
+            searchResults.loadPage(1);
         } else {
             searchResults.removeAll();
             searchResults.fireEvent('load', searchResults, [], true);
