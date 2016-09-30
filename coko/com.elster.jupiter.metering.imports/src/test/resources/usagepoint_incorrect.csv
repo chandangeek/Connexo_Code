@@ -1,2 +1,2 @@
 mRID;serviceKind;installationTime;serviceLocationString;name;outageregion;readroute;grounded;phaseCode;nominalVoltageValue;nominalVoltageMultiplier;nominalVoltageUnit;estimatedLoadValue;estimatedLoadMultiplier;estimatedLoadUnit;ratedCurrentValue;ratedCurrentMultiplier;ratedCurrentUnit;ratedPowerValue;ratedPowerMultiplier;ratedPowerUnit;loadLimiterType;allowUpdate
-UPS2;ELECTRICITY_FAIL;;serviceLocation;name;outageregion;readroute;YES;abcn;26.34;3;V;42525;3;W;13181;6;A;45292;9;W;aa;
+DOA_UPS1_UP001;ELECTRICITY_FAIL;;serviceLocation;name;outageregion;readroute;YES;abcn;26.34;3;V;42525;3;W;13181;6;A;45292;9;W;aa;

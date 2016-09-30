@@ -78,7 +78,7 @@ public enum DataImporterProperty {
                 Optional<UserPreference> thousandsSeparator = context.getUserService()
                         .getUserPreferencesService()
                         .getPreferenceByKey(user.get(), FormatKey.THOUSANDS_SEPARATOR);
-                Stream<SupportedNumberFormat> stream = Arrays.asList(SupportedNumberFormat.values()).stream();
+                Stream<SupportedNumberFormat> stream = Arrays.stream(SupportedNumberFormat.values());
                 if (decimalSeparator.isPresent()) {
                     stream = stream.filter(numberFormat -> numberFormat.getDecimalSeparator()
                             .toString()
@@ -112,8 +112,7 @@ public enum DataImporterProperty {
                         .get()
                         .getValue()).getFormat();
                 if (delimiterValue == numberFormatValue.getDecimalSeparator() ||
-                        (numberFormatValue.getGroupSeparator() != null && delimiterValue == numberFormatValue.getGroupSeparator()
-                                .charValue())) {
+                        (numberFormatValue.getGroupSeparator() != null && delimiterValue == numberFormatValue.getGroupSeparator())) {
                     throw new LocalizedFieldValidationException(MessageSeeds.NUMBER_FORMAT_IS_INCOMPATIBLE_WITH_DELIMITER, "properties." + this
                             .getPropertyKey());
                 }

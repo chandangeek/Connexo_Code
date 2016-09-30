@@ -39,6 +39,7 @@ public class UsagePointsImportProcessorForMultisense implements FileImportProces
 
     private UsagePoint processUsagePoint(UsagePointImportRecord data) {
         UsagePoint usagePoint;
+        // TODO: update
         String mRID = data.getmRID()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber()));
         String serviceKindString = data.getServiceKind()
@@ -55,7 +56,7 @@ public class UsagePointsImportProcessorForMultisense implements FileImportProces
             if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
                 throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
             }
-            return updateUsagePoint(usagePoint, data);
+            return usagePoint;
         } else {
             return createUsagePoint(serviceCategory.get().newUsagePoint(mRID, data.getInstallationTime().orElse(context.getClock().instant())), data);
         }
@@ -64,17 +65,12 @@ public class UsagePointsImportProcessorForMultisense implements FileImportProces
     private UsagePoint createUsagePoint(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
         usagePointBuilder.withIsSdp(false);
         usagePointBuilder.withIsVirtual(true);
+        // TODO: update import & remove withName
         usagePointBuilder.withName(data.getName());
         UsagePoint usagePoint = usagePointBuilder.create();
         usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, context.getClock().instant()));
         usagePoint.update();
         setMetrologyConfigurationForUsagePoint(data, usagePoint);
-        return usagePoint;
-    }
-
-    private UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data) {
-        usagePoint.setName(data.getName());
-        usagePoint.update();
         return usagePoint;
     }
 

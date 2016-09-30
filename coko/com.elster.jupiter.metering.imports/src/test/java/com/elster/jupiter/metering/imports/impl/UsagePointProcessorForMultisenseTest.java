@@ -124,7 +124,7 @@ public class UsagePointProcessorForMultisenseTest {
         when(usagePointBuilder.validate()).thenReturn(usagePoint);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategoryTwo);
         when(serviceCategoryTwo.newUsagePointDetail(any(), any())).thenReturn(usagePointDetail);
-        when(serviceCategoryTwo.newUsagePoint(anyString(), any(Instant.class))).thenReturn(usagePointBuilder);
+        when(serviceCategoryTwo.newUsagePoint(eq("DOA_UPS1_UP001"), any(Instant.class))).thenReturn(usagePointBuilder);
         when(serviceCategoryTwo.getKind()).thenReturn(ServiceKind.ELECTRICITY);
         when(serviceCategoryTwo.getId()).thenReturn(34L);
         when(thesaurus.getFormat((Matchers.any(MessageSeeds.class)))).thenReturn(nlsMessageFormat);

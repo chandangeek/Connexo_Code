@@ -68,6 +68,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
     }
 
     private void validate(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
+        // TODO: update
         String mRID = data.getmRID()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber()));
         String serviceKindString = data.getServiceKind()
@@ -98,6 +99,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
 
     private UsagePoint getUsagePoint(UsagePointImportRecord data, FileImportLogger logger) {
         UsagePoint usagePoint;
+        // TODO: update
         String mRID = data.getmRID()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber()));
         String serviceKindString = data.getServiceKind()
@@ -204,6 +206,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             isVirtual = false;
         }
         usagePointBuilder.withIsVirtual(isVirtual);
+        // TODO: update import & remove withName
         usagePointBuilder.withName(data.getName());
         usagePointBuilder.withOutageRegion(data.getOutageRegion());
         usagePointBuilder.withReadRoute(data.getReadRoute());
@@ -241,7 +244,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
             usagePoint.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
-        usagePoint.setName(data.getName());
         usagePoint.setOutageRegion(data.getOutageRegion());
         usagePoint.setReadRoute(data.getReadRoute());
         usagePoint.setServicePriority(data.getServicePriority());
