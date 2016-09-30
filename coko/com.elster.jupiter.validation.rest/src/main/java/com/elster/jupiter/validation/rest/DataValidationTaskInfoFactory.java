@@ -141,7 +141,7 @@ public class DataValidationTaskInfoFactory {
         info.startedOn = dataValidationOccurrence.getStartDate().orElse(null);
         info.finishedOn = dataValidationOccurrence.getEndDate().orElse(null);
         info.duration = calculateDuration(info.startedOn, info.finishedOn);
-        info.status = dataValidationOccurrence.getStatus().getDisplayName(thesaurus);
+        info.status = dataValidationOccurrence.getStatusName();
         info.reason = dataValidationOccurrence.getFailureReason();
         info.lastRun = dataValidationOccurrence.getTriggerTime();
         setStatusOnDate(info, dataValidationOccurrence);
@@ -165,8 +165,7 @@ public class DataValidationTaskInfoFactory {
 
     private void setStatusOnDate(DataValidationTaskHistoryInfo info, DataValidationOccurrence dataValidationOccurrence) {
         DataValidationTaskStatus dataExportStatus = dataValidationOccurrence.getStatus();
-        String statusTranslation =
-                thesaurus.getStringBeyondComponent(dataExportStatus.toString(), dataExportStatus.toString());
+        String statusTranslation = dataValidationOccurrence.getStatusName();
         if (DataValidationTaskStatus.BUSY.equals(dataExportStatus)) {
             info.statusPrefix = statusTranslation + " " + thesaurus.getString("since", "since");
             info.statusDate = info.startedOn;
@@ -185,7 +184,4 @@ public class DataValidationTaskInfoFactory {
         return finishedOn.toEpochMilli() - startedOn.toEpochMilli();
     }
 
-    private String getName(DataValidationTaskStatus status) {
-        return thesaurus.getStringBeyondComponent(status.toString(), status.toString());
-    }
 }
