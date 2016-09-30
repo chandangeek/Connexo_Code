@@ -89,7 +89,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             success: function (device) {
                 me.device = device;
                 var connectionMethodModel = Ext.ModelManager.getModel('Mdc.model.DeviceConnectionMethod');
-                connectionMethodModel.getProxy().setExtraParam('mrid', encodeURIComponent(deviceMrId));
+                connectionMethodModel.getProxy().setExtraParam('mrid', deviceMrId);
                 connectionMethodModel.load(connectionMethodId, {
                     success: function (connectionMethod) {
                         var widget = Ext.widget('deviceConnectionHistoryMain', {
@@ -144,7 +144,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
 
         deviceConnectionHistoryPreviewMenu.add(menuItem);
         deviceConnectionHistoryGridActionColumn.menu.add(menuItem);
-        deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('mRID', encodeURIComponent(this.deviceMrId));
+        deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('mRID', this.deviceMrId);
         deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('connectionId', this.connectionMethodId);
         deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('sessionId', connectionHistory.get('id'));
 
@@ -210,14 +210,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
 
         deviceModel.load(deviceMrId, {
             success: function (device) {
-                connectionMethodModel.getProxy().setExtraParam('mrid', encodeURIComponent(deviceMrId));
+                connectionMethodModel.getProxy().setExtraParam('mrid', deviceMrId);
                 connectionMethodModel.load(deviceConnectionMethodId, {
                     success: function (connectionMethod) {
-                        comSessionHistory.getProxy().setExtraParam('mRID', encodeURIComponent(deviceMrId));
+                        comSessionHistory.getProxy().setExtraParam('mRID', deviceMrId);
                         comSessionHistory.getProxy().setExtraParam('connectionId', deviceConnectionMethodId);
                         comSessionHistory.load(deviceConnectionHistoryId, {
                             success: function (deviceConnectionHistory) {
-                                store.getProxy().setExtraParam('mRID', encodeURIComponent(deviceMrId));
+                                store.getProxy().setExtraParam('mRID', deviceMrId);
                                 store.getProxy().setExtraParam('connectionId', deviceConnectionMethodId);
                                 store.getProxy().setExtraParam('sessionId', deviceConnectionHistoryId);
 
