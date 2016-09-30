@@ -140,7 +140,7 @@ public class DeviceInstallationImporterFactoryTest {
         final String templateMembers = "#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale";
         when(dataModel.getInstance(LocationTemplateImpl.class)).thenReturn(new LocationTemplateImpl(dataModel));
         endDevice = mock(EndDevice.class, Mockito.RETURNS_DEEP_STUBS);
-        when(endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder()).thenReturn(locationBuilder);
+        when(endDevice.getAmrSystem().newMeter(eq(endDevice.getAmrId()), anyString()).newLocationBuilder()).thenReturn(locationBuilder);
         locationTemplate = LocationTemplateImpl.from(dataModel, templateMembers, templateMembers);
         locationTemplate.parseTemplate(templateMembers, templateMembers);
         when(context.getMeteringService().getLocationTemplate()).thenReturn(locationTemplate);

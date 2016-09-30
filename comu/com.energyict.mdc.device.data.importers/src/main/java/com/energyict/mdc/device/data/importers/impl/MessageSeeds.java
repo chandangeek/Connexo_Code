@@ -35,7 +35,7 @@ public enum MessageSeeds implements MessageSeed {
     READING_DATE_AFTER_METER_ACTIVATION(202, "ReadingDateAfterMeterActivation", "Note for line {0}: Reading date: {1} is after the last meter activation end date and will not be stored.", Level.WARNING),
     NO_SUCH_READING_TYPE(203, "NoSuchReadingType", "Can''t process line {0}: Reading type {1} doesn''t exist", Level.WARNING),
     NOT_SUPPORTED_READING_TYPE(204, "NotSupportedReadingType", "Can''t process line {0}: Reading type {1} is not supported. Supported reading types: registers and channels with integration time >= day.", Level.WARNING),
-    DEVICE_DOES_NOT_SUPPORT_READING_TYPE(205, "DeviceDoesNotSupportReadingType", "Can''t process line {0}: Reading type {1} is not available for the device {2}", Level.WARNING),
+    DEVICE_DOES_NOT_SUPPORT_READING_TYPE(205, "DeviceDoesNotSupportReadingType", "Can''t process line {0}: Reading type {1} is not available for device {2}", Level.WARNING),
     READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW(206, "ReadingValueDoesNotMatchRegisterConfigOverflow", "Can''t process line {0}: Reading value for reading type {1} of device {2} doesn''t match with register configuration settings (overflow)", Level.WARNING),
     READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW(207, "ReadingValueDoesNotMatchChannelConfigOverflow", "Can''t process line {0}: Reading value for reading type {1} of device {2} doesn''t match with channel configuration settings (overflow)", Level.WARNING),
     READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG(208, "ReadingValueWasTruncatedToRegisterConfig", "Note for line {0}: Reading value was truncated to {1} according to register configuration.", Level.INFO),
@@ -61,8 +61,8 @@ public enum MessageSeeds implements MessageSeed {
     LINE_MISSING_LOCATION_VALUE(407, "LineMissingLocationValue", "Can''t process line {0}: missing value for field ''{1}''.", Level.SEVERE),
 
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE(501, "UsagePointAlreadyLinkedToAnotherDeviceX", "Can''t process line {0}: Usage point {1} is already linked to device {2} starting from {3}", Level.WARNING),
-    USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(502, "UsagePointAlreadyLinkedToAnotherDeviceXUntil", "Can''t process line {0}: Usage point {1} is already linked to device {2} starting from {3} until {4}", Level.WARNING),
-    UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(503, "DeviceDoesNotProvideRequiredReadingTypes", "Can''t process line {0}: The device {1} doesn''t have the following reading types that are specified in the metrology configurations of the selected usage point {2}: {3}", Level.WARNING),
+    USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(502, "UsagePointAlreadyLinkedToAnotherDeviceXUntil", "Can''t process line {0}: Usage point {1} is already linked to device {2} from {3} until {4}", Level.WARNING),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(503, "DeviceDoesNotProvideRequiredReadingTypes", "Can''t process line {0}: Device {1} doesn''t have the following reading types that are specified in the metrology configurations of selected usage point {2}: {3}", Level.WARNING),
     ;
 
     private final int number;

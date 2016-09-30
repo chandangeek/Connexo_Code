@@ -51,7 +51,7 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
         EndDevice endDevice = findEndDeviceByIdentifier(data.getDeviceIdentifier())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
         if(locationData!=null && !locationData.isEmpty()){
-            LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder();
+            LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId(), "Fake").newLocationBuilder();
             Map<String, Integer> ranking = super.getContext()
                     .getMeteringService()
                     .getLocationTemplate()
@@ -140,6 +140,7 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
                 .findFirst()
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                // TODO: MRID -> name
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_USAGE_POINT, data.getLineNumber(),
                         data.getUsagePointIdentifier(), Arrays.stream(ServiceKind.values())
                         .map(ServiceKind::getDisplayName)

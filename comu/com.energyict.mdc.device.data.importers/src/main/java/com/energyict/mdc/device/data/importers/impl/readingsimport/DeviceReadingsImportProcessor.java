@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -212,7 +211,7 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
 
     private void addReading(ReadingType readingType, BigDecimal value, Instant timeStamp) {
         if (readingType.isRegular()) {
-            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, value, Collections.<ReadingQuality>emptyList()));
+            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, value, Collections.emptyList()));
             if (!lastReadingPerChannel.containsKey(readingType) || timeStamp.isAfter(lastReadingPerChannel.get(readingType))) {
                 lastReadingPerChannel.put(readingType, timeStamp);
             }
