@@ -7,11 +7,11 @@ import com.elster.jupiter.util.units.Dimension;
 /**
  * Created by igh on 15/04/2016.
  */
-public class NullNodeImpl extends AbstractNode implements NullNode {
+class NullNodeImpl extends AbstractNode implements NullNode {
 
     static final String TYPE_IDENTIFIER = "NUL";
 
-    public NullNodeImpl() {
+    NullNodeImpl() {
         super();
     }
 
