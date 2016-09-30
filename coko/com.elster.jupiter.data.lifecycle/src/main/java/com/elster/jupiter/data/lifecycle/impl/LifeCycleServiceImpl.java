@@ -34,12 +34,12 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
@@ -231,10 +231,11 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
 
 	@Override
 	public List<TranslationKey> getKeys() {
-		List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(LifeCycleCategoryKindTranslationKeys.values()));
-		translationKeys.add(new SimpleTranslationKey(Installer.DATA_LIFE_CYCLE_DESTINATION_NAME, Installer.DATA_LIFE_CYCLE_DISPLAY_NAME));
-		Arrays.stream(Privileges.values()).forEach(translationKeys::add);
-		return translationKeys;
+        List<TranslationKey> keys = new ArrayList<>();
+        Stream.of(LifeCycleCategoryKindTranslationKeys.values()).forEach(keys::add);
+        Stream.of(Privileges.values()).forEach(keys::add);
+        Stream.of(TranslationKeys.values()).forEach(keys::add);
+        return keys;
 	}
 
 }
