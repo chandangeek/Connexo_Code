@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
@@ -170,7 +169,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         return loadProfileSpecs
                 .stream()
                 .map(LoadProfileSpec::getLoadProfileType)
-                .map(HasName::getName)
+                .map(LoadProfileType::getName)
                 .collect(Collectors.joining(", "));
     }
 
