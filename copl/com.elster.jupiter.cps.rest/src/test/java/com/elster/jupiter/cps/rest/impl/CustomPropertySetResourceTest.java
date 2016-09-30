@@ -6,12 +6,15 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.Sets;
 
@@ -29,7 +32,7 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -148,6 +151,9 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
     private void mockRegisteredCustomPropertySets() {
         RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet();
         when(customPropertySetService.findActiveCustomPropertySets()).thenReturn(Arrays.asList(registeredCustomPropertySet));
-        when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenReturn("com.elster.jupiter.properties.BigDecimalFactory");
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("com.elster.jupiter.properties.BigDecimalFactory");
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
     }
 }
