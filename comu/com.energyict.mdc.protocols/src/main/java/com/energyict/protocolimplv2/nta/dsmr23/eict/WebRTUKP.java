@@ -4,20 +4,36 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.*;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelType;
+import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -26,24 +42,32 @@ import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocolimplv2.common.MyOwnPrivateRegister;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.dlms.DlmsProperties;
-import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialect;
 import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.protocolimplv2.common.MyOwnPrivateRegister;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.DlmsProperties;
+import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
+import com.energyict.protocolimplv2.nta.IOExceptionHandler;
+import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * General error handling principle:
@@ -177,7 +201,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
         } catch (IOException e) {
             if (IOExceptionHandler.isUnexpectedResponse(e, getDlmsSession())) {
                 OfflineRegister source = new MyOwnPrivateRegister(getOfflineDevice(), Disconnector.getDefaultObisCode());
-                result.setFailureInformation(ResultType.InCompatible, getIssueService().newProblem(source, MessageSeeds.COULD_NOT_READ_BREAKER_STATE, e.toString()));
+                result.setFailureInformation(ResultType.InCompatible, getIssueService().newProblem(source, MessageSeeds.COULD_NOT_READ_BREAKER_STATE, e));
             }
         }
         return result;

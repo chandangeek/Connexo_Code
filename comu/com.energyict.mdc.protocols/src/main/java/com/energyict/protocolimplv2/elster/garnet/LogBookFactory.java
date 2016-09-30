@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
@@ -13,7 +14,6 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
 import com.energyict.protocolimplv2.elster.garnet.structure.LogBookEventResponseStructure;
@@ -116,7 +116,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
                     ResultType.InCompatible,
                     this.issueService.newProblem(
                             logBookReader.getLogBookObisCode(),
-                            MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA));
+                            MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA, e));
         }
 
         collectedLogBook.setMeterEvents(meterEvents);

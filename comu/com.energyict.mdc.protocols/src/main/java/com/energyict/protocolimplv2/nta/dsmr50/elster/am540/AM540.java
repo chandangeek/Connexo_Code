@@ -3,25 +3,37 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.protocolimplv2.ApplicationServiceObjectV2;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.*;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelType;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -30,6 +42,20 @@ import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialect;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.protocolimplv2.ApplicationServiceObjectV2;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimplv2.common.MyOwnPrivateRegister;
@@ -43,17 +69,17 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messag
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles.AM540LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr50.registers.Dsmr50RegisterFactory;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
-import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialect;
-import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.io.IOException;
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -415,7 +441,7 @@ public class AM540 extends AbstractDlmsProtocol {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
-                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE, e);
         }
         return collectedCalendar;
     }
@@ -427,7 +453,7 @@ public class AM540 extends AbstractDlmsProtocol {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
-                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE, e);
         }
         try {
             collectedCalendar.setPassiveCalendar(activityCalendar.readCalendarNamePassive().stringValue());
@@ -435,7 +461,7 @@ public class AM540 extends AbstractDlmsProtocol {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
-                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE, e);
         }
     }
 

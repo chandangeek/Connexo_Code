@@ -106,7 +106,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             loadProfileConfig.setSupportedByMeter(false);
             loadProfileConfig.setFailureInformation(
                     ResultType.InCompatible,
-                    this.issueService.newProblem(reader, MessageSeeds.COULD_NOT_PARSE_LOADPROFILE_DATA));
+                    this.issueService.newProblem(reader, MessageSeeds.COULD_NOT_PARSE_LOADPROFILE_DATA, e));
         }
     }
 
