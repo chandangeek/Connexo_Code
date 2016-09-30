@@ -2,41 +2,34 @@ package com.energyict.mdc.issue.issue.datacollection.rest;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmServer;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
-import com.elster.jupiter.issue.rest.request.PerformActionRequest;
-import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.IssueProcessInfos;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.net.URLEncoder;
-import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest {
 
     @Test
     public void testGetIssueById() {
-        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.<Device>empty());
+        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
         Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
         doReturn(issue).when(issueDataCollectionService).findIssue(1);
 
@@ -181,7 +174,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         Map<?, ?> deviceMap = (Map<?, ?>) issueMap.get("device");
         assertThat(deviceMap.get("id")).isEqualTo(1);
         assertThat(deviceMap.get("serialNumber")).isEqualTo("0.0.0.0.0.0.0.0");
-        assertThat(deviceMap.get("name")).isEqualTo(null);
+        assertThat(deviceMap.get("name")).isEqualTo("DefaultDevice");
         assertThat(deviceMap.get("usagePoint")).isEqualTo(null);
         assertThat(deviceMap.get("serviceLocation")).isEqualTo(null);
         assertThat(deviceMap.get("serviceCategory")).isEqualTo(null);

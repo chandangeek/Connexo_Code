@@ -122,11 +122,12 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         return mockReason("1", "Reason", getDefaultIssueType());
     }
 
-    protected Meter mockDevice(long id, String mrid) {
+    protected Meter mockDevice(long id, String name) {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(id);
-        when(meter.getMRID()).thenReturn(mrid);
+        when(meter.getName()).thenReturn(name);
         when(meter.getAmrId()).thenReturn(String.valueOf(id));
+        when(meter.getSerialNumber()).thenReturn("0.0.0.0.0.0.0.0");
         Optional<? extends MeterActivation> optionalMA = Optional.empty();
         doReturn(optionalMA).when(meter).getCurrentMeterActivation();
         AmrSystem amrSystem = mock(AmrSystem.class);
@@ -136,7 +137,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
     }
 
     protected Meter getDefaultDevice() {
-        return mockDevice(1, "0.0.0.0.0.0.0.0");
+        return mockDevice(1, "DefaultDevice");
     }
 
     protected IssueAssignee mockAssignee(long id, String name, String type) {
