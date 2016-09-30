@@ -17,17 +17,16 @@ public class EstimationBlockFormatter {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(ZoneId.systemDefault()).withLocale(Locale.ENGLISH);
 
     public String format(EstimationBlock estimationBlock) {
-        return new StringBuilder().append(estimationBlock.getReadingType().getAliasName())
-                .append(" from ")
-                .append(DATE_TIME_FORMATTER.format(estimationBlock.estimatables().get(0).getTimestamp()))
-                .append(" until ")
-                .append(DATE_TIME_FORMATTER.format(estimationBlock.estimatables().get(estimationBlock.estimatables().size() - 1).getTimestamp()))
-                .append(" on ")
-                .append(estimationBlock.getReadingType().getAliasName())
-                .append(estimationBlock.getChannel().getChannelsContainer().getMeter().map(meter -> " and device " + meter.getMRID()).orElse(""))
-                .append(" with ")
-                .append(estimationBlock.estimatables().size())
-                .append(" suspects")
-                .toString();
+        return estimationBlock.getReadingType().getAliasName() +
+                " from " +
+                DATE_TIME_FORMATTER.format(estimationBlock.estimatables().get(0).getTimestamp()) +
+                " until " +
+                DATE_TIME_FORMATTER.format(estimationBlock.estimatables().get(estimationBlock.estimatables().size() - 1).getTimestamp()) +
+                " on " +
+                estimationBlock.getReadingType().getAliasName() +
+                estimationBlock.getChannel().getChannelsContainer().getMeter().map(meter -> " and meter " + meter.getName()).orElse("") +
+                " with " +
+                estimationBlock.estimatables().size() +
+                " suspects";
     }
 }

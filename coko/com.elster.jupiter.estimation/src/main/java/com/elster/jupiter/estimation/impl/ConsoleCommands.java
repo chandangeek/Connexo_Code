@@ -1,6 +1,5 @@
 package com.elster.jupiter.estimation.impl;
 
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
@@ -419,7 +418,7 @@ public class ConsoleCommands {
     private void appendRule(StringBuilder builder, EstimationRule rule) {
         builder.append('\t').append(rule.getId()).append(' ').append(rule.getName()).append(" : ").append(rule.getImplementation()).append('\n');
         rule.getReadingTypes().stream()
-                .sorted(Comparator.comparing(IdentifiedObject::getMRID))
+                .sorted(Comparator.comparing(ReadingType::getMRID))
                 .forEach(rt -> builder.append('\t').append('\t').append(rt.getMRID()).append('\n'));
         rule.getProperties().stream()
                 .sorted(Comparator.comparing(EstimationRuleProperties::getName))
