@@ -261,8 +261,8 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     public Map<ReadingTypeDeliverable, ChannelDataValidationSummary> getValidationSummary(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
                                                                                           MetrologyContract contract, Range<Instant> interval) {
         ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(contract)
-                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT,
-                        contract.getMetrologyPurpose().getId(), effectiveMetrologyConfiguration.getUsagePoint().getMRID()) {});
+                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT,
+                        contract.getId(), effectiveMetrologyConfiguration.getUsagePoint().getName()) {});
         Optional<Range<Instant>> optionalIntervalWithData = Optional.of(container)
                 .map(Effectivity::getInterval)
                 .map(Interval::toOpenClosedRange)

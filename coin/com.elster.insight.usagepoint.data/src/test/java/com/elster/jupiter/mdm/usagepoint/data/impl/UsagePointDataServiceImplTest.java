@@ -21,8 +21,10 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.Pair;
@@ -130,13 +132,12 @@ public class UsagePointDataServiceImplTest {
 
     @Before
     public void setUp() {
+        when(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
         when(ormService.newDataModel(eq(UsagePointDataService.COMPONENT_NAME), anyString())).thenReturn(dataModel);
         when(clock.instant()).thenReturn(NOW);
-        when(usagePoint.getMRID()).thenReturn("Mrmrmrrr");
+        when(usagePoint.getName()).thenReturn("Mrmrmrrr");
         when(metrologyContract.getId()).thenReturn(777L);
         when(metrologyContract.getDeliverables()).thenReturn(Arrays.asList(deliverable1, deliverable2));
-        when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
-        when(metrologyPurpose.getId()).thenReturn(311L);
         when(deliverable1.getReadingType()).thenReturn(readingType);
         when(deliverable2.getReadingType()).thenReturn(readingType);
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
@@ -272,7 +273,7 @@ public class UsagePointDataServiceImplTest {
     public void testGetValidationSummaryIfMetrologyPurposeIsNotLinkedToUsagePoint() {
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.empty());
         expectedException.expect(LocalizedException.class);
-        expectedException.expectMessage(equalTo("Metrology purpose with id 311 is not found on usage point with MRID Mrmrmrrr."));
+        expectedException.expectMessage(equalTo("Metrology contract with id 777 is not found on usage point Mrmrmrrr."));
         usagePointDataService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
     }
 
