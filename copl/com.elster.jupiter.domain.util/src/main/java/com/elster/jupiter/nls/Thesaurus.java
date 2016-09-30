@@ -27,9 +27,6 @@ public interface Thesaurus extends MessageInterpolator {
     String getStringBeyondComponent(String key, String defaultMessage);
 
     @Deprecated
-    String getStringBeyondComponent(Locale locale, String key, String defaultMessage);
-
-    @Deprecated
     String getString(String key, String defaultMessage);
 
     @Deprecated

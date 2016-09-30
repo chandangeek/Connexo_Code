@@ -32,11 +32,6 @@ public class CompositeThesaurus implements IThesaurus {
     }
 
     @Override
-    public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
-        return components.stream().findFirst().map(thesaurus -> thesaurus.getStringBeyondComponent(locale, key, defaultMessage)).orElse(defaultMessage);
-    }
-
-    @Override
     public String getString(String key, String defaultMessage) {
         return components.stream()
                 .map(th -> th.getString(key, null))

@@ -84,8 +84,7 @@ class ThesaurusImpl implements IThesaurus {
         return this.getStringBeyondComponent(getLocale(), key, defaultMessage);
     }
 
-    @Override
-    public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
+    private String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
         if (translations.containsKey(key)) {
             return translations.get(key).translate(locale).orElse(defaultMessage);
         } else {
