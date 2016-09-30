@@ -106,9 +106,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return meteringService.getServiceCategory(usagePointInfo.serviceCategory)
                 .orElseThrow(IllegalArgumentException::new)
                 .newUsagePoint(
-                        usagePointInfo.mRID,
-                        usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant())
-                .withName(usagePointInfo.name);
+                        usagePointInfo.name,
+                        usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant());
     }
 
     static class EmptyDomain {

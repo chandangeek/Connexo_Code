@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.whiteboard.ReferenceInfo;
 import com.elster.jupiter.rest.whiteboard.SpecificReferenceResolver;
@@ -14,7 +13,7 @@ public class UsagePointReferenceResolver implements SpecificReferenceResolver {
     @Override
     public Optional<ReferenceInfo> resolve(Object object) {
         if (object instanceof UsagePoint) {
-            return Optional.of(new ReferenceInfo("com.elster.jupiter.metering.UsagePoint", ((UsagePoint) object).getMRID()));
+            return Optional.of(new ReferenceInfo("com.elster.jupiter.metering.UsagePoint", ((UsagePoint) object).getName()));
         }
         return Optional.empty();
     }

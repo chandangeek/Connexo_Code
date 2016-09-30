@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionEnd;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
@@ -36,8 +37,6 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -67,7 +66,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 
 @Path("/usagepoints")
 public class UsagePointResource {
@@ -114,7 +112,7 @@ public class UsagePointResource {
                                         @QueryParam("like") String like) {
         UsagePointFilter usagePointFilter = new UsagePointFilter();
         if (!Checks.is(like).emptyOrOnlyWhiteSpace()) {
-            usagePointFilter.setMrid("*" + like + "*");
+            usagePointFilter.setName("*" + like + "*");
         }
         usagePointFilter.setAccountabilityOnly(!maySeeAny(securityContext));
         List<UsagePointInfo> usagePoints = meteringService.getUsagePoints(usagePointFilter).from(queryParameters)
@@ -157,7 +155,7 @@ public class UsagePointResource {
     @Transactional
     public Response createUsagePoint(UsagePointInfo info) {
         new RestValidationBuilder()
-                .notEmpty(info.mRID, "mRID")
+                .notEmpty(info.name, "name")
                 .notEmpty(info.serviceCategory, "serviceCategory")
                 .validate();
         if (info.installationTime == null) {
@@ -295,7 +293,7 @@ public class UsagePointResource {
                         .findAllMetrologyConfigurations()
                         .stream()
                         .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
-                        .filter(mc -> mc.isActive())
+                        .filter(MetrologyConfiguration::isActive)
                         .filter(mc -> mc.getServiceCategory().equals(serviceCategory))
                         .map(UsagePointMetrologyConfiguration.class::cast)
                         .collect(Collectors.toList());
@@ -368,6 +366,7 @@ public class UsagePointResource {
         return Response.status(Response.Status.OK).entity(info).build();
     }
 
+    // TODO: delete implementation must not depend on a request body!
     @DELETE
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{mRID}/metrologyconfigurationversion/{configVersionId}")
@@ -388,7 +387,7 @@ public class UsagePointResource {
         List<IntervalReadingRecord> readings = new ArrayList<>();
         for (MeterActivation meterActivation : meterActivationsForReadingTypeWithMRID(mRID, rtMrid)) {
             if (readingType == null) {
-                readingType = FluentIterable.from(meterActivation.getReadingTypes()).firstMatch(new MRIDMatcher(rtMrid)).get();
+                readingType = meterActivation.getReadingTypes().stream().filter(rt -> rt.getMRID().equals(rtMrid)).findFirst().get();
             }
             for (Channel channel : meterActivation.getChannelsContainer().getChannels()) {
                 readings.addAll(channel.getIntervalReadings(readingType, range));
@@ -397,9 +396,12 @@ public class UsagePointResource {
         return new ReadingInfos(readings);
     }
 
-    private FluentIterable<? extends MeterActivation> meterActivationsForReadingTypeWithMRID(String mRID, String rtMrid) {
+    private List<? extends MeterActivation> meterActivationsForReadingTypeWithMRID(String mRID, String rtMrid) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
-        return FluentIterable.from(usagePoint.getMeterActivations()).filter(new HasReadingType(rtMrid));
+        return usagePoint.getMeterActivations().stream()
+                .filter(meterActivation -> meterActivation != null
+                        && meterActivation.getReadingTypes().stream().anyMatch(rt -> rt.getMRID().equals(rtMrid)))
+                .collect(Collectors.toList());
     }
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
@@ -417,33 +419,4 @@ public class UsagePointResource {
         return meteringService.findUsagePoint(mRID)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mRID));
     }
-
-    private static class HasReadingType implements Predicate<MeterActivation> {
-
-        private final MRIDMatcher mridMatcher;
-
-        private HasReadingType(String mRID) {
-            mridMatcher = new MRIDMatcher(mRID);
-        }
-
-        @Override
-        public boolean apply(MeterActivation input) {
-            return input != null && FluentIterable.from(input.getReadingTypes()).anyMatch(mridMatcher);
-        }
-    }
-
-    private static final class MRIDMatcher implements Predicate<ReadingType> {
-
-        private final String mRID;
-
-        private MRIDMatcher(String mRID) {
-            this.mRID = mRID;
-        }
-
-        @Override
-        public boolean apply(ReadingType input) {
-            return input.getMRID().equals(mRID);
-        }
-    }
-
 }
