@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
     deviceId: null, // is already encodeURIComponent'ed
     router: null,
     showDataLoggerSlaveColumn: false,
-    store: 'RegisterConfigsOfDevice',
+    store: 'Mdc.store.RegisterConfigsOfDevice',
     scroll: false,
     requires: [
         'Uni.view.toolbar.PagingTop',
@@ -73,7 +73,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 }
             }
         );
-
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
