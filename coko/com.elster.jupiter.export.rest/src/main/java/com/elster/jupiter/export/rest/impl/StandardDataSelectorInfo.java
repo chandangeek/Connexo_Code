@@ -7,6 +7,7 @@ import com.elster.jupiter.export.EventDataSelector;
 import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 
@@ -34,9 +35,10 @@ public class StandardDataSelectorInfo {
 
     public StandardDataSelectorInfo(StandardDataSelector selector, Thesaurus thesaurus) {
         populateFrom(selector, thesaurus);
+        ReadingTypeInfoFactory readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         readingTypes = selector.getReadingTypes()
                 .stream()
-                .map(ReadingTypeInfo::new)
+                .map(readingTypeInfoFactory::from)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
