@@ -40,7 +40,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
@@ -50,6 +49,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -79,6 +79,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
@@ -152,7 +153,13 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                     bind(Clock.class).toInstance(clock);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
+            upgradeService.register(
+                    InstallIdentifier.identifier("Pulse", COMPONENTNAME),
+                    dataModel,
+                    InstallerImpl.class,
+                    ImmutableMap.of(
+                            version(10, 2), UpgraderV10_2.class
+                    ));
         } catch (Exception e) {
             e.printStackTrace();
         }
