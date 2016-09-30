@@ -1,7 +1,9 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterFilter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -74,18 +76,17 @@ public class DeviceResource {
     @Path("/available")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getAvailableMeters(@BeanParam JsonQueryParameters params) {
-        Query<Meter> meterQuery = meteringService.getMeterQuery();
         String searchText = params.getLike();
-        Integer start = params.getStart().isPresent() ? params.getStart().get() : 1;
-        Integer limit = params.getLimit().isPresent() ? params.getLimit().get() : 50;
+        Integer start = params.getStart().orElse(1);
+        Integer limit = params.getLimit().orElse(50);
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
-        Condition condition = where("mRID").likeIgnoreCase(dbSearchText);
-        List<Meter> listMeters = meterQuery.select(condition, start + 1, limit, Order.ascending("mRID"))
-                .stream()
-                .filter(ed -> ed.getState().isPresent() && !ed.getState().get().getName().equals("dlc.default.removed"))
-                .filter(ed -> ed.getState().isPresent() && !ed.getState().get().getName().equals("dlc.default.decomissioned"))
-                .collect(Collectors.toList());
-        return Response.ok().entity(toMeterInfos(listMeters, start, limit)).build();
+        MeterFilter filter = new MeterFilter();
+        filter.setMrid(dbSearchText);
+        filter.addState("dlc.default.removed");
+        filter.addState("dlc.default.decommissioned");
+        Finder<Meter> finder = meteringService.findMeters(filter);
+        return Response.ok().entity(toMeterInfos(params.getStart().isPresent()
+                && params.getLimit().isPresent() ? finder.from(params).find() : finder.paged(start, limit).find(), start, limit)).build();
     }
 
 
