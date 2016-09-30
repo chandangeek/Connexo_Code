@@ -9,7 +9,6 @@ import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 
 import org.osgi.service.component.annotations.Component;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,8 +43,8 @@ public class PublicRestAppServiceImpl implements TranslationKeyProvider, Applica
         return
             Stream
                 .concat(
-                    Arrays.stream(Privileges.values()),
-                    Arrays.stream(TranslationKeys.values()))
+                    Stream.of(Privileges.values()),
+                    Stream.of(TranslationKeys.values()))
                 .collect(Collectors.toList());
     }
 
