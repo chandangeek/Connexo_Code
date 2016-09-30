@@ -3,11 +3,14 @@ package com.elster.jupiter.systemadmin.rest;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.system.SubsystemService;
 import com.elster.jupiter.systemadmin.rest.imp.SystemApplication;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 
 import org.osgi.framework.BundleContext;
@@ -17,7 +20,9 @@ import java.time.Clock;
 
 import org.mockito.Mock;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SystemApplicationJerseyTest extends FelixRestApplicationJerseyTest {
@@ -41,7 +46,10 @@ public class SystemApplicationJerseyTest extends FelixRestApplicationJerseyTest 
     @Override
     public void setupMocks() {
         super.setupMocks();
-        when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenAnswer(invocationOnMock -> (String) invocationOnMock.getArguments()[1]);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
     }
 
     @Override
