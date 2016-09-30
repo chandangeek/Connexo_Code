@@ -1,7 +1,5 @@
 package com.elster.jupiter.rest.util;
 
-import com.elster.jupiter.nls.Thesaurus;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
