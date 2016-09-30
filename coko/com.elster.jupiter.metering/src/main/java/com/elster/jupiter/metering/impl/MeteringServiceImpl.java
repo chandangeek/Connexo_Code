@@ -6,6 +6,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
@@ -19,6 +20,7 @@ import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterFilter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.PurgeConfiguration;
@@ -48,6 +50,8 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Effective;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
@@ -356,6 +360,19 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Optional<MeterActivation> findMeterActivation(long id) {
         return dataModel.mapper(MeterActivation.class).getOptional(id);
+    }
+
+    @Override
+    public Finder<Meter> findMeters(MeterFilter filter) {
+        Condition condition = Condition.TRUE;
+        if (!Checks.is(filter.getMrid()).emptyOrOnlyWhiteSpace()) {
+            condition = condition.and(where("mRID").likeIgnoreCase(filter.getMrid()));
+        }
+
+        condition = condition.and(ListOperator.NOT_IN.contains(DefaultFinder.of(EndDeviceLifeCycleStatus.class, where("state.name")
+                .in(filter.getStates()).and(where("interval").isEffective()), dataModel, State.class).asSubQuery("enddevice"), "id"));
+
+        return DefaultFinder.of(Meter.class, condition, dataModel).defaultSortColumn("mRID");
     }
 
     @Override

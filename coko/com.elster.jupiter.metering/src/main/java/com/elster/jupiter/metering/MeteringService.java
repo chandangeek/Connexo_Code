@@ -53,6 +53,8 @@ public interface MeteringService {
 
     Optional<Meter> findMeter(String mRid);
 
+    Finder<Meter> findMeters (@NotNull  MeterFilter filter);
+
     Optional<EndDevice> findEndDevice(String mRid);
 
     Optional<MeterActivation> findMeterActivation(long meterActivationId);
