@@ -37,7 +37,7 @@ public class UsagePointTestResource {
     @Path("/{mRID}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response delete(@PathParam("mRID") String mRID, UsagePointInfo usagePointInfo) throws SQLException {
+    public Response delete(@PathParam("mRID") String mRID) throws SQLException {
         Optional<UsagePoint> usagePointOptional = meteringService.findUsagePoint(mRID);
         if (usagePointOptional.isPresent()) {
             UsagePoint usagePoint = usagePointOptional.get();
