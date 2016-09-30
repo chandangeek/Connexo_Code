@@ -6,7 +6,6 @@ import com.elster.jupiter.rest.util.impl.MessageSeeds;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.ws.rs.HttpMethod;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
@@ -27,18 +26,18 @@ public class ConcurrentModificationException extends LocalizedException {
 
     public String getMessageTitle() {
         if (messageTitle != null) {
-            String string = getThesaurus().getStringBeyondComponent(messageTitle.getKey(), messageTitle.getDefaultFormat());
-            return string!= null ? new MessageFormat(string).format(messageTitleArgs) : null;
+            return getThesaurus().getFormat(this.messageTitle).format(this.messageTitleArgs);
+        } else {
+            return getLocalizedMessage();
         }
-        return getLocalizedMessage();
     }
 
     public String getMessageBody() {
         if (messageBody != null) {
-            String string = getThesaurus().getStringBeyondComponent(messageBody.getKey(), messageBody.getDefaultFormat());
-            return string!= null ? new MessageFormat(string).format(messageBodyArgs) : null;
+            return getThesaurus().getFormat(this.messageBody).format(this.messageBodyArgs);
+        } else {
+            return null;
         }
-        return null;
     }
 
     public Long getVersion() {
