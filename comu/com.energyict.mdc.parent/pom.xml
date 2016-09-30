@@ -145,7 +145,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.config.rest</artifactId>
-                <version>2.1.0${revision}</version>
+                <version>3.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -325,7 +325,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.masterdata.rest</artifactId>
-                <version>2.1.0${revision}</version>
+                <version>3.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
