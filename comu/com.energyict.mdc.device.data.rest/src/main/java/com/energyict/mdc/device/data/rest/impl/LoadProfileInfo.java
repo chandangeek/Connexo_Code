@@ -7,10 +7,8 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.topology.TopologyService;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,11 +35,11 @@ public class LoadProfileInfo {
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
 
-    public static LoadProfileInfo from(LoadProfile loadProfile, Clock clock, TopologyService topologyService) {
+    public static LoadProfileInfo from(LoadProfile loadProfile, ChannelInfoFactory channelInfoFactory) {
         LoadProfileInfo info = createLoadProfileInfo(loadProfile);
         List<Channel> channels = loadProfile.getChannels();
         Collections.sort(channels, CHANNEL_COMPARATOR);
-        info.channels = ChannelInfo.from(channels, clock, topologyService);
+        info.channels = channelInfoFactory.from(channels);
         return info;
     }
 
@@ -58,13 +56,13 @@ public class LoadProfileInfo {
         return info;
     }
 
-    public static List<LoadProfileInfo> from(List<LoadProfile> loadProfiles) {
+    public static List<LoadProfileInfo> from(List<LoadProfile> loadProfiles, ChannelInfoFactory channelInfoFactory) {
         List<LoadProfileInfo> loadProfileInfos = new ArrayList<>(loadProfiles.size());
         for (LoadProfile loadProfile : loadProfiles) {
             LoadProfileInfo loadProfileInfo = createLoadProfileInfo(loadProfile);
             List<Channel> channels = loadProfile.getChannels();
             Collections.sort(channels, CHANNEL_COMPARATOR);
-            loadProfileInfo.channels = ChannelInfo.asSimpleInfoFrom(channels);
+            loadProfileInfo.channels = channelInfoFactory.asSimpleInfoFrom(channels);
             loadProfileInfos.add(loadProfileInfo);
         }
         return loadProfileInfos;

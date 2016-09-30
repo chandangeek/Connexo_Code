@@ -6,7 +6,9 @@ import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
@@ -57,15 +59,24 @@ public class DeviceDataInfoFactory {
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final Clock clock;
     private final ResourceHelper resourceHelper;
+    private final ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Inject
-    public DeviceDataInfoFactory(MeteringTranslationService meteringTranslationService, ValidationInfoFactory validationInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, ValidationRuleInfoFactory validationRuleInfoFactory, Clock clock, ResourceHelper resourceHelper) {
+    public DeviceDataInfoFactory(MeteringTranslationService meteringTranslationService
+                                 ValidationInfoFactory validationInfoFactory,
+                                 EstimationRuleInfoFactory estimationRuleInfoFactory,
+                                 Thesaurus thesaurus,
+                                 ValidationRuleInfoFactory validationRuleInfoFactory,
+                                 Clock clock,
+                                 ResourceHelper resourceHelper,
+                                 ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.meteringTranslationService = meteringTranslationService;
         this.validationInfoFactory = validationInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.clock = clock;
         this.resourceHelper = resourceHelper;
+        this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
     public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave) {
@@ -388,7 +399,7 @@ public class DeviceDataInfoFactory {
         Device device = register.getDevice();
         registerInfo.id = registerSpec.getId();
         registerInfo.registerType = registerSpec.getRegisterType().getId();
-        registerInfo.readingType = new ReadingTypeInfo(register.getReadingType());
+        registerInfo.readingType = readingTypeInfoFactory.from(register.getReadingType());
         registerInfo.obisCode = registerSpec.getDeviceObisCode();
         registerInfo.overruledObisCode = register.getDeviceObisCode();
         registerInfo.obisCodeDescription = register.getDeviceObisCode().getDescription();
@@ -411,7 +422,7 @@ public class DeviceDataInfoFactory {
         BillingRegisterInfo billingRegisterInfo = new BillingRegisterInfo();
         addCommonRegisterInfo(register, billingRegisterInfo, topologyService);
         Instant timeStamp = register.getLastReadingDate().orElse(clock.instant());
-        register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
+        register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> billingRegisterInfo.calculatedReadingType = readingTypeInfoFactory.from(calculatedReadingType));
         billingRegisterInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         billingRegisterInfo.useMultiplier = register.getRegisterSpec().isUseMultiplier();
         return billingRegisterInfo;
@@ -439,7 +450,7 @@ public class DeviceDataInfoFactory {
         numericalRegister.getOverflow().ifPresent(overruledOverflowValue -> numericalRegisterInfo.overruledOverflow = overruledOverflowValue);
         Instant timeStamp = numericalRegister.getLastReadingDate().orElse(clock.instant());
         numericalRegister.getCalculatedReadingType(timeStamp)
-                .ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
+                .ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = readingTypeInfoFactory.from(calculatedReadingType));
         numericalRegisterInfo.multiplier = numericalRegister.getMultiplier(timeStamp).orElseGet(() -> null);
         numericalRegisterInfo.useMultiplier = registerSpec.isUseMultiplier();
         return numericalRegisterInfo;

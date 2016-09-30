@@ -89,7 +89,7 @@ public class DataLoggerSlaveDeviceInfoFactoryTest extends DeviceDataRestApplicat
         when(topologyService.getSlaveRegister(eq(dataLoggerRegister4), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.availabilityDate(eq(dataLoggerRegister4))).thenReturn(Optional.of(Instant.EPOCH));
 
-        List<DataLoggerSlaveDeviceInfo> infos = new DataLoggerSlaveDeviceInfoFactory(clock, topologyService, deviceDataInfoFactory, batchService).from(dataLogger);
+        List<DataLoggerSlaveDeviceInfo> infos = new DataLoggerSlaveDeviceInfoFactory(clock, topologyService, deviceDataInfoFactory, batchService, channelInfoFactory).from(dataLogger);
 
         assertThat(infos).hasSize(1);
         assertThat(infos.get(0).dataLoggerSlaveChannelInfos).hasSize(3);

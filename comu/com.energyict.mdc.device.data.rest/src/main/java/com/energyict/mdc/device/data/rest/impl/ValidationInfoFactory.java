@@ -9,6 +9,8 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
@@ -54,14 +56,22 @@ public class ValidationInfoFactory {
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ResourceHelper resourceHelper;
+    private final ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Inject
-    public ValidationInfoFactory(MeteringTranslationService meteringTranslationService, ValidationRuleInfoFactory validationRuleInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, PropertyValueInfoService propertyValueInfoService, ResourceHelper resourceHelper) {
+    public ValidationInfoFactory(MeteringTranslationService meteringTranslationService,
+                                 ValidationRuleInfoFactory validationRuleInfoFactory,
+                                 EstimationRuleInfoFactory estimationRuleInfoFactory,
+                                 PropertyValueInfoService propertyValueInfoService,
+                                 Thesaurus thesaurus,
+                                 ResourceHelper resourceHelper,
+                                 ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.meteringTranslationService = meteringTranslationService;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.resourceHelper = resourceHelper;
+        this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
     DetailedValidationRuleInfo createDetailedValidationRuleInfo(ValidationRule validationRule, Long total) {
@@ -75,7 +85,7 @@ public class ValidationInfoFactory {
         validationRuleInfo.deleted = validationRule.isObsolete();
         validationRuleInfo.ruleSetVersion = new ValidationRuleSetVersionInfo(validationRule.getRuleSetVersion());
         validationRuleInfo.properties = propertyValueInfoService.getPropertyInfos(validationRule.getPropertySpecs(), validationRule.getProps());
-        validationRuleInfo.readingTypes.addAll(validationRule.getReadingTypes().stream().map(ReadingTypeInfo::new).collect(Collectors.toList()));
+        validationRuleInfo.readingTypes.addAll(validationRule.getReadingTypes().stream().map(readingTypeInfoFactory::from).collect(Collectors.toList()));
         validationRuleInfo.total = total;
         return validationRuleInfo;
     }
