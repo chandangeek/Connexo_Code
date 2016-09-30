@@ -24,12 +24,15 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -55,6 +58,7 @@ import org.junit.Before;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -111,7 +115,10 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         registerTypeInfoFactory = new RegisterTypeInfoFactory(readingTypeInfoFactory);
         registerGroupInfoFactory = new RegisterGroupInfoFactory(registerTypeInfoFactory);
         loadProfileTypeOnDeviceTypeInfoFactory = new LoadProfileTypeOnDeviceTypeInfoFactory(registerTypeInfoFactory);
-        when(thesaurus.getStringBeyondComponent(any(String.class), any(String.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
     }
 
     @Override
