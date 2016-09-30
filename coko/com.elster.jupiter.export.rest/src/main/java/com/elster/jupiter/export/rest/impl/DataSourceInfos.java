@@ -11,7 +11,7 @@ import java.util.List;
 public class DataSourceInfos {
 
     public int total;
-    public List<DataSourceInfo> dataSources = new ArrayList<DataSourceInfo>();
+    public List<DataSourceInfo> dataSources = new ArrayList<>();
 
     public DataSourceInfos(List<? extends ReadingTypeDataExportItem> exportItems) {
         for (ReadingTypeDataExportItem item : exportItems) {
