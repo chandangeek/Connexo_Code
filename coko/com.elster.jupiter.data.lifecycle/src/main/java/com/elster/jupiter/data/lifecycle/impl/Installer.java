@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -51,7 +52,6 @@ class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        List<LifeCycleCategory> categories = new ArrayList<>();
         for (LifeCycleCategoryKind category : LifeCycleCategoryKind.values()) {
             LifeCycleCategory newCategory = new LifeCycleCategoryImpl(dataModel, thesaurus, meteringService).init(category);
             try {
@@ -60,7 +60,6 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 logger.warning("The LifeCycleCategory '" + newCategory.getName() + "' already exists");
                 throw ex;
             }
-            categories.add(newCategory);
         }
         createTask();
         userService.addModulePrivileges(this);
@@ -85,7 +84,11 @@ class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private SubscriberSpec getSubscriberSpec() {
-        return getDestination().getSubscribers().stream().findFirst().orElseGet(() -> getDestination().subscribe(DATA_LIFE_CYCLE_DESTINATION_NAME));
+        return getDestination()
+                .getSubscribers()
+                .stream()
+                .findFirst()
+                .orElseGet(() -> getDestination().subscribe(TranslationKeys.DATA_LIFE_CYCLE, LifeCycleService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     private void createTask() {
