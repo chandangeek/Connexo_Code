@@ -33,38 +33,44 @@ public class ChannelResourceHelper {
     private final Clock clock;
     private final ValidationInfoFactory validationInfoFactory;
     private final TopologyService topologyService;
+    private final ChannelInfoFactory channelInfoFactory;
 
     @Inject
-    public ChannelResourceHelper(ResourceHelper resourceHelper, Clock clock, ValidationInfoFactory validationInfoFactory, TopologyService topologyService) {
+    public ChannelResourceHelper(ResourceHelper resourceHelper,
+                                 Clock clock,
+                                 ValidationInfoFactory validationInfoFactory,
+                                 TopologyService topologyService,
+                                 ChannelInfoFactory channelInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.clock = clock;
         this.validationInfoFactory = validationInfoFactory;
         this.topologyService = topologyService;
+        this.channelInfoFactory = channelInfoFactory;
     }
 
-    public Response getChannels(String mrid, Function<Device, List<Channel>> channelsProvider, JsonQueryParameters queryParameters, TopologyService topologyService) {
+    public Response getChannels(String mrid, Function<Device, List<Channel>> channelsProvider, JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<Channel> channelsPage = ListPager.of(channelsProvider.apply(device), CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
 
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (Channel channel : channelsPage) {
-            ChannelInfo channelInfo = ChannelInfo.from(channel, clock, topologyService);
+            ChannelInfo channelInfo = channelInfoFactory.from(channel);
             addValidationInfo(channel, channelInfo);
             channelInfos.add(channelInfo);
         }
         return Response.ok(PagedInfoList.fromPagedList("channels", channelInfos, queryParameters)).build();
     }
 
-    public Response getChannel(Supplier<Channel> channelSupplier, TopologyService topologyService) {
+    public Response getChannel(Supplier<Channel> channelSupplier) {
         Channel channel = channelSupplier.get();
-        ChannelInfo channelInfo = ChannelInfo.from(channel, clock, topologyService);
+        ChannelInfo channelInfo = channelInfoFactory.from(channel);
         addValidationInfo(channel, channelInfo);
         return Response.ok(channelInfo).build();
     }
 
-    public Response getChannelValidationInfo(Supplier<Channel> channelSupplier, TopologyService topologyService) {
+    public Response getChannelValidationInfo(Supplier<Channel> channelSupplier) {
         Channel channel = channelSupplier.get();
-        ChannelInfo channelInfo = ChannelInfo.from(channel, clock, topologyService);
+        ChannelInfo channelInfo = channelInfoFactory.from(channel);
         addValidationInfo(channel, channelInfo);
         return Response.ok(channelInfo.validationInfo).build();
     }

@@ -27,15 +27,21 @@ public class DataLoggerSlaveDeviceInfoFactory {
     private volatile TopologyService topologyService;
     private volatile BatchService batchService;
     private DataLoggerSlaveDeviceInfo slaveDeviceInfoForUnlinkedDataLoggerElements;
+    private final ChannelInfoFactory channelInfoFactory;
 
     @Inject
-    public DataLoggerSlaveDeviceInfoFactory(Clock clock, TopologyService topologyService, DeviceDataInfoFactory deviceDataInfoFactory, BatchService batchService) {
+    public DataLoggerSlaveDeviceInfoFactory(Clock clock,
+                                            TopologyService topologyService,
+                                            DeviceDataInfoFactory deviceDataInfoFactory,
+                                            BatchService batchService,
+                                            ChannelInfoFactory channelInfoFactory) {
         this.clock = clock;
         this.topologyService = topologyService;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.slaveChannelInfoFactory = new DataLoggerSlaveChannelInfoFactory();
         this.slaveRegisterInfoFactory = new DataLoggerSlaveRegisterInfoFactory();
         this.batchService = batchService;
+        this.channelInfoFactory = channelInfoFactory;
     }
 
     public List<DataLoggerSlaveDeviceInfo> from(Device dataLogger) {
@@ -54,7 +60,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
         Instant checkPoint = clock.instant();
         Optional<Channel> slaveChannel = topologyService.getSlaveChannel(dataLoggerChannel,checkPoint);
         Optional<DataLoggerSlaveDeviceInfo> existingSlaveDeviceInfo;
-        DataLoggerSlaveChannelInfo slaveChannelInfo = slaveChannelInfoFactory.from(ChannelInfo.from(dataLoggerChannel, clock, topologyService), slaveChannel.map((channel) -> ChannelInfo.from(channel, clock, topologyService)));
+        DataLoggerSlaveChannelInfo slaveChannelInfo = slaveChannelInfoFactory.from(channelInfoFactory.from(dataLoggerChannel), slaveChannel.map(channelInfoFactory::from));
         if (slaveChannel.isPresent()){
             Device slave = slaveChannel.get().getDevice();
 
