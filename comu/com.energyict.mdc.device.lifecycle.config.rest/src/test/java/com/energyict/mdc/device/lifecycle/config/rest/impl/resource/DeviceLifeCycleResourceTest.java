@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicationJerseyTest {
 
     @Test
-    public void testDeviceLifeCycleJsonModel(){
+    public void testDeviceLifeCycleJsonModel() {
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         Finder<DeviceLifeCycle> finder = mock(Finder.class);
         List<AuthorizedAction> authorizedActions = mockDefaultActions();
@@ -124,7 +124,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     }
 
     @Test
-    public void testEmptyDeviceLifeCycleList(){
+    public void testEmptyDeviceLifeCycleList() {
         Finder<DeviceLifeCycle> finder = mock(Finder.class);
         when(finder.from(Matchers.any(JsonQueryParameters.class))).thenReturn(finder);
         when(finder.stream()).thenReturn(Collections.<DeviceLifeCycle>emptyList().stream());
@@ -139,7 +139,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     }
 
     @Test
-    public void testGetDeviceLifeCycleById(){
+    public void testGetDeviceLifeCycleById() {
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         List<AuthorizedAction> authorizedActions = mockDefaultActions();
         List<State> states = mockDefaultStates();
@@ -156,7 +156,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     }
 
     @Test
-    public void testGetUnexistedDeviceLifeCycle(){
+    public void testGetUnexistedDeviceLifeCycle() {
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.empty());
 
         Response response = target("/devicelifecycles/1").request().get();
@@ -164,7 +164,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     }
 
     @Test
-    public void testAddNewDeviceLifeCycle(){
+    public void testAddNewDeviceLifeCycle() {
         DeviceLifeCycle lifeCycle = mockSimpleDeviceLifeCycle(1L, "New life cycle");
         List<AuthorizedAction> authorizedActions = mockDefaultActions();
         List<State> states = mockDefaultStates();
@@ -181,7 +181,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     }
 
     @Test
-    public void testCloneDeviceLifeCycle(){
+    public void testCloneDeviceLifeCycle() {
         DeviceLifeCycle lifeCycle = mockSimpleDeviceLifeCycle(1L, "Cloned life cycle");
         List<AuthorizedAction> authorizedActions = mockDefaultActions();
         List<State> states = mockDefaultStates();
@@ -200,7 +200,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     }
 
     @Test
-    public void testCloneUnexistDeviceLifeCycle(){
+    public void testCloneUnexistDeviceLifeCycle() {
         DeviceLifeCycle lifeCycle = mockSimpleDeviceLifeCycle(1L, "Cloned life cycle");
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(1L)).thenReturn(Optional.of(lifeCycle));
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(125)).thenReturn(Optional.empty());
@@ -220,7 +220,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         stateTransitionEventTypes.add(mockEventType(EventType.METER_CREATED.topic()));
         stateTransitionEventTypes.add(mockEventType(EventType.METER_UPDATED.topic()));
         stateTransitionEventTypes.add(mockEventType(EventType.METER_DELETED.topic()));
-        when(finiteStateMachineService.getStateTransitionEventTypes(DeviceLifeCycleConfigurationService.COMPONENT_NAME))
+        when(finiteStateMachineService.getStateTransitionEventTypes(DeviceLifeCycleConfigurationService.COMPONENT_NAME, "System"))
                 .thenReturn(stateTransitionEventTypes);
 
         String response = target("/devicelifecycles/eventtypes").request().get(String.class);

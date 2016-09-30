@@ -213,7 +213,7 @@ public class DeviceLifeCycleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getEventTypesList(@BeanParam JsonQueryParameters queryParams) {
-        List<StateTransitionEventTypeInfo> eventTypes = finiteStateMachineService.getStateTransitionEventTypes(DeviceLifeCycleConfigurationService.COMPONENT_NAME)
+        List<StateTransitionEventTypeInfo> eventTypes = finiteStateMachineService.getStateTransitionEventTypes(DeviceLifeCycleConfigurationService.COMPONENT_NAME, "System")
                 .stream()
                 .filter(eventType -> !eventTypesToExclude.contains(eventType.getSymbol()))//we exclude meter specific event types because in MDC we have other ones which duplicates base
                 .map(stateTransitionEventTypeFactory::from)
