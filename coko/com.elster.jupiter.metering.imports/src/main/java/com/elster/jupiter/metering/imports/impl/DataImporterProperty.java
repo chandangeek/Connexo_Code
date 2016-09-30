@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
 
@@ -74,21 +74,21 @@ public enum DataImporterProperty {
             if (user.isPresent()) {
                 Optional<UserPreference> decimalSeparator = context.getUserService()
                         .getUserPreferencesService()
-                        .getPreferenceByKey(user.get(), FormatKey.DECIMAL_SEPARATOR);
+                        .getPreferenceByKey(user.get(), PreferenceType.DECIMAL_SEPARATOR);
                 Optional<UserPreference> thousandsSeparator = context.getUserService()
                         .getUserPreferencesService()
-                        .getPreferenceByKey(user.get(), FormatKey.THOUSANDS_SEPARATOR);
+                        .getPreferenceByKey(user.get(), PreferenceType.THOUSANDS_SEPARATOR);
                 Stream<SupportedNumberFormat> stream = Arrays.asList(SupportedNumberFormat.values()).stream();
                 if (decimalSeparator.isPresent()) {
                     stream = stream.filter(numberFormat -> numberFormat.getDecimalSeparator()
                             .toString()
-                            .equals(decimalSeparator.get().getFormatFE()));
+                            .equals(decimalSeparator.get().getDisplayFormat()));
                 }
                 stream = stream.filter(numberFormat -> {
                     if (thousandsSeparator.isPresent()) {
                         return numberFormat.hasGroupSeparator() && numberFormat.getGroupSeparator()
                                 .toString()
-                                .equals(thousandsSeparator.get().getFormatFE());
+                                .equals(thousandsSeparator.get().getDisplayFormat());
                     } else {
                         return !numberFormat.hasGroupSeparator();
                     }
