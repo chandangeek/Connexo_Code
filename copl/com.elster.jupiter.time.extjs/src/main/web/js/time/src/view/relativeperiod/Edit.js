@@ -94,7 +94,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                             {
                                 xtype: 'label',
                                 text: Uni.I18n.translate('relativeperiod.form.startdate', 'TME', 'Define the start of the relative period'),
-                                margin: '8 0 12 0'
+                                margin: '20 0 12 0'
                             },
                             {
                                 xtype: 'uni-form-relativeperiod',
@@ -119,7 +119,8 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                             {
                                 xtype: 'label',
                                 text: Uni.I18n.translate('relativeperiod.form.enddate', 'TME', 'Define the end of the relative period'),
-                                margin: '8 0 12 0'
+                                margin: '25 0 12 0',
+                                ui: 'medium'
                             },
                             {
                                 xtype: 'uni-form-relativeperiod',
@@ -144,10 +145,20 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                             {
                                 xtype: 'label',
                                 text: Uni.I18n.translate('relativeperiod.form.preview', 'TME', 'Preview'),
-                                margin: '8 0 12 0'
+                                ui: 'medium',
+                                margin: '25 0 0 0'
                             },
                             {
-                                xtype: 'uni-form-relativeperiodpreview'
+                                xtype: 'fieldcontainer',
+                                margin: '0 0 0 0',
+                                ui: 'actions',
+                                fieldLabel: '&nbsp',
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        xtype: 'uni-form-relativeperiodpreview'
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'fieldcontainer',
