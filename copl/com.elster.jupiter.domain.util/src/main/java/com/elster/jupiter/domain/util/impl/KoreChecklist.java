@@ -36,7 +36,6 @@ public class KoreChecklist implements UpgradeCheckList {
                         InstallIdentifier.identifier(application(), "KPI"),
                         InstallIdentifier.identifier(application(), "BPM"),
                         InstallIdentifier.identifier(application(), "CAL"),
-                        InstallIdentifier.identifier(application(), "CLI"),
                         InstallIdentifier.identifier(application(), "FSM"),
                         InstallIdentifier.identifier(application(), "CPS"),
                         InstallIdentifier.identifier(application(), "SCS"),
@@ -53,4 +52,5 @@ public class KoreChecklist implements UpgradeCheckList {
                         InstallIdentifier.identifier(application(), "SSA")
                 ).build();
     }
+
 }
