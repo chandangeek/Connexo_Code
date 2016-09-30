@@ -10,4 +10,5 @@ public class ValidatorNotFoundException extends LocalizedException {
         super(thesaurus, MessageSeeds.NO_SUCH_VALIDATOR, implementation);
         set("implementation", implementation);
     }
+
 }

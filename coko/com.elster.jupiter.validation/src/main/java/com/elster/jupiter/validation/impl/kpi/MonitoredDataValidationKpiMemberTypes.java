@@ -3,7 +3,7 @@ package com.elster.jupiter.validation.impl.kpi;
 import java.util.EnumSet;
 import java.util.Set;
 
-public enum MonitoredDataValidationKpiMemberTypes {
+enum MonitoredDataValidationKpiMemberTypes {
     SUSPECT {
         @Override
         public Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes() {

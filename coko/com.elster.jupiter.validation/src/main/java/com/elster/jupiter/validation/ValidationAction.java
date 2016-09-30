@@ -1,7 +1,7 @@
 package com.elster.jupiter.validation;
 
 public enum ValidationAction {
-    WARN_ONLY ("warnOnly"), FAIL ("fail");  // TODO check with Karel for completeness
+    WARN_ONLY("warnOnly"), FAIL("fail");  // TODO check with Karel for completeness
 
     private final String value;
 
@@ -10,7 +10,7 @@ public enum ValidationAction {
     }
 
     public static ValidationAction get(int id) {
-        return values()[id-1];
+        return values()[id - 1];
     }
 
     public int getId() {
@@ -26,4 +26,4 @@ public enum ValidationAction {
         return value;
     }
 
-    }
+}

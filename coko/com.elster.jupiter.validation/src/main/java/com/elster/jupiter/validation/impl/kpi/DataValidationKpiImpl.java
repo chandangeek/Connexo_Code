@@ -23,10 +23,6 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.impl.MessageSeeds;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
-import com.elster.jupiter.validation.kpi.DataValidationKpiChild;
-import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
-
-import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -165,22 +161,6 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     @Override
-    public Optional<DataValidationKpiScore> getDataValidationKpiScores(long deviceId, Range<Instant> interval) {
-        if (this.childrenKpis != null && !this.childrenKpis.isEmpty()) {
-            List<KpiMember> dataValidationKpiMembers = new ArrayList<>();
-            this.childrenKpis.forEach(child ->
-                    child.getChildKpi()
-                            .getMembers()
-                            .stream()
-                            .filter(member -> member.getName().endsWith("_" + deviceId))
-                            .forEach(dataValidationKpiMembers::add));
-            return new DataValidationKpiMembers(dataValidationKpiMembers).getScores(interval);
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    @Override
     public void setFrequency(TemporalAmount intervalLength) {
         if (this.frequency != null) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.CAN_NOT_CHANGE_FREQUENCY);
@@ -251,8 +231,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         this.childrenKpis.forEach(DataValidationKpiChild::remove);
     }
 
-    @Override
-    public List<DataValidationKpiChild> getDataValidationKpiChildren() {
+    List<DataValidationKpiChild> getDataValidationKpiChildren() {
         return Collections.unmodifiableList(childrenKpis);
     }
 
