@@ -44,6 +44,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -227,7 +228,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .select(condition)
                 .stream()
                 .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
-                .sorted((ruleSet1, ruleSet2) -> ruleSet1.getName().compareToIgnoreCase(ruleSet2.getName()))
+                .sorted(Comparator.comparing(ValidationRuleSet::getName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }
 
