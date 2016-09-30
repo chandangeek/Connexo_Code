@@ -1,7 +1,5 @@
 package com.elster.jupiter.kore.api.impl.servicecall;
 
-
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.ami.CompletionOptions;
@@ -95,18 +93,6 @@ public enum UsagePointCommand {
 
             return new CommandRunStatusInfo(usagePoint.getMRID(), CommandStatus.SUCCESS, childrenCommands
                     .toArray(new CommandRunStatusInfo[childrenCommands.size()]));
-        }
-    }
-}
-
-interface Command {
-    List<CompletionOptions> process(ServiceCall serviceCall, UsagePoint usagePoint, UsagePointCommandInfo usagePointCommandInfo, UsagePointCommandHelper usagePointCommandHelper);
-
-    static void updateCallback(List<CompletionOptions> completionOptionsList, ServiceCall serviceCall, DestinationSpec destinationSpec) {
-        for (CompletionOptions options : completionOptionsList) {
-            if (options != null) {
-                options.whenFinishedSendCompletionMessageWith(String.valueOf(serviceCall.getId()), destinationSpec);
-            }
         }
     }
 }

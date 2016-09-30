@@ -16,7 +16,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
@@ -29,6 +29,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import org.glassfish.hk2.api.Factory;
@@ -41,7 +42,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import javax.validation.spi.ValidationProvider;
 import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.Arrays;
@@ -50,18 +50,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Version.version;
+
 @Component(name = "com.elster.jupiter.pulse.public.rest",
         service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         immediate = true,
         property = {"alias=/coko", "app=SYS", "name=" + PublicRestApplication.COMPONENT_NAME, "version=v1.0"})
 public class PublicRestApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
-    public static final String APP_KEY = "SYS";
+    static final String APP_KEY = "SYS";
     public static final String COMPONENT_NAME = "PRA";
 
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile TransactionService transactionService;
+    private volatile OrmService ormService;
     private volatile Clock clock;
     private volatile MeteringService meteringService;
     private volatile CustomPropertySetService customPropertySetService;
@@ -76,7 +79,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     public void activate() {
         DataModel dataModel = upgradeService.newNonOrmDataModel();
         InstallIdentifier identifier = InstallIdentifier.identifier("Insight", "PRA");
-        if (upgradeService.isInstalled(identifier, Version.version(1, 0))) {
+        if (upgradeService.isInstalled(identifier, version(1, 0))) {
             this.registerCustomPropertySets();
         }
 
@@ -88,10 +91,17 @@ public class PublicRestApplication extends Application implements TranslationKey
                 bind(MessageService.class).toInstance(messageService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(OrmService.class).toInstance(ormService);
             }
         });
 
-        upgradeService.register(identifier, dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(
+                identifier,
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        version(10, 2), UpgraderV10_2.class
+                ));
     }
 
     @Override
@@ -125,6 +135,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
     }
 
     @Override
@@ -195,9 +210,8 @@ public class PublicRestApplication extends Application implements TranslationKey
     private Factory<Validator> getValidatorFactory() {
         return new Factory<Validator>() {
             private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
-                    .providerResolver(() -> ImmutableList.<ValidationProvider<?>>of(new HibernateValidator()))
+                    .providerResolver(() -> ImmutableList.of(new HibernateValidator()))
                     .configure()
-//                .constraintValidatorFactory(getConstraintValidatorFactory())
                     .messageInterpolator(thesaurus)
                     .buildValidatorFactory();
 

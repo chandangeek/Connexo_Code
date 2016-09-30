@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.pulse.api.rest.app",
@@ -40,10 +41,12 @@ public class PublicRestAppServiceImpl implements TranslationKeyProvider, Applica
 
     @Override
     public List<TranslationKey> getKeys() {
-        ArrayList<TranslationKey> keys = new ArrayList<>();
-        Stream.of(Privileges.values()).filter(keys::add);
-        Stream.of(TranslationKeys.values()).filter(keys::add);
-        return keys;
+        return
+            Stream
+                .concat(
+                    Arrays.stream(Privileges.values()),
+                    Arrays.stream(TranslationKeys.values()))
+                .collect(Collectors.toList());
     }
 
 }

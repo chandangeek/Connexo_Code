@@ -1,12 +1,15 @@
 package com.elster.jupiter.kore.api.impl.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.kore.api.impl.PublicRestApplication;
+import com.elster.jupiter.kore.api.impl.TranslationKeys;
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -35,7 +38,7 @@ public class UsagePointCommandHelper {
     }
 
 
-    public ServiceCall createServiceCall(UsagePoint usagePoint, UsagePointCommandInfo commandInfo) {
+    ServiceCall createServiceCall(UsagePoint usagePoint, UsagePointCommandInfo commandInfo) {
         UsagePointCommandDomainExtension usagePointCommandDomainExtension = new UsagePointCommandDomainExtension();
         usagePointCommandDomainExtension.setExpectedNumberOfCommands(new BigDecimal(getExpectedNumberOfCommands(usagePoint, Instant.ofEpochMilli(commandInfo.effectiveTimestamp))));
         usagePointCommandDomainExtension.setCallbackHttpMethod(commandInfo.httpCallBack.method);
@@ -54,14 +57,14 @@ public class UsagePointCommandHelper {
         return serviceCall;
     }
 
-    public long getExpectedNumberOfCommands(UsagePoint usagePoint, Instant when) {
+    long getExpectedNumberOfCommands(UsagePoint usagePoint, Instant when) {
         return usagePoint.getMeterActivations(when)
                 .stream()
                 .flatMap(meterActivation -> meterActivation.getMeter()
                         .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty()).count();
     }
 
-    public DestinationSpec getDestinationSpec() {
+    DestinationSpec getDestinationSpec() {
         return messageService.getDestinationSpec("CommandCallback").orElseGet(this::createDestinationSpec);
     }
 
@@ -70,11 +73,12 @@ public class UsagePointCommandHelper {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec("CommandCallback", 20);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe("CommandCallback");
+        destinationSpec.subscribe(TranslationKeys.USAGE_POINT_COMMAND_MESSAGE_HANDLER_DISPLAYNAME, PublicRestApplication.COMPONENT_NAME, Layer.REST);
         return destinationSpec;
     }
 
     public MeteringService getMeteringService() {
         return meteringService;
     }
+
 }

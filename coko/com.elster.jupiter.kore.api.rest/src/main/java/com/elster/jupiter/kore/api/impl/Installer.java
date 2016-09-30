@@ -9,6 +9,7 @@ import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHandler;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -81,7 +82,7 @@ public class Installer implements FullInstaller {
             DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec("CommandCallback", 60);
             destinationSpec.save();
             destinationSpec.activate();
-            destinationSpec.subscribe("CommandCallback");
+            destinationSpec.subscribe(TranslationKeys.USAGE_POINT_COMMAND_MESSAGE_HANDLER_DISPLAYNAME, PublicRestApplication.COMPONENT_NAME, Layer.REST);
         }
     }
 
