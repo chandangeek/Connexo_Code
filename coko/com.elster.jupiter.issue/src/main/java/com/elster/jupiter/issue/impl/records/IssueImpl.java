@@ -74,7 +74,7 @@ public class IssueImpl extends EntityImpl implements Issue {
         String title = getReason().getName();
         EndDevice endDevice = getDevice();
         if (endDevice != null) {
-            title = ((IssueReasonImpl) getReason()).getDescriptionFor(endDevice.getMRID());
+            title = ((IssueReasonImpl) getReason()).getDescriptionFor(endDevice.getName());
         }
         return title;
     }
