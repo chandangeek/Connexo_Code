@@ -51,6 +51,7 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
     }
 
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
+        // TODO: check what comes here: id, MRID or name, and refactor as name if needed
         this.deviceMRID = (String) rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER);
     }
 

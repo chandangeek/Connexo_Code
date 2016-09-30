@@ -138,9 +138,9 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         assertThat(baseIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
     }
 
-    private Meter createMeter(String amrId, String mrid) {
+    private Meter createMeter(String amrId, String name) {
         AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
-        return amrSystem.newMeter(amrId).setMRID(mrid).create();
+        return amrSystem.newMeter(amrId, name).create();
     }
 
     private OpenIssue createBaseIssue(CreationRule rule, Meter meter) {
