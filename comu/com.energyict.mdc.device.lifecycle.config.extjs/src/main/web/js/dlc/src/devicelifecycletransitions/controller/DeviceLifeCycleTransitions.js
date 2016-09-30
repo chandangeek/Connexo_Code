@@ -205,14 +205,13 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
                                     triggeredByCombo.setValue(transition.get('triggeredBy').symbol);
                                     fromCombo.setValue(fromValue);
                                     toCombo.setValue(toValue);
-                                    fromCombo.fireEvent('select', fromCombo, fromValue);
-                                    toCombo.fireEvent('select', toCombo, toValue);
                                     autoActionsContainer.on('rendered',function (container) {
                                         container.down('#actions-property-form').setValue(transition.get('microActions'))
                                     }, me, {single: true});
                                     pretranstionChecksContainer.on('rendered',function (container){
                                         container.down('#checks-property-form').setValue(transition.get('microChecks'))
                                     }, me, {single: true});
+                                    view.fillActionsAndChecks();
                                     Ext.Array.each(transition.get('privileges'), function (transitionPrivilege) {
                                         privilegesArray.push(transitionPrivilege.privilege);
                                     });
