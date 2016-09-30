@@ -345,7 +345,7 @@ public class IssueDataValidationServiceTest {
 
         MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter newMeter = amrSystem.newMeter("Meter").create();
+        Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
         ReadingType readingType3Min = meteringService.createReadingType("0.0.14.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 3-minute");
         ReadingType registerReadingType = meteringService.createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake register RT");
@@ -408,7 +408,7 @@ public class IssueDataValidationServiceTest {
 
         MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter newMeter = amrSystem.newMeter("Meter").create();
+        Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType readingType = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
         Channel channel = newMeter.activate(now).getChannelsContainer().createChannel(readingType);
 
@@ -471,7 +471,7 @@ public class IssueDataValidationServiceTest {
 
         MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter newMeter = amrSystem.newMeter("Meter").create();
+        Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType registerReadingType = meteringService.createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake register RT");
         MeterActivation meterActivation = newMeter.activate(now);
         Channel registerChannel = meterActivation.getChannelsContainer().createChannel(registerReadingType);
@@ -577,7 +577,7 @@ public class IssueDataValidationServiceTest {
     public void testCloseIssue() {
         MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter newMeter = amrSystem.newMeter("Meter").create();
+        Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
         ReadingType readingType3Min = meteringService.createReadingType("0.0.14.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 3-minute");
         MeterActivation meterActivation = newMeter.activate(Instant.now());
