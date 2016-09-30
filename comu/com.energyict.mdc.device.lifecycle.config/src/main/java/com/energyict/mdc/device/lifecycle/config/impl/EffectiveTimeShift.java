@@ -18,7 +18,7 @@ public enum EffectiveTimeShift {
 
         @Override
         public TimeDuration defaultValue() {
-            return TimeDuration.days(0);
+            return TimeDuration.days(1);
         }
     },
 
@@ -30,7 +30,7 @@ public enum EffectiveTimeShift {
 
         @Override
         public TimeDuration defaultValue() {
-            return TimeDuration.days(0);
+            return TimeDuration.days(30);
         }
     };
 
