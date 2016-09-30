@@ -72,22 +72,22 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         });
     },
 
-    showDeviceCommunicationScheduleView: function (mrid) {
+    showDeviceCommunicationScheduleView: function (deviceId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
-        this.mrid = mrid;
+        this.deviceId = deviceId;
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 var widget = Ext.widget('deviceCommunicationScheduleSetup', {device: device});
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('loadDevice', device);
 
                 var scheduleStore = me.getDeviceSchedulesStore();
-                scheduleStore.getProxy().setUrl(mrid);
+                scheduleStore.getProxy().setExtraParam('deviceId', deviceId);
                 scheduleStore.load({
                     callback: function () {
                         var shared = [];
@@ -157,17 +157,17 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
     },
 
     addSharedCommunicationScheduleHistory: function () {
-        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/communicationplanning/add';
+        location.href = '#/devices/' + encodeURIComponent(this.deviceId) + '/communicationplanning/add';
     },
 
     cancelSharedScheduleHistory: function () {
-        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/communicationplanning';
+        location.href = '#/devices/' + encodeURIComponent(this.deviceId) + '/communicationplanning';
     },
 
-    addSharedCommunicationSchedule: function (mrid) {
+    addSharedCommunicationSchedule: function (deviceId) {
         var me = this;
-        this.mrid = mrid;
-        var widget = Ext.widget('addSharedCommunicationSchedule', {mRID: this.mrid});
+        this.deviceId = deviceId;
+        var widget = Ext.widget('addSharedCommunicationSchedule', {deviceId: this.deviceId});
 
         var availableScheduleStore = this.getAvailableCommunicationSchedulesForDeviceStore();
         widget.down('#addSharedCommunicationScheduleGrid').reconfigure(availableScheduleStore);
@@ -176,8 +176,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         availableScheduleStore.getProxy().startParam = false;
         availableScheduleStore.getProxy().setExtraParam('filter', Ext.encode([
             {
-                property: 'mrid',
-                value: mrid
+                property: 'name',
+                value: deviceId
             },
             {
                 property: 'available',
@@ -195,7 +195,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             }
         });
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 widget.device = device;
                 me.getApplication().fireEvent('loadDevice', device);
@@ -231,8 +231,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             communicationSchedules = this.getAddSharedCommunicationScheduleGrid().getSelectionModel().getSelection(),
             scheduleIds = [],
             device = me.getAddSharedCommunicationSchedulePage().device,
-            mRID = device.get('mRID'),
-            backUrl = me.getController('Uni.controller.history.Router').getRoute('devices/device/communicationschedules').buildUrl({mRID: mRID});
+            deviceId = device.get('name'),
+            backUrl = me.getController('Uni.controller.history.Router').getRoute('devices/device/communicationschedules').buildUrl({deviceId: deviceId});
 
         if (this.checkValidSelection(communicationSchedules)) {
             Ext.each(communicationSchedules, function (communicationSchedule) {
@@ -240,11 +240,11 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             });
 
             Ext.Ajax.request({
-                url: '/api/ddr/devices/'+ mRID +'/sharedschedules',
+                url: '/api/ddr/devices/'+ deviceId +'/sharedschedules',
                 method: 'PUT',
                 params: '',
                 jsonData: {
-                    device: _.pick(device.getRecordData(), 'mRID', 'version', 'parent'),
+                    device: _.pick(device.getRecordData(), 'name', 'version', 'parent'),
                     scheduleIds: scheduleIds
                 },
                 timeout: 180000,
@@ -308,7 +308,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
     removeSharedCommunicationSchedule: function (record) {
         var me = this;
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/schedules/' + record.get('id'),
+            url: '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/schedules/' + record.get('id'),
             method: 'DELETE',
             params: '',
             jsonData: _.pick(record.getRecordData(), 'id', 'name', 'version', 'parent'),
@@ -360,7 +360,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var me = this;
 
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/schedules',
             isNotEdit: true,
             method: 'PUT',
             params: '',
@@ -384,13 +384,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         request.schedule = scheduleField.getValue();
         jsonData = Ext.encode(request);
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/schedules',
             method: 'POST',
             params: '',
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
-                me.showDeviceCommunicationScheduleView(me.mrid);
+                me.showDeviceCommunicationScheduleView(me.deviceId);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addIndividualScheduleSucceeded', 'MDC', 'Individual communication schedule added'));
             }
         });
@@ -404,14 +404,14 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         request.id = this.getOnRequestCommunicationScheduleGrid().getSelectionModel().getSelection()[0].get('comTaskInfos')[0].id;
         jsonData = Ext.encode(request);
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/schedules',
             method: 'POST',
             params: '',
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.taskPlanned', 'MDC', 'The task has been planned'));
-                me.showDeviceCommunicationScheduleView(me.mrid);
+                me.showDeviceCommunicationScheduleView(me.deviceId);
             }
         });
     },
@@ -422,7 +422,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             scheduleField = me.getScheduleField();
 
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/schedules',
             isNotEdit: true,
             method: 'PUT',
             params: '',

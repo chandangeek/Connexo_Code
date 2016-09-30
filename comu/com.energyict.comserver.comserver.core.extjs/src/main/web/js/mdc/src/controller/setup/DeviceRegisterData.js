@@ -67,7 +67,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         this.getDeviceregisterreportpreview().updateContent(record);
     },
 
-    showDeviceRegisterDataView: function (mRID, registerId, tabController) {
+    showDeviceRegisterDataView: function (deviceId, registerId, tabController) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             registerModel = me.getModel('Mdc.model.Register'),
@@ -86,7 +86,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         collectedReadingType = registerBeingViewed.get('readingType'),
                         collectedUnit = collectedReadingType.names.unitOfMeasure,
                         dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
-                            mRID: mRID,
+                            deviceId: deviceId,
                             registerId: registerId,
                             unitOfMeasureCollected: collectedUnit,
                             mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
@@ -120,16 +120,16 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             };
 
         contentPanel.setLoading();
-        registersStore.getProxy().extraParams = {mRID: mRID};
+        registersStore.getProxy().extraParams = {deviceId: deviceId};
         registersStore.load(onDependenciesLoad);
-        me.getModel('Mdc.model.Device').load(mRID, {
+        me.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 device = record;
                 me.getApplication().fireEvent('loadDevice', device);
                 onDependenciesLoad();
             }
         });
-        registerModel.getProxy().setUrl(mRID);
+        registerModel.getProxy().setExtraParam('deviceId', deviceId);
         registerModel.load(registerId, {
             success: function (record) {
                 registerBeingViewed = record;
@@ -197,7 +197,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         switch (item.action) {
             case 'confirmValue':
                 me.getPage().setLoading();
-                record.getProxy().extraParams = ({mRID: router.arguments.mRID, registerId: router.arguments.registerId});
+                record.getProxy().setParams(router.arguments.deviceId, router.arguments.registerId);
                 record.set('isConfirmed', true);
                 record.save({
                     callback: function (rec, operation, success) {

@@ -52,19 +52,19 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         });
     },
 
-    showDeviceCommunicationTaskHistory: function (deviceMrId, comTaskId) {
+    showDeviceCommunicationTaskHistory: function (deviceId, comTaskId) {
         var me = this;
-        this.deviceMrId = deviceMrId;
+        this.deviceId = deviceId;
         this.comTaskId = comTaskId;
         var comTaskModel = Ext.ModelManager.getModel('Mdc.model.CommunicationTask');
         var deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
-        deviceModel.load(deviceMrId, {
+        deviceModel.load(deviceId, {
             success: function (device) {
                 comTaskModel.load(comTaskId, {
                     success: function (comTask) {
                         var widget = Ext.widget('deviceCommunicationTaskHistoryMain', {
                             device: device,
-                            mrid: deviceMrId,
+                            deviceId: deviceId,
                             comTaskId: comTaskId,
                             comTaskName: comTask.get('name')
                         });
@@ -106,7 +106,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
     },
 
-    showDeviceCommunicationTaskHistoryLog: function (deviceMrId, comTaskId, comTaskHistoryId) {
+    showDeviceCommunicationTaskHistoryLog: function (deviceId, comTaskId, comTaskHistoryId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             comTaskModel = Ext.ModelManager.getModel('Mdc.model.CommunicationTask'),
@@ -115,12 +115,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
 
         viewport.setLoading();
 
-        comTaskHistoryModel.getProxy().setExtraParam('mRID', encodeURIComponent(deviceMrId));
+        comTaskHistoryModel.getProxy().setExtraParam('deviceId', deviceId);
         comTaskHistoryModel.getProxy().setExtraParam('comTaskId', comTaskId);
 
-        deviceModel.load(deviceMrId, {
+        deviceModel.load(deviceId, {
             success: function (device) {
-                var widget = Ext.widget('deviceCommunicationTaskHistoryLogMain', {device: device, mRID: deviceMrId});
+                var widget = Ext.widget('deviceCommunicationTaskHistoryLogMain', {device: device, deviceId: deviceId});
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 comTaskModel.load(comTaskId, {
@@ -137,7 +137,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
                             success: function (comTask) {
                                 me.getDeviceCommunicationTaskLogOverviewForm().loadRecord(comTaskHistory);
                                 var store = me.getDeviceCommunicationTaskLogStore();
-                                store.getProxy().setExtraParam('mRID', encodeURIComponent(deviceMrId));
+                                store.getProxy().setExtraParam('deviceId', deviceId);
                                 store.getProxy().setExtraParam('comTaskId', comTaskId);
                                 store.getProxy().setExtraParam('sessionId', comTaskHistoryId);
 

@@ -39,7 +39,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
         });
     },
 
-    showView: function (mRID) {
+    showView: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             model = me.getModel('Mdc.model.Device'),
@@ -48,8 +48,8 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
 
         viewport.setLoading();
 
-        me.getStore('Mdc.store.LogbooksOfDevice').getProxy().setUrl(mRID);
-        model.load(mRID, {
+        me.getStore('Mdc.store.LogbooksOfDevice').getProxy().setExtraParam('deviceId', deviceId);
+        model.load(deviceId, {
             success: function (record) {
                 if (record.get('hasLogBooks')) {
                     widget = Ext.widget('deviceLogbooksSetup', {
@@ -87,7 +87,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
             datePicker = editWindow.down('#mdc-devicelogbook-edit-window-date-picker'),
             logbookRecordInGrid = editWindow.logbookRecord,
             logbookModel = me.getModel('Mdc.model.LogbookOfDevice'),
-            deviceMRID = this.getController('Uni.controller.history.Router').arguments.mRID,
+            deviceId = this.getController('Uni.controller.history.Router').arguments.deviceId,
             logbookId = logbookRecordInGrid.get('id'),
             onLogbookLoaded = function(logbookRecord) {
                 logbookRecordInGrid.set('lastReading', datePicker.getValue());
@@ -112,7 +112,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
                 me.getPreview().setLogbook(logbookRecordInGrid);
             };
 
-        logbookModel.getProxy().setUrl(deviceMRID);
+        logbookModel.getProxy().setExtraParam('deviceId', deviceId);
         logbookModel.load(logbookId, {
             success: onLogbookLoaded
         });

@@ -52,7 +52,7 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
                     Ext.suspendLayouts();
                     app.fireEvent('usagePointLoaded', usagePoint);
                     app.fireEvent('usagePointChannelLoaded', channel);
-                    channelDataStore.getProxy().setUrl(usagePointId, channelId);
+                    channelDataStore.getProxy().setParams(usagePointId, channelId);
                     app.fireEvent('changecontentevent', Ext.widget('view-channel-data-and-reading-qualities', {
                         itemId: 'view-channel-data-and-reading-qualities',
                         router: router,

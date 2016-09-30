@@ -59,7 +59,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         });
     },
 
-    showView: function (mRID) {
+    showView: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             model = me.getModel('Mdc.model.Device'),
@@ -69,8 +69,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
 
         viewport.setLoading();
         showPage = function () {
-            me.getStore('Mdc.store.LoadProfilesOfDevice').getProxy().setUrl(mRID);
-            model.load(mRID, {
+            me.getStore('Mdc.store.LoadProfilesOfDevice').getProxy().setExtraParam('deviceId', deviceId);
+            model.load(deviceId, {
                 success: function (record) {
                     if (record.get('hasLoadProfiles')) {
                         widget = Ext.widget('deviceLoadProfilesSetup', {
@@ -86,7 +86,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 }
             });
         };
-        me.mRID = mRID;
+        me.deviceId = deviceId;
         timeUnitsStore.load({
             callback: function () {
                 showPage();
@@ -102,7 +102,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         me.loadProfileId = loadProfileId;
         me.loadProfileName = record.get('name');
         preview.setTitle(record.get('name'));
-        loadProfileOfDeviceModel.getProxy().setUrl(me.mRID);
+        loadProfileOfDeviceModel.getProxy().setExtraParam('deviceId', me.deviceId);
         preview.setLoading();
         loadProfileOfDeviceModel.load(loadProfileId, {
             success: function (rec) {
@@ -168,10 +168,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 }
             }),
             router = this.getController('Uni.controller.history.Router'),
-            mRID = me.mRID ? me.mRID : router.arguments.mRID;
+            deviceId = me.deviceId || router.arguments.deviceId;
 
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(deviceId) + '/validationrulesets/validationstatus',
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -211,7 +211,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     activateDataValidation: function (record, confWindow) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            mRID = me.mRID ? me.mRID : router.arguments.mRID,
+            deviceId = me.deviceId || router.arguments.deviceId,
             loadProfileId = me.loadProfileId ? me.loadProfileId : router.arguments.loadProfileId;
 
         if (confWindow.down('#validateLoadProfileFromDate').getValue() > me.dataValidationLastChecked) {
@@ -220,7 +220,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         } else {
             confWindow.down('button').setDisabled(true);
             Ext.Ajax.request({
-                url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/loadprofiles/' + loadProfileId + '/validate',
+                url: '../../api/ddr/devices/' + encodeURIComponent(deviceId) + '/loadprofiles/' + loadProfileId + '/validate',
                 method: 'PUT',
                 isNotEdit: true,
                 jsonData: Ext.merge(_.pick(record.getRecordData(), 'id', 'name', 'version', 'parent'), {
@@ -247,7 +247,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             datePicker = editWindow.down('#mdc-deviceloadprofile-edit-window-date-picker'),
             loadProfileRecordInEditWindow = editWindow.loadProfileRecord,
             loadProfileModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
-            deviceMRID = this.getController('Uni.controller.history.Router').arguments.mRID,
+            deviceId = this.getController('Uni.controller.history.Router').arguments.deviceId,
             loadProfileId = loadProfileRecordInEditWindow.get('id'),
             onLoadProfileLoaded = function(loadProfileRecord) {
                 loadProfileRecordInEditWindow.set('lastReading', datePicker.getValue());
@@ -276,7 +276,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 }
             };
 
-        loadProfileModel.getProxy().setUrl(deviceMRID);
+        loadProfileModel.getProxy().setExtraParam('deviceId', deviceId);
         loadProfileModel.load(loadProfileId, {
             success: onLoadProfileLoaded
         });

@@ -18,9 +18,9 @@ Ext.define('Mdc.store.DeviceMessageCategories', {
             totalProperty: 'total'
         }
     },
-    setMrid: function (mrid) {
-        var me = this;
-        me.getProxy().url = me.url + encodeURIComponent(mrid) + me.categoriesPostfix
-    }
 
+    setName: function (name) {
+        var me = this;
+        me.getProxy().url = me.url + encodeURIComponent(name) + me.categoriesPostfix
+    }
 });

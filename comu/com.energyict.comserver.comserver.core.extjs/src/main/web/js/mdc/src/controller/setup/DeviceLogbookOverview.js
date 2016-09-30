@@ -27,14 +27,14 @@ Ext.define('Mdc.controller.setup.DeviceLogbookOverview', {
         }
     ],
 
-    showOverview: function (mRID, logbookId, tabController) {
+    showOverview: function (deviceId, logbookId, tabController) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             logbookModel = me.getModel('Mdc.model.LogbookOfDevice'),
             logbooksOfDeviceStore = me.getStore('Mdc.store.LogbooksOfDevice'),
             widget;
 
-        deviceModel.load(mRID, {
+        deviceModel.load(deviceId, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
                 var overview = Ext.widget('deviceLogbookOverview', {
@@ -49,7 +49,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookOverview', {
                     me.getApplication().fireEvent('changecontentevent', widget);
                     widget.down('#logBook-specifications').add(overview);
                     tabController.showTab(0);
-                    logbookModel.getProxy().setUrl(mRID);
+                    logbookModel.getProxy().setExtraParam('deviceId', deviceId);
                     logbookModel.load(logbookId, {
                         success: function (record) {
                             me.getApplication().fireEvent('logbookOfDeviceLoad', record);
@@ -60,7 +60,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookOverview', {
                     });
                 };
                 if (logbooksOfDeviceStore.getTotalCount() === 0) {
-                    logbooksOfDeviceStore.getProxy().setUrl(mRID);
+                    logbooksOfDeviceStore.getProxy().setExtraParam('deviceId', deviceId);
                     logbooksOfDeviceStore.load(function () {
                         func();
                     });

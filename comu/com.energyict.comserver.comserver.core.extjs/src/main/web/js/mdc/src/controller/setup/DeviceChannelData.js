@@ -129,33 +129,33 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
-    showSpecifications: function (mRID, channelId) {
+    showSpecifications: function (deviceId, channelId) {
         var me = this;
         me.fromSpecification = true;
         me.getController('Mdc.controller.setup.DeviceChannels').fromSpecification = true;
-        me.showOverview({mRID: mRID, channelId: channelId}, 'spec')
+        me.showOverview({deviceId: deviceId, channelId: channelId}, 'spec');
     },
 
-    showData: function (mRID, channelId) {
+    showData: function (deviceId, channelId) {
         var me = this;
-        me.showOverview({mRID: mRID, channelId: channelId}, 'data')
+        me.showOverview({deviceId: deviceId, channelId: channelId}, 'data');
     },
 
-    showValidationBlocks: function (mRID, channelId, issueId) {
+    showValidationBlocks: function (deviceId, channelId, issueId) {
         var me = this,
             validationBlocksStore = me.getStore('Mdc.store.ValidationBlocks');
 
-        validationBlocksStore.getProxy().setUrl(mRID, channelId, issueId);
+        validationBlocksStore.getProxy().setParams(deviceId, channelId, issueId);
         validationBlocksStore.load({
             callback: function () {
-                me.showOverview({mRID: mRID, channelId: channelId, issueId: issueId}, 'block');
+                me.showOverview({deviceId: deviceId, channelId: channelId, issueId: issueId}, 'block');
             }
         });
     },
 
     showOverview: function (params, contentName) {
         var me = this,
-            mRID = params['mRID'],
+            deviceId = params['deviceId'],
             channelId = params['channelId'],
             issueId = params['issueId'],
             device = me.getModel('Mdc.model.Device'),
@@ -171,14 +171,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             timeUnitsStore = Ext.getStore('Mdc.store.TimeUnits'),
             slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveChannelHistory'),
             loadDevice = function() {
-                device.load(mRID, {
+                device.load(deviceId, {
                     scope: me,
                     success: onDeviceLoad
                 });
             },
             onDeviceLoad = function(device) {
                 me.getApplication().fireEvent('loadDevice', device);
-                channel.getProxy().setUrl(mRID);
+                channel.getProxy().setExtraParam('deviceId', deviceId);
                 channel.load(channelId, {
                     success: function (channel) {
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
@@ -212,7 +212,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         viewport.setLoading(true);
         if (contentName === 'spec') {
-            slaveHistoryStore.getProxy().setUrl(mRID, channelId);
+            slaveHistoryStore.getProxy().setParams(deviceId, channelId);
             slaveHistoryStore.load(function() {
                 timeUnitsStore.load(function() {
                     loadDevice();
@@ -230,7 +230,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             multiplierField = widget.down('#mdc-channel-preview-multiplier'),
             menu = widget.down('#deviceLoadProfileChannelsActionMenu');
 
-        customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
+        customAttributesStore.getProxy().setParams(device.get('name'), channel.get('id'));
         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
         if (channel.get('calculatedReadingType')) {
             calculatedReadingTypeField.show();
@@ -261,10 +261,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData');
 
-        dataStore.getProxy().setUrl({
-            mRID: device.get('mRID'),
-            channelId: channel.getId()
-        });
+        dataStore.getProxy().setParams(device.get('name'), channel.getId());
         dataStore.loadData([], false);
         dataStore.load();
     },
@@ -386,7 +383,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         viewport.setLoading();
         if (!Ext.isEmpty(changedData)) {
             Ext.Ajax.request({
-                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', Uni.util.Common.encodeURIComponent(router.arguments.mRID), router.arguments.channelId),
+                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', Uni.util.Common.encodeURIComponent(router.arguments.deviceId), router.arguments.channelId),
                 method: 'PUT',
                 jsonData: Ext.encode(changedData),
                 timeout: 300000,
@@ -616,7 +613,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        record.getProxy().setUrl(router.arguments);
+        record.getProxy().setParams(router.arguments);
         me.getReadingEstimationWindow().setLoading();
         Ext.Ajax.suspendEvent('requestexception');
         record.save({
@@ -825,15 +822,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         Ext.resumeLayouts();
     },
 
-    showEditChannelOfLoadProfileCustomAttributes: function (mRID, channelId, customAttributeSetId) {
+    showEditChannelOfLoadProfileCustomAttributes: function (deviceId, channelId, customAttributeSetId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
         viewport.setLoading(true);
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 var model = Ext.ModelManager.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice');
-                model.getProxy().setUrl(mRID);
+                model.getProxy().setExtraParam('deviceId', deviceId);
                 model.load(channelId, {
                     success: function (channel) {
 
@@ -842,7 +839,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
                         me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', device);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.loadPropertiesRecord(widget, mRID, channelId, customAttributeSetId);
+                        me.loadPropertiesRecord(widget, deviceId, channelId, customAttributeSetId);
                     },
                     failure: function () {
                         viewport.setLoading(false);
@@ -853,13 +850,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     },
 
-    loadPropertiesRecord: function (widget, mRID, channelId, customAttributeSetId) {
+    loadPropertiesRecord: function (widget, deviceId, channelId, customAttributeSetId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnChannel'),
             form = widget.down('property-form');
 
-        model.getProxy().setUrl(mRID, channelId);
+        model.getProxy().setParams(deviceId, channelId);
 
         model.load(customAttributeSetId, {
             success: function (record) {

@@ -52,15 +52,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         });
     },
 
-    showTableOverview: function (mRID, loadProfileId, tabController, loadProfile) {
-        this.showOverview(mRID, loadProfileId, true, tabController, loadProfile);
+    showTableOverview: function (deviceId, loadProfileId, tabController, loadProfile) {
+        this.showOverview(deviceId, loadProfileId, true, tabController, loadProfile);
     },
 
-    showGraphOverview: function (mRID, loadProfileId, tabController, loadProfile) {
-        this.showOverview(mRID, loadProfileId, false, tabController, loadProfile);
+    showGraphOverview: function (deviceId, loadProfileId, tabController, loadProfile) {
+        this.showOverview(deviceId, loadProfileId, false, tabController, loadProfile);
     },
 
-    showOverview: function (mRID, loadProfileId, isTable, tabController, loadProfile) {
+    showOverview: function (deviceId, loadProfileId, isTable, tabController, loadProfile) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             loadProfileModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
@@ -85,19 +85,16 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             };
 
         if(loadProfile){
-            if(loadProfile.data.id != loadProfileId || loadProfile.data.parent.id != mRID){
+            if(loadProfile.data.id != loadProfileId || loadProfile.data.parent.id != deviceId){
                 loadProfile = null;
             }
         }
 
         dataStore.removeAll(true);
-        dataStore.getProxy().setUrl({
-            mRID: mRID,
-            loadProfileId: loadProfileId
-        });
+        dataStore.getProxy().setParams(deviceId, loadProfileId);
 
         viewport.setLoading();
-        me.getModel('Mdc.model.Device').load(mRID, {
+        me.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
                 defer.setParam(record)
@@ -179,7 +176,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 dataStore.load();
             };
             if (loadProfilesStore.getTotalCount() === 0) {
-                loadProfilesStore.getProxy().setUrl(mRID);
+                loadProfilesStore.getProxy().setExtraParam('deviceId', deviceId);
                 loadProfilesStore.load(function () {
                     func();
                 });
@@ -191,7 +188,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             me.setLoadProfile(loadProfile);
             defer.setCallback(initView);
         } else {
-            loadProfileModel.getProxy().setUrl(mRID);
+            loadProfileModel.getProxy().setExtraParam('deviceId', deviceId);
             loadProfileModel.load(loadProfileId, {
                 success: function (record) {
                     me.setLoadProfile(record);

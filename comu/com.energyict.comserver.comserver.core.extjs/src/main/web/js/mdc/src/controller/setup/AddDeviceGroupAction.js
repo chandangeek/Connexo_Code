@@ -125,7 +125,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                             filters: isDynamic
                                 ? Ext.decode(record.get('filter'), true)
                                 : [{
-                                property: 'mRID',
+                                property: 'name',
                                 value: [{
                                     criteria: '*',
                                     operator: '=='

@@ -35,13 +35,13 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
         });
     },
 
-    showTopologyView: function (mRID) {
+    showTopologyView: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             deviceTopologyStore = me.getStore('Mdc.store.DeviceTopology'),
             widget;
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 var gatewayType = record.get('gatewayType');
 
@@ -49,7 +49,7 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
                     widget = Ext.widget('deviceTopologySetup', {device: record, router: router});
                     me.getApplication().fireEvent('loadDevice', record);
                     me.getApplication().fireEvent('changecontentevent', widget);
-                    deviceTopologyStore.getProxy().setUrl(record.get('mRID'));
+                    deviceTopologyStore.getProxy().setExtraParam('deviceId', record.get('name'));
                     deviceTopologyStore.load();
                 } else {
                     window.location.replace(router.getRoute('notfound').buildUrl());
@@ -100,7 +100,7 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('deviceCommunicationTopology.removeMasterConfirmation.title', 'MDC', "Remove '{0}' as master device?", deviceTopologyContent.device.get('masterDeviceName')),
-            msg: Uni.I18n.translate('deviceCommunicationTopology.removeMasterConfirmation.message', 'MDC', "This device will no longer be the master of '{0}'", deviceTopologyContent.device.get('mRID'), false),
+            msg: Uni.I18n.translate('deviceCommunicationTopology.removeMasterConfirmation.message', 'MDC', "This device will no longer be the master of '{0}'", deviceTopologyContent.device.get('name'), false),
             fn: function (action) {
                 if (action === 'confirm') {
                     me.updateDevice(
@@ -126,7 +126,7 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
             isNotEdit: true,
             success: function (deviceData) {
                 me.getApplication().fireEvent('acknowledge', data.acknowledgeMessage);
-                Ext.ModelManager.getModel('Mdc.model.Device').load(deviceData.get('mRID'), {
+                Ext.ModelManager.getModel('Mdc.model.Device').load(deviceData.get('name'), {
                     success: function (device) {
                         deviceTopologyContent.addMasterContainerViewItems();
                     },
