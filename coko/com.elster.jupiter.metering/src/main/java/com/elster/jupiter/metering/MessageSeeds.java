@@ -94,7 +94,7 @@ public enum MessageSeeds implements MessageSeed {
 
     USAGE_POINT_INCORRECT_STATE(7001, Constants.USAGE_POINT_INCORRECT_STATE, "Usage point ''{0}'' should be in ''Under construction'' state to activate meters"),
     THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT(7002, Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT, "The same meter can''t be specified for different meter roles."),
-    UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching to {0}."),
+    UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching a {0}."),
     UNSATISFIED_READING_TYPE_REQUIREMENTS(7004, Constants.UNSATISFIED_READING_TYPE_REQUIREMENTS, "Meters don't provide reading types specified in the metrology configuration."),
     UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE(7005, Constants.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE, "Devices activated on this usage point in specified period of time don't provide reading types specified in selected metrology configuration."),
     START_DATE_SHOULD_BE_GREATER_THAN_LATEST_START_DATE(7006, Constants.START_DATE_SHOULD_BE_GREATER_THAN_LATEST_START_DATE, "Start date should be more than Start date of the latest metrology configuration version."),

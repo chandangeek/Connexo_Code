@@ -237,7 +237,9 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 identifier("Pulse", MeteringDataModelService.COMPONENT_NAME),
                 dataModel,
                 InstallerImpl.class,
-                ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
+                ImmutableMap.of(
+                        version(10, 2), UpgraderV10_2.class
+                ));
         this.meteringService.readLocationTemplatesFromDatabase();
     }
 
