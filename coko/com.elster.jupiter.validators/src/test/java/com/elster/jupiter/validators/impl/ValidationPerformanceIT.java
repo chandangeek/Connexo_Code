@@ -162,7 +162,7 @@ public class ValidationPerformanceIT {
                     .code();
             ReadingType readingType1 = meteringService.getReadingType(readingType).get();
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("2331").create();
+            meter = amrSystem.newMeter("2331", "myName").create();
             meterActivation = meter.activate(date1);
             final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);

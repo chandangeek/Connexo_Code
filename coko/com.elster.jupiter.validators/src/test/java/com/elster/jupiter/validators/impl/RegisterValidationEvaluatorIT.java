@@ -159,7 +159,7 @@ public class RegisterValidationEvaluatorIT {
                     .code();
             ReadingType readingType1 = meteringService.getReadingType(readingType).get();
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("2331").create();
+            meter = amrSystem.newMeter("2331", "myName").create();
             meter.activate(date1);
             ValidationService validationService = injector.getInstance(ValidationService.class);
             validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
