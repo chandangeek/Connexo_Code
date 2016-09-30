@@ -1,7 +1,7 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -15,7 +15,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -26,10 +25,13 @@ import java.util.stream.Collectors;
 public class ValidationRuleInfoFactory {
 
     private final PropertyValueInfoService propertyValueInfoService;
+    private final ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Inject
-    public ValidationRuleInfoFactory(PropertyValueInfoService propertyValueInfoService) {
+    public ValidationRuleInfoFactory(PropertyValueInfoService propertyValueInfoService,
+                                     ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.propertyValueInfoService = propertyValueInfoService;
+        this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
     public ValidationRuleInfo createValidationRuleInfo(ValidationRule validationRule) {
@@ -44,7 +46,7 @@ public class ValidationRuleInfoFactory {
         ValidationRuleSetVersion ruleSetVersion = validationRule.getRuleSetVersion();
         validationRuleInfo.ruleSetVersion = new ValidationRuleSetVersionInfo(ruleSetVersion);
         validationRuleInfo.properties = propertyValueInfoService.getPropertyInfos(validationRule.getPropertySpecs(), validationRule.getProps());
-        validationRuleInfo.readingTypes.addAll(validationRule.getReadingTypes().stream().map(ReadingTypeInfo::new).collect(Collectors.toList()));
+        validationRuleInfo.readingTypes.addAll(validationRule.getReadingTypes().stream().map(readingTypeInfoFactory::from).collect(Collectors.toList()));
         validationRuleInfo.version = validationRule.getVersion();
         validationRuleInfo.parent = new VersionInfo<>(ruleSetVersion.getId(), ruleSetVersion.getVersion());
         if (validationRule.getRuleSet().getQualityCodeSystem() != null) {
