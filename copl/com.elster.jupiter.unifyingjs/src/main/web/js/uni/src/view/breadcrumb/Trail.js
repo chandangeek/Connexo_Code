@@ -29,8 +29,7 @@ Ext.define('Uni.view.breadcrumb.Trail', {
         me.addBreadcrumbItem(item);
 
         if (me.rendered) {
-            Ext.resumeLayouts(isHidden !== me.hidden);
-            me.doLayout();
+            Ext.resumeLayouts(true);
         }
     },
 

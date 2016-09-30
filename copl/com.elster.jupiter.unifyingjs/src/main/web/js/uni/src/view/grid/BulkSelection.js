@@ -279,11 +279,13 @@ Ext.define('Uni.view.grid.BulkSelection', {
     },
 
     setGridVisible: function (visible) {
-        var noBorderCls = 'force-no-border';
+        var noBorderCls = 'force-no-border',
+            gridView = this.getView();
 
         Ext.suspendLayouts();
         this.getTopToolbarContainer().setVisible(visible);
-        this.getView().setVisible(visible);
+        gridView.setVisible(visible);
+        gridView.refresh();
         if (this.headerCt) {
             this.headerCt.setVisible(visible);
         }
