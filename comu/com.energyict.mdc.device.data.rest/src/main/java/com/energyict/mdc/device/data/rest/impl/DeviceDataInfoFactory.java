@@ -7,8 +7,6 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
@@ -62,10 +60,9 @@ public class DeviceDataInfoFactory {
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Inject
-    public DeviceDataInfoFactory(MeteringTranslationService meteringTranslationService
+    public DeviceDataInfoFactory(MeteringTranslationService meteringTranslationService,
                                  ValidationInfoFactory validationInfoFactory,
                                  EstimationRuleInfoFactory estimationRuleInfoFactory,
-                                 Thesaurus thesaurus,
                                  ValidationRuleInfoFactory validationRuleInfoFactory,
                                  Clock clock,
                                  ResourceHelper resourceHelper,
@@ -79,7 +76,7 @@ public class DeviceDataInfoFactory {
         this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
-    public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave) {
+    ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave) {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
@@ -154,7 +151,7 @@ public class DeviceDataInfoFactory {
         return value != null ? value.setScale(channel.getNrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
     }
 
-    public LoadProfileDataInfo createLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, List<Channel> channels, Boolean validationStatus) {
+    LoadProfileDataInfo createLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, List<Channel> channels, Boolean validationStatus) {
         LoadProfileDataInfo channelIntervalInfo = new LoadProfileDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
@@ -225,14 +222,14 @@ public class DeviceDataInfoFactory {
         return channelIntervalInfo;
     }
 
-    public List<ReadingInfo> asReadingsInfoList(List<? extends Reading> readings, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
+    List<ReadingInfo> asReadingsInfoList(List<? extends Reading> readings, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         return readings
                 .stream()
                 .map(r -> createReadingInfo(r, register, isValidationStatusActive, dataLoggerSlave))
                 .collect(Collectors.toList());
     }
 
-    public ReadingInfo createReadingInfo(Reading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
+    ReadingInfo createReadingInfo(Reading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         if (reading instanceof BillingReading) {
             return createBillingReadingInfo((BillingReading) reading, register, isValidationStatusActive, dataLoggerSlave);
         } else if (reading instanceof NumericalReading) {
@@ -362,7 +359,7 @@ public class DeviceDataInfoFactory {
         return flagsReadingInfo;
     }
 
-    public RegisterInfo createRegisterInfo(Register register, DetailedValidationInfo registerValidationInfo, TopologyService topologyService) {
+    RegisterInfo createRegisterInfo(Register register, DetailedValidationInfo registerValidationInfo, TopologyService topologyService) {
         if (register instanceof BillingRegister) {
             BillingRegisterInfo info = createBillingRegisterInfo((BillingRegister) register, topologyService);
             info.detailedValidationInfo = registerValidationInfo;
@@ -371,20 +368,6 @@ public class DeviceDataInfoFactory {
             NumericalRegisterInfo info = createNumericalRegisterInfo((NumericalRegister) register, topologyService);
             info.detailedValidationInfo = registerValidationInfo;
             return info;
-        } else if (register instanceof TextRegister) {
-            return createTextRegisterInfo((TextRegister) register, topologyService);
-        } else if (register instanceof FlagsRegister) {
-            return createFlagsRegisterInfo((FlagsRegister) register, topologyService);
-        }
-
-        throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
-    }
-
-    public RegisterInfo createLeanRegisterInfo(Register register, TopologyService topologyService) {
-        if (register instanceof BillingRegister) {
-            return createBillingRegisterInfo((BillingRegister) register, topologyService);
-        } else if (register instanceof NumericalRegister) {
-            return createNumericalRegisterInfo((NumericalRegister) register, topologyService);
         } else if (register instanceof TextRegister) {
             return createTextRegisterInfo((TextRegister) register, topologyService);
         } else if (register instanceof FlagsRegister) {
@@ -407,7 +390,7 @@ public class DeviceDataInfoFactory {
         registerInfo.mRID = device.getmRID();
         registerInfo.version = device.getVersion();
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-        registerInfo.parent = new VersionInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        registerInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         Optional<Register> slaveRegister = topologyService.getSlaveRegister(register, clock.instant());
         if (!slaveRegister.isPresent()) {
             register.getLastReading().ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register, false, null));
@@ -418,7 +401,7 @@ public class DeviceDataInfoFactory {
         }
     }
 
-    public BillingRegisterInfo createBillingRegisterInfo(BillingRegister register, TopologyService topologyService) {
+    private BillingRegisterInfo createBillingRegisterInfo(BillingRegister register, TopologyService topologyService) {
         BillingRegisterInfo billingRegisterInfo = new BillingRegisterInfo();
         addCommonRegisterInfo(register, billingRegisterInfo, topologyService);
         Instant timeStamp = register.getLastReadingDate().orElse(clock.instant());
@@ -428,7 +411,7 @@ public class DeviceDataInfoFactory {
         return billingRegisterInfo;
     }
 
-    public FlagsRegisterInfo createFlagsRegisterInfo(FlagsRegister flagsRegister, TopologyService topologyService) {
+    private FlagsRegisterInfo createFlagsRegisterInfo(FlagsRegister flagsRegister, TopologyService topologyService) {
         FlagsRegisterInfo flagsRegisterInfo = new FlagsRegisterInfo();
         addCommonRegisterInfo(flagsRegister, flagsRegisterInfo, topologyService);
         return flagsRegisterInfo;
@@ -440,7 +423,7 @@ public class DeviceDataInfoFactory {
         return textRegisterInfo;
     }
 
-    public NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister, TopologyService topologyService) {
+    private NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister, TopologyService topologyService) {
         NumericalRegisterInfo numericalRegisterInfo = new NumericalRegisterInfo();
         addCommonRegisterInfo(numericalRegister, numericalRegisterInfo, topologyService);
         NumericalRegisterSpec registerSpec = numericalRegister.getRegisterSpec();
