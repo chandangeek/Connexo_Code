@@ -1,15 +1,7 @@
 package com.energyict.mdc.issue.issue.datavalidation.rest;
 
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.rest.impl.IssueDataValidationApplication;
-
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.issue.share.IssueAction;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -22,10 +14,13 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.rest.impl.IssueDataValidationApplication;
 
 import javax.ws.rs.core.Application;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Optional;
 
 import org.mockito.Mock;
@@ -101,23 +96,24 @@ public class IssueDataValidationApplicationJerseyTest extends FelixRestApplicati
         return mockReason("1", "Reason", getDefaultIssueType());
     }
 
-    protected Meter mockDevice(long id, String mrid) {
+    protected Meter mockMeter(long id, String name) {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(id);
-        when(meter.getMRID()).thenReturn(mrid);
+        when(meter.getName()).thenReturn(name);
         when(meter.getAmrId()).thenReturn(String.valueOf(id));
         Optional<? extends MeterActivation> optionalMA = Optional.empty();
         doReturn(optionalMA).when(meter).getCurrentMeterActivation();
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(meter.getAmrSystem()).thenReturn(amrSystem);
+        when(meter.getSerialNumber()).thenReturn("0.0.0.0.0.0.0.0");
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
         when(meteringService.findEndDevice(id)).thenReturn(Optional.of(meter));
-        when(meteringService.findEndDevice(mrid)).thenReturn(Optional.of(meter));
+        when(meteringService.findMeterByName(name)).thenReturn(Optional.of(meter));
         return meter;
     }
 
     protected Meter getDefaultDevice() {
-        return mockDevice(1, "0.0.0.0.0.0.0.0");
+        return mockMeter(1, "DefaultDevice");
     }
 
     protected IssueAssignee mockAssignee(long id, String name, String type) {

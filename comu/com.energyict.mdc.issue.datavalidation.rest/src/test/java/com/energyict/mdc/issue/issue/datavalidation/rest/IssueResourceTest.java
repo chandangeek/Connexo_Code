@@ -20,9 +20,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
+
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -33,8 +33,12 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest {
 
@@ -75,7 +79,7 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         assertThat(jsonModel.<String>get("$.assignee.type")).isEqualTo(IssueAssignee.Types.USER);
         assertThat(jsonModel.<Number>get("$.device.id")).isEqualTo(1);
         assertThat(jsonModel.<Number>get("$.device.serialNumber")).isEqualTo("0.0.0.0.0.0.0.0");
-        assertThat(jsonModel.<String>get("$.device.name")).isNull();
+        assertThat(jsonModel.<String>get("$.device.name")).isEqualTo("DefaultDevice");
         assertThat(jsonModel.<String>get("$.device.usagePoint")).isNull();
         assertThat(jsonModel.<String>get("$.device.serviceLocation")).isNull();
         assertThat(jsonModel.<String>get("$.device.serviceCategory")).isNull();
