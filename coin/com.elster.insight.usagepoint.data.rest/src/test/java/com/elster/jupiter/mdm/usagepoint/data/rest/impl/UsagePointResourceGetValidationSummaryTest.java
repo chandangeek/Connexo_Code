@@ -73,7 +73,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
     public void before() {
         when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
-        when(usagePoint.getMRID()).thenReturn("MRID");
+        when(usagePoint.getName()).thenReturn(", pls have a drink & try again");
         when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
         when(meterActivation.getRange()).thenReturn(Range.all());
         when(clock.instant()).thenReturn(NOW.toInstant());
@@ -115,7 +115,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Metrology purpose with id 0 is not found on usage point with MRID MRID.");
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Metrology contract with id 0 is not found on usage point , pls have a drink & try again.");
     }
 
     @Test
@@ -128,7 +128,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Metrology purpose with id 1,000 is not found on usage point with MRID MRID.");
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Metrology contract with id 1,000 is not found on usage point , pls have a drink & try again.");
     }
 
     @Test

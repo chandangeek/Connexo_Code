@@ -8,7 +8,7 @@ public class MeterRoleInfo {
     public String id;
     public String name;
     public boolean required;
-    public String mRID;
+    public String meter;
     public String url;
     public Instant activationTime;
 

@@ -106,7 +106,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(readingType.isRegular()).thenReturn(true);
         setDataValidationTaskStub();
         when(usagePoint.getId()).thenReturn(1L);
-        when(usagePoint.getMRID()).thenReturn("UP");
+        when(usagePoint.getName()).thenReturn("UP");
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);

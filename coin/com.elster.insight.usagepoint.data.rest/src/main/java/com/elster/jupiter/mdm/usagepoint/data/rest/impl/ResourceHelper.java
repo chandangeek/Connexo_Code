@@ -57,12 +57,13 @@ public class ResourceHelper {
 
     public UsagePoint findAndLockUsagePointByMrIdOrThrowException(String mrid, long version) {
         UsagePoint up = findUsagePointByMrIdOrThrowException(mrid);
+        // TODO: refactor as find by name
         return lockUsagePointOrThrowException(up.getId(), version, up.getMRID());
     }
 
     public EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfigurationByUsagePointOrThrowException(UsagePoint usagePoint) {
         return usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getMRID()));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getName()));
     }
 
     public UsagePointMetrologyConfiguration findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
@@ -83,7 +84,7 @@ public class ResourceHelper {
     }
 
     public UsagePoint lockUsagePointOrThrowException(UsagePointInfo info) {
-        return lockUsagePointOrThrowException(info.id, info.version, info.mRID);
+        return lockUsagePointOrThrowException(info.id, info.version, info.name);
     }
 
     public UsagePoint lockUsagePointOrThrowException(long id, long version, String name) {
@@ -101,7 +102,7 @@ public class ResourceHelper {
         return effectiveMC.getMetrologyConfiguration().getContracts().stream()
                 .filter(contract -> contract.getId() == contractId)
                 .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT, contractId, effectiveMC.getUsagePoint().getMRID()));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, effectiveMC.getUsagePoint().getName()));
     }
 
     public ReadingTypeDeliverable findReadingTypeDeliverableOrThrowException(MetrologyContract metrologyContract, long outputId, String usagePointMrid) {

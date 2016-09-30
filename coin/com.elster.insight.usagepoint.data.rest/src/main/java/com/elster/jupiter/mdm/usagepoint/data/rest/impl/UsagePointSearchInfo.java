@@ -5,7 +5,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
  */
 public class UsagePointSearchInfo {
     public long id;
-    public String mRID;
+    public String name;
     public String displayServiceCategory;
     public String displayMetrologyConfiguration;
     public String displayType;

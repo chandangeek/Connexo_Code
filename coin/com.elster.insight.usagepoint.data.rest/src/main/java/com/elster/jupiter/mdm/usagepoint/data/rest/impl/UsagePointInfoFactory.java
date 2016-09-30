@@ -162,7 +162,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     public UsagePointSearchInfo from(UsagePoint usagePoint) {
         UsagePointSearchInfo info = new UsagePointSearchInfo();
         info.id = usagePoint.getId();
-        info.mRID = usagePoint.getMRID();
+        info.name = usagePoint.getName();
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().map(mc -> mc.getMetrologyConfiguration().getName()).orElse(null);
         info.displayType = this.getUsagePointDisplayType(usagePoint);
@@ -233,9 +233,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     private void addLocationInfo(UsagePointInfo info, UsagePoint usagePoint) {
-        info.extendedGeoCoordinates = new CoordinatesInfo(meteringService, usagePoint.getMRID());
-        info.extendedLocation = new LocationInfo(meteringService, locationService, thesaurus, usagePoint.getMRID());
-
+        info.extendedGeoCoordinates = new CoordinatesInfo(usagePoint);
+        info.extendedLocation = new LocationInfo(meteringService, locationService, thesaurus, usagePoint);
         info.geoCoordinates = info.extendedGeoCoordinates.coordinatesDisplay;
         info.location = info.extendedLocation.locationValue;
     }
@@ -285,9 +284,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         UsagePointBuilder usagePointBuilder = meteringService.getServiceCategory(ServiceKind.valueOf(usagePointInfo.serviceCategory))
                 .orElseThrow(IllegalArgumentException::new)
                 .newUsagePoint(
-                        usagePointInfo.mRID,
+                        usagePointInfo.name,
                         usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant())
-                .withName(usagePointInfo.name)
                 .withIsSdp(usagePointInfo.isSdp)
                 .withIsVirtual(usagePointInfo.isVirtual)
                 .withReadRoute(usagePointInfo.readRoute)
@@ -324,7 +322,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             LocationBuilder builder = meteringService.getServiceCategory(ServiceKind.valueOf(usagePointInfo.serviceCategory))
                     .orElseThrow(IllegalArgumentException::new)
                     .newUsagePoint(
-                            usagePointInfo.mRID,
+                            usagePointInfo.name,
                             usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant()).newLocationBuilder();
             Map<String, Integer> ranking = meteringService
                     .getLocationTemplate()
@@ -384,20 +382,20 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                     meterActivationInfo.meterRole = meterRoleEntry.getValue();
                     MeterActivation meterActivationForMeterRole = meterRoleToMeterInfoMapping.get(meterRoleEntry.getKey());
                     if (meterActivationForMeterRole != null) {
-                        Meter meter = meterActivationForMeterRole.getMeter().get();
-                        meterActivationInfo.meter = new MeterInfo();
-                        meterActivationInfo.meter.id = meter.getId();
-                        meterActivationInfo.meter.mRID = meter.getMRID();
-                        meterActivationInfo.meter.name = meter.getName();
-                        meterActivationInfo.meter.version = meter.getVersion();
-                        meterActivationInfo.meter.watsGoingOnMeterStatus = getWhatsGoingOnMeterStatus(meter, authorization);
-                        meterActivationInfo.meterRole.activationTime = meterActivationForMeterRole.getStart();
                         meterActivationInfo.id = meterActivationForMeterRole.getId();
-                        meterActivationInfo.meter.url = meter.getHeadEndInterface()
-                                .map(he -> he.getURLForEndDevice(meter)
-                                        .map(URL::toString)
-                                        .orElse(null))
-                                .orElse(null);
+                        meterActivationInfo.meterRole.activationTime = meterActivationForMeterRole.getStart();
+                        meterActivationForMeterRole.getMeter().ifPresent(meter -> {
+                            meterActivationInfo.meter = new MeterInfo();
+                            meterActivationInfo.meter.id = meter.getId();
+                            meterActivationInfo.meter.mRID = meter.getMRID();
+                            meterActivationInfo.meter.name = meter.getName();
+                            meterActivationInfo.meter.version = meter.getVersion();
+                            meterActivationInfo.meter.watsGoingOnMeterStatus = getWhatsGoingOnMeterStatus(meter, authorization);
+                            meterActivationInfo.meter.url = meter.getHeadEndInterface()
+                                    .flatMap(he -> he.getURLForEndDevice(meter))
+                                    .map(URL::toString)
+                                    .orElse(null);
+                        });
                     }
                     return meterActivationInfo;
                 })

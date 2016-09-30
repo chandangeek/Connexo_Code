@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
@@ -82,6 +83,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -90,7 +92,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Path("/usagepoints")
 public class UsagePointResource {
@@ -383,9 +384,11 @@ public class UsagePointResource {
     public PagedInfoList getServiceCategories(@BeanParam JsonQueryParameters queryParameters) {
         List<ServiceCategoryInfo> categories = Arrays.stream(ServiceKind.values())
                 .map(meteringService::getServiceCategory)
-                .flatMap(sc -> sc.isPresent() && sc.get().isActive() ? Stream.of(sc.get()) : Stream.empty())
-                .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(ServiceCategory::isActive)
                 .filter(sc -> !sc.getCustomPropertySets().stream().anyMatch(rcps -> !rcps.isEditableByCurrentUser()))
+                .sorted(Comparator.comparing(ServiceCategory::getName, String.CASE_INSENSITIVE_ORDER))
                 .map(sc -> new ServiceCategoryInfo(sc, sc.getCustomPropertySets()
                         .stream()
                         .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
@@ -407,7 +410,7 @@ public class UsagePointResource {
         validateGeoCoordinates(validationBuilder, "extendedGeoCoordinates", info.extendedGeoCoordinates);
         validateLocation(validationBuilder, info.extendedLocation);
 
-        validationBuilder.notEmpty(info.mRID, "mRID")
+        validationBuilder.notEmpty(info.name, "name")
                 .notEmpty(info.serviceCategory, "serviceCategory")
                 .notEmpty(info.isSdp, "typeOfUsagePoint")
                 .notEmpty(info.isVirtual, "typeOfUsagePoint")

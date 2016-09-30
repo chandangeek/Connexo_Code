@@ -105,10 +105,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
 
-        when(serviceCategory.newUsagePoint(anyString(), any(Instant.class))).thenReturn(usagePointBuilder);
+        when(serviceCategory.newUsagePoint(eq("test"), any(Instant.class))).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withIsSdp(anyBoolean())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withIsVirtual(anyBoolean())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withName(anyString())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withReadRoute(anyString())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withServiceDeliveryRemark(anyString())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withServicePriority(anyString())).thenReturn(usagePointBuilder);
@@ -138,6 +137,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getDetail(any(Instant.class))).thenReturn(Optional.empty());
         when(usagePoint.getServiceLocation()).thenReturn(Optional.empty());
         when(usagePoint.getMRID()).thenReturn("MRID");
+        when(usagePoint.getName()).thenReturn("Das ist ein Name");
         when(usagePoint.getInstallationTime()).thenReturn(Instant.EPOCH);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
         when(usagePoint.getServiceLocationString()).thenReturn("serviceLocation");
@@ -175,12 +175,13 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         UsagePointInfo response = target("usagepoints/MRID").request().get(UsagePointInfo.class);
 
         assertThat(response.mRID).isEqualTo("MRID");
+        assertThat(response.name).isEqualTo("Das ist ein Name");
     }
 
     @Test
     public void testValidateUsagePointGeneralBeforeCreating() {
         UsagePointInfo info = new UsagePointInfo();
-        info.mRID = "test";
+        info.name = "test";
         info.installationTime = Instant.EPOCH.toEpochMilli();
         info.isSdp = true;
         info.isVirtual = true;
@@ -207,7 +208,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(response.getStatus()).isEqualTo(400);
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Boolean>get("$.success")).isFalse();
-        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("mRID");
+        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("name");
         assertThat(jsonModel.<String>get("$.errors[1].id")).isEqualTo("serviceCategory");
         assertThat(jsonModel.<String>get("$.errors[2].id")).isEqualTo("typeOfUsagePoint");
     }
@@ -215,7 +216,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Test
     public void testValidateUsagePointTechnicalBeforeCreating() {
         UsagePointInfo info = new UsagePointInfo();
-        info.mRID = "test";
+        info.name = "test";
         info.installationTime = Instant.EPOCH.toEpochMilli();
         info.isSdp = true;
         info.isVirtual = true;
@@ -232,7 +233,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Test
     public void testUsagePointCreating() {
         UsagePointInfo info = new UsagePointInfo();
-        info.mRID = "test";
+        info.name = "test";
         info.installationTime = Instant.EPOCH.toEpochMilli();
         info.isSdp = true;
         info.isVirtual = true;
@@ -268,7 +269,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         Response response = target("usagepoints/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
-        verify(usagePoint, never()).setMRID(anyString());
         verify(usagePoint, times(1)).setName("upd");
         verify(usagePoint, never()).setInstallationTime(any(Instant.class));
         verify(usagePoint, never()).setSdp(anyBoolean());
@@ -405,7 +405,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         HeadEndInterface headEndInterface = mock(HeadEndInterface.class);
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(1L);
-        when(meter.getMRID()).thenReturn("meter1");
+        when(meter.getMRID()).thenReturn("00000000-0000-0000-0000-0000000000ff");
         when(meter.getName()).thenReturn("meter1");
         when(meter.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
         when(meter.getVersion()).thenReturn(1L);
@@ -429,7 +429,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
 
         assertThat(model.<List>get("$.meterActivations")).hasSize(2);
-        assertThat(model.<String>get("$.meterActivations[0].meter.mRID")).isEqualTo("meter1");
+        assertThat(model.<String>get("$.meterActivations[0].meter.mRID")).isEqualTo("00000000-0000-0000-0000-0000000000ff");
+        assertThat(model.<String>get("$.meterActivations[0].meter.name")).isEqualTo("meter1");
         assertThat(model.<String>get("$.meterActivations[0].meterRole.id")).isEqualTo("key1");
         assertThat(model.<Object>get("$.meterActivations[1].meter")).isNull();
         assertThat(model.<String>get("$.meterActivations[1].meterRole.id")).isEqualTo("key2");

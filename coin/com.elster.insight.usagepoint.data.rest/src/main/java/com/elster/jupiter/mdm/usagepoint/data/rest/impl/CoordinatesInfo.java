@@ -1,6 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import java.util.Optional;
@@ -15,16 +15,15 @@ public class CoordinatesInfo {
     public CoordinatesInfo() {
     }
 
-    public CoordinatesInfo(MeteringService meteringService, String mRID) {
-        meteringService.findUsagePoint(mRID).ifPresent(usagePoint ->
-        {
-            Optional<SpatialCoordinates> geoCoordinates = usagePoint.getSpatialCoordinates();
-            coordinatesDisplay = geoCoordinates.isPresent() ? geoCoordinates.get().toString() : null;
-            spatialCoordinates = geoCoordinates.isPresent() ?
-                    String.format("%s:%s:%s", geoCoordinates.get().getLatitude().getValue().toString(),
-                            geoCoordinates.get().getLongitude().getValue().toString(),
-                            geoCoordinates.get().getElevation().getValue().toString()) : null;
-        });
+    public CoordinatesInfo(UsagePoint usagePoint) {
+        Optional<SpatialCoordinates> geoCoordinates = usagePoint.getSpatialCoordinates();
+        coordinatesDisplay = geoCoordinates.map(SpatialCoordinates::toString).orElse(null);
+        spatialCoordinates = geoCoordinates
+                .map(coordinates -> String.format("%s:%s:%s",
+                        coordinates.getLatitude().getValue().toString(),
+                        coordinates.getLongitude().getValue().toString(),
+                        coordinates.getElevation().getValue().toString()))
+                .orElse(null);
     }
 
 }

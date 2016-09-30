@@ -88,7 +88,6 @@ public class DeviceResource {
         return Response.ok().entity(toMeterInfos(listMeters, start, limit)).build();
     }
 
-
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/")
