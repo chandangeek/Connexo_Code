@@ -29,6 +29,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.Range;
 
 import javax.validation.Validator;
@@ -45,9 +46,12 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -147,7 +151,7 @@ public class StandardDataSelectorTest {
         when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenAnswer(invocation -> spy(new StandardDataSelectorImpl(dataModel, meteringService)));
         when(dataModel.getInstance(ReadingTypeInDataSelector.class)).thenAnswer(invocation -> spy(new ReadingTypeInDataSelector(meteringService)));
         when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel)));
-        when(dataModel.getInstance(ReadingTypeDataSelector.class)).thenAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService, clock, validationService, thesaurus));
+        when(dataModel.getInstance(ReadingTypeDataSelector.class)).thenAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService, thesaurus));
         when(dataModel.getInstance(DefaultItemDataSelector.class)).thenAnswer(invocation -> new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService));
         when(dataModel.asRefAny(any())).thenAnswer(invocation -> new MyRefAny(invocation.getArguments()[0]));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);

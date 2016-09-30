@@ -60,7 +60,7 @@ final class DefaultStructureMarker implements StructureMarker {
 
     public DefaultStructureMarker adopt(StructureMarker structureMarker) {
         UpdatableHolder<DefaultStructureMarker> holder = new UpdatableHolder<>(this);
-        structureMarker.getStructurePath().stream()
+        structureMarker.getStructurePath()
                 .forEach(element -> holder.update(DefaultStructureMarker::child, element));
         return holder.get();
     }

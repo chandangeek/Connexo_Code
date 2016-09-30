@@ -101,15 +101,13 @@ class DefaultItemDataSelector implements ItemDataSelector {
                 MessageSeeds.EXPORT_PERIOD_COVERS_FUTURE.log(logger, thesaurus, relativePeriodName);
                 context.commit();
             }
-
         }
 
         List<? extends BaseReadingRecord> readings = new ArrayList<>(item.getReadingContainer().getReadings(exportInterval, item.getReadingType()));
 
         DataExportStrategy strategy = item.getSelector().getStrategy();
 
-        String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
-        String itemDescription = mrid + ":" + item.getReadingType().getFullAliasName();
+        String itemDescription = item.getDescription(occurrence.getTriggerTime());
 
         handleValidatedDataOption(item, strategy, readings, exportInterval, itemDescription);
 
@@ -128,14 +126,15 @@ class DefaultItemDataSelector implements ItemDataSelector {
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, mrid, item.getReadingType().getFullAliasName());
+            MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
             context.commit();
         }
 
         return Optional.empty();
     }
 
-    private void handleValidatedDataOption(IReadingTypeDataExportItem item, DataExportStrategy strategy, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
+    private void handleValidatedDataOption(IReadingTypeDataExportItem item, DataExportStrategy strategy,
+                                           List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
         if (validationService.getEvaluator().isValidationEnabled(item.getReadingContainer(), item.getReadingType())) {
             switch (strategy.getValidatedDataOption()) {
                 case EXCLUDE_INTERVAL:
@@ -180,7 +179,8 @@ class DefaultItemDataSelector implements ItemDataSelector {
                 .map(ReadingQualityRecord::getReadingTimestamp);
     }
 
-    private void handleExcludeInterval(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
+    private void handleExcludeInterval(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings,
+                                       Range<Instant> interval, String itemDescription) {
         Optional<Instant> lastChecked = validationService.getEvaluator().getLastChecked(item.getReadingContainer(), item.getReadingType());
 
         if (!lastChecked.isPresent()) {
@@ -249,7 +249,8 @@ class DefaultItemDataSelector implements ItemDataSelector {
         logInterval(zonedDateTimes, firstIndex, zonedDateTimes.size() - 1, intervalLength, messageSeed, itemDescription);
     }
 
-    private void logInterval(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength, MessageSeeds messageSeed, String itemDescription) {
+    private void logInterval(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength,
+                             MessageSeeds messageSeed, String itemDescription) {
         boolean isSingleInterval = endIndex - startIndex == 1;
         if (isSingleInterval) {
             doLogInterval(zonedDateTimes, startIndex, startIndex, intervalLength, messageSeed, itemDescription);
@@ -258,7 +259,8 @@ class DefaultItemDataSelector implements ItemDataSelector {
         }
     }
 
-    private void doLogInterval(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength, MessageSeeds messageSeed, String itemDescription) {
+    private void doLogInterval(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength,
+                               MessageSeeds messageSeed, String itemDescription) {
         ZonedDateTime startTimeToLog = zonedDateTimes.get(startIndex).minus(intervalLength);
         ZonedDateTime endTimeToLog = zonedDateTimes.get(endIndex);
         try (TransactionContext context = transactionService.getContext()) {
@@ -284,20 +286,21 @@ class DefaultItemDataSelector implements ItemDataSelector {
             return Optional.empty();
         }
         Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
-        List<? extends BaseReadingRecord> readings = new ArrayList<>(item.getReadingContainer().getReadingsUpdatedSince(updateInterval, item.getReadingType(), since));
+        List<? extends BaseReadingRecord> readings = new ArrayList<>(item.getReadingContainer()
+                .getReadingsUpdatedSince(updateInterval, item.getReadingType(), since));
 
-        String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
-        String itemDescription = mrid + ":" + item.getReadingType().getFullAliasName();
+        String itemDescription = item.getDescription(occurrence.getTriggerTime());
 
         Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
         if (updateWindow.isPresent()) {
             RelativePeriod window = updateWindow.get();
             RangeSet<Instant> rangeSet = readings.stream()
-                    .map(baseReadingRecord -> window.getOpenClosedInterval(ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
+                    .map(baseReadingRecord -> window.getOpenClosedInterval(
+                            ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
                     .collect(toImmutableRangeSet());
             readings = rangeSet.asRanges().stream()
                     .flatMap(range -> {
-                        List<? extends BaseReadingRecord> found = new ArrayList(item.getReadingContainer().getReadings(range, item.getReadingType()));
+                        List<? extends BaseReadingRecord> found = new ArrayList<>(item.getReadingContainer().getReadings(range, item.getReadingType()));
                         if (occurrence.getTask().getReadingTypeDataSelector().get().getStrategy().isExportCompleteData()) {
                             handleValidatedDataOption(item, item.getSelector().getStrategy(), found, range, itemDescription);
                             if (!isComplete(item, range, found)) {
@@ -324,15 +327,19 @@ class DefaultItemDataSelector implements ItemDataSelector {
     }
 
     private StructureMarker structureMarker(IReadingTypeDataExportItem item, Instant instant, Range<Instant> exportInterval) {
+        // TODO replace with Name or not
         return DefaultStructureMarker.createRoot(clock, item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
                 .withPeriod(exportInterval)
+                // TODO replace with Name or not
                 .child(item.getReadingContainer().getUsagePoint(instant).map(UsagePoint::getMRID).orElse(""))
                 .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID())
                 .child("export");
     }
 
     private StructureMarker structureMarkerForUpdate(IReadingTypeDataExportItem item, Instant instant) {
+        // TODO replace with Name or not
         return DefaultStructureMarker.createRoot(clock, item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
+                // TODO replace with Name or not
                 .child(item.getReadingContainer().getUsagePoint(instant).map(UsagePoint::getMRID).orElse(""))
                 .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID())
                 .child("update");
@@ -358,7 +365,8 @@ class DefaultItemDataSelector implements ItemDataSelector {
                 .map(StandardDataSelector::getStrategy)
                 .filter(DataExportStrategy::isExportUpdate)
                 .flatMap(DataExportStrategy::getUpdatePeriod)
-                .map(relativePeriod -> relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(occurrence.getTriggerTime(), item.getReadingContainer().getZoneId())))
+                .map(relativePeriod -> relativePeriod.getOpenClosedInterval(
+                        ZonedDateTime.ofInstant(occurrence.getTriggerTime(), item.getReadingContainer().getZoneId())))
                 .orElse(null);
     }
 

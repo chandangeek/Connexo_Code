@@ -39,7 +39,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
@@ -150,16 +149,16 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
 
     @Override
     public List<DataFormatterFactory> getAvailableFormatters() {
-        ArrayList<DataFormatterFactory> dataFormatterFactories = new ArrayList<>(this.dataFormatterFactories.keySet());
-        dataFormatterFactories.sort(Comparator.comparing(HasName::getName));
-        return dataFormatterFactories;
+        return this.dataFormatterFactories.keySet().stream()
+                .sorted(Comparator.comparing(DataFormatterFactory::getName))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<DataSelectorFactory> getAvailableSelectors() {
-        ArrayList<DataSelectorFactory> dataSelectorFactories = new ArrayList<>(this.dataSelectorFactories.keySet());
-        dataSelectorFactories.sort(Comparator.comparing(HasName::getName));
-        return dataSelectorFactories;
+        return this.dataSelectorFactories.keySet().stream()
+                .sorted(Comparator.comparing(DataSelectorFactory::getName))
+                .collect(Collectors.toList());
     }
 
     @Override

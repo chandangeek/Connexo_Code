@@ -34,7 +34,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -124,11 +123,6 @@ public class EventSelectorTest {
         when(selector.getExportPeriod()).thenReturn(exportPeriod);
     }
 
-    @After
-    public void tearDown() {
-
-    }
-
     @Test
     public void testSelection() {
         EventSelector eventSelector = EventSelector.from(dataModel, selector, Logger.getAnonymousLogger());
@@ -208,6 +202,4 @@ public class EventSelectorTest {
             assertThat(events.get(0).getCreatedDateTime()).isEqualTo(eventTime.plusMinutes(5).toInstant());
         }
     }
-
-
 }

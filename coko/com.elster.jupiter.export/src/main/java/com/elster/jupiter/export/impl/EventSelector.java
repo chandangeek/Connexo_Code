@@ -19,6 +19,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -110,6 +111,7 @@ class EventSelector implements DataSelector {
     }
 
     private StructureMarker buildStructureMarker(EndDevice endDevice, Range<Instant> range) {
+        // TODO replace with Name or not
         return dataExportService.forRoot(endDevice.getMRID()).withPeriod(range);
     }
 
