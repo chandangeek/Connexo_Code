@@ -65,14 +65,11 @@ public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
 
     public Optional<MeterActivation> getCurrentMeterActivation() {
         if (this.currentMeterActivation == null) {
-            if (getDevice().getMeter().isPresent() && getDevice().getMeter()
-                    .get()
-                    .getCurrentMeterActivation()
-                    .isPresent()) {
-                this.currentMeterActivation = Optional.of(getDevice().getMeter()
-                        .get()
+            if (getDevice().getMeter().isPresent()) {
+                this.currentMeterActivation = getDevice()
+                        .getMeter().get()
                         .getCurrentMeterActivation()
-                        .get());
+                        .map(MeterActivation.class::cast);
             } else {
                 this.currentMeterActivation = Optional.empty();
             }
@@ -89,11 +86,8 @@ public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
     }
 
     public Optional<UsagePoint> getUsagePoint() {
-        if (getCurrentMeterActivation().isPresent()) {
-            return currentMeterActivation.get().getUsagePoint();
-        } else {
-            return Optional.empty();
-        }
+        return getCurrentMeterActivation()
+                .flatMap(MeterActivation::getUsagePoint);
     }
 
     public Optional<BigDecimal> getMultiplier() {

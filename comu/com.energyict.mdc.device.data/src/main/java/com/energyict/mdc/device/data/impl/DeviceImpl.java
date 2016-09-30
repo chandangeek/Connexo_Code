@@ -1315,14 +1315,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private Meter createKoreMeter(AmrSystem amrSystem) {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
-        Meter newMeter = amrSystem.newMeter(String.valueOf(getId()))
+        return amrSystem.newMeter(Long.toString(getId()), getName())
                 .setMRID(getmRID())
-                .setName(getName())
                 .setStateMachine(stateMachine)
                 .setSerialNumber(getSerialNumber())
                 .setReceivedDate(koreHelper.getInitialMeterActivationStartDate().get()) // date should be present
                 .create();
-        return newMeter;
     }
 
     private Optional<AmrSystem> findMdcAmrSystem() {

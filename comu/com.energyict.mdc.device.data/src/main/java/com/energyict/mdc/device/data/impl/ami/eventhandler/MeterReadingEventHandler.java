@@ -41,14 +41,13 @@ public class MeterReadingEventHandler implements MessageHandler {
         Map<String, Object> messageProperties = this.jsonService.deserialize(message.getPayload(), Map.class);
 
         if (messageProperties.get("meterId") != null) {
-            findServiceCallsLinkedTo(meteringService.findMeter(Long.valueOf(messageProperties
-                    .get("meterId")
-                    .toString()))
-                    .flatMap(meter -> deviceService.findDeviceByMrid(meter.getMRID()))
+            findServiceCallsLinkedTo(meteringService
+                    .findMeter(Long.parseLong(messageProperties.get("meterId").toString()))
+                    .flatMap(meter -> deviceService.findDeviceById(Long.parseLong(meter.getAmrId())))
                     .orElseThrow(IllegalStateException::new))
                     .forEach(serviceCall -> handle(serviceCall, messageProperties));
         } else if (messageProperties.get("deviceIdentifier") != null) {
-            findServiceCallsLinkedTo(deviceService.findDeviceById(Long.valueOf(messageProperties.get("deviceIdentifier")
+            findServiceCallsLinkedTo(deviceService.findDeviceById(Long.parseLong(messageProperties.get("deviceIdentifier")
                     .toString())).orElseThrow(IllegalStateException::new))
                     .forEach(serviceCall -> handle(serviceCall, messageProperties));
         }

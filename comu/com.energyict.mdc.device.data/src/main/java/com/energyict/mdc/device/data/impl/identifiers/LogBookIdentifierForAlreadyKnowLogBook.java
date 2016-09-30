@@ -49,6 +49,7 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
 
     @Override
     public String toString() {
-        return MessageFormat.format("logbook with name ''{0}'' on device having MRID {1}", logBook.getLogBookType().getName(), logBook.getId());
+        return MessageFormat.format("logbook with name ''{0}'' on device having MRID {1}",
+                logBook.getLogBookType().getName(), logBook.getDevice().getmRID());
     }
 }

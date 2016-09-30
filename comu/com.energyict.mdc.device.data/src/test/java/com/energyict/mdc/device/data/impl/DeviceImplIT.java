@@ -1510,15 +1510,15 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels()).haveExactly(1, new Condition<com.elster.jupiter.metering.Channel>() {
             @Override
             public boolean matches(com.elster.jupiter.metering.Channel channel) {
-                return channel.getMainReadingType().getMRID().equals(forwardDeltaPrimaryMonthlyEnergyReadingType.getmRID())
+                return channel.getMainReadingType().getMRID().equals(forwardDeltaPrimaryMonthlyEnergyReadingType.getMRID())
                         && channel.getBulkQuantityReadingType().isPresent() && channel.getBulkQuantityReadingType().get().getMRID().equals(channelTypeForRegisterType1.getReadingType().getMRID());
             }
         });
         assertThat(meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels()).haveExactly(1, new Condition<com.elster.jupiter.metering.Channel>() {
             @Override
             public boolean matches(com.elster.jupiter.metering.Channel channel) {
-                return channel.getMainReadingType().getMRID().equals(reverseDeltaSecondaryMonthlyEnergyReadingType.getmRID())
-                        && channel.getBulkQuantityReadingType().isPresent() && channel.getBulkQuantityReadingType().get().getmRID().equals(channelTypeForRegisterType2.getReadingType().getmRID());
+                return channel.getMainReadingType().getMRID().equals(reverseDeltaSecondaryMonthlyEnergyReadingType.getMRID())
+                        && channel.getBulkQuantityReadingType().isPresent() && channel.getBulkQuantityReadingType().get().getMRID().equals(channelTypeForRegisterType2.getReadingType().getMRID());
             }
         });
 
@@ -2376,7 +2376,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         expectedEx.expect(UnsatisfiedReadingTypeRequirementsOfUsagePointException.class);
         expectedEx.expectMessage(
-                "This device doesn’t have the following reading types that are specified " +
+                "This device doesn't have the following reading types that are specified " +
                         "in the metrology configurations of the selected usage point: " +
                         "'" + mc1.getName() + "' (" + monthlyDeltaAPlus.getName() + "), " +
                         "'" + mc2.getName() + "' (" + monthlyDeltaAPlus.getName() + ")");
@@ -2412,9 +2412,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(device.getMultiplier()).isEqualTo(multiplier);
     }
 
-    private UsagePoint createSimpleUsagePoint(String mRID) {
+    private UsagePoint createSimpleUsagePoint(String name) {
         return inMemoryPersistence.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get()
-                .newUsagePoint(mRID, inMemoryPersistence.getClock().instant())
+                .newUsagePoint(name, inMemoryPersistence.getClock().instant())
                 .create();
     }
 

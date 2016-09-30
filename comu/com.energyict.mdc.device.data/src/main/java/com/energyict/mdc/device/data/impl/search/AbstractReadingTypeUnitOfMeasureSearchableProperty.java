@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -130,7 +131,7 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
     private UnitOfMeasureInfo[] getPossibleValues() {
         return this.meteringService.getAvailableNonEquidistantReadingTypes().stream()
                 .map(rt -> new UnitOfMeasureInfo(rt.getMultiplier(), rt.getUnit()))
-                .sorted((c1, c2) -> c1.getName().compareToIgnoreCase(c2.getName()))
+                .sorted(Comparator.comparing(UnitOfMeasureInfo::getName, String.CASE_INSENSITIVE_ORDER))
                 .toArray(UnitOfMeasureInfo[]::new);
     }
 
