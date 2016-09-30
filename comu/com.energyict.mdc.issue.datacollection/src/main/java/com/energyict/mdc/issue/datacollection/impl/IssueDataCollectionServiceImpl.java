@@ -22,7 +22,6 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -307,10 +306,7 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.addAll(Arrays.asList(TranslationKeys.values()));
-        translationKeys.add(new SimpleTranslationKey(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, ModuleConstants.AQ_DATA_COLLECTION_EVENT_DISPLAYNAME));
-        return translationKeys;
+        return Arrays.asList(TranslationKeys.values());
     }
 
     @Override
