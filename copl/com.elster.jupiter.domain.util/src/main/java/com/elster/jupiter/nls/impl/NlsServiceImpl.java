@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.PrivilegeThesaurus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -46,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -109,11 +111,16 @@ public class NlsServiceImpl implements NlsService {
     @Override
     public Thesaurus getThesaurus(String componentName, Layer layer) {
         IThesaurus thesaurus = thesauri.get(Pair.of(componentName, layer));
-        if(thesaurus == null) {
+        if (thesaurus == null) {
             thesaurus = dataModel.getInstance(ThesaurusImpl.class).init(componentName, layer);
             thesauri.put(Pair.of(componentName, layer), thesaurus);
         }
         return thesaurus;
+    }
+
+    @Override
+    public PrivilegeThesaurus getPrivilegeThesaurus() {
+        return new GlobalThesaurus();
     }
 
     @Override
@@ -500,4 +507,30 @@ public class NlsServiceImpl implements NlsService {
         }
 
     }
+
+    private class GlobalThesaurus implements PrivilegeThesaurus {
+        @Override
+        public String translateComponentName(String privilegeKey) {
+            return this.getString(privilegeKey, privilegeKey);
+        }
+
+        @Override
+        public String translateResourceName(String privilegeKey) {
+            return this.getString(privilegeKey, privilegeKey);
+        }
+
+        @Override
+        public String translatePrivilegeKey(String privilegeKey) {
+            return this.getString(privilegeKey, privilegeKey);
+        }
+
+        private String getString(String key, String defaultMessage) {
+            return thesauri.values().stream()
+                    .map(th -> th.getString(key, null))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(defaultMessage);
+        }
+    }
+
 }

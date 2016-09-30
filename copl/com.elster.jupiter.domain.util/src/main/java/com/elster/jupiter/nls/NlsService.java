@@ -13,6 +13,8 @@ public interface NlsService {
 
     Thesaurus getThesaurus(String componentName, Layer layer);
 
+    PrivilegeThesaurus getPrivilegeThesaurus();
+
     TranslationBuilder translate(NlsKey key);
 
     String interpolate(ConstraintViolation<?> violation);
