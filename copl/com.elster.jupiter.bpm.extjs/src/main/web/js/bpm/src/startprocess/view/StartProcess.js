@@ -128,6 +128,8 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
 
         availableStore = Ext.create('Bpm.startprocess.store.AvailableProcesses');
         availableStore.getProxy().extraParams = me.properties.activeProcessesParams;
+        var viewport = Ext.ComponentQuery.query('viewport')[0];
+        viewport.setLoading();
         availableStore.load(function (records) {
             var visible = Ext.isEmpty(records);
 
@@ -137,6 +139,7 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
             if (!visible) {
                 me.down('combobox[name=startProcessCombo]').bindStore(availableStore);
             }
+            viewport.setLoading(false);
         });
         if (me.properties.context) {
             me.down('property-form').context = me.properties.context;
