@@ -1,16 +1,15 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+
+import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.util.List;
+import java.util.Optional;
 
 public class UniqueUsagePointMRIDValidator implements ConstraintValidator<UniqueMRID, UsagePoint> {
 
@@ -33,15 +32,15 @@ public class UniqueUsagePointMRIDValidator implements ConstraintValidator<Unique
     }
 
     private boolean checkExisting(UsagePoint usagePoint, ConstraintValidatorContext context) {
-    	Condition condition = Operator.EQUAL.compare("mRID", usagePoint.getMRID());
+        Condition condition = Operator.EQUAL.compare("mRID", usagePoint.getMRID());
         List<UsagePoint> candidates = meteringService.getUsagePointQuery().select(condition);
         Optional<UsagePoint> found = Optional.empty();
-        if (candidates.size()==1) {
-        	found = Optional.of(candidates.get(0));
-        } else if (candidates.size()>1) {
-        	throw new IllegalStateException();
+        if (candidates.size() == 1) {
+            found = Optional.of(candidates.get(0));
+        } else if (candidates.size() > 1) {
+            throw new IllegalStateException();
         }
-        
+
         if (found.isPresent() && areDifferentWithSameMRID(usagePoint, found.get())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(message).addPropertyNode("mRID").addConstraintViolation();

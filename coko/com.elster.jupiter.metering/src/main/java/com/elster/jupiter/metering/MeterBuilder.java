@@ -15,8 +15,6 @@ public interface MeterBuilder {
 
     MeterBuilder setStateMachine(FiniteStateMachine finiteStateMachine);
 
-    MeterBuilder setName(String name);
-
     MeterBuilder setSerialNumber(String serialNumber);
 
     MeterBuilder setLocation(Location location);

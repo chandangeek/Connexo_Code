@@ -178,7 +178,7 @@ public class MeterReadingStorer {
                     toCreate.add(eventRecord);
                 }
             } else {
-                MessageSeeds.METER_EVENT_IGNORED.log(logger, thesaurus, sourceEvent.getEventTypeCode(), meter.getMRID());
+                MessageSeeds.METER_EVENT_IGNORED.log(logger, thesaurus, sourceEvent.getEventTypeCode(), meter.getName());
             }
         }
         getEventMapper().persist(toCreate);
@@ -261,7 +261,7 @@ public class MeterReadingStorer {
         } else {
             try {
                 ReadingType readingType = meteringService.createReadingType(code, "");
-                MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getMRID());
+                MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getName());
                 return readingType;
             } catch (UnderlyingSQLFailedException e) {
                 // maybe some other thread beat us in the race, if not rethrow exception
@@ -288,7 +288,7 @@ public class MeterReadingStorer {
                     return channelsContainer.createChannel(readingType);
                 }
             }
-            MessageSeeds.NOMETERACTIVATION.log(logger, thesaurus, meter.getMRID(), reading.getTimeStamp());
+            MessageSeeds.NOMETERACTIVATION.log(logger, thesaurus, meter.getName(), reading.getTimeStamp());
             return null;
         } else {
             return channel;

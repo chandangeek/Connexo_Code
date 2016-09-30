@@ -36,9 +36,12 @@ public class UsagePointMeterActivationException extends LocalizedException {
         // no usages -> no getters add if necessary
     }
 
-    public static MeterActiveOnDifferentUsagePoint meterActiveOnDifferentUsagePoint(Thesaurus thesaurus, Meter meter, MeterRole currentRole, MeterRole desiredRole, UsagePoint meterCurrentUsagePoint, Range<Instant> conflictActivationRange) {
-        MeterActiveOnDifferentUsagePoint ex = new MeterActiveOnDifferentUsagePoint(thesaurus, MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT, meter.getMRID(), meterCurrentUsagePoint.getMRID(), currentRole
-                .getDisplayName());
+    public static MeterActiveOnDifferentUsagePoint meterActiveOnDifferentUsagePoint(Thesaurus thesaurus, Meter meter,
+                                                                                    MeterRole currentRole, MeterRole desiredRole,
+                                                                                    UsagePoint meterCurrentUsagePoint,
+                                                                                    Range<Instant> conflictActivationRange) {
+        MeterActiveOnDifferentUsagePoint ex = new MeterActiveOnDifferentUsagePoint(thesaurus, MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT,
+                meter.getName(), meterCurrentUsagePoint.getName(), currentRole.getDisplayName());
         ex.meter = meter;
         ex.currentRole = currentRole;
         ex.desiredRole = desiredRole;
@@ -94,7 +97,7 @@ public class UsagePointMeterActivationException extends LocalizedException {
     }
 
     public static UsagePointHasMeterOnThisRole usagePointHasMeterOnThisRole(Thesaurus thesaurus, Meter meterActiveOnRole, MeterRole meterRole, Range<Instant> conflictActivationRange) {
-        UsagePointHasMeterOnThisRole ex = new UsagePointHasMeterOnThisRole(thesaurus, MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, meterActiveOnRole.getMRID(), meterRole.getDisplayName());
+        UsagePointHasMeterOnThisRole ex = new UsagePointHasMeterOnThisRole(thesaurus, MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, meterActiveOnRole.getName(), meterRole.getDisplayName());
         ex.meterActiveOnRole = meterActiveOnRole;
         ex.meterRole = meterRole;
         ex.conflictActivationRange = conflictActivationRange;

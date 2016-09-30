@@ -29,6 +29,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -45,7 +46,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceImplIT {
     private static Clock clock = mock(Clock.class);
-    static MeteringInMemoryBootstrapModule inMemoryPersistentModule = MeteringInMemoryBootstrapModule.withClockAndReadingTypes(clock, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+    private static MeteringInMemoryBootstrapModule inMemoryPersistentModule =
+            MeteringInMemoryBootstrapModule.withClockAndReadingTypes(clock, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryPersistentModule.getTransactionService());
@@ -64,7 +66,7 @@ public class EndDeviceImplIT {
 
     @Before
     public void setUp() {
-        when(this.clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
+        when(clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
     }
 
     @Test
@@ -90,7 +92,6 @@ public class EndDeviceImplIT {
     @Test
     @Transactional
     public void createEndDeviceWithManagedState() {
-
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
@@ -109,7 +110,6 @@ public class EndDeviceImplIT {
     @Test(expected = UnsupportedOperationException.class)
     @Transactional
     public void changeStateForDeviceWhoseStateIsNotManaged() {
-
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
@@ -124,7 +124,6 @@ public class EndDeviceImplIT {
     @Test(expected = IllegalArgumentException.class)
     @Transactional
     public void changeStateToOneThatIsNotPartOfTheStateMachine() {
-
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
@@ -140,7 +139,6 @@ public class EndDeviceImplIT {
     @Test
     @Transactional
     public void changeState() {
-
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
         long deviceId;
         long stateId;
@@ -247,7 +245,6 @@ public class EndDeviceImplIT {
     @Test
     @Transactional
     public void cimLifecycleDatesAreAllEmptyAtCreationTime() {
-
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
@@ -267,7 +264,6 @@ public class EndDeviceImplIT {
     @Test
     @Transactional
     public void cimLifecycleDatesAreAllEmptyAtCreationTimeAfterFind() {
-
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
@@ -288,7 +284,6 @@ public class EndDeviceImplIT {
     @Test
     @Transactional
     public void updateCimLifecycleDates() {
-
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
@@ -323,7 +318,6 @@ public class EndDeviceImplIT {
     @Test
     @Transactional
     public void updateCimLifecycleDatesAfterFind() {
-
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
@@ -357,13 +351,25 @@ public class EndDeviceImplIT {
     @Test
     @Transactional
     public void newDeviceIsNotObsolete() {
-
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "newDeviceIsNotObsolete");
 
         // Asserts
         assertThat(endDevice.isObsolete()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void newDeviceIsAssignedAValidMRID() {
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
+
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "newDeviceIsAssignedAValidMRID");
+
+        String mRID = endDevice.getMRID();
+        // Asserts
+        assertThat(mRID).isNotNull().isNotEmpty();
+        assertThat(UUID.fromString(mRID).toString()).isEqualTo(mRID);
     }
 
     @Test
@@ -393,8 +399,7 @@ public class EndDeviceImplIT {
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        Meter meter = amrSystem.newMeter("amrID")
-                .setMRID("findByIdAfterMakeObsolete")
+        Meter meter = amrSystem.newMeter("amrID", "findByIdAfterMakeObsolete")
                 .create();
         meter.update();
         meter.makeObsolete();
@@ -410,33 +415,33 @@ public class EndDeviceImplIT {
 
     @Test
     @Transactional
-    public void reuseSameMRID() {
-        String mRID = "reuseSameMRID";
+    public void reuseSameName() {
+        String name = "reuseSameName";
 
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        EndDevice willBeObsolete = amrSystem.createEndDevice("amrID1", mRID);
+        EndDevice willBeObsolete = amrSystem.createEndDevice("amrID1", name);
         willBeObsolete.makeObsolete();
 
         // Business method
-        EndDevice endDevice = amrSystem.createEndDevice("amrID2", mRID);
+        EndDevice endDevice = amrSystem.createEndDevice("amrID2", name);
 
         // Asserts
         assertThat(endDevice).isNotNull();
-        assertThat(endDevice.getMRID()).isEqualTo(mRID);
+        assertThat(endDevice.getName()).isEqualTo(name);
     }
 
     @Test(expected = UnderlyingSQLFailedException.class)
     @Transactional
-    public void mRIDIsUnique() {
-        String mRID = "mRIDIsUnique";
+    public void nameIsUnique() {
+        String name = "nameIsUnique";
 
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        EndDevice first = amrSystem.createEndDevice("amrID", mRID);
-        EndDevice second = amrSystem.createEndDevice("amrID", mRID);
+        amrSystem.createEndDevice("amrID", name);
+        amrSystem.createEndDevice("amrID", name);
 
         // Asserts: see expected exception rule
     }

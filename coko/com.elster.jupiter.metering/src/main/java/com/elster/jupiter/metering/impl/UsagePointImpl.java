@@ -17,7 +17,6 @@ import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -91,6 +90,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -168,7 +168,6 @@ public class UsagePointImpl implements UsagePoint {
             Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
             CustomPropertySetService customPropertySetService,
-            MeteringService meteringService,
             ServerMetrologyConfigurationService metrologyConfigurationService,
             ServerDataAggregationService dataAggregationService) {
         this.clock = clock;
@@ -182,8 +181,9 @@ public class UsagePointImpl implements UsagePoint {
         this.dataAggregationService = dataAggregationService;
     }
 
-    UsagePointImpl init(String mRID, ServiceCategory serviceCategory) {
-        this.mRID = mRID;
+    UsagePointImpl init(String name, ServiceCategory serviceCategory) {
+        this.name = name;
+        this.mRID = UUID.randomUUID().toString();
         this.serviceCategory.set(serviceCategory);
         this.isSdp = true;
         return this;
@@ -307,11 +307,6 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    @Override
-    public void setMRID(String mRID) {
-        this.mRID = mRID;
     }
 
     @Override

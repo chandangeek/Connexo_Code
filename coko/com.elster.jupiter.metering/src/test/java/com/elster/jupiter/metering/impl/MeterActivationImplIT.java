@@ -47,7 +47,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -85,7 +84,7 @@ public class MeterActivationImplIT {
     public void testPersistence() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(1).get();
-        Meter meter = system.newMeter("testPersistence").create();
+        Meter meter = system.newMeter("testPersistence", "myName").create();
         MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault())
                 .toInstant());
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
@@ -106,7 +105,7 @@ public class MeterActivationImplIT {
         try {
             meteringService.addHeadEndInterface(heMock);
 
-            Meter meter = system.newMeter("testPersistence").create();
+            Meter meter = system.newMeter("testPersistence", "myName").create();
             MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
 
             MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
@@ -128,11 +127,11 @@ public class MeterActivationImplIT {
         try {
             meteringService.addHeadEndInterface(heMock);
 
-            Meter meter = system.newMeter("testPersistence").create();
+            Meter meter = system.newMeter("testPersistence", "myName").create();
 
             UsagePoint usagePoint = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                     .orElseThrow(IllegalArgumentException::new)
-                    .newUsagePoint(UUID.randomUUID().toString(), ZonedDateTime.of(2012, 12, 18, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant()).create();
+                    .newUsagePoint("random name", ZonedDateTime.of(2012, 12, 18, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant()).create();
 
             MeterActivation meterActivation = usagePoint.activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
                     .findDefaultMeterRole(DefaultMeterRole.DEFAULT), ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
@@ -154,7 +153,7 @@ public class MeterActivationImplIT {
         Instant start2 = start3.minusSeconds(43200);
         try (TransactionContext ctx = inMemoryBootstrapModule.getTransactionService().getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-            Meter meter = amrSystem.newMeter("testCOPL854").create();
+            Meter meter = amrSystem.newMeter("testCOPL854", "myName").create();
             meterId = meter.getId();
             UsagePoint up = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                     .orElseThrow(IllegalArgumentException::new).newUsagePoint("abcd", Instant.EPOCH)
@@ -205,7 +204,7 @@ public class MeterActivationImplIT {
     public void testAdvanceWithReadings() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(1).get();
-        Meter meter = system.newMeter("testAdvanceWithReadings").create();
+        Meter meter = system.newMeter("testAdvanceWithReadings", "myName").create();
         ZonedDateTime startTime = ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault());
         ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
         ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
@@ -269,7 +268,7 @@ public class MeterActivationImplIT {
     public void testAdvanceWithoutData() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(1).get();
-        Meter meter = system.newMeter("testAdvanceWithoutData").create();
+        Meter meter = system.newMeter("testAdvanceWithoutData", "myName").create();
         ZonedDateTime startTime = ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault());
         ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
         ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
@@ -302,7 +301,7 @@ public class MeterActivationImplIT {
         MeterActivation meterActivation;
         try (TransactionContext ctx = inMemoryBootstrapModule.getTransactionService().getContext()) {
             AmrSystem system = meteringService.findAmrSystem(1).get();
-            meter = system.newMeter("testAdvanceWithReadingsAndQualities").create();
+            meter = system.newMeter("testAdvanceWithReadingsAndQualities", "myName").create();
             meterActivation = meter.activate(startTime.toInstant());
             meterActivation.endAt(originalCutOff.toInstant());
             readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
@@ -402,7 +401,7 @@ public class MeterActivationImplIT {
     public void testCanCreateMeterActivationWithMeterRole() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = system.newMeter("testCanCreateMeterActivationWithMeterRole_Meter").create();
+        Meter meter = system.newMeter("testCanCreateMeterActivationWithMeterRole_Meter", "myName").create();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory
                 .newUsagePoint("testCanCreateMeterActivationWithMeterRole_UP", inMemoryBootstrapModule.getClock().instant())
@@ -422,7 +421,7 @@ public class MeterActivationImplIT {
     public void testMeterCanNotBeAssignedTwiceForTheSameUsagePoint() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = system.newMeter("meterForActivation").create();
+        Meter meter = system.newMeter("meterForActivation", "myName").create();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
@@ -440,7 +439,7 @@ public class MeterActivationImplIT {
     public void testMeterCanNotBeAssignedTwiceForTheSameUsagePointCase2() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = system.newMeter("meterForActivation").create();
+        Meter meter = system.newMeter("meterForActivation", "myName").create();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
@@ -466,7 +465,7 @@ public class MeterActivationImplIT {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = system.newMeter("meterForActivation").create();
+        Meter meter = system.newMeter("meterForActivation", "myName").create();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant().truncatedTo(ChronoUnit.MINUTES);
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
@@ -496,7 +495,7 @@ public class MeterActivationImplIT {
     public void testActivateAlreadyActiveMeter() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = system.newMeter("meterForActivation").create();
+        Meter meter = system.newMeter("meterForActivation", "myName").create();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
@@ -518,7 +517,7 @@ public class MeterActivationImplIT {
     public void testMeterCanBeLinkedToUsagePoint() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = system.newMeter("meterForActivation").create();
+        Meter meter = system.newMeter("meterForActivation", "myName").create();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
@@ -538,8 +537,8 @@ public class MeterActivationImplIT {
     public void testTwoMetersCanBeLinkedToUsagePoint() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter1 = system.newMeter("meterForActivation1").create();
-        Meter meter2 = system.newMeter("meterForActivation2").create();
+        Meter meter1 = system.newMeter("meterForActivation1", "myName").create();
+        Meter meter2 = system.newMeter("meterForActivation2", "myName").create();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
@@ -565,7 +564,7 @@ public class MeterActivationImplIT {
     public void testMeterCanBeRemovedFromMeterRoleOnUsagePoint() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = system.newMeter("meterForActivation").create();
+        Meter meter = system.newMeter("meterForActivation", "myName").create();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();

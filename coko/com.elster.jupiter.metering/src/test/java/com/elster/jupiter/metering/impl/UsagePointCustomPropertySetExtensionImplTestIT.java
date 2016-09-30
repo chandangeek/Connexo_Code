@@ -43,8 +43,8 @@ import static org.mockito.Mockito.when;
 public class UsagePointCustomPropertySetExtensionImplTestIT {
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
     private static UsagePointTestCustomPropertySet customPropertySet;
-    private static String USAGE_POINT_MRID = "usagePoint";
-    private static String METROLOGY_CONFIGURATION_MRID = "metrologyConfiguration";
+    private static final String USAGE_POINT_NAME = "usagePoint";
+    private static final String METROLOGY_CONFIGURATION_MRID = "metrologyConfiguration";
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
@@ -64,7 +64,7 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
     @After
     public void after() {
         inMemoryBootstrapModule.getMeteringService()
-                .findUsagePoint(USAGE_POINT_MRID)
+                .findUsagePointByName(USAGE_POINT_NAME)
                 .ifPresent(UsagePoint::delete);
         inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .findMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID)
@@ -90,13 +90,13 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
         return inMemoryBootstrapModule.getMeteringService()
                 .getServiceCategory(ServiceKind.ELECTRICITY)
                 .get()
-                .newUsagePoint(USAGE_POINT_MRID, Instant.EPOCH)
+                .newUsagePoint(USAGE_POINT_NAME, Instant.EPOCH)
                 .create();
     }
 
     private UsagePoint getUsagePoint() {
         return inMemoryBootstrapModule.getMeteringService()
-                .findUsagePoint(USAGE_POINT_MRID)
+                .findUsagePointByName(USAGE_POINT_NAME)
                 .orElseThrow(() -> new IllegalStateException("UsagePoint doesn't exist."));
     }
 

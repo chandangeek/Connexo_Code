@@ -74,6 +74,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.metering.impl.LocationTemplateImpl.LocationTemplateElements;
 import static com.elster.jupiter.metering.impl.LocationTemplateImpl.TemplateFieldImpl;
+import static com.elster.jupiter.metering.impl.ReadingTypeImpl.Fields.mRID;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -186,8 +187,12 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public Optional<UsagePoint> findUsagePoint(String mRID) {
-        List<UsagePoint> usagePoints = dataModel.mapper(UsagePoint.class).select(Operator.EQUAL.compare("mRID", mRID));
-        return usagePoints.isEmpty() ? Optional.empty() : Optional.of(usagePoints.get(0));
+        return dataModel.stream(UsagePoint.class).filter(where("mRID").isEqualTo(mRID)).findFirst();
+    }
+
+    @Override
+    public Optional<UsagePoint> findUsagePointByName(String name) {
+        return dataModel.stream(UsagePoint.class).filter(where("name").isEqualTo(name)).findFirst();
     }
 
     @Override
@@ -393,8 +398,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Finder<UsagePoint> getUsagePoints(UsagePointFilter filter) {
         Condition condition = Condition.TRUE;
-        if (!Checks.is(filter.getMrid()).emptyOrOnlyWhiteSpace()) {
-            condition = condition.and(where("mRID").likeIgnoreCase(filter.getMrid()));
+        if (!Checks.is(filter.getName()).emptyOrOnlyWhiteSpace()) {
+            condition = condition.and(where("name").likeIgnoreCase(filter.getName()));
         }
         if (filter.isAccountabilityOnly()) {
             condition = condition.and(hasAccountability());
@@ -414,7 +419,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public List<ReadingType> getAllReadingTypesWithoutInterval() {
-        Condition withoutIntervals = where(ReadingTypeImpl.Fields.mRID.name()).matches("^0\\.\\d+\\.0", "");
+        Condition withoutIntervals = where(mRID.name()).matches("^0\\.\\d+\\.0", "");
         return dataModel.mapper(ReadingType.class).select(withoutIntervals);
     }
 

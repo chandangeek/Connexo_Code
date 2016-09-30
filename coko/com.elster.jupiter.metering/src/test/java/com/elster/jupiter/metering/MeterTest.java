@@ -48,7 +48,7 @@ public class MeterTest {
         Instant deactivateDate = ZonedDateTime.of(2015, 4, 11, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant();
         Instant installDate2 = ZonedDateTime.of(2015, 4, 12, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant();
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        meter = amrSystem.newMeter("myMeter").create();
+        meter = amrSystem.newMeter("myMeter", "myName").create();
         assertThat(meter.getMeterActivations()).isEmpty();
         meter.activate(installDate1);
         JupiterAssertions.assertThat(meter.getCurrentMeterActivation()).isPresent();

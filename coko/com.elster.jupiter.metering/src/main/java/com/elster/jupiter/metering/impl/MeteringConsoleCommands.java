@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -150,13 +149,13 @@ public class MeteringConsoleCommands {
 
     public void meters() {
         meteringService.getMeterQuery().select(Condition.TRUE).stream()
-                .map(meter -> meter.getId() + " " + meter.getMRID())
+                .map(meter -> meter.getId() + ' ' + meter.getName() + ' ' + meter.getMRID())
                 .forEach(System.out::println);
     }
 
     public void usagePoints() {
         meteringService.getUsagePointQuery().select(Condition.TRUE).stream()
-                .map(usagePoint -> usagePoint.getId() + " " + usagePoint.getMRID())
+                .map(usagePoint -> usagePoint.getId() + ' ' + usagePoint.getName() + ' ' + usagePoint.getMRID())
                 .forEach(System.out::println);
     }
 
@@ -184,17 +183,17 @@ public class MeteringConsoleCommands {
         System.out.println("Usage: createMeter <amrSystemId: usually 2> <amrId: EA_MS Meter ID> <mrId>");
     }
 
-    public void createMeter(long amrSystemId, String amrId, String mrId) {
+    public void createMeter(long amrSystemId, String amrId, String name) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(amrSystemId)
                     .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-            Meter meter = amrSystem.newMeter(amrId)
-                    .setName(amrId)
-                    .setMRID(mrId)
+            Meter meter = amrSystem.newMeter(amrId, name)
                     .create();
             context.commit();
-            System.out.println("Meter " + amrId + " created with ID: " + meter.getId());
+            System.out.println("Meter " + amrId
+                    + " created with ID: " + meter.getId()
+                    + ", MRID: " + meter.getMRID());
         } finally {
             threadPrincipalService.clear();
         }
@@ -297,15 +296,15 @@ public class MeteringConsoleCommands {
     }
 
     public void createUsagePoint() {
-        System.out.println("Usage: createUsagePoint <mRID> <installation datetime format 2011-12-03T10:15:30Z>");
+        System.out.println("Usage: createUsagePoint <name> <installation datetime format 2011-12-03T10:15:30Z>");
     }
 
-    public void createUsagePoint(String mrId, String timestamp) {
+    public void createUsagePoint(String name, String timestamp) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             meteringService.getServiceCategory(ServiceKind.WATER)
                     .get()
-                    .newUsagePoint(mrId, Instant.parse(timestamp + "T00:00:00Z"))
+                    .newUsagePoint(name, Instant.parse(timestamp + "T00:00:00Z"))
                     .create();
             context.commit();
         } finally {
@@ -315,7 +314,7 @@ public class MeteringConsoleCommands {
 
     public void readingTypes() {
         meteringService.getAvailableReadingTypes().stream()
-                .map(IdentifiedObject::getMRID)
+                .map(ReadingType::getMRID)
                 .forEach(System.out::println);
     }
 

@@ -168,8 +168,7 @@ public class ChannelImplIT {
         try (TransactionContext context = transactionService.getContext()) {
 
             meter = meteringService.findAmrSystem(1).get()
-                    .newMeter("amrID")
-                    .setMRID("mRID")
+                    .newMeter("amrID", "myName")
                     .create();
 
             MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());

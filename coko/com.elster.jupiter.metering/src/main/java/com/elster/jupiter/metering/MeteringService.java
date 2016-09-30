@@ -88,6 +88,8 @@ public interface MeteringService {
 
     Optional<UsagePoint> findUsagePoint(String mRID);
 
+    Optional<UsagePoint> findUsagePointByName(String name);
+
     Query<EndDevice> getEndDeviceQuery();
 
     Optional<EndDevice> findEndDevice(long id);

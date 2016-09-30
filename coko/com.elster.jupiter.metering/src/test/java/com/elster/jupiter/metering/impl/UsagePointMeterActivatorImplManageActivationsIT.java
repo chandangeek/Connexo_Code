@@ -81,7 +81,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
             ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
             AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-            meter = system.newMeter("Meter").create();
+            meter = system.newMeter("Meter", "myName").create();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             usagePoint = serviceCategory.newUsagePoint("UsagePoint", INSTALLATION_TIME).create();
             meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
@@ -328,7 +328,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", ONE_DAY_BEFORE).create();
         AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter2 = system.newMeter("Meter2").create();
+        Meter meter2 = system.newMeter("Meter2", "myName2").create();
         MeterRole meterRole2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN);
 
         usagePoint2.linkMeters().activate(meter, meterRole).complete();
@@ -371,7 +371,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
     @Transactional
     public void testCanNotLinkTwoMetersOnTheSameMeterRole() {
         AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter2 = system.newMeter("Meter2").create();
+        Meter meter2 = system.newMeter("Meter2", "myName2").create();
 
         usagePoint.linkMeters()
                 .activate(meter, meterRole)

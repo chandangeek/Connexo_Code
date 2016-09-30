@@ -132,7 +132,7 @@ public class ReadingTypeCacheIssueTest {
         Meter meter;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("myMeter").create();
+            meter = amrSystem.newMeter("myMeter", "myName").create();
             ctx.commit();
         }
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.AIR)

@@ -37,7 +37,6 @@ public class MeterSearchableProperty implements SearchableUsagePointProperty {
         this.meteringService = meteringService;
     }
 
-
     @Override
     public SearchDomain getDomain() {
         return domain;
@@ -80,7 +79,7 @@ public class MeterSearchableProperty implements SearchableUsagePointProperty {
     @Override
     public String toDisplay(Object value) {
         if (value instanceof Meter) {
-            return ((Meter) value).getMRID();
+            return ((Meter) value).getName();
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
@@ -103,23 +102,23 @@ public class MeterSearchableProperty implements SearchableUsagePointProperty {
                 "id");
     }
 
-    private class MeterValueFactory implements ValueFactory<Meter> {
+    private static class MeterValueFactory implements ValueFactory<Meter> {
 
         private final ServerMeteringService meteringService;
 
-        public MeterValueFactory(ServerMeteringService meteringService) {
+        private MeterValueFactory(ServerMeteringService meteringService) {
             super();
             this.meteringService = meteringService;
         }
 
         @Override
-        public Meter fromStringValue(String mRid) {
-            return meteringService.findMeter(mRid).orElse(null);
+        public Meter fromStringValue(String name) {
+            return meteringService.findMeterByName(name).orElse(null);
         }
 
         @Override
         public String toStringValue(Meter meter) {
-            return meter.getMRID();
+            return meter.getName();
         }
 
         @Override

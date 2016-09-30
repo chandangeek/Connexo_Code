@@ -233,8 +233,7 @@ public class MeterConfigurationIT {
     private void createAndActivateMeter() {
         try (TransactionContext context = transactionService.getContext()) {
              meter = meteringService.findAmrSystem(1).get()
-                    .newMeter("amrID")
-                    .setMRID("mRID")
+                    .newMeter("amrID", "myName")
                     .create();
             meterActivation = meter.activate(ACTIVE_DATE.toInstant());
             context.commit();

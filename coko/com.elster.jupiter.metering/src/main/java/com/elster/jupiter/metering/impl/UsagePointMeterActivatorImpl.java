@@ -208,7 +208,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private void validate(ValidationReport validationReport) {
         // check that we can manage meter activations
         if (this.usagePoint.getConnectionState() != ConnectionState.UNDER_CONSTRUCTION) {
-            throw UsagePointManageException.incorrectState(this.metrologyConfigurationService.getThesaurus(), this.usagePoint.getMRID());
+            throw UsagePointManageException.incorrectState(this.metrologyConfigurationService.getThesaurus(), this.usagePoint.getName());
         }
         // prepare time lines and virtualize all meter activations, so our changes will not have permanent effect
         Map<Meter, TimeLine<Activation, Instant>> validationTimeLines = new HashMap<>();
@@ -795,7 +795,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         public void meterActiveOnDifferentUsagePoint(Meter meter, MeterRole currentRole, MeterRole desiredRole, UsagePoint meterCurrentUsagePoint, Range<Instant> conflictActivationRange) {
             this.valid = false;
             String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
-                    .format(meter.getMRID(), meterCurrentUsagePoint.getMRID(), currentRole.getDisplayName());
+                    .format(meter.getName(), meterCurrentUsagePoint.getName(), currentRole.getDisplayName());
             this.context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(desiredRole.getKey()).addConstraintViolation();
         }
 
@@ -811,7 +811,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             this.valid = false;
             String messageTemplate = this.thesaurus.getString(MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE.getKey(),
                     MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE.getDefaultFormat());
-            String errorMessage = MessageFormat.format(messageTemplate, meterActiveOnRole.getMRID(), meterRole.getDisplayName());
+            String errorMessage = MessageFormat.format(messageTemplate, meterActiveOnRole.getName(), meterRole.getDisplayName());
             this.context.buildConstraintViolationWithTemplate(errorMessage)
                     .addPropertyNode(meterRole.getKey()).addConstraintViolation();
         }

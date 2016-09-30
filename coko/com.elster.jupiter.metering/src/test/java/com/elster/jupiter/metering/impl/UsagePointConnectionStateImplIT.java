@@ -60,11 +60,10 @@ public class UsagePointConnectionStateImplIT {
     @Test
     @Transactional
     public void testConnectionState() {
-
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         DataModel dataModel = meteringService.getDataModel();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("name", Instant.EPOCH).create();
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
         //get connection state

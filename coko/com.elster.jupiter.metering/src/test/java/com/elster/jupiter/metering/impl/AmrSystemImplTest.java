@@ -71,7 +71,7 @@ public class AmrSystemImplTest extends EqualsContractTest {
     @Test
     public void testNewMeter() {
         String amrId = "amrId";
-        Meter meter = amrSystem.newMeter(amrId).create();
+        Meter meter = amrSystem.newMeter(amrId, "myName").create();
 
         assertThat(meter.getAmrId()).isEqualTo(amrId);
         assertThat(meter.getAmrSystem()).isEqualTo(amrSystem);

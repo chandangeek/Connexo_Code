@@ -74,7 +74,7 @@ public class MeterReadingStorerIT {
     public void testBulk() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        amrSystem.newMeter("myMeter").create();
+        amrSystem.newMeter("myMeter", "myName").create();
         Meter meter = amrSystem.lockMeter("myMeter").get();
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .period(TimeAttribute.MINUTE15)
@@ -123,7 +123,7 @@ public class MeterReadingStorerIT {
     public void testDelta() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        Meter meter = amrSystem.newMeter("myMeter").create();
+        Meter meter = amrSystem.newMeter("myMeter", "myName").create();
         String readingTypeCode = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .period(TimeAttribute.MINUTE15)
                 .accumulate(Accumulation.DELTADELTA)
@@ -166,7 +166,7 @@ public class MeterReadingStorerIT {
     public void testIdempotency() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        Meter meter = amrSystem.newMeter("myMeter").create();
+        Meter meter = amrSystem.newMeter("myMeter", "myName").create();
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .period(TimeAttribute.MINUTE15)
                 .accumulate(Accumulation.BULKQUANTITY)
@@ -213,7 +213,7 @@ public class MeterReadingStorerIT {
     public void testAddRegularReading() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        Meter meter = amrSystem.newMeter("myMeter").create();
+        Meter meter = amrSystem.newMeter("myMeter", "myName").create();
         Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         String intervalReadingTypeCode = "32.12.2.4.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
         int endDeviceEventLogbookId = 95176;
@@ -284,7 +284,7 @@ public class MeterReadingStorerIT {
     public void testAddTextRegister() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        Meter meter = amrSystem.newMeter("myMeter").create();
+        Meter meter = amrSystem.newMeter("myMeter", "myName").create();
         meter.update();
         String readingTypeCode = "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
         Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -302,7 +302,7 @@ public class MeterReadingStorerIT {
     public void testBulkUpdate() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        Meter meter = amrSystem.newMeter("myMeter").create();
+        Meter meter = amrSystem.newMeter("myMeter", "myName").create();
         meter.update();
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .period(TimeAttribute.MINUTE15)

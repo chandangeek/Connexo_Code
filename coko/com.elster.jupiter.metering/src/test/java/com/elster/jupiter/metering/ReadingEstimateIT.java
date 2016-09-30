@@ -328,7 +328,7 @@ public class ReadingEstimateIT {
         Meter meter;
         try (TransactionContext ctx = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-            meter = amrSystem.newMeter("myMeter").create();
+            meter = amrSystem.newMeter("myMeter", "myName").create();
             ctx.commit();
         }
         return meter;

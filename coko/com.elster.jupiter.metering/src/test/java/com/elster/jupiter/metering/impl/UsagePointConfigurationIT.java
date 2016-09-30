@@ -233,9 +233,9 @@ public class UsagePointConfigurationIT {
     private void createAndActivateUsagePoint() {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCategory electricity = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-            usagePoint = electricity.newUsagePoint("mrId", Instant.EPOCH).create();
+            usagePoint = electricity.newUsagePoint("name", Instant.EPOCH).create();
             AmrSystem system = meteringService.findAmrSystem(1).get();
-            Meter meter = system.newMeter("meter").create();
+            Meter meter = system.newMeter("meter", "myName").create();
             meterActivation = usagePoint.activate(meter, injector.getInstance(ServerMetrologyConfigurationService.class)
                     .findDefaultMeterRole(DefaultMeterRole.DEFAULT), ACTIVE_DATE.toInstant());
             context.commit();
