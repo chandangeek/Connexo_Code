@@ -42,7 +42,7 @@ public class ReadingTypeInfo {
     public ReadingTypeInfo() {
     }
 
-    public ReadingTypeInfo(ReadingType readingType) {
+    ReadingTypeInfo(ReadingType readingType) {
         this.mRID = readingType.getMRID();
         this.aliasName = readingType.getAliasName();
         this.name = readingType.getName();
