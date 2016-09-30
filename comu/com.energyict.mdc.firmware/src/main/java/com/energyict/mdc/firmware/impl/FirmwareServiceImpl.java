@@ -70,6 +70,7 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -260,7 +261,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 .or(where(FirmwareManagementOptionsImpl.Fields.INSTALL.fieldName()).isEqualTo(true));
         return dataModel.query(FirmwareManagementOptionsImpl.class, DeviceType.class).select(condition).stream()
                 .map(FirmwareManagementOptionsImpl::getDeviceType)
-                .sorted((dt1, dt2) -> dt1.getName().compareTo(dt2.getName()))
+                .sorted(Comparator.comparing(DeviceType::getName))
                 .collect(Collectors.toList());
     }
 
