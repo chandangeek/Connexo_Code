@@ -10,8 +10,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.HasName;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -210,7 +210,7 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
         if (!(principal instanceof User)) {
             return new ArrayList<>();
         }
-        return ((User) principal).getPrivileges().stream().map(HasName::getName).collect(Collectors.toList());
+        return ((User) principal).getPrivileges().stream().map(Privilege::getName).collect(Collectors.toList());
     }
 
     private boolean currentUserIsAllowedToViewCustomPropertySet() {
