@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +33,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -194,14 +196,19 @@ public class ServiceCategorySearchablePropertyTest {
     public void displayEnum() {
         ServiceCategorySearchableProperty property = this.getTestInstance();
         ServiceKind valueToDisplay = ServiceKind.ELECTRICITY;
+        Stream.of(ServiceKind.values()).forEach(this::mockTranslationFor);
 
-        when(this.thesaurus.getStringBeyondComponent(eq(ServiceKind.ELECTRICITY.getKey()), anyString())).thenReturn("Electricity");
-        when(this.thesaurus.getString(eq(ServiceKind.ELECTRICITY.getKey()), anyString())).thenReturn("Electricity");
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
         assertThat(displayValue).isEqualTo(ServiceKind.ELECTRICITY.getDisplayName(thesaurus));
+    }
+
+    private void mockTranslationFor(ServiceKind serviceKind) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(serviceKind.getDefaultFormat());
+        when(thesaurus.getFormat(serviceKind)).thenReturn(messageFormat);
     }
 
     private ServiceCategorySearchableProperty getTestInstance() {

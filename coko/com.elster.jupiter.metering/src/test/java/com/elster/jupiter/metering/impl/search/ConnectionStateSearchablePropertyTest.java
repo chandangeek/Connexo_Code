@@ -14,12 +14,14 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +34,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -195,13 +198,26 @@ public class ConnectionStateSearchablePropertyTest {
         ConnectionStateSearchableProperty property = this.getTestInstance();
         ConnectionState valueToDisplay = ConnectionState.DEMOLISHED;
 
-        when(this.thesaurus.getStringBeyondComponent(eq(ConnectionState.DEMOLISHED.getName()), anyString())).thenReturn("Demolished");
-        when(this.thesaurus.getString(eq(ConnectionState.DEMOLISHED.getName()), anyString())).thenReturn("Demolished");
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        Stream
+            .of(ConnectionState.values())
+            .forEach(this::mockTranslationFor);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
         assertThat(displayValue).isEqualTo(ConnectionState.DEMOLISHED.getName());
+    }
+
+    private void mockTranslationFor(ConnectionState state) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(state.getDefaultFormat());
+        when(thesaurus.getFormat(state)).thenReturn(messageFormat);
     }
 
     private ConnectionStateSearchableProperty getTestInstance() {

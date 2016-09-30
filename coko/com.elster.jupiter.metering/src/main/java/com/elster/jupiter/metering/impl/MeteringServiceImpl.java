@@ -88,7 +88,6 @@ public class MeteringServiceImpl implements ServerMeteringService {
     private static final String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
     private static final String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
 
-
     private IdsService idsService;
     private QueryService queryService;
     private Clock clock;

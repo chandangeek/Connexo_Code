@@ -1,8 +1,8 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 
-public enum ConnectionState {
+public enum ConnectionState implements TranslationKey {
     UNDER_CONSTRUCTION("underConstruction", "Under construction"),
     CONNECTED("connected", "Connected"),
     PHYSICALLY_DISCONNECTED("physicallyDisconnected", "Physically disconnected"),
@@ -25,7 +25,14 @@ public enum ConnectionState {
         return this.name;
     }
 
-    public String getDisplayName(Thesaurus thesaurus){
-        return thesaurus.getString("connection.state." + this.getId(), getName());
+    @Override
+    public String getKey() {
+        return "connection.state." + this.id;
     }
+
+    @Override
+    public String getDefaultFormat() {
+        return this.name;
+    }
+
 }
