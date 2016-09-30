@@ -9,8 +9,11 @@ import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -36,7 +39,7 @@ import java.util.Optional;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -83,8 +86,10 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     @Override
     public void setupMocks() {
         super.setupMocks();
-        when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock
-                .getArguments()[1]);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(deviceLifeCycleService.getName(any(MicroAction.class))).thenAnswer(invocationOnMock -> ((MicroAction) invocationOnMock
                 .getArguments()[0]).name());
         when(deviceLifeCycleService.getDescription(any(MicroAction.class))).thenAnswer(invocationOnMock -> ((MicroAction) invocationOnMock
