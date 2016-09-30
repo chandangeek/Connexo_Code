@@ -46,8 +46,8 @@ public class MeterResource extends BaseResource {
         Query<Meter> meterQuery = getMeteringService().getMeterQuery();
         String searchText = params.getFirst(LIKE);
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
-        Condition condition = where("mRID").likeIgnoreCase(dbSearchText);
-        List<Meter> listMeters = meterQuery.select(condition, params.getFrom(), params.getTo(), Order.ascending("mRID"));
+        Condition condition = where("name").likeIgnoreCase(dbSearchText);
+        List<Meter> listMeters = meterQuery.select(condition, params.getFrom(), params.getTo(), Order.ascending("name"));
         return entity(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
     }
 

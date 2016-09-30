@@ -23,7 +23,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -160,15 +159,6 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return mockReason("1", "Reason", getDefaultIssueType());
     }
 
-    protected Meter mockMeter(long id, String mrid){
-        Meter meter = mock(Meter.class);
-        when(meter.getId()).thenReturn(id);
-        when(meter.getMRID()).thenReturn(mrid);
-        MeterActivation meterActivation = mock(MeterActivation.class);
-        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
-        return meter;
-    }
-
     protected IssueAssignee mockAssignee(long id, String name, String type){
         IssueAssignee assignee = mock(IssueAssignee.class);
         when(assignee.getId()).thenReturn(id);
@@ -186,16 +176,16 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     }
 
     protected Meter getDefaultDevice() {
-        return mockDevice(1, "0.0.0.0.0.0.0.0");
+        return mockMeter(1, "DefaultDevice");
     }
 
-    protected Meter mockDevice(long id, String mrid) {
+    protected Meter mockMeter(long id, String name) {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(id);
-        when(meter.getMRID()).thenReturn(mrid);
+        when(meter.getName()).thenReturn(name);
+        when(meter.getSerialNumber()).thenReturn("0.0.0.0.0.0.0.0");
         when(meter.getAmrId()).thenReturn(String.valueOf(id));
-        Optional<? extends MeterActivation> optionalMA = Optional.empty();
-        doReturn(optionalMA).when(meter).getCurrentMeterActivation();
+        doReturn(Optional.empty()).when(meter).getCurrentMeterActivation();
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(meter.getAmrSystem()).thenReturn(amrSystem);
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);

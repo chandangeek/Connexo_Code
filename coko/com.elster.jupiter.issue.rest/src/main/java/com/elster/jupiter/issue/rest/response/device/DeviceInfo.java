@@ -1,6 +1,12 @@
 package com.elster.jupiter.issue.rest.response.device;
 
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.UsagePoint;
+
 import java.util.Optional;
 
 public class DeviceInfo {
@@ -16,7 +22,7 @@ public class DeviceInfo {
         if (endDevice != null) {
             this.id = endDevice.getId();
             this.name = endDevice.getName();
-            this.serialNumber = endDevice.getMRID();
+            this.serialNumber = endDevice.getSerialNumber();
             this.version = endDevice.getVersion();
             fetchDetails(endDevice);
         }
