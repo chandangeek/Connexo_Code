@@ -23,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class ComServerComPortResource {
@@ -45,7 +46,7 @@ public class ComServerComPortResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComPorts(@PathParam("comServerId") long comServerId, @BeanParam JsonQueryParameters queryParameters) {
         ComServer comServer = resourceHelper.findComServerOrThrowException(comServerId);
-        List<ComPort> comPorts = ListPager.of(comServer.getComPorts(), (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()))
+        List<ComPort> comPorts = ListPager.of(comServer.getComPorts(), Comparator.comparing(ComPort::getName, String.CASE_INSENSITIVE_ORDER))
                 .from(queryParameters).find();
         List<ComPortInfo> comPortInfos = new ArrayList<>(comPorts.size());
 

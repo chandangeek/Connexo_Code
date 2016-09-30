@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.config.ComPort;
@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ComPortPoolComPortResource {
 
@@ -50,18 +51,11 @@ public class ComPortPoolComPortResource {
         ComPortPool comPortPool = resourceHelper.findComPortPoolOrThrowException(comPortPoolId);
         List<ComPort> comPorts = new ArrayList<>(comPortPool.getComPorts());
 
-        comPorts = ListPager.of(comPorts, new Comparator<ComPort>() {
-            @Override
-            public int compare(ComPort o1, ComPort o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        }).from(queryParameters).find();
+        comPorts = ListPager.of(comPorts, Comparator.comparing(ComPort::getName, String.CASE_INSENSITIVE_ORDER)).from(queryParameters).find();
 
-        List<ComPortInfo> comPortInfos = new ArrayList<>(comPorts.size());
-
-        for (ComPort comPort : comPorts) {
-            comPortInfos.add(comPortInfoFactory.asInfo(comPort, engineConfigurationService));
-        }
+        List<ComPortInfo> comPortInfos = comPorts.stream()
+                .map(comPort -> comPortInfoFactory.asInfo(comPort, engineConfigurationService))
+                .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", comPortInfos, queryParameters);
     }
 
