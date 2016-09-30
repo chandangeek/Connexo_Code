@@ -30,6 +30,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -120,9 +121,9 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
                         .findAllDeviceLifeCycles().stream()
                         .flatMap(lifeCycle -> lifeCycle.getFiniteStateMachine().getStates().stream())
                         .map(state -> new DeviceStateInfo(thesaurus, deviceLifeCycleConfigurationService, state))
-                        .sorted((info1, info2) -> (info1.getLifeCycleId() != info2.getLifeCycleId()) ?
-                                info1.getLifeCycleName().compareToIgnoreCase(info2.getLifeCycleName()) :
-                                info1.getName().compareToIgnoreCase(info2.getName()))
+                        .sorted(Comparator.comparing(DeviceStateInfo::getLifeCycleName, String.CASE_INSENSITIVE_ORDER)
+                                .thenComparing(DeviceStateInfo::getLifeCycleId)
+                                .thenComparing(DeviceStateInfo::getName, String.CASE_INSENSITIVE_ORDER))
                         .toArray(DeviceStateInfo[]::new);
 
         return this.propertySpecService
