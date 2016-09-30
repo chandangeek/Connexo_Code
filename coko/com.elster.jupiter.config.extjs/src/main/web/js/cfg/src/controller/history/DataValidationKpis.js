@@ -17,7 +17,7 @@ Ext.define('Cfg.controller.history.DataValidationKpis', {
                     route: 'datavalidationkpis',
                     controller: 'Cfg.controller.DataValidationKpi',
                     privileges: Cfg.privileges.Validation.view,
-                    disabled: Uni.util.Application.getAppName() === 'MdmApp',
+                    disabled: typeof(MdmApp) != 'undefined',
                     action: 'showDataValidationKPIs',
                     items: {
                         add: {
@@ -25,7 +25,7 @@ Ext.define('Cfg.controller.history.DataValidationKpis', {
                             route: 'add',
                             controller: 'Cfg.controller.DataValidationKpi',
                             privileges: Cfg.privileges.Validation.admin,
-                            disabled: Uni.util.Application.getAppName() === 'MdmApp',
+                            disabled: typeof(MdmApp) != 'undefined',
                             action: 'showAddDataValidationKpi'
                         }
                     }

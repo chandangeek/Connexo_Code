@@ -21,11 +21,6 @@ Ext.define('Cfg.view.validationtask.ActionMenu', {
             privileges: Cfg.privileges.Validation.admin,
             action: 'removeTask'
         },
-        {
-            itemId: 'view-details',
-            text: Uni.I18n.translate('validationTasks.general.viewDetails', 'CFG', 'View details'),
-            action: 'viewDetails'
-        },
 		{
             itemId: 'view-history',
             text: Uni.I18n.translate('validationTasks.general.viewHistory', 'CFG', 'View history'),
