@@ -128,6 +128,7 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAtt
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
+import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForActivation;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForRemoval;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForSimpleUpdate;
@@ -1707,9 +1708,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .anyMatch(com.elster.jupiter.metering.Channel::hasData);
     }
 
+    public void refreshMeter() {
+        if (meter.isPresent()) {
+            meter.set(meteringService.findMeter(meter.get().getId()).get());
+        }
+    }
+
     @Override
     public MeterActivation activate(Instant start) {
-        return this.koreHelper.activateMeter(start);
+        return new SyncDeviceWithKoreForActivation(this, deviceService, readingTypeUtilService, eventService, start).activateMeter(start);
     }
 
     @Override
