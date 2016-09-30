@@ -272,8 +272,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
                     .in(filter.getMetrologyContracts());
             Subquery subquery = getDataModel().query(MetrologyContractReadingTypeDeliverableUsage.class)
                     .asSubquery(mappingCondition,
-                            new String[]{MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName()},
-                            Order.NOORDER);
+                            MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName());
             condition = condition.and(ListOperator.IN.contains(subquery, "id"));
         }
         if (!filter.getMetrologyConfigurations().isEmpty()) {

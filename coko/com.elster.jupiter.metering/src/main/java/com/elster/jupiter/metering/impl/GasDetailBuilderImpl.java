@@ -5,10 +5,16 @@ import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
+
+import com.google.common.collect.Range;
+
+import java.time.Instant;
+import java.util.Iterator;
 
 public class GasDetailBuilderImpl implements GasDetailBuilder {
 
@@ -127,6 +133,14 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
     }
 
     private GasDetail buildDetail(){
+        Range<Instant> newDetailRange = interval.toClosedOpenRange();
+        Iterator<? extends UsagePointDetail> iterator = usagePoint.getDetail(newDetailRange).iterator();
+        if (iterator.hasNext()) {
+            usagePoint.terminateDetail(iterator.next(), newDetailRange.lowerEndpoint());
+            if (iterator.hasNext()) {
+                interval = Interval.of(Range.closedOpen(newDetailRange.lowerEndpoint(), iterator.next().getRange().lowerEndpoint()));
+            }
+        }
         GasDetailImpl detail = dataModel.getInstance(GasDetailImpl.class).init(usagePoint, interval);
         detail.setCollar(collar);
         detail.setGrounded(grounded);

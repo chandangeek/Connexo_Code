@@ -64,6 +64,6 @@ public interface ExpressionNode {
 
     ExpressionNode getParent();
 
-    List<? extends ExpressionNode> getChildren();
+    List<ExpressionNode> getChildren();
 
 }

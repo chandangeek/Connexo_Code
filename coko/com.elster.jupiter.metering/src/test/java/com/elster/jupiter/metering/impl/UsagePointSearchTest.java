@@ -26,16 +26,22 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.impl.search.MasterResourceIdentifierSearchableProperty;
 import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.impl.SearchBuilderImpl;
+import com.elster.jupiter.search.impl.SearchMonitor;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -50,6 +56,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.time.ExecutionTimer;
 import com.elster.jupiter.util.units.Unit;
 
 import com.google.inject.AbstractModule;
@@ -66,6 +73,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
@@ -73,11 +81,16 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointSearchTest {
@@ -88,6 +101,9 @@ public class UsagePointSearchTest {
     private static User user;
     private static MeteringService meteringService;
     private static UsagePointSearchDomain usagePointSearchDomain;
+    private static PropertySpecService propertySpecService;
+    private static Thesaurus thesaurus;
+    private static SearchMonitor dummyMonitor;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -101,7 +117,7 @@ public class UsagePointSearchTest {
     }
 
     @BeforeClass
-    public static void setUp() throws SQLException {
+    public static void setUp() throws Exception {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
@@ -136,8 +152,17 @@ public class UsagePointSearchTest {
                     .orElseThrow(() -> new NoSuchElementException("User 'admin' is not found"));
             injector.getInstance(ThreadPrincipalService.class).set(user);
             usagePointSearchDomain = injector.getInstance(UsagePointSearchDomain.class);
+            propertySpecService = injector.getInstance(PropertySpecService.class);
             context.commit();
         }
+        thesaurus = mock(Thesaurus.class, RETURNS_DEEP_STUBS);
+        ArgumentCaptor<TranslationKey> translationKeyCaptor = ArgumentCaptor.forClass(TranslationKey.class);
+        when(thesaurus.getFormat(translationKeyCaptor.capture()).format())
+                .thenAnswer(invocation -> translationKeyCaptor.getValue().getDefaultFormat());
+        dummyMonitor = mock(SearchMonitor.class);
+        ExecutionTimer timer = mock(ExecutionTimer.class);
+        doAnswer(invocation -> ((Callable)invocation.getArguments()[0]).call()).when(timer).time(any(Callable.class));
+        when(dummyMonitor.searchTimer(usagePointSearchDomain)).thenReturn(timer);
     }
 
     @AfterClass
@@ -150,7 +175,7 @@ public class UsagePointSearchTest {
 
     @Test
     @Transactional
-    public void test() throws SQLException {
+    public void test() throws Exception {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         ServiceLocation location = meteringService.newServiceLocation()
                 .setMainAddress(new StreetAddress(new StreetDetail("Spinnerijstraat", "101"), new TownDetail("8500", "Kortrijk", "BE")))
@@ -198,14 +223,22 @@ public class UsagePointSearchTest {
         Finder<UsagePoint> finder = (Finder<UsagePoint>)usagePointSearchDomain.finderFor(Collections.emptyList());
         assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
                 .isEqualTo(sortedResult);
-        finder.paged(0, 5);
+        finder.paged(0, 4);
         assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
-                .isEqualTo(sortedResult.subList(0, 6));
-        finder.paged(5, 5);
+                .isEqualTo(sortedResult.subList(0, 5));
+        finder.paged(4, 4);
         assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
-                .isEqualTo(sortedResult.subList(5, 11));
-        finder.paged(10, 5);
+                .isEqualTo(sortedResult.subList(4, 9));
+        finder.paged(8, 4);
         assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
-                .isEqualTo(sortedResult.subList(10, 11));
+                .isEqualTo(sortedResult.subList(8, 11));
+        finder = new SearchBuilderImpl(usagePointSearchDomain, dummyMonitor)
+                .where(new MasterResourceIdentifierSearchableProperty(usagePointSearchDomain, propertySpecService, thesaurus))
+                .in(sortedResult.subList(1, 11)).toFinder();
+        assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
+                .isEqualTo(sortedResult.subList(1, 11));
+        finder.paged(4, 4);
+        assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
+                .isEqualTo(sortedResult.subList(5, 10));
     }
 }
