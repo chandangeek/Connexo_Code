@@ -486,4 +486,8 @@ class DeviceServiceImpl implements ServerDeviceService {
         this.defaultMultiplierType = null;
     }
 
+    @Override
+    public Device lockDevice(long deviceId) {
+        return this.deviceDataModelService.dataModel().mapper(Device.class).lock(deviceId);
+    }
 }
