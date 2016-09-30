@@ -6,6 +6,10 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -17,13 +21,16 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
-@Component(name = "com.elster.jupiter.mdm.eventpropagator.handler", service = MessageHandlerFactory.class, property = {"subscriber=" + MeteringMessageHandlerFactory.SUBSCRIBER_NAME, "destination=JupiterEvents"}, immediate = true)
-public class MeteringMessageHandlerFactory implements MessageHandlerFactory {
+@Component(name = "com.elster.jupiter.mdm.eventpropagator.handler", service = {MessageHandlerFactory.class, TranslationKeyProvider.class}, property = {"subscriber=" + MeteringMessageHandlerFactory.SUBSCRIBER_NAME, "destination=JupiterEvents"}, immediate = true)
+public class MeteringMessageHandlerFactory implements MessageHandlerFactory, TranslationKeyProvider {
 
     public static final String SUBSCRIBER_NAME = "MdmBpmEventSubscriber";
-    public static final String SUBSCRIBER_DISPLAYNAME = "Handle events to propagate into BPM";
+    public static final TranslationKey SUBSCRIBER_DISPLAYNAME = new SimpleTranslationKey(SUBSCRIBER_NAME, "Handle events to propagate into BPM");
+    static final String COMPONENT_NAME = "BEP";
 
     private volatile BpmService bpmService;
     private volatile MeteringService meteringService;
@@ -44,7 +51,7 @@ public class MeteringMessageHandlerFactory implements MessageHandlerFactory {
             }
         });
 
-        upgradeService.register(InstallIdentifier.identifier("Insight", "BEP"), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Insight", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Reference
@@ -85,5 +92,21 @@ public class MeteringMessageHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(SUBSCRIBER_DISPLAYNAME);
     }
 }
