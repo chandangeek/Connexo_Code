@@ -29,6 +29,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -233,7 +234,9 @@ public class JSonConverter {
 
             List<JSONObject> comPorts = new ArrayList<>();
 
-            for (ComPort each : comServer.getComPorts().stream().sorted((p1, p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toList())) {
+            for (ComPort each : comServer.getComPorts().stream()
+                    .sorted(Comparator.comparing(ComPort::getName))
+                    .collect(Collectors.toList())) {
                 boolean activeProcess;
                 String lastSeen = null;
                 if (each.isInbound()) {
