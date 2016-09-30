@@ -93,19 +93,15 @@ public class MeteringCommands {
         this.clock = clock;
     }
 
-    public void createMeter(final Long amrId, final String mrId) {
-        Meter meter = executeTransaction(new Transaction<Meter>() {
-            @Override
-            public Meter perform() {
-                AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-                Meter meter = amrSystem.newMeter(String.valueOf(amrId))
-                        .setMRID(mrId)
-                        .create();
-                return meter;
-            }
+    public void createMeter(final Long amrId, final String name) {
+        Meter meter = executeTransaction(() -> {
+            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+            return amrSystem.newMeter(String.valueOf(amrId), name)
+                    .create();
         });
         System.out.println("meter = " + meter);
         System.out.println(" id = " + meter.getId());
+        System.out.println(" MRID = " + meter.getMRID());
     }
 
     private Instant parseEffectiveTimestamp(String effectiveTimestamp) {
@@ -310,12 +306,7 @@ public class MeteringCommands {
     public void listReadingTypes(int... timeAttribute) {
         try {
             List<ReadingType> availableReadingTypes = meteringService.getAvailableReadingTypes();
-            Collections.sort(availableReadingTypes, new Comparator<ReadingType>() {
-                @Override
-                public int compare(ReadingType type1, ReadingType type2) {
-                    return type1.getName().compareTo(type2.getName());
-                }
-            });
+            Collections.sort(availableReadingTypes, Comparator.comparing(ReadingType::getName));
             Set<TimeAttribute> timeAttributeFilter = new HashSet<>();
             if (timeAttribute.length == 0) {
                 timeAttributeFilter.addAll(Arrays.asList(TimeAttribute.values()));
@@ -339,12 +330,7 @@ public class MeteringCommands {
     public void listEndDeviceEventTypes(String... filter) {
         try {
             List<EndDeviceEventType> availableReadingTypes = meteringService.getAvailableEndDeviceEventTypes();
-            Collections.sort(availableReadingTypes, new Comparator<EndDeviceEventType>() {
-                @Override
-                public int compare(EndDeviceEventType type1, EndDeviceEventType type2) {
-                    return type1.getName().compareTo(type2.getName());
-                }
-            });
+            Collections.sort(availableReadingTypes, Comparator.comparing(EndDeviceEventType::getName));
 
             EndDeviceEventTypeFilter endDeviceEventTypeFilter = new EndDeviceEventTypeFilter(filter);
             System.out.println("|\t" + String.format("%-80s", "Name") + "\t|\t" + String.format("%-13s", "mRID") + "\t|\tDescription\t|");
