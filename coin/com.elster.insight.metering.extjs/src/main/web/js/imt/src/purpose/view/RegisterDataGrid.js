@@ -9,7 +9,9 @@ Ext.define('Imt.purpose.view.RegisterDataGrid', {
     output: null,
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            readingType =  me.output.get('readingType'),
+            unit = readingType && readingType.names ? readingType.names.unitOfMeasure : readingType.unit;
         me.columns = [
             {
                 header: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
@@ -22,7 +24,7 @@ Ext.define('Imt.purpose.view.RegisterDataGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.value', 'IMT', 'Value') + ' (' + me.output.get('readingType').unit + ')',
+                header: Uni.I18n.translate('general.value', 'IMT', 'Value') + ' (' + unit + ')',
                 dataIndex: 'value',
                 flex: 1
             }
