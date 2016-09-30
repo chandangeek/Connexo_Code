@@ -234,7 +234,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     private void createNewState(Instant effective, State state) {
-        Interval stateEffectivityInterval = Interval.of(Range.atLeast(effective));
+        Interval stateEffectivityInterval = Interval.of(Range.atLeast(effective.compareTo(clock.instant()) > 0 ? clock.instant() : effective));
         EndDeviceLifeCycleStatusImpl deviceLifeCycleStatus = this.dataModel
                 .getInstance(EndDeviceLifeCycleStatusImpl.class)
                 .initialize(stateEffectivityInterval, this, state);
