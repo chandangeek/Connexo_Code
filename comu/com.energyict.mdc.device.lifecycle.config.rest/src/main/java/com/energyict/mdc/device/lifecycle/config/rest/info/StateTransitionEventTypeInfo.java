@@ -8,12 +8,14 @@ public class StateTransitionEventTypeInfo {
     public String name;
     public List<TransitionBusinessProcessInfo> onEntry;
     public List<TransitionBusinessProcessInfo> onExit;
+    public String context;
 
     public StateTransitionEventTypeInfo() {
     }
 
-    public StateTransitionEventTypeInfo(String symbol, String name) {
+    public StateTransitionEventTypeInfo(String symbol, String name, String context) {
         this.symbol = symbol;
         this.name = name;
+        this.context = context;
     }
 }
