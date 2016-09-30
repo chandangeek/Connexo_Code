@@ -497,6 +497,7 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .initInternal(this.meter.orElse(null), this.meterRole.orElse(null), this.usagePoint.orElse(null), newRange);
         getMultipliers().entrySet().stream()
                 .forEach(entry -> newActivation.multipliers.add(MultiplierValueImpl.from(dataModel, newActivation, entry.getKey(), entry.getValue())));
+        newActivation.save();
         // create the same channels for the new activation
         getChannelsContainer().getChannels().forEach(channel -> {
             ReadingType mainReadingType = channel.getBulkQuantityReadingType().isPresent()
