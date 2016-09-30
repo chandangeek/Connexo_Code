@@ -199,25 +199,28 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void executionStarted (ConnectionTask connectionTask, ComServer comServer) {
+    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComServer comServer) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
         this.post(QueryMethod.ExecutionStarted, queryParameters);
+        return connectionTask;
     }
 
     @Override
-    public void executionCompleted (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionCompleted (ConnectionTask connectionTask) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         this.post(QueryMethod.ExecutionCompleted, queryParameters);
+        return connectionTask;
     }
 
     @Override
-    public void executionFailed (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionFailed (ConnectionTask connectionTask) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         this.post(QueryMethod.ExecutionFailed, queryParameters);
+        return connectionTask;
     }
 
     @Override

@@ -187,7 +187,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.connecting = new StopWatch();
         this.executing = new StopWatch();
         this.executing.stop();  // Do not auto start but start it manually as soon as execution starts.
-        this.getComServerDAO().executionStarted(this.connectionTask, this.comPort.getComServer());
+        this.connectionTask = this.getComServerDAO().executionStarted(this.connectionTask, this.comPort.getComServer());
         try {
             this.setComPortRelatedComChannel(this.jobExecution.findOrCreateComChannel(this.connectionTaskPropertyCache));
             return this.jobExecution.isConnected();

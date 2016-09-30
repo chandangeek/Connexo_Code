@@ -189,21 +189,24 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void executionStarted (ConnectionTask connectionTask, ComServer comServer) {
+    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComServer comServer) {
         this.connectionTaskExecutionStarted.increment();
         this.actual.executionStarted(connectionTask, comServer);
+        return connectionTask;
     }
 
     @Override
-    public void executionCompleted (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionCompleted (ConnectionTask connectionTask) {
         this.connectionTaskExecutionCompleted.increment();
         this.actual.executionCompleted(connectionTask);
+        return connectionTask;
     }
 
     @Override
-    public void executionFailed (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionFailed (ConnectionTask connectionTask) {
         this.connectionTaskExecutionFailed.increment();
         this.actual.executionFailed(connectionTask);
+        return connectionTask;
     }
 
     @Override
@@ -487,18 +490,21 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void executionStarted (ConnectionTask connectionTask, ComServer comServer) {
+        public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComServer comServer) {
             this.verifier.verify(connectionTaskExecutionStarted);
+            return connectionTask;
         }
 
         @Override
-        public void executionCompleted (ConnectionTask connectionTask) {
+        public ConnectionTask<?, ?> executionCompleted (ConnectionTask connectionTask) {
             this.verifier.verify(connectionTaskExecutionCompleted);
+            return connectionTask;
         }
 
         @Override
-        public void executionFailed (ConnectionTask connectionTask) {
+        public ConnectionTask<?, ?> executionFailed (ConnectionTask connectionTask) {
             this.verifier.verify(connectionTaskExecutionFailed);
+            return connectionTask;
         }
 
         @Override

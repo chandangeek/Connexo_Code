@@ -52,8 +52,6 @@ public class RescheduleBehaviorForAsapTest extends AbstractRescheduleBehaviorTes
     @Mock
     private ComTaskExecutionGroup comTaskExecutionGroup;
     @Mock
-    private ComServerDAO comServerDAO;
-    @Mock
     private ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup;
     @Mock
     private Device device;

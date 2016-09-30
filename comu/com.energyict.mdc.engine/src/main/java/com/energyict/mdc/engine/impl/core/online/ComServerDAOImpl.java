@@ -219,7 +219,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         return reloaded;
     }
 
-    private Optional<ConnectionTask> refreshAndLockConnectionTask(ConnectionTask connectionTask) {
+    private Optional<ConnectionTask> lockConnectionTask(ConnectionTask connectionTask) {
         ConnectionTask reloaded = getConnectionTaskService().attemptLockConnectionTask(connectionTask.getId());
         if (reloaded != null) {
             if (reloaded.getVersion() == connectionTask.getVersion()) {
@@ -390,35 +390,48 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void executionStarted(final ConnectionTask connectionTask, final ComServer comServer) {
-        this.executeTransaction(() -> {
-            refreshAndLockConnectionTask(connectionTask).ifPresent(tsk -> tsk.executionStarted(comServer));
+    public ConnectionTask<?, ?> executionStarted(final ConnectionTask connectionTask, final ComServer comServer) {
+        return this.executeTransaction(() -> {
+            Optional<ConnectionTask> lockedConnectionTask = lockConnectionTask(connectionTask);
+            if (lockedConnectionTask.isPresent()){
+                ConnectionTask connectionTask1 = lockedConnectionTask.get();
+                connectionTask1.executionStarted(comServer);
+                return connectionTask1;
+            }
             return null;
         });
     }
 
     @Override
-    public void executionCompleted(final ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionCompleted(final ConnectionTask connectionTask) {
+        ConnectionTask updatedConnectionTask = null;
         try {
             connectionTask.executionCompleted();
+            updatedConnectionTask = connectionTask;
         } catch (OptimisticLockException e) {
             final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
             if (reloaded.isPresent()) {
+                updatedConnectionTask = reloaded.get();
                 reloaded.get().executionCompleted();
             }
         }
+        return updatedConnectionTask;
     }
 
     @Override
-    public void executionFailed(final ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionFailed(final ConnectionTask connectionTask) {
+        ConnectionTask updatedConnectionTask = null;
         try {
             connectionTask.executionFailed();
+            updatedConnectionTask = connectionTask;
         } catch (OptimisticLockException e) {
             final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
             if (reloaded.isPresent()) {
-                reloaded.get().executionFailed();
+                updatedConnectionTask = reloaded.get();
+                updatedConnectionTask.executionFailed();
             }
         }
+        return updatedConnectionTask;
     }
 
     @Override
@@ -453,7 +466,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         for (ComTaskExecution execution : comTaskExecutions) {
             if (connectionTaskWasNotLocked) {
                 connectionTaskWasNotLocked = false;
-                execution.getConnectionTask().ifPresent(this::refreshAndLockConnectionTask);
+                execution.getConnectionTask().ifPresent(this::lockConnectionTask);
             }
             getCommunicationTaskService().executionCompletedFor(execution);
 
@@ -498,10 +511,6 @@ public class ComServerDAOImpl implements ComServerDAO {
                 // so we might be in the case where only the connection task is locked
 
                 lockedConnectionTasks.addAll(getLockedByComServer(comPort.getComServer()));
-
-                for (ComPort otherComPort : comPort.getComServer().getComPorts()) {
-                    unlockAllTasksByComPort(otherComPort);
-                }
             } else {
                 for (ComTaskExecution comTaskExecution : comTaskExecutionsWhichAreExecuting) {
                     if (comTaskExecution.getConnectionTask().isPresent()) {
@@ -523,7 +532,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     /**
      * Find and release any ComTaskExec executed by a ComPort
-     * <p>
+     * <p/>
      * Those tasks will not appear busy anymore, but the ComServer will still continue with these tasks until they are actually finished
      * Normally no other port will pick it up until the nextExecutionTimeStamp has passed,
      * but we update that nextExecutionTimestamp to the next according to his schedule in the beginning of the session (from Govanni)
@@ -655,7 +664,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device         The Device
+     * @param device The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */
@@ -847,14 +856,14 @@ public class ComServerDAOImpl implements ComServerDAO {
         loadProfileUpdater.update();
     }
 
-    public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> loadProfileUpdate, Map<LogBookIdentifier, Instant> logBookUpdate){
+    public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> loadProfileUpdate, Map<LogBookIdentifier, Instant> logBookUpdate) {
         Map<DeviceIdentifier<?>, List<Function<Device, Void>>> updateMap = new HashMap<>();
 
         // first do the loadprofiles
         loadProfileUpdate.entrySet().stream().forEach(entrySet -> {
             DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
             List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
-            if(functionList == null) {
+            if (functionList == null) {
                 functionList = new ArrayList<>();
                 updateMap.put(deviceIdentifier, functionList);
             }
@@ -864,7 +873,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         logBookUpdate.entrySet().stream().forEach(entrySet -> {
             DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
             List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
-            if(functionList == null) {
+            if (functionList == null) {
                 functionList = new ArrayList<>();
                 updateMap.put(deviceIdentifier, functionList);
             }
@@ -879,7 +888,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         });
     }
 
-    private Function<Device, Void> updateLoadProfile(BaseLoadProfile<?> loadProfile, Instant lastReading){
+    private Function<Device, Void> updateLoadProfile(BaseLoadProfile<?> loadProfile, Instant lastReading) {
         return device -> {
             LoadProfile refreshedLoadProfile = device.getLoadProfiles().stream().filter(each -> each.getId() == loadProfile.getId()).findAny().get();
             LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
@@ -889,7 +898,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         };
     }
 
-    private Function<Device, Void> updateLogBook(BaseLogBook logBook, Instant lastLogBook){
+    private Function<Device, Void> updateLogBook(BaseLogBook logBook, Instant lastLogBook) {
         return device -> {
             LogBook refreshedLogBook = device.getLogBooks().stream().filter(each -> each.getId() == logBook.getId()).findAny().get();
             LogBook.LogBookUpdater logBookUpdater = device.getLogBookUpdaterFor(refreshedLogBook);
@@ -933,7 +942,8 @@ public class ComServerDAOImpl implements ComServerDAO {
                             List<? extends ReadingType> slaveChannelReadingTypes = usage.getSlaveChannel().getReadingTypes();
                             Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> slaveChannelReadingTypes.contains(c.getReadingType())).findFirst();
                             if (slaveChannel.isPresent()) {
-                                OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get().getLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService()) {
+                                OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get()
+                                        .getLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService()) {
                                     protected void goOffline() {
                                         super.goOffline();
                                         // To avoid to have to retrieve the involved slave channels again

@@ -337,18 +337,21 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void executionStarted (ConnectionTask connectionTask, ComServer comServer) {
+    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComServer comServer) {
         this.connectionTaskLocking.put(connectionTask, comServer);
+        return connectionTask;
     }
 
     @Override
-    public void executionFailed (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionFailed (ConnectionTask connectionTask) {
         this.connectionTaskLocking.remove(connectionTask);
+        return connectionTask;
     }
 
     @Override
-    public void executionCompleted (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionCompleted (ConnectionTask connectionTask) {
         this.connectionTaskLocking.remove(connectionTask);
+        return connectionTask;
     }
 
     @Override

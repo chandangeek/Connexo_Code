@@ -83,6 +83,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 import org.assertj.core.api.Condition;
 import org.junit.Before;
@@ -100,6 +101,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyCollectionOf;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -356,7 +358,7 @@ public class ScheduledJobImplTest {
 
     }
 
-    @Test//(timeout = 5000)
+    @Test(timeout = 5000)
     public void testThatThreadInterruptSetsAppropriateSuccessIndicator()
             throws
             SQLException,
@@ -376,7 +378,7 @@ public class ScheduledJobImplTest {
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
         ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
 
-        final ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        final ComServerDAO comServerDAO = getMockedComServerDAO();
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
@@ -442,6 +444,12 @@ public class ScheduledJobImplTest {
         verify(comServerDAO).createComSession(eq(createComSession.getComSessionBuilder()), any(Instant.class), eq(ComSession.SuccessIndicator.Broken));
     }
 
+    private ComServerDAOImpl getMockedComServerDAO() {
+        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionStarted(any(ConnectionTask.class), any(ComServer.class));
+        return comServerDAO;
+    }
+
     @Test
     public void testThatConnectionCompletionPublishesEventForIssueModule() throws ConnectionException, InterruptedException {
         OnlineComServer comServer = this.createMockOnlineComServer();
@@ -460,7 +468,7 @@ public class ScheduledJobImplTest {
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
         ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAOImpl comServerDAO = getMockedComServerDAO();
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
         when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
@@ -524,7 +532,7 @@ public class ScheduledJobImplTest {
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
         ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
-        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        ComServerDAOImpl comServerDAO = getMockedComServerDAO();
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
         when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
