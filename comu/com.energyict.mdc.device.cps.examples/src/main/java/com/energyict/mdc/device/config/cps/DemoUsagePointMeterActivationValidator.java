@@ -64,14 +64,13 @@ public class DemoUsagePointMeterActivationValidator implements CustomUsagePointM
         }
     }
 
-
-
     private boolean checkMeterConditions(Meter meter) {
-        Device device = deviceService.findDeviceByMrid(meter.getMRID()).get();
+        Device device = deviceService.findDeviceById(Long.parseLong(meter.getAmrId())).get();
         return device.getDeviceType()
                 .getCustomPropertySets()
                 .stream()
-                .anyMatch(cas -> cas.getCustomPropertySet().getName().equals("MeterSpecs") && customPropertySetService.getUniqueValuesFor(cas.getCustomPropertySet(), device)
+                .anyMatch(cas -> cas.getCustomPropertySet().getName().equals("MeterSpecs")
+                        && customPropertySetService.getUniqueValuesFor(cas.getCustomPropertySet(), device)
                         .getProperty("meterMechanism")
                         .equals("Credit"));
     }
