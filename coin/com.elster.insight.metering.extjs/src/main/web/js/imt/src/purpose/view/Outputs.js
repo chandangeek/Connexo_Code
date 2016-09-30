@@ -22,6 +22,19 @@ Ext.define('Imt.purpose.view.Outputs', {
                     type: 'vbox',
                     align: 'stretch'
                 },
+                padding: '0 10 10 0',
+                tools: [
+                    {
+                        xtype: 'uni-button-action',
+                        itemId: 'purpose-actions-button',
+                        privileges: Imt.privileges.UsagePoint.canAdministrate,
+                        menu: {
+                            xtype: 'purpose-actions-menu',
+                            itemId: 'purpose-actions-menu'
+                        },
+                        margin: 0
+                    }
+                ],
 
                 items: [
                     {
@@ -34,6 +47,7 @@ Ext.define('Imt.purpose.view.Outputs', {
                         xtype: 'panel',
                         ui: 'medium',
                         title: Uni.I18n.translate('outputs.list.title', 'IMT', 'Outputs'),
+                        padding: 0,
                         items: {
                             xtype: 'emptygridcontainer',
                             title: me.router.getRoute().getTitle(),
@@ -59,9 +73,6 @@ Ext.define('Imt.purpose.view.Outputs', {
             {
                 xtype: 'panel',
                 ui: 'medium',
-                style: {
-                    paddingRight: 0
-                },
                 items: [
                     {
                         xtype: 'usage-point-management-side-menu',

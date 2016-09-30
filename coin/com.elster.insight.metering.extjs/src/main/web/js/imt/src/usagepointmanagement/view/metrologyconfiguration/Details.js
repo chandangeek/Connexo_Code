@@ -64,6 +64,8 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         hidden: !me.usagePoint.get('metrologyConfiguration'),
                         defaults: {
                             xtype: 'displayfield',
+                            padding: 0,
+                            margin: '0 10 16 0',
                             labelWidth: 200
                         },
                         items: [

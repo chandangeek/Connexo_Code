@@ -84,7 +84,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
             {
                 itemId: 'up-summary-more-attributes-link',
                 ui: 'link',
-                text: Uni.I18n.translate('general.moreAttributes', 'IMT', 'More attributes'),
+                text: Uni.I18n.translate('general.attributes.manage', 'IMT', 'Manage usage point attributes'),
                 href: me.router.getRoute('usagepoints/view/attributes').buildUrl()
             }
         ];

@@ -116,9 +116,6 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
             {
                 xtype: 'panel',
                 ui: 'medium',
-                style: {
-                    paddingRight: 0
-                },
                 items: [
                     {
                         xtype: 'usage-point-management-side-menu',
