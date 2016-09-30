@@ -29,6 +29,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +38,6 @@ import java.util.Set;
 @Component(name = "com.elster.insight.ucr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/ucr", "app=INS", "name=" + UsagePointConfigurationApplication.COMPONENT_NAME})
 public class UsagePointConfigurationApplication extends Application implements TranslationKeyProvider {
 
-    public static final String APP_KEY = "INS";
     public static final String COMPONENT_NAME = "UCR";
 
     private volatile TransactionService transactionService;
@@ -87,7 +87,7 @@ public class UsagePointConfigurationApplication extends Application implements T
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Collections.emptyList();
+        return Arrays.asList(FunctionTranslationKey.values());
     }
 
     @Reference
@@ -161,7 +161,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
-            bind(ReadingTypeDeliverableFactory.class).to(ReadingTypeDeliverableFactory.class);
+            bind(ReadingTypeDeliverableFactoryImpl.class).to(ReadingTypeDeliverableFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
