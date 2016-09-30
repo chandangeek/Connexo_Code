@@ -70,7 +70,8 @@ Ext.define('Uni.form.field.StartPeriod', {
                     {
                         xtype: 'radio',
                         name: me.baseRadioName,
-                        inputValue: me.inputValueDate
+                        inputValue: me.inputValueDate,
+                        value: me.showOptionNow ? false : true
                     },
                     {
                         xtype: 'datefield',
@@ -99,7 +100,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                     xtype: 'radio',
                     name: me.baseRadioName,
                     inputValue: me.inputValueAgo,
-                    value: !me.showOptionNow
+                    value: me.showOptionNow ? false : !me.showOptionDate
                 },
                 {
                     xtype: 'numberfield',
@@ -107,7 +108,6 @@ Ext.define('Uni.form.field.StartPeriod', {
                     hideLabel: true,
                     value: 1,
                     minValue: 0,
-                    editable: false,
                     allowBlank: false,
                     width: 64,
                     margin: '0 6 0 6'
@@ -160,21 +160,21 @@ Ext.define('Uni.form.field.StartPeriod', {
         var me = this;
 
         if (me.showOptionNow) {
-            me.selectedValue = 'now';
+            me.selectedValue = me.inputValueNow;
 
             me.getOptionNowRadio().on('change', function (scope, newValue, oldValue) {
                 if (newValue) {
-                    me.selectedValue = 'now';
+                    me.selectedValue = me.inputValueNow;
                     me.fireEvent('periodchange', me.getStartValue());
                 }
             }, me);
         } else {
-            me.selectedValue = 'ago';
+            me.selectedValue = me.inputValueAgo;
         }
 
         me.getOptionAgoRadio().on('change', function (scope, newValue, oldValue) {
             if (newValue) {
-                me.selectedValue = 'ago';
+                me.selectedValue = me.inputValueAgo;
 
                 if (me.showOptionDate) {
                     me.getOptionDateRadio().suspendEvents();
@@ -215,7 +215,7 @@ Ext.define('Uni.form.field.StartPeriod', {
         if (me.showOptionDate) {
             me.getOptionDateRadio().on('change', function (scope, newValue, oldValue) {
                 if (newValue) {
-                    me.selectedValue = 'date';
+                    me.selectedValue = me.inputValueDate;
                     me.fireEvent('periodchange', me.getStartValue());
                 }
             }, me);
@@ -227,7 +227,7 @@ Ext.define('Uni.form.field.StartPeriod', {
     },
 
     selectOptionNow: function (suspendEvent) {
-        this.selectedValue = 'now';
+        this.selectedValue = this.inputValueNow;
 
         this.getOptionNowRadio().suspendEvents();
         this.getOptionNowRadio().setValue(true);
@@ -239,7 +239,7 @@ Ext.define('Uni.form.field.StartPeriod', {
     },
 
     selectOptionAgo: function (suspendEvent) {
-        this.selectedValue = 'ago';
+        this.selectedValue = this.inputValueAgo;
 
         this.getOptionAgoRadio().suspendEvents();
         this.getOptionAgoRadio().setValue(true);
@@ -251,7 +251,7 @@ Ext.define('Uni.form.field.StartPeriod', {
     },
 
     selectOptionDate: function (suspendEvent) {
-        this.selectedValue = 'date';
+        this.selectedValue = this.inputValueDate;
 
         this.getOptionDateRadio().suspendEvents();
         this.getOptionDateRadio().setValue(true);
@@ -290,10 +290,10 @@ Ext.define('Uni.form.field.StartPeriod', {
             timeMode = me.getOptionAgoContainer().down('#period-edge').getValue();
 
         var result = {
-            startNow: selectedValue === 'now'
+            startNow: selectedValue === me.inputValueNow
         };
 
-        if (selectedValue === 'date') {
+        if (selectedValue === me.inputValueDate) {
             var dateValue = me.getOptionDateContainer().down('datefield').getValue();
 
             var fixedDate = {
@@ -302,7 +302,10 @@ Ext.define('Uni.form.field.StartPeriod', {
                 startFixedYear: dateValue.getFullYear()
             };
             Ext.apply(result, fixedDate);
-        } else if (selectedValue === 'ago') {
+        } else if (selectedValue === me.inputValueAgo) {
+            if (Ext.isEmpty(amountAgoValue)) {
+                amountAgoValue = 0;
+            }
             var shiftDate = {
                 startAmountAgo: amountAgoValue,
                 startPeriodAgo: freqAgoValue,
