@@ -180,9 +180,13 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         });
         this.registerDataValidationKpiService(context);
         this.registerDataValidationReportService(context);
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                Version.version(10, 2), UpgraderV10_2.class
-        ));
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", COMPONENTNAME),
+                dataModel,
+                InstallerImpl.class,
+                ImmutableMap.of(
+                    Version.version(10, 2), UpgraderV10_2.class
+                ));
     }
 
     @Deactivate

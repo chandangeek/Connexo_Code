@@ -4,9 +4,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -24,20 +23,15 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Logger;
 
 public class InstallerImpl implements FullInstaller, PrivilegesProvider {
-    public static final String DESTINATION_NAME = ValidationServiceImpl.DESTINATION_NAME;
-    public static final String SUBSCRIBER_NAME = ValidationServiceImpl.SUBSCRIBER_NAME;
-    private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
     private final EventService eventService;
     private final MessageService messageService;
-    private DestinationSpec destinationSpec;
     private final UserService userService;
 
     @Inject
@@ -46,10 +40,6 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
         this.messageService = messageService;
         this.eventService = eventService;
         this.userService = userService;
-    }
-
-    public DestinationSpec getDestinationSpec() {
-        return destinationSpec;
     }
 
     @Override
@@ -105,41 +95,23 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     }
     private void createMessageHandlers() {
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        this.createMessageHandler(defaultQueueTableSpec, DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION, DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER);
-        this.createMessageHandler(defaultQueueTableSpec, DESTINATION_NAME, SUBSCRIBER_NAME);
+        this.createMessageHandler(defaultQueueTableSpec, DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
+        this.createMessageHandler(defaultQueueTableSpec, ValidationServiceImpl.DESTINATION_NAME, TranslationKeys.MESSAGE_SPEC_SUBSCRIBER);
     }
 
-    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, String subscriberName) {
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName) {
         Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
         if (!destinationSpecOptional.isPresent()) {
             DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
             queue.activate();
-            queue.subscribe(subscriberName);
+            queue.subscribe(subscriberName, ValidationService.COMPONENTNAME, Layer.DOMAIN);
         } else {
             boolean notSubscribedYet = !destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName));
             if (notSubscribedYet) {
                 destinationSpecOptional.get().activate();
-                destinationSpecOptional.get().subscribe(subscriberName);
+                destinationSpecOptional.get().subscribe(subscriberName, ValidationService.COMPONENTNAME, Layer.DOMAIN);
             }
         }
     }
 
-    private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {
-        return new Translation() {
-            @Override
-            public NlsKey getNlsKey() {
-                return nlsKey;
-            }
-
-            @Override
-            public Locale getLocale() {
-                return locale;
-            }
-
-            @Override
-            public String getTranslation() {
-                return translation;
-            }
-        };
-    }
 }
