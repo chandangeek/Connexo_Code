@@ -36,7 +36,8 @@ public class ResourceHelper {
                 }
             }
         }
-        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_FOR_USAGE_POINT, channelId);
+        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_FOR_USAGE_POINT,
+                effectiveMetrologyConfigurationOnUsagePoint.getUsagePoint().getName(), channelId);
     }
 
     public Channel findChannelOnUsagePointOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, long channelId) {
@@ -47,6 +48,6 @@ public class ResourceHelper {
                 .filter(channel -> channel.getId() == channelId)
                 .findAny()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_FOR_USAGE_POINT,
-                        effectiveMetrologyConfiguration.getUsagePoint().getMRID(), channelId));
+                        effectiveMetrologyConfiguration.getUsagePoint().getName(), channelId));
     }
 }

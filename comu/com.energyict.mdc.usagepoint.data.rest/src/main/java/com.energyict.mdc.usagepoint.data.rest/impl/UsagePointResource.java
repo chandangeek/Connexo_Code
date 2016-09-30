@@ -114,7 +114,7 @@ public class UsagePointResource {
     public UsagePointChannelInfo getChannel(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId) {
         UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint.getMRID()));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint.getName()));
         Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
         return usagePointChannelInfoFactory.from(channel, usagePoint, effectiveMetrologyConfiguration.getMetrologyConfiguration());
     }
@@ -130,7 +130,7 @@ public class UsagePointResource {
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
             EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint.getMRID()));
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint.getName()));
             Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
             Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
             if (usagePointActivationInterval.isConnected(requestedInterval)) {

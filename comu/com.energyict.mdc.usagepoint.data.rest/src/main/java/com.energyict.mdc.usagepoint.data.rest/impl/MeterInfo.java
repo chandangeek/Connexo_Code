@@ -4,7 +4,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 public class MeterInfo {
 
-    public String mRID;
+    public String name;
     public String serialNumber;
     public String state;
     public Long start;

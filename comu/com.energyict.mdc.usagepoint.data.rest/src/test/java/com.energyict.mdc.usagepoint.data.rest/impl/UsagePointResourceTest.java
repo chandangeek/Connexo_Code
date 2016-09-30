@@ -79,15 +79,17 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
         when(meterActivation.getStart()).thenReturn(Instant.ofEpochMilli(1410774620100L));
         when(meterActivation.getEnd()).thenReturn(null);
-        when(meter.getMRID()).thenReturn("testD");
+        when(meter.getAmrId()).thenReturn("27");
         when(deviceState.getName()).thenReturn(DefaultState.ACTIVE.getKey());
+        when(meter.getName()).thenReturn("testD");
+        when(device.getName()).thenReturn("testD");
         when(device.getSerialNumber()).thenReturn("123");
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getState()).thenReturn(deviceState);
         when(meter.getState()).thenReturn(Optional.of(deviceState));
         when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getName()).thenReturn("testDT");
-        when(deviceService.findDeviceByMrid("testD")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceById(27)).thenReturn(Optional.of(device));
         doReturn(Collections.singletonList(meterActivation)).when(usagePoint).getMeterActivations();
     }
 
@@ -98,7 +100,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<String>get("$.devices[0].mRID")).isEqualTo("testD");
+        assertThat(jsonModel.<String>get("$.devices[0].name")).isEqualTo("testD");
         assertThat(jsonModel.<String>get("$.devices[0].serialNumber")).isEqualTo("123");
         assertThat(jsonModel.<String>get("$.devices[0].state")).isEqualTo(DefaultState.ACTIVE.getKey());
         assertThat(jsonModel.<Number>get("$.devices[0].start")).isEqualTo(1410774620100L);
@@ -139,12 +141,12 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         assertThat(jsonModel.<List>get("$.channels[0].deviceChannels")).hasSize(2);
         assertThat(jsonModel.<Long>get("$.channels[0].deviceChannels[0].from")).isEqualTo(1410774620100L);
         assertThat(jsonModel.<Long>get("$.channels[0].deviceChannels[0].until")).isNull();
-        assertThat(jsonModel.<String>get("$.channels[0].deviceChannels[0].mRID")).isEqualTo("testD");
+        assertThat(jsonModel.<String>get("$.channels[0].deviceChannels[0].device")).isEqualTo("testD");
         assertThat(jsonModel.<String>get("$.channels[0].deviceChannels[0].channel.name")).isEqualTo("testR");
         assertThat(jsonModel.<Integer>get("$.channels[0].deviceChannels[0].channel.id")).isEqualTo(1);
         assertThat(jsonModel.<Long>get("$.channels[0].deviceChannels[1].from")).isEqualTo(1410515420000L);
         assertThat(jsonModel.<Long>get("$.channels[0].deviceChannels[1].until")).isEqualTo(1410774620100L);
-        assertThat(jsonModel.<String>get("$.channels[0].deviceChannels[1].mRID")).isEqualTo("testOldDevice");
+        assertThat(jsonModel.<String>get("$.channels[0].deviceChannels[1].device")).isEqualTo("testOldDevice");
         assertThat(jsonModel.<String>get("$.channels[0].deviceChannels[1].channel.name")).isEqualTo("testR");
         assertThat(jsonModel.<Integer>get("$.channels[0].deviceChannels[1].channel.id")).isNull();
     }
@@ -166,12 +168,12 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         assertThat(jsonModel.<Long>get("$.deviceChannels[0].from")).isEqualTo(1410774620100L);
         assertThat(jsonModel.<Long>get("$.deviceChannels[0].until")).isNull();
         assertThat(jsonModel.<String>get("$.interval.timeUnit")).isEqualTo("days");
-        assertThat(jsonModel.<String>get("$.deviceChannels[0].mRID")).isEqualTo("testD");
+        assertThat(jsonModel.<String>get("$.deviceChannels[0].device")).isEqualTo("testD");
         assertThat(jsonModel.<String>get("$.deviceChannels[0].channel.name")).isEqualTo("testR");
         assertThat(jsonModel.<Integer>get("$.deviceChannels[0].channel.id")).isEqualTo(1);
         assertThat(jsonModel.<Long>get("$.deviceChannels[1].from")).isEqualTo(1410515420000L);
         assertThat(jsonModel.<Long>get("$.deviceChannels[1].until")).isEqualTo(1410774620100L);
-        assertThat(jsonModel.<String>get("$.deviceChannels[1].mRID")).isEqualTo("testOldDevice");
+        assertThat(jsonModel.<String>get("$.deviceChannels[1].device")).isEqualTo("testOldDevice");
         assertThat(jsonModel.<String>get("$.deviceChannels[1].channel.name")).isEqualTo("testR");
         assertThat(jsonModel.<Integer>get("$.deviceChannels[1].channel.id")).isNull();
     }
@@ -191,14 +193,15 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         com.energyict.mdc.device.data.Channel deviceChannel = mock(com.energyict.mdc.device.data.Channel.class);
 
         Meter oldMeter = mock(Meter.class);
-        when(oldMeter.getMRID()).thenReturn("testOldDevice");
+        when(oldMeter.getAmrId()).thenReturn("311");
         MeterActivation oldMeterActivation = mock(MeterActivation.class);
         when(oldMeterActivation.getMeter()).thenReturn(Optional.of(oldMeter));
         when(oldMeterActivation.getStart()).thenReturn(Instant.ofEpochMilli(1410515420000L));
         when(oldMeterActivation.getEnd()).thenReturn(Instant.ofEpochMilli(1410774620100L));
         when(oldMeterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         Device oldDevice = mock(Device.class);
-        when(deviceService.findDeviceByMrid("testOldDevice")).thenReturn(Optional.of(oldDevice));
+        when(deviceService.findDeviceById(311)).thenReturn(Optional.of(oldDevice));
+        when(oldDevice.getName()).thenReturn("testOldDevice");
         when(oldDevice.getChannels()).thenReturn(Collections.emptyList());
 
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
