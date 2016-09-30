@@ -107,6 +107,7 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.mockito.Mock;
 
@@ -123,6 +124,8 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 9/19/14.
  */
 public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTest {
+    private static final Pattern MRID_PATTERN = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
+    private static final String MRID_REPLACEMENT = "$1-$2-$3-$4-$5";
     @Mock
     DeviceService deviceService;
     @Mock
@@ -217,11 +220,11 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return readingType;
     }
 
-    Device mockDevice(String mrid, String serial, DeviceConfiguration deviceConfiguration, long version) {
+    Device mockDevice(String mRID, String serial, DeviceConfiguration deviceConfiguration, long version) {
         Device mock = mock(Device.class);
-        when(mock.getmRID()).thenReturn(mrid);
-        when(mock.getName()).thenReturn(mrid);
-        long deviceId = (long) mrid.hashCode();
+        when(mock.getmRID()).thenReturn(mRID);
+        when(mock.getName()).thenReturn("Device" + serial);
+        long deviceId = (long) mRID.hashCode();
         when(mock.getId()).thenReturn(deviceId);
         when(mock.getSerialNumber()).thenReturn(serial);
         when(mock.getVersion()).thenReturn(333L);
@@ -237,11 +240,11 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
         when(mock.getBatch()).thenReturn(Optional.of(batch));
         when(topologyService.getPhysicalGateway(mock)).thenReturn(Optional.empty());
-        when(deviceService.findDeviceByMrid(mrid)).thenReturn(Optional.of(mock));
+        when(deviceService.findDeviceByMrid(mRID)).thenReturn(Optional.of(mock));
         when(deviceService.findAndLockDeviceByIdAndVersion(deviceId, version)).thenReturn(Optional.of(mock));
         when(deviceService.findAndLockDeviceByIdAndVersion(eq(deviceId), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mrid), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mrid), eq(version))).thenReturn(Optional.of(mock));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mRID), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
+        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mRID), eq(version))).thenReturn(Optional.of(mock));
         when(mock.getVersion()).thenReturn(version);
         return mock;
     }
@@ -551,7 +554,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getId()).thenReturn(scheduleId);
         when(comSchedule.getName()).thenReturn(name);
-        when(comSchedule.getmRID()).thenReturn(Optional.<String>empty());
+        when(comSchedule.getmRID()).thenReturn(Optional.empty());
         when(comSchedule.getPlannedDate()).thenReturn(Optional.empty());
         when(comSchedule.getVersion()).thenReturn(version);
 
@@ -688,7 +691,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(serviceCategory.getKind()).thenReturn(serviceKind);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         doReturn(Optional.ofNullable(detail)).when(usagePoint).getDetail(any(Instant.class));
-        when(usagePoint.getMRID()).thenReturn("MRID");
+        when(usagePoint.getMRID()).thenReturn(mockMRID(id));
         when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0)
                 .toInstant(ZoneOffset.UTC));
         when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
@@ -716,7 +719,6 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return mock;
     }
 
-
     protected PropertySpec mockDateTimePropertySpec(Date date) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.isRequired()).thenReturn(true);
@@ -735,5 +737,9 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(metrologyConfiguration.getVersion()).thenReturn(version);
         when(metrologyConfigurationService.findMetrologyConfiguration(id)).thenReturn(Optional.of(metrologyConfiguration));
         return metrologyConfiguration;
+    }
+
+    protected static String mockMRID(long id) {
+        return MRID_PATTERN.matcher(String.format("%032x", id)).replaceAll(MRID_REPLACEMENT);
     }
 }

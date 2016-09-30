@@ -56,7 +56,6 @@ public class DeviceSecurityPropertySetResource {
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-
     /**
      * Models named set of security properties whose values are managed against a Device.
      * The exact set of PropertySpecs that are used is determined by the AuthenticationDeviceAccessLevel
@@ -117,7 +116,7 @@ public class DeviceSecurityPropertySetResource {
 
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
                 .path(DeviceSecurityPropertySetResource.class)
-		        .resolveTemplate("mrid", device.getmRID());
+                .resolveTemplate("mrid", device.getmRID());
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
@@ -168,7 +167,6 @@ public class DeviceSecurityPropertySetResource {
         return deviceSecurityPropertySetInfoFactory.from(device, securityPropertySet, uriInfo, Collections.emptyList());
     }
 
-
     /**
      * List the fields available on this type of entity.
      * <br>E.g.
@@ -205,6 +203,4 @@ public class DeviceSecurityPropertySetResource {
         }
         return false;
     }
-
-
 }
