@@ -2,8 +2,6 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
-import com.energyict.mdc.engine.impl.core.ComCommandJournalist;
-import com.energyict.mdc.engine.impl.core.JournalEntryFactory;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.Problem;
@@ -14,9 +12,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -201,6 +201,7 @@ public class ComCommandJournalistTest {
         when(warning.isProblem()).thenReturn(false);
         when(warning.getDescription()).thenReturn(description);
         when(warning.getTimestamp()).thenReturn(clock.instant());
+        when(warning.getException()).thenReturn(Optional.empty());
         return warning;
     }
 
@@ -210,6 +211,7 @@ public class ComCommandJournalistTest {
         when(problem.isProblem()).thenReturn(true);
         when(problem.getDescription()).thenReturn(description);
         when(problem.getTimestamp()).thenReturn(clock.instant());
+        when(problem.getException()).thenReturn(Optional.empty());
         return problem;
     }
 
