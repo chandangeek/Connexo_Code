@@ -90,7 +90,7 @@ public class MeterActivationValidationIT {
     private Injector injector;
 
     @Rule
-    public TestRule timeZone = Using.timZone("GMT");
+    public TestRule timeZone = Using.timeZone("GMT");
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private IValidationRuleSet validationRuleSet;
