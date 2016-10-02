@@ -3,8 +3,26 @@ package com.energyict.protocolimpl.dlms;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.CosemPDUConnection;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.HDLC2Connection;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.LLCConnection;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.SecureConnection;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
@@ -61,6 +79,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
     protected static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
     private static final String ISKRA_WRAPPER_DEFAULT = "1";
+    private static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT = "1";
     protected ApplicationServiceObject aso;
     protected DLMSCache dlmsCache;
     protected ConformanceBlock conformanceBlock;
@@ -101,6 +120,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected String maxTimeDifference;
     protected int maxRecPduSize;
     private int iskraWrapper = 1;
+    private boolean incrementFrameCounterForRetries;
 
     @Override
     protected void doConnect() throws IOException {
@@ -253,7 +273,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
                             serverLowerMacAddress, serverUpperMacAddress, addressingMode, -1, -1);
                     break;
                 case CONNECTION_MODE_TCPIP:
-                    connection = new TCPIPConnection(inputStream, outputStream, timeOut, forceDelay, retries, clientMacAddress, serverLowerMacAddress, getLogger());
+                    connection = new TCPIPConnection(inputStream, outputStream, timeOut, forceDelay, retries, clientMacAddress, serverLowerMacAddress, incrementFrameCounterForRetries, getLogger());
                     break;
                 case CONNECTION_MODE_COSEM_PDU:
                     connection = new CosemPDUConnection(inputStream, outputStream, timeOut, forceDelay, retries, clientMacAddress, serverLowerMacAddress);
@@ -405,6 +425,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         }
         this.maxRecPduSize = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, Integer.toString(MAX_PDU_SIZE)));
         this.iskraWrapper = Integer.parseInt(properties.getProperty(DlmsProtocolProperties.ISKRA_WRAPPER, ISKRA_WRAPPER_DEFAULT));
+        this.incrementFrameCounterForRetries = Boolean.parseBoolean(properties.getProperty(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_RETRIES, INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT));
 
         doValidateProperties(properties);
     }
