@@ -50,6 +50,7 @@ import org.junit.Test;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * Test covering the data transfer between channels when slave is linked to data logger, or
@@ -311,6 +312,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testLinkSlaveWithoutData() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
@@ -321,6 +323,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         Device slave = createSlaveWithProfiles("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
 
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.now());
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
 
         channelMapping.put(slave.getChannels().get(0), dataLogger.getChannels().get(0));
@@ -360,6 +363,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testLinkSlaveWithRegistersWithoutData() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingRegisters();
 
@@ -369,6 +373,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.now());
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
         HashMap<Register, Register> registerMapping = new HashMap<>();
@@ -408,6 +413,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testLinkSlaveWithProfileData() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
@@ -495,6 +501,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testLinkSlaveWithConfirmedProfileData() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
@@ -591,6 +598,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testLinkSlaveWithEditedProfileData() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
@@ -702,6 +710,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testLinkSlaveWithRegisterData() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingRegisters();
 
@@ -804,6 +813,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testLinkSlaveWithEditedRegisterData() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingRegisters();
 
@@ -912,6 +922,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testUnLinkSlaveWithoutData() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
@@ -922,6 +933,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         Device slave = createSlaveWithProfiles("slave1", start);
         assertThat(slave.getMeterActivationsMostRecentFirst()).hasSize(1);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.now());
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
 
@@ -953,6 +965,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testUnLinkSlaveWithProfileData() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
@@ -1019,6 +1032,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testUnLinkSlaveWithRegisterData() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingRegisters();
 
