@@ -40,10 +40,10 @@ import static org.mockito.Mockito.when;
 
 public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
-    public static final int TASK_ID = 750;
-    public static final String INSIGHT_KEY = "INS";
-    public static final String MULTISENSE_KEY = "MDC";
-    public static final String HEADER_NAME = "X-CONNEXO-APPLICATION-NAME";
+    private static final int TASK_ID = 750;
+    private static final String INSIGHT_KEY = "INS";
+    private static final String MULTISENSE_KEY = "MDC";
+    private static final String HEADER_NAME = "X-CONNEXO-APPLICATION-NAME";
     public static final long OK_VERSION = 23L;
     public static final long BAD_VERSION = 21L;
 
@@ -239,6 +239,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(history.getVersionAt(any())).thenReturn(Optional.empty());
         doReturn(history).when(dataValidationTask).getHistory();
         when(dataValidationTask.getScheduleExpression(any())).thenReturn(Optional.empty());
+        when(this.timeService.toLocalizedString(any(TemporalExpression.class))).thenReturn("Every 14 days");
 
         // Business method
         String response = target("/validationtasks/" + TASK_ID).request().get(String.class);
