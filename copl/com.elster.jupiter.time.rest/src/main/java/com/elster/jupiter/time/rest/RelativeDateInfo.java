@@ -104,6 +104,10 @@ public class RelativeDateInfo {
         if(startPeriodAgo != null && startAmountAgo != null && startTimeMode != null) {
             RelativeOperator operator = startTimeMode.equals("ago") ? RelativeOperator.MINUS : RelativeOperator.PLUS;
             switch (startPeriodAgo) {
+                case "years":
+                    operations.add(new RelativeOperation(RelativeField.YEAR, operator, startAmountAgo));
+                    dayOfWeekEnabled = false;
+                    break;
                 case "months":
                     operations.add(new RelativeOperation(RelativeField.MONTH, operator, startAmountAgo));
                     dayOfWeekEnabled = false;
