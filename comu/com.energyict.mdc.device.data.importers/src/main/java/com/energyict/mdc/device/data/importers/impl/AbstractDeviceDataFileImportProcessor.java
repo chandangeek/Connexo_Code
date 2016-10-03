@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl;
 
-import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.energyict.mdc.device.data.Device;
@@ -26,17 +26,15 @@ public abstract class AbstractDeviceDataFileImportProcessor<T extends FileImport
         return deviceByMrid.isPresent() ? deviceByMrid : deviceService.findDeviceByName(deviceIdentifier);
     }
 
-    protected Optional<EndDevice> findEndDeviceByIdentifier(String deviceIdentifier) {
+    protected Optional<Meter> findMeterByIdentifier(String deviceIdentifier) {
         MeteringService meteringService = getContext().getMeteringService();
-        Optional<EndDevice> endDeviceByMrid = meteringService.findEndDevice(deviceIdentifier);
-        // TODO use findEndDeviceByName CXO-2802
-        return endDeviceByMrid.isPresent() ? endDeviceByMrid : meteringService.findEndDevice(deviceIdentifier);
+        Optional<Meter> meterByMrid = meteringService.findMeter(deviceIdentifier);
+        return meterByMrid.isPresent() ? meterByMrid : meteringService.findMeterByName(deviceIdentifier);
     }
 
     protected Optional<UsagePoint> findUsagePointByIdentifier(String usagePointIdentifier) {
         MeteringService meteringService = getContext().getMeteringService();
         Optional<UsagePoint> usagePointByMrid = meteringService.findUsagePoint(usagePointIdentifier);
-        // TODO use findUsagePoint by name CXO-2082
-        return usagePointByMrid.isPresent() ? usagePointByMrid : meteringService.findUsagePoint(usagePointIdentifier);
+        return usagePointByMrid.isPresent() ? usagePointByMrid : meteringService.findUsagePointByName(usagePointIdentifier);
     }
 }

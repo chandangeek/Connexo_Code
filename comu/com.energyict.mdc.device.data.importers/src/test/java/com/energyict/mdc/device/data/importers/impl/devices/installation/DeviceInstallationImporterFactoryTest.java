@@ -6,7 +6,6 @@ import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -116,7 +115,7 @@ public class DeviceInstallationImporterFactoryTest {
     @Mock
     private MeterRole defaultMeterRole;
 
-    private EndDevice endDevice;
+    private Meter meter;
 
     @Before
     public void beforeTest() {
@@ -136,15 +135,17 @@ public class DeviceInstallationImporterFactoryTest {
         context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
         when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findMeter(anyString())).thenReturn(Optional.empty());
 
         final String templateMembers = "#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale";
         when(dataModel.getInstance(LocationTemplateImpl.class)).thenReturn(new LocationTemplateImpl(dataModel));
-        endDevice = mock(EndDevice.class, Mockito.RETURNS_DEEP_STUBS);
-        when(endDevice.getAmrSystem().newMeter(eq(endDevice.getAmrId()), anyString()).newLocationBuilder()).thenReturn(locationBuilder);
+        meter = mock(Meter.class, Mockito.RETURNS_DEEP_STUBS);
+        when(meter.getAmrSystem().newMeter(eq(meter.getAmrId()), anyString()).newLocationBuilder()).thenReturn(locationBuilder);
         locationTemplate = LocationTemplateImpl.from(dataModel, templateMembers, templateMembers);
         locationTemplate.parseTemplate(templateMembers, templateMembers);
         when(context.getMeteringService().getLocationTemplate()).thenReturn(locationTemplate);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
+        when(meteringService.findMeterByName("VPB0002")).thenReturn(Optional.of(meter));
         when(locationBuilder.getMemberBuilder("locale")).thenReturn(Optional.empty());
         when(locationBuilder.member()).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
@@ -207,7 +208,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(meteringService.findUsagePoint("UP0001")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
 
         importer.process(importOccurrence);
 
@@ -228,8 +229,7 @@ public class DeviceInstallationImporterFactoryTest {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findDeviceByMrid("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(device));
-        // TODO replace with findEndDeviceByMrid
-        when(meteringService.findEndDevice("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(endDevice));
+        when(meteringService.findMeter("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(meter));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
@@ -245,7 +245,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(meteringService.findUsagePoint("UP0001")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
 
         importer.process(importOccurrence);
 
@@ -331,7 +331,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(masterDevice));
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(meteringService.findUsagePoint("UP0001")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
 
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
@@ -368,7 +368,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(oldMasterDevice.getName()).thenReturn("VPB0000");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMasterDevice));
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(meteringService.findUsagePoint("UP0001")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
 
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
@@ -436,7 +436,7 @@ public class DeviceInstallationImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(meteringService, never()).findUsagePoint(Matchers.anyString());
+        verify(meteringService, never()).findUsagePointByName(Matchers.anyString());
     }
 
     @Test
@@ -463,7 +463,7 @@ public class DeviceInstallationImporterFactoryTest {
         AuthorizedAction authorizedAction = mock(AuthorizedAction.class);
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint("UP0001")).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.empty());
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
         UsagePoint usagePoint = mock(UsagePoint.class);
@@ -501,7 +501,7 @@ public class DeviceInstallationImporterFactoryTest {
         AuthorizedAction authorizedAction = mock(AuthorizedAction.class);
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint("UP0001")).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.empty());
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
@@ -540,7 +540,7 @@ public class DeviceInstallationImporterFactoryTest {
         AuthorizedAction authorizedAction = mock(AuthorizedAction.class);
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint("UP0001")).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.empty());
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
@@ -812,7 +812,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(usagePoint.getName()).thenReturn("UP0001");
-        when(meteringService.findUsagePoint("UP0001")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
 
         DateParser dateParser = new DateParser("dd/MM/yyyy HH:mm", "GMT+00:00");
         Instant installationTime = dateParser.parse("01/08/2015 00:30").toInstant();
@@ -862,7 +862,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(usagePoint.getName()).thenReturn("UP0001");
-        when(meteringService.findUsagePoint("UP0001")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("UP0001")).thenReturn(Optional.of(usagePoint));
 
         DateParser dateParser = new DateParser("dd/MM/yyyy HH:mm", "GMT+00:00");
         Instant installationTime = dateParser.parse("01/08/2015 00:30").toInstant();
