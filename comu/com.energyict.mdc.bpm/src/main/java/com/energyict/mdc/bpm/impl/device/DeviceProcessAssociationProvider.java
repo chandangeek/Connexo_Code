@@ -118,7 +118,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
                 this.deviceLifeCycleConfigurationService
                         .findAllDeviceLifeCycles().stream()
                         .flatMap(lifeCycle -> lifeCycle.getFiniteStateMachine().getStates().stream())
-                        .map(state -> new DeviceStateInfo(thesaurus, deviceLifeCycleConfigurationService, state))
+                        .map(state -> new DeviceStateInfo(deviceLifeCycleConfigurationService, state))
                         .sorted((info1, info2) -> (info1.getLifeCycleId() != info2.getLifeCycleId()) ?
                                 info1.getLifeCycleName().compareToIgnoreCase(info2.getLifeCycleName()) :
                                 info1.getName().compareToIgnoreCase(info2.getName()))
@@ -155,10 +155,8 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
         private transient DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
         private transient DeviceLifeCycle deviceLifeCycle;
         private transient State deviceState;
-        private transient Thesaurus thesaurus;
 
-        DeviceStateInfo(Thesaurus thesaurus, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, State deviceState) {
-            this.thesaurus = thesaurus;
+        DeviceStateInfo(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, State deviceState) {
             this.deviceState = deviceState;
             this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
             this.deviceLifeCycle = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles()
@@ -220,7 +218,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
         public HasIdAndName fromStringValue(String stringValue) {
             return finiteStateMachineService
                     .findFiniteStateById(Long.parseLong(stringValue))
-                    .map(state -> new DeviceStateInfo(thesaurus, deviceLifeCycleConfigurationService, state))
+                    .map(state -> new DeviceStateInfo(deviceLifeCycleConfigurationService, state))
                     .orElse(null);
         }
 
