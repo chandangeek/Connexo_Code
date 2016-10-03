@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -81,9 +82,9 @@ final class Languages {
     private void addLanguagesFromProperty(String property) {
         this.languages =
                 Stream
-                    .of(property.split(","))
-                    .map((tag) -> new Language(this.context, tag, this.csvSeparator, this.configurationDirectory))
-                    .collect(Collectors.toList());
+                        .of(property.split(","))
+                        .map((tag) -> new Language(this.context, tag, this.csvSeparator, this.configurationDirectory))
+                        .collect(Collectors.toList());
     }
 
     void addTranslationsTo(List<NlsKeyImpl> nlsKeys) {
@@ -121,7 +122,8 @@ final class Languages {
 
         Stream<Path> filesForLanguageTag(String tag) {
             try {
-                return Files.list(this.path).filter(subPath -> subPath.getFileName().toString().matches("(?i).*_" + tag + "\\.csv"));
+                return Files.list(this.path)
+                        .filter(subPath -> subPath.getFileName().toString().matches("(?i).*_" + tag + "\\.csv"));
             } catch (IOException e) {
                 throw new UnderlyingIOException(e);
             }
@@ -224,7 +226,7 @@ final class Languages {
         }
 
         private String toString(ComponentAndLayer componentAndLayer) {
-            return "(" + componentAndLayer .component() + ", " + componentAndLayer.layer() + ")";
+            return "(" + componentAndLayer.component() + ", " + componentAndLayer.layer() + ")";
         }
 
         void removeAll(ComponentAndLayer componentAndLayer) {
@@ -246,23 +248,18 @@ final class Languages {
         }
 
         private void loadTranslationsFrom(InputStream in) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            try {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")))) {
                 this.loadTranslationsWith(reader);
-            } finally {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    throw new UnderlyingIOException(e);
-                }
+            } catch (IOException e) {
+                throw new UnderlyingIOException(e);
             }
         }
 
         private void loadTranslationsWith(BufferedReader reader) {
             reader
-                .lines()
-                .map(csvLine -> TranslationCsvEntry.parseFrom(csvLine, this.locale, this.csvSeparator))
-                .forEach(this::add);
+                    .lines()
+                    .map(csvLine -> TranslationCsvEntry.parseFrom(csvLine, this.locale, this.csvSeparator))
+                    .forEach(this::add);
         }
 
         private void add(TranslationCsvEntry entry) {
