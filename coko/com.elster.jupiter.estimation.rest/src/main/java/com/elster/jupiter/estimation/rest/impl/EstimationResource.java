@@ -355,7 +355,7 @@ public class EstimationResource {
                                             @BeanParam JsonQueryParameters queryParameters) {
         List<EstimationTaskInfo> infos = estimationService.findEstimationTasks(getQualityCodeSystemFromApplicationName(applicationName))
                 .stream()
-                .map(et -> new EstimationTaskInfo(et, thesaurus))
+                .map(et -> new EstimationTaskInfo(et, thesaurus, timeService))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("estimationTasks", infos, queryParameters);
@@ -369,7 +369,7 @@ public class EstimationResource {
                                                 @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
                                                 @Context SecurityContext securityContext) {
         QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
-        return new EstimationTaskInfo(fetchEstimationTask(id, qualityCodeSystem), thesaurus);
+        return new EstimationTaskInfo(fetchEstimationTask(id, qualityCodeSystem), thesaurus, timeService);
     }
 
     @PUT
@@ -406,7 +406,7 @@ public class EstimationResource {
                     .setPeriod(getRelativePeriod(info.period))
                     .setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id)).create();
             context.commit();
-            return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(dataExportTask, thesaurus)).build();
+            return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(dataExportTask, thesaurus, timeService)).build();
         }
     }
 
@@ -455,7 +455,7 @@ public class EstimationResource {
 
             task.update();
             context.commit();
-            return Response.status(Response.Status.OK).entity(new EstimationTaskInfo(task, thesaurus)).build();
+            return Response.status(Response.Status.OK).entity(new EstimationTaskInfo(task, thesaurus, timeService)).build();
         }
     }
 

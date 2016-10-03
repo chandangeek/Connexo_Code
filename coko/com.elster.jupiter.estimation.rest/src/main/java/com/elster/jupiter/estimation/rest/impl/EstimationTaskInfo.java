@@ -4,6 +4,7 @@ import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.util.time.Never;
@@ -24,25 +25,37 @@ public class EstimationTaskInfo {
     public Long nextRun;
     public Long lastRun;
     public long version;
-    // TODO: remove, not needed
     public String application;
+    public String recurrence;
 
     public EstimationTaskInfo() {
     }
 
-    public EstimationTaskInfo(EstimationTask estimationTask, Thesaurus thesaurus) {
+    public EstimationTaskInfo(EstimationTask estimationTask, Thesaurus thesaurus, TimeService timeService) {
+        this();
         populate(estimationTask);
-        if (Never.NEVER.equals(estimationTask.getScheduleExpression())) {
+        ScheduleExpression scheduleExpression = estimationTask.getScheduleExpression();
+        if (Never.NEVER.equals(scheduleExpression)) {
             schedule = null;
+            recurrence = thesaurus.getFormat(TranslationKeys.NONE).format();
         } else {
-            ScheduleExpression scheduleExpression = estimationTask.getScheduleExpression();
             if (scheduleExpression instanceof TemporalExpression) {
                 schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
+                recurrence = fromTemporalExpression((TemporalExpression) scheduleExpression, timeService);
             } else {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
+                recurrence = fromPeriodicalScheduleExpression((PeriodicalScheduleExpression) scheduleExpression, timeService);
             }
         }
         lastEstimationOccurrence = estimationTask.getLastOccurrence().map(occurrence -> new EstimationTaskHistoryInfo(estimationTask, occurrence, thesaurus)).orElse(null);
+    }
+
+    private String fromTemporalExpression(TemporalExpression scheduleExpression, TimeService timeService) {
+        return timeService.toLocalizedString(scheduleExpression);
+    }
+
+    private String fromPeriodicalScheduleExpression(PeriodicalScheduleExpression scheduleExpression, TimeService timeService) {
+        return timeService.toLocalizedString(scheduleExpression);
     }
 
     void populate(EstimationTask estimationTask) {
