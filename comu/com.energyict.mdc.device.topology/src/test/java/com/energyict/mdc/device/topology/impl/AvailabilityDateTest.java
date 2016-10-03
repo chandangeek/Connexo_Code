@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -201,7 +202,8 @@ public class AvailabilityDateTest extends PersistenceIntegrationTest {
     @Transactional
     public void testUnlinkedDataLogger() {
         setUpForDataLoggerEnabledDevice();
-        Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(1).withMinute(0).withSecond(0).withNano(0);
+        Instant start = localDateTime.toInstant(ZoneOffset.UTC);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
 
         List<Instant> availabilityOfChannels = dataLogger.getChannels().stream().map((each)-> inMemoryPersistence.getTopologyService().availabilityDate(each).get()).distinct().collect(Collectors.toList());
@@ -219,8 +221,9 @@ public class AvailabilityDateTest extends PersistenceIntegrationTest {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
-        Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink = LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(1).withMinute(0).withSecond(0).withNano(0);
+        Instant start = localDateTime.toInstant(ZoneOffset.UTC);
+        Instant startLink = start.plus(1, ChronoUnit.DAYS);
 
         Device slave = createSlaveWithProfiles("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
@@ -255,10 +258,10 @@ public class AvailabilityDateTest extends PersistenceIntegrationTest {
     public void testUnLinkedDataLoggerChannelAvailability() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
-
-        Instant start = LocalDateTime.of(2015, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink = LocalDateTime.of(2015, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant endLink = LocalDateTime.of(2015, 10, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC);
+        Instant start = localDateTime.withHour(1).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC);
+        Instant startLink = start.plus(1, ChronoUnit.DAYS);
+        Instant endLink = start.plus(6, ChronoUnit.DAYS);
 
         Device slave = createSlaveWithProfiles("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
@@ -295,11 +298,12 @@ public class AvailabilityDateTest extends PersistenceIntegrationTest {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
-        Instant start = LocalDateTime.of(2015, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink = LocalDateTime.of(2015, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant endLink = LocalDateTime.of(2015, 10, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink2 = LocalDateTime.of(2015, 12, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant endLink2 = LocalDateTime.of(2016, 2, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(1).withMinute(0).withSecond(0).withNano(0);
+        Instant start = localDateTime.toInstant(ZoneOffset.UTC);
+        Instant startLink = start.plus(1, ChronoUnit.DAYS);
+        Instant endLink = start.plus(6, ChronoUnit.DAYS);
+        Instant startLink2 = start.plus(8, ChronoUnit.DAYS);
+        Instant endLink2 = start.plus(10, ChronoUnit.DAYS);
 
         Device slave = createSlaveWithProfiles("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
@@ -351,8 +355,9 @@ public class AvailabilityDateTest extends PersistenceIntegrationTest {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingRegisters();
 
-        Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink = LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(1).withMinute(0).withSecond(0).withNano(0);
+        Instant start = localDateTime.toInstant(ZoneOffset.UTC);
+        Instant startLink = start.plus(1, ChronoUnit.DAYS);
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
@@ -382,9 +387,10 @@ public class AvailabilityDateTest extends PersistenceIntegrationTest {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingRegisters();
 
-        Instant start = LocalDateTime.of(2015, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink = LocalDateTime.of(2015, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant endLink = LocalDateTime.of(2015, 10, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(1).withMinute(0).withSecond(0).withNano(0);
+        Instant start = localDateTime.toInstant(ZoneOffset.UTC);
+        Instant startLink = start.plus(1, ChronoUnit.DAYS);
+        Instant endLink = start.plus(6, ChronoUnit.DAYS);
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
@@ -413,11 +419,12 @@ public class AvailabilityDateTest extends PersistenceIntegrationTest {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingRegisters();
 
-        Instant start = LocalDateTime.of(2015, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink = LocalDateTime.of(2015, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant endLink = LocalDateTime.of(2015, 10, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink2 = LocalDateTime.of(2015, 12, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant endLink2 = LocalDateTime.of(2016, 2, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(1).withMinute(0).withSecond(0).withNano(0);
+        Instant start = localDateTime.toInstant(ZoneOffset.UTC);
+        Instant startLink = start.plus(1, ChronoUnit.DAYS);
+        Instant endLink = start.plus(6, ChronoUnit.DAYS);
+        Instant startLink2 = start.plus(8, ChronoUnit.DAYS);
+        Instant endLink2 = start.plus(10, ChronoUnit.DAYS);
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
