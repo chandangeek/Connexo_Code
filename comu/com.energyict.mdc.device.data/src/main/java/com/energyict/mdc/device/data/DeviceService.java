@@ -77,10 +77,10 @@ public interface DeviceService {
     Optional<Device> findDeviceByName(String name);
 
     /**
-     * Finds the Device based on his unique External name - mRID.
+     * Finds the Device based on his mRID which is semantically a (Java-formatted) UUID as specified in RFC 4122.
      *
-     * @param mrId the unique Identifier of the device
-     * @return the requested Device or null if none was found
+     * @param mrId String containing a (Java-formatted) UUID as specified in RFC 4122.
+     * @return {@link Optional} of the requested Device or empty if none was found.
      */
     Optional<Device> findDeviceByMrid(String mrId);
 

@@ -1271,7 +1271,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .save();
 
         // Asserts: assert the dates on the EndDevice
-        EndDevice endDevice = inMemoryPersistence.getMeteringService().findEndDevice(device.getmRID()).get();
+        EndDevice endDevice = inMemoryPersistence.getMeteringService().findEndDeviceByMRID(device.getmRID()).get();
         assertThat(endDevice.getLifecycleDates().getInstalledDate()).contains(expectedInstalledDate);
         assertThat(endDevice.getLifecycleDates().getManufacturedDate()).contains(expectedManufacturedDate);
         assertThat(endDevice.getLifecycleDates().getPurchasedDate()).contains(expectedPurchasedDate);
@@ -1458,7 +1458,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.setMultiplier(BigDecimal.TEN);
         device.save();
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -1501,7 +1501,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         freezeClock(2016, 6, 2);
         device.setMultiplier(BigDecimal.TEN);
         device.save();
-        Meter meter = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get();
+        Meter meter = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get();
 
         int channelSize = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().size();
         assertThat(channelSize)
@@ -1531,7 +1531,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister2", Instant.now());
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -1567,7 +1567,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.setMultiplier(BigDecimal.TEN);
         device.save();
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -1608,7 +1608,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", Instant.now());
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -1663,7 +1663,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.setMultiplier(BigDecimal.TEN);
         device.save();
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(3);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -1727,7 +1727,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", Instant.now());
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(3);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -2340,7 +2340,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(97L);
         anotherDevice.activate(Instant.ofEpochMilli(96L), usagePoint, defaultMeterRole);
-        usagePoint = inMemoryPersistence.getMeteringService().findUsagePoint(usagePoint.getId()).get();
+        usagePoint = inMemoryPersistence.getMeteringService().findUsagePointById(usagePoint.getId()).get();
 
         // Business method
         device.activate(expectedStart, usagePoint, defaultMeterRole);

@@ -86,8 +86,8 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
                 .setName(ENUM_EDG_NAME)
                 .setMRID(ENUM_EDG_NAME)
                 .containing(
-                        inMemoryPersistence.getMeteringService().findEndDevice(device1.getmRID()).get(),
-                        inMemoryPersistence.getMeteringService().findEndDevice(device2.getmRID()).get())
+                        inMemoryPersistence.getMeteringService().findEndDeviceByMRID(device1.getmRID()).get(),
+                        inMemoryPersistence.getMeteringService().findEndDeviceByMRID(device2.getmRID()).get())
                 .at(Instant.EPOCH)
                 .create();
 

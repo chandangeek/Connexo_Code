@@ -81,7 +81,7 @@ public class MeterReadingEventHandlerTest {
         when(serviceCallService.getServiceCallFinder(any())).thenReturn(finder);
         when(finder.find()).thenReturn(Collections.singletonList(serviceCall));
         when(deviceService.findDeviceById(333)).thenReturn(Optional.of(device));
-        when(meteringService.findMeter(1)).thenReturn(Optional.of(meter));
+        when(meteringService.findMeterById(1)).thenReturn(Optional.of(meter));
         when(meter.getAmrId()).thenReturn("333");
     }
 

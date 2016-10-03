@@ -132,7 +132,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
         device.forEstimation().activateEstimationRuleSet(rs1);
         device.forEstimation().deactivateEstimationRuleSet(rs2);
 
-        Meter meter = inMemoryPersistence.getMeteringService().findMeter(device.getmRID()).get();
+        Meter meter = inMemoryPersistence.getMeteringService().findMeterByMRID(device.getmRID()).get();
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
 
