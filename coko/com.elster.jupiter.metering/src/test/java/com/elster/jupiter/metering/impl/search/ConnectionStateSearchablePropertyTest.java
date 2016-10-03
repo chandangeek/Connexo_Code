@@ -31,9 +31,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -122,7 +120,7 @@ public class ConnectionStateSearchablePropertyTest {
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_CONNECTIONSTATE.getKey()), anyString());
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.USAGEPOINT_CONNECTIONSTATE);
     }
 
     @Test
@@ -199,7 +197,8 @@ public class ConnectionStateSearchablePropertyTest {
         ConnectionState valueToDisplay = ConnectionState.DEMOLISHED;
 
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
+        String expectedTranslation = "Translation expected in unit tests";
+        when(messageFormat.format(anyVararg())).thenReturn(expectedTranslation);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         Stream
@@ -211,7 +210,7 @@ public class ConnectionStateSearchablePropertyTest {
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(ConnectionState.DEMOLISHED.getName());
+        assertThat(displayValue).isEqualTo(expectedTranslation);
     }
 
     private void mockTranslationFor(ConnectionState state) {

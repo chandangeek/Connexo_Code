@@ -50,7 +50,6 @@ public class UsagePointSearchDomain implements SearchDomain {
     private volatile Clock clock;
     private volatile LicenseService licenseService;
 
-
     // For OSGi purposes
     public UsagePointSearchDomain() {
         super();

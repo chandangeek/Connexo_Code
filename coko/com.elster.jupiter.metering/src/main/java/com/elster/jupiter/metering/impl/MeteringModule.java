@@ -6,6 +6,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
@@ -88,6 +89,7 @@ public class MeteringModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);
         bind(MeteringDataModelService.class).to(MeteringDataModelServiceImpl.class).in(Scopes.SINGLETON);
         bind(MeteringService.class).toProvider(MeteringServiceProvider.class);
+        bind(MeteringTranslationService.class).toProvider(MeteringTranslationServiceProvider.class);
         bind(ServerMeteringService.class).toProvider(MeteringServiceProvider.class);
         bind(ServerMetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
         bind(MetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
@@ -108,6 +110,20 @@ public class MeteringModule extends AbstractModule {
         @Override
         public ServerMeteringService get() {
             return this.meteringDataModelService.getMeteringService();
+        }
+    }
+
+    private static class MeteringTranslationServiceProvider implements Provider<MeteringTranslationService> {
+        private final MeteringDataModelService meteringDataModelService;
+
+        @Inject
+        private MeteringTranslationServiceProvider(MeteringDataModelService meteringDataModelService) {
+            this.meteringDataModelService = meteringDataModelService;
+        }
+
+        @Override
+        public MeteringTranslationService get() {
+            return this.meteringDataModelService.getMeteringTranslationService();
         }
     }
 

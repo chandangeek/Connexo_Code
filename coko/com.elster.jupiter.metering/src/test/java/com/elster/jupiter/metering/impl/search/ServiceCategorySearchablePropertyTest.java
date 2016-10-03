@@ -30,10 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -121,7 +118,7 @@ public class ServiceCategorySearchablePropertyTest {
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY.getKey()), anyString());
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY);
     }
 
     @Test
@@ -202,13 +199,11 @@ public class ServiceCategorySearchablePropertyTest {
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(ServiceKind.ELECTRICITY.getDisplayName(thesaurus));
+        assertThat(displayValue).isEqualTo(ServiceKind.ELECTRICITY.getDefaultFormat());
     }
 
     private void mockTranslationFor(ServiceKind serviceKind) {
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn(serviceKind.getDefaultFormat());
-        when(thesaurus.getFormat(serviceKind)).thenReturn(messageFormat);
+        when(this.meteringTranslationService.getDisplayName(serviceKind)).thenReturn(serviceKind.getDefaultFormat());
     }
 
     private ServiceCategorySearchableProperty getTestInstance() {

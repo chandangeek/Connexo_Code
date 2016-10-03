@@ -500,14 +500,22 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         }
     }
 
+    @Override
     public ServerMeteringService getMeteringService() {
         return this.meteringService;
     }
 
+    @Override
+    public MeteringTranslationServiceImpl getMeteringTranslationService() {
+        return meteringTranslationService;
+    }
+
+    @Override
     public DataAggregationService getDataAggregationService() {
         return this.dataAggregationService;
     }
 
+    @Override
     public ServerMetrologyConfigurationService getMetrologyConfigurationService() {
         return this.metrologyConfigurationService;
     }
