@@ -11,6 +11,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 @Path("/usagepoints")
 public class UsagePointTestResource {
@@ -23,17 +24,15 @@ public class UsagePointTestResource {
     }
 
     @DELETE
-    @Path("{/mRID")
+    @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response deleteUsagePoint(@PathParam("mRID") String mRID) {
-        if (meteringService.findUsagePoint(mRID).isPresent()) {
-            UsagePoint usagePoint = meteringService.findUsagePoint(mRID).get();
-            usagePoint.delete();
-
+    public Response deleteUsagePoint(@PathParam("name") String name) {
+        Optional<UsagePoint> usagePoint = meteringService.findUsagePointByName(name);
+        if (usagePoint.isPresent()) {
+            usagePoint.get().delete();
             return Response.status(Response.Status.OK).build();
         }
-
-        return Response.status(Response.Status.BAD_REQUEST).build();
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 }
