@@ -9,14 +9,11 @@ Ext.define('Fwc.devicefirmware.store.Firmwares', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/fwc/device/{deviceId}/firmwares',
+        url: '/api/fwc/devices/{deviceId}/firmwares',
         reader: {
             type: 'json',
             root: 'firmwares',
             totalProperty: 'total'
-        },
-        setUrl: function (deviceId) {
-            this.url = this.urlTpl.replace('{deviceId}', encodeURIComponent(deviceId));
         }
     }
 });

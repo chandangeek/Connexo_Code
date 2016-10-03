@@ -28,11 +28,11 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
         }
     ],
 
-    retry: function (mrid, callback) {
+    retry: function (deviceId, callback) {
         var request = {
             method: 'PUT',
-            url: '/api/fwc/devices/{mrid}/comtasks/{id}/retry'
-                .replace('{mrid}', mrid)
+            url: '/api/fwc/devices/{deviceId}/comtasks/{id}/retry'
+                .replace('{deviceId}', deviceId)
                 .replace('{id}', this.get('firmwareComTaskId'))
         };
 

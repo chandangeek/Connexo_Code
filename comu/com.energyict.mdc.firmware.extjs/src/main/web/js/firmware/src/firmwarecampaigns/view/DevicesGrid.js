@@ -20,11 +20,11 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('general.mrid', 'FWC', 'MRID'),
-                dataIndex: 'mrid',
+                header: Uni.I18n.translate('general.name', 'FWC', 'Name'),
+                dataIndex: 'name',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? '<a href="' + me.router.getRoute('devices/device/firmware').buildUrl({mRID: value}) +'">' + value + '</a>' : '';
+                    return value ? '<a href="' + me.router.getRoute('devices/device/firmware').buildUrl({deviceId: value}) +'">' + value + '</a>' : '';
                 }
             },
             {

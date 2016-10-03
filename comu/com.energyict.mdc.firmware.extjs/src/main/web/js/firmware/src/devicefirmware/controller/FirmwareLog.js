@@ -38,14 +38,14 @@ Ext.define('Fwc.devicefirmware.controller.FirmwareLog', {
         Ext.resumeLayouts(true);
     },
 
-    showDeviceFirmwareLog: function (mRID) {
+    showDeviceFirmwareLog: function (deviceId) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             queryParams = router.queryParams,
             model = Ext.ModelManager.getModel('Fwc.model.Firmware'),
             logGrid;
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 model.getProxy().setUrl(device.get('deviceTypeId'));
                 me.getApplication().fireEvent('loadDevice', device);
@@ -54,7 +54,7 @@ Ext.define('Fwc.devicefirmware.controller.FirmwareLog', {
                         me.getApplication().fireEvent('loadFirmware', firmware);
                         me.getApplication().fireEvent('changecontentevent', 'device-firmware-log', {router: router, device: device, title: router.getRoute().getTitle()});
                         logGrid = me.getLogsGrid();
-                        logGrid.getStore().getProxy().setUrl(mRID, queryParams.firmwareComTaskId, queryParams.firmwareComTaskSessionId);
+                        logGrid.getStore().getProxy().setParams(deviceId, queryParams.firmwareComTaskId, queryParams.firmwareComTaskSessionId);
                         logGrid.getStore().load(function() {
                             logGrid.getSelectionModel().select(0);
                         });

@@ -8,7 +8,7 @@ Ext.define('Fwc.devicefirmware.store.FirmwareLogs', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/comtasks/{firmwareComTaskId}/comtaskexecutionsessions/{firmwareComTaskSessionId}/journals',
+        url: '/api/ddr/devices/{deviceId}/comtasks/{firmwareComTaskId}/comtaskexecutionsessions/{firmwareComTaskSessionId}/journals',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
@@ -16,9 +16,6 @@ Ext.define('Fwc.devicefirmware.store.FirmwareLogs', {
             type: 'json',
             root: 'comTaskExecutionSessions',
             totalProperty: 'total'
-        },
-        setUrl: function (mRID, firmwareComTaskId, firmwareComTaskSessionId) {
-            this.url = this.urlTpl.replace('{mRID}', mRID).replace('{firmwareComTaskId}', firmwareComTaskId).replace('{firmwareComTaskSessionId}', firmwareComTaskSessionId);
         }
     }
 });
