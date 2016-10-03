@@ -21,15 +21,17 @@ public class DataExportTaskInfoWithoutExtendedHistory extends DataExportTaskInfo
         doPopulate(dataExportTask, thesaurus, propertyValueInfoService);
         if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
             schedule = null;
+            recurrence = thesaurus.getFormat(TranslationKeys.NONE).format();
         } else {
             ScheduleExpression scheduleExpression = dataExportTask.getScheduleExpression();
             if (scheduleExpression instanceof TemporalExpression) {
                 schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
+                recurrence = fromTemporalExpression((TemporalExpression) scheduleExpression, timeService);
             } else {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
+                recurrence = fromPeriodicalScheduleExpression((PeriodicalScheduleExpression) scheduleExpression, timeService);
             }
         }
-        //properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties());
         lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataTaskHistoryWithoutEmbeddedTaskInfo(oc, thesaurus, timeService, propertyValueInfoService)).orElse(null);
         dataExportTask.getDestinations().stream()
                 .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));

@@ -60,11 +60,11 @@ public class DataExportTaskInfo {
         dataExportTask.getDestinations().forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
     }
 
-    private String fromTemporalExpression(TemporalExpression scheduleExpression, TimeService timeService) {
+    protected String fromTemporalExpression(TemporalExpression scheduleExpression, TimeService timeService) {
         return timeService.toLocalizedString(scheduleExpression);
     }
 
-    private String fromPeriodicalScheduleExpression(PeriodicalScheduleExpression scheduleExpression, TimeService timeService) {
+    protected String fromPeriodicalScheduleExpression(PeriodicalScheduleExpression scheduleExpression, TimeService timeService) {
         return timeService.toLocalizedString(scheduleExpression);
     }
 
