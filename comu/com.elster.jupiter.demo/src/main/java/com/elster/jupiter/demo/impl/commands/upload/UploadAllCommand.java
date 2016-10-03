@@ -8,13 +8,9 @@ import javax.inject.Provider;
 import java.io.InputStream;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 
 public class UploadAllCommand {
-    protected static final String START_DATE_FORMAT = "yyyy-MM-dd";
-
     private final Provider<AddIntervalChannelReadingsCommand> uploadIntervalChannelDataCommandProvider;
     private final Provider<AddNoneIntervalChannelReadingsCommand> uploadNonIntervalChannelDataCommandProvider;
     private final Provider<AddRegisterReadingsCommand> uploadRegisterDataCommandProvider;
@@ -28,20 +24,16 @@ public class UploadAllCommand {
         this.uploadRegisterDataCommandProvider = uploadRegisterDataCommandProvider;
     }
 
-    public void setStartDate(String date){
-        try {
-            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.parse(date + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault());
-            if (zonedDateTime.getDayOfMonth() != 1){
-                throw new UnableToCreate("Please specify the first day of month as a start date");
-            }
-            this.start = zonedDateTime.toInstant();
-        } catch (DateTimeParseException e) {
-            throw new UnableToCreate("Unable to parse start time. Please use the following format: " + START_DATE_FORMAT);
+    public void setStartDate(Instant date) {
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date, ZoneId.systemDefault());
+        if (zonedDateTime.getDayOfMonth() != 1) {
+            throw new UnableToCreate("Please specify the first day of month as a start date");
         }
+        this.start = date;
     }
 
-    public void run(){
-        if (this.start == null){
+    public void run() {
+        if (this.start == null) {
             throw new UnableToCreate("You must set start date for data");
         }
 

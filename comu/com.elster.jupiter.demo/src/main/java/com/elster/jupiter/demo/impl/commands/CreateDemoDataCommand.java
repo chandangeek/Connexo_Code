@@ -5,7 +5,6 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.UploadAllCommand;
 import com.elster.jupiter.demo.impl.commands.upload.ValidateStartDateCommand;
-import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Inject;
@@ -15,6 +14,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class CreateDemoDataCommand {
     private final Provider<CreateCollectRemoteDataSetupCommand> createCollectRemoteDataSetupCommandProvider;
@@ -33,11 +33,10 @@ public class CreateDemoDataCommand {
 
     private String comServerName;
     private String host;
-    private String startDate;
+    private Instant startDate;
     private Integer devicesPerType = null;
-    private Location location;
     private SpatialCoordinates geoCoordinates;
-    private boolean skipFirmwareMamanagementData;
+    private boolean skipFirmwareManagementData;
 
     @Inject
     public CreateDemoDataCommand(
@@ -77,31 +76,27 @@ public class CreateDemoDataCommand {
         this.host = host;
     }
 
-    public void setLocation(Location location){
-        this.location = location;
-    }
-
     public void setGeoCoordinates(SpatialCoordinates geoCoordinates) {
-       this.geoCoordinates = geoCoordinates;
+        this.geoCoordinates = geoCoordinates;
     }
 
     public void setSkipFirmwareManagementData(boolean skipFirmwareData) {
-        this.skipFirmwareMamanagementData = skipFirmwareData;
+        this.skipFirmwareManagementData = skipFirmwareData;
     }
 
     public void setStartDate(String startDate) {
-        this.startDate = startDate;
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.parse(this.startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault());
-        if (zonedDateTime.getDayOfMonth() != 1){
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault());
+        if (zonedDateTime.getDayOfMonth() != 1) {
             throw new UnableToCreate("Please specify the first day of month as a start date");
         }
+        this.startDate = zonedDateTime.toInstant();
     }
 
     public void setDevicesPerType(Integer devicesPerType) {
         this.devicesPerType = devicesPerType;
     }
 
-    public void run(){
+    public void run() {
         validateStartDateCommand();
         createUserManagementCommand();
         createDemoUserCommand("DemoUser1", "DemoUser2", "DemoUser3", "DemoUser4", "DemoUser5");
@@ -118,7 +113,7 @@ public class CreateDemoDataCommand {
         uploadAllData();
     }
 
-    private void validateStartDateCommand(){
+    private void validateStartDateCommand() {
         String[] resourceFiles = {
                 "realisticChannelData - Interval.csv",
                 "realisticChannelData - Daily.csv",
@@ -140,78 +135,84 @@ public class CreateDemoDataCommand {
         return getClass().getClassLoader().getResourceAsStream(name);
     }
 
-    private void createUserManagementCommand(){
+    private void createUserManagementCommand() {
         CreateUserManagementCommand command = this.createUserManagementCommandProvider.get();
         command.run();
     }
 
-    private void createDemoUserCommand(String... usernames){
+    private void createDemoUserCommand(String... usernames) {
         CreateDemoUserCommand command = this.createDemoUserCommandProvider.get();
-        for (String name: usernames){
+        for (String name : usernames) {
             command.setUserName(name);
             command.run();
         }
     }
 
-    private void createCollectRemoteDataSetupCommand(){
+    private void createCollectRemoteDataSetupCommand() {
         CreateCollectRemoteDataSetupCommand command = this.createCollectRemoteDataSetupCommandProvider.get();
         command.setComServerName(this.comServerName);
         command.setHost(this.host);
         command.setDevicesPerType(this.devicesPerType);
-        command.setLocation(location);
-        command.setSpatialCoordinates(geoCoordinates);
+        command.setSpatialCoordinates(this.geoCoordinates);
+        command.setShipmentDate(getDeviceShipmentDateFromStartDate());
         command.run();
     }
 
-    private void createValidationSetupCommand(){
+    private void createValidationSetupCommand() {
         CreateValidationSetupCommand command = this.createValidationSetupCommandProvider.get();
+        command.setDeviceShipmentDate(getDeviceShipmentDateFromStartDate());
         command.run();
     }
 
-    private void createEstimationSetupCommand(){
+    private void createEstimationSetupCommand() {
         CreateEstimationSetupCommand command = this.createEstimationSetupCommandProvider.get();
         command.run();
     }
 
-    private void createApplicationServerCommand(){
+    private void createApplicationServerCommand() {
         CreateApplicationServerCommand command = this.createApplicationServerCommandProvider.get();
         command.setName(this.comServerName);
         command.run();
     }
 
-    private void createNtaConfigCommand(){
+    private void createNtaConfigCommand() {
         CreateNtaConfigCommand command = this.createNtaConfigCommandProvider.get();
         command.run();
     }
 
-    private void createMockedDataDeviceCommand(){
+    private void createMockedDataDeviceCommand() {
         CreateDeviceCommand command = this.createDeviceCommandProvider.get();
         command.setSerialNumber("093000020359");
         command.setMridPrefix(Constants.Device.MOCKED_REALISTIC_DEVICE);
+        command.setShipmentDate(getDeviceShipmentDateFromStartDate());
         command.run();
     }
 
-    private void uploadAllData(){
+    private void uploadAllData() {
         UploadAllCommand command = this.uploadAllCommandProvider.get();
         command.setStartDate(this.startDate);
         command.run();
     }
 
-    private void createDeliverDataSetupCommand(){
+    private void createDeliverDataSetupCommand() {
         CreateDeliverDataSetupCommand createDeliverDataSetupCommand = this.createDeliverDataSetupCommandProvider.get();
         createDeliverDataSetupCommand.run();
     }
 
-    private void setupFirmwareManagementCommand(){
-        if (!skipFirmwareMamanagementData) {
+    private void setupFirmwareManagementCommand() {
+        if (!skipFirmwareManagementData) {
             SetupFirmwareManagementCommand setupFirmwareManagementCommand = this.setupFirmwareManagementCommandProvider.get();
             setupFirmwareManagementCommand.run();
         }
     }
 
-    private void createImportersCommand(){
+    private void createImportersCommand() {
         CreateImportersCommand importersCommand = this.createImportersCommandProvider.get();
         importersCommand.setAppServerName(this.comServerName);
         importersCommand.run();
+    }
+
+    private Instant getDeviceShipmentDateFromStartDate() {
+        return this.startDate.minus(1, ChronoUnit.DAYS);
     }
 }

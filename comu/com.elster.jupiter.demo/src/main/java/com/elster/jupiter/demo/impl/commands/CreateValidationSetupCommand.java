@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.time.Instant;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -26,6 +27,7 @@ public class CreateValidationSetupCommand {
     private final MeteringService meteringService;
     private final Provider<CreateValidationDeviceCommand> createValidationDeviceCommandProvider;
 
+    private Instant devieShipmentDate;
     private ValidationRuleSet validationRuleSet;
 
     @Inject
@@ -40,25 +42,30 @@ public class CreateValidationSetupCommand {
         this.createValidationDeviceCommandProvider = createValidationDeviceCommandProvider;
     }
 
-    public void run(){
+    public void setDeviceShipmentDate(Instant shipmentDate) {
+        this.devieShipmentDate = shipmentDate;
+    }
+
+    public void run() {
         createValidationRuleSet();
         createValidationDevice();
         addValidationToDeviceConfigurations();
         addValidationToDevices();
     }
 
-    private void createValidationRuleSet(){
+    private void createValidationRuleSet() {
         this.validationRuleSet = Builders.from(ValidationRuleSetTpl.RESIDENTIAL_CUSTOMERS).get();
     }
 
-    private void createValidationDevice(){
+    private void createValidationDevice() {
         CreateValidationDeviceCommand command = this.createValidationDeviceCommandProvider.get();
         command.setMridPrefix(MOCKED_VALIDATION_DEVICE_MRID_PREFIX);
         command.setSerialNumber("085600010352"); // TODO
+        command.setShipmentDate(this.devieShipmentDate);
         command.run();
     }
 
-    private void addValidationToDeviceConfigurations(){
+    private void addValidationToDeviceConfigurations() {
         List<DeviceConfiguration> configurations = deviceConfigurationService.getLinkableDeviceConfigurations(this.validationRuleSet);
         for (DeviceConfiguration configuration : configurations) {
             System.out.println("==> Validation rule set added to: " + configuration.getName() + " (id = " + configuration.getId() + ")");
@@ -67,7 +74,7 @@ public class CreateValidationSetupCommand {
         }
     }
 
-    private void addValidationToDevices(){
+    private void addValidationToDevices() {
         Condition devicesForActivation = where("mRID").like(MOCKED_VALIDATION_DEVICE_MRID_PREFIX + "*").or(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
         List<Meter> meters = meteringService.getMeterQuery().select(devicesForActivation);
         System.out.println("==> Validation will be activated for " + meters.size() + " devices");
