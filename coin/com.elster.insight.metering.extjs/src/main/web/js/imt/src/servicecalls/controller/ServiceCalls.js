@@ -191,7 +191,7 @@ Ext.define('Imt.servicecalls.controller.ServiceCalls', {
             });
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('usagepoint.servicecall.remove.msg', 'IMT', 'This service call will be canceled and no longer be running. Do you wish to continue?'),
+                msg: Uni.I18n.translate('usagepoint.servicecall.remove.msg', 'IMT', 'This service call will be cancelled and no longer be running. Do you wish to continue?'),
                 title: Uni.I18n.translate('general.cancelX', 'IMT', "Cancel '{0}'?", [record.data.name]),
                 fn: function (state) {
                     if (state === 'confirm') {
