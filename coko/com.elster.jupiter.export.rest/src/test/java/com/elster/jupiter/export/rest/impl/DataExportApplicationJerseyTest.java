@@ -8,6 +8,8 @@ import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.metering.MeteringService;
@@ -28,6 +30,9 @@ import javax.ws.rs.core.Application;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -38,10 +43,17 @@ import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+
+    private static final ZonedDateTime NEXT_EXECUTION = ZonedDateTime.of(2015, 1, 13, 0, 0, 0, 0, ZoneId.systemDefault());
+    private static final int TASK_ID = 750;
+    private static final long OK_VERSION = 41L;
+    private static final long BAD_VERSION = 35L;
+
     @Mock
     protected ExportTask exportTask;
     @Mock
@@ -50,6 +62,10 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     protected RestQueryService restQueryService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     protected DataExportService dataExportService;
+    @Mock
+    private DataSelectorFactory dataSelectorFactory;
+    @Mock
+    private DataFormatterFactory dataFormatterFactory;
     @Mock
     protected DataExportOccurrenceFinder finder;
     @Mock
@@ -74,7 +90,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     protected PropertyValueInfoService propertyValueInfoService;
     @Mock
     protected AppService appService;
-    protected DataExportTaskBuilder builder = initBuilderStub();
+    private DataExportTaskBuilder builder = initBuilderStub();
 
     private DataExportTaskBuilder initBuilderStub() {
         final Object proxyInstance = Proxy.newProxyInstance(DataExportTaskBuilder.class.getClassLoader(), new Class<?>[]{DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class, DataExportTaskBuilder.CustomSelectorBuilder.class, DataExportTaskBuilder.EventSelectorBuilder.class}, new InvocationHandler() {
@@ -117,7 +133,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         when(transactionService.execute(any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
         doReturn(query).when(dataExportService).getReadingTypeDataExportTaskQuery();
         doReturn(restQuery).when(restQueryService).wrap(query);
-        doReturn(asList(exportTask)).when(restQuery).select(any(), any());
+        doReturn(Collections.singletonList(exportTask)).when(restQuery).select(any(), any());
         doReturn(Optional.of(standardDataSelector)).when(exportTask).getReadingTypeDataSelector();
         when(standardDataSelector.getEndDeviceGroup()).thenReturn(endDeviceGroup);
         when(standardDataSelector.getExportPeriod()).thenReturn(exportPeriod);
@@ -126,7 +142,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         when(standardDataSelector.getStrategy()).thenReturn(strategy);
         when(strategy.getUpdateWindow()).thenReturn(Optional.empty());
         when(standardDataSelector.getStrategy().getUpdatePeriod()).thenReturn(Optional.of(exportPeriod));
-        when(exportTask.getNextExecution()).thenReturn(DataExportTaskResourceTest.NEXT_EXECUTION.toInstant());
+        when(exportTask.getNextExecution()).thenReturn(NEXT_EXECUTION.toInstant());
         when(meteringGroupsService.findEndDeviceGroup(5)).thenReturn(Optional.of(endDeviceGroup));
         when(exportTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(dataExportService.newBuilder()).thenReturn(builder);
@@ -134,15 +150,16 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         when(exportTask.getName()).thenReturn("Name");
         when(exportTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(exportTask.getLastRun()).thenReturn(Optional.empty());
-        when(exportTask.getVersion()).thenReturn(DataExportTaskResourceTest.OK_VERSION);
+        when(exportTask.getVersion()).thenReturn(OK_VERSION);
 
-        doReturn(Optional.of(exportTask)).when(dataExportService).findExportTask(DataExportTaskResourceTest.TASK_ID);
-        doReturn(Optional.of(exportTask)).when(dataExportService).findAndLockExportTask(DataExportTaskResourceTest.TASK_ID, DataExportTaskResourceTest.OK_VERSION);
-        doReturn(Optional.empty()).when(dataExportService).findAndLockExportTask(DataExportTaskResourceTest.TASK_ID, DataExportTaskResourceTest.BAD_VERSION);
-        setUpStubs();
+        when(this.dataSelectorFactory.getName()).thenReturn("DataSelectorFactor");
+        when(this.dataSelectorFactory.getDisplayName()).thenReturn("DataSelectorFactor");
+        when(dataExportService.getDataSelectorFactory(anyString())).thenReturn(Optional.of(this.dataSelectorFactory));
+        when(exportTask.getDataSelectorFactory()).thenReturn(this.dataSelectorFactory);
+        when(exportTask.getDataFormatterFactory()).thenReturn(this.dataFormatterFactory);
+        doReturn(Optional.of(exportTask)).when(dataExportService).findExportTask(TASK_ID);
+        doReturn(Optional.of(exportTask)).when(dataExportService).findAndLockExportTask(TASK_ID, OK_VERSION);
+        doReturn(Optional.empty()).when(dataExportService).findAndLockExportTask(TASK_ID, BAD_VERSION);
     }
 
-    protected void setUpStubs() {
-        // for child
-    }
 }

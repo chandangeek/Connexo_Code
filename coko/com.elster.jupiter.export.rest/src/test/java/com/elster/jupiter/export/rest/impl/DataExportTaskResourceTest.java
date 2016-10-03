@@ -3,33 +3,32 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Arrays;
 
+import org.junit.Test;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest {
 
-    public static final ZonedDateTime NEXT_EXECUTION = ZonedDateTime.of(2015, 1, 13, 0, 0, 0, 0, ZoneId.systemDefault());
-    public static final int TASK_ID = 750;
-    public static final long OK_VERSION = 41L;
-    public static final long BAD_VERSION = 35L;
+    private static final int TASK_ID = 750;
+    private static final long OK_VERSION = 41L;
+    private static final long BAD_VERSION = 35L;
 
     @Mock
     private FileDestination newDestination;
 
     @Test
     public void getTasksTest() {
-        DataExportTaskInfo info = new DataExportTaskInfo();
-
         Response response1 = target("/dataexporttask").request().get();
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
