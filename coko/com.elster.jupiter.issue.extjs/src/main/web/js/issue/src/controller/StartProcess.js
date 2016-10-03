@@ -26,6 +26,7 @@ Ext.define('Isu.controller.StartProcess', {
 
         Ext.ModelManager.getModel('Idc.model.Issue').load(issueId, {
             success: function (issue) {
+                viewport.setLoading(false);
                 var widget = Ext.widget('isu-start-process-view', {
                     properties: {
                         activeProcessesParams: {
@@ -53,7 +54,6 @@ Ext.define('Isu.controller.StartProcess', {
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('issueLoad', issue);
-                viewport.setLoading(false);
             },
             failure: function (response) {
                 viewport.setLoading(false);
