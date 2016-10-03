@@ -43,7 +43,7 @@ Ext.define('Wss.controller.Main', {
                 portal: 'administration',
                 items: [
                     {
-                        text: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Webservice endpoints'),
+                        text: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
                         href: '#/administration/webserviceendpoints',
                         hidden: !(Uni.Auth.hasPrivilege('privilege.view.webservices')),
                         route: 'webserviceendpoints'

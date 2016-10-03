@@ -124,11 +124,11 @@ Ext.define('Wss.controller.Webservices', {
         var me = this,
             form = button.up('form'),
             record = Ext.create('Wss.model.Endpoint');
-        this.saveEndPoint(button, record, Uni.I18n.translate('webservices.endpoint.added', 'WSS', 'Webservice endpoint added.'));
+        this.saveEndPoint(button, record, Uni.I18n.translate('webservices.endpoint.added', 'WSS', 'Web service endpoint added.'));
     },
 
     updateEndpoint: function (button) {
-        this.saveEndPoint(button, this.record, Uni.I18n.translate('webservices.endpoint.saved', 'WSS', 'Webservice endpoint saved.'));
+        this.saveEndPoint(button, this.record, Uni.I18n.translate('webservices.endpoint.saved', 'WSS', 'Web service endpoint saved.'));
     },
 
     saveEndPoint: function (button, record, acknowledgement) {
@@ -224,7 +224,7 @@ Ext.define('Wss.controller.Webservices', {
         confirmationWindow.show(
             {
                 title: Uni.I18n.translate('general.removeX', 'WSS', "Remove '{0}'?", [record.get('name')]),
-                msg: Uni.I18n.translate('webservices.remove.msg', 'WSS', 'This webservice endpoint will be removed and no longer be available.'),
+                msg: Uni.I18n.translate('webservices.remove.msg', 'WSS', 'This web service endpoint will be removed and no longer be available.'),
                 fn: function (state) {
                     if (state === 'confirm') {
                         if(record.get('group')===''){
@@ -233,7 +233,7 @@ Ext.define('Wss.controller.Webservices', {
                         }
                         record.destroy({
                             success: function () {
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('webservices.endpoint.removed', 'WSS', 'Webservice endpoint removed.'));
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('webservices.endpoint.removed', 'WSS', 'Web service endpoint removed.'));
                                 me.showWebservicesOverview();
                             }
                         });
@@ -255,8 +255,8 @@ Ext.define('Wss.controller.Webservices', {
         record.save({
                 success: function (record) {
                     me.getApplication().fireEvent('acknowledge', record.get('active') ?
-                        Uni.I18n.translate('webservices.endpoint.activated', 'WSS', 'Webservice endpoint activated.') :
-                        Uni.I18n.translate('webservices.endpoint.deactivated', 'WSS', 'Webservice endpoint deactivated.')
+                        Uni.I18n.translate('webservices.endpoint.activated', 'WSS', 'Web service endpoint activated.') :
+                        Uni.I18n.translate('webservices.endpoint.deactivated', 'WSS', 'Web service endpoint deactivated.')
                     );
                     if(me.getLandingPageForm()) {
                         me.getLandingPageForm().loadRecord(record);

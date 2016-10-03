@@ -40,7 +40,7 @@ Ext.define('Wss.view.LoggingPage', {
                     },
                     emptyComponent: {
                         xtype: 'uni-form-empty-message',
-                        text: Uni.I18n.translate('webservices.log.empty.list', 'WSS', 'There are no logs for this webservice endpoint')
+                        text: Uni.I18n.translate('webservices.log.empty.list', 'WSS', 'There are no logs for this web service endpoint')
                     }
                 }
             ]

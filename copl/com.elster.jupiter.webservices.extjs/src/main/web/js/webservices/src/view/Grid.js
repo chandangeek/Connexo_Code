@@ -31,7 +31,7 @@ Ext.define('Wss.view.Grid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.webservice', 'WSS', 'Webservice'),
+                header: Uni.I18n.translate('general.webservice', 'WSS', 'Web service'),
                 dataIndex: 'webServiceName',
                 flex: 2,
                 renderer: function(value, field, record) {
@@ -80,13 +80,13 @@ Ext.define('Wss.view.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('webservices.pagingtoolbartop.displayMsg', 'WSS', '{0} - {1} of {2} webservice endpoints'),
-                displayMoreMsg: Uni.I18n.translate('webservices.pagingtoolbartop.displayMoreMsg', 'WSS', '{0} - {1} of more than {2} webservice endpoints'),
-                emptyMsg: Uni.I18n.translate('webservices.pagingtoolbartop.emptyMsg', 'WSS', 'There are no webservice endpoints to display'),
+                displayMsg: Uni.I18n.translate('webservices.pagingtoolbartop.displayMsg', 'WSS', '{0} - {1} of {2} web service endpoints'),
+                displayMoreMsg: Uni.I18n.translate('webservices.pagingtoolbartop.displayMoreMsg', 'WSS', '{0} - {1} of more than {2} web service endpoints'),
+                emptyMsg: Uni.I18n.translate('webservices.pagingtoolbartop.emptyMsg', 'WSS', 'There are no web service endpoints to display'),
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.addWebserviceEndpoint', 'WSS', 'Add webservice endpoint'),
+                        text: Uni.I18n.translate('general.addWebserviceEndpoint', 'WSS', 'Add web service endpoint'),
                         privileges: Wss.privileges.Webservices.admin,
                         itemId: 'add-webservice-endpoint'
                     }
@@ -95,7 +95,7 @@ Ext.define('Wss.view.Grid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('webservices.pagingtoolbarbottom.itemsPerPage', 'WSS', 'Webservice endpoints per page'),
+                itemsPerPageMsg: Uni.I18n.translate('webservices.pagingtoolbarbottom.itemsPerPage', 'WSS', 'Web service endpoints per page'),
                 dock: 'bottom'
             }
         ];

@@ -12,7 +12,7 @@ Ext.define('Wss.view.Setup', {
 
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Webservice endpoints'),
+            title: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
             items: [
                 {
                     xtype: 'webservices-preview-container',

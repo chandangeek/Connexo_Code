@@ -13,7 +13,7 @@ Ext.define('Wss.view.Add', {
                 xtype: 'panel',
                 ui: 'large',
                 layout: 'vbox',
-                title: Uni.I18n.translate('endPointAdd.addTitle', 'WSS', 'Add webservice endpoint'),
+                title: Uni.I18n.translate('endPointAdd.addTitle', 'WSS', 'Add web service endpoint'),
                 items: [
                     {
                         xtype: 'form',
@@ -41,7 +41,7 @@ Ext.define('Wss.view.Add', {
                                 itemId: 'addEditWarning',
                                 name: 'form-info',
                                 margin: '0 0 10 0',
-                                text: Uni.I18n.translate('general.formErrorEndPointActive', 'WSS', 'Some attributes can only be changed when the status of the webservice endpoint is inactive.'),
+                                text: Uni.I18n.translate('general.formErrorEndPointActive', 'WSS', 'Some attributes can only be changed when the status of the web service endpoint is inactive.'),
                                 hidden: true,
                                 width: 750
                             },
@@ -59,8 +59,8 @@ Ext.define('Wss.view.Add', {
                                 itemId: 'webServiceCombo',
                                 required: true,
                                 allowBlank: false,
-                                fieldLabel: Uni.I18n.translate('endPointAdd.Webservice', 'WSS', 'Webservice'),
-                                emptyText: Uni.I18n.translate('general.selectWebservice', 'WSS', 'Select a webservice...'),
+                                fieldLabel: Uni.I18n.translate('endPointAdd.Webservice', 'WSS', 'Web service'),
+                                emptyText: Uni.I18n.translate('general.selectWebservice', 'WSS', 'Select a web service...'),
                                 store: 'Wss.store.Webservices',
                                 forceSelection: true,
                                 displayField: 'name',

@@ -10,14 +10,14 @@ Ext.define('Wss.controller.history.Webservices', {
             disabled: true,
             items: {
                 webserviceendpoints: {
-                    title: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Webservice endpoints'),
+                    title: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
                     privileges: Wss.privileges.Webservices.view,
                     route: 'webserviceendpoints',
                     controller: 'Wss.controller.Webservices',
                     action: 'showWebservicesOverview',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('webservices.addWebServiceEndpoint', 'WSS', 'Add webservice endpoint'),
+                            title: Uni.I18n.translate('webservices.addWebServiceEndpoint', 'WSS', 'Add web service endpoint'),
                             privileges: Wss.privileges.Webservices.admin,
                             route: 'add',
                             controller: 'Wss.controller.Webservices',
@@ -26,7 +26,7 @@ Ext.define('Wss.controller.history.Webservices', {
                         view: {
                             route: '{endpointId}',
                             privileges: Wss.privileges.Webservices.view,
-                            title: Uni.I18n.translate('webservices.webserviceEndpointOverview', 'WSS', 'Webservice endpoint overview'),
+                            title: Uni.I18n.translate('webservices.webserviceEndpointOverview', 'WSS', 'Web service endpoint overview'),
                             controller: 'Wss.controller.Webservices',
                             action: 'showEndpointOverview',
                             callback: function (route) {
