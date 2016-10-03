@@ -699,7 +699,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
 
         when(usagePoint.forCustomProperties()).thenReturn(extension);
-        when(meteringService.findUsagePoint(id)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointById(id)).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional
                 .empty());
         when(meteringService.findAndLockUsagePointByIdAndVersion(id, version)).thenReturn(Optional.of(usagePoint));
