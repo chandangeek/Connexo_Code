@@ -110,6 +110,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                     },
                                     {
                                         itemId: 'every',
+                                        margin: '7 0 0 0',
                                         boxLabel: Uni.I18n.translate('estimationtasks.general.every', 'EST', 'Every'),
                                         inputValue: true
                                     }

@@ -6,6 +6,7 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
         {name: 'name', type: 'string'},
         {name: 'application', type: 'string'},
         {name: 'schedule', type: 'auto', defaultValue: null},
+        {name: 'recurrence', type: 'auto'},
         {name: 'period', type: 'auto', defaultValue: null},
         {name: 'deviceGroup', type: 'auto', defaultValue: null},
         {name: 'lastEstimationOccurrence', type: 'auto', defaultValue: null},

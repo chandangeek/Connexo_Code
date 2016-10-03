@@ -42,6 +42,10 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
                 },
                 items: [
                     {
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.recurrence', 'EST', 'Recurrence'),
+                        name: 'recurrence'
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.lastRun', 'EST', 'Last run'),
                         name: 'lastRun_formatted_long'
                     },

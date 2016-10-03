@@ -29,6 +29,9 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         this.control({
             'estimationtasks-addedit #add-button': {
                 click: this.createEstimationTask
+            },
+            'estimationtasks-addedit #recurrence-trigger': {
+                change: this.recurrenceChange
             }
         });
     },
@@ -53,6 +56,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         });
 
         me.getRecurrenceTypeCombo().setValue(me.getRecurrenceTypeCombo().store.getAt(2));
+        me.recurrenceEnableDisable();
     },
 
     createEstimationTask: function (button) {
@@ -285,5 +289,22 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         });
 
         me.getApplication().fireEvent('changecontentevent', widget);
+        me.recurrenceEnableDisable();
+    },
+
+    recurrenceChange: function(field, newValue, oldValue) {
+        var me = this;
+        me.recurrenceEnableDisable();
+    },
+
+    recurrenceEnableDisable: function() {
+        var me = this,
+            page = me.getAddEditEstimationtaskPage();
+        if(!page.down('#recurrence-trigger').getValue().recurrence) {
+            page.down('#recurrence-values').disable();
+        } else {
+            page.down('#recurrence-values').enable();
+        }
     }
+
 });
