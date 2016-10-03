@@ -58,7 +58,7 @@ public class ConsoleCommands {
                 builder.setName(name)
                         .at(clock.instant());
                 Arrays.stream(ids)
-                        .mapToObj(meteringService::findEndDevice)
+                        .mapToObj(meteringService::findEndDeviceById)
                         .flatMap(asStream())
                         .forEach(builder::containing);
                 builder.create();
@@ -77,7 +77,7 @@ public class ConsoleCommands {
                     .run(() -> meteringGroupsService.createEnumeratedUsagePointGroup()
                                     .setName(name)
                                     .containing(Arrays.stream(ids)
-                                            .mapToObj(meteringService::findUsagePoint)
+                                            .mapToObj(meteringService::findUsagePointById)
                                             .flatMap(Functions.asStream())
                                             .toArray(UsagePoint[]::new))
                                     .create());
@@ -91,7 +91,7 @@ public class ConsoleCommands {
         final EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = (EnumeratedEndDeviceGroup) endDeviceGroup;
         final List<EnumeratedEndDeviceGroup.Entry> entries = new ArrayList<>();
         LongStream deviceIds = Arrays.stream(ids);
-        List<EndDevice> endDevices = deviceIds.mapToObj(meteringService::findEndDevice)
+        List<EndDevice> endDevices = deviceIds.mapToObj(meteringService::findEndDeviceById)
                 .flatMap(asStream())
                 .collect(Collectors.toList());
 
@@ -121,7 +121,7 @@ public class ConsoleCommands {
         UsagePointGroup usagePointGroup = meteringGroupsService.findUsagePointGroupByName(name).orElseThrow(() -> new IllegalArgumentException("group not found"));
         final EnumeratedUsagePointGroup enumeratedUsagePointGroup = (EnumeratedUsagePointGroup) usagePointGroup;
         LongStream usagePointIds = Arrays.stream(ids);
-        List<UsagePoint> usagePoints = usagePointIds.mapToObj(meteringService::findUsagePoint)
+        List<UsagePoint> usagePoints = usagePointIds.mapToObj(meteringService::findUsagePointById)
                 .flatMap(asStream())
                 .collect(Collectors.toList());
 

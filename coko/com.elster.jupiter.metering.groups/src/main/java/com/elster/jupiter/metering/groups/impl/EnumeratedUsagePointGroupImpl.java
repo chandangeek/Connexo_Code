@@ -114,7 +114,7 @@ class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements E
         @Override
         public UsagePoint getUsagePoint() {
             if (usagePoint == null) {
-                usagePoint = meteringService.findUsagePoint(usagePointId).get();
+                usagePoint = meteringService.findUsagePointById(usagePointId).get();
             }
             return usagePoint;
         }
