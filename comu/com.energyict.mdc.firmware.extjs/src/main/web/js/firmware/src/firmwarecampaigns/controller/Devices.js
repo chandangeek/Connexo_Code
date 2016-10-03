@@ -73,7 +73,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
             method: 'PUT',
             success: function (response) {
                 me.doUpdateRecord(record, response.responseText);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.canceled', 'FWC', 'Firmware upload for device canceled'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.cancelled', 'FWC', 'Firmware upload for device cancelled'));
             }
         });
     },
