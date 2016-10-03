@@ -213,7 +213,7 @@ public class ValidationPerformanceIT {
             context.commit();
         }
         // reread meter
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         int sqlCount = 0;
         try (TransactionContext context = txService.getContext()) {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -222,7 +222,7 @@ public class ValidationPerformanceIT {
             context.commit();
             sqlCount = context.getStats().getSqlCount();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         try (TransactionContext context = txService.getContext()) {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             for (int j = 0; j < 10; j++) {
