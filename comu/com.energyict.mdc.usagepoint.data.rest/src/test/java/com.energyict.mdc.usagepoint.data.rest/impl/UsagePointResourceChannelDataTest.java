@@ -95,8 +95,8 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
     @Before
     public void before() {
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
-        when(meteringService.findUsagePoint(any())).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint(UP_NAME)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID(any())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID(UP_NAME)).thenReturn(Optional.of(usagePoint));
         when(validationService.getEvaluator(meter)).thenReturn(validationEvaluator);
         when(validationService.getEvaluator(meter_2)).thenReturn(validationEvaluator);
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.empty());
