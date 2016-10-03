@@ -285,14 +285,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     @SuppressWarnings("unused") // Called by OSGi framework when IssueGroupTranslationProvider component activates
     public void addIssueGroupTranslationProvider(IssueGroupTranslationProvider provider) {
-        synchronized (this.thesaurusLock) {
-            ComponentAndLayer componentAndLayer = ComponentAndLayer.from(provider);
-            if (!this.alreadyJoined.contains(componentAndLayer)) {
-                Thesaurus providerThesaurus = this.nlsService.getThesaurus(provider.getComponentName(), provider.getLayer());
-                this.thesaurus = this.thesaurus.join(providerThesaurus);
-                this.alreadyJoined.add(componentAndLayer);
-            }
-        }
+        this.addTranslationProvider(provider.getComponentName(), provider.getLayer());
     }
 
     @SuppressWarnings("unused") // Called by OSGi framework when IssueGroupTranslationProvider component deactivates
@@ -303,19 +296,23 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     @SuppressWarnings("unused") // Called by OSGi framework when IssueReasonTranslationProvider component activates
     public void addIssueReasonTranslationProvider(IssueReasonTranslationProvider provider) {
-        synchronized (this.thesaurusLock) {
-            ComponentAndLayer componentAndLayer = ComponentAndLayer.from(provider);
-            if (!this.alreadyJoined.contains(componentAndLayer)) {
-                Thesaurus providerThesaurus = this.nlsService.getThesaurus(provider.getComponentName(), provider.getLayer());
-                this.thesaurus = this.thesaurus.join(providerThesaurus);
-                this.alreadyJoined.add(componentAndLayer);
-            }
-        }
+        this.addTranslationProvider(provider.getComponentName(), provider.getLayer());
     }
 
     @SuppressWarnings("unused") // Called by OSGi framework when IssueReasonTranslationProvider component deactivates
     public void removeIssueReasonTranslationProvider(IssueReasonTranslationProvider obsolete) {
         // Don't bother unjoining the provider's thesaurus
+    }
+
+    private void addTranslationProvider(String componentName, Layer layer) {
+        synchronized (this.thesaurusLock) {
+            ComponentAndLayer componentAndLayer = new ComponentAndLayer(componentName, layer);
+            if (!this.alreadyJoined.contains(componentAndLayer)) {
+                Thesaurus providerThesaurus = this.nlsService.getThesaurus(componentName, layer);
+                this.thesaurus = this.thesaurus.join(providerThesaurus);
+                this.alreadyJoined.add(componentAndLayer);
+            }
+        }
     }
 
     @Override
@@ -645,7 +642,15 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         private final String componentName;
         private final Layer layer;
 
-        private ComponentAndLayer(String componentName, Layer layer) {
+        static ComponentAndLayer from(IssueGroupTranslationProvider provider) {
+            return new ComponentAndLayer(provider.getComponentName(), provider.getLayer());
+        }
+
+        static ComponentAndLayer from(IssueReasonTranslationProvider provider) {
+            return new ComponentAndLayer(provider.getComponentName(), provider.getLayer());
+        }
+
+        ComponentAndLayer(String componentName, Layer layer) {
             this.componentName = componentName;
             this.layer = layer;
         }
@@ -668,12 +673,5 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             return Objects.hash(componentName, layer);
         }
 
-        public static ComponentAndLayer from(IssueGroupTranslationProvider provider) {
-            return new ComponentAndLayer(provider.getComponentName(), provider.getLayer());
-        }
-
-        public static ComponentAndLayer from(IssueReasonTranslationProvider provider) {
-            return new ComponentAndLayer(provider.getComponentName(), provider.getLayer());
-        }
     }
 }
