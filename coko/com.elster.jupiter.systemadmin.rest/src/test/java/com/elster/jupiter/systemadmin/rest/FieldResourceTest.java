@@ -1,17 +1,34 @@
 package com.elster.jupiter.systemadmin.rest;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.system.Subsystem;
 import com.elster.jupiter.system.beans.SubsystemImpl;
+import com.elster.jupiter.systemadmin.rest.imp.resource.BundleTypeTranslationKeys;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FieldResourceTest extends SystemApplicationJerseyTest {
+
+    @Override
+    protected void setupThesaurus() {
+        NlsMessageFormat applicationSpecific = mock(NlsMessageFormat.class);
+        when(applicationSpecific.format(anyVararg())).thenReturn("Application-specific");
+        doReturn(applicationSpecific).when(thesaurus).getFormat(BundleTypeTranslationKeys.APPLICATION_SPECIFIC);
+        NlsMessageFormat thirdParty = mock(NlsMessageFormat.class);
+        when(thirdParty.format(anyVararg())).thenReturn("Third party");
+        doReturn(thirdParty).when(thesaurus).getFormat(BundleTypeTranslationKeys.THIRD_PARTY);
+    }
 
     @Test
     public void testGetApplications() {

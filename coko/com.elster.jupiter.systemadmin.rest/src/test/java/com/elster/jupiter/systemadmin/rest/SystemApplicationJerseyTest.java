@@ -22,6 +22,7 @@ import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,10 +47,14 @@ public class SystemApplicationJerseyTest extends FelixRestApplicationJerseyTest 
     @Override
     public void setupMocks() {
         super.setupMocks();
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
-        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        this.setupThesaurus();
+    }
+
+    protected void setupThesaurus() {
+        NlsMessageFormat notSupported = mock(NlsMessageFormat.class);
+        when(notSupported.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        doReturn(notSupported).when(thesaurus).getFormat(any(MessageSeed.class));
+        doReturn(notSupported).when(thesaurus).getFormat(any(TranslationKey.class));
     }
 
     @Override

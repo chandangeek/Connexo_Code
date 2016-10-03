@@ -157,7 +157,7 @@ public class DataPurgeResource {
     }
 
     private Function<LifeCycleCategory, LifeCycleCategoryInfo> getCategoryInfoMapper(){
-        return c -> new LifeCycleCategoryInfo(c);
+        return LifeCycleCategoryInfo::new;
     }
 
     private LifeCycleCategory findAndLockLifeCycleCategory(LifeCycleCategoryInfo info) {

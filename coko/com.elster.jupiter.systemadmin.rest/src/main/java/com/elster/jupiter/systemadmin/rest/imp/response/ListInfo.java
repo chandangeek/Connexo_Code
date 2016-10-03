@@ -13,9 +13,9 @@ public class ListInfo<T> {
     public List<T> data = new ArrayList<>();
 
     public static <I, O> ListInfo from(Collection<? extends I> entities, Function<I, O> mapper) {
-        ListInfo<O> info = new ListInfo<O>();
+        ListInfo<O> info = new ListInfo<>();
         if (entities != null){
-            info.data = entities.stream().map(mapper).collect(Collectors.<O>toList());
+            info.data = entities.stream().map(mapper).collect(Collectors.toList());
             info.total = info.data.size();
         }
         return info;

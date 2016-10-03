@@ -41,9 +41,9 @@ import static org.mockito.Mockito.when;
 
 public class DataPurgeResourceTest extends SystemApplicationJerseyTest {
 
-    public static final Instant JUN_2014 = LocalDateTime.of(2014, 6, 1, 10, 0, 0).toInstant(ZoneOffset.UTC);
-    public static final long OK_VERSION = 17L;
-    public static final long BAD_VERSION = 16L;
+    private static final Instant JUN_2014 = LocalDateTime.of(2014, 6, 1, 10, 0, 0).toInstant(ZoneOffset.UTC);
+    private static final long OK_VERSION = 17L;
+    private static final long BAD_VERSION = 16L;
 
     @Test
     public void testLifeCycleCategoryInfoModel(){
@@ -64,6 +64,7 @@ public class DataPurgeResourceTest extends SystemApplicationJerseyTest {
         LifeCycleCategory category = mock(LifeCycleCategory.class);
         when(category.getKind()).thenReturn(kind);
         when(category.getName()).thenReturn(kind.name().toLowerCase());
+        when(category.getDisplayName()).thenReturn(kind.name());
         when(category.getRetainedPartitionCount()).thenReturn(partCount);
         when(category.getRetention()).thenReturn(Period.ofDays(partCount*30));
         when(category.getPartitionSize()).thenReturn(Period.ofDays(30));
