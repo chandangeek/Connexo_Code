@@ -31,17 +31,15 @@ public class DeviceResource {
     }
 
     @GET
-    @Path("/{mRID}/")
+    @Path("/{name}/")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    public Response getDevice(@PathParam("mRID") String mRID) {
-        Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+    public Response getDevice(@PathParam("name") String name) {
+        Optional<Meter> foundMeter = meteringService.findMeterByName(name);
         if (foundMeter.isPresent()) {
             return Response.ok(new MeterInfo(foundMeter.get()), MediaType.APPLICATION_JSON_TYPE).build();
         }
         return Response.status(Response.Status.NOT_FOUND)
-                .entity("{\"error\" : \"No device exists with mRID " + mRID + "\"}")
+                .entity("{\"error\" : \"No device exists with name " + name + "\"}")
                 .build();
     }
-
-
 }
