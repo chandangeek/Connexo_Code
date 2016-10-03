@@ -444,6 +444,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         HashMap<String, Object> map = new HashMap<>();
         map.put("count", timeDuration.getCount());
         map.put("timeUnit", TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode()));
+        map.put("localizedTimeUnit", TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode()));
         map.put("asSeconds", timeDuration.getSeconds());
         return map;
     }
