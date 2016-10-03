@@ -103,7 +103,7 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
     private void setDevice(DeviceReadingsImportRecord data, FileImportLogger logger) {
         if (device == null ||
                 (!device.getmRID().equals(data.getDeviceIdentifier()) && !device.getName().equals(data.getDeviceIdentifier()))) {
-            complete(logger);//when new mrid comes we store all previous data read
+            complete(logger);//when new identifier comes we store all previous data read
             device = findDeviceByIdentifier(data.getDeviceIdentifier())
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
         }

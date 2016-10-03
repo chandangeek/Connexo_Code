@@ -28,15 +28,13 @@ public abstract class AbstractDeviceDataFileImportProcessor<T extends FileImport
 
     protected Optional<EndDevice> findEndDeviceByIdentifier(String deviceIdentifier) {
         MeteringService meteringService = getContext().getMeteringService();
-        Optional<EndDevice> endDeviceByMrid = meteringService.findEndDevice(deviceIdentifier);
-        // TODO use findEndDeviceByName CXO-2802
-        return endDeviceByMrid.isPresent() ? endDeviceByMrid : meteringService.findEndDevice(deviceIdentifier);
+        Optional<EndDevice> endDeviceByMrid = meteringService.findEndDeviceByMRID(deviceIdentifier);
+        return endDeviceByMrid.isPresent() ? endDeviceByMrid : meteringService.findEndDeviceByName(deviceIdentifier);
     }
 
     protected Optional<UsagePoint> findUsagePointByIdentifier(String usagePointIdentifier) {
         MeteringService meteringService = getContext().getMeteringService();
-        Optional<UsagePoint> usagePointByMrid = meteringService.findUsagePoint(usagePointIdentifier);
-        // TODO use findUsagePoint by name CXO-2082
-        return usagePointByMrid.isPresent() ? usagePointByMrid : meteringService.findUsagePoint(usagePointIdentifier);
+        Optional<UsagePoint> usagePointByMrid = meteringService.findUsagePointByMRID(usagePointIdentifier);
+        return usagePointByMrid.isPresent() ? usagePointByMrid : meteringService.findUsagePointByName(usagePointIdentifier);
     }
 }
