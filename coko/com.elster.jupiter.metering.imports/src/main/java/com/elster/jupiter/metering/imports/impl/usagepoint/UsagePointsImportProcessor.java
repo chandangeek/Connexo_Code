@@ -95,21 +95,19 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     }
 
     private UsagePoint getUsagePoint(UsagePointImportRecord data, FileImportLogger logger) {
-        UsagePoint usagePoint;
         String identifier = data.getUsagePointIdentifier()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_IDENTIFIER_INVALID, data.getLineNumber()));
         String serviceKindString = data.getServiceKind()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber()));
         ServiceKind serviceKind = Arrays.stream(ServiceKind.values()).filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString)).findFirst()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber(), serviceKindString));
-        Optional<UsagePoint> usagePointOptional = findUsagePointByIdentifier(identifier);
+        Optional<UsagePoint> usagePoint = findUsagePointByIdentifier(identifier);
         Optional<ServiceCategory> serviceCategory = getContext().getMeteringService().getServiceCategory(serviceKind);
-        if (usagePointOptional.isPresent()) {
-            usagePoint = usagePointOptional.get();
-            if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
+        if (usagePoint.isPresent()) {
+            if (usagePoint.get().getServiceCategory().getId() != serviceCategory.get().getId()) {
                 throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
             }
-            return updateUsagePoint(usagePoint, data, logger);
+            return updateUsagePoint(usagePoint.get(), data, logger);
         } else {
             return createUsagePoint(serviceCategory.get().newUsagePoint(identifier,
                     data.getInstallationTime().orElse(getContext().getClock().instant())), data, logger);

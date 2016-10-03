@@ -27,7 +27,7 @@ public abstract class AbstractImportProcessor<T extends FileImportRecord> implem
 
     Optional<UsagePoint> findUsagePointByIdentifier(String mridOrName) {
         MeteringService meteringService = getContext().getMeteringService();
-        Optional<UsagePoint> usagePoint = meteringService.findUsagePoint(mridOrName);
+        Optional<UsagePoint> usagePoint = meteringService.findUsagePointByMRID(mridOrName);
         return usagePoint.isPresent() ? usagePoint : meteringService.findUsagePointByName(mridOrName);
     }
 }
