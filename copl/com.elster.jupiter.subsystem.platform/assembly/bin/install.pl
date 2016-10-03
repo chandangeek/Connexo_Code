@@ -15,7 +15,7 @@ use Archive::Zip;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20160928";
+my $INSTALL_VERSION="v20161003";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -973,6 +973,22 @@ sub perform_upgrade {
     if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
         system("sc stop Connexo$SERVICE_VERSION");
         system("sc stop ConnexoTomcat$SERVICE_VERSION");
+        my $STATE_STRING="-1";
+		while (($STATE_STRING ne "0") && ($STATE_STRING ne "1")) {
+			sleep 3;
+            $STATE_STRING=(`sc query Connexo$SERVICE_VERSION`);
+            $STATE_STRING =~ s/.*(STATE\s*:\s\d).*/$1/sg;
+            $STATE_STRING =~ s/.*: //g;
+            $STATE_STRING = $STATE_STRING*1;
+		}
+        $STATE_STRING="-1";
+		while (($STATE_STRING ne "0") && ($STATE_STRING ne "1")) {
+			sleep 3;
+            $STATE_STRING=(`sc query ConnexoTomcat$SERVICE_VERSION`);
+            $STATE_STRING =~ s/.*(STATE\s*:\s\d).*/$1/sg;
+            $STATE_STRING =~ s/.*: //g;
+            $STATE_STRING = $STATE_STRING*1;
+		}
     } else {
         system("/sbin/service Connexo$SERVICE_VERSION stop");
         system("/sbin/service ConnexoTomcat$SERVICE_VERSION stop");
