@@ -87,6 +87,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                     },
                                     {
                                         itemId: 'rbtn-every',
+                                        margin: '7 0 0 0',
                                         boxLabel: Uni.I18n.translate('validationTasks.general.every', 'CFG', 'Every'),
                                         inputValue: true
                                     }

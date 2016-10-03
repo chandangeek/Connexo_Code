@@ -230,6 +230,7 @@ Ext.define('Cfg.controller.Tasks', {
         me.taskId = null;
         me.fromEdit = false;
         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+        me.recurrenceEnableDisable();
     },
 
     showEditValidationTask: function (taskId) {
@@ -294,6 +295,7 @@ Ext.define('Cfg.controller.Tasks', {
                 }
             }
         });
+        me.recurrenceEnableDisable();
     },
 
     showPreview: function (selectionModel, record) {
@@ -695,5 +697,17 @@ Ext.define('Cfg.controller.Tasks', {
         if (newValue.recurrence && !recurrenceTypeCombo.getValue()) {
             recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(0));
         }
+        me.recurrenceEnableDisable();
+    },
+
+    recurrenceEnableDisable: function() {
+        var me = this,
+            page = me.getAddPage();
+        if(!page.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
+            page.down('#recurrence-values').disable();
+        } else {
+            page.down('#recurrence-values').enable();
+        }
     }
+
 });
