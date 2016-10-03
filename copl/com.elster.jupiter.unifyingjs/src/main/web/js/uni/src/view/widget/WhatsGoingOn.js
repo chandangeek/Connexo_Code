@@ -72,7 +72,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         if (this.type === 'device') {
             me.store.setProxy({
                 type: 'rest',
-                url: '/api/ddr/devices/'+ encodeURIComponent(this.mrId) +'/whatsgoingon',
+                url: '/api/ddr/devices/'+ encodeURIComponent(this.deviceId) +'/whatsgoingon',
                 startParam: null,
                 limitParam: null,
                 reader: {
@@ -83,7 +83,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         } else if (this.type === 'usagepoint') {
             me.store.setProxy({
                 type: 'rest',
-                url: '/api/udr/usagepoints/'+ encodeURIComponent(this.mrId) +'/whatsgoingon',
+                url: '/api/udr/usagepoints/'+ encodeURIComponent(this.usagePointId) +'/whatsgoingon',
                 startParam: null,
                 limitParam: null,
                 reader: {
@@ -292,10 +292,10 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 break;
             case 'process':
                 if(me.type == 'usagepoint'){
-                    href = this.router.getRoute('usagepoints/view').buildUrl({mRID: this.mrId}) + '/processes?activeTab=running';
+                    href = this.router.getRoute('usagepoints/view').buildUrl({usagePointId: this.usagePointId}) + '/processes?activeTab=running';
                     html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 } else  if (me.type == 'device'){
-                    href = this.router.getRoute('devices/device').buildUrl({mRID: this.mrId}) + '/processes?activeTab=running';
+                    href = this.router.getRoute('devices/device').buildUrl({deviceId: this.deviceId}) + '/processes?activeTab=running';
                     html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 }
                 break;
