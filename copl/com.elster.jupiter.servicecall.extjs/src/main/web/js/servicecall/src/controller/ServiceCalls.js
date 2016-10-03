@@ -225,7 +225,7 @@ Ext.define('Scs.controller.ServiceCalls', {
             serviceCallState = record.get('state');
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('servicecall.remove.msg', 'SCS', 'This service call will be canceled and no longer be running. Do you wish to continue?'),
+                msg: Uni.I18n.translate('servicecall.remove.msg', 'SCS', 'This service call will be cancelled and no longer be running. Do you wish to continue?'),
                 title: Uni.I18n.translate('general.cancelX', 'SCS', "Cancel '{0}'?", [record.data.name]),
                 fn: function (state) {
                     if (state === 'confirm') {
