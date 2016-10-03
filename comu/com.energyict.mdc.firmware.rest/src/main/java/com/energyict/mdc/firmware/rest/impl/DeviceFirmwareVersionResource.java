@@ -16,7 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
 
-@Path("/device/{name}/firmwares")
+@Path("/devices/{name}/firmwares")
 public class DeviceFirmwareVersionResource {
     private final DeviceFirmwareVersionInfoFactory versionInfoFactory;
     private final ResourceHelper resourceHelper;

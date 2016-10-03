@@ -159,7 +159,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
     @Test
     public void testActiveVersions() {
         when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<List>get("$.firmwares")).isNotEmpty();
         assertThat(model.<List>get("$.firmwares")).hasSize(2);
         assertThat(model.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
@@ -203,7 +203,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].pendingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].pendingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -224,7 +224,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Pending);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<Object>get("$.firmwares[0].pendingVersion")).isNotNull();
     }
 
@@ -236,7 +236,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Pending);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<Object>get("$.firmwares[0].pendingVersion")).isNotNull();
     }
 
@@ -249,7 +249,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].ongoingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].ongoingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -269,7 +269,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastExecutionStartTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -290,7 +290,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastExecutionStartTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -312,7 +312,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.minusSeconds(1));
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needActivationVersion")).isNull();
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
@@ -336,7 +336,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -359,7 +359,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareCheckExecution.getStatus()).thenReturn(TaskStatus.Busy);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].ongoingVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].ongoingVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -382,7 +382,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareCheckExecution.isLastExecutionFailed()).thenReturn(true);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -409,7 +409,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareCheckExecution.isLastExecutionFailed()).thenReturn(true);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].wrongVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].wrongVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -451,7 +451,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].pendingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].pendingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -470,7 +470,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Pending);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<Object>get("$.firmwares[0].pendingVersion")).isNotNull();
     }
 
@@ -483,7 +483,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].ongoingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].ongoingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -511,7 +511,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].activatingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].activatingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -532,7 +532,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastExecutionStartTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -553,7 +553,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastExecutionStartTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedVersion")).isNotNull();
     }
@@ -569,7 +569,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.minusSeconds(1));
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -592,7 +592,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -631,7 +631,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].pendingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].pendingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -650,7 +650,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].ongoingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].ongoingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -669,7 +669,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastExecutionStartTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -690,7 +690,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needActivationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needActivationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -713,7 +713,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(activationMessage.getTrackingId()).thenReturn("1002");
         messages.add(activationMessage);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needActivationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needActivationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -740,7 +740,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         messages.add(activationMessage);
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Busy);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].ongoingActivatingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].ongoingActivatingVersion.firmwareDeviceMessageId")).isEqualTo(1002);
@@ -766,7 +766,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         messages.add(activationMessage);
         when(firmwareExecution.isLastExecutionFailed()).thenReturn(true);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedActivatingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedActivatingVersion.firmwareDeviceMessageId")).isEqualTo(1002);
@@ -796,7 +796,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME);
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -826,7 +826,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME);
         when(firmwareCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
@@ -912,7 +912,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Busy);
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(2));
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[1].failedActivatingVersion")).isNull();
         assertThat(model.<Object>get("$.firmwares[0].ongoingActivatingVersion")).isNotNull();
@@ -993,7 +993,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Busy);
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(2));
 
-        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        JsonModel model = JsonModel.model(target("/devices/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[1].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[1].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);

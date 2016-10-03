@@ -74,7 +74,7 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
     @Test
     public void testGetOnlyMeterFirmwareVersionsOnDevice() {
         when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(false);
-        String json = target("device/1/firmwares").request().get(String.class);
+        String json = target("devices/1/firmwares").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(json);
 
@@ -85,7 +85,7 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
     @Test
     public void getMeterAndCommunicationFirmwareVersionsOnDeviceNoCommunicationDefinedTest() {
         when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
-        String json = target("device/1/firmwares").request().get(String.class);
+        String json = target("devices/1/firmwares").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(json);
 
@@ -109,7 +109,7 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         when(communicationFirmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
         when(communicationFirmwareVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
 
-        String json = target("device/1/firmwares").request().get(String.class);
+        String json = target("/devices/1/firmwares").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(json);
 
