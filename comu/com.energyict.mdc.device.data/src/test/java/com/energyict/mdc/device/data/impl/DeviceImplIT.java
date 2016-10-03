@@ -1262,13 +1262,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void deactivateMeter() {
-        Instant initialStart = inMemoryPersistence.getClock().instant();
+        Instant initialStart = Instant.ofEpochMilli(100000L);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(initialStart);
         Device device = this.createSimpleDeviceWithName(DEVICENAME, "SimpleMrid", initialStart);
 
-        Instant end = initialStart.plusSeconds(10L);
+        Instant end = Instant.ofEpochMilli(200000L);
         // Business method
         device.deactivate(end);
-
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.ofEpochMilli(300000L));
         // Asserts
         assertThat(device.getCurrentMeterActivation()).isEmpty();
     }
