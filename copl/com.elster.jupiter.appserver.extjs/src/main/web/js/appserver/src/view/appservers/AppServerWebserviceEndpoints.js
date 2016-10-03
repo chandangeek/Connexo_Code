@@ -16,7 +16,7 @@ Ext.define('Apr.view.appservers.AppServerWebserviceEndpoints', {
         var me = this;
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('general.webserviceEndpoits', 'APR', 'Webservice endpoints'),
+            title: Uni.I18n.translate('general.webserviceEndpoits', 'APR', 'Web service endpoints'),
             items: [
                 {
                     xtype: 'preview-container',
@@ -52,7 +52,7 @@ Ext.define('Apr.view.appservers.AppServerWebserviceEndpoints', {
                                     },
                                     {
                                         xtype: 'button',
-                                        text: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add webservice endpoints'),
+                                        text: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add web service endpoints'),
                                         itemId: 'add-webservices-button-from-detail',
                                         privileges: Apr.privileges.AppServer.admin,
                                         disabled: true
@@ -63,9 +63,9 @@ Ext.define('Apr.view.appservers.AppServerWebserviceEndpoints', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('general.webserviceEndpoints.empty.title', 'APR', 'No webservice endpoints found.'),
+                        title: Uni.I18n.translate('general.webserviceEndpoints.empty.title', 'APR', 'No web service endpoints found.'),
                         reasons: [
-                            Uni.I18n.translate('general.webserviceEndpoints.empty.list.item1', 'APR', 'No webservice endpoints have been added yet.')
+                            Uni.I18n.translate('general.webserviceEndpoints.empty.list.item1', 'APR', 'No web service endpoints have been added yet.')
                         ],
                         stepItems: [
                             {
@@ -81,7 +81,7 @@ Ext.define('Apr.view.appservers.AppServerWebserviceEndpoints', {
                                 disabled: true
                             },
                             {
-                                text: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add webservice endpoints'),
+                                text: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add web service endpoints'),
                                 itemId: 'add-webservices-button-from-detail-empty',
                                 privileges: Apr.privileges.AppServer.admin
                             }

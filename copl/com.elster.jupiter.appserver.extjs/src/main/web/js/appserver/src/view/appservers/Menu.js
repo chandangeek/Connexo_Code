@@ -26,7 +26,7 @@ Ext.define('Apr.view.appservers.Menu', {
                 href: me.router.getRoute('administration/appservers/overview/importservices').buildUrl({appServerName: me.appServerName})
             },
             {
-                text: Uni.I18n.translate('general.webserviceEndpoints', 'APR', 'Webservice endpoints'),
+                text: Uni.I18n.translate('general.webserviceEndpoints', 'APR', 'Web service endpoints'),
                 itemId: 'apr-webservices-link',
                 href: me.router.getRoute('administration/appservers/overview/webserviceendpoints').buildUrl({appServerName: me.appServerName})
             }

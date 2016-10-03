@@ -11,7 +11,7 @@ Ext.define('Apr.view.appservers.AddWebserviceEndpointsSetup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add webservice endpoints'),
+            title: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add web service endpoints'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -31,10 +31,10 @@ Ext.define('Apr.view.appservers.AddWebserviceEndpointsSetup', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         margin: '15 0 20 0',
-                        title: Uni.I18n.translate('validation.webserviceEndpoints.empty.title', 'APR', 'No webservice endpoints found.'),
+                        title: Uni.I18n.translate('validation.webserviceEndpoints.empty.title', 'APR', 'No web service endpoints found.'),
                         reasons: [
-                            Uni.I18n.translate('validation.webserviceEndpoints.empty.list.item1', 'APR', 'No webservice endpoints exist.'),
-                            Uni.I18n.translate('dataExportTasks.webserviceEndpoints.empty.list.item3', 'APR', 'All webservice endpoints have already been added to the application server.')
+                            Uni.I18n.translate('validation.webserviceEndpoints.empty.list.item1', 'APR', 'No web service endpoints exist.'),
+                            Uni.I18n.translate('dataExportTasks.webserviceEndpoints.empty.list.item3', 'APR', 'All web service endpoints have already been added to the application server.')
                         ]
                     }
                 },

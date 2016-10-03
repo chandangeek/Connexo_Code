@@ -14,7 +14,7 @@ Ext.define('Apr.view.appservers.WebserviceEndpointPreviewForm', {
         me.items = [
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.webservice', 'APR', 'Webservice'),
+                fieldLabel: Uni.I18n.translate('general.webservice', 'APR', 'Web service'),
                 name: 'webServiceName',
                 renderer: function(value) {
                     var record = this.up().getRecord();
