@@ -6,15 +6,12 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.Sets;
 
@@ -22,6 +19,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -32,7 +30,6 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -115,6 +112,7 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         when(customPropertySet.defaultViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_3));
         when(customPropertySet.defaultEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_4));
         when(customPropertySet.getDomainClass()).thenReturn(BigDecimalFactory.class);
+        when(customPropertySet.getDomainClassDisplayName()).thenReturn(BigDecimalFactory.class.getName());
         return customPropertySet;
     }
 
@@ -138,7 +136,7 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         when(registeredCustomPropertySet.getViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_1));
         when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_2));
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         PropertyInfo propertyInfo = mock(PropertyInfo.class);
         propertyInfo.key = "customAttribute";
         propertyInfo.required = true;
@@ -150,10 +148,7 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
     @SuppressWarnings("unchecked")
     private void mockRegisteredCustomPropertySets() {
         RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet();
-        when(customPropertySetService.findActiveCustomPropertySets()).thenReturn(Arrays.asList(registeredCustomPropertySet));
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn("com.elster.jupiter.properties.BigDecimalFactory");
-        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(customPropertySetService.findActiveCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
     }
+
 }
