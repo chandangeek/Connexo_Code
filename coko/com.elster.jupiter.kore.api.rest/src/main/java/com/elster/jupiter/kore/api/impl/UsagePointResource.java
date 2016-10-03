@@ -89,7 +89,7 @@ public class UsagePointResource {
     @Path("/{usagePointId}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public UsagePointInfo getUsagePoint(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        return meteringService.findUsagePoint(usagePointId)
+        return meteringService.findUsagePointById(usagePointId)
                 .map(ct -> usagePointInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
     }
@@ -232,7 +232,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public Object getDetailsResource(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
+        UsagePoint usagePoint = meteringService.findUsagePointById(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
         switch (usagePoint.getServiceCategory().getKind()) {
             case ELECTRICITY:
@@ -258,7 +258,7 @@ public class UsagePointResource {
                                                        UsagePointCommandInfo usagePointCommandInfo,
                                                        @Context UriInfo uriInfo) {
 
-        UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
+        UsagePoint usagePoint = meteringService.findUsagePointById(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
 
         return usagePointCommandInfo.command.process(usagePoint, usagePointCommandInfo, usagePointCommandHelper);

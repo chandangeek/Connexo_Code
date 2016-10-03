@@ -95,7 +95,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         MeterActivation meterActivation = mockMeterActivation(id, version, usagePoint);
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(meterId);
-        when(meteringService.findMeter(meterId)).thenReturn(Optional.of(meter));
+        when(meteringService.findMeterById(meterId)).thenReturn(Optional.of(meter));
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
         MeterRole meterRole = mock(MeterRole.class);
         when(meterRole.getKey()).thenReturn("meterRole");
@@ -141,7 +141,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
 
         Meter mock = mock(Meter.class);
         when(mock.getId()).thenReturn(123L);
-        when(meteringService.findMeter(123L)).thenReturn(Optional.of(mock));
+        when(meteringService.findMeterById(123L)).thenReturn(Optional.of(mock));
         MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
         when(meterActivation.getMeter()).thenReturn(Optional.of(mock));
         when(usagePoint.activate(any(), any())).thenReturn(meterActivation);
@@ -208,7 +208,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         meterActivationInfo.interval.start = now.toEpochMilli();
         Meter mock = mock(Meter.class);
         when(mock.getId()).thenReturn(123456789L);
-        when(meteringService.findMeter(123456789L)).thenReturn(Optional.of(mock));
+        when(meteringService.findMeterById(123456789L)).thenReturn(Optional.of(mock));
 
         MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
         when(usagePoint.activate(any(), any())).thenReturn(meterActivation);
@@ -224,7 +224,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         meterActivationInfo.interval.start = clock.millis();
         meterActivationInfo.meter = 123456789L;
 
-        when(meteringService.findMeter(123456789L)).thenReturn(Optional.empty());
+        when(meteringService.findMeterById(123456789L)).thenReturn(Optional.empty());
 
         Response post = target("/usagepoints/16/meteractivations").request().post(Entity.json(meterActivationInfo));
         assertThat(post.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());

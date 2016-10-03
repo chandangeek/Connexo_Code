@@ -48,7 +48,7 @@ public class EffectiveMetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public EffectiveMetrologyConfigurationInfo getEffectiveMetrologyConfiguration(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        return meteringService.findUsagePoint(usagePointId)
+        return meteringService.findUsagePointById(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
                 .getCurrentEffectiveMetrologyConfiguration()
                 .map(ct -> effectiveMetrologyConfigurationInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -70,7 +70,7 @@ public class EffectiveMetrologyConfigurationResource {
     @Path("/{timestamp}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public EffectiveMetrologyConfigurationInfo getMetrologyConfiguration(@PathParam("usagePointId") long usagePointId, @PathParam("timestamp") long timestamp, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        return meteringService.findUsagePoint(usagePointId)
+        return meteringService.findUsagePointById(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
                 .getEffectiveMetrologyConfiguration(Instant.ofEpochMilli(timestamp))
                 .map(ct -> effectiveMetrologyConfigurationInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))

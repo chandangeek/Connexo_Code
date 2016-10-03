@@ -61,7 +61,7 @@ public class MeterActivationResource {
     @Path("/{meterActivationId}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public MeterActivationInfo getMeterActivation(@PathParam("usagePointId") long usagePointId, @PathParam("meterActivationId") long meterActivationId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        MeterActivation meterActivation = meteringService.findUsagePoint(usagePointId)
+        MeterActivation meterActivation = meteringService.findUsagePointById(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
                 .getMeterActivations().stream()
                 .filter(ma -> ma.getId() == meterActivationId)
@@ -84,7 +84,7 @@ public class MeterActivationResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<MeterActivationInfo> getMeterActivations(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
+        UsagePoint usagePoint = meteringService.findUsagePointById(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
         List<MeterActivationInfo> meterActivationInfos = usagePoint
                 .getMeterActivations().stream()
@@ -116,7 +116,7 @@ public class MeterActivationResource {
         if (meterActivationInfo == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EMPTY_REQUEST);
         }
-        UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
+        UsagePoint usagePoint = meteringService.findUsagePointById(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
 
         if (meterActivationInfo.interval == null || meterActivationInfo.interval.start == null) {
@@ -134,7 +134,7 @@ public class MeterActivationResource {
         if (meterActivationInfo.meter == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meter");
         }
-        Meter meter = meteringService.findMeter(meterActivationInfo.meter)
+        Meter meter = meteringService.findMeterById(meterActivationInfo.meter)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER, "meter"));
         activation = usagePoint.activate(meter, start);
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());

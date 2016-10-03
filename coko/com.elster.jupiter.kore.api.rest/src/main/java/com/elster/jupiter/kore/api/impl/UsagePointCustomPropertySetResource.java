@@ -61,7 +61,7 @@ public class UsagePointCustomPropertySetResource {
                                                                           @PathParam("cpsId") long cpsId,
                                                                           @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         try {
-            UsagePointPropertySet propertySet = meteringService.findUsagePoint(usagePointId)
+            UsagePointPropertySet propertySet = meteringService.findUsagePointById(usagePointId)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_USAGE_POINT))
                     .forCustomProperties()
                     .getPropertySet(cpsId);
@@ -90,7 +90,7 @@ public class UsagePointCustomPropertySetResource {
                                                                                           @BeanParam FieldSelection fieldSelection,
                                                                                           @Context UriInfo uriInfo,
                                                                                           @BeanParam JsonQueryParameters queryParameters) {
-        List<UsagePointCustomPropertySetInfo> infos = meteringService.findUsagePoint(usagePointId)
+        List<UsagePointCustomPropertySetInfo> infos = meteringService.findUsagePointById(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_USAGE_POINT))
                 .forCustomProperties()
                 .getAllPropertySets().stream()
