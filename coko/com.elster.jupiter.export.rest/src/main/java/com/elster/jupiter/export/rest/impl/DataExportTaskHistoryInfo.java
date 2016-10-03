@@ -8,7 +8,6 @@ import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
@@ -98,7 +97,7 @@ public class DataExportTaskHistoryInfo {
                 });
         setStatusOnDate(dataExportOccurrence, thesaurus);
         task = new DataExportTaskInfo();
-        task.populate(version, thesaurus, timeService, propertyValueInfoService);
+        task.populate(version, thesaurus, propertyValueInfoService);
         populateForReadingTypeDataExportTask(version, dataExportOccurrence, thesaurus);
         version.getDestinations(dataExportOccurrence.getStartDate().get()).stream()
                 .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))

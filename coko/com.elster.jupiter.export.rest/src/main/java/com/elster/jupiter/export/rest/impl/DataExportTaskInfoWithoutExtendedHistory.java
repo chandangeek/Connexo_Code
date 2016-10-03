@@ -18,7 +18,7 @@ public class DataExportTaskInfoWithoutExtendedHistory extends DataExportTaskInfo
     public DataTaskHistoryWithoutEmbeddedTaskInfo lastExportOccurrence;
 
     public DataExportTaskInfoWithoutExtendedHistory(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
-        doPopulate(dataExportTask, thesaurus, timeService, propertyValueInfoService);
+        doPopulate(dataExportTask, thesaurus, propertyValueInfoService);
         if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
             schedule = null;
         } else {

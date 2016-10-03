@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.TranslationKey;
  * @since 2016-09-29 (13:40)
  */
 public enum TranslationKeys implements TranslationKey {
+    NONE("exporttask.recurrence.none", "None"),
     SINCE("status.before", "{0} since"),
     ON("status.on", "{0} on");
 

@@ -28,6 +28,7 @@ public class DataExportTaskInfo {
     public ProcessorInfo dataProcessor;
     public SelectorInfo dataSelector;
     public PeriodicalExpressionInfo schedule;
+    public String recurrence;
     //public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
     public DataExportTaskHistoryInfo lastExportOccurrence;
     public Long nextRun;
@@ -37,37 +38,48 @@ public class DataExportTaskInfo {
     public long version;
     public String application;
 
+    public DataExportTaskInfo() {
+    }
 
     public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
-        doPopulate(dataExportTask, thesaurus, timeService, propertyValueInfoService);
+        doPopulate(dataExportTask, thesaurus, propertyValueInfoService);
         if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
             schedule = null;
+            recurrence = thesaurus.getFormat(TranslationKeys.NONE).format();
         } else {
             ScheduleExpression scheduleExpression = dataExportTask.getScheduleExpression();
             if (scheduleExpression instanceof TemporalExpression) {
                 schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
+                recurrence = fromTemporalExpression((TemporalExpression) scheduleExpression, timeService);
             } else {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
+                recurrence = fromPeriodicalScheduleExpression((PeriodicalScheduleExpression) scheduleExpression, timeService);
             }
         }
-        //properties = propertyValueInfoService.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties());
         lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService, propertyValueInfoService)).orElse(null);
-        dataExportTask.getDestinations().stream()
-            .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
+        dataExportTask.getDestinations().forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
     }
 
-    protected DestinationType typeOf(DataExportDestination destination) {
+    private String fromTemporalExpression(TemporalExpression scheduleExpression, TimeService timeService) {
+        return timeService.toLocalizedString(scheduleExpression);
+    }
+
+    private String fromPeriodicalScheduleExpression(PeriodicalScheduleExpression scheduleExpression, TimeService timeService) {
+        return timeService.toLocalizedString(scheduleExpression);
+    }
+
+    DestinationType typeOf(DataExportDestination destination) {
         return Arrays.stream(DestinationType.values())
                 .filter(type -> type.getDestinationClass().isInstance(destination))
                 .findAny()
                 .orElseThrow(IllegalArgumentException::new);
     }
 
-    public void populate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
-        doPopulate(dataExportTask, thesaurus, timeService, propertyValueInfoService);
+    void populate(ExportTask dataExportTask, Thesaurus thesaurus, PropertyValueInfoService propertyValueInfoService) {
+        doPopulate(dataExportTask, thesaurus, propertyValueInfoService);
     }
 
-    protected void doPopulate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService) {
+    void doPopulate(ExportTask dataExportTask, Thesaurus thesaurus, PropertyValueInfoService propertyValueInfoService) {
         id = dataExportTask.getId();
         name = dataExportTask.getName();
 
@@ -109,19 +121,12 @@ public class DataExportTaskInfo {
 
     private void populateReadingTypeDataExport(ExportTask dataExportTask, Thesaurus thesaurus) {
         dataExportTask.getReadingTypeDataSelector()
-                .ifPresent(readingTypeDataSelector -> {
-                    standardDataSelector = new StandardDataSelectorInfo(readingTypeDataSelector, thesaurus);
-                });
+                .ifPresent(readingTypeDataSelector -> standardDataSelector = new StandardDataSelectorInfo(readingTypeDataSelector, thesaurus));
     }
 
     private void populateEventTypeDataExport(ExportTask dataExportTask, Thesaurus thesaurus) {
         dataExportTask.getEventDataSelector()
-                .ifPresent(eventDataSelector -> {
-                    standardDataSelector = new StandardDataSelectorInfo(eventDataSelector, thesaurus);
-                });
-    }
-
-    public DataExportTaskInfo() {
+                .ifPresent(eventDataSelector -> standardDataSelector = new StandardDataSelectorInfo(eventDataSelector, thesaurus));
     }
 
     @Override
