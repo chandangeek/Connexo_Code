@@ -1,16 +1,24 @@
 package com.elster.jupiter.rest.util;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import java.util.List;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class VersionInfoTest {
     private static ObjectMapper mapper = new ObjectMapper();
@@ -148,6 +156,10 @@ public class VersionInfoTest {
     @Test
     public void testSerializationErrorInfoSingleId() throws Exception {
         Thesaurus thesaurus = mock(Thesaurus.class);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         ConcurrentModificationException exception = new ConcurrentModificationException(thesaurus, MessageSeeds.CONCURRENT_EDIT_TITLE, "some");
         exception.setMessageBody(MessageSeeds.CONCURRENT_EDIT_BODY);
         exception.setMessageBodyArgs(new String[]{"some"});
@@ -162,6 +174,10 @@ public class VersionInfoTest {
     @Test
     public void testSerializationErrorInfoArrayId() throws Exception {
         Thesaurus thesaurus = mock(Thesaurus.class);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         ConcurrentModificationException exception = new ConcurrentModificationException(thesaurus, MessageSeeds.CONCURRENT_EDIT_TITLE, "some");
         exception.setMessageBody(MessageSeeds.CONCURRENT_EDIT_BODY);
         exception.setMessageBodyArgs(new String[]{"some"});
@@ -178,6 +194,10 @@ public class VersionInfoTest {
     @Test
     public void testSerializationErrorInfoNullParentId() throws Exception {
         Thesaurus thesaurus = mock(Thesaurus.class);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         ConcurrentModificationException exception = new ConcurrentModificationException(thesaurus, MessageSeeds.CONCURRENT_EDIT_TITLE, "some");
         exception.setMessageBody(MessageSeeds.CONCURRENT_EDIT_BODY);
         exception.setMessageBodyArgs(new String[]{"some"});
