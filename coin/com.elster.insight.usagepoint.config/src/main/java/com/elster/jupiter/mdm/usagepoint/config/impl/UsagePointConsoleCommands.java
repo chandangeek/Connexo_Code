@@ -112,7 +112,7 @@ public class UsagePointConsoleCommands {
                     .principal(() -> "console")
                     .run(() -> {
                         UsagePoint up = meteringService
-                                .findUsagePoint(usagePointMRID)
+                                .findUsagePointByMRID(usagePointMRID)
                                 .orElseThrow(() -> new IllegalArgumentException("Usage Point " + usagePointMRID + " not found."));
                         UsagePointMetrologyConfiguration mc = metrologyConfigurationService
                                 .findMetrologyConfiguration(metrologyConfigName)
