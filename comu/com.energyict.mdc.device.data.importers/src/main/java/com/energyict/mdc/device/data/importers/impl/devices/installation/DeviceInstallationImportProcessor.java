@@ -140,11 +140,10 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
                 .findFirst()
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                // TODO: MRID -> name
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_USAGE_POINT, data.getLineNumber(),
-                        data.getUsagePointIdentifier(), Arrays.stream(ServiceKind.values())
-                        .map(ServiceKind::getDisplayName)
-                        .collect(Collectors.joining(", "))))
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_USAGE_POINT,
+                        data.getLineNumber(),
+                        data.getUsagePointIdentifier(),
+                        Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))))
                 .newUsagePoint(data.getUsagePointIdentifier(), getContext().getClock().instant())
                 .create();
     }

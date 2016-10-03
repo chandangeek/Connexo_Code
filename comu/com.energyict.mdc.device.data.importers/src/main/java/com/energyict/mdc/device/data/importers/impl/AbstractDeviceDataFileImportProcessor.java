@@ -28,13 +28,13 @@ public abstract class AbstractDeviceDataFileImportProcessor<T extends FileImport
 
     protected Optional<Meter> findMeterByIdentifier(String deviceIdentifier) {
         MeteringService meteringService = getContext().getMeteringService();
-        Optional<Meter> meterByMrid = meteringService.findMeter(deviceIdentifier);
-        return meterByMrid.isPresent() ? meterByMrid : meteringService.findMeterByName(deviceIdentifier);
+        Optional<EndDevice> endDeviceByMrid = meteringService.findEndDeviceByMRID(deviceIdentifier);
+        return endDeviceByMrid.isPresent() ? endDeviceByMrid : meteringService.findEndDeviceByName(deviceIdentifier);
     }
 
     protected Optional<UsagePoint> findUsagePointByIdentifier(String usagePointIdentifier) {
         MeteringService meteringService = getContext().getMeteringService();
-        Optional<UsagePoint> usagePointByMrid = meteringService.findUsagePoint(usagePointIdentifier);
+        Optional<UsagePoint> usagePointByMrid = meteringService.findUsagePointByMRID(usagePointIdentifier);
         return usagePointByMrid.isPresent() ? usagePointByMrid : meteringService.findUsagePointByName(usagePointIdentifier);
     }
 }
