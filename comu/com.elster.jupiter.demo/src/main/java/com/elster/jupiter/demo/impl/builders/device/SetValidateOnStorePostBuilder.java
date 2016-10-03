@@ -4,7 +4,9 @@ import com.elster.jupiter.demo.impl.builders.DataValidationTaskBuilder;
 import com.elster.jupiter.demo.impl.builders.DeviceGroupBuilder;
 import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.search.SearchService;
@@ -50,7 +52,7 @@ public class SetValidateOnStorePostBuilder implements Consumer<Device> {
                 initDeviceGroup();
             }
        }
-       Optional<EndDevice> endDevice = meteringService.findEndDevice(device.getmRID());
+       Optional<EndDevice> endDevice = meteringService.findEndDeviceByMRID(device.getmRID());
        if (endDevice.isPresent()) {
            Optional<Meter> meter = endDevice.get().getAmrSystem().findMeter("" + endDevice.get().getId());
            if (meter.isPresent()) {
