@@ -8,11 +8,14 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeCycleConfigApplicationJerseyTest;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
+
 import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.Response;
+
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -26,7 +29,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
     public void testDeviceLifeCycleActionJsonModel(){
         List<AuthorizedAction> actions = mockDefaultActions();
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
-        actions.stream().forEach(action -> when(action.getDeviceLifeCycle()).thenReturn(dlc));
+        actions.forEach(action -> when(action.getDeviceLifeCycle()).thenReturn(dlc));
         when(dlc.getAuthorizedActions()).thenReturn(actions);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
