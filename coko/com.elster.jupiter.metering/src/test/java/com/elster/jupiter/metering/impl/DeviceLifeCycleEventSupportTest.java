@@ -77,10 +77,10 @@ public class DeviceLifeCycleEventSupportTest {
         when(this.otherFiniteStateMachine.getState(STATE_NAME)).thenReturn(Optional.of(this.otherState));
         when(this.endDevice.getId()).thenReturn(METER_ID);
         when(this.endDevice.getState()).thenReturn(Optional.of(this.state));
-        when(this.meteringService.findEndDevice(METER_ID)).thenReturn(Optional.of(this.endDevice));
+        when(this.meteringService.findEndDeviceById(METER_ID)).thenReturn(Optional.of(this.endDevice));
         when(this.meter.getId()).thenReturn(METER_ID);
         when(this.meter.getState()).thenReturn(Optional.of(this.state));
-        when(this.meteringService.findMeter(METER_ID)).thenReturn(Optional.of(this.meter));
+        when(this.meteringService.findMeterById(METER_ID)).thenReturn(Optional.of(this.meter));
     }
 
     @Test
@@ -288,7 +288,7 @@ public class DeviceLifeCycleEventSupportTest {
         Optional<CurrentStateExtractor.CurrentState> extracted = this.getTestInstance().extractFrom(localEvent, this.finiteStateMachine);
 
         // Asserts
-        verify(this.meteringService).findMeter(METER_ID);
+        verify(this.meteringService).findMeterById(METER_ID);
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
         assertThat(currentState.sourceId).isEqualTo(String.valueOf(METER_ID));
@@ -311,7 +311,7 @@ public class DeviceLifeCycleEventSupportTest {
         Optional<CurrentStateExtractor.CurrentState> extracted = this.getTestInstance().extractFrom(localEvent, this.finiteStateMachine);
 
         // Asserts
-        verify(this.meteringService).findMeter(METER_ID);
+        verify(this.meteringService).findMeterById(METER_ID);
         assertThat(extracted.isPresent()).isFalse();
     }
 
@@ -330,7 +330,7 @@ public class DeviceLifeCycleEventSupportTest {
         Optional<CurrentStateExtractor.CurrentState> extracted = this.getTestInstance().extractFrom(localEvent, this.finiteStateMachine);
 
         // Asserts
-        verify(this.meteringService).findMeter(METER_ID);
+        verify(this.meteringService).findMeterById(METER_ID);
         assertThat(extracted.isPresent()).isFalse();
     }
 
@@ -343,7 +343,7 @@ public class DeviceLifeCycleEventSupportTest {
         MeterReadingStorer.EventSource eventSource = mock(MeterReadingStorer.EventSource.class);
         when(eventSource.getMeterId()).thenReturn(METER_ID);
         when(localEvent.getSource()).thenReturn(eventSource);
-        when(this.meteringService.findMeter(anyLong())).thenReturn(Optional.empty());
+        when(this.meteringService.findMeterById(anyLong())).thenReturn(Optional.empty());
 
         // Business method
         Optional<CurrentStateExtractor.CurrentState> extracted = this.getTestInstance().extractFrom(localEvent, this.finiteStateMachine);

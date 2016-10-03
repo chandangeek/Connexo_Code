@@ -90,8 +90,8 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
     }
 
     private static void reloadObjects() {
-        meter = inMemoryBootstrapModule.getMeteringService().findMeter(meter.getId()).get();
-        usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePoint(usagePoint.getId()).get();
+        meter = inMemoryBootstrapModule.getMeteringService().findMeterById(meter.getId()).get();
+        usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePointById(usagePoint.getId()).get();
     }
 
     @AfterClass
@@ -340,8 +340,8 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         activator.clear(Range.closedOpen(INSTALLATION_TIME, THREE_DAYS_AFTER), meterRole);
         activator.clear(Range.closedOpen(INSTALLATION_TIME, THREE_DAYS_AFTER), meterRole2).complete();
         reloadObjects();
-        usagePoint2 = inMemoryBootstrapModule.getMeteringService().findUsagePoint(usagePoint2.getId()).get();
-        meter2 = inMemoryBootstrapModule.getMeteringService().findMeter(meter2.getId()).get();
+        usagePoint2 = inMemoryBootstrapModule.getMeteringService().findUsagePointById(usagePoint2.getId()).get();
+        meter2 = inMemoryBootstrapModule.getMeteringService().findMeterById(meter2.getId()).get();
 
         List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         assertThat(meterActivations).hasSize(3);

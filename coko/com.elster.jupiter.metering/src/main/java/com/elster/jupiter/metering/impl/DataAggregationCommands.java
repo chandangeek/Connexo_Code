@@ -94,7 +94,7 @@ public class DataAggregationCommands {
     public void aggregate(String usagePointMRID, String contractPurpose, String deliverableName, String startDate) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
+            UsagePoint usagePoint = meteringService.findUsagePointByMRID(usagePointMRID)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
             MetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
@@ -137,7 +137,7 @@ public class DataAggregationCommands {
     private void showData(String usagePointMRID, String contractPurpose, String deliverableName, Range<Instant> period) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
+            UsagePoint usagePoint = meteringService.findUsagePointByMRID(usagePointMRID)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
             UsagePointMetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
@@ -223,7 +223,7 @@ public class DataAggregationCommands {
     public void linkMetrologyConfig(String usagePointMRID, long metrologyConfigId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
+            UsagePoint usagePoint = meteringService.findUsagePointByMRID(usagePointMRID)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
             UsagePointMetrologyConfiguration configuration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
                     .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
@@ -237,7 +237,7 @@ public class DataAggregationCommands {
     public void setMultiplierValue(String meterMRID, String standardMultiplierType, long value) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            MeterActivation meterActivation = meteringService.findMeter(meterMRID).get().getCurrentMeterActivation().get();
+            MeterActivation meterActivation = meteringService.findMeterByMRID(meterMRID).get().getCurrentMeterActivation().get();
             MultiplierType multiplierType = meteringService.getMultiplierType(MultiplierType.StandardType.valueOf(standardMultiplierType));
             meterActivation.setMultiplier(multiplierType, BigDecimal.valueOf(value));
             context.commit();
@@ -250,7 +250,7 @@ public class DataAggregationCommands {
                 .getRequirements().stream()
                 .filter(rq -> rq.getName().equals(requirementName))
                 .findFirst().orElseThrow(() -> new NoSuchElementException("No such requirement"))
-                .getMatchingChannelsFor(meteringService.findMeter(meterMRID)
+                .getMatchingChannelsFor(meteringService.findMeterByMRID(meterMRID)
                         .orElseThrow(() -> new NoSuchElementException("No such meter"))
                         .getCurrentMeterActivation()
                         .map(MeterActivation::getChannelsContainer)

@@ -156,7 +156,7 @@ public class EndDeviceImplIT {
         endDevice.changeState(second, Instant.now());
 
         when(clock.instant()).thenReturn(now.plus(1, ChronoUnit.SECONDS));
-        EndDevice endDeviceReloaded = meteringService.findEndDevice(deviceId).get();
+        EndDevice endDeviceReloaded = meteringService.findEndDeviceById(deviceId).get();
 
         // Asserts
         assertThat(endDeviceReloaded.getState().isPresent()).isTrue();
@@ -188,7 +188,7 @@ public class EndDeviceImplIT {
         // Business method
         endDevice.changeState(changedState, april1st);
 
-        EndDevice endDeviceReloaded = meteringService.findEndDevice(deviceId).get();
+        EndDevice endDeviceReloaded = meteringService.findEndDeviceById(deviceId).get();
 
         // Asserts
         assertThat(endDeviceReloaded.getState().isPresent()).isTrue();
@@ -222,7 +222,7 @@ public class EndDeviceImplIT {
         when(clock.instant()).thenReturn(april1st);
         endDevice.changeState(changedState, april1st);
 
-        EndDevice endDeviceReloaded = meteringService.findEndDevice(deviceId).get();
+        EndDevice endDeviceReloaded = meteringService.findEndDeviceById(deviceId).get();
 
         // Business method
         Optional<StateTimeline> stateTimeline = endDeviceReloaded.getStateTimeline();
@@ -269,7 +269,7 @@ public class EndDeviceImplIT {
         EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
 
         // Business method
-        LifecycleDates lifecycleDates = meteringService.findEndDevice(endDevice.getId()).get().getLifecycleDates();
+        LifecycleDates lifecycleDates = meteringService.findEndDeviceById(endDevice.getId()).get().getLifecycleDates();
 
         // Asserts
         assertThat(lifecycleDates).isNotNull();
@@ -305,7 +305,7 @@ public class EndDeviceImplIT {
         endDevice.update();
 
         // Asserts
-        LifecycleDates datesAfterFind = meteringService.findEndDevice(endDevice.getId()).get().getLifecycleDates();
+        LifecycleDates datesAfterFind = meteringService.findEndDeviceById(endDevice.getId()).get().getLifecycleDates();
         assertThat(datesAfterFind).isNotNull();
         assertThat(datesAfterFind.getManufacturedDate()).contains(manufacturedDate);
         assertThat(datesAfterFind.getPurchasedDate()).contains(purchasedDate);

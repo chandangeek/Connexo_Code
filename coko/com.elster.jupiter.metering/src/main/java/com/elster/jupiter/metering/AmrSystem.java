@@ -16,13 +16,6 @@ public interface AmrSystem extends HasName {
      */
     MeterBuilder newMeter(String amrId, String name);
 
-    EndDevice createEndDevice(String amrId);
-
-    /**
-     * @since 1.1
-     */
-    EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId);
-
     EndDevice createEndDevice(String amrId, String name);
 
     /**

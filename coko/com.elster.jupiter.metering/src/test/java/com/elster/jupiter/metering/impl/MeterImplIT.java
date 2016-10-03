@@ -173,7 +173,7 @@ public class MeterImplIT {
             meter.activate(activation.toInstant());
             context.commit();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         MeterActivation meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(activation.toInstant()));
@@ -184,7 +184,7 @@ public class MeterImplIT {
             meterActivation.endAt(deactivation.toInstant());
             context.commit();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.closedOpen(activation.toInstant(), deactivation.toInstant()));
@@ -195,7 +195,7 @@ public class MeterImplIT {
             meter.activate(reinstall.toInstant());
             context.commit();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(2);
         meterActivation = meter.getMeterActivations().get(1);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(reinstall.toInstant()));
@@ -218,7 +218,7 @@ public class MeterImplIT {
             meter.activate(activation.toInstant());
             context.commit();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         MeterActivation meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(activation.toInstant()));
@@ -229,7 +229,7 @@ public class MeterImplIT {
             meterActivation.endAt(deactivation.toInstant());
             context.commit();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.closedOpen(activation.toInstant(), deactivation.toInstant()));
@@ -240,7 +240,7 @@ public class MeterImplIT {
             meter.activate(deactivation.toInstant());
             context.commit();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(2);
         meterActivation = meter.getMeterActivations().get(1);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(deactivation.toInstant()));
@@ -259,7 +259,7 @@ public class MeterImplIT {
                     .create();
             context.commit();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
 
         String mRID = meter.getMRID();
         assertThat(mRID).isNotNull().isNotEmpty();
@@ -272,7 +272,7 @@ public class MeterImplIT {
             context.commit();
         }
 
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
 
         assertThat(meter.getMRID()).isEqualTo(mRID);
         assertThat(meter.getName()).isEqualTo("newName");
@@ -292,7 +292,7 @@ public class MeterImplIT {
                     .create();
             context.commit();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMRID()).isEqualTo("0000f000-00f7-0f00-f000-000abcde02ff");
     }
 

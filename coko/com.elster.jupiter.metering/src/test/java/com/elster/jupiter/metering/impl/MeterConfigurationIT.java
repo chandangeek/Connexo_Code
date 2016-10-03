@@ -172,7 +172,7 @@ public class MeterConfigurationIT {
 
         assertThat(meter.getConfiguration(ACTIVE_DATE.toInstant())).contains(meterConfiguration);
 
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         meterConfiguration = meter.getConfiguration(ACTIVE_DATE.toInstant()).get();
 
         assertThat(meterConfiguration.getRange()).isEqualTo(Range.closedOpen(ACTIVE_DATE.toInstant(), END_DATE.toInstant()));
@@ -207,7 +207,7 @@ public class MeterConfigurationIT {
 
         assertThat(meter.getConfiguration(ACTIVE_DATE.toInstant())).contains(meterConfiguration);
 
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         meterConfiguration = meter.getConfiguration(ACTIVE_DATE.toInstant()).get();
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -215,7 +215,7 @@ public class MeterConfigurationIT {
             context.commit();
         }
 
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         meterConfiguration = meter.getConfiguration(ACTIVE_DATE.toInstant()).get();
 
         Range<Instant> range = meterConfiguration.getRange();
@@ -238,7 +238,7 @@ public class MeterConfigurationIT {
             meterActivation = meter.activate(ACTIVE_DATE.toInstant());
             context.commit();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         meterActivation = meter.getMeterActivations().get(0);
     }
 

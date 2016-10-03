@@ -162,7 +162,7 @@ public class MeterMultiplierIT {
             meterActivation = meter.activate(ACTIVE_DATE.toInstant());
             context.commit();
         }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter = meteringService.findMeterById(meter.getId()).get();
         meterActivation = meter.getMeterActivations().get(0);
     }
 

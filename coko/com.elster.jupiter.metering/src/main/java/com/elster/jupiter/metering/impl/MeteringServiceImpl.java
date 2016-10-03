@@ -176,7 +176,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public Optional<UsagePoint> findUsagePoint(long id) {
+    public Optional<UsagePoint> findUsagePointById(long id) {
         return dataModel.mapper(UsagePoint.class).getOptional(id);
     }
 
@@ -186,7 +186,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public Optional<UsagePoint> findUsagePoint(String mRID) {
+    public Optional<UsagePoint> findUsagePointByMRID(String mRID) {
         return dataModel.stream(UsagePoint.class).filter(where("mRID").isEqualTo(mRID)).findFirst();
     }
 
@@ -196,32 +196,36 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public Optional<Meter> findMeter(long id) {
+    public Optional<Meter> findMeterById(long id) {
         return dataModel.mapper(Meter.class).getOptional(id);
     }
 
     @Override
-    public Optional<EndDevice> findEndDevice(long id) {
+    public Optional<EndDevice> findEndDeviceById(long id) {
         return dataModel.mapper(EndDevice.class).getOptional(id);
     }
 
     @Override
-    public Optional<Meter> findMeter(String mRid) {
-        List<Meter> meters = dataModel.mapper(Meter.class).select(Operator.EQUAL.compare("mRID", mRid));
-        return meters.isEmpty() ? Optional.empty() : Optional.of(meters.get(0));
+    public Optional<Meter> findMeterByMRID(String mRid) {
+        return dataModel.stream(Meter.class).filter(where("mRID").isEqualTo(mRid)).findFirst();
     }
 
     @Override
-    public Optional<EndDevice> findEndDevice(String mRid) {
-        return dataModel.stream(EndDevice.class)
-                .filter(Operator.EQUAL.compare("mRID", mRid))
-                .filter(Operator.ISNULL.compare("obsoleteTime"))
-                .findFirst();
+    public Optional<EndDevice> findEndDeviceByMRID(String mRid) {
+        return dataModel.stream(EndDevice.class).filter(where("mRID").isEqualTo(mRid)).findFirst();
     }
 
     @Override
     public Optional<Meter> findMeterByName(String name) {
         return dataModel.stream(Meter.class)
+                .filter(Operator.EQUAL.compare("name", name))
+                .filter(Operator.ISNULL.compare("obsoleteTime"))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<EndDevice> findEndDeviceByName(String name) {
+        return dataModel.stream(EndDevice.class)
                 .filter(Operator.EQUAL.compare("name", name))
                 .filter(Operator.ISNULL.compare("obsoleteTime"))
                 .findFirst();

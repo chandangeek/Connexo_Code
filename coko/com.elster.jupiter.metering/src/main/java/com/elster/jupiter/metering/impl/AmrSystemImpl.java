@@ -71,22 +71,10 @@ final class AmrSystemImpl implements AmrSystem {
     }
 
     @Override
-    public EndDevice createEndDevice(String amrId) {
-        // TODO: what to do if there's no name?
-        return createEndDevice(amrId, id + ':' + amrId);
-    }
-
-    @Override
     public EndDevice createEndDevice(String amrId, String name) {
         EndDeviceImpl endDevice = endDeviceFactory.get().init(this, amrId, name, null);
         endDevice.doSave();
         return endDevice;
-    }
-
-    @Override
-    public EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId) {
-        // TODO: what to do if there's no name?
-        return this.createEndDevice(stateMachine, amrId, id + ':' + amrId);
     }
 
     @Override

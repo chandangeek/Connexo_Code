@@ -160,7 +160,7 @@ public class MeteringConsoleCommands {
     }
 
     public void meterActivations(long meterId) {
-        Meter meter = meteringService.findMeter(meterId)
+        Meter meter = meteringService.findMeterById(meterId)
                 .orElseThrow(() -> new IllegalArgumentException("Meter not found."));
         System.out.println(meter.getMeterActivations().stream()
                 .map(this::toString)
@@ -202,7 +202,7 @@ public class MeteringConsoleCommands {
     public void renameMeter(String mrId, String newName) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(mrId).get();
+            Meter meter = meteringService.findMeterByMRID(mrId).get();
             meter.setName(newName);
             meter.update();
             context.commit();
@@ -219,7 +219,7 @@ public class MeteringConsoleCommands {
     public void activateMeter(String mrId, long epochMilli) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(mrId).get();
+            Meter meter = meteringService.findMeterByMRID(mrId).get();
             Instant activationDate = Instant.ofEpochMilli(epochMilli);
             meter.activate(activationDate);
             meter.update();
@@ -234,9 +234,9 @@ public class MeteringConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(defaultMeterRoleName);
             MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
-            Optional<Meter> meter = meteringService.findMeter(mrId);
+            Optional<Meter> meter = meteringService.findMeterByMRID(mrId);
             if (meter.isPresent()) {
-                Optional<UsagePoint> usagePoint = this.meteringService.findUsagePoint(usagePointMRID);
+                Optional<UsagePoint> usagePoint = this.meteringService.findUsagePointByMRID(usagePointMRID);
                 if (usagePoint.isPresent()) {
                     Instant activationDate = Instant.ofEpochMilli(epochMilli);
                     meter.get().activate(usagePoint.get(), meterRole, activationDate);
@@ -259,8 +259,8 @@ public class MeteringConsoleCommands {
     public void addUsagePointToCurrentMeterActivation(String mrId, String usagePointmrId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(mrId).get();
-            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointmrId).get();
+            Meter meter = meteringService.findMeterByMRID(mrId).get();
+            UsagePoint usagePoint = meteringService.findUsagePointByMRID(usagePointmrId).get();
             MeterActivation meterActivation = meter.getCurrentMeterActivation().get();
             ((MeterActivationImpl) meterActivation).setUsagePoint(usagePoint);
             ((MeterActivationImpl) meterActivation).save();
@@ -274,7 +274,7 @@ public class MeteringConsoleCommands {
     public void endCurrentMeterActivation(String mrId, long epochMilli) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(mrId).get();
+            Meter meter = meteringService.findMeterByMRID(mrId).get();
             Instant endDate = Instant.ofEpochMilli(epochMilli);
             meter.getCurrentMeterActivation().get().endAt(endDate);
             context.commit();
@@ -286,7 +286,7 @@ public class MeteringConsoleCommands {
     public void advanceStartDate(String mrId, long epochMilli) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(mrId).get();
+            Meter meter = meteringService.findMeterByMRID(mrId).get();
             Instant newStartDate = Instant.ofEpochMilli(epochMilli);
             meter.getCurrentMeterActivation().get().advanceStartDate(newStartDate);
             context.commit();
@@ -336,7 +336,7 @@ public class MeteringConsoleCommands {
 
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                 meterReading.addAllEndDeviceEvents(deviceEvents);
-                meteringService.findMeter(mrId).get().store(QualityCodeSystem.MDC, meterReading);
+                meteringService.findMeterByMRID(mrId).get().store(QualityCodeSystem.MDC, meterReading);
 
                 context.commit();
             } catch (FileNotFoundException e) {
@@ -355,7 +355,7 @@ public class MeteringConsoleCommands {
     public void addDeviceLocation(String mRID, String... args) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findEndDevice(mRID)
+            EndDevice endDevice = meteringService.findEndDeviceByMRID(mRID)
                     .orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
             endDevice.setLocation(getLocationBuilder(args).create());
             endDevice.update();
@@ -384,7 +384,7 @@ public class MeteringConsoleCommands {
     public void addUsagePointLocation(String mRID, String... args) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
+            UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                     .orElseThrow(() -> new RuntimeException("No usage point with mRID " + mRID + "!"));
             usagePoint.setLocation(getLocationBuilder(args).create().getId());
             usagePoint.update();
@@ -400,7 +400,7 @@ public class MeteringConsoleCommands {
     public void addDeviceGeoCoordinates(String mRID, String latitude, String longitude, String elevation) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findEndDevice(mRID)
+            EndDevice endDevice = meteringService.findEndDeviceByMRID(mRID)
                     .orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
 
             SpatialCoordinates spatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(latitude + ":" + longitude + ":" + elevation);
@@ -418,7 +418,7 @@ public class MeteringConsoleCommands {
     public void addUsagePointGeoCoordinates(String mRID, String latitude, String longitude, String elevation) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
+            UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                     .orElseThrow(() -> new RuntimeException("No usage point with mRID " + mRID + "!"));
             SpatialCoordinates spatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(latitude + ":" + longitude + ":" + elevation);
             usagePoint.setSpatialCoordinates(spatialCoordinates);

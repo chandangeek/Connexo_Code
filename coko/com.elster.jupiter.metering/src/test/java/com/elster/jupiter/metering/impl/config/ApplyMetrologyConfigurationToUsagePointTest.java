@@ -89,7 +89,7 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             MeteringService mtrService = getMeteringService();
             MetrologyConfigurationService service = getMetrologyConfigurationService();
-            Optional<UsagePoint> usagePoint = mtrService.findUsagePoint(upId);
+            Optional<UsagePoint> usagePoint = mtrService.findUsagePointById(upId);
             Optional<UsagePointMetrologyConfiguration> mc = service.findMetrologyConfiguration(mcId)
                     .map(UsagePointMetrologyConfiguration.class::cast);
             assertThat(usagePoint).isPresent();
@@ -99,7 +99,7 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
             context.commit();
         }
         MeteringService mtrService = getMeteringService();
-        UsagePoint usagePoint = mtrService.findUsagePoint(upId).get();
+        UsagePoint usagePoint = mtrService.findUsagePointById(upId).get();
         Optional<MetrologyConfiguration> metrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
         assertThat(metrologyConfiguration).isPresent();

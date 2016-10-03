@@ -176,7 +176,7 @@ public class UsagePointConfigurationIT {
 
         assertThat(usagePoint.getConfiguration(ACTIVE_DATE.toInstant())).contains(usagePointConfiguration);
 
-        usagePoint = meteringService.findUsagePoint(usagePoint.getId()).get();
+        usagePoint = meteringService.findUsagePointById(usagePoint.getId()).get();
         usagePointConfiguration = usagePoint.getConfiguration(ACTIVE_DATE.toInstant()).get();
 
         assertThat(usagePointConfiguration.getRange()).isEqualTo(Range.closedOpen(ACTIVE_DATE.toInstant(), END_DATE.toInstant()));
@@ -207,7 +207,7 @@ public class UsagePointConfigurationIT {
 
         assertThat(usagePoint.getConfiguration(ACTIVE_DATE.toInstant())).contains(usagePointConfiguration);
 
-        usagePoint = meteringService.findUsagePoint(usagePoint.getId()).get();
+        usagePoint = meteringService.findUsagePointById(usagePoint.getId()).get();
         usagePointConfiguration = usagePoint.getConfiguration(ACTIVE_DATE.toInstant()).get();
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -215,7 +215,7 @@ public class UsagePointConfigurationIT {
             context.commit();
         }
 
-        usagePoint = meteringService.findUsagePoint(usagePoint.getId()).get();
+        usagePoint = meteringService.findUsagePointById(usagePoint.getId()).get();
         usagePointConfiguration = usagePoint.getConfiguration(ACTIVE_DATE.toInstant()).get();
 
         Range<Instant> range = usagePointConfiguration.getRange();
@@ -240,7 +240,7 @@ public class UsagePointConfigurationIT {
                     .findDefaultMeterRole(DefaultMeterRole.DEFAULT), ACTIVE_DATE.toInstant());
             context.commit();
         }
-        usagePoint = meteringService.findUsagePoint(usagePoint.getId()).get();
+        usagePoint = meteringService.findUsagePointById(usagePoint.getId()).get();
         meterActivation = usagePoint.getMeterActivations().get(0);
     }
 
