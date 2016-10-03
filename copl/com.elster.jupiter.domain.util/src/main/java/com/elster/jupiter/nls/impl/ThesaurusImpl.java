@@ -35,7 +35,7 @@ class ThesaurusImpl implements IThesaurus {
     private static final Pattern VALIDATION_KEY = Pattern.compile("^\\{(.*)\\}$");
 
     private final ThreadPrincipalService threadPrincipalService;
-    private final Map<String, NlsKeyImpl> translations = new HashMap<>();
+    private Map<String, NlsKeyImpl> translations;
     private final Provider<NlsKeyImpl> nlsKeyProvider;
     private final DataModel dataModel;
     private Layer layer;
@@ -55,7 +55,7 @@ class ThesaurusImpl implements IThesaurus {
     }
 
     private void initTranslations(String component, Layer layer) {
-        translations.clear();
+        this.translations = new HashMap<>();
         for (NlsKeyImpl nlsKey : getNlsKeys(component, layer)) {
             translations.put(nlsKey.getKey(), nlsKey);
         }
@@ -88,7 +88,7 @@ class ThesaurusImpl implements IThesaurus {
     }
 
     private void ensureTranslationsLoaded() {
-        if (translations.isEmpty()) {
+        if (translations == null) {
             initTranslations(component, layer);
         }
     }
@@ -99,7 +99,7 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public void invalidate() {
-        translations.clear();
+        translations = null;
     }
 
     void createNewTranslationKeys(TranslationKeyProvider provider) {
@@ -212,10 +212,12 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public boolean hasKey(String key){
+        this.ensureTranslationsLoaded();
         return this.translations.entrySet()
                 .stream()
                 .filter(e -> e.getKey().equals(key))
                 .findFirst()
                 .isPresent();
     }
+
 }

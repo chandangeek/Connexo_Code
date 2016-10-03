@@ -47,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -525,11 +524,13 @@ public class NlsServiceImpl implements NlsService {
         }
 
         private String getString(String key, String defaultMessage) {
-            return thesauri.values().stream()
-                    .map(th -> th.getString(key, null))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(defaultMessage);
+            for (IThesaurus thesaurus : thesauri.values()) {
+                String attempt = thesaurus.getString(key, null);
+                if (attempt != null) {
+                    return attempt;
+                }
+            }
+            return defaultMessage;
         }
     }
 
