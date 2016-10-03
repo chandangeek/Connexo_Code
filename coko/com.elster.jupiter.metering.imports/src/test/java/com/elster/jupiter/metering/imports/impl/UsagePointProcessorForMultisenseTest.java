@@ -116,7 +116,7 @@ public class UsagePointProcessorForMultisenseTest {
 
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
         when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
-        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
         when(meteringService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
         when(meteringService.getServiceCategory(Matchers.any(ServiceKind.class))).thenReturn(Optional.ofNullable(serviceCategoryTwo));
         when(meteringService.findServiceLocation(anyLong())).thenReturn(Optional.ofNullable(servicelocation));
