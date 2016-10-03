@@ -48,7 +48,7 @@ public class UsagePointsImportProcessorForMultisense implements FileImportProces
                 .filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString))
                 .findFirst()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber(), serviceKindString));
-        Optional<UsagePoint> usagePointOptional = context.getMeteringService().findUsagePoint(mRID);
+        Optional<UsagePoint> usagePointOptional = context.getMeteringService().findUsagePointByMRID(mRID);
         Optional<ServiceCategory> serviceCategory = context.getMeteringService().getServiceCategory(serviceKind);
 
         if (usagePointOptional.isPresent()) {

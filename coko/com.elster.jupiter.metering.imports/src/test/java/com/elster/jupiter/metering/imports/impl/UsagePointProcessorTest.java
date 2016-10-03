@@ -210,7 +210,7 @@ public class UsagePointProcessorTest {
         when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
 
-        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
         when(meteringService.getServiceCategory(Matchers.any(ServiceKind.class))).thenReturn(Optional.ofNullable(serviceCategoryTwo));
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
         when(meteringService.findServiceLocation(anyLong())).thenReturn(Optional.ofNullable(servicelocation));

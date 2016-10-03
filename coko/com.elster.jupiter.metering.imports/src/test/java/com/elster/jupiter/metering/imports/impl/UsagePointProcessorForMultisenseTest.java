@@ -116,7 +116,7 @@ public class UsagePointProcessorForMultisenseTest {
 
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
         when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
-        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
         when(meteringService.getServiceCategory(Matchers.any(ServiceKind.class))).thenReturn(Optional.ofNullable(serviceCategoryTwo));
         when(meteringService.findServiceLocation(anyLong())).thenReturn(Optional.ofNullable(servicelocation));
         when(usagePointBuilder.create()).thenReturn(usagePoint);
@@ -212,7 +212,7 @@ public class UsagePointProcessorForMultisenseTest {
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
-        when(meteringService.findUsagePoint("DOA_UPS1_UP001")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID("DOA_UPS1_UP001")).thenReturn(Optional.of(usagePoint));
 
         importer.process(occurrence);
 

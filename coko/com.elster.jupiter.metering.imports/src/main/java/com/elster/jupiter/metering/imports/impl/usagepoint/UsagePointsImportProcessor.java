@@ -78,7 +78,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         ServiceCategory serviceCategory = context.getMeteringService().getServiceCategory(serviceKind)
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, data.getLineNumber(), serviceKindString));
 
-        Optional<UsagePoint> usagePoint = context.getMeteringService().findUsagePoint(mRID);
+        Optional<UsagePoint> usagePoint = context.getMeteringService().findUsagePointByMRID(mRID);
         if (usagePoint.isPresent()) {
             if (data.isAllowUpdate()) {
                 updateDetails(usagePoint.get(), data, logger).validate();
@@ -106,7 +106,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber()));
         ServiceKind serviceKind = Arrays.stream(ServiceKind.values()).filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString)).findFirst()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber(), serviceKindString));
-        Optional<UsagePoint> usagePointOptional = context.getMeteringService().findUsagePoint(mRID);
+        Optional<UsagePoint> usagePointOptional = context.getMeteringService().findUsagePointByMRID(mRID);
         Optional<ServiceCategory> serviceCategory = context.getMeteringService().getServiceCategory(serviceKind);
 
         if (usagePointOptional.isPresent()) {
