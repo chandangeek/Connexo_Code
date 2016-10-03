@@ -145,7 +145,7 @@ public class DeviceImplSecurityPropertiesTest {
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         MeterBuilder meterBuilder = FakeBuilder.initBuilderStub(meter, MeterBuilder.class);
-        when(amrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+        when(amrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
         when(meter.getLifecycleDates()).thenReturn(lifeCycleDates);
         mockDataModelWithNoValidationIssues();
         when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.of(amrSystem));

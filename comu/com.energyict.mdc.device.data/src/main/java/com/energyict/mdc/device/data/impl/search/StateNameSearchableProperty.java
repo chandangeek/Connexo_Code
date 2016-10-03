@@ -26,6 +26,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -141,8 +142,8 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         this.validateAllParentsAreDeviceTypes(deviceTypes);
         this.states = deviceTypes.stream()
                 .map(DeviceType.class::cast)
-                .flatMap(deviceType -> this.getDeviceStatesFor(deviceType))
-                .sorted((state1, state2) -> state1.getName().compareToIgnoreCase(state2.getName()))
+                .flatMap(this::getDeviceStatesFor)
+                .sorted(Comparator.comparing(DeviceState::getName, String.CASE_INSENSITIVE_ORDER))
                 .toArray(DeviceState[]::new);
     }
 

@@ -16,13 +16,10 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserPreferencesService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -48,13 +45,11 @@ import javax.inject.Provider;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -91,8 +86,6 @@ public class DeviceMultiplierTest {
     private EventService eventService;
     @Mock
     private IssueService issueService;
-    @Mock
-    private Thesaurus thesaurus;
     @Mock
     private Clock clock;
     @Mock
@@ -160,49 +153,18 @@ public class DeviceMultiplierTest {
     @Mock
     private DeviceType deviceType;
 
-
     private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
     private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
 
-
     @Before
     public void setup() {
-        when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocationOnMock -> {
-            TranslationKey translationKey = (TranslationKey) invocationOnMock.getArguments()[0];
-            return new NlsMessageFormat() {
-                @Override
-                public String format(Object... args) {
-                    return MessageFormat.format(translationKey.getDefaultFormat(), args);
-                }
-
-                @Override
-                public String format(Locale locale, Object... args) {
-                    return MessageFormat.format(translationKey.getDefaultFormat(), args);
-                }
-            };
-        });
-        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocationOnMock -> {
-            MessageSeed messageSeed = (MessageSeed) invocationOnMock.getArguments()[0];
-            return new NlsMessageFormat() {
-                @Override
-                public String format(Object... args) {
-                    return MessageFormat.format(messageSeed.getDefaultFormat(), args);
-                }
-
-                @Override
-                public String format(Locale locale, Object... args) {
-                    return MessageFormat.format(messageSeed.getDefaultFormat(), args);
-                }
-            };
-        });
         when(clock.instant()).thenReturn(now);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         when(amrSystem.findMeter(String.valueOf(ID))).thenReturn(Optional.of(meter));
-        when(amrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+        when(amrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
 
         when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
-        when(meterBuilder.setName(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
@@ -229,9 +191,12 @@ public class DeviceMultiplierTest {
     }
 
     private Device createMockedDevice(Instant startOfMeterActivation) {
-        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
-                scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider,
-                firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService);
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, NlsModule.FakeThesaurus.INSTANCE, clock,
+                meteringService, validationService, securityPropertyService, scheduledConnectionTaskProvider,
+                inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
+                manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider, meteringGroupsService,
+                customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
+                deviceConfigurationService, deviceService);
 //        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();

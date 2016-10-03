@@ -166,10 +166,9 @@ public class DeviceLifeCycleChangeEventsTest {
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(finiteStateMachine.getId()).thenReturn(633L);
-        when(mdcAmrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+        when(mdcAmrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
-        when(meterBuilder.setName(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);

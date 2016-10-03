@@ -64,6 +64,7 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
 
     @Override
     public String toString() {
-        return MessageFormat.format("load profile with name ''{0}'' on device having MRID {1}", loadProfile.getLoadProfileSpec().getLoadProfileType().getName(), loadProfile.getId());
+        return MessageFormat.format("load profile with name ''{0}'' on device having MRID {1}",
+                loadProfile.getLoadProfileSpec().getLoadProfileType().getName(), loadProfile.getDevice().getmRID());
     }
 }
