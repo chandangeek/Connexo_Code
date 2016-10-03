@@ -182,7 +182,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
             });
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('device.servicecall.remove.msg', 'MDC', 'This service call will be canceled and no longer be running. Do you wish to continue?'),
+                msg: Uni.I18n.translate('device.servicecall.remove.msg', 'MDC', 'This service call will be cancelled and no longer be running. Do you wish to continue?'),
                 title: Uni.I18n.translate('general.cancelX', 'MDC', "Cancel '{0}'?", [record.data.name]),
                 fn: function (state) {
                     if (state === 'confirm') {
