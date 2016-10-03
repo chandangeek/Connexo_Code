@@ -70,11 +70,11 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         me.getPage().setLoading();
         lifeCycleTab.add(lifeCyclePanel);
         lifeCycleDataView.bindStore(lifeCycleHistoryStore);
-        lifeCycleHistoryStore.getProxy().setParams(me.getController('Uni.controller.history.Router').arguments);
+        Ext.apply(lifeCycleHistoryStore.getProxy().extraParams, me.getController('Uni.controller.history.Router').arguments);
         lifeCycleHistoryStore.load(function (records) {
             lifeCycleHistoryStore.add(records.reverse());
 
-            firmwareHistoryStore.getProxy().setParams(me.getController('Uni.controller.history.Router').arguments);
+            Ext.apply(firmwareHistoryStore.getProxy().extraParams, me.getController('Uni.controller.history.Router').arguments);
             firmwareHistoryStore.load(function() {
                 if (firmwareHistoryStore.getTotalCount()===0) {
                     firmwareTab.add({

@@ -241,7 +241,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         previewContainer.add(widget);
 
         var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegisterForPreview');
-        model.getProxy().setExtraParam('deviceId', record.get('name'));
+        model.getProxy().setExtraParam('deviceId', me.deviceId);
         form.setLoading(true);
         model.load(record.getId(), {
             callback: function(record, operation, success) {

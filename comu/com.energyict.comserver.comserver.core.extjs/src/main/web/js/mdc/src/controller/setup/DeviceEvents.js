@@ -50,7 +50,7 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
             toggleId = 'events',
             title = Uni.I18n.translate('general.events', 'MDC', 'Events');
 
-        dataStoreProxy.setParams(deviceId, logbookId);
+        dataStoreProxy.setUrl({deviceId: deviceId, logbookId: logbookId});
         if (Ext.isDefined(logbookId)) {
             title = Uni.I18n.translate('devicelogbooks.event.header', 'MDC', 'Logbook events');
             toggleId = 'logbooksLink';

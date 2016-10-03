@@ -1,7 +1,7 @@
 Ext.define('Mdc.model.DeviceAttribute', {
     extend: 'Ext.data.Model',
     fields: [
-        {name: 'name', type: 'string'},
+        {name: 'name', type: 'auto'},
         {name: 'mrid', type: 'auto'},
         {name: 'deviceType', type: 'auto'},
         {name: 'serialNumber', type: 'auto'},

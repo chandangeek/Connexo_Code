@@ -51,8 +51,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
             logbooksOfDeviceStore = me.getStore('Mdc.store.LogbooksOfDevice'),
             sideFilter;
 
-        dataStoreProxy.setParams(deviceId, logbookId);
-
+        dataStoreProxy.setUrl({deviceId: deviceId, logbookId: logbookId});
         me.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
