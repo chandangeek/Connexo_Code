@@ -11,6 +11,16 @@ Ext.define('Fim.store.ImportServices', {
             type: 'json',
             root: 'importSchedules'
         }
+    },
+
+    listeners: {
+        beforeload: function (store, options) {
+            var params = {};
+
+            params.sort = Ext.JSON.encode([{property: 'name', direction: 'ASC'}]);
+
+            Ext.apply(options.params, params);
+        }
     }
 
 });
