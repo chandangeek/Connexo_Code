@@ -57,14 +57,14 @@ public class MeteringMessageHandler implements MessageHandler {
                                     .toString()), eventType.name());
                             break;
                         case METER_UPDATED:
-                            meteringService.findMeter(Long.valueOf(messageProperties.get("id").toString()))
+                            meteringService.findMeterById(Long.valueOf(messageProperties.get("id").toString()))
                                     .map(meter -> meter.getUsagePoint(clock.instant()))
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
                                     .ifPresent(usagePoint -> sendSignalToActiveProsesses(usagePoint.getId(), eventType.name()));
                             break;
                         case METERREADING_CREATED:
-                            meteringService.findMeter(Long.valueOf(messageProperties.get("meterId").toString()))
+                            meteringService.findMeterById(Long.valueOf(messageProperties.get("meterId").toString()))
                                     .map(meter -> meter.getUsagePoint(clock.instant()))
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
