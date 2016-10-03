@@ -12,6 +12,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.FirmwareManagementTask;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,25 +32,25 @@ import static org.mockito.Mockito.when;
 
 public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
-    private final static long firmwareComTaskId = 103;
-    private final static long loadProfilesComTaskId = 16;
-    private final static long registersComTaskId = 645;
-    private final static long topologyComTaskId = 46;
-    private final static String topologyComTaskName = "TopologyComTask";
-    private final static String registersComTaskName = "RegistersComTask";
-    private final static String loadProfilesComTaskName = "LoadProfilesComTask";
-    private final static String firmwareComTaskName = "Firmware management";
+    private static final long firmwareComTaskId = 103;
+    private static final long loadProfilesComTaskId = 16;
+    private static final long registersComTaskId = 645;
+    private static final long topologyComTaskId = 46;
+    private static final String topologyComTaskName = "TopologyComTask";
+    private static final String registersComTaskName = "RegistersComTask";
+    private static final String loadProfilesComTaskName = "LoadProfilesComTask";
+    private static final String firmwareComTaskName = "Firmware management";
 
     @Before
     public void initBefore() {
-        when(firmwareService.findFirmwareManagementOptions(any(DeviceType.class))).thenReturn(Optional.<FirmwareManagementOptions>empty());
+        when(firmwareService.findFirmwareManagementOptions(any(DeviceType.class))).thenReturn(Optional.empty());
     }
 
     @Test
     public void getAllowedComTasksWhichAreNotDefinedYetNoComTasksWithFirmwareTest() {
         mockDeviceTypeWithConfigWhichAllowsFirmwareUpgrade();
         ComTask firmwareComTask = mockFirmwareComTask();
-        Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(firmwareComTask));
+        Finder<ComTask> comTaskFinder = mockFinder(Collections.singletonList(firmwareComTask));
         when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
         Map<String, Object> map = target("devicetypes/1/deviceconfigurations/1/comtasks").queryParam("available", true).request().get(Map.class);
 
@@ -61,7 +62,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
     public void getAllowedComTasksWhichAreNotDefinedYetNoComTasksWithFirmwareButDisallowTest() {
         mockSimpleDeviceTypeAndConfig();
         ComTask firmwareComTask = mockFirmwareComTask();
-        Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(firmwareComTask));
+        Finder<ComTask> comTaskFinder = mockFinder(Collections.singletonList(firmwareComTask));
         when(taskService.findAllComTasks()).thenReturn(comTaskFinder);
         Map<String, Object> map = target("devicetypes/1/deviceconfigurations/1/comtasks").queryParam("available", true).request().get(Map.class);
 
@@ -232,7 +233,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
     private DeviceType mockSimpleDeviceTypeAndConfig() {
         DeviceType deviceType = mockDeviceType("device", 1);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 1, deviceType);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
 
         return deviceType;
@@ -243,7 +244,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         when(firmwareComTask.getId()).thenReturn(firmwareComTaskId);
         when(firmwareComTask.getName()).thenReturn(firmwareComTaskName);
         FirmwareManagementTask firmwareManagementTask = mock(FirmwareManagementTask.class);
-        when(firmwareComTask.getProtocolTasks()).thenReturn(Arrays.asList(firmwareManagementTask));
+        when(firmwareComTask.getProtocolTasks()).thenReturn(Collections.singletonList(firmwareManagementTask));
         when(taskService.findFirmwareComTask()).thenReturn(Optional.of(firmwareComTask));
         return firmwareComTask;
     }
@@ -259,7 +260,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         return deviceType;
     }
 
-    protected DeviceConfiguration mockDeviceConfiguration(String name, long id, DeviceType deviceType) {
+    private DeviceConfiguration mockDeviceConfiguration(String name, long id, DeviceType deviceType) {
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getName()).thenReturn(name);
         when(deviceConfiguration.getId()).thenReturn(id);

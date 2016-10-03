@@ -33,10 +33,10 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
 
     public static final long OK_VERSION = 24L;
     public static final long BAD_VERSION = 17L;
-    public static final long DEVICE_TYPE_ID = 564L;
-    public static final long DEVICE_CONFIGURATION_ID = 211L;
-    public static final long RULESET_ID_1 = 1L;
-    public static final long RULESET_ID_2 = 2L;
+    private static final long DEVICE_TYPE_ID = 564L;
+    private static final long DEVICE_CONFIGURATION_ID = 211L;
+    private static final long RULESET_ID_1 = 1L;
+    private static final long RULESET_ID_2 = 2L;
     @Mock
     private ValidationRuleSet validationRuleSet1, validationRuleSet2;
     @Mock
@@ -77,8 +77,8 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
         when(validationRuleSet2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(validationRuleSet1, validationRuleSet2));
         when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration)).thenReturn(Arrays.asList(readingType1, readingType2));
-        when(validationRuleSet1.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule1));
-        when(validationRuleSet2.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule2));
+        when(validationRuleSet1.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Collections.singletonList(rule1));
+        when(validationRuleSet2.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Collections.singletonList(rule2));
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
         when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
@@ -106,8 +106,8 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
 
         when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(validationRuleSet1, validationRuleSet2));
         when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration)).thenReturn(Arrays.asList(readingType1, readingType2));
-        when(validationRuleSet1.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Collections.<ValidationRule>emptyList());
-        when(validationRuleSet2.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule2));
+        when(validationRuleSet1.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Collections.emptyList());
+        when(validationRuleSet2.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Collections.singletonList(rule2));
 
         Invocation.Builder all = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/")
                 .queryParam("all", Boolean.TRUE)

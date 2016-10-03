@@ -59,6 +59,7 @@ import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -116,9 +117,9 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         registerGroupInfoFactory = new RegisterGroupInfoFactory(registerTypeInfoFactory);
         loadProfileTypeOnDeviceTypeInfoFactory = new LoadProfileTypeOnDeviceTypeInfoFactory(registerTypeInfoFactory);
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
-        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        doReturn(messageFormat).when(thesaurus).getFormat(any(MessageSeed.class));
+        doReturn(messageFormat).when(thesaurus).getFormat(any(TranslationKey.class));
     }
 
     @Override
