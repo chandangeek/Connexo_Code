@@ -47,7 +47,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistoryDevicesPrevie
                             {
                                 itemId: 'name-field',
                                 name: 'name',
-                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'name'),
+                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                 renderer: function (value) {
                                     if (value) {
                                         var deviceUrl = me.router.getRoute('devices/device').buildUrl({
