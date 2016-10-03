@@ -311,7 +311,13 @@ Ext.define('Uni.grid.FilterPanelTop', {
         }
 
         Ext.apply(options.params, params);
-        me.down('button[action=clearAll]').setDisabled(!Ext.Array.filter(Ext.decode(options.params.filter, true) || [], function (filter) {
+        me.enableClearAll(Ext.decode(options.params.filter, true) || []);
+    },
+
+    enableClearAll: function (filters) {
+        var me = this;
+
+        me.down('button[action=clearAll]').setDisabled(!Ext.Array.filter(filters, function (filter) {
             return !Ext.Array.contains(me.noUiFilters, filter.property);
         }).length);
     },
