@@ -10,15 +10,15 @@ import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Models the behavior of a component that provides translation keys
- * that determine the name of issue groups.
- * Typically, components that define issue groups
+ * that determine the name of issue reasons.
+ * Typically, components that define issue reasons
  * should consider implementing this interface
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-09-29 (10:11)
  */
 @ConsumerType
-public interface IssueGroupTranslationProvider {
+public interface IssueReasonTranslationProvider {
     String getComponentName();
     Layer getLayer();
 }

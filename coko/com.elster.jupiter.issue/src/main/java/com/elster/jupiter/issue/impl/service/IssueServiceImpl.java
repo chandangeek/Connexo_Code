@@ -39,6 +39,7 @@ import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
+import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
@@ -175,8 +176,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
-                bind(Thesaurus.class).toInstance(thesaurus);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(Thesaurus.class).toProvider(() -> getThesaurus());
+                bind(MessageInterpolator.class).toProvider(() -> getThesaurus());
                 bind(MessageService.class).toInstance(messageService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(UserService.class).toInstance(userService);
@@ -220,6 +221,10 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    private Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Reference
@@ -292,6 +297,24 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @SuppressWarnings("unused") // Called by OSGi framework when IssueGroupTranslationProvider component deactivates
     public void removeIssueGroupTranslationProvider(IssueGroupTranslationProvider obsolete) {
+        // Don't bother unjoining the provider's thesaurus
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @SuppressWarnings("unused") // Called by OSGi framework when IssueReasonTranslationProvider component activates
+    public void addIssueReasonTranslationProvider(IssueReasonTranslationProvider provider) {
+        synchronized (this.thesaurusLock) {
+            ComponentAndLayer componentAndLayer = ComponentAndLayer.from(provider);
+            if (!this.alreadyJoined.contains(componentAndLayer)) {
+                Thesaurus providerThesaurus = this.nlsService.getThesaurus(provider.getComponentName(), provider.getLayer());
+                this.thesaurus = this.thesaurus.join(providerThesaurus);
+                this.alreadyJoined.add(componentAndLayer);
+            }
+        }
+    }
+
+    @SuppressWarnings("unused") // Called by OSGi framework when IssueReasonTranslationProvider component deactivates
+    public void removeIssueReasonTranslationProvider(IssueReasonTranslationProvider obsolete) {
         // Don't bother unjoining the provider's thesaurus
     }
 
@@ -646,6 +669,10 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
 
         public static ComponentAndLayer from(IssueGroupTranslationProvider provider) {
+            return new ComponentAndLayer(provider.getComponentName(), provider.getLayer());
+        }
+
+        public static ComponentAndLayer from(IssueReasonTranslationProvider provider) {
             return new ComponentAndLayer(provider.getComponentName(), provider.getLayer());
         }
     }
