@@ -135,8 +135,8 @@ public class IssueResourceHelper {
         if (jsonFilter.hasProperty(IssueRestModuleConst.REASON) && issueService.findReason(jsonFilter.getString(IssueRestModuleConst.REASON)).isPresent()) {
             filter.setIssueReason(issueService.findReason(jsonFilter.getString(IssueRestModuleConst.REASON)).get());
         }
-        if (jsonFilter.hasProperty(IssueRestModuleConst.METER) && meteringService.findEndDevice(jsonFilter.getString(IssueRestModuleConst.METER)).isPresent()) {
-            filter.addDevice(meteringService.findEndDevice(jsonFilter.getString(IssueRestModuleConst.METER)).get());
+        if (jsonFilter.hasProperty(IssueRestModuleConst.METER) && meteringService.findEndDeviceByMRID(jsonFilter.getString(IssueRestModuleConst.METER)).isPresent()) {
+            filter.addDevice(meteringService.findEndDeviceByMRID(jsonFilter.getString(IssueRestModuleConst.METER)).get());
         }
         getAssignees(jsonFilter).stream().forEach(as -> {
             String assigneeType = as.getType();

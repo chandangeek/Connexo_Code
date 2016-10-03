@@ -182,12 +182,13 @@ public class IssueResource extends BaseResource {
               .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))  // Reason id
               .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
               .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS)) // All selected statuses
+                // TODO: MRID or name?
               .withMeterMrid(filter.getString(IssueRestModuleConst.METER)) // Filter by meter MRID
               .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
               .setAscOrder(false) // Sorting (descending direction)
               .from(params.getFrom()).to(params.getTo()); // Pagination
-        issueResourceHelper.getAssignees(filter).stream().forEach(ai -> groupFilter.withAssignee(ai.getId(), ai.getType()));
-        issueResourceHelper.getDueDates(filter).stream().forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
+        issueResourceHelper.getAssignees(filter).forEach(ai -> groupFilter.withAssignee(ai.getId(), ai.getType()));
+        issueResourceHelper.getDueDates(filter).forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
         List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
         List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("issueGroups", infos, queryParameters);
