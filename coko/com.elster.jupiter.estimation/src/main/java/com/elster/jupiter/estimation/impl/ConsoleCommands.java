@@ -87,7 +87,7 @@ public class ConsoleCommands {
     public void estimationBlocks(long meterId, String qualityCodeSystem) {
         try {
             EstimationEngine estimationEngine = new EstimationEngine();
-            Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
+            Meter meter = meteringService.findMeterById(meterId).orElseThrow(IllegalArgumentException::new);
             meter.getCurrentMeterActivation().ifPresent(meterActivation -> {
                 QualityCodeSystem system = QualityCodeSystem.of(qualityCodeSystem);
                 meterActivation.getChannelsContainer().getChannels().stream()
@@ -267,7 +267,7 @@ public class ConsoleCommands {
             }
             Map<String, Object> props = getProperties(optionalEstimatorTemplate.get().getPropertySpecs(), properties);
             Estimator estimator = estimationService.getEstimator(estimatorName, props).get();
-            Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
+            Meter meter = meteringService.findMeterById(meterId).orElseThrow(IllegalArgumentException::new);
             Optional<? extends MeterActivation> meterActivationOptional = meter.getCurrentMeterActivation();
             if (!meterActivationOptional.isPresent()) {
                 System.out.println("no meter activation present or meter " + meter.getName());
@@ -313,7 +313,7 @@ public class ConsoleCommands {
     }
 
     public void estimate(long meterId, String qualityCodeSystem) {
-        Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
+        Meter meter = meteringService.findMeterById(meterId).orElseThrow(IllegalArgumentException::new);
         meter.getCurrentMeterActivation()
                 .map(meterActivation -> estimationService.estimate(QualityCodeSystem.of(qualityCodeSystem), meterActivation, Range.all()))
                 .map(EstimationReport::getResults)
