@@ -63,7 +63,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
 
                 Uni.property.controller.Registry.addProperty('METROLOGYCONFIGOUTPUT', 'Imt.processes.view.MetrologyConfigurationOutputs');
                 me.getApplication().fireEvent('usagePointLoaded', usagePoint);
-
+                viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-start', {
                     usagePoint: usagePoint,
                     router: router,
@@ -94,7 +94,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
-                viewport.setLoading(false);
+
             },
             failure: function () {
                 viewport.setLoading(false);
