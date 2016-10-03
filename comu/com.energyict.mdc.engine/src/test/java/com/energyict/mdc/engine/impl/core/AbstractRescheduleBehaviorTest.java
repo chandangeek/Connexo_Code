@@ -50,6 +50,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -58,6 +59,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -110,6 +112,9 @@ public abstract class AbstractRescheduleBehaviorTest {
 
     @Before
     public void setup() {
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionStarted(any(ConnectionTask.class), any(ComServer.class));
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionFailed(any(ConnectionTask.class));
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionCompleted(any(ConnectionTask.class));
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.getDevice()).thenReturn(device);
         Optional<NextExecutionSpecs> nextExecutionSpecs = Optional.empty();

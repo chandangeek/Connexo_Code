@@ -50,10 +50,10 @@ import java.util.Optional;
  * Models the behavior of a component that provides access to the data
  * that is relevant to the ComServer.
  * Implementation classes will focus on the actual data source containing the data.
- * <p>
+ * <p/>
  * The implementation classes are allowed to throw com.energyict.comserver.core.interfaces.DataAccessException(s)
  * to report severe problems that relate to the actual data source.
- * <p>
+ * <p/>
  * Refer to java website for a complete discussion on the
  * <a href="http://java.sun.com/blueprints/corej2eepatterns/Patterns/DataAccessObject.html">Data Access Object design pattern</a>.
  *
@@ -191,25 +191,25 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     /**
      * Notifies that execution of the specified OutboundConnectionTask
      * was started by the specified ComServer.
-     *
-     * @param connectionTask The OutboundConnectionTask
+     *  @param connectionTask The OutboundConnectionTask
      * @param comServer The ComServer that started the execution
      */
-    void executionStarted(ConnectionTask connectionTask, ComServer comServer);
+    ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer);
 
     /**
      * Notifies that execution of the specified OutboundConnectionTask completed.
      *
      * @param connectionTask The OutboundConnectionTask
      */
-    void executionCompleted(ConnectionTask connectionTask);
+    ConnectionTask<?, ?> executionCompleted(ConnectionTask connectionTask);
 
     /**
      * Notifies that execution of the specified OutboundConnectionTask failed.
      *
      * @param connectionTask The OutboundConnectionTask
+     * @return the updated connectiontask
      */
-    void executionFailed(ConnectionTask connectionTask);
+    ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask);
 
     /**
      * Notifies that execution of the specified ComTaskExecution has been started
@@ -459,7 +459,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      */
     void cleanupOutdatedComTaskExecutionTriggers();
 
-    List<Pair<OfflineLoadProfile,Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile loadProfile, String readingTypeMRID, Range<Instant> dataPeriod);
+    List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile loadProfile, String readingTypeMRID, Range<Instant> dataPeriod);
 
     User getComServerUser();
 

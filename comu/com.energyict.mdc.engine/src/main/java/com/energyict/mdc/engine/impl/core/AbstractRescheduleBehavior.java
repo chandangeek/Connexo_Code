@@ -26,7 +26,7 @@ abstract class AbstractRescheduleBehavior {
 
     protected final Clock clock;
     private final ComServerDAO comServerDAO;
-    private final ConnectionTask connectionTask;
+    private ConnectionTask connectionTask;
 
     AbstractRescheduleBehavior(ComServerDAO comServerDAO, ConnectionTask connectionTask, Clock clock) {
         this.comServerDAO = comServerDAO;
@@ -43,11 +43,11 @@ abstract class AbstractRescheduleBehavior {
     }
 
     void retryConnectionTask() {
-        this.comServerDAO.executionFailed(this.connectionTask);
+        this.connectionTask = this.comServerDAO.executionFailed(this.connectionTask);
     }
 
     void rescheduleSuccessfulConnectionTask() {
-        this.comServerDAO.executionCompleted(this.connectionTask);
+        this.connectionTask = this.comServerDAO.executionCompleted(this.connectionTask);
     }
 
     ConnectionTask getConnectionTask() {
