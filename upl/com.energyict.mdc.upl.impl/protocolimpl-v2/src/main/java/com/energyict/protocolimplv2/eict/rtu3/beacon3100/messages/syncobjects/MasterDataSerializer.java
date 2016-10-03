@@ -218,7 +218,7 @@ public class MasterDataSerializer {
         byte[] ak = null;
         byte[] ek = null;
         List<Beacon3100ClientDetails> clientDetails = new ArrayList<>();
-        final long initialFrameCounter = device.getProtocolProperties().getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER, -1);
+        final long initialFrameCounter = device.getProtocolProperties().getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER, BigDecimal.valueOf(-1)).longValue();
 
         for (SecurityPropertySet securityPropertySet : device.getConfiguration().getCommunicationConfiguration().getSecurityPropertySets()) {
             for (SecurityProperty protocolSecurityProperty : device.getProtocolSecurityProperties(securityPropertySet)) {
