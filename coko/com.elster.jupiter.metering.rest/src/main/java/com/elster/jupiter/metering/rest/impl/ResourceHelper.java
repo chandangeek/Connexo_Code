@@ -109,7 +109,7 @@ public class ResourceHelper {
     }
 
     public Long getCurrentUsagePointVersion(String mRID) {
-        return meteringService.findUsagePoint(mRID)
+        return meteringService.findUsagePointByMRID(mRID)
                 .map(UsagePoint::getVersion)
                 .orElse(null);
     }

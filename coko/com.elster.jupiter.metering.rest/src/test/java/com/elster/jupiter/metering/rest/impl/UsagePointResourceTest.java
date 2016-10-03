@@ -62,8 +62,8 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
 
     @Before
     public void setUp1() {
-        when(meteringService.findUsagePoint(1L)).thenReturn(Optional.of(usagePoint));
-        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointById(1L)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.of(usagePoint));
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
         when(serviceCategory.newUsagePoint(eq("test"), any(Instant.class))).thenReturn(usagePointBuilder);
         when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
@@ -139,7 +139,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
 
     @Test
     public void testUsagePointUpdate() {
-        when(meteringService.findUsagePoint(1L)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointById(1L)).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
         UsagePointInfo info = new UsagePointInfo();
         info.id = 1L;
@@ -156,7 +156,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
 
     @Test
     public void testGetUsagePointMetrologyConfigurationHistory() {
-        when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
 
         String json = target("usagepoints/MRID/history/metrologyconfigurations").request().get(String.class);
 
@@ -169,7 +169,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
 
     @Test
     public void testUpdateMetrologyConfigurationVersions() {
-        when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mockEffectiveMetrologyConfiguration();
         UsagePointMetrologyConfiguration config = mockMetrologyConfiguration(1L, "MC-1", "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");

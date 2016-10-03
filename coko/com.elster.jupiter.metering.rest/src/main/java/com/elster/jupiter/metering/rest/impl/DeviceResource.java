@@ -89,7 +89,7 @@ public class DeviceResource {
     public MeterInfos getDevice(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
         MeterInfos result = null;
         if (maySeeAny(securityContext)) {
-            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            Optional<Meter> foundMeter = meteringService.findMeterByMRID(mRID);
             if (foundMeter.isPresent()) {
                 result = new MeterInfos(foundMeter.get());
             }
@@ -104,7 +104,7 @@ public class DeviceResource {
     public LocationMemberInfos getDeviceLocation(@PathParam("mRID") String mRID, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
         LocationMemberInfos result = null;
         if (maySeeAny(securityContext)) {
-            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            Optional<Meter> foundMeter = meteringService.findMeterByMRID(mRID);
             if (foundMeter.isPresent()) {
                 Optional<Location> location = foundMeter.get().getLocation();
                 if (location.isPresent()) {
@@ -126,7 +126,7 @@ public class DeviceResource {
     public LocationMemberInfos getDeviceLocations(@PathParam("mRID") String mRID, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
         LocationMemberInfos result = null;
         if (maySeeAny(securityContext)) {
-            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            Optional<Meter> foundMeter = meteringService.findMeterByMRID(mRID);
             if (foundMeter.isPresent()) {
                 Optional<Location> location = foundMeter.get().getLocation();
                 if (location.isPresent()) {

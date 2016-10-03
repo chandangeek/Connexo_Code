@@ -416,7 +416,7 @@ public class UsagePointResource {
     }
 
     private UsagePoint fetchUsagePoint(String mRID) {
-        return meteringService.findUsagePoint(mRID)
+        return meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mRID));
     }
 }
