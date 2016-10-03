@@ -55,7 +55,7 @@ Ext.define('Uni.DynamicPrivileges', {
         Ext.each(stores, function (store) {
             var store = Ext.data.StoreManager.lookup(store) || Ext.create(store);
 
-            store.getProxy().setUrl(router.arguments);
+            Ext.apply(store.getProxy().extraParams, router.arguments);
             store.load({
                 callback: function () {
                     this.each(function (record) {
