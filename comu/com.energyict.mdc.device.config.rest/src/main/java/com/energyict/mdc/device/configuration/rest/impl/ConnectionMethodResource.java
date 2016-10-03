@@ -78,11 +78,11 @@ public class ConnectionMethodResource {
                                               @BeanParam JsonQueryParameters queryParameters,
                                               @Context UriInfo uriInfo,
                                               @QueryParam("available") Boolean available,
-                                              @QueryParam("mrId") String mrId) {
+                                              @QueryParam("deviceId") long deviceId) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<PartialConnectionTask> partialConnectionTasks;
         if (available != null) {
-            Device device = deviceService.findDeviceByMrid(mrId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mrId));
+            Device device = deviceService.findDeviceById(deviceId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, deviceId));
             if (device.getDeviceConfiguration().getId() != deviceConfigurationId) {
                 throw exceptionFactory.newException(MessageSeeds.DEVICE_DOES_NOT_MATCH_CONFIG);
             }
