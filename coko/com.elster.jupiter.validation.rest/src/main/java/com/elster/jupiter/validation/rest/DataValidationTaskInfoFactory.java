@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.History;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.util.time.Never;
@@ -93,42 +92,7 @@ public class DataValidationTaskInfoFactory {
     }
 
     private String fromTemporalExpression(TemporalExpression scheduleExpression) {
-        TimeDuration every = scheduleExpression.getEvery();
-        int count = every.getCount();
-        TimeDuration.TimeUnit unit = every.getTimeUnit();
-        String everyTranslation = thesaurus.getString("Every", "Every");
-
-        String unitTranslation = unit.getDescription();
-        if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getString("day", "day");
-            } else {
-                unitTranslation = thesaurus.getString("multipleDays", "days");
-            }
-        } else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getString("week", "week");
-            } else {
-                unitTranslation = thesaurus.getString("multipleWeeks", "weeks");
-            }
-        } else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getString("month", "month");
-            } else {
-                unitTranslation = thesaurus.getString("multipleMonths", "months");
-            }
-        } else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getString("year", "year");
-            } else {
-                unitTranslation = thesaurus.getString("multipleYears", "years");
-            }
-        }
-        if (count == 1) {
-            return everyTranslation + " " + unitTranslation;
-        } else {
-            return everyTranslation + " " + count + " " + unitTranslation;
-        }
+        return this.timeService.toLocalizedString(scheduleExpression);
     }
 
     public DataValidationTaskHistoryInfo asInfo(DataValidationOccurrence dataValidationOccurrence) {
