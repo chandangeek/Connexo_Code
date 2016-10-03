@@ -132,11 +132,16 @@ Ext.define('Uni.form.RelativePeriod', {
 
         onField.setVisible(!optionCurrentDisabled || !optionDayOfMonthDisabled || !optionDayOfWeekDisabled);
 
-        var hourfieldVisibility = (frequency === 'hours' || frequency === 'minutes');
-        atHourField.setVisible(!hourfieldVisibility);
-        atHourField.setDisabled(frequency === 'hours' || frequency === 'minutes');
-        atMinuteField.setDisabled(frequency === 'minutes');
-        atMinuteField.setVisible(!(frequency === 'minutes'));
+        var hourfieldVisible = !(frequency === 'hours' || frequency === 'minutes');
+        atHourField.setVisible(hourfieldVisible);
+        atHourField.setDisabled(!hourfieldVisible);
+        me.getSeparatorField().setVisible(hourfieldVisible);
+        var minutefieldVisible = !(frequency === 'minutes');
+        atMinuteField.setVisible(minutefieldVisible);
+        atMinuteField.setDisabled(!minutefieldVisible);
+        me.getMinutesUnitField().setVisible(!hourfieldVisible && minutefieldVisible);
+        var atVisible = hourfieldVisible||minutefieldVisible ? (startField.showOptionNow ? !startField.getOptionNowRadio().getValue() : true) : false;
+        atField.setVisible(atVisible);
 
     },
 
@@ -197,6 +202,14 @@ Ext.define('Uni.form.RelativePeriod', {
 
     getAtPeriodField: function () {
         return this.down('uni-form-field-atperiod');
+    },
+
+    getSeparatorField: function() {
+        return this.down('uni-form-field-atperiod').down('#separator-field');
+    },
+
+    getMinutesUnitField: function() {
+        return this.down('uni-form-field-atperiod').down('#minutes-unit-field');
     },
 
     getValue: function () {
