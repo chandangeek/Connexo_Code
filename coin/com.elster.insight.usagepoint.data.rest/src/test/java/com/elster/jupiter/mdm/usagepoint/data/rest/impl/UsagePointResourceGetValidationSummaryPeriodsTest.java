@@ -52,7 +52,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
 
     @Before
     public void before() {
-        when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
         when(clock.instant()).thenReturn(referenceTime.toInstant());
         when(clock.getZone()).thenReturn(referenceTime.getZone());
 
@@ -84,7 +84,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
 
     @Test
     public void testNoSuchUsagePoint() {
-        when(meteringService.findUsagePoint("xxx")).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID("xxx")).thenReturn(Optional.empty());
 
         // Business method
         Response response = target("usagepoints/xxx/validationSummaryPeriods").queryParam("purposeId", 1000).request().get();

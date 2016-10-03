@@ -95,7 +95,7 @@ public class DeviceResource {
     public MeterInfos getDevice(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
         MeterInfos result = null;
         if (maySeeAny(securityContext)) {
-            Optional<Meter> ometer = meteringService.findMeter(mRID);
+            Optional<Meter> ometer = meteringService.findMeterByMRID(mRID);
             if (ometer.isPresent()) {
                 result = new MeterInfos(ometer.get());
             }

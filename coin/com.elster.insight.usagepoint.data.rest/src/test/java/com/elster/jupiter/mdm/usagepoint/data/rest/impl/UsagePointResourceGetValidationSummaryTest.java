@@ -71,8 +71,8 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
 
     @Before
     public void before() {
-        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getName()).thenReturn(", pls have a drink & try again");
         when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
         when(meterActivation.getRange()).thenReturn(Range.all());

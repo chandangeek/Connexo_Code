@@ -41,17 +41,17 @@ public class ResourceHelper {
     }
 
     public Meter findMeterOrThrowException(String mrid) {
-        return meteringService.findMeter(mrid)
+        return meteringService.findMeterByMRID(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_FOR_MRID, mrid));
     }
 
     public UsagePoint findUsagePointByMrIdOrThrowException(String mrid) {
-        return meteringService.findUsagePoint(mrid)
+        return meteringService.findUsagePointByMRID(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
     }
 
     public UsagePoint findUsagePointByIdOrThrowException(long id) {
-        return meteringService.findUsagePoint(id)
+        return meteringService.findUsagePointById(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_FOR_ID, id));
     }
 
@@ -90,7 +90,7 @@ public class ResourceHelper {
     public UsagePoint lockUsagePointOrThrowException(long id, long version, String name) {
         return meteringService.findAndLockUsagePointByIdAndVersion(id, version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
-                        .withActualVersion(() -> meteringService.findUsagePoint(id).map(UsagePoint::getVersion).orElse(null))
+                        .withActualVersion(() -> meteringService.findUsagePointById(id).map(UsagePoint::getVersion).orElse(null))
                         .supplier());
     }
 

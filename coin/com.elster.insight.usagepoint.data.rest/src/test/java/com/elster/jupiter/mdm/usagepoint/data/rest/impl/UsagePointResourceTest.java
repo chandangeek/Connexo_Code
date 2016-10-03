@@ -102,7 +102,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Before
     public void setUp1() {
-        when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
 
         when(serviceCategory.newUsagePoint(eq("test"), any(Instant.class))).thenReturn(usagePointBuilder);
@@ -144,7 +144,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getConnectionState()).thenReturn(ConnectionState.UNDER_CONSTRUCTION);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
 
-        when(meteringService.findUsagePoint("test")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID("test")).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
         when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
         when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Collections.singletonList(usagePointMetrologyConfiguration));
@@ -162,7 +162,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Collections.singletonList(usagePointMetrologyConfiguration));
         when(usagePoint.forCustomProperties().getPropertySet(1L)).thenReturn(usagePointPropertySet);
         doReturn(customPropertySet).when(usagePointPropertySet).getCustomPropertySet();
-        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
         when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
@@ -249,7 +249,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testUpadateUsagePoint() {
-        when(meteringService.findUsagePoint(1L)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointById(1L)).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
         UsagePointInfo info = new UsagePointInfo();
         info.id = 1L;
@@ -329,11 +329,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testCanActivateAndClearMetersOnUsagePoint() {
         Meter meter1 = mock(Meter.class);
         when(meter1.getMRID()).thenReturn("mrid1");
-        when(meteringService.findMeter("mrid1")).thenReturn(Optional.of(meter1));
+        when(meteringService.findMeterByMRID("mrid1")).thenReturn(Optional.of(meter1));
 
         Meter meter2 = mock(Meter.class);
         when(meter2.getMRID()).thenReturn("mrid2");
-        when(meteringService.findMeter("mrid2")).thenReturn(Optional.of(meter2));
+        when(meteringService.findMeterByMRID("mrid2")).thenReturn(Optional.of(meter2));
 
         MeterRole meterRole1 = mock(MeterRole.class);
         when(meterRole1.getKey()).thenReturn("key1");
@@ -347,7 +347,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(meterRole3.getKey()).thenReturn("key3");
         when(metrologyConfigurationService.findMeterRole("key3")).thenReturn(Optional.of(meterRole3));
 
-        when(meteringService.findUsagePoint("test")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID("test")).thenReturn(Optional.of(usagePoint));
         UsagePointMeterActivator linker = mock(UsagePointMeterActivator.class);
         when(usagePoint.linkMeters()).thenReturn(linker);
 

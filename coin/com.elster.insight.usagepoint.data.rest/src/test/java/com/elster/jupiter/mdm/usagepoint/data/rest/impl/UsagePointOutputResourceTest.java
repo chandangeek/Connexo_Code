@@ -33,7 +33,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
 
     @Before
     public void before() {
-        when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
@@ -101,7 +101,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(0);
         PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint(usagePoint.getId())).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointById(usagePoint.getId())).thenReturn(Optional.of(usagePoint));
         // Business method
         Response response = target("usagepoints/MRID/purposes/100").queryParam("upVersion", usagePoint.getVersion()).request().put(Entity.json(purposeInfo));
 

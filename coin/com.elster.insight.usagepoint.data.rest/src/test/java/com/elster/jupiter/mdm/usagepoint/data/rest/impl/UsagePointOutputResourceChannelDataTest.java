@@ -68,8 +68,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     public void before() {
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
-        when(meteringService.findUsagePoint(any())).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID(any())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
 
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
