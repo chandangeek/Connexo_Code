@@ -76,7 +76,7 @@ public class DeviceDataGoGoCommands {
 
         NONE {
             @Override
-            public void enableOutboundCommunication(TransactionService transactionService, DeviceService deviceService, String scheduleOption, List<Device> deviceMRIDs) {
+            public void enableOutboundCommunication(TransactionService transactionService, DeviceService deviceService, String scheduleOption, List<Device> devices) {
                 // This enum value represents no scheduling frequency so we will not enable anything on the devices
             }
         };
