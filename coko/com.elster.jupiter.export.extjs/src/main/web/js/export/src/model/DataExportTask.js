@@ -16,6 +16,7 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'schedule',
             defaultValue: null
         },
+        {name: 'recurrence', type: 'auto'},
         {
             name: 'nextRun',
             defaultValue: null
