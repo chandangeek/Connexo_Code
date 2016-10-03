@@ -168,7 +168,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService jupiterTaskService, IssueService issueService,
             PropertySpecService propertySpecService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
             CustomPropertySetService customPropertySetService, ProtocolPluggableService protocolPluggableService,
-            EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
+            EngineConfigurationService engineConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DeviceConfigurationService deviceConfigurationService,
             MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
             SchedulingService schedulingService, MessageService messageService,
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
@@ -188,6 +188,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setCustomPropertySetService(customPropertySetService);
         setProtocolPluggableService(protocolPluggableService);
         setEngineConfigurationService(engineConfigurationService);
+        this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         setDeviceConfigurationService(deviceConfigurationService);
         setMeteringService(meteringService);
         setValidationService(validationService);
