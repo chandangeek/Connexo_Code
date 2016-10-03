@@ -33,6 +33,8 @@ import com.google.common.collect.Range;
 import javax.inject.Provider;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -234,7 +236,9 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     private void createNewState(Instant effective, State state) {
-        Interval stateEffectivityInterval = Interval.of(Range.atLeast(effective.compareTo(clock.instant()) > 0 ? clock.instant() : effective));
+        LocalDateTime effectiveDateTime = LocalDateTime.ofInstant(effective, ZoneOffset.UTC).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime nowDateTime = LocalDateTime.ofInstant(clock.instant(), ZoneOffset.UTC).withMinute(0).withSecond(0).withNano(0);
+        Interval stateEffectivityInterval = Interval.of(Range.atLeast(effectiveDateTime.compareTo(nowDateTime) > 0 ? clock.instant() : effective));
         EndDeviceLifeCycleStatusImpl deviceLifeCycleStatus = this.dataModel
                 .getInstance(EndDeviceLifeCycleStatusImpl.class)
                 .initialize(stateEffectivityInterval, this, state);
