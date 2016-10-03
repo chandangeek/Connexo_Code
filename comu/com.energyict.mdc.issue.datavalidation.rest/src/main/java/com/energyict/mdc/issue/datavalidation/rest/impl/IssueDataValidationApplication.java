@@ -28,8 +28,8 @@ import java.util.Set;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation.rest", service = {Application.class}, immediate = true, property = {"alias=/idv", "app=MDC", "name=" + IssueDataValidationApplication.ISSUEDATAVALIDATION_REST_COMPONENT})
 public class IssueDataValidationApplication extends Application {
-    public static final String APP_KEY = "MDC";
-    public static final String ISSUEDATAVALIDATION_REST_COMPONENT = "IDV";
+    private static final String APP_KEY = "MDC";
+    static final String ISSUEDATAVALIDATION_REST_COMPONENT = "IDV";
 
     private volatile TransactionService transactionService;
     private volatile UserService userService;
@@ -40,11 +40,10 @@ public class IssueDataValidationApplication extends Application {
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
-    
+
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(
-                IssueResource.class);
+        return ImmutableSet.of(IssueResource.class);
     }
 
     @Reference
