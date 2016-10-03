@@ -48,7 +48,7 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
     protected void beforeTransition(Device device, DeviceInstallationImportRecord data) throws ProcessorException {
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
-        EndDevice endDevice = findMeterByIdentifier(data.getDeviceIdentifier())
+        EndDevice endDevice = findEndDeviceByIdentifier(data.getDeviceIdentifier())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
         if (locationData != null && !locationData.isEmpty()) {
             LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId(), "Fake").newLocationBuilder();

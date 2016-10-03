@@ -135,8 +135,8 @@ public class DeviceInstallationImporterFactoryTest {
         context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
         when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
-        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
-        when(meteringService.findMeter(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findEndDeviceByMRID(anyString())).thenReturn(Optional.empty());
 
         final String templateMembers = "#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale";
         when(dataModel.getInstance(LocationTemplateImpl.class)).thenReturn(new LocationTemplateImpl(dataModel));
@@ -145,7 +145,7 @@ public class DeviceInstallationImporterFactoryTest {
         locationTemplate = LocationTemplateImpl.from(dataModel, templateMembers, templateMembers);
         locationTemplate.parseTemplate(templateMembers, templateMembers);
         when(context.getMeteringService().getLocationTemplate()).thenReturn(locationTemplate);
-        when(meteringService.findMeterByName("VPB0002")).thenReturn(Optional.of(meter));
+        when(meteringService.findEndDeviceByName("VPB0002")).thenReturn(Optional.of(meter));
         when(locationBuilder.getMemberBuilder("locale")).thenReturn(Optional.empty());
         when(locationBuilder.member()).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
@@ -229,7 +229,7 @@ public class DeviceInstallationImporterFactoryTest {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findDeviceByMrid("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(device));
-        when(meteringService.findMeter("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(meter));
+        when(meteringService.findEndDeviceByMRID("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(meter));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());

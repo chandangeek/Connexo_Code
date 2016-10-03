@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl;
 
-import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.energyict.mdc.device.data.Device;
@@ -26,7 +26,7 @@ public abstract class AbstractDeviceDataFileImportProcessor<T extends FileImport
         return deviceByMrid.isPresent() ? deviceByMrid : deviceService.findDeviceByName(deviceIdentifier);
     }
 
-    protected Optional<Meter> findMeterByIdentifier(String deviceIdentifier) {
+    protected Optional<EndDevice> findEndDeviceByIdentifier(String deviceIdentifier) {
         MeteringService meteringService = getContext().getMeteringService();
         Optional<EndDevice> endDeviceByMrid = meteringService.findEndDeviceByMRID(deviceIdentifier);
         return endDeviceByMrid.isPresent() ? endDeviceByMrid : meteringService.findEndDeviceByName(deviceIdentifier);
