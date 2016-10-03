@@ -17,6 +17,7 @@ Ext.define('Uni.grid.filtertop.DateTime', {
         type: 'vbox',
         align: 'stretchmax'
     },
+    ui: 'small',
     initComponent: function () {
         var me = this;
 
@@ -43,7 +44,7 @@ Ext.define('Uni.grid.filtertop.DateTime', {
                         margins: '0 1 0 0',
                         format: me.format,
                         emptyText: Uni.I18n.translate('grid.filter.date.datefield.emptytext', 'UNI', 'Select a date'),
-                        flex: 1
+                        width: 129
                     }
                 ]
             },
@@ -71,7 +72,7 @@ Ext.define('Uni.grid.filtertop.DateTime', {
                         allowDecimals: false,
                         editable: true,
                         emptyText: '00',
-                        flex: 1,
+                        width: 57,
                         valueToRaw: function (value) {
                             if (!Ext.isDefined(value)) {
                                 return null;
@@ -103,7 +104,7 @@ Ext.define('Uni.grid.filtertop.DateTime', {
                         allowDecimals: false,
                         editable: true,
                         emptyText: '00',
-                        flex: 1,
+                        width: 57,
                         valueToRaw: function (value) {
                             if (!Ext.isDefined(value)) {
                                 return null;
