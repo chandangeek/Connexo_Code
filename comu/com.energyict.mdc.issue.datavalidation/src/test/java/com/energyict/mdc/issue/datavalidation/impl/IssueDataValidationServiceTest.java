@@ -274,7 +274,7 @@ public class IssueDataValidationServiceTest {
         assertThat(baseIssues).hasSize(1);
 
         AmrSystem amrSystem = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class).findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        EndDevice endDevice = amrSystem.createEndDevice("METER");
+        EndDevice endDevice = amrSystem.createEndDevice("360", "METER");
         endDevice.update();
         IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
         issue.setDevice(endDevice);
@@ -291,7 +291,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getDevice()).isEqualTo(endDevice);
 
-        endDevice = amrSystem.createEndDevice("ANOTHER METER");
+        endDevice = amrSystem.createEndDevice("180", "ANOTHER METER");
         endDevice.update();
         filter = new DataValidationIssueFilter();
         filter.setDevice(endDevice);
