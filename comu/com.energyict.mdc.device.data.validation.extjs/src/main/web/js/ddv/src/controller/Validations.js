@@ -33,20 +33,16 @@ Ext.define('Ddv.controller.Validations', {
 
     showValidations: function () {
         var me = this, view,
-            router = me.getController('Uni.controller.history.Router'),
-            queryString = Uni.util.QueryString.getQueryStringValues(false);
+            router = me.getController('Uni.controller.history.Router');
 
-        if (queryString.between == undefined) {
-            var startDate = Ext.Date.add(new Date(), Ext.Date.DAY, 1);
-            var endDate = Ext.Date.add(new Date(), Ext.Date.MONTH, -1);
-            queryString.between = (new Date(endDate)).setHours(0, 0, 0, 0) + '-' + (new Date(startDate)).setHours(0, 0, 0, 0);
-            window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
-            return;
-        }
-
-        view = Ext.widget('ddv-validations-setup', {router: router});
-        me.getApplication().fireEvent('changecontentevent', view);
-        me.updateApplyButtonState(view, queryString);
+        me.getApplication().fireEvent('changecontentevent', Ext.widget('ddv-validations-setup', {
+            router: router,
+            filterDefault: {
+                from: moment().subtract(1, 'months').startOf('day').toDate(),
+                to: moment().add(1, 'days').startOf('day').toDate()
+            }
+        }));
+        me.getStore('Ddv.store.Validations').load();
     },
 
     showPreview: function (selectionModel, record) {
@@ -67,25 +63,5 @@ Ext.define('Ddv.controller.Validations', {
         });
         //previewContainer.down('#type-of-suspects-validations-preview').setValue((typeOfSuspects.length > 0) ? typeOfSuspects : '-');
         Ext.resumeLayouts(true);
-    },
-
-    updateApplyButtonState: function (view, queryString) {
-        var startDate = Ext.Date.add(new Date(), Ext.Date.DAY, 1),
-            endDate = Ext.Date.add(new Date(), Ext.Date.MONTH, -1),
-            between = (new Date(endDate)).setHours(0, 0, 0, 0) + '-' + (new Date(startDate)).setHours(0, 0, 0, 0),
-            topfilterBetween = view.down('#validations-topfilter-between'),
-            clearButton = (topfilterBetween == undefined) ? undefined : topfilterBetween.down('button[action=clear]')
-
-        if (clearButton) {
-            clearButton.setDisabled(queryString.between == between);
-        }
-
-        if (((Object.keys(queryString).length) == 1) &&
-            (queryString.between == between)) {
-            view.down('button[action=clearAll]').setDisabled(true);
-        }
-        else {
-            view.down('button[action=clearAll]').setDisabled(false);
-        }
     }
 });

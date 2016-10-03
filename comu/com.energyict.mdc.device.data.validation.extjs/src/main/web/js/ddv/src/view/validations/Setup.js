@@ -9,6 +9,7 @@ Ext.define('Ddv.view.validations.Setup', {
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
     router: null,
+    filterDefault: {},
     initComponent: function () {
         var me = this;
 
@@ -45,7 +46,9 @@ Ext.define('Ddv.view.validations.Setup', {
                 dockedItems: [
                     {
                         dock: 'top',
-                        xtype: 'ddv-validations-filter'
+                        xtype: 'ddv-validations-filter',
+                        filterDefault: me.filterDefault,
+                        hasDefaultFilters: true
                     }
                 ]
             }
