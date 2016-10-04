@@ -11,6 +11,7 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.Location;
@@ -22,6 +23,8 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.PurgeConfiguration;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
@@ -48,6 +51,8 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
@@ -56,6 +61,7 @@ import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DayMonthTime;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 import org.osgi.framework.BundleContext;
 
 import javax.validation.constraints.NotNull;
@@ -271,6 +277,22 @@ public class MeteringServiceImpl implements ServerMeteringService {
         QueryExecutor<?> executor = dataModel.query(EndDevice.class, Location.class, LocationMember.class, EndDeviceLifeCycleStatus.class);
         executor.setRestriction(Operator.EQUAL.compare("class", Meter.TYPE_IDENTIFIER));
         return queryService.wrap((QueryExecutor<Meter>) executor);
+    }
+
+    @Override
+    public Query<Meter> getMeterWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes) {
+        QueryExecutor<Meter> meterQuery = dataModel.query(Meter.class, MeterActivation.class, ChannelsContainer.class, Channel.class);
+
+        Condition suspectCondition = where("typeCode").in(Stream.of(readingQualityTypes).map(ReadingQualityType::getCode).collect(Collectors.toList()));
+        if (!Range.all().equals(readingQualityTimestamp)) {
+            suspectCondition = suspectCondition.and(where("readingTimestamp").in(readingQualityTimestamp));
+        }
+        Subquery rqrSubQuery = dataModel.query(ReadingQualityRecord.class).asSubquery(suspectCondition, "channelid");
+        Membership channelsIn = ListOperator.IN.contains(rqrSubQuery, "meterActivations.channelsContainer.channels.id");
+        // we need this subquery condition because oracle cannot handle coordinates in a distinct
+        Condition devicesWithSuspectChannels = ListOperator.IN.contains(meterQuery.asSubquery(channelsIn, "id"), "id");
+        meterQuery.setRestriction(devicesWithSuspectChannels);
+        return queryService.wrap(meterQuery);
     }
 
     @Override
