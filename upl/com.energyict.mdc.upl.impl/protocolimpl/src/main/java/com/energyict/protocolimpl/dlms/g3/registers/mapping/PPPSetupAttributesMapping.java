@@ -2,15 +2,21 @@ package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
+
+import static com.jidesoft.action.DockableBar.o;
 
 
 public class PPPSetupAttributesMapping extends RegisterMapping {
@@ -63,11 +69,11 @@ public class PPPSetupAttributesMapping extends RegisterMapping {
             case 1:
                 return new RegisterValue(obisCode, PPPSetup.getDefaultObisCode().toString());
             case 2:
-                return new RegisterValue(obisCode, "Phy reference: " + abstractDataType.getOctetString().stringValue());
+                return new RegisterValue(obisCode, "Phy reference: " + getObisCode(abstractDataType));
             case 3:
-                return new RegisterValue(obisCode, "LCP options: " + getOptionsString(abstractDataType));
+                return new RegisterValue(obisCode, "LCP options: " + getLCPOptionsString(abstractDataType));
             case 4:
-                return new RegisterValue(obisCode, "IPCP options:" + getOptionsString(abstractDataType));
+                return new RegisterValue(obisCode, "IPCP options:" + getIPCPOptionsString(abstractDataType));
             case 5:
                 return new RegisterValue(obisCode, "PPP authentication:" + getPPPAuthenticationString(abstractDataType));
             case 6:
@@ -77,7 +83,13 @@ public class PPPSetupAttributesMapping extends RegisterMapping {
         }
     }
 
-    public String getOptionsString(AbstractDataType pppSetupAttribute) throws IOException {
+    public String getObisCode(AbstractDataType pppSetupAttribute) throws NumberFormatException {
+        byte[] obisCodeBytes = pppSetupAttribute.getOctetString().toByteArray();
+        ObisCode obisCode = ObisCode.fromByteArray(obisCodeBytes);
+        return obisCode.toString();
+    }
+
+    public String getLCPOptionsString(AbstractDataType pppSetupAttribute) throws IOException {
         StringBuffer builder = new StringBuffer();
 
         if (pppSetupAttribute.isArray()) {
@@ -85,8 +97,29 @@ public class PPPSetupAttributesMapping extends RegisterMapping {
 
             Array lcpOptions = pppSetupAttribute.getArray();
             for (int index = 0; index < numberOfArrayEntries; index++) {
-                builder.append((index + 1) + ". ");
-                builder.append(lcpOptions.getDataType(index).getOctetString().stringValue());
+                if (lcpOptions.getDataType(index).getOctetString() != null) {
+                    builder.append((index + 1) + ". ");
+                    builder.append(lcpOptions.getDataType(index).getOctetString().stringValue());
+                }
+            }
+            return builder.toString();
+        } else {
+            throw new ProtocolException("Could not get correct Options attribute format.");
+        }
+    }
+
+    public String getIPCPOptionsString(AbstractDataType pppSetupAttribute) throws IOException {
+        StringBuffer builder = new StringBuffer();
+
+        if (pppSetupAttribute.isArray()) {
+            int numberOfArrayEntries = pppSetupAttribute.getArray().nrOfDataTypes();
+
+            Array lcpOptions = pppSetupAttribute.getArray();
+            for (int index = 0; index < numberOfArrayEntries; index++) {
+                if (lcpOptions.getDataType(index).getOctetString() != null) {
+                    builder.append((index + 1) + ". ");
+                    builder.append(lcpOptions.getDataType(index).getOctetString().stringValue());
+                }
             }
             return builder.toString();
         } else {
@@ -98,32 +131,34 @@ public class PPPSetupAttributesMapping extends RegisterMapping {
         StringBuffer builder = new StringBuffer();
 
         if (pppSetupAttributes.isStructure() && pppSetupAttributes.getStructure().nrOfDataTypes() == 2) {
-                /*Structure pppSpecs = pppSetupAttributes.getStructure().getDataType(0).getStructure();*/
-            final PPPSetup pppSetup = getCosemObjectFactory().getPPPSetup(PPPSetup.getDefaultObisCode());
-            PPPSetup.PPPAuthenticationType pppSet = pppSetup.readPPPAuthenticationType();
+            Structure pppSpecs = pppSetupAttributes.getStructure();
 
-            if (pppSet.getAlgorithmId() != null) {
-                builder.append("Algorithm Id: ").append(pppSet.getAlgorithmId());
+            if (pppSpecs.getDataType(0).isOctetString()) {
+                builder.append(" User name: ").append(pppSpecs.getDataType(0).getOctetString().stringValue());
             }
 
-            if (pppSet.getUsername() != null) {
-                builder.append(" User name: ").append(pppSet.getUsername().stringValue());
-            }
+            if (pppSpecs.getDataType(1).isOctetString()) {
+                builder.append(" User password: ").append(pppSpecs.getDataType(1).getOctetString().stringValue());
+            } else if (pppSpecs.getDataType(1).isNumerical()) {
+                int algorithmId = pppSpecs.getDataType(1).intValue();
+                builder.append(" Algorithm Id: ");
 
-            if (pppSet.getPassword() != null) {
-                builder.append(" User password: ").append(pppSet.getPassword().stringValue());
-            }
-
-            if (pppSet.getOneTimePassword() != null) {
-                builder.append(" One time password: ").append(pppSet.getOneTimePassword().getState());
-            }
-
-            if (pppSet.getGenericTokenCard() != null) {
-                builder.append(" Generic token card: ").append(pppSet.getGenericTokenCard().getState());
-            }
-
-            if (pppSet.getMd5Challange() != null) {
-                builder.append(" MD5 challenge: ").append(pppSet.getMd5Challange().getState());
+                switch (algorithmId) {
+                    case PPPSetup.PPPAuthenticationType.CHAP_MD5:
+                        builder.append("value: " + algorithmId+" - CHAP_MD5");
+                        break;
+                    case PPPSetup.PPPAuthenticationType.CHAP_MS_CHAP2:
+                        builder.append("value: " + algorithmId+" - CHAP_MS_CHAP2");
+                        break;
+                    case PPPSetup.PPPAuthenticationType.CHAP_MS_CHAP:
+                        builder.append("value: " + algorithmId+" - CHAP_MS_CHAP");
+                        break;
+                    case PPPSetup.PPPAuthenticationType.CHAP_SHA_1:
+                        builder.append("value: " + algorithmId+" - CHAP_SHA_1");
+                        break;
+                    default:
+                }
+                builder.append(" Algorithm Id: ").append(pppSpecs.getDataType(1).intValue());
             }
 
             return builder.toString();

@@ -197,10 +197,10 @@ public class PPPSetup extends AbstractCosemObject {
 
     public class PPPAuthenticationType {
 
-        private static final int CHAP_MD5 = 0x05;    // default
-        private static final int CHAP_SHA_1 = 0x06;
-        private static final int CHAP_MS_SHAP = 0x80;
-        private static final int CHAP_MS_CHAP2 = 0x81;
+        public static final int CHAP_MD5 = 0x05;    // default
+        public static final int CHAP_SHA_1 = 0x06;
+        public static final int CHAP_MS_CHAP = 0x80;
+        public static final int CHAP_MS_CHAP2 = 0x81;
 
         private int authentication = -1;
 
