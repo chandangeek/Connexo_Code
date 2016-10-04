@@ -79,6 +79,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
 
         // Business method
         device.calendars().updateCalendars(collectedCalendarInformation);
+        device = getReloadedDevice(device);
 
         // Asserts
         assertThat(device.calendars().getActive()).isEmpty();
@@ -108,6 +109,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         // Business method
         device.calendars().updateCalendars(collectedCalendarInformation);
 
+        device = getReloadedDevice(device);
         // Asserts
         assertThat(device.calendars().getActive()).isPresent();
         ActiveEffectiveCalendar activeEffectiveCalendar = device.calendars().getActive().get();
@@ -247,6 +249,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
 
         // Business method
         device.calendars().updateCalendars(collectedCalendarInformation);
+        device = getReloadedDevice(device);
 
         // Asserts
         assertThat(device.calendars().getActive()).isPresent();
@@ -342,7 +345,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         when(collected.getActiveCalendar()).thenReturn(Optional.of(calendar.getName()));
         when(collected.getPassiveCalendar()).thenReturn(Optional.empty());
         device.calendars().updateCalendars(collected);
-        return device;
+        return getReloadedDevice(device);
     }
 
     private Device createSimpleDeviceWithOnePassiveCalendar(String name, String mRID) {
@@ -354,7 +357,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         when(collected.getActiveCalendar()).thenReturn(Optional.empty());
         when(collected.getPassiveCalendar()).thenReturn(Optional.of(calendar.getName()));
         device.calendars().updateCalendars(collected);
-        return device;
+        return getReloadedDevice(device);
     }
 
     private Device createSimpleDeviceWithActiveAndPassiveGhostCalendar(String name, String mRID) {
@@ -365,7 +368,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         when(collected.getActiveCalendar()).thenReturn(Optional.of("Casper1"));
         when(collected.getPassiveCalendar()).thenReturn(Optional.of("Casper2"));
         device.calendars().updateCalendars(collected);
-        return device;
+        return getReloadedDevice(device);
     }
 
     private Calendar createCalendar() {

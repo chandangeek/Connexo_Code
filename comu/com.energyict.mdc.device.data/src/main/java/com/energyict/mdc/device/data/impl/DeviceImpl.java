@@ -83,6 +83,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
@@ -129,6 +130,7 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAtt
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
+import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForActivation;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForRemoval;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForSimpleUpdate;
@@ -254,6 +256,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final MeteringGroupsService meteringGroupsService;
     private final CustomPropertySetService customPropertySetService;
     private final ServerDeviceService deviceService;
+    private final LockService lockService;
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -354,7 +357,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             MdcReadingTypeUtilService readingTypeUtilService,
             ThreadPrincipalService threadPrincipalService,
             UserPreferencesService userPreferencesService,
-            DeviceConfigurationService deviceConfigurationService, ServerDeviceService deviceService) {
+            DeviceConfigurationService deviceConfigurationService,
+            ServerDeviceService deviceService,
+            LockService lockService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -376,6 +381,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.userPreferencesService = userPreferencesService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
+        this.lockService = lockService;
         // Helper to get activation info... from 'Kore'
         this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.deviceService, this.readingTypeUtilService, clock, this.eventService);
         this.koreHelper.syncWithKore(this);
@@ -399,6 +405,18 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     ValidationService getValidationService() {
         return validationService;
+    }
+
+    ServerDeviceService getDeviceService() {
+        return deviceService;
+    }
+
+    DeviceConfigurationService getDeviceConfigurationService() {
+        return deviceConfigurationService;
+    }
+
+    LockService getLockService(){
+        return lockService;
     }
 
     private void setDeviceTypeFromDeviceConfiguration() {
@@ -1712,9 +1730,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .anyMatch(com.elster.jupiter.metering.Channel::hasData);
     }
 
+    public void refreshMeter() {
+        if (meter.isPresent()) {
+            meter.set(meteringService.findMeter(meter.get().getId()).get());
+        }
+    }
+
     @Override
     public MeterActivation activate(Instant start) {
-        return this.koreHelper.activateMeter(start);
+        return new SyncDeviceWithKoreForActivation(this, deviceService, readingTypeUtilService, eventService, start).activateMeter(start);
     }
 
     @Override
