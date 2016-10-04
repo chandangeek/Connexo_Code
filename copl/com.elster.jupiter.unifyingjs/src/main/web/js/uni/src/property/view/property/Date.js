@@ -55,7 +55,7 @@ Ext.define('Uni.property.view.property.Date', {
     },
 
     setValue: function (value /*Date in miliseconds*/) {
-        if (value !== null && value !== '') {
+        if (!Ext.isEmpty(value)) {
             if (!this.isEdit) {
                 value = this.getValueAsDisplayString(value);
             } else {
@@ -79,7 +79,7 @@ Ext.define('Uni.property.view.property.Date', {
     },
 
     getValueAsDisplayString: function (value /*Date as miliseconds*/) {
-        return (value !== null && value !== '') ? Uni.DateTime.formatDateTimeShort(new Date(value)) : value;
+        return !Ext.isEmpty(value) ? Uni.DateTime.formatDateTimeShort(new Date(value)) : value;
     }
 
 });
