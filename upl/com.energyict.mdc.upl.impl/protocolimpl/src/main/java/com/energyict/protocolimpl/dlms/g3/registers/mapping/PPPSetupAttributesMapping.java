@@ -71,7 +71,7 @@ public class PPPSetupAttributesMapping extends RegisterMapping {
             case 2:
                 return new RegisterValue(obisCode, "Phy reference: " + getObisCode(abstractDataType));
             case 3:
-                return new RegisterValue(obisCode, "LCP options: " + getLCPOptionsString(abstractDataType));
+                return new RegisterValue(obisCode, "LCP options:" + getLCPOptionsString(abstractDataType));
             case 4:
                 return new RegisterValue(obisCode, "IPCP options:" + getIPCPOptionsString(abstractDataType));
             case 5:
@@ -97,14 +97,16 @@ public class PPPSetupAttributesMapping extends RegisterMapping {
 
             Array lcpOptions = pppSetupAttribute.getArray();
             for (int index = 0; index < numberOfArrayEntries; index++) {
-                if (lcpOptions.getDataType(index).getOctetString() != null) {
-                    builder.append((index + 1) + ". ");
-                    builder.append(lcpOptions.getDataType(index).getOctetString().stringValue());
+                if (lcpOptions.getDataType(index).isStructure()) {
+                    Structure lcpOption = lcpOptions.getDataType(index).getStructure();
+                    builder.append(" LCP Type: " + lcpOption.getDataType(0).getUnsigned8().getValue());
+                    builder.append(" length: " + lcpOption.getDataType(1).getUnsigned8().getValue());
+                    builder.append(" data: " + lcpOption.getDataType(2).getUnsigned16().getValue());
                 }
             }
             return builder.toString();
         } else {
-            throw new ProtocolException("Could not get correct Options attribute format.");
+            throw new ProtocolException("Could not get correct LCP Options attribute format.");
         }
     }
 
@@ -116,14 +118,16 @@ public class PPPSetupAttributesMapping extends RegisterMapping {
 
             Array lcpOptions = pppSetupAttribute.getArray();
             for (int index = 0; index < numberOfArrayEntries; index++) {
-                if (lcpOptions.getDataType(index).getOctetString() != null) {
-                    builder.append((index + 1) + ". ");
-                    builder.append(lcpOptions.getDataType(index).getOctetString().stringValue());
+                if (lcpOptions.getDataType(index).isStructure()) {
+                    Structure lcpOption = lcpOptions.getDataType(index).getStructure();
+                    builder.append(" IPCP Type: " + lcpOption.getDataType(0).getUnsigned8().getValue());
+                    builder.append(" length: " + lcpOption.getDataType(1).getUnsigned8().getValue());
+                    builder.append(" data: " + lcpOption.getDataType(2).getUnsigned16().getValue());
                 }
             }
             return builder.toString();
         } else {
-            throw new ProtocolException("Could not get correct Options attribute format.");
+            throw new ProtocolException("Could not get correct IPCP Options attribute format.");
         }
     }
 

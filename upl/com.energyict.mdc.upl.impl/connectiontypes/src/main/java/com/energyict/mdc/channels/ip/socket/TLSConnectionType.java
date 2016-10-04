@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
-    private static final String TLS_VERSION_PROPERTY_NAME = "TLSVersion";
+    public static final String TLS_VERSION_PROPERTY_NAME = "TLSVersion";
     private static final String TLS_DEFAULT_VERSION = "TLSv1.2";
     private static final String PREFERRED_CIPHER_SUITES_PROPERTY_NAME = "PreferredCipherSuites";
     private static final String SEPARATOR = ",";
@@ -145,6 +145,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-09-02 14:48:00 +0200 (Mon, 11 Jul 2016)$";
+        return "$Date: 2016-10-03 17:56:14 +0300 (Mon, 03 Oct 2016)$";
     }
 }
