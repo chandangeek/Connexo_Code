@@ -15,7 +15,7 @@ use Archive::Zip;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20161003";
+my $INSTALL_VERSION="v20161004";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -994,6 +994,14 @@ sub perform_upgrade {
         system("/sbin/service ConnexoTomcat$SERVICE_VERSION stop");
     }
 
+    #remove old obsolete folders
+    if ( -d "$CONNEXO_DIR/bin_obsolete") { rmtree("$CONNEXO_DIR/bin_obsolete"); }
+    if ( -d "$CONNEXO_DIR/bundles_obsolete") { rmtree("$CONNEXO_DIR/bundles_obsolete"); }
+    if ( -d "$CONNEXO_DIR/lib_obsolete") { rmtree("$CONNEXO_DIR/lib_obsolete"); }
+    if ( -d "$CONNEXO_DIR/licenses_obsolete") { rmtree("$CONNEXO_DIR/licenses_obsolete"); }
+    if ( -d "$CONNEXO_DIR/partners_obsolete") { rmtree("$CONNEXO_DIR/partners_obsolete"); }
+    if ( -e "$CONNEXO_DIR/conf/config.properties_obsolete") { unlink("$CONNEXO_DIR/conf/config.properties_obsolete"); }
+
     #rename bundles folder
     print "Renaming bundles to bundles_obsolete\n";
     rename("$CONNEXO_DIR/bundles","$CONNEXO_DIR/bundles_obsolete");
@@ -1141,6 +1149,39 @@ sub perform_upgrade {
             my $zip = Archive::Zip->new($zipfile);
             $zip->extractTree("","$UPGRADE_PATH/temp/");
 
+            #recreate config.properties
+            if (! -d "$UPGRADE_PATH/temp/conf") {
+                print "No conf folder found in $zipfile.\n";
+            } else {
+                print "Copying and adapting config.properties\n";
+                rename("$config_file","$config_file"."_obsolete");
+                copy("$UPGRADE_PATH/temp/conf/config.properties.temp","$config_file") or die "File cannot be copied: $!";
+                add_to_file_if($config_file,"org.osgi.service.http.port=$CONNEXO_HTTP_PORT");
+                add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
+                add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
+                add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
+               	if ("$INSTALL_FACTS" eq "yes") {
+                    add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
+                    add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
+                    add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$CONNEXO_ADMIN_PASSWORD");
+                    if ("$ACTIVATE_SSO" eq "yes") {
+                        add_to_file_if($config_file,"com.elster.jupiter.yellowfin.externalurl=http://$HOST_NAME/facts/");
+                    }
+                }
+               	if ("$INSTALL_FLOW" eq "yes") {
+                    if ("$ACTIVATE_SSO" eq "yes") {
+                        replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
+                        replace_in_file($config_file,"com.elster.jupiter.bpm.password=","#com.elster.jupiter.bpm.password=");
+                        add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME/flow/");
+                    } else {
+                        add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
+                        add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
+                        add_to_file_if($config_file,"com.elster.jupiter.bpm.password=$TOMCAT_ADMIN_PASSWORD");
+                    }
+                }
+                add_to_file_if($config_file,"upgrade=true");
+            }
+
             #copy content of lib folder
             if (! -d "$UPGRADE_PATH/temp/lib") {
                 print "No lib folder found in $zipfile.\n";
@@ -1213,6 +1254,15 @@ sub perform_upgrade {
         }
         print "Removing felix-cache\n";
         rmtree("$CONNEXO_DIR/felix-cache");
+
+        # final note
+        print "\nIMPORTANT: if the upgrade was successful, you can remove all temporary \"obsolete\" folders/files:\n";
+        print   "           - $CONNEXO_DIR/bin_obsolete\n";
+        print   "           - $CONNEXO_DIR/bundles_obsolete\n";
+        print   "           - $CONNEXO_DIR/lib_obsolete\n";
+        print   "           - $CONNEXO_DIR/licenses_obsolete\n";
+        print   "           - $CONNEXO_DIR/partners_obsolete\n";
+        print   "           - $CONNEXO_DIR/conf/config.properties_obsolete\n";
     }
 
     # start connexo & tomcat
