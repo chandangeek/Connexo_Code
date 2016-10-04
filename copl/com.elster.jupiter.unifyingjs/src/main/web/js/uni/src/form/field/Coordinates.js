@@ -196,15 +196,17 @@ Ext.define('Uni.form.field.Coordinates', {
 
         me.down('#no-coordinate').setVisible(isNoCoordinateVisible);
         me.down('#ctn-coordinate').setVisible(!isNoCoordinateVisible);
-        if (field.getValue() != null) {
+        if (newValue != null) {
             if (field.itemId == 'txt-coordinate-lat') {
-                latField.setValue(me.convertDDToDMS(field.getValue(), 'lat'));
+                latField.setValue(me.convertDDToDMS(newValue, 'lat'));
             }
             else if (field.itemId == 'txt-coordinate-long') {
-                longField.setValue(me.convertDDToDMS(field.getValue(), 'long'));
+                longField.setValue(me.convertDDToDMS(newValue, 'long'));
             }
             else if (field.itemId == 'txt-coordinate-elev') {
-                elevField.setValue(Ext.String.format('{0} {1}', field.getValue(), Uni.I18n.translate('coordinates.elevationUnit', 'UNI', 'm '))); // Intentionally added space in translation
+                elevField.setValue(newValue > field.maxValue || newValue < field.minValue
+                    ? '-'
+                    : Ext.String.format('{0} {1}', newValue, Uni.I18n.translate('coordinates.elevationUnit', 'UNI', 'm '))); // Intentionally added space in translation
             }                                                                                                                                     // as I18nAnalyzer has problems with single character translations
             // defaultButton.setDisabled(me.getValue().spatialCoordinates == me.displayValue.usagePointSpatialCoordinates);
         }
@@ -289,9 +291,9 @@ Ext.define('Uni.form.field.Coordinates', {
         Abs = Math.abs(Math.round(value * 1000000.));
 
         if (type == "lat" && Abs > (90 * 1000000)) {
-            return false;
+            return '-';
         } else if (type == "long" && Abs > (180 * 1000000)) {
-            return false;
+            return '-';
         }
 
         days = Math.floor(Abs / 1000000);
