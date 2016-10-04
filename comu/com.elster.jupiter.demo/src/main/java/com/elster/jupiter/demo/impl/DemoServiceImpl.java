@@ -1,6 +1,7 @@
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
 import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
 import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
@@ -147,6 +148,7 @@ public class DemoServiceImpl {
     private volatile FileImportService fileImportService;
     private volatile SearchService searchService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -192,7 +194,8 @@ public class DemoServiceImpl {
             DeviceLifeCycleService deviceLifeCycleService,
             FileImportService fileImportService,
             SearchService searchService,
-            MetrologyConfigurationService metrologyConfigurationService) {
+            MetrologyConfigurationService metrologyConfigurationService,
+            CustomPropertySetService customPropertySetService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -231,6 +234,7 @@ public class DemoServiceImpl {
         setFileImportService(fileImportService);
         setSearchService(searchService);
         setMetrologyConfigurationService(metrologyConfigurationService);
+        setCustomPropertySetService(customPropertySetService);
         activate();
         reThrowEx = true;
     }
@@ -281,6 +285,7 @@ public class DemoServiceImpl {
                 bind(EstimationService.class).toInstance(estimationService);
                 bind(SearchService.class).toInstance(searchService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
+                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
         });
         Builders.initWith(this.injector);
@@ -508,6 +513,12 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {

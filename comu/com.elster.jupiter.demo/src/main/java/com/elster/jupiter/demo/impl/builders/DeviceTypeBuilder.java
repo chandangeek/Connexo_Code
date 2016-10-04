@@ -86,6 +86,6 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
         if (this.logBookTypes != null) {
             deviceType.withLogBookTypes(logBookTypes);
         }
-        return deviceType.create();
+        return applyPostBuilders(deviceType.create());
     }
 }

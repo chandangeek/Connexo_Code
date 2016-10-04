@@ -4,6 +4,7 @@ import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
+import com.elster.jupiter.demo.impl.builders.DeviceTypeBuilder;
 import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
@@ -13,6 +14,7 @@ import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePost
 import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetUsagePointToDevicePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetValidateOnStorePostBuilder;
+import com.elster.jupiter.demo.impl.builders.type.AttachDeviceTypeCPSPostBuilder;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
@@ -52,15 +54,16 @@ import java.util.List;
 import java.util.Optional;
 
 public class CreateCollectRemoteDataSetupCommand {
-    private final MeteringService meteringService;
     private final LicenseService licenseService;
+    private final MeteringService meteringService;
+    private final MeteringGroupsService meteringGroupsService;
     private final Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider;
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider;
     private final Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider;
     private final Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider;
-    private final MeteringGroupsService meteringGroupsService;
+    private final Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider;
 
     private String comServerName;
     private String host;
@@ -92,23 +95,26 @@ public class CreateCollectRemoteDataSetupCommand {
 
     @Inject
     public CreateCollectRemoteDataSetupCommand(
-            MeteringService meteringService,
             LicenseService licenseService,
+            MeteringService meteringService,
+            MeteringGroupsService meteringGroupsService,
             Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider,
             Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
             Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
             Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider,
             Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider,
-            Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider, MeteringGroupsService meteringGroupsService) {
-        this.meteringService = meteringService;
+            Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider,
+            Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider) {
         this.licenseService = licenseService;
+        this.meteringService = meteringService;
+        this.meteringGroupsService = meteringGroupsService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
         this.connectionsDevicePostBuilderProvider = connectionsDevicePostBuilderProvider;
         this.setDeviceInActiveLifeCycleStatePostBuilderProvider = setDeviceInActiveLifeCycleStatePostBuilderProvider;
         this.setUsagePointToDevicePostBuilderProvider = setUsagePointToDevicePostBuilderProvider;
         this.setValidateOnStorePostBuilderProvider = setValidateOnStorePostBuilderProvider;
-        this.meteringGroupsService = meteringGroupsService;
+        this.attachDeviceTypeCPSPostBuilderProvider = attachDeviceTypeCPSPostBuilderProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -240,7 +246,11 @@ public class CreateCollectRemoteDataSetupCommand {
     }
 
     private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl) {
-        DeviceType deviceType = Builders.from(deviceTypeTpl).get();
+        DeviceTypeBuilder deviceTypeBuilder = Builders.from(deviceTypeTpl);
+        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
+            deviceTypeBuilder.withPostBuilder(attachDeviceTypeCPSPostBuilderProvider.get());
+        }
+        DeviceType deviceType = deviceTypeBuilder.get();
         DeviceConfiguration configuration = createDeviceConfiguration(deviceType, DeviceConfigurationTpl.DEFAULT);
         int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : devicesPerType);
         for (int i = 0; i < deviceCount; i++) {

@@ -351,6 +351,12 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.cps.examples</artifactId>
+            <version>1.0.0${revision}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

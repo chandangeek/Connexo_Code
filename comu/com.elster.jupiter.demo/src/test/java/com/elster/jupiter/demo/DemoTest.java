@@ -93,6 +93,9 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.cps.ChannelSAPInfoCustomPropertySet;
+import com.energyict.mdc.device.config.cps.DeviceEMeterInfoCustomPropertySet;
+import com.energyict.mdc.device.config.cps.DeviceSAPInfoCustomPropertySet;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.Device;
@@ -734,6 +737,9 @@ public class DemoTest {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(DeviceEMeterInfoCustomPropertySet.class));
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(DeviceSAPInfoCustomPropertySet.class));
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(ChannelSAPInfoCustomPropertySet.class));
     }
 
     private void createRequiredProtocols() {
