@@ -108,13 +108,20 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(EndDeviceGroup deviceGroup) {
-        return this.getComSessionSuccessIndicatorOverview(() -> this.connectionTaskReportService.getConnectionTaskLastComSessionSuccessIndicatorCount(deviceGroup));
+        return this.getComSessionSuccessIndicatorOverview(() -> this.connectionTaskReportService.getConnectionTaskLastComSessionSuccessIndicatorCount(deviceGroup), deviceGroup);
     }
 
     private ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(Supplier<Map<ComSession.SuccessIndicator, Long>> successIndicatorCountSupplier) {
         Map<ComSession.SuccessIndicator, Long> successIndicatorCount = successIndicatorCountSupplier.get();
         return ComSessionSuccessIndicatorOverviewImpl.from(
                 this.connectionTaskReportService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(),
+                successIndicatorCount);
+    }
+
+    private ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(Supplier<Map<ComSession.SuccessIndicator, Long>> successIndicatorCountSupplier, EndDeviceGroup deviceGroup) {
+        Map<ComSession.SuccessIndicator, Long> successIndicatorCount = successIndicatorCountSupplier.get();
+        return ComSessionSuccessIndicatorOverviewImpl.from(
+                this.connectionTaskReportService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(deviceGroup),
                 successIndicatorCount);
     }
 
