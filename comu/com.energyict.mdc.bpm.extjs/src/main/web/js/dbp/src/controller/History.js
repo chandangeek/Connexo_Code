@@ -45,50 +45,36 @@ Ext.define('Dbp.controller.History', {
                                 }, {single: true});
 
                                 return this;
-                            }
-                        },
-                        editTask: {
-                            title: Uni.I18n.translate('bpm.task.editTask', 'DBP', 'Edit task'),
-                            route: '{taskId}/edit',
-                            controller: 'Bpm.controller.OpenTask',
-                            privileges: Bpm.privileges.BpmManagement.assign,
-                            action: 'showEditTask',
-                            params: {
-                                sort: '',
-                                user: '',
-                                dueDate:'',
-                                status:'',
-                                process: ''
                             },
-                            callback: function (route) {
-                                this.getApplication().on('editTask', function (record) {
-                                    route.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.editTaskTitle', 'DBP', "Edit '{0}'"), record.get('name')));
-                                    return true;
-                                }, {single: true});
-
-                                return this;
-                            }
-                        },
-                        performTask: {
-                            title: Uni.I18n.translate('bpm.task.performTask', 'DBP', 'Perform task'),
-                            route: '{taskId}/perform',
-                            controller: 'Bpm.controller.OpenTask',
-                            privileges: Bpm.privileges.BpmManagement.execute,
-                            action: 'showPerformTask',
-                            params: {
-                                sort: '',
-                                user: '',
-                                dueDate:'',
-                                status:'',
-                                process: ''
-                            },
-                            callback: function (route) {
-                                this.getApplication().on('performTask', function (record) {
-                                    route.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.performTaskTitle', 'DBP', "Perform '{0}'"), record.get('name')));
-                                    return true;
-                                }, {single: true});
-
-                                return this;
+                            items: {
+                                editTask: {
+                                    title: Uni.I18n.translate('bpm.task.edit', 'DBP', 'Edit'),
+                                    route: 'edit',
+                                    controller: 'Bpm.controller.OpenTask',
+                                    privileges: Bpm.privileges.BpmManagement.assign,
+                                    action: 'showEditTask',
+                                    params: {
+                                        sort: '',
+                                        user: '',
+                                        dueDate:'',
+                                        status:'',
+                                        process: ''
+                                    }
+                                },
+                                performTask: {
+                                    title: Uni.I18n.translate('bpm.task.start', 'DBP', 'Start'),
+                                    route: 'start',
+                                    controller: 'Bpm.controller.OpenTask',
+                                    privileges: Bpm.privileges.BpmManagement.execute,
+                                    action: 'showPerformTask',
+                                    params: {
+                                        sort: '',
+                                        user: '',
+                                        dueDate:'',
+                                        status:'',
+                                        process: ''
+                                    }
+                                }
                             }
                         },
                         bulkaction: {
