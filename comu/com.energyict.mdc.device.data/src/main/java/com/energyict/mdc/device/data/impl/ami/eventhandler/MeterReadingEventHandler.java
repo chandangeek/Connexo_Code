@@ -68,7 +68,6 @@ public class MeterReadingEventHandler implements MessageHandler {
             } else {
                 extension.setCompletedTasks(new BigDecimal(++completedTasks));
             }
-            System.out.println();
             serviceCall.update(extension);
         }
 
