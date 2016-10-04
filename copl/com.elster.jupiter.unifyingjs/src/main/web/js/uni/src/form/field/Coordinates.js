@@ -7,29 +7,22 @@ Ext.define('Uni.form.field.Coordinates', {
     mixins: {
         field: 'Ext.form.field.Field'
     },
-    layout: 'vbox',
+    layout: 'hbox',
     requires: [
         'Ext.container.Container',
         'Uni.property.view.DefaultButton'
     ],
     displayResetButton: false,
     labelWidth: 150,
-    minWidth: 600,
 
     initComponent: function () {
         var me = this,
-            width = me.width || me.minWidth,
-            completeWidth = width - me.labelWidth - me.labelPad,
-            itemsWidth = me.displayResetButton ? completeWidth - 40 : completeWidth,
             noCoordinate = {
                 xtype: 'displayfield',
                 itemId: 'no-coordinate',
                 value: Uni.I18n.translate('coordinate.noInput', 'UNI', 'No coordinates input'),
-                fieldStyle: {
-                    fontStyle: 'italic',
-                    color: '#999'
-                },
-                width: itemsWidth
+                fieldStyle: 'font-style:italic; color:#999',
+                margin: 0
             },
             displayCoordinateLat = {
                 xtype: 'displayfield',
@@ -53,10 +46,10 @@ Ext.define('Uni.form.field.Coordinates', {
                 xtype: 'container',
                 itemId: 'ctn-coordinate',
                 hidden: true,
-                width: itemsWidth,
-                layout: {
-                    type: 'hbox',
-                    align: 'middle'
+                layout: 'hbox',
+                flex: 1,
+                defaults: {
+                    fieldStyle: 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap'
                 },
                 items: [displayCoordinateLat, displayCoordinateLong, displayCoordinateElev]
             },
@@ -141,52 +134,37 @@ Ext.define('Uni.form.field.Coordinates', {
                     fontStyle: 'italic',
                     color: '#999'
                 },
-                width: itemsWidth
+                width: '100%'
             },
             textContainer = {
                 xtype: 'container',
-                itemId: 'ctn-coordinates',
-                width: completeWidth,
+                itemId: 'ctn-txtCoordinates',
                 layout: {
                     type: 'hbox',
-                    align: 'stretch'
+                    align: 'top'
                 },
-                items: [
-                    {
-                        xtype: 'container',
-                        itemId: 'ctn-txtCoordinates',
-                        width: itemsWidth,
-                        layout: {
-                            type: 'hbox',
-                            align: 'top'
-                        },
-                        items: [textCoordinateLat, coordinateSeparator, textCoordinateLong, coordinateSeparator, textCoordinateElev]
-                    },
-                    {
-                        xtype: 'container',
-                        itemId: 'ctn-restore',
-                        width: 40,
-                        layout: {
-                            type: 'hbox',
-                            align: 'top'
-                        },
-                        items: [
-                            {
-                                xtype: 'uni-default-button',
-                                itemId: 'uni-coordinate-default-button',
-                                listeners: {
-                                    click: {
-                                        fn: me.onClickDefault,
-                                        scope: me
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                ]
+                width: '100%',
+                items: [textCoordinateLat, coordinateSeparator, textCoordinateLong, coordinateSeparator, textCoordinateElev]
             };
 
-        me.items = [noCoordinate, displayContainer, textContainer, invalidCoordinate, textNote];
+        me.items = [
+            {
+                xtype: 'container',
+                flex: 1,
+                items: [noCoordinate, displayContainer, textContainer, invalidCoordinate, textNote]
+            },
+            {
+                xtype: 'uni-default-button',
+                itemId: 'uni-coordinate-default-button',
+                margin: '34 0 0 5',
+                listeners: {
+                    click: {
+                        fn: me.onClickDefault,
+                        scope: me
+                    }
+                }
+            }
+        ];
 
         me.callParent(arguments);
         if (me.value) {
