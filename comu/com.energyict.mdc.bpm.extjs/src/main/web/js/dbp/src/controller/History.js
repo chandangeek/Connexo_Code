@@ -25,9 +25,31 @@ Ext.define('Dbp.controller.History', {
                         process: ''
                     },
                     items: {
+                        task: {
+                            title: Uni.I18n.translate('bpm.task', 'DBP', 'Task'),
+                            route: '{taskId}',
+                            controller: 'Bpm.controller.Task',
+                            privileges: Bpm.privileges.BpmManagement.view,
+                            action: 'showTask',
+                            params: {
+                                sort: '',
+                                user: '',
+                                dueDate:'',
+                                status:'',
+                                process: ''
+                            },
+                            callback: function (route) {
+                                this.getApplication().on('task', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
+                        },
                         editTask: {
                             title: Uni.I18n.translate('bpm.task.editTask', 'DBP', 'Edit task'),
-                            route: '{taskId}/editTask',
+                            route: '{taskId}/edit',
                             controller: 'Bpm.controller.OpenTask',
                             privileges: Bpm.privileges.BpmManagement.assign,
                             action: 'showEditTask',
@@ -49,7 +71,7 @@ Ext.define('Dbp.controller.History', {
                         },
                         performTask: {
                             title: Uni.I18n.translate('bpm.task.performTask', 'DBP', 'Perform task'),
-                            route: '{taskId}/performTask',
+                            route: '{taskId}/perform',
                             controller: 'Bpm.controller.OpenTask',
                             privileges: Bpm.privileges.BpmManagement.execute,
                             action: 'showPerformTask',
