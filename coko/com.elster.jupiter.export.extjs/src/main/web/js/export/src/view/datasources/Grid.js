@@ -12,8 +12,8 @@ Ext.define('Dxp.view.datasources.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('general.mrid', 'DES', 'MRID'),
-                dataIndex: 'mRID',
+                header: Uni.I18n.translate('general.name', 'DES', 'Name'),
+                dataIndex: 'name',
                 flex: 1
             },
             {
