@@ -1,6 +1,7 @@
 Ext.define('Bpm.view.task.TasksGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.bpm-tasks-grid',
+    router: null,
     store: 'Bpm.store.task.Tasks',
     requires: [
         //   'Uni.grid.column.Action',
@@ -16,7 +17,11 @@ Ext.define('Bpm.view.task.TasksGrid', {
             {
                 header: Uni.I18n.translate('bpm.task.name', 'BPM', 'Task'),
                 dataIndex: 'name',
-                flex: 2
+                flex: 2,
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('workspace/tasks/task').buildUrl({taskId: record.get('id')});
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                },
             },
             {
                 xtype: 'uni-grid-column-duration',

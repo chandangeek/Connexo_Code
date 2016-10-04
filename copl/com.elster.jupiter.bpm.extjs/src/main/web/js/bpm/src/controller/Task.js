@@ -7,7 +7,8 @@ Ext.define('Bpm.controller.Task', {
         'Uni.component.sort.model.Sort'
     ],
     views: [
-        'Bpm.view.task.Tasks'
+        'Bpm.view.task.Tasks',
+        'Bpm.view.task.ViewTask'
     ],
     stores: [
         'Bpm.store.task.Tasks',
@@ -16,6 +17,10 @@ Ext.define('Bpm.controller.Task', {
         'Bpm.store.task.TasksFilterStatuses',
         'Bpm.store.task.TasksFilterUsers',
         'Bpm.store.task.TasksUsers'
+    ],
+    models: [
+        'Bpm.model.task.Task',
+        'Bpm.model.task.OpenTask'
     ],
     refs: [
         {
@@ -41,6 +46,34 @@ Ext.define('Bpm.controller.Task', {
             }
         });
         this.application.getController('Bpm.controller.FilterSortTasks');
+    },
+
+    showTask: function (taskId) {
+        var me = this,
+            view;
+
+        var task = me.getModel('Bpm.model.task.Task');
+        var performTask = me.getModel('Bpm.model.task.OpenTask');
+        task.load(taskId, {
+            success: function (taskRecord) {
+                view = Ext.widget('bpm-task-view-task', {
+                    taskRecord: taskRecord
+                });
+                me.getApplication().fireEvent('changecontentevent', view);
+                view.down('form').loadRecord(taskRecord);
+                me.getApplication().fireEvent('task', taskRecord);
+                performTask.load(taskId, {
+                    success: function (performTaskRecord) {
+                        if (performTaskRecord && performTaskRecord.properties() && performTaskRecord.properties().count()) {
+                            view.down('property-form').loadRecord(performTaskRecord);
+                            view.down('property-form').show();
+                        } else {
+                            view.down('property-form').hide();
+                        }
+                    }
+                })
+            }
+        });
     },
 
     showTasks: function () {

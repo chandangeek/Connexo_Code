@@ -27,7 +27,7 @@ Ext.define('Bpm.view.task.PerformTask', {
                 ]
             },
             {
-                xtype: 'form',
+                xtype: 'container',
                 itemId: 'frm-task',
                 ui: 'large',
                 layout: {
