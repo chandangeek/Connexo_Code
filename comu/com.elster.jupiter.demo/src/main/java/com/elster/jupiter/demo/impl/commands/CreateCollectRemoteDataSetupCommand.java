@@ -219,6 +219,7 @@ public class CreateCollectRemoteDataSetupCommand {
         Builders.from(ComTaskTpl.READ_REGISTER_DATA).get();
         Builders.from(ComTaskTpl.READ_LOG_BOOK_DATA).get();
         Builders.from(ComTaskTpl.TOPOLOGY).get();
+        Builders.from(ComTaskTpl.COMMANDS).get();
     }
 
     private void createComSchedules() {
