@@ -295,7 +295,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 connectionMethodsStore.load({
                     params:{
                         available: true,
-                        deviceId: deviceId
+                        deviceId: device.getId()
                     },
                     callback: function (records) {
                         if(connectionMethodsStore.count() > 0) {
