@@ -125,9 +125,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
     showBulkAction: function () {
         var me = this,
+            search = me.getController('Mdc.controller.Search'),
             searchResults = Ext.getStore('Uni.store.search.Results'),
             widget;
 
+        // in case user forgot to press apply filters on search page we need ensure that search filters state matches search results state
+        search.service.applyFilters();
         if (!searchResults.getCount()) {
             this.goBack();
         } else {

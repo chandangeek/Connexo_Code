@@ -94,6 +94,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                                 },
                                 {
                                     xtype: 'uni-actioncolumn-remove',
+                                    align: 'right',
                                     handler: function (grid, rowIndex) {
                                         grid.getStore().removeAt(rowIndex);
                                         this.up('load-profile-type-edit-form').showGridOrMessage();

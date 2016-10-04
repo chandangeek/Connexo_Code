@@ -90,7 +90,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
-                communicationTasksOfDeviceStore.getProxy().setExtraParam('mrid', encodeURIComponent(mrid));
+                communicationTasksOfDeviceStore.getProxy().setExtraParam('mrid', mrid);
                 communicationTasksOfDeviceStore.load({
                     callback: function () {
                         me.getDeviceCommunicationTaskGrid().getSelectionModel().doSelect(0);
@@ -160,7 +160,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         switch (menuItem.action) {
             case 'changeConnectionMethodOfDeviceComTask':
                 var connectionMethodsOfDeviceStore = this.getConnectionMethodsOfDeviceStore();
-                connectionMethodsOfDeviceStore.getProxy().setExtraParam('mrid', encodeURIComponent(this.mrid));
+                connectionMethodsOfDeviceStore.getProxy().setExtraParam('mrid', this.mrid);
                 connectionMethodsOfDeviceStore.load({
                     callback: function () {
                         var nameOfDefaultConnectionMethod = Uni.I18n.translate('deviceCommunicationTask.notDefinedYey', 'MDC', 'Not defined yet');
@@ -189,7 +189,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
 //                break;
             case 'changeProtocolDialectOfDeviceComTask':
                 var protocolDialectsOfDeviceStore = this.getProtocolDialectsOfDeviceStore();
-                protocolDialectsOfDeviceStore.getProxy().setExtraParam('mRID', encodeURIComponent(this.mrid));
+                protocolDialectsOfDeviceStore.getProxy().setExtraParam('mRID', this.mrid);
                 protocolDialectsOfDeviceStore.load({
                     callback: function () {
                         me.showPopUp(menuItem.action, protocolDialectsOfDeviceStore, comTask.get('protocolDialect'));

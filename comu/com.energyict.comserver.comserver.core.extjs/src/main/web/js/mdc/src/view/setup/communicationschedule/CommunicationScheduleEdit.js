@@ -125,6 +125,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                             },
                                             {
                                                 xtype: 'uni-actioncolumn-remove',
+                                                align: 'right',
                                                 handler: function (grid, rowIndex, colIndex, item, e, record, row) {
                                                     this.fireEvent('deleteComTask', record);
                                                 }

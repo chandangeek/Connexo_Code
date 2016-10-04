@@ -75,7 +75,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.EditCustomAttributeSetForm', {
                                     flex: 1
                                 },
                                 {
-                                    xtype: 'uni-actioncolumn-remove'
+                                    xtype: 'uni-actioncolumn-remove',
+                                    align: 'right'
                                 }
                             ]
                         }
