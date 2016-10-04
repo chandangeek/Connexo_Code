@@ -81,15 +81,14 @@ Ext.define('Bpm.controller.Task', {
                 me.getController('Bpm.controller.OpenTask').taskId = taskId;
                 me.getApplication().fireEvent('changecontentevent', view);
                 view.down('form').loadRecord(taskRecord);
-                view.down('#doa-task-title').setTitle('TEST');
+                view.down('#task-title').setTitle(taskRecord.get('name'));
                 me.getApplication().fireEvent('task', taskRecord);
                 performTask.load(taskId, {
                     success: function (performTaskRecord) {
                         if (performTaskRecord && performTaskRecord.properties() && performTaskRecord.properties().count()) {
                             view.down('property-form').loadRecord(performTaskRecord);
-                            view.down('property-form').show();
                         } else {
-                            view.down('property-form').hide();
+                            view.down('property-form').down('uni-form-empty-message').show();
                         }
                     }
                 })

@@ -4,7 +4,8 @@ Ext.define('Bpm.view.task.ViewTask', {
     requires: [
         'Uni.property.form.Property',
         'Bpm.store.task.Tasks',
-        'Uni.view.toolbar.PreviousNextNavigation'
+        'Uni.view.toolbar.PreviousNextNavigation',
+        'Uni.util.FormEmptyMessage'
     ],
     taskRecord: null,
     router: null,
@@ -18,8 +19,7 @@ Ext.define('Bpm.view.task.ViewTask', {
                 items: [
                     {
                         ui: 'large',
-                        itemId: 'doa-task-title',
-                        //title: me.taskRecord.get('name'),
+                        itemId: 'task-title',
                         flex: 1
                     },
                     {
@@ -153,7 +153,14 @@ Ext.define('Bpm.view.task.ViewTask', {
                 defaults: {
                     resetButtonHidden: true,
                     labelWidth: 250
-                }
+                },
+                items: [
+                    {
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('bpm.task.noProperties', 'BPM', 'This task has no properties.'),
+                        hidden: true,
+                    }
+                ]
             }
         ];
 
