@@ -425,4 +425,5 @@ public class ConsoleCommands {
                 .sorted(Comparator.comparing(EstimationRuleProperties::getName))
                 .forEach(prop -> builder.append('\t').append('\t').append(prop.getName()).append(" : ").append(prop.getValue()).append('\n'));
     }
+
 }

@@ -49,7 +49,6 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
@@ -286,22 +285,6 @@ public class EstimationTaskImplIT {
         Assertions.assertThat(found.get().getName()).isEqualTo("New name!");
     }
 
-
-    @Test
-    public void testRunTask() {
-        EstimationTaskImpl estimationTask = (EstimationTaskImpl) createAndSaveTask();
-
-        transactionService.builder().principal(() -> "ut")
-                .run(() -> {
-                    UserService userService = injector.getInstance(UserService.class);
-                    User user = userService.findUser(EstimationServiceImpl.ESTIMATION_TASKS_USER).get();
-                    estimationTask.getRecurrentTask().runNow(new EstimationTaskExecutor(estimationService, transactionService, null, timeService, threadPrincipalService, userService, user));
-                });
-
-        EstimationTask reloaded = estimationService.findEstimationTask(estimationTask.getId()).get();
-
-        assertThat(reloaded.getLastRun()).isPresent();
-    }
 
     private EstimationTask createAndSaveTask() {
         return createAndSaveTask(NAME);
