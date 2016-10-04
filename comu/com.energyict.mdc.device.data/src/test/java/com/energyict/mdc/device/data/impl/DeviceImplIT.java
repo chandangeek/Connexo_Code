@@ -1284,8 +1284,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.deactivate(end);
 
         Instant expectedStart = Instant.ofEpochMilli(300000L);
-
-        // Business method
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.ofEpochMilli(300000L));
         device.activate(expectedStart);
 
         // Asserts
