@@ -1183,6 +1183,7 @@ sub perform_upgrade {
 
         #copy existing flow repository
         print "Copying Flow repository\n";
+        dircopy("$UPGRADE_PATH/temp/.niogit","$CONNEXO_DIR/partners/tomcat/.niogit");
         dircopy("$UPGRADE_PATH/temp/repositories","$CONNEXO_DIR/partners/tomcat/repositories");
 
         #uninstall old tomcat service version
