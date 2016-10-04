@@ -12,12 +12,12 @@ Ext.define('Ddv.view.validations.Grid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('validations.mrid', 'DDV', 'MRID'),
-                dataIndex: 'mrid',
+                header: Uni.I18n.translate('validations.name', 'DDV', 'Name'),
+                dataIndex: 'name',
                 flex: 1,
-                renderer: function (value, metaData, record) {
-                    var href = me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(value)});
-                    return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
+                renderer: function (value) {
+                    var href = me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(value)});
+                    return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             {
