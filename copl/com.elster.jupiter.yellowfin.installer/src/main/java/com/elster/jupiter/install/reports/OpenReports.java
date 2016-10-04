@@ -8,6 +8,7 @@ import com.hof.mi.web.service.AdministrationServiceSoapBindingStub;
 import com.hof.mi.web.service.ContentResource;
 import com.hof.mi.web.service.ImportOption;
 import com.hof.util.Base64;
+import org.apache.axis.AxisFault;
 
 import javax.xml.rpc.ServiceException;
 import java.io.File;
@@ -70,13 +71,46 @@ public class OpenReports {
         List<String> itemsToImport = null;
 
         try {
-            existingItems = getExportContent(host, port, root, user, password, useSecureConnection);
+            existingItems = getExportContentWithRetry(host, port, root, user, password, useSecureConnection);
             itemsToImport = getItemsToImport(filePath, host, port, root, user, password, useSecureConnection);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             return false;
         }
 
         return importContent(filePath, existingItems, itemsToImport, host, port, root, user, password, useSecureConnection);
+    }
+
+    private static Map<String, String> getExportContentWithRetry(String host, int port, String root, String user, String password, boolean useSecureConnection) {
+        Map<String, String> existingItems = null;
+        int maxSteps = 12;
+        int timeout = 5 * 1000;
+
+        while ((maxSteps != 0) && (existingItems == null)) {
+            try {
+                maxSteps--;
+                existingItems = getExportContent(host, port, root, user, password, useSecureConnection);
+            } catch(RuntimeException e) {
+                if( e.getCause() != null && e.getCause() instanceof AxisFault &&
+                        ( ( e.getCause().getCause() != null && e.getCause().getCause() instanceof java.net.ConnectException) ||
+                          ( ((AxisFault) e.getCause()).getFaultReason().startsWith("(404)")) )) {
+                    try {
+                        Thread.sleep(timeout);
+                        if(maxSteps == 0) {
+                            e.printStackTrace();
+                            throw e;
+                        }
+                    } catch (InterruptedException exInterrupt) {
+                        Thread.currentThread().interrupt();
+                    }
+                } else {
+                    e.printStackTrace();
+                    throw e;
+                }
+            }
+        }
+
+        return existingItems;
     }
 
     private static Map<String, String> getExportContent(String host, int port, String root, String user, String password, boolean useSecureConnection) {
@@ -90,8 +124,7 @@ public class OpenReports {
         try {
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
         } catch (ServiceException e) {
-            e.printStackTrace();
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
 
         rsr.setLoginId(user);
@@ -121,8 +154,7 @@ public class OpenReports {
                 }
 
             } catch (RemoteException e) {
-                e.printStackTrace();
-                throw new RuntimeException();
+                throw new RuntimeException(e);
             }
         }
 
@@ -143,8 +175,7 @@ public class OpenReports {
             try {
                 rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
             } catch (ServiceException e) {
-                e.printStackTrace();
-                throw new RuntimeException();
+                throw new RuntimeException(e);
             }
 
             rsr.setLoginId(user);
@@ -167,16 +198,13 @@ public class OpenReports {
                     }
 
                 } catch (RemoteException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException();
+                    throw new RuntimeException(e);
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
 
         return itemsToImport;
@@ -234,6 +262,8 @@ public class OpenReports {
                     if (rs != null) {
                         if ("SUCCESS".equals(rs.getStatusCode())) {
                             return true;
+                        } else {
+                            System.out.println("Error importing file - " + rs.getStatusCode());
                         }
                     }
 
