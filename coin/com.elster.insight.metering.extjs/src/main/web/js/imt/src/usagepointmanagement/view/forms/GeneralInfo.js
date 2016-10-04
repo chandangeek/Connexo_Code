@@ -112,7 +112,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 xtype: 'coordinates',
                 name: 'extendedGeoCoordinates',
                 itemId: 'up-summary-geoCoordinates',
-                fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates')
+                fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates'),
+                width: 600
             },
             {
                 xtype: 'location',
