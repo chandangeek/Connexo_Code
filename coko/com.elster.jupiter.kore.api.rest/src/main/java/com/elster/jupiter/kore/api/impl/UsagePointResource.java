@@ -78,7 +78,7 @@ public class UsagePointResource {
      * <p>On a physical usage point one or multiple meters can be installed (sub metering, subtracting or control metering,
      * etc.), and these can change over time.</p>
      *
-     * @param usagePointId Unique identifier of the usage point
+     * @param mRID Unique identifier of the usage point
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
      * @return The usage point as identified
@@ -86,12 +86,46 @@ public class UsagePointResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{usagePointId}")
+    @Path("/{mRID}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public UsagePointInfo getUsagePoint(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        return meteringService.findUsagePointById(usagePointId)
+    public UsagePointInfo getUsagePoint(@PathParam("mRID") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        return meteringService.findUsagePointByMRID(mRID)
                 .map(ct -> usagePointInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
+    }
+
+    /**
+     * <p>A usage point is a point in the grid where data is measured (energy consumption and/or production). This point can
+     * be either virtual (in order to perform calculations within the system), or physical. A physical usage point can be
+     * either used to deliver a service or not in which case we speak of a service delivery point.</p>
+     * <p>
+     * <p>The usage point is often also refered to as a service delivery point or a point of delivery (typically UK with a
+     * meter point reference number - MPRN or MPAN).</p>
+     * <p>
+     * <p>On a physical usage point one or multiple meters can be installed (sub metering, subtracting or control metering,
+     * etc.), and these can change over time.</p>
+     *
+     * @param mRID Unique identifier of the usage point
+     * @param uriInfo uriInfo
+     * @param usagePointInfo JSON description of new usage point values
+     * @return The updated usage point
+     * @summary Update a usage point
+     */
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{mRID}")
+//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Transactional
+    public UsagePointInfo updateUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo usagePointInfo, @Context UriInfo uriInfo) {
+        if (usagePointInfo.version == null) {
+            exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.VERSION_MISSING, "version");
+        }
+        UsagePoint usagePoint = meteringService.findAndLockUsagePointBymRIDAndVersion(mRID, usagePointInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
+        usagePointInfoFactory.updateUsagePoint(usagePoint, usagePointInfo);
+
+        return usagePointInfoFactory.from(usagePoint, uriInfo, Collections.emptyList());
     }
 
     /**
@@ -129,42 +163,6 @@ public class UsagePointResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
-    /**
-     * <p>A usage point is a point in the grid where data is measured (energy consumption and/or production). This point can
-     * be either virtual (in order to perform calculations within the system), or physical. A physical usage point can be
-     * either used to deliver a service or not in which case we speak of a service delivery point.</p>
-     * <p>
-     * <p>The usage point is often also refered to as a service delivery point or a point of delivery (typically UK with a
-     * meter point reference number - MPRN or MPAN).</p>
-     * <p>
-     * <p>On a physical usage point one or multiple meters can be installed (sub metering, subtracting or control metering,
-     * etc.), and these can change over time.</p>
-     *
-     * @param usagePointId Unique identifier of the usage point
-     * @param uriInfo uriInfo
-     * @param usagePointInfo JSON description of new usage point values
-     * @return The updated usage point
-     * @summary Update a usage point
-     */
-    @PUT
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{usagePointId}")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    @Transactional
-    public UsagePointInfo updateUsagePoint(@PathParam("usagePointId") long usagePointId,
-                                           UsagePointInfo usagePointInfo,
-                                           @Context UriInfo uriInfo) {
-        if (usagePointInfo.version == null) {
-            exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.VERSION_MISSING, "version");
-        }
-        UsagePoint usagePoint = meteringService.findAndLockUsagePointByIdAndVersion(usagePointId, usagePointInfo.version)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
-        usagePointInfoFactory.updateUsagePoint(usagePoint, usagePointInfo);
-
-        return usagePointInfoFactory.from(usagePoint, uriInfo, Collections.emptyList());
-    }
-
 
     /**
      * <p>A usage point is a point in the grid where data is measured (energy consumption and/or production). This point can
@@ -196,7 +194,7 @@ public class UsagePointResource {
         URI uri = uriInfo.getBaseUriBuilder().
                 path(UsagePointResource.class).
                 path(UsagePointResource.class, "getUsagePoint").
-                build(usagePoint.getId());
+                build(usagePoint.getMRID());
 
         return Response.created(uri).build();
     }
@@ -228,11 +226,12 @@ public class UsagePointResource {
     }
 
 
-    @Path("/{usagePointId}/details")
+    @Path("/{mRID}/details")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    public Object getDetailsResource(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        UsagePoint usagePoint = meteringService.findUsagePointById(usagePointId)
+//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public Object getDetailsResource(@PathParam("mRID") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
         switch (usagePoint.getServiceCategory().getKind()) {
             case ELECTRICITY:
@@ -251,16 +250,12 @@ public class UsagePointResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{usagePointId}/command")
+    @Path("/{mRID}/commands")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
-    public CommandRunStatusInfo runCommandOnUsagePoint(@PathParam("usagePointId") long usagePointId,
-                                                       UsagePointCommandInfo usagePointCommandInfo,
-                                                       @Context UriInfo uriInfo) {
-
-        UsagePoint usagePoint = meteringService.findUsagePointById(usagePointId)
+    public CommandRunStatusInfo runCommandOnUsagePoint(@PathParam("mRID") String mRID, UsagePointCommandInfo usagePointCommandInfo) {
+        UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
-
         return usagePointCommandInfo.command.process(usagePoint, usagePointCommandInfo, usagePointCommandHelper);
     }
 }

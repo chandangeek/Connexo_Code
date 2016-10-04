@@ -52,12 +52,16 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
         GasDetailInfo info = new GasDetailInfo();
         info.id = now;
         info.version = 2L;
-
         info.effectivity = null;
 
-        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.GAS);
+        UsagePoint usagePoint = mockUsagePoint(MRID, 2L, ServiceKind.GAS);
+        when(usagePoint.getId()).thenReturn(13L);
+        when(meteringService.findAndLockUsagePointByIdAndVersion(13L, 2L)).thenReturn(Optional.of(usagePoint));
 
-        Response response = target("/usagepoints/11/details").request().post(Entity.json(info));
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/details").request().post(Entity.json(info));
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("effectivity.lowerEnd");
@@ -70,18 +74,20 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
         info.id = now;
         info.version = null;
 
-        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.GAS);
+        mockUsagePoint(MRID, 2L, ServiceKind.GAS);
 
-        Response response = target("/usagepoints/11/details").request().post(Entity.json(info));
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/details").request().post(Entity.json(info));
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("version");
     }
 
-
     @Test
     public void testGetDetailsWithTemporalLinks() throws Exception {
-        UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.GAS);
+        UsagePoint usagePoint = mockUsagePoint(MRID, 2L, ServiceKind.GAS);
         GasDetail gasDetail1 = mock(GasDetail.class);
         when(gasDetail1.getUsagePoint()).thenReturn(usagePoint);
         when(gasDetail1.getRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(100), Instant.ofEpochMilli(200)));
@@ -93,14 +99,18 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
         when(gasDetail3.getRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(300), Instant.ofEpochMilli(400)));
         doReturn(Arrays.asList(gasDetail3, gasDetail2, gasDetail1)).when(usagePoint).getDetail(any(Range.class));
         doReturn(Optional.of(gasDetail2)).when(usagePoint).getDetail(any(Instant.class));
-        Response response = target("/usagepoints/31/details/1").request().get();
+
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/details/1").request().get();
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<String>get("$.link[0].href")).isEqualTo("http://localhost:9998/usagepoints/31/details/100");
+        assertThat(model.<String>get("$.link[0].href")).isEqualTo("http://localhost:9998/usagepoints/" + MRID + "/details/100");
         assertThat(model.<String>get("$.link[0].params.rel")).isEqualTo(Relation.REF_PREVIOUS.rel());
-        assertThat(model.<String>get("$.link[1].href")).isEqualTo("http://localhost:9998/usagepoints/31/details/200");
+        assertThat(model.<String>get("$.link[1].href")).isEqualTo("http://localhost:9998/usagepoints/" + MRID + "/details/200");
         assertThat(model.<String>get("$.link[1].params.rel")).isEqualTo(Relation.REF_SELF.rel());
-        assertThat(model.<String>get("$.link[2].href")).isEqualTo("http://localhost:9998/usagepoints/31/details/300");
+        assertThat(model.<String>get("$.link[2].href")).isEqualTo("http://localhost:9998/usagepoints/" + MRID + "/details/300");
         assertThat(model.<String>get("$.link[2].params.rel")).isEqualTo(Relation.REF_NEXT.rel());
     }
 
@@ -125,51 +135,55 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
         when(gasDetail.isInterruptible()).thenReturn(YesNoAnswer.YES);
         when(gasDetail.isCollarInstalled()).thenReturn(YesNoAnswer.YES);
         when(gasDetail.getRange()).thenReturn(Range.downTo(clock.instant(), BoundType.CLOSED));
-        UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.GAS, gasDetail);
+        UsagePoint usagePoint = mockUsagePoint(MRID, 2L, ServiceKind.GAS, gasDetail);
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "metro", 1);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
-        Response response = target("/usagepoints/31/details").request().get();
 
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/details").request().get();
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<Long>get("$.id")).isEqualTo(clock.millis());
-        Assertions.assertThat(model.<Integer>get("$.version")).isEqualTo(2);
-        Assertions.assertThat(model.<Long>get("$.effectivity.lowerEnd")).isEqualTo(clock.millis());
-        Assertions.assertThat(model.<Long>get("$.effectivity.upperEnd")).isNull();
-        Assertions.assertThat(model.<String>get("$.bypass")).isEqualTo("YES");
-        Assertions.assertThat(model.<String>get("$.capped")).isEqualTo("YES");
-        Assertions.assertThat(model.<String>get("$.collar")).isEqualTo("YES");
-        Assertions.assertThat(model.<Boolean>get("$.current")).isTrue();
-        Assertions.assertThat(model.<String>get("$.interruptible")).isEqualTo("YES");
-        Assertions.assertThat(model.<String>get("$.clamped")).isEqualTo("YES");
-        Assertions.assertThat(model.<String>get("$.grounded")).isEqualTo("YES");
-        Assertions.assertThat(model.<String>get("$.limiter")).isEqualTo("YES");
-        Assertions.assertThat(model.<String>get("$.valve")).isEqualTo("YES");
-        Assertions.assertThat(model.<String>get("$.bypassStatus")).isEqualTo("CLOSED");
-        Assertions.assertThat(model.<Integer>get("$.loadLimit.value")).isEqualTo(101);
-        Assertions.assertThat(model.<Integer>get("$.loadLimit.multiplier")).isEqualTo(0);
-        Assertions.assertThat(model.<String>get("$.loadLimit.unit")).isEqualTo("W");
-        Assertions.assertThat(model.<String>get("$.loadLimiterType")).isEqualTo("LLT");
-        Assertions.assertThat(model.<Integer>get("$.physicalCapacity.value")).isEqualTo(102);
-        Assertions.assertThat(model.<Integer>get("$.physicalCapacity.multiplier")).isEqualTo(0);
-        Assertions.assertThat(model.<String>get("$.physicalCapacity.unit")).isEqualTo("m");
-        Assertions.assertThat(model.<Integer>get("$.pressure.value")).isEqualTo(103);
-        Assertions.assertThat(model.<Integer>get("$.pressure.multiplier")).isEqualTo(0);
-        Assertions.assertThat(model.<String>get("$.pressure.unit")).isEqualTo("kg");
-        Assertions.assertThat(model.<List>get("$.link")).hasSize(1);
-        Assertions.assertThat(model.<String>get("$.link[0].params.rel")).isEqualTo(Relation.REF_SELF.rel());
-        Assertions.assertThat(model.<String>get("$.link[0].href"))
-                .isEqualTo("http://localhost:9998/usagepoints/31/details/1462104000000");
+        assertThat(model.<Long>get("$.id")).isEqualTo(clock.millis());
+        assertThat(model.<Integer>get("$.version")).isEqualTo(2);
+        assertThat(model.<Long>get("$.effectivity.lowerEnd")).isEqualTo(clock.millis());
+        assertThat(model.<Long>get("$.effectivity.upperEnd")).isNull();
+        assertThat(model.<String>get("$.bypass")).isEqualTo("YES");
+        assertThat(model.<String>get("$.capped")).isEqualTo("YES");
+        assertThat(model.<String>get("$.collar")).isEqualTo("YES");
+        assertThat(model.<Boolean>get("$.current")).isTrue();
+        assertThat(model.<String>get("$.interruptible")).isEqualTo("YES");
+        assertThat(model.<String>get("$.clamped")).isEqualTo("YES");
+        assertThat(model.<String>get("$.grounded")).isEqualTo("YES");
+        assertThat(model.<String>get("$.limiter")).isEqualTo("YES");
+        assertThat(model.<String>get("$.valve")).isEqualTo("YES");
+        assertThat(model.<String>get("$.bypassStatus")).isEqualTo("CLOSED");
+        assertThat(model.<Integer>get("$.loadLimit.value")).isEqualTo(101);
+        assertThat(model.<Integer>get("$.loadLimit.multiplier")).isEqualTo(0);
+        assertThat(model.<String>get("$.loadLimit.unit")).isEqualTo("W");
+        assertThat(model.<String>get("$.loadLimiterType")).isEqualTo("LLT");
+        assertThat(model.<Integer>get("$.physicalCapacity.value")).isEqualTo(102);
+        assertThat(model.<Integer>get("$.physicalCapacity.multiplier")).isEqualTo(0);
+        assertThat(model.<String>get("$.physicalCapacity.unit")).isEqualTo("m");
+        assertThat(model.<Integer>get("$.pressure.value")).isEqualTo(103);
+        assertThat(model.<Integer>get("$.pressure.multiplier")).isEqualTo(0);
+        assertThat(model.<String>get("$.pressure.unit")).isEqualTo("kg");
+        assertThat(model.<List>get("$.link")).hasSize(1);
+        assertThat(model.<String>get("$.link[0].params.rel")).isEqualTo(Relation.REF_SELF.rel());
+        assertThat(model.<String>get("$.link[0].href")).isEqualTo("http://localhost:9998/usagepoints/" + MRID + "/details/1462104000000");
     }
-
 
     @Test
     public void testUsagePointFields() throws Exception {
-        mockUsagePoint(1, "test", 1L, ServiceKind.GAS);
-        Response response = target("/usagepoints/1/details").request("application/json")
-                .method("PROPFIND", Response.class);
+        mockUsagePoint(MRID, 1L, ServiceKind.GAS);
+
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/details").request("application/json").method("PROPFIND", Response.class);
+
+        // Asserts
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         Assertions.assertThat(model.<List>get("$")).hasSize(18);
         Assertions.assertThat(model.<List<String>>get("$")).containsOnly(
@@ -193,6 +207,4 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
                 "current"
         );
     }
-
-
 }

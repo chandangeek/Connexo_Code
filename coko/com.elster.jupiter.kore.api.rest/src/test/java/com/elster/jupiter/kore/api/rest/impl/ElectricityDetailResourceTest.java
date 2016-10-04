@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -50,8 +51,12 @@ public class ElectricityDetailResourceTest extends PlatformPublicApiJerseyTest {
 
     @Test
     public void testGetDetails() throws Exception {
-        UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.ELECTRICITY);
-        Response response = target("/usagepoints/31/details/1").request().get();
+        mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
+
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/details/1").request().get();
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
     }
@@ -76,16 +81,20 @@ public class ElectricityDetailResourceTest extends PlatformPublicApiJerseyTest {
         info.ratedCurrent = Quantity.create(BigDecimal.valueOf(4), "W");
         info.ratedPower = Quantity.create(BigDecimal.valueOf(5), "W");
 
-        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        UsagePoint usagePoint = mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
         when(electricityDetail.getRange()).thenReturn(Range.downTo(now, BoundType.CLOSED));
         ElectricityDetailBuilder electricityDetailBuilder = FakeBuilder.initBuilderStub(electricityDetail, ElectricityDetailBuilder.class);
         when(usagePoint.newElectricityDetailBuilder(any())).thenReturn(electricityDetailBuilder);
+        when(usagePoint.getId()).thenReturn(13L);
+        when(meteringService.findAndLockUsagePointByIdAndVersion(13L, 2L)).thenReturn(Optional.of(usagePoint));
 
-        Response response = target("/usagepoints/11/details").request().post(Entity.json(info));
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/details").request().post(Entity.json(info));
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        assertThat(response.getHeaderString("location")).isEqualTo("http://localhost:9998/usagepoints/11/details/" + now
-                .toEpochMilli());
+        assertThat(response.getHeaderString("location")).isEqualTo("http://localhost:9998/usagepoints/" + MRID + "/details/" + now.toEpochMilli());
         verify(electricityDetailBuilder).withCollar(YesNoAnswer.YES);
         verify(electricityDetailBuilder).withGrounded(YesNoAnswer.YES);
         verify(electricityDetailBuilder).withEstimatedLoad(info.estimatedLoad);
@@ -106,12 +115,16 @@ public class ElectricityDetailResourceTest extends PlatformPublicApiJerseyTest {
         ElectricityDetailInfo info = new ElectricityDetailInfo();
         info.id = now;
         info.version = 2L;
-
         info.effectivity = null;
 
-        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        UsagePoint usagePoint = mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
+        when(usagePoint.getId()).thenReturn(13L);
+        when(meteringService.findAndLockUsagePointByIdAndVersion(13L, 2L)).thenReturn(Optional.of(usagePoint));
 
-        Response response = target("/usagepoints/11/details").request().post(Entity.json(info));
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/details").request().post(Entity.json(info));
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("effectivity.lowerEnd");
@@ -124,9 +137,12 @@ public class ElectricityDetailResourceTest extends PlatformPublicApiJerseyTest {
         info.id = now;
         info.version = null;
 
-        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
 
-        Response response = target("/usagepoints/11/details").request().post(Entity.json(info));
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/details").request().post(Entity.json(info));
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("version");
@@ -148,39 +164,44 @@ public class ElectricityDetailResourceTest extends PlatformPublicApiJerseyTest {
         when(electricityDetail.getNominalServiceVoltage()).thenReturn(Quantity.create(value2, "m"));
         when(electricityDetail.getEstimatedLoad()).thenReturn(Quantity.create(value3, "g"));
         when(electricityDetail.getRange()).thenReturn(Range.downTo(clock.instant(), BoundType.CLOSED));
-        UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.ELECTRICITY, electricityDetail);
+        mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY, electricityDetail);
 
-        Response response = target("/usagepoints/31/details").request().get();
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/details").request().get();
+
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<Long>get("$.id")).isEqualTo(clock.millis());
-        Assertions.assertThat(model.<Integer>get("$.version")).isEqualTo(2);
-        Assertions.assertThat(model.<String>get("$.collar")).isEqualTo("YES");
-        Assertions.assertThat(model.<String>get("$.limiter")).isEqualTo("YES");
-        Assertions.assertThat(model.<Boolean>get("$.current")).isTrue();
-        Assertions.assertThat(model.<String>get("$.interruptible")).isEqualTo("YES");
-        Assertions.assertThat(model.<String>get("$.grounded")).isEqualTo("YES");
-        Assertions.assertThat(model.<Integer>get("$.loadLimit.value")).isEqualTo(201);
-        Assertions.assertThat(model.<Integer>get("$.loadLimit.multiplier")).isEqualTo(0);
-        Assertions.assertThat(model.<String>get("$.loadLimit.unit")).isEqualTo("W");
-        Assertions.assertThat(model.<String>get("$.loadLimiterType")).isEqualTo("LLT");
-        Assertions.assertThat(model.<Integer>get("$.nominalServiceVoltage.value")).isEqualTo(202);
-        Assertions.assertThat(model.<String>get("$.nominalServiceVoltage.unit")).isEqualTo("m");
-        Assertions.assertThat(model.<Integer>get("$.estimatedLoad.value")).isEqualTo(203);
-        Assertions.assertThat(model.<String>get("$.estimatedLoad.unit")).isEqualTo("g");
-        Assertions.assertThat(model.<Long>get("$.effectivity.lowerEnd")).isEqualTo(clock.millis());
-        Assertions.assertThat(model.<Long>get("$.effectivity.upperEnd")).isNull();
-        Assertions.assertThat(model.<List>get("$.link")).hasSize(1);
-        Assertions.assertThat(model.<String>get("$.link[0].params.rel")).isEqualTo(Relation.REF_SELF.rel());
-        Assertions.assertThat(model.<String>get("$.link[0].href"))
-                .isEqualTo("http://localhost:9998/usagepoints/31/details/1462104000000");
+        assertThat(model.<Long>get("$.id")).isEqualTo(clock.millis());
+        assertThat(model.<Integer>get("$.version")).isEqualTo(2);
+        assertThat(model.<String>get("$.collar")).isEqualTo("YES");
+        assertThat(model.<String>get("$.limiter")).isEqualTo("YES");
+        assertThat(model.<Boolean>get("$.current")).isTrue();
+        assertThat(model.<String>get("$.interruptible")).isEqualTo("YES");
+        assertThat(model.<String>get("$.grounded")).isEqualTo("YES");
+        assertThat(model.<Integer>get("$.loadLimit.value")).isEqualTo(201);
+        assertThat(model.<Integer>get("$.loadLimit.multiplier")).isEqualTo(0);
+        assertThat(model.<String>get("$.loadLimit.unit")).isEqualTo("W");
+        assertThat(model.<String>get("$.loadLimiterType")).isEqualTo("LLT");
+        assertThat(model.<Integer>get("$.nominalServiceVoltage.value")).isEqualTo(202);
+        assertThat(model.<String>get("$.nominalServiceVoltage.unit")).isEqualTo("m");
+        assertThat(model.<Integer>get("$.estimatedLoad.value")).isEqualTo(203);
+        assertThat(model.<String>get("$.estimatedLoad.unit")).isEqualTo("g");
+        assertThat(model.<Long>get("$.effectivity.lowerEnd")).isEqualTo(clock.millis());
+        assertThat(model.<Long>get("$.effectivity.upperEnd")).isNull();
+        assertThat(model.<List>get("$.link")).hasSize(1);
+        assertThat(model.<String>get("$.link[0].params.rel")).isEqualTo(Relation.REF_SELF.rel());
+        assertThat(model.<String>get("$.link[0].href")).isEqualTo("http://localhost:9998/usagepoints/" + MRID + "/details/1462104000000");
     }
 
     @Test
     public void testUsagePointFields() throws Exception {
-        mockUsagePoint(1, "test", 1L, ServiceKind.ELECTRICITY);
-        Response response = target("/usagepoints/1/details").request("application/json")
-                .method("PROPFIND", Response.class);
+        mockUsagePoint(MRID, 1L, ServiceKind.ELECTRICITY);
+
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/details").request("application/json").method("PROPFIND", Response.class);
+
+        // Asserts
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         Assertions.assertThat(model.<List>get("$")).hasSize(16);
         Assertions.assertThat(model.<List<String>>get("$")).containsOnly(

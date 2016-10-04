@@ -91,12 +91,10 @@ public class HeatDetailsResource {
                 path(UsagePointResource.class).
                 path(UsagePointResource.class, "getDetailsResource").
                 path(HeatDetailsResource.class, "getHeatDetails").
-                build(usagePoint.getId(), detail.getRange().lowerEndpoint());
+                build(usagePoint.getMRID(), detail.getRange().lowerEndpoint());
 
         return Response.created(uri).build();
     }
-
-
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
@@ -104,6 +102,4 @@ public class HeatDetailsResource {
     public List<String> getFields() {
         return heatDetailInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
-
-
 }

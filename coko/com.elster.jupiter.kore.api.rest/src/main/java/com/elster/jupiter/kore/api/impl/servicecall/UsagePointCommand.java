@@ -71,7 +71,7 @@ public enum UsagePointCommand {
                             .orElse(null)))
                     .collect(Collectors.toList());
 
-            CommandRunStatusInfo commandStatus = new CommandRunStatusInfo(usagePoint.getName(),
+            CommandRunStatusInfo commandStatus = new CommandRunStatusInfo(usagePoint.getMRID(),
                     CommandStatus.FAILED, childrenCommands.toArray(new CommandRunStatusInfo[childrenCommands
                     .size()]));
             commandStatus.system = childrenCommands.stream()
@@ -93,7 +93,7 @@ public enum UsagePointCommand {
                             .orElse(null)))
                     .collect(Collectors.toList());
 
-            return new CommandRunStatusInfo(usagePoint.getName(), CommandStatus.SUCCESS, childrenCommands
+            return new CommandRunStatusInfo(usagePoint.getMRID(), CommandStatus.SUCCESS, childrenCommands
                     .toArray(new CommandRunStatusInfo[childrenCommands.size()]));
         }
     }

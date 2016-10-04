@@ -21,7 +21,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Path("/usagepoints/{usagePointId}/metrologyconfigurations")
+@Path("/usagepoints/{mRID}/metrologyconfigurations")
 public class EffectiveMetrologyConfigurationResource {
 
     private final EffectiveMetrologyConfigurationInfoFactory effectiveMetrologyConfigurationInfoFactory;
@@ -39,7 +39,7 @@ public class EffectiveMetrologyConfigurationResource {
      * A metrology configuration is a definition of what is going to be measured. Through a metrology configuration the
      * contract is made between a requirement and a deliverable
      *
-     * @param usagePointId Id of the usage point
+     * @param mRID Unique identifier of the usage point
      * @param fieldSelection fieldSelection
      * @param uriInfo uriInfo
      * @return The values of the identified efective metrologyConfiguration from usage point
@@ -47,8 +47,8 @@ public class EffectiveMetrologyConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public EffectiveMetrologyConfigurationInfo getEffectiveMetrologyConfiguration(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        return meteringService.findUsagePointById(usagePointId)
+    public EffectiveMetrologyConfigurationInfo getEffectiveMetrologyConfiguration(@PathParam("mRID") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        return meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
                 .getCurrentEffectiveMetrologyConfiguration()
                 .map(ct -> effectiveMetrologyConfigurationInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -59,7 +59,7 @@ public class EffectiveMetrologyConfigurationResource {
      * A metrology configuration is a definition of what is going to be measured. Through a metrology configuration the
      * contract is made between a requirement and a deliverable
      *
-     * @param usagePointId Id of the usage point
+     * @param mRID Unique identifier of the usage point
      * @param timestamp Id of the metrology configuration
      * @param fieldSelection fieldSelection
      * @param uriInfo uriInfo
@@ -69,8 +69,8 @@ public class EffectiveMetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{timestamp}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public EffectiveMetrologyConfigurationInfo getMetrologyConfiguration(@PathParam("usagePointId") long usagePointId, @PathParam("timestamp") long timestamp, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        return meteringService.findUsagePointById(usagePointId)
+    public EffectiveMetrologyConfigurationInfo getMetrologyConfiguration(@PathParam("mRID") String mRID, @PathParam("timestamp") long timestamp, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        return meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
                 .getEffectiveMetrologyConfiguration(Instant.ofEpochMilli(timestamp))
                 .map(ct -> effectiveMetrologyConfigurationInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -100,5 +100,4 @@ public class EffectiveMetrologyConfigurationResource {
     public List<String> getFields() {
         return effectiveMetrologyConfigurationInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
-
 }

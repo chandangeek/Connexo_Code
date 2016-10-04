@@ -64,7 +64,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Usage point")
-                .build(usagePoint.getId());
+                .build(usagePoint.getMRID());
     }
 
     private Link detailsLink(UsagePointDetail usagePointDetail, Relation relation, UriInfo uriInfo) {
@@ -76,7 +76,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         return Link.fromUriBuilder(uriBuilder)
                 .rel(relation.rel())
                 .title("Usage point")
-                .build(usagePointDetail.getUsagePoint().getId(), usagePointDetail.getRange()
+                .build(usagePointDetail.getUsagePoint().getMRID(), usagePointDetail.getRange()
                         .lowerEndpoint()
                         .toEpochMilli());
     }

@@ -49,7 +49,7 @@ public class MeterActivationInfoFactory extends SelectableFieldFactory<MeterActi
                 .title("Meter activation")
                 .build(meterActivation.getUsagePoint()
                         .get()
-                        .getId(), meterActivation.getId());// we're querying meter activations of a usage point, so usage point should always be present
+                        .getMRID(), meterActivation.getId());// we're querying meter activations of a usage point, so usage point should always be present
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {

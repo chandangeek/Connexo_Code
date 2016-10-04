@@ -46,7 +46,7 @@ public class ElectricityDetailInfoFactory extends SelectableFieldFactory<Electri
         return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Electricity detail")
-                .build(electricityDetail.getUsagePoint().getId(), electricityDetail.getRange()
+                .build(electricityDetail.getUsagePoint().getMRID(), electricityDetail.getRange()
                         .lowerEndpoint()
                         .toEpochMilli());
     }
@@ -74,7 +74,7 @@ public class ElectricityDetailInfoFactory extends SelectableFieldFactory<Electri
                 .getUsagePoint()
                 .getVersion());
         map.put("link", ((electricityDetailInfo, electricityDetail, uriInfo) -> {
-            electricityDetailInfo.link = new ArrayList<Link>();
+            electricityDetailInfo.link = new ArrayList<>();
             effectivityHelper.previousDetails(electricityDetail)
                     .ifPresent(prev -> electricityDetailInfo.link.add(link((ElectricityDetail) prev, Relation.REF_PREVIOUS, uriInfo)));
             electricityDetailInfo.link.add(link(electricityDetail, Relation.REF_SELF, uriInfo));

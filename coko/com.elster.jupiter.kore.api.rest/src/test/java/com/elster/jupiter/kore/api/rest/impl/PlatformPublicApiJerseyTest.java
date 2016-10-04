@@ -65,7 +65,6 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 import org.mockito.Mock;
 
@@ -82,11 +81,10 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 9/19/14.
  */
 public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest {
-    public static final Clock clock = Clock.fixed(LocalDateTime.of(2016, 5, 1, 12, 0)
-            .toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
-    private static final Pattern MRID_PATTERN = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
-    private static final String MRID_REPLACEMENT = "$1-$2-$3-$4-$5";
 
+    public static final String MRID = "e9c161ce-2734-4b65-992b-8aec57acea7b";
+
+    public static final Clock clock = Clock.fixed(LocalDateTime.of(2016, 5, 1, 12, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
     @Mock
     MeteringService meteringService;
     @Mock
@@ -147,7 +145,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         return readingType;
     }
 
-    protected UsagePoint mockUsagePoint(long id, String name, long version, ServiceKind serviceKind) {
+    protected UsagePoint mockUsagePoint(String mRID, long version, ServiceKind serviceKind) {
         UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
         when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());
         UsagePointDetail detail;
@@ -165,26 +163,24 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
                 detail = mock(HeatDetail.class);
                 break;
             default:
-                detail = null;
-                break;
+                throw new IllegalArgumentException("Service kind is not supported");
         }
         when(detail.getRange()).thenReturn(Range.atLeast(clock.instant()));
-        return mockUsagePoint(id, name, version, extension, serviceKind, detail);
+        return mockUsagePoint(mRID, version, extension, serviceKind, detail);
     }
 
-    protected UsagePoint mockUsagePoint(long id, String name, long version, ServiceKind serviceKind, UsagePointDetail detail) {
+    protected UsagePoint mockUsagePoint(String mRID, long version, ServiceKind serviceKind, UsagePointDetail detail) {
         UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
         when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());
-        return mockUsagePoint(id, name, version, extension, serviceKind, detail);
+        return mockUsagePoint(mRID, version, extension, serviceKind, detail);
     }
 
-    private UsagePoint mockUsagePoint(long id, String name, long version, UsagePointCustomPropertySetExtension extension, ServiceKind serviceKind, UsagePointDetail detail) {
+    private UsagePoint mockUsagePoint(String mRID, long version, UsagePointCustomPropertySetExtension extension, ServiceKind serviceKind, UsagePointDetail detail) {
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
-        when(usagePoint.getId()).thenReturn(id);
         when(usagePoint.getVersion()).thenReturn(version);
-        when(usagePoint.getName()).thenReturn(name);
-        when(usagePoint.getAliasName()).thenReturn("alias " + name);
+        when(usagePoint.getMRID()).thenReturn(mRID);
+        when(usagePoint.getAliasName()).thenReturn("alias " + mRID);
         when(usagePoint.getDescription()).thenReturn("usage point desc");
         when(usagePoint.getOutageRegion()).thenReturn("outage region");
         when(usagePoint.getReadRoute()).thenReturn("read route");
@@ -195,9 +191,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         doReturn(Optional.ofNullable(detail)).when(usagePoint).getDetail(any(Instant.class));
         doReturn(Collections.singletonList(detail)).when(usagePoint).getDetails();
         doReturn(Collections.singletonList(detail)).when(usagePoint).getDetail(eq(Range.all()));
-        when(usagePoint.getMRID()).thenReturn(MRID_PATTERN.matcher(String.format("%032x", id)).replaceAll(MRID_REPLACEMENT));
-        when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0)
-                .toInstant(ZoneOffset.UTC));
+        when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0).toInstant(ZoneOffset.UTC));
         when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
         when(usagePoint.getServicePriority()).thenReturn("service priority");
         when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
@@ -205,10 +199,9 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(usagePoint.getConnectionState()).thenReturn(ConnectionState.CONNECTED);
 
         when(usagePoint.forCustomProperties()).thenReturn(extension);
-        when(meteringService.findUsagePointById(id)).thenReturn(Optional.of(usagePoint));
-        when(meteringService.findAndLockUsagePointByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional
-                .empty());
-        when(meteringService.findAndLockUsagePointByIdAndVersion(id, version)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByMRID(mRID)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointBymRIDAndVersion(eq(mRID), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
+        when(meteringService.findAndLockUsagePointBymRIDAndVersion(mRID, version)).thenReturn(Optional.of(usagePoint));
         when(detail.getUsagePoint()).thenReturn(usagePoint);
         return usagePoint;
     }

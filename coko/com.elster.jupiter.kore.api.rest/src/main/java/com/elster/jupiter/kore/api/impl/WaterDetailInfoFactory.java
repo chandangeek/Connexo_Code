@@ -46,7 +46,7 @@ public class WaterDetailInfoFactory extends SelectableFieldFactory<WaterDetailIn
         return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Water detail")
-                .build(waterDetail.getUsagePoint().getId(), waterDetail.getRange().lowerEndpoint().toEpochMilli());
+                .build(waterDetail.getUsagePoint().getMRID(), waterDetail.getRange().lowerEndpoint().toEpochMilli());
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
