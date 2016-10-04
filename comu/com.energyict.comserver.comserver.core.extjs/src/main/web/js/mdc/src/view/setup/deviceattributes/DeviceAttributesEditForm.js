@@ -116,7 +116,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 xtype: 'coordinates',
                 name: 'geoCoordinatesEdit',
                 itemId: 'geoCoordinatesEdit',
-                width: 490,
+                width: 485,
                 displayResetButton: true,
                 fieldLabel: Uni.I18n.translate('general.coordinates', 'MDC', 'Coordinates')
             },
