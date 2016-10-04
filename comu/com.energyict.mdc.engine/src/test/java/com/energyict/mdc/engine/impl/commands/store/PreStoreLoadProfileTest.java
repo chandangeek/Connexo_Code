@@ -117,6 +117,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
     @Before
     public void setUp() {
+        when(getClock().instant()).thenReturn(fromClock.toInstant());
         this.deviceCreator = new DeviceCreator(
                 getInjector().getInstance(DeviceConfigurationService.class),
                 getInjector().getInstance(DeviceService.class)
