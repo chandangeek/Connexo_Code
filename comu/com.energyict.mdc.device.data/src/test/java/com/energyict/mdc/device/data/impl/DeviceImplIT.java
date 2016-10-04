@@ -1234,17 +1234,18 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void activateMeterWhenStillActive() {
-        Instant initialStart = inMemoryPersistence.getClock().instant();
+        Instant initialStart = Instant.ofEpochMilli(1000L);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(initialStart);
         Device device = this.createSimpleDeviceWithName(DEVICENAME, "SimpleMrid", initialStart);
-        Instant expectedStart = initialStart.plusSeconds(20L);
+        Instant end = Instant.ofEpochMilli(2000L);
 
         // Business method
-        device.activate(expectedStart);
+        device.activate(end);
 
         // Asserts
         assertThat(device.getCurrentMeterActivation()).isPresent();
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(2);
-        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart.truncatedTo(ChronoUnit.MINUTES));
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(end.truncatedTo(ChronoUnit.MINUTES));
     }
 
     @Test
