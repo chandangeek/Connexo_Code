@@ -14,6 +14,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
     router: null,
     usagePoint: null,
     purposes: null,
+    padding: '0 16 16 0',
 
     initComponent: function () {
         var me = this;
@@ -44,6 +45,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                     {
                         xtype: 'uni-button-action',
                         itemId: 'usage-point-setup-actions-btn',
+                        margin: 0,
                         menu: {
                             xtype: 'usage-point-setup-action-menu',
                             itemId: 'usage-point-setup-action-menu-id',
@@ -59,6 +61,14 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                     {
                         xtype: 'container',
                         flex: 2,
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults: {
+                            padding: 10,
+                            margin: '10 10 10 0'
+                        },
                         items: [
                             //{
                             //    itemId: 'usage-point-going-on',
@@ -73,31 +83,19 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                 type: 'usagepoint',
                                 router: me.router,
                                 autoBuild: true,
-                                style: {
-                                    'margin-bottom': '20px',
-                                    'margin-top': '16px'
-                                }
+                                //style: {
+                                //    'margin-bottom': '10px',
+                                //    'margin-top': '16px'
+                                //}
                             },
                             {
-                                xtype: 'container',
-                                layout: {
-                                    type: 'hbox',
-                                    align: 'stretchmax'
-                                },
-                                defaults: {
-                                    ui: 'tile2',
-                                    flex: 1
-                                },
-                                items: [
-                                    {
-                                        xtype: 'usage-point-metrology-config',
-                                        itemId: 'usage-point-metrology-config',
-                                        meterActivationsStore: me.meterActivationsStore,
-                                        usagePoint: me.usagePoint,
-                                        title: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
-                                        router: me.router
-                                    }
-                                ]
+                                xtype: 'usage-point-metrology-config',
+                                itemId: 'usage-point-metrology-config',
+                                meterActivationsStore: me.meterActivationsStore,
+                                usagePoint: me.usagePoint,
+                                title: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
+                                ui: 'tile2',
+                                router: me.router
                             }
                         ]
                     },
@@ -107,6 +105,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         title: Uni.I18n.translate('general.usagePointSummary', 'IMT', 'Usage point summary'),
                         ui: 'tile2',
                         flex: 1,
+                        margin: '10 0 10 10',
                         router: me.router
                     }
                 ]
@@ -121,20 +120,18 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                     title: Uni.I18n.translate('general.dataCompletion', 'IMT', 'Data completion'),
                     ui: 'tile2',
                     flex: 1,
+                    margin : '10 0 10 0',
                     router: me.router,
                     usagePoint: me.usagePoint,
                     purposes: me.purposes
                 }
-            )
+            );
         }
 
         me.side = [
             {
                 xtype: 'panel',
                 ui: 'medium',
-                style: {
-                    paddingRight: 0
-                },
                 items: [
                     {
                         xtype: 'usage-point-management-side-menu',

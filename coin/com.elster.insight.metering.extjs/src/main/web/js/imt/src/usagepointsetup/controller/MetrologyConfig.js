@@ -19,6 +19,10 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
         {
             ref: 'metersForm',
             selector: '#usage-point-edit-meters #edit-form'
+        },
+        {
+            ref: 'page',
+            selector: '#usage-point-activate-meters'
         }
     ],
 
@@ -65,6 +69,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                                             });
 
                                             widget = Ext.widget('usagePointActivateMeters', {
+                                                itemId: 'usage-point-activate-meters',
                                                 router: router,
                                                 returnLink: returnLink,
                                                 usagePoint: usagePoint,
@@ -99,8 +104,12 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             meterActivations = form.getMeterActivations();
         form.getForm().clearInvalid();
         var callback = function () {
+            var page = me.getPage();
+
             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.setMeters.acknowledge', 'IMT', 'The list of meters saved'));
-            me.getController('Uni.controller.history.Router').getRoute('usagepoints/view').forward();
+            if (page) {
+                window.location.href = page.returnLink;
+            }
         };
         var failure = function (response) {
             var errors = Ext.decode(response.responseText, true);

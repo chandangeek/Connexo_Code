@@ -189,7 +189,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             });
         confirmationWindow.show({
             msg: Uni.I18n.translate(
-                'metrologyconfiguration.general.activate.msg',
+                'metrologyconfiguration.general.activate.confirmation.msg',
                 'IMT',
                 'You will be able to define this metrology configuration for usage points. After that, you can\'t change the metrology configuration anymore.'
             ),
