@@ -45,7 +45,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                         flex: 1,
                         renderer: function (val) {
                             return (Mdc.privileges.Device.canView() || Mdc.privileges.Device.canAdministrateDeviceData())
-                                ? '<a href="' + me.router.getRoute('devices/device').buildUrl({mRID: val.id}) + '">' + Ext.String.htmlEncode(val.name) + '</a>' : Ext.String.htmlEncode(val.name);
+                                ? '<a href="' + me.router.getRoute('devices/device').buildUrl({deviceId: val.id}) + '">' + Ext.String.htmlEncode(val.name) + '</a>' : Ext.String.htmlEncode(val.name);
                         }
                     },
                     {
