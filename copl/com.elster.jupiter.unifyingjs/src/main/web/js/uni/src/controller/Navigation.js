@@ -71,7 +71,6 @@ Ext.define('Uni.controller.Navigation', {
         me.getApplication().on('onnavigationtitlechanged', me.onNavigationTitleChanged, me);
         me.getApplication().on('onnavigationtogglesearch', me.onNavigationToggleSearch, me);
 
-        me.getController('Uni.controller.history.Router').on('routematch', me.initBreadcrumbs, me);
         me.getController('Uni.controller.history.Router').on('routechange', me.updateBreadcrumb, me);
     },
 

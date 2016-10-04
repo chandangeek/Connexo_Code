@@ -135,6 +135,7 @@ Ext.define('Uni.controller.AppController', {
         }
 
         panel.add(widget);
+        this.getController('Uni.controller.Navigation').initBreadcrumbs();
         Ext.resumeLayouts();
 
         panel.doComponentLayout();

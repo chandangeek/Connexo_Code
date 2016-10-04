@@ -145,6 +145,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
                             },
                             {
                                 xtype: 'uni-actioncolumn-remove',
+                                align: 'right',
                                 handler: function (grid, rowIndex) {
                                     grid.getStore().removeAt(rowIndex);
                                     if (grid.getStore().count() === 0) {
