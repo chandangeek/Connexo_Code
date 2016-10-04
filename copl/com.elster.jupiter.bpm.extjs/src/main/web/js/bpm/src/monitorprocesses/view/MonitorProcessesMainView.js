@@ -9,16 +9,16 @@ Ext.define('Bpm.monitorprocesses.view.MonitorProcessesMainView', {
         'Bpm.monitorprocesses.view.StatusProcessPreview'
     ],
     properties: {},
+    ui: 'large',
+    title: Uni.I18n.translate('processes.title', 'BPM', 'Processes'),
     items: [
         {
             xtype: 'tabpanel',
-            ui: 'large',
-            title: Uni.I18n.translate('processes.title', 'BPM', 'Processes'),
             itemId: 'tab-processes',
             activeTab: -1,
             items: [
                 {
-                    margin: '0 0 0 -15',
+                    margin: 0,
                     title: Uni.I18n.translate('processes.processesRunning.title', 'BPM', 'Running processes'),
                     itemId: 'running-processes-tab',
                     items: [
@@ -29,7 +29,7 @@ Ext.define('Bpm.monitorprocesses.view.MonitorProcessesMainView', {
                     ]
                 },
                 {
-                    margin: '0 0 0 -15',
+                    margin: 0,
                     title: Uni.I18n.translate('processes.processesHistory.title', 'BPM', 'History'),
                     itemId: 'history-processes-tab',
                     items: [
