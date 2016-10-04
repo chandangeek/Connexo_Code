@@ -9,10 +9,10 @@ Ext.define('Imt.customattributesonvaluesobjects.model.AttributeSetVersionPeriod'
     proxy: {
         type: 'rest',
 
-        setUsagePointUrl: function (mRID, customPropertySetId) {
-            var urlTpl = '/api/udr/usagepoints/{mRID}/customproperties/{customPropertySetId}';
+        setUsagePointUrl: function (usagePointId, customPropertySetId) {
+            var url = '/api/udr/usagepoints/{usagePointId}/customproperties/{customPropertySetId}';
 
-            this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId);
+            this.url = url.replace('{usagePointId}', encodeURIComponent(usagePointId)).replace('{customPropertySetId}', customPropertySetId);
         }
     }
 });

@@ -57,22 +57,22 @@ Ext.define('Imt.servicecalls.controller.ServiceCalls', {
         });
     },
 
-    showServiceCalls: function (mRID) {
+    showServiceCalls: function (usagePointId) {
         var me = this;
 
         if (!Uni.util.History.isSuspended()) {
-            me.showTabbedView(mRID, 0);
+            me.showTabbedView(usagePointId, 0);
         }
 
     },
 
-    showServiceCallHistory: function (mRID) {
+    showServiceCallHistory: function (usagePointId) {
         var me = this;
         if (!Uni.util.History.isSuspended() && !me.skip) {
-            me.showTabbedView(mRID, 1);
+            me.showTabbedView(usagePointId, 1);
         } else if (!me.historyAdded) {
             me.skip = true;
-            Ext.getStore('Scs.store.object.ServiceCallHistory').getProxy().setUrl('/api/udr/usagepoints/' + encodeURIComponent(mRID) + '/servicecallhistory');
+            Ext.getStore('Scs.store.object.ServiceCallHistory').getProxy().setUrl('/api/udr/usagepoints/' + encodeURIComponent(usagePointId) + '/servicecallhistory');
             me.getServiceCallsSetup().addHistoryGrid(me.getSixtyDaysFilter());
             me.historyAdded = true;
         } else {
@@ -81,7 +81,7 @@ Ext.define('Imt.servicecalls.controller.ServiceCalls', {
 
     },
 
-    showTabbedView: function (mRID, activeTab) {
+    showTabbedView: function (usagePointId, activeTab) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
@@ -92,18 +92,18 @@ Ext.define('Imt.servicecalls.controller.ServiceCalls', {
 
         viewport.setLoading();
         me.historyAdded = false;
-        runningStore.getProxy().setUrl('/api/udr/usagepoints/' + encodeURIComponent(mRID) + '/runningservicecalls');
+        runningStore.getProxy().setUrl('/api/udr/usagepoints/' + encodeURIComponent(usagePointId) + '/runningservicecalls');
 
-        usagePointsController.loadUsagePoint(mRID, {
+        usagePointsController.loadUsagePoint(usagePointId, {
             success: function (types, usagepoint) {
                 widget = Ext.widget('service-calls-setup', {
-                    mRID: usagepoint.get('mRID'),
+                    usagePointId: usagePointId,
                     usagePoint: usagepoint,
                     router: router,
                     activeTab: activeTab
                 });
                 if (activeTab === 1) {
-                    historyStore.getProxy().setUrl('/api/udr/usagepoints/' + encodeURIComponent(mRID) + '/servicecallhistory');
+                    historyStore.getProxy().setUrl('/api/udr/usagepoints/' + encodeURIComponent(usagePointId) + '/servicecallhistory');
                     widget.addHistoryGrid(me.getSixtyDaysFilter());
                     me.historyAdded = true;
                 }
@@ -123,7 +123,7 @@ Ext.define('Imt.servicecalls.controller.ServiceCalls', {
             route,
             filter = {};
 
-        router.arguments.mRID = tabPanel.mRID;
+        router.arguments.usagePointId = tabPanel.usagePointId;
         Uni.util.History.suspendEventsForNextCall(true);
         if (newTab.itemId === 'history-service-calls-tab') {
             if (me.getFilter()) {
@@ -183,7 +183,7 @@ Ext.define('Imt.servicecalls.controller.ServiceCalls', {
         record.setProxy(
             {
                 type: 'rest',
-                url: '/api/udr/usagepoints/' + encodeURIComponent(router.arguments.mRID) + '/runningservicecalls',
+                url: '/api/udr/usagepoints/' + encodeURIComponent(router.arguments.usagePointId) + '/runningservicecalls',
                 timeout: 120000,
                 reader: {
                     type: 'json'
@@ -242,7 +242,7 @@ Ext.define('Imt.servicecalls.controller.ServiceCalls', {
                     if (state === 'confirm') {
                         me.getRunningServiceCallsGrid().setLoading(true);
                         Ext.Ajax.request({
-                            url: '/api/udr/usagepoints/' + encodeURIComponent(router.arguments.mRID) + '/servicecalls',
+                            url: '/api/udr/usagepoints/' + encodeURIComponent(router.arguments.usagePointId) + '/servicecalls',
                             jsonData: {state: serviceCallState},
                             method: 'PUT',
                             success: function () {

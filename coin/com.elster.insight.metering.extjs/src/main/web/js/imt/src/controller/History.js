@@ -7,28 +7,28 @@ Ext.define('Imt.controller.History', {
             route: 'usagepoints',
             disabled: true,
             items: {
-            	add: {
-                	title: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
+                add: {
+                    title: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
                     route: 'add',
                     privileges: Imt.privileges.UsagePoint.admin,
                     controller: 'Imt.usagepointmanagement.controller.Edit',
                     action: 'showWizard'
-            	},
-           		view: {
-           			title: Uni.I18n.translate('general.label.usagepoint.view', 'IMT', 'View usage point'),
-           			route: '{mRID}',
+                },
+                view: {
+                    title: Uni.I18n.translate('general.label.usagepoint.view', 'IMT', 'View usage point'),
+                    route: '{usagePointId}',
                     privileges: Imt.privileges.UsagePoint.view,
-           			controller: 'Imt.usagepointmanagement.controller.View',
-           			action: 'showUsagePoint',
-           			callback: function (route) {
+                    controller: 'Imt.usagepointmanagement.controller.View',
+                    action: 'showUsagePoint',
+                    callback: function (route) {
                         this.getApplication().on('usagePointLoaded', function (record) {
-                            route.setTitle(record.get('mRID'));
+                            route.setTitle(record.get('name'));
                             return true;
                         }, {single: true});
 
                         return this;
                     },
-           			items: {
+                    items: {
                         //edit: {
                         //    title: Uni.I18n.translate('general.label.usagepoint.edit', 'IMT', 'Edit'),
                         //    route: 'edit',
@@ -148,7 +148,7 @@ Ext.define('Imt.controller.History', {
                         },           			    
                         device: {
                              title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
-                             route: 'device/{deviceMRID}',
+                             route: 'device/{deviceId}',
                              controller: 'Imt.devicemanagement.controller.Device',
                              action: 'showDevice',
                              callback: function (route) {
@@ -226,7 +226,7 @@ Ext.define('Imt.controller.History', {
            		},
            		device: {
                     title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
-                    route: 'device/{deviceMRID}',
+                    route: 'device/{deviceId}',
                     controller: 'Imt.devicemanagement.controller.Device',
                     action: 'showDevice',
                     callback: function (route) {

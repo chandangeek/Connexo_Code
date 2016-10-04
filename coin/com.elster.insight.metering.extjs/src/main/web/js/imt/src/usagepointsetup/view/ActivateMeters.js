@@ -86,7 +86,7 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                             meterActivations.push(
                                 {
                                     meter: {
-                                        mRID: combo.getValue()
+                                        name: combo.getValue()
                                     },
                                     meterRole: {
                                         id: combo.name,

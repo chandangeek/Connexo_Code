@@ -156,7 +156,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             first = true,
             metersContainer = me.down('#up-metrology-config-meters'),
             store = me.meterActivationsStore,
-            mRID = me.usagePoint.get('mRID'),
+            usagePointId = me.usagePoint.get('name'),
             makeWGOTooltip = function(watsGoingOnMeterStatus){
                 var result = '',
                     first = true;
@@ -182,8 +182,8 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 return {result: result, status: !first};
 
             };
-        store.setMrid(mRID);
 
+        store.setExtraParam('usagePointId', usagePointId);
         store.load({
             callback: function(){
                 store.filter(function(item){
@@ -209,7 +209,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                                             + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
                                             + tooltip
                                             + '"></i>',
-                                        link = value.url ? '<a href="' + value.url + '" target="_blank">' + Ext.String.htmlEncode(value.mRID) + '</a>' : Ext.String.htmlEncode(value.mRID),
+                                        link = value.url ? '<a href="' + value.url + '" target="_blank">' + Ext.String.htmlEncode(value.name) + '</a>' : Ext.String.htmlEncode(value.name),
                                         activationTime = meterActivation.get('meterRole').activationTime;
                                     result += gotConfig.status ? link + icon : link;
 

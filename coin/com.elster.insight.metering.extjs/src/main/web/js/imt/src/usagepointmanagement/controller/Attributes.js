@@ -40,7 +40,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
         });
     },
 
-    showUsagePointAttributes: function (mRID) {
+    showUsagePointAttributes: function (usagePointId) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
@@ -67,7 +67,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
         me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(showPage);
         me.getStore('Imt.usagepointmanagement.store.PhaseCodes').load(showPage);
         me.getStore('Imt.usagepointmanagement.store.BypassStatuses').load(showPage);
-        usagePointsController.loadUsagePoint(mRID, {
+        usagePointsController.loadUsagePoint(usagePointId, {
             success: function (types, up) {
                 usagePoint = up;
                 showPage();

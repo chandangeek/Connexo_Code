@@ -7,15 +7,11 @@ Ext.define('Imt.usagepointsetup.model.EffectiveMetrologyConfig', {
     ],
 
     proxy: {
-        urlTpl: '/api/udr/usagepoints/{mrid}/metrologyconfiguration',
         type: 'rest',
-        url: '/api/udr/usagepoints/{mrid}/metrologyconfiguration',
+        url: '/api/udr/usagepoints/{usagePointId}/metrologyconfiguration',
         timeout: 240000,
         reader: {
-            type: 'json',
-        },
-        setUrl: function (mrid) {
-            this.url = this.urlTpl.replace('{mrid}', encodeURIComponent(mrid));
+            type: 'json'
         }
     }
 });

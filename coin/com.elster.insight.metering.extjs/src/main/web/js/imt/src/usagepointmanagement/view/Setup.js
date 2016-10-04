@@ -79,7 +79,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                             //},
                             {
                                 xtype: 'whatsgoingon',
-                                mrId: me.usagePoint.get('mRID'),
+                                usagePointId: me.usagePoint.get('name'),
                                 type: 'usagepoint',
                                 router: me.router,
                                 autoBuild: true,

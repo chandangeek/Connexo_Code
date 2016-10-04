@@ -37,9 +37,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
             },
             {
                 xtype: 'textfield',
-                name: 'mRID',
-                itemId: 'up-mrid-textfield',
-                fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID'),
+                name: 'name',
+                itemId: 'up-name-textfield',
+                fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
                 required: true
             },
             me.isPossibleAdd ?
@@ -94,12 +94,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 value: '<span style="color: #686868; font-style: italic">'
                 + Uni.I18n.translate('usagepoint.add.noServiceCategoryAvailable', 'IMT', 'No service category available due to insufficient privileges')
                 + '</span>'
-            },
-            {
-                xtype: 'textfield',
-                name: 'name',
-                itemId: 'up-name-textfield',
-                fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
             },
             {
                 xtype: 'techinfo-installationtimefield',
