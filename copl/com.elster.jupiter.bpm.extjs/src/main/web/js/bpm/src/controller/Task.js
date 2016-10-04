@@ -16,7 +16,8 @@ Ext.define('Bpm.controller.Task', {
         'Bpm.store.task.TasksFilterProcesses',
         'Bpm.store.task.TasksFilterStatuses',
         'Bpm.store.task.TasksFilterUsers',
-        'Bpm.store.task.TasksUsers'
+        'Bpm.store.task.TasksUsers',
+        'Bpm.store.Clipboard'
     ],
     models: [
         'Bpm.model.task.Task',
@@ -50,17 +51,37 @@ Ext.define('Bpm.controller.Task', {
 
     showTask: function (taskId) {
         var me = this,
-            view;
+            store = me.getStore('Bpm.store.task.Tasks');
+        if(store.count() === 0) {
+            store.load({
+                callback: function ()  {
+                    me.performLoadOfTask(taskId);
+                }
+            });
+        } else {
+            me.performLoadOfTask(taskId)
+        }
+    },
 
-        var task = me.getModel('Bpm.model.task.Task');
-        var performTask = me.getModel('Bpm.model.task.OpenTask');
+    performLoadOfTask: function (taskId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            view,
+            listLink,
+            task = me.getModel('Bpm.model.task.Task'),
+            performTask = me.getModel('Bpm.model.task.OpenTask');
+        listLink = me.makeLinkToList(router);
         task.load(taskId, {
             success: function (taskRecord) {
                 view = Ext.widget('bpm-task-view-task', {
-                    taskRecord: taskRecord
+                    taskRecord: taskRecord,
+                    router: router,
+                    listLink: listLink
                 });
+                me.getController('Bpm.controller.OpenTask').taskId = taskId;
                 me.getApplication().fireEvent('changecontentevent', view);
                 view.down('form').loadRecord(taskRecord);
+                view.down('#doa-task-title').setTitle('TEST');
                 me.getApplication().fireEvent('task', taskRecord);
                 performTask.load(taskId, {
                     success: function (performTaskRecord) {
@@ -74,6 +95,14 @@ Ext.define('Bpm.controller.Task', {
                 })
             }
         });
+    },
+
+    makeLinkToList: function (router) {
+        var link = '<a href="{0}">' + Uni.I18n.translate('general.tasks.title', 'BPM', 'Tasks').toLowerCase() + '</a>',
+            filter = this.getStore('Bpm.store.Clipboard').get('latest-tasks-filter'),
+            queryParams = filter ? filter : null;
+
+        return Ext.String.format(link, router.getRoute('workspace/tasks').buildUrl(null, queryParams));
     },
 
     showTasks: function () {
@@ -163,6 +192,8 @@ Ext.define('Bpm.controller.Task', {
             filterSortController.updateSortingToolbar();
             me.updateApplyButtonState(view, queryString);
         }
+        me.getStore('Bpm.store.Clipboard').set('latest-tasks-filter', queryString);
+        me.getController('Bpm.controller.OpenTask').taskId = null;
     },
 
     showPreview: function (selectionModel, record) {
@@ -170,6 +201,8 @@ Ext.define('Bpm.controller.Task', {
             page = me.getPage(),
             preview = page.down('bpm-task-preview'),
             previewForm = page.down('bpm-task-preview-form');
+
+        Ext.getStore('Bpm.store.Clipboard').set('latest-tasks-filter', Uni.util.QueryString.getQueryStringValues(false));
 
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));

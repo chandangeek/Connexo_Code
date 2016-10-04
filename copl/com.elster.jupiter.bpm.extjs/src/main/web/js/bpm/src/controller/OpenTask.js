@@ -73,6 +73,7 @@ Ext.define('Bpm.controller.OpenTask', {
             selector: 'bpm-task-perform-task #btn-complete'
         }
     ],
+    taskId: null,
 
     init: function () {
         this.control({
@@ -102,9 +103,11 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             tasksRoute;
-
-        tasksRoute = router.getRoute('workspace/tasks');
-        tasksRoute.forward();
+        if(Ext.isEmpty(me.taskId)) {
+            tasksRoute = router.getRoute('workspace/tasks').forward();
+        } else {
+            tasksRoute = router.getRoute('workspace/tasks/task').forward({taskId: me.taskId});
+        }
     },
 
     showEditTask: function (taskId) {
