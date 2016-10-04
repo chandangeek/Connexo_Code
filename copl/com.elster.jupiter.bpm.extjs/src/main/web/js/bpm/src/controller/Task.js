@@ -222,10 +222,10 @@ Ext.define('Bpm.controller.Task', {
 
         switch (item.action) {
             case 'editTask':
-                route = 'workspace/tasks/editTask';
+                route = 'workspace/tasks/task/editTask';
                 break;
             case 'performTask':
-                route = 'workspace/tasks/performTask';
+                route = 'workspace/tasks/task/performTask';
                 break;
         }
 

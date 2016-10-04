@@ -36,112 +36,13 @@ Ext.define('Bpm.view.task.PerformTask', {
                 },
                 items: [
                     {
-                        xtype: 'form',
-                        title: Uni.I18n.translate('bpm.task.taskManagement', 'BPM', 'Task management'),
-                        ui: 'medium',
-                        layout: {
-                            type: 'column',
-                            align: 'stretch'
-                        },
-                        privileges: Bpm.privileges.BpmManagement.assign,
-                        items: [
-                            {
-                                xtype: 'container',
-                                layout: {
-                                    type: 'vbox',
-                                    align: 'stretch'
-                                },
-                                columnWidth: 0.5,
-                                items: [
-                                    {
-                                        xtype: 'form',
-                                        itemId: 'frm-assignee-user',
-                                        margin: '0 0 0 0',
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'left'
-                                        },
-                                        items: [
-                                            {
-                                                xtype: 'displayfield',
-                                                name: 'actualOwnerDisplay',
-                                                fieldLabel: Uni.I18n.translate('bpm.task.assignee', 'BPM', 'Assignee'),
-                                                itemId: 'cbo-assignee-user',
-                                                width: 500,
-                                                labelWidth: 250
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        xtype: 'form',
-                                        itemId: 'frm-edit-task',
-                                        margin: '10 0 0 0',
-                                        layout: {
-                                            type: 'vbox',
-                                            align: 'left'
-                                        },
-                                        privileges: Bpm.privileges.BpmManagement.view,
-                                        items: [
-                                            {
-                                                xtype: 'displayfield',
-                                                fieldLabel: Uni.I18n.translate('task.task.edit.dueDate', 'BPM', 'Due date'),
-                                                name: 'dueDateDisplay',
-                                                width: 500,
-                                                labelWidth: 250,
-                                                itemId: 'due-date'
-                                            },
-                                            {
-                                                xtype: 'displayfield',
-                                                fieldLabel: Uni.I18n.translate('task.task.edit.priority', 'BPM', 'Priority'),
-                                                name: 'priorityDisplay',
-                                                width: 500,
-                                                labelWidth: 250,
-                                                itemId: 'priority'
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                xtype: 'form',
-                                itemId: 'frm-about-task',
-                                layout: {
-                                    type: 'vbox',
-                                    align: 'stretch'
-                                },
-                                columnWidth: 0.5,
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'statusDisplay',
-                                        itemId: 'task-status',
-                                        width: 500,
-                                        labelWidth: 250,
-                                        fieldLabel: Uni.I18n.translate('task.task.edit.status', 'BPM', 'Status')
-                                    },
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'processName',
-                                        itemId: 'task-process-name',
-                                        width: 500,
-                                        labelWidth: 250,
-                                        fieldLabel: Uni.I18n.translate('task.task.edit.processName', 'BPM', 'Process name')
-                                    },
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'createdOnDisplay',
-                                        itemId: 'task-createdOn',
-                                        width: 500,
-                                        labelWidth: 250,
-                                        fieldLabel: Uni.I18n.translate('task.task.edit.creationDate', 'BPM', 'Creation date')
-                                    }
-                                ]
-                            }
-                        ]
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('bpm.task.userCantPerformTask', 'BPM', "You can't perform this task"),
+                        hidden: true,
+                        margin: '0 0 0 0'
                     },
                     {
                         xtype: 'form',
-                        title: Uni.I18n.translate('bpm.task.taskExecution', 'BPM', 'Task execution'),
                         ui: 'medium',
                         layout: {
                             type: 'vbox',

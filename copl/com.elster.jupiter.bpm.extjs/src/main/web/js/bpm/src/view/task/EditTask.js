@@ -37,7 +37,6 @@ Ext.define('Bpm.view.task.EditTask', {
                 items: [
                     {
                         xtype: 'form',
-                        title: Uni.I18n.translate('bpm.task.taskManagement', 'BPM', 'Task management'),
                         ui: 'medium',
                         layout: {
                             type: 'column',
@@ -148,6 +147,14 @@ Ext.define('Bpm.view.task.EditTask', {
                                                 ]
                                             },
                                             {
+                                                xtype: 'displayfield',
+                                                name: 'statusDisplay',
+                                                itemId: 'task-status',
+                                                margin: '9 0 0 0',
+                                                labelWidth: 250,
+                                                fieldLabel: Uni.I18n.translate('task.task.edit.status', 'BPM', 'Status')
+                                            },
+                                            {
                                                 xtype: 'fieldcontainer',
                                                 ui: 'actions',
                                                 fieldLabel: '&nbsp',
@@ -185,25 +192,22 @@ Ext.define('Bpm.view.task.EditTask', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
-                                        name: 'statusDisplay',
-                                        itemId: 'task-status',
-                                        width: 500,
-                                        labelWidth: 250,
-                                        fieldLabel: Uni.I18n.translate('task.task.edit.status', 'BPM', 'Status')
-                                    },
-                                    {
-                                        xtype: 'displayfield',
                                         name: 'processName',
                                         itemId: 'task-process-name',
-                                        width: 500,
                                         labelWidth: 250,
                                         fieldLabel: Uni.I18n.translate('task.task.edit.processName', 'BPM', 'Process name')
                                     },
                                     {
                                         xtype: 'displayfield',
+                                        fieldLabel: Uni.I18n.translate('bpm.task.processId', 'BPM', 'Process ID'),
+                                        name: 'processInstancesId',
+                                        itemId: 'bpm-task-view-process-id',
+                                        labelWidth: 250
+                                    },
+                                    {
+                                        xtype: 'displayfield',
                                         name: 'createdOnDisplay',
                                         itemId: 'task-createdOn',
-                                        width: 500,
                                         labelWidth: 250,
                                         fieldLabel: Uni.I18n.translate('task.task.edit.creationDate', 'BPM', 'Creation date')
                                     }

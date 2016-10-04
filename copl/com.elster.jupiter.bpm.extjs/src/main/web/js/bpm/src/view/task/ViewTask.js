@@ -126,12 +126,6 @@ Ext.define('Bpm.view.task.ViewTask', {
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        fieldLabel: Uni.I18n.translate('bpm.task.deploymentId', 'BPM', 'Deployment ID'),
-                                        name: 'deploymentId',
-                                        itemId: 'bpm-task-view-deployment-id'
-                                    },
-                                    {
-                                        xtype: 'displayfield',
                                         fieldLabel: Uni.I18n.translate('bpm.task.creationDate', 'BPM', 'Creation date'),
                                         name: 'createdOnDisplay',
                                         itemId: 'bpm-task-view-createdOn'

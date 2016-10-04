@@ -146,7 +146,7 @@ Ext.define('Bpm.controller.OpenTask', {
                 });
 
                 editTaskView.taskRecord = taskRecord;
-                me.getApplication().fireEvent('editTask', taskRecord);
+                me.getApplication().fireEvent('task', taskRecord);
 
                 topTitle = editTaskView.down('#detail-top-title');
                 topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.editTaskTitle', 'BPM', "Edit '{0}'"), taskRecord.get('name')));
@@ -197,10 +197,10 @@ Ext.define('Bpm.controller.OpenTask', {
                 });
 
                 editTaskView.taskRecord = taskRecord;
-                me.getApplication().fireEvent('performTask', taskRecord);
+                me.getApplication().fireEvent('task', taskRecord);
 
                 topTitle = editTaskView.down('#detail-top-title');
-                topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.performTaskTitle', 'BPM', "Perform '{0}'"), taskRecord.get('name')));
+                topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.startTaskTitle', 'BPM', "Start '{0}'"), taskRecord.get('name')));
 
                 me.getApplication().fireEvent('changecontentevent', editTaskView);
                 if (me.getPriority()) {
@@ -368,6 +368,7 @@ Ext.define('Bpm.controller.OpenTask', {
                     me.getBtnStart().setVisible(false);
                     me.getBtnSave().setVisible(false);
                     me.getBtnComplete().setVisible(false);
+                    me.getPerformTaskPage().down('uni-form-empty-message').show();
                 }
 
             }
