@@ -497,18 +497,18 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .initInternal(this.meter.orElse(null), this.meterRole.orElse(null), this.usagePoint.orElse(null), newRange);
         getMultipliers().entrySet().stream()
                 .forEach(entry -> newActivation.multipliers.add(MultiplierValueImpl.from(dataModel, newActivation, entry.getKey(), entry.getValue())));
+         newActivation.save();
         // create the same channels for the new activation
         getChannelsContainer().getChannels().forEach(channel -> {
-            ReadingType[] readingTypesArray = {};
-            List<? extends ReadingType> readingTypes = channel.getReadingTypes();
-            if (readingTypes.size() > 1) {
-                readingTypesArray = new ReadingType[readingTypes.size() - 1];
-                System.arraycopy(readingTypes.toArray(readingTypesArray), 1, readingTypesArray, 0, readingTypes.size() - 1); // skip main channel
-            }
-            newActivation.getChannelsContainer().createChannel(channel.getMainReadingType(), readingTypesArray);
+            ReadingType mainReadingType = channel.getBulkQuantityReadingType().isPresent()
+                    ? channel.getBulkQuantityReadingType().get()
+                    : channel.getMainReadingType();
+            List<ReadingType> extraReadingTypes = new ArrayList<>(channel.getReadingTypes());
+            extraReadingTypes.remove(channel.getMainReadingType());
+            extraReadingTypes.remove(mainReadingType); // remove bulk if present
+            newActivation.getChannelsContainer().createChannel(mainReadingType, extraReadingTypes.toArray(new ReadingType[extraReadingTypes.size()]));
         });
         newActivation.moveAllChannelsData(this, newRange);
-        newActivation.save();
         doEndAt(breakTime);
         return newActivation;
     }
