@@ -15,7 +15,7 @@ use Archive::Zip;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20160901";
+my $INSTALL_VERSION="v20161004";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -594,13 +594,13 @@ sub install_flow {
 		unlink("$FLOW_DIR/flow.war");
 
 		copy("$CONNEXO_DIR/partners/flow/resources.properties","$CATALINA_HOME/conf/resources.properties");
-		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${jdbc}',"$FLOW_JDBC_URL");
-		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${user}',"$FLOW_DB_USER");
-		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${password}',"$FLOW_DB_PASSWORD");
+		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\$\{jdbc\}',"$FLOW_JDBC_URL");
+		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\$\{user\}',"$FLOW_DB_USER");
+		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\$\{password\}',"$FLOW_DB_PASSWORD");
 
 		copy("$CONNEXO_DIR/partners/flow/kie-wb-deployment-descriptor.xml","$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
-		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\${user}',"$CONNEXO_ADMIN_ACCOUNT");
-		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\${password}',"$CONNEXO_ADMIN_PASSWORD");
+		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\$\{user\}',"$CONNEXO_ADMIN_ACCOUNT");
+		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\$\{password\}',"$CONNEXO_ADMIN_PASSWORD");
 		copy("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml","$FLOW_DIR/WEB-INF/classes/META-INF/kie-wb-deployment-descriptor.xml");
 		unlink("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
 
@@ -988,11 +988,35 @@ sub perform_upgrade {
     print "Stopping Connexo services\n";
     if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
         system("sc stop Connexo$UPGRADE_OLD_SERVICE_VERSION");
-		system("sc stop ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
+        system("sc stop ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
+        my $STATE_STRING="-1";
+		while (($STATE_STRING ne "0") && ($STATE_STRING ne "1")) {
+			sleep 3;
+            $STATE_STRING=(`sc query Connexo$UPGRADE_OLD_SERVICE_VERSION`);
+            $STATE_STRING =~ s/.*(STATE\s*:\s\d).*/$1/sg;
+            $STATE_STRING =~ s/.*: //g;
+            $STATE_STRING = $STATE_STRING*1;
+		}
+        $STATE_STRING="-1";
+		while (($STATE_STRING ne "0") && ($STATE_STRING ne "1")) {
+			sleep 3;
+            $STATE_STRING=(`sc query ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION`);
+            $STATE_STRING =~ s/.*(STATE\s*:\s\d).*/$1/sg;
+            $STATE_STRING =~ s/.*: //g;
+            $STATE_STRING = $STATE_STRING*1;
+		}
     } else {
         system("/sbin/service Connexo$UPGRADE_OLD_SERVICE_VERSION stop");
 		system("/sbin/service ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION stop");
     }
+
+    #remove old obsolete folders
+    if ( -d "$CONNEXO_DIR/bin_obsolete") { rmtree("$CONNEXO_DIR/bin_obsolete"); }
+    if ( -d "$CONNEXO_DIR/bundles_obsolete") { rmtree("$CONNEXO_DIR/bundles_obsolete"); }
+    if ( -d "$CONNEXO_DIR/lib_obsolete") { rmtree("$CONNEXO_DIR/lib_obsolete"); }
+    if ( -d "$CONNEXO_DIR/licenses_obsolete") { rmtree("$CONNEXO_DIR/licenses_obsolete"); }
+    if ( -d "$CONNEXO_DIR/partners_obsolete") { rmtree("$CONNEXO_DIR/partners_obsolete"); }
+    if ( -e "$CONNEXO_DIR/conf/config.properties_obsolete") { unlink("$CONNEXO_DIR/conf/config.properties_obsolete"); }
 
     #rename bundles folder
     print "Renaming bundles to bundles_obsolete\n";
@@ -1087,7 +1111,12 @@ sub perform_upgrade {
 
     close($upgrade_log);
     
-    print "\n";
+    print "\n\n";
+    print "Make sure you have made a backup of your oracle schemas before starting the upgrade.\n";
+    print "Without backup you won't be able to re-install Connexo if changes were already made to the oracle schemas.\n\n";
+    print "If, and only if, this is an upgrade from 10.1 to 10.2 you need to execute the following sql script on the Connexo database : flywaymeta.sql\n";
+    print "(make sure to use ',' (comma) as decimal separator)\n";
+    print "This file can be found in the folder ".dirname(abs_path($0))."\n\n";
     my $CONT_UPG = "";
     while (("$CONT_UPG" ne "yes") && ("$CONT_UPG" ne "no")) {
         print "Are you sure you want to do the upgrade (yes/no): ";
@@ -1168,6 +1197,39 @@ sub perform_upgrade {
             print "Extracting $zipfile\n";
             my $zip = Archive::Zip->new($zipfile);
             $zip->extractTree("","$UPGRADE_PATH/temp/");
+
+            #recreate config.properties
+            if (! -d "$UPGRADE_PATH/temp/conf") {
+                print "No conf folder found in $zipfile.\n";
+            } else {
+                print "Copying and adapting config.properties\n";
+                rename("$config_file","$config_file"."_obsolete");
+                copy("$UPGRADE_PATH/temp/conf/config.properties.temp","$config_file") or die "File cannot be copied: $!";
+                add_to_file_if($config_file,"org.osgi.service.http.port=$CONNEXO_HTTP_PORT");
+                add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
+                add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
+                add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
+               	if ("$INSTALL_FACTS" eq "yes") {
+                    add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
+                    add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
+                    add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$CONNEXO_ADMIN_PASSWORD");
+                    if ("$ACTIVATE_SSO" eq "yes") {
+                        add_to_file_if($config_file,"com.elster.jupiter.yellowfin.externalurl=http://$HOST_NAME/facts/");
+                    }
+                }
+               	if ("$INSTALL_FLOW" eq "yes") {
+                    if ("$ACTIVATE_SSO" eq "yes") {
+                        replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
+                        replace_in_file($config_file,"com.elster.jupiter.bpm.password=","#com.elster.jupiter.bpm.password=");
+                        add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME/flow/");
+                    } else {
+                        add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
+                        add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
+                        add_to_file_if($config_file,"com.elster.jupiter.bpm.password=$TOMCAT_ADMIN_PASSWORD");
+                    }
+                }
+                add_to_file_if($config_file,"upgrade=true");
+            }
 
             #copy content of lib folder
             if (! -d "$UPGRADE_PATH/temp/lib") {
@@ -1275,6 +1337,15 @@ sub perform_upgrade {
         }
         print "Removing felix-cache\n";
         rmtree("$CONNEXO_DIR/felix-cache");
+
+        # final note
+        print "\nIMPORTANT: if the upgrade was successful, you can remove all temporary \"obsolete\" folders/files:\n";
+        print   "           - $CONNEXO_DIR/bin_obsolete\n";
+        print   "           - $CONNEXO_DIR/bundles_obsolete\n";
+        print   "           - $CONNEXO_DIR/lib_obsolete\n";
+        print   "           - $CONNEXO_DIR/licenses_obsolete\n";
+        print   "           - $CONNEXO_DIR/partners_obsolete\n";
+        print   "           - $CONNEXO_DIR/conf/config.properties_obsolete\n";
     }
 }
 
