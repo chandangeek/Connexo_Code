@@ -17,6 +17,7 @@ Ext.define('Mdc.model.DeviceCommunicationTask', {
         {name: 'scheduleName', type: 'string'},
         {name: 'plannedDate', dateFormat: 'time', type: 'date'},
         {name: 'status', type: 'string'},
+        {name: 'isOnHold', type: 'boolean'},
         {name: 'ignoreNextExecutionSpecsForInbound', type: 'boolean'}
     ],
     proxy: {
