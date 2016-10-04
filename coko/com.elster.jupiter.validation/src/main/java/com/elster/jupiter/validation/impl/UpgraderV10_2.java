@@ -1,12 +1,22 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +66,7 @@ public class UpgraderV10_2 implements Upgrader {
         });
 
         dataModelUpgrader.upgrade(dataModel, VERSION);
+        this.upgradeSubscriberSpecs();
     }
 
     private String convertToCIMCodes(String oldValues) {
@@ -80,6 +91,31 @@ public class UpgraderV10_2 implements Upgrader {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
+    }
+
+    private void upgradeSubscriberSpecs() {
+        try (Connection connection = this.dataModel.getConnection(true)) {
+            this.upgradeSubscriberSpecs(connection);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private void upgradeSubscriberSpecs(Connection connection) {
+        try (PreparedStatement statement = this.upgradeSubscriberSpecsStatement(connection)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private PreparedStatement upgradeSubscriberSpecsStatement(Connection connection) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("UPDATE MSG_SUBSCRIBERSPEC SET nls_component = ?, nls_layer = ? WHERE name in (?, ?)");
+        statement.setString(1, ValidationService.COMPONENTNAME);
+        statement.setString(2, Layer.DOMAIN.name());
+        statement.setString(3, TranslationKeys.KPICALCULATOR_DISPLAYNAME.getKey());
+        statement.setString(4, TranslationKeys.MESSAGE_SPEC_SUBSCRIBER.getKey());
+        return statement;
     }
 
     /**
