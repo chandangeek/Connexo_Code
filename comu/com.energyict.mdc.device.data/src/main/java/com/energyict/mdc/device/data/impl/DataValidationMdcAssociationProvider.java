@@ -41,24 +41,17 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
     }
 
     @Override
-    public List<DataValidationStatus> getRegisterSuspects(String mRID, Range<Instant> range) {
-        return deviceService.findByUniqueMrid(mRID)
+    public List<DataValidationStatus> getRegisterSuspects(long endDeviceId, Range<Instant> range) {
+        return deviceService.findDeviceById(endDeviceId)
                 .map(device -> getDataValidationStatusForRegister(device, range))
                 .orElse(Collections.emptyList());
     }
 
     @Override
-    public List<DataValidationStatus> getChannelsSuspects(String mRID, Range<Instant> range) {
-        return deviceService.findByUniqueMrid(mRID)
+    public List<DataValidationStatus> getChannelsSuspects(long endDeviceId, Range<Instant> range) {
+        return deviceService.findDeviceById(endDeviceId)
                 .map(device -> getDataValidationStatusForChannels(device, range))
                 .orElse(Collections.emptyList());
-    }
-
-    @Override
-    public boolean isAllDataValidated(String mRID, Range<Instant> range){
-        return deviceService.findByUniqueMrid(mRID)
-                .map(device -> isAllDataValidated(device, range))
-                .orElse(false);
     }
 
     private List<DataValidationStatus> getDataValidationStatusForRegister(Device device, Range<Instant> range){
@@ -94,31 +87,6 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
                                                 .equals(QualityCodeIndex.SUSPECT))))
                                 .collect(Collectors.toList()))
                 .flatMap(Collection::stream).collect(Collectors.toList());
-    }
-
-    private boolean isAllDataValidated(Device device, Range<Instant> range){
-        boolean isValidated;
-        List<DataValidationStatus> lpStatuses = device.getLoadProfiles().stream()
-                .flatMap(l -> l.getChannels().stream())
-                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), range).stream())
-                .collect(Collectors.toList());
-
-        isValidated = device.getLoadProfiles().stream()
-                .flatMap(l -> l.getChannels().stream())
-                .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
-
-        isValidated &= lpStatuses.stream()
-                .allMatch(DataValidationStatus::completelyValidated);
-
-        List<DataValidationStatus> rgStatuses = device.getRegisters().stream()
-                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), range).stream())
-                .collect(Collectors.toList());
-        isValidated &= device.getRegisters().stream()
-                .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
-        isValidated &= rgStatuses.stream()
-                .allMatch(DataValidationStatus::completelyValidated);
-
-        return isValidated;
     }
 
     @Reference
