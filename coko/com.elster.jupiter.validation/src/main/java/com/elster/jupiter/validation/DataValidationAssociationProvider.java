@@ -11,9 +11,7 @@ import java.util.List;
  */
 public interface DataValidationAssociationProvider {
 
-    List<DataValidationStatus> getRegisterSuspects(String mRID, Range<Instant> range);
+    List<DataValidationStatus> getRegisterSuspects(long endDeviceId, Range<Instant> range);
 
-    List<DataValidationStatus> getChannelsSuspects(String mRID, Range<Instant> range);
-
-    boolean isAllDataValidated(String mRID, Range<Instant> range);
+    List<DataValidationStatus> getChannelsSuspects(long endDeviceId, Range<Instant> range);
 }

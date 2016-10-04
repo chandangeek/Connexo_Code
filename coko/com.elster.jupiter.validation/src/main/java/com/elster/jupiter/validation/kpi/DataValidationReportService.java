@@ -17,6 +17,5 @@ public interface DataValidationReportService {
 
     Map<String, List<DataValidationStatus>> getChannelsSuspects(EndDeviceGroup deviceGroup, Range<Instant> range);
 
-    Map<String, Boolean> getAllDataValidated(EndDeviceGroup deviceGroup, Range<Instant> range);
 
 }

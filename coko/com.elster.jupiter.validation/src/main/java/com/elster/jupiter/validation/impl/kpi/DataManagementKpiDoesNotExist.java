@@ -17,8 +17,13 @@ class DataManagementKpiDoesNotExist  implements DataManagementKpiCalculator{
     }
 
     @Override
-    public void calculateAndStore() {
+    public void calculate() {
         this.logger.log(Level.SEVERE, "Payload '" + this.payLoad + "' does not contain the unique identifier of a " + DataValidationKpi.class.getSimpleName());
+    }
+
+    @Override
+    public void store(long endDeviceId) {
+        calculate();
     }
 
 }

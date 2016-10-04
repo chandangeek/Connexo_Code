@@ -2,6 +2,8 @@ package com.elster.jupiter.validation.impl.kpi;
 
 interface DataManagementKpiCalculator {
 
-    void calculateAndStore();
+    void calculate();
+
+    void store(long endDeviceId);
 
 }
