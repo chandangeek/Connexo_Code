@@ -122,7 +122,9 @@ abstract class ProFtpClientFileSystem<S extends ProFTPClient, T extends ProFtpCl
     @Override
     void createDirectory(FtpPath dir) throws IOException {
         try {
-            ftpClient.mkdir(dir.toString());
+            if (!ftpClient.existsDirectory(dir.toString())) {
+                ftpClient.mkdir(dir.toString());
+            }
         } catch (FTPException e) {
             throw new IOException(e);
         }
