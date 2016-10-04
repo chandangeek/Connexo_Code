@@ -153,8 +153,8 @@ public class MeteringCommands {
         }
     }
 
-    public void storeRegisterData(String mRID, String readingType, String startDateTime, int intervalInSeconds, int numberOfInterval, double minValue, double maxValue) {
-        final Optional<Meter> endDevice = meteringService.findMeterByMRID(mRID);
+    public void storeRegisterData(String deviceName, String readingType, String startDateTime, int intervalInSeconds, int numberOfInterval, double minValue, double maxValue) {
+        final Optional<Meter> endDevice = meteringService.findMeterByName(deviceName);
         if (endDevice.isPresent()) {
             try {
                 ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
@@ -184,13 +184,13 @@ public class MeteringCommands {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("No meter found with mRID: " + mRID);
+            System.out.println("No meter found with name: " + deviceName);
         }
     }
 
 
-    public void storeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double minValue, double maxValue) {
-        final Optional<Meter> endDevice = meteringService.findMeterByMRID(mRID);
+    public void storeIntervalData(String deviceName, String readingType, String startDateTime, int numberOfInterval, double minValue, double maxValue) {
+        final Optional<Meter> endDevice = meteringService.findMeterByName(deviceName);
         if (endDevice.isPresent()) {
             try {
                 ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
@@ -224,16 +224,16 @@ public class MeteringCommands {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("No meter found with mRID: " + mRID);
+            System.out.println("No meter found with name: " + deviceName);
         }
     }
 
-    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue) {
-        storeCumulativeIntervalData(mRID, readingType, startDateTime, numberOfInterval, startValue, minValue, maxValue, null);
+    public void storeCumulativeIntervalData(String deviceName, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue) {
+        storeCumulativeIntervalData(deviceName, readingType, startDateTime, numberOfInterval, startValue, minValue, maxValue, null);
     }
 
-    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue, String readingQualityCIMCode) {
-        final Optional<Meter> endDevice = meteringService.findMeterByMRID(mRID);
+    public void storeCumulativeIntervalData(String deviceName, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue, String readingQualityCIMCode) {
+        final Optional<Meter> endDevice = meteringService.findMeterByName(deviceName);
         if (endDevice.isPresent()) {
             try {
                 ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
@@ -272,7 +272,7 @@ public class MeteringCommands {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("No meter found with id " + mRID);
+            System.out.println("No meter found with name " + deviceName);
         }
     }
 
@@ -385,11 +385,11 @@ public class MeteringCommands {
         .forEach(pair -> System.out.println("|\t" + String.format("%-80s", pair.getFirst()) + "\t|\t" + String.format("%-13s", pair.getLast())));
     }
 
-    public void addReadingQuality(String mRID, String readingTypeMRID, String time, String readingQualityCode) {
+    public void addReadingQuality(String deviceName, String readingTypeMRID, String time, String readingQualityCode) {
         //find meter
-        Optional<Meter> endDevice = meteringService.findMeterByMRID(mRID);
+        Optional<Meter> endDevice = meteringService.findMeterByName(deviceName);
         if (!endDevice.isPresent()) {
-            System.out.println("No meter found with id " + mRID);
+            System.out.println("No meter found with name " + deviceName);
             return;
         }
         //find reading type
