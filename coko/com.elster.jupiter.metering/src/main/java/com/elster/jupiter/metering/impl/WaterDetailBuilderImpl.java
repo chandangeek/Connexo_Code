@@ -3,12 +3,18 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
+
+import com.google.common.collect.Range;
+
+import java.time.Instant;
+import java.util.Iterator;
 
 public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 
@@ -122,7 +128,15 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 	}
 
 	private WaterDetail buildDetail(){
-		WaterDetailImpl wd = dataModel.getInstance(WaterDetailImpl.class).init(usagePoint, interval);
+        Range<Instant> newDetailRange = interval.toClosedOpenRange();
+        Iterator<? extends UsagePointDetail> iterator = usagePoint.getDetail(newDetailRange).iterator();
+        if (iterator.hasNext()) {
+            usagePoint.terminateDetail(iterator.next(), newDetailRange.lowerEndpoint());
+            if (iterator.hasNext()) {
+                interval = Interval.of(Range.closedOpen(newDetailRange.lowerEndpoint(), iterator.next().getRange().lowerEndpoint()));
+            }
+        }
+        WaterDetailImpl wd = dataModel.getInstance(WaterDetailImpl.class).init(usagePoint, interval);
 		wd.setCollar(collar);
 		wd.setGrounded(grounded);
 		wd.setPressure(pressure);

@@ -847,7 +847,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void addDetail(UsagePointDetail newDetail) {
-        Optional<UsagePointDetailImpl> optional = this.getDetail(newDetail.getRange().lowerEndpoint());
+        Optional<UsagePointDetailImpl> optional = this.getDetails().stream().filter(detail -> detail.getRange().contains(newDetail.getRange().lowerEndpoint())).findFirst();
         if (optional.isPresent()) {
             UsagePointDetailImpl previousDetail = optional.get();
             this.terminateDetail(previousDetail, newDetail.getRange().lowerEndpoint());
