@@ -49,19 +49,21 @@ public interface MeteringService {
 
     Optional<UsagePoint> findAndLockUsagePointByIdAndVersion(long id, long version);
 
+    Optional<UsagePoint> findAndLockUsagePointBymRIDAndVersion(String mRID, long version);
+
     Optional<UsagePoint> findUsagePointByMRID(String mRID);
 
     Optional<UsagePoint> findUsagePointByName(String name);
 
     Optional<Meter> findMeterById(long id);
 
-    Optional<Meter> findMeterByMRID(String mRid);
+    Optional<Meter> findMeterByMRID(String mRID);
 
     Optional<Meter> findMeterByName(String name);
 
     Optional<EndDevice> findEndDeviceById(long id);
 
-    Optional<EndDevice> findEndDeviceByMRID(String mRid);
+    Optional<EndDevice> findEndDeviceByMRID(String mRID);
 
     Optional<EndDevice> findEndDeviceByName(String name);
 

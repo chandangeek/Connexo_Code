@@ -186,13 +186,19 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public Optional<UsagePoint> findAndLockUsagePointBymRIDAndVersion(String mRID, long version) {
+        return findUsagePointByMRID(mRID).flatMap(usagePoint ->
+                dataModel.mapper(UsagePoint.class).lockObjectIfVersion(version, usagePoint.getId()));
+    }
+
+    @Override
     public Optional<UsagePoint> findUsagePointByMRID(String mRID) {
-        return dataModel.stream(UsagePoint.class).filter(where("mRID").isEqualTo(mRID)).findFirst();
+        return dataModel.mapper(UsagePoint.class).getUnique("mRID", mRID);
     }
 
     @Override
     public Optional<UsagePoint> findUsagePointByName(String name) {
-        return dataModel.stream(UsagePoint.class).filter(where("name").isEqualTo(name)).findFirst();
+        return dataModel.mapper(UsagePoint.class).getUnique("name", name);
     }
 
     @Override
@@ -206,13 +212,13 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public Optional<Meter> findMeterByMRID(String mRid) {
-        return dataModel.stream(Meter.class).filter(where("mRID").isEqualTo(mRid)).findFirst();
+    public Optional<Meter> findMeterByMRID(String mRID) {
+        return dataModel.mapper(Meter.class).getUnique("mRID", mRID);
     }
 
     @Override
-    public Optional<EndDevice> findEndDeviceByMRID(String mRid) {
-        return dataModel.stream(EndDevice.class).filter(where("mRID").isEqualTo(mRid)).findFirst();
+    public Optional<EndDevice> findEndDeviceByMRID(String mRID) {
+        return dataModel.mapper(EndDevice.class).getUnique("mRID", mRID);
     }
 
     @Override
