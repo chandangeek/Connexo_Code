@@ -155,7 +155,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         this.usagePoint.touch();
         refreshMeterActivations();
         // Notify
-        eventService.postEvent(EventType.METER_ACTIVATED.topic(), this.usagePoint);
+        eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this.usagePoint);
     }
 
     private Stream<Meter> convertMeterActivationsToStreamOfMeters(List<MeterActivation> meterActivations) {
