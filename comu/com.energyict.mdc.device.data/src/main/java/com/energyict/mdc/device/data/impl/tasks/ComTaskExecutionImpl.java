@@ -586,7 +586,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public void resume() {
         this.onHold = false;
-        this.plannedNextExecutionTimestamp = this.calculateNextExecutionTimestamp(clock.instant());
         this.schedule(getPlannedNextExecutionTimestamp());
     }
 
