@@ -271,10 +271,9 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                         formFields = Ext.isArray(formFields) ? formFields : [formFields];
                         formFields.unshift(
                             {
-                                xtype: 'displayfield',
-                                labelAlign: 'left',
-                                labelWidth: 200,
-                                fieldLabel: filterDescription + ' ' + wizard.translateFilterType(filterType)
+                                xtype: 'label',
+                                padding: '0 0 10 0',
+                                text: filterDescription + ' ' + wizard.translateFilterType(filterType)
                             });
 
                         var fieldContainer = {
