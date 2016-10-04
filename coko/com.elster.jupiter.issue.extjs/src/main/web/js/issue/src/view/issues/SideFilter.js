@@ -71,7 +71,7 @@ Ext.define('Isu.view.issues.SideFilter', {
 
             listConfig: {
                 cls: 'isu-combo-color-list',
-                emptyText: Uni.I18n.translate('general.tooltip.meter', 'ISU', 'Start typing for a MRID')
+                emptyText: Uni.I18n.translate('general.tooltip.meter', 'ISU', 'Start typing for a name')
             },
 
             queryMode: 'remote',
@@ -81,7 +81,7 @@ Ext.define('Isu.view.issues.SideFilter', {
             minChars: 0,
 
             anchor: '100%',
-            emptyText: Uni.I18n.translate('general.device.selectmrid', 'ISU', 'Select MRID of the device ...')
+            emptyText: Uni.I18n.translate('general.device.selectname', 'ISU', 'Select name of the device ...')
         }
     ],
 

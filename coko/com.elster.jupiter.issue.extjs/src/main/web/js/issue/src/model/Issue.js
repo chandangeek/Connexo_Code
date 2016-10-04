@@ -25,9 +25,9 @@ Ext.define('Isu.model.Issue', {
             persist: false,
             mapping: function (data) {
                 if (data.device) {
-                    return data.issueId +': ' + data.reason.name + data.device.name + ' ' + data.device.serialNumber;
-                } else if (data.deviceMRID) {
-                    return data.issueId +': ' + data.reason.name + ' ' + data.deviceMRID;
+                    return data.issueId +': ' + data.reason.name + ' ' + data.device.name;
+                } else if (data.deviceName) {
+                    return data.issueId +': ' + data.reason.name + ' ' + data.deviceName;
                 } else {
                     return data.issueId +': ' + data.reason.name;
                 }
@@ -42,7 +42,7 @@ Ext.define('Isu.model.Issue', {
         {name: 'usage_point', persist: false, mapping: 'device.usagePoint.info'},
         {name: 'service_location', persist: false, mapping: 'device.serviceLocation.info'},
         {name: 'service_category', persist: false, mapping: 'device.serviceCategory.info'},
-        'deviceMRID',
+        'deviceName',
         'comTaskId',
         'comTaskSessionId',
         'connectionTaskId',
