@@ -118,7 +118,7 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(Fields.USAGE_TYPE.name()).varChar(Table.NAME_LENGTH).map(Fields.USAGE_TYPE.javaName()).notNull().add();
-            table.column(Fields.IN_USE.name()).varChar(Table.NAME_LENGTH).map(Fields.IN_USE.javaName()).notNull().add();
+            table.column(Fields.IN_USE.name()).bool().map(Fields.IN_USE.javaName()).notNull().add();
         }
 
         @Override
@@ -148,10 +148,10 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
 
     @SuppressWarnings("unused") // TESTS
     @Inject
-    public DeviceSAPInfoCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService, DeviceService deviceService) {
-        this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
-        this.deviceService = deviceService;
+    public DeviceSAPInfoCustomPropertySet(NlsService nlsService, PropertySpecService propertySpecService, DeviceService deviceService) {
+        setNlsService(nlsService);
+        setPropertySpecService(propertySpecService);
+        setDeviceService(deviceService);
     }
 
     @SuppressWarnings("unused") // OSGI
@@ -170,6 +170,11 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
     @org.osgi.service.component.annotations.Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Override
+    public String getId() {
+        return this.getClass().getName();
     }
 
     @Override

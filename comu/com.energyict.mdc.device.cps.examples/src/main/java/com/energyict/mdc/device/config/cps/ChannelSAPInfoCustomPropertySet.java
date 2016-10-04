@@ -165,10 +165,10 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
 
     @SuppressWarnings("unused") // TESTS
     @Inject
-    public ChannelSAPInfoCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService, DeviceService deviceService) {
-        this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
-        this.deviceService = deviceService;
+    public ChannelSAPInfoCustomPropertySet(NlsService nlsService, PropertySpecService propertySpecService, DeviceService deviceService) {
+        setNlsService(nlsService);
+        setPropertySpecService(propertySpecService);
+        setDeviceService(deviceService);
     }
 
     @SuppressWarnings("unused") // OSGI
@@ -187,6 +187,11 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
     @org.osgi.service.component.annotations.Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Override
+    public String getId() {
+        return this.getClass().getName();
     }
 
     @Override

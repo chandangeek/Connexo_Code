@@ -187,10 +187,10 @@ public class DeviceEMeterInfoCustomPropertySet implements CustomPropertySet<Devi
 
     @SuppressWarnings("unused") // TESTS
     @Inject
-    public DeviceEMeterInfoCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService, DeviceService deviceService) {
-        this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
-        this.deviceService = deviceService;
+    public DeviceEMeterInfoCustomPropertySet(NlsService nlsService, PropertySpecService propertySpecService, DeviceService deviceService) {
+        setNlsService(nlsService);
+        setPropertySpecService(propertySpecService);
+        setDeviceService(deviceService);
     }
 
     @SuppressWarnings("unused") // OSGI
@@ -209,6 +209,11 @@ public class DeviceEMeterInfoCustomPropertySet implements CustomPropertySet<Devi
     @org.osgi.service.component.annotations.Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Override
+    public String getId() {
+        return this.getClass().getName();
     }
 
     @Override
