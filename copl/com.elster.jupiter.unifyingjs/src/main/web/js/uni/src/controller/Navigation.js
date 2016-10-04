@@ -33,6 +33,10 @@ Ext.define('Uni.controller.Navigation', {
             selector: 'navigationHeader #globalSearch'
         },
         {
+            ref: 'helpButton',
+            selector: 'navigationHeader #global-online-help'
+        },
+        {
             ref: 'onlineHelpButton',
             selector: 'navigationHeader #global-online-help'
         }
@@ -41,7 +45,7 @@ Ext.define('Uni.controller.Navigation', {
     applicationTitle: 'Connexo',
     applicationTitleSeparator: '-',
     searchEnabled: true, //Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']),
-    onlineHelpEnabled: false,
+    onlineHelpEnabled: true,
     skipRefresh: false,
 
     init: function (app) {
@@ -63,6 +67,9 @@ Ext.define('Uni.controller.Navigation', {
             },
             'navigationHeader #globalSearch': {
                 afterrender: me.initSearch
+            },
+            'navigationHeader #global-help-menu-btn': {
+                afterrender: me.initHelpButton
             }
         });
 
@@ -70,6 +77,7 @@ Ext.define('Uni.controller.Navigation', {
         me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb, me);
         me.getApplication().on('onnavigationtitlechanged', me.onNavigationTitleChanged, me);
         me.getApplication().on('onnavigationtogglesearch', me.onNavigationToggleSearch, me);
+        me.getApplication().on('onnavigationtogglehelp', me.onNavigationToggleHelp, me);
 
         me.getController('Uni.controller.history.Router').on('routechange', me.updateBreadcrumb, me);
     },
@@ -83,6 +91,9 @@ Ext.define('Uni.controller.Navigation', {
     },
     onNavigationToggleSearch: function (enabled) {
         this.searchEnabled = enabled;
+    },
+    onNavigationToggleHelp: function (enabled) {
+        this.onlineHelpEnabled = enabled;
     },
 
     initTitle: function (breadcrumbItem) {
@@ -157,6 +168,12 @@ Ext.define('Uni.controller.Navigation', {
         me.getSearchButton().setVisible(me.searchEnabled);// &&
 //        Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']));
     },
+
+    initHelpButton: function () {
+        var me = this;
+        me.getHelpButton().setVisible(me.onlineHelpEnabled);
+    },
+
 
     onAfterRenderNavigationMenu: function () {
         this.refreshNavigationMenu();
