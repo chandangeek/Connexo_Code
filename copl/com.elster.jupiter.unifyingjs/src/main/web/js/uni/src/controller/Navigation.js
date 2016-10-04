@@ -172,6 +172,28 @@ Ext.define('Uni.controller.Navigation', {
     initHelpButton: function () {
         var me = this;
         me.getHelpButton().setVisible(me.onlineHelpEnabled);
+        if(me.onlineHelpEnabled){
+            Ext.Ajax.request({
+                url: '/api/usr/currentuser',
+                success: function (response) {
+                    var currentUser = Ext.decode(response.responseText, true),
+                        url;
+
+                    if (currentUser && currentUser.language && currentUser.language.languageTag) {
+                        url = 'help/' + currentUser.language.languageTag + '/index.html';
+                        Ext.Ajax.request({
+                            url: url,
+                            method: 'HEAD',
+                            success: function (response) {
+                                me.getHelpButton().href = url;
+                            }
+                        });
+                    }
+                }
+            });
+
+        }
+        me.getHelpButton()
     },
 
 
