@@ -28,6 +28,7 @@ Ext.define('Mdc.view.setup.comservercomports.ComPortPoolsGrid', {
         },
         {
             xtype: 'uni-actioncolumn-remove',
+            align: 'right',
             handler: function (grid, rowIndex) {
                 grid.getStore().removeAt(rowIndex);
                 grid.refresh();

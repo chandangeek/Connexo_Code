@@ -158,7 +158,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             router = me.getController('Uni.controller.history.Router'),
             backUrl = router.getRoute('devices/device/securitysettings').buildUrl({device: encodeURIComponent(me.mrid)});
 
-        record.getProxy().extraParams = ({mrid: encodeURIComponent(me.mrid)});
+        record.getProxy().setExtraParam('mrid', me.mrid);
         if (propertyForm) {
             propertyForm.clearInvalid();
             propertyForm.updateRecord(record);
@@ -215,7 +215,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
 
         deviceModel.load(mrid, {
             success: function (device) {
-                deviceSecuritySettingModel.getProxy().setExtraParam('mrid', encodeURIComponent(mrid));
+                deviceSecuritySettingModel.getProxy().setExtraParam('mrid', mrid);
                 deviceSecuritySettingModel.load(deviceSecuritySettingId, {
                     success: function (deviceSecuritySetting) {
                         me.getApplication().fireEvent('loadDevice', device);
