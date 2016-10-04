@@ -35,14 +35,14 @@ Ext.define('Idc.view.OutboundIssueDetailsForm', {
                             {
                                 itemId: 'outbound-issue-device',
                                 fieldLabel: Uni.I18n.translate('general.masterDevice', 'IDC', 'Master device'),
-                                name: 'deviceMRID',
+                                name: 'deviceName',
                                 renderer: function (value) {
                                     var url = '',
                                         result = '';
 
                                     if (value) {
                                         if (Mdc.privileges.Device.canViewDeviceCommunication()) {
-                                            url = me.router.getRoute('devices/device').buildUrl({mRID: value});
+                                            url = me.router.getRoute('devices/device').buildUrl({deviceId: value});
                                             result = '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                                         } else {
                                             result = Ext.String.htmlEncode(value);

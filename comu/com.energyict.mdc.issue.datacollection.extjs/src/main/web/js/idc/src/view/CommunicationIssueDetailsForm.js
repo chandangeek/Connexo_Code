@@ -43,11 +43,11 @@ Ext.define('Idc.view.CommunicationIssueDetailsForm', {
                                         result = '';
 
                                     if (value) {
-                                        if (value.serialNumber && Mdc.privileges.Device.canViewDeviceCommunication()) {
-                                            url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
-                                            result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + ' ' + value.serialNumber + '</a>';
+                                        if (value.name && Mdc.privileges.Device.canViewDeviceCommunication()) {
+                                            url = me.router.getRoute('devices/device').buildUrl({deviceId: value.name});
+                                            result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
                                         } else {
-                                            result = Ext.String.htmlEncode(value.name) + ' ' + value.serialNumber;
+                                            result = Ext.String.htmlEncode(value.name);
                                         }
                                     }
 
