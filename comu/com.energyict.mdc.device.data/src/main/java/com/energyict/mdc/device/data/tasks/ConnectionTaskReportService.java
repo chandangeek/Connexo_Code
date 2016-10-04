@@ -243,6 +243,28 @@ public interface ConnectionTaskReportService {
     long countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
 
     /**
+     * Counts the number of {@link ConnectionTask}s in the specified {@link EndDeviceGroup},
+     * whose last {@link ComSession}
+     * completed successfully but has at least one failing task.
+     * Note that the status of the task is not taken into account at all.
+     *
+     * @param deviceGroup The QueryEndDeviceGroup
+     * @return The count
+     */
+    long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(EndDeviceGroup deviceGroup);
+
+    /**
+     * Counts the number of {@link ConnectionTask}s in the specified {@link EndDeviceGroup},
+     * that are currently waiting
+     * to be executed and whose last {@link ComSession}
+     * completed successfully but has at least one failing task.
+     *
+     * @param deviceGroup The QueryEndDeviceGroup
+     * @return The count
+     */
+    long countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask(EndDeviceGroup deviceGroup);
+
+    /**
      * Calculates the {@link ConnectionTaskBreakdowns}
      * for all {@link ConnectionTask}s in the system.
      *
