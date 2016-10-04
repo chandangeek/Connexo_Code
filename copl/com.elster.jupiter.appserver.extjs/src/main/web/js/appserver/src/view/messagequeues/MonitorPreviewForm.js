@@ -22,42 +22,34 @@ Ext.define('Apr.view.messagequeues.MonitorPreviewForm', {
         {
             fieldLabel: Uni.I18n.translate('messageQueue.subscribers', 'APR', 'Used by'),
             xtype: 'fieldcontainer',
-            itemId: 'used-by-field-container',
-            labelWidth: 100
+            itemId: 'used-by-field-container'
         }
     ],
 
     customLoadRecord: function(record) {
         var me = this,
             fieldContainer = me.down('#used-by-field-container'),
-            internalFieldConainer,
-            active;
+            active = Uni.I18n.translate('general.active', 'APR', 'Active'),
+            inactive = Uni.I18n.translate('general.inactive', 'APR', 'Inactive'),
+            serverURL,
+            htmlContent = '';
 
         Ext.suspendLayouts();
         fieldContainer.removeAll();
         me.loadRecord(record);
         Ext.Array.each(record.get('subscriberSpecInfos'), function (subscriberSpecInfo) {
-            internalFieldConainer = {
-                xtype: 'fieldcontainer',
-                margin: '15 0 0 0',
-                labelWidth: 140,
-                fieldLabel: subscriberSpecInfo.displayName,
-                items: []
-            };
-
+            htmlContent += '- ' + subscriberSpecInfo.displayName + '<br/>';
             Ext.Array.each(subscriberSpecInfo.appServers, function (appServer) {
-                if (appServer.active) {
-                    active = Uni.I18n.translate('general.active', 'APR', 'Active')
-                } else {
-                    active = Uni.I18n.translate('general.inactive', 'APR', 'Inactive')
-                }
-
-                internalFieldConainer.items.push({
-                    xtype: 'displayfield',
-                    value: appServer.appServerName + ' (' + active + ')'
-                })
+                serverURL = '#/administration/appservers/' + appServer.appServerName;
+                htmlContent += '&emsp;&emsp;&emsp;- ';
+                htmlContent += '<a href="' + serverURL + '">' + appServer.appServerName + '</a> (' + (appServer.active ? active : inactive) + ')<br/>';
             });
-            fieldContainer.add(internalFieldConainer);
+            htmlContent += '<br/>';
+        });
+        fieldContainer.add({
+            xtype: 'displayfield',
+            htmlEncode: false,
+            value: htmlContent
         });
         Ext.resumeLayouts(true);
     }
