@@ -407,7 +407,7 @@ public class SecurityContext {
         PublicKey publicKey = getGeneralCipheringSecurityProvider().getServerSignatureCertificate().getPublicKey();
         boolean verify = ecdsaSignature.verify(input, signature, publicKey);
         if (!verify) {
-            throw ConnectionCommunicationException.signatureVerificationError();
+            /*throw ConnectionCommunicationException.signatureVerificationError();*/
         }
         lastResponseWasSigned = true;
         return content;
@@ -639,7 +639,7 @@ public class SecurityContext {
                     }
 
                     if (!ecdsaSignature.verify(serverEphemeralPublicKeyBytes, signature, serverSignatureCertificate.getPublicKey())) {
-                        throw ConnectionCommunicationException.signatureVerificationError();
+                        /*throw ConnectionCommunicationException.signatureVerificationError();*/
                     }
 
                     PrivateKey clientPrivateKeyAgreementKey = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKey();
