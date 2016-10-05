@@ -4,7 +4,6 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.text.MessageFormat;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
@@ -50,7 +49,7 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     public static String getString(MessageSeed messageSeed, Thesaurus thesaurus, Object... args){
-        String text = thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat());
-        return MessageFormat.format(text, args);
+        return thesaurus.getFormat(messageSeed).format(args);
     }
+
 }
