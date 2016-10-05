@@ -282,8 +282,8 @@ public class NlsServiceImpl implements NlsService {
     private void doInstallProvider(TranslationKeyProvider provider) {
         String componentName = provider.getComponentName();
         Layer layer = provider.getLayer();
-        ThesaurusImpl thesaurus = (ThesaurusImpl) getThesaurus(componentName, layer);
-        thesaurus.createNewTranslationKeys(provider);
+        ThesaurusImpl thesaurus = getThesaurus(componentName, layer);
+        thesaurus.createNewTranslationKeys(provider, this.languages);
         new HashMap<>(uninstalledKeysMap).entrySet()
                 .stream()
                 .filter(mapEntry -> mapEntry.getKey().getComponent().equals(componentName))
