@@ -19,8 +19,7 @@ public class ServiceCallLogInfoFactory {
 
     public ServiceCallLogInfo from(ServiceCallLog serviceCallLog) {
         ServiceCallLogInfo info = new ServiceCallLogInfo();
-        info.logLevel = thesaurus.getString(serviceCallLog.getLogLevel().getKey(), serviceCallLog.getLogLevel()
-                .getDefaultFormat());
+        info.logLevel = thesaurus.getFormat(serviceCallLog.getLogLevel()).format();
         info.message = serviceCallLog.getMessage();
         info.timestamp = serviceCallLog.getTime();
         return info;
