@@ -198,18 +198,35 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
 
     @Override
     public long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask() {
-        return this.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(false);
+        return this.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(false, null);
     }
 
     @Override
     public long countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask() {
-        return this.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(true);
+        return this.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(true, null);
     }
 
-    private long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(boolean waitingOnly) {
+    @Override
+    public long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(EndDeviceGroup deviceGroup) {
+        return this.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(false, deviceGroup);
+    }
+
+    @Override
+    public long countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask(EndDeviceGroup deviceGroup) {
+        return this.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(true, deviceGroup);
+    }
+
+    private long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(boolean waitingOnly, EndDeviceGroup deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("select count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct where ct.obsolete_date is null");
+        sqlBuilder.append(" ct ");
+        if(deviceGroup != null) {
+            sqlBuilder.append(" join ");
+            sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+            sqlBuilder.append(" dev on ct.device = dev.id ");
+            this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, "ct");
+        }
+        sqlBuilder.append(" where ct.obsolete_date is null");
         if (waitingOnly) {
             sqlBuilder.append(" and nextexecutiontimestamp >");
             sqlBuilder.addLong(this.toSeconds(this.deviceDataModelService.clock().instant()));
