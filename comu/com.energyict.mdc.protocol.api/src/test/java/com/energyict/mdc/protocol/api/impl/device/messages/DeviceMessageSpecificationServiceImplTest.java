@@ -3,11 +3,14 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -27,8 +30,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -69,6 +76,10 @@ public class DeviceMessageSpecificationServiceImplTest {
     @Before
     public void setupNslService () {
         when(this.nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        doReturn(messageFormat).when(this.thesaurus).getFormat(any(MessageSeed.class));
+        doReturn(messageFormat).when(this.thesaurus).getFormat(any(TranslationKey.class));
     }
 
     @Test
@@ -137,7 +148,7 @@ public class DeviceMessageSpecificationServiceImplTest {
             forEach(DeviceMessageSpec::getName);
 
         // Asserts
-        verify(this.thesaurus, atLeastOnce()).getString(anyString(), anyString());
+        verify(this.thesaurus, atLeastOnce()).getFormat(any(TranslationKey.class));
     }
 
     @Test
