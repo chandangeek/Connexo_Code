@@ -230,12 +230,12 @@ public class DeviceFirmwareMessagesResource {
                 .filter(ConnectionTask::isDefault)
                 .findFirst();
         if (defaultConnectionTask.isPresent() && ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(defaultConnectionTask.get().getConnectionStrategy())) {
-            String runActionTitle = thesaurus.getString(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION.getKey(), MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION.getDefaultFormat());
+            String runActionTitle = thesaurus.getFormat(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION).format();
             DeviceFirmwareActionInfo info = new DeviceFirmwareActionInfo("run", runActionTitle);
             info.version = device.getVersion();
             deviceFirmwareActions.add(info);
         }
-        String runNowActionTitle = thesaurus.getString(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW.getKey(), MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW.getDefaultFormat());
+        String runNowActionTitle = thesaurus.getFormat(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW).format();
         DeviceFirmwareActionInfo info = new DeviceFirmwareActionInfo("runnow", runNowActionTitle);
         info.version = device.getVersion();
         deviceFirmwareActions.add(info);
