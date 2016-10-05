@@ -59,6 +59,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategories;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -118,6 +119,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         super.setupTranslations();
         Stream.of(TrackingCategory.values()).forEach(this::mockTranslation);
         Stream.of(DeviceMessageStatusTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(ContactorDeviceMessage.values()).forEach(this::mockTranslation);
     }
 
     private void mockTranslation(TranslationKey translationKey) {
