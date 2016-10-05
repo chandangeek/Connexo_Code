@@ -124,4 +124,18 @@ public class DemoUsagePointMeterActivationValidatorTest {
         customPropertySetValues.setProperty("meterMechanism", "Prepayment");
         validator.validateActivation(meterRole, meter, usagePoint);
     }
+
+    @Test
+    public void validateNoNPEIfThereIsNoActiveVersion() {
+        when(usagePointPropertySet.getValues()).thenReturn(null);
+        DemoUsagePointMeterActivationValidator validator = new DemoUsagePointMeterActivationValidator(deviceService, customPropertySetService, thesaurus);
+        validator.validateActivation(meterRole, meter, usagePoint);
+    }
+
+    @Test
+    public void validateNoNPEIfThereIsNoPrepayValue() {
+        when(usagePointPropertySet.getValues()).thenReturn(CustomPropertySetValues.empty());
+        DemoUsagePointMeterActivationValidator validator = new DemoUsagePointMeterActivationValidator(deviceService, customPropertySetService, thesaurus);
+        validator.validateActivation(meterRole, meter, usagePoint);
+    }
 }

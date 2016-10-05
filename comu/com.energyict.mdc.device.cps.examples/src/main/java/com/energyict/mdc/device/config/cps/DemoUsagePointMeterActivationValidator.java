@@ -7,13 +7,12 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -65,16 +64,13 @@ public class DemoUsagePointMeterActivationValidator implements CustomUsagePointM
         }
     }
 
-
-
     private boolean checkMeterConditions(Meter meter) {
         Device device = deviceService.findByUniqueMrid(meter.getMRID()).get();
         return device.getDeviceType()
                 .getCustomPropertySets()
                 .stream()
-                .anyMatch(cas -> cas.getCustomPropertySet().getName().equals("MeterSpecs") && customPropertySetService.getUniqueValuesFor(cas.getCustomPropertySet(), device)
-                        .getProperty("meterMechanism")
-                        .equals("Credit"));
+                .anyMatch(cas -> "MeterSpecs".equals(cas.getCustomPropertySet().getName())
+                        && "Credit".equals(customPropertySetService.getUniqueValuesFor(cas.getCustomPropertySet(), device).getProperty("meterMechanism")));
     }
 
     private boolean checkUsagePointConditions(UsagePoint usagePoint) {
@@ -82,7 +78,7 @@ public class DemoUsagePointMeterActivationValidator implements CustomUsagePointM
                 .getAllPropertySets()
                 .stream()
                 .filter(cas -> cas.getCustomPropertySet().getId().equals("com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension"))
-                .anyMatch(cas -> (cas.getValues().getProperty("prepay") != null)
-                        && (cas.getValues().getProperty("prepay").equals(true)));
+                .anyMatch(cas -> cas.getValues() != null
+                        && Boolean.TRUE.equals(cas.getValues().getProperty("prepay")));
     }
 }
