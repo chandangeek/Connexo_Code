@@ -25,18 +25,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
 
 @Path("/validationresults")
 public class ValidationResultsResource {
@@ -153,22 +148,22 @@ public class ValidationResultsResource {
                 deviceDataValidationService
                         .getValidationResultsOfDeviceGroup(groupId, range)
                         .stream()
-                        .filter(resultAmt -> (amountOfSuspectsList.isEmpty() || (amountOfSuspectsList.size() == 2 && amountOfSuspectsList.get(0)
-                                .longValue() <= resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects()
-                                && resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects() <= amountOfSuspectsList.get(1)
-                                .longValue())) || (amountOfSuspectsList.size() == 1 && amountOfSuspectsList.get(0).longValue() == resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects()))
-                        .filter(validator -> Validator.stringToEnum.entrySet().stream().allMatch(a -> a.getValue() == false) ||
+                        .filter(resultAmt -> (amountOfSuspectsList.isEmpty()
+                                || (amountOfSuspectsList.size() == 2 && amountOfSuspectsList.get(0) <= resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects()
+                                        && resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects() <= amountOfSuspectsList.get(1)))
+                                || (amountOfSuspectsList.size() == 1 && amountOfSuspectsList.get(0) == resultAmt.getDeviceValidationKpiResults().getAmountOfSuspects()))
+                        .filter(validator -> Validator.stringToEnum.entrySet().stream().allMatch(a -> !a.getValue()) ||
                                 (validator.getDeviceValidationKpiResults().isThresholdValidator() && Validator.fromAbbreviation(Validator.THRESHOLDVALIDATOR.getElementAbbreviation()) ||
                                         validator.getDeviceValidationKpiResults().isMissingValuesValidator() && Validator.fromAbbreviation(Validator.MISSINGVALUESVALIDATOR.getElementAbbreviation()) ||
                                         validator.getDeviceValidationKpiResults()
                                                 .isReadingQualitiesValidator() && Validator.fromAbbreviation(Validator.READINGQUALITIESVALIDATOR.getElementAbbreviation()) ||
                                         validator.getDeviceValidationKpiResults()
                                                 .isRegisterIncreaseValidator() && Validator.fromAbbreviation(Validator.REGISTERINCREASEVALIDATOR.getElementAbbreviation())))
-                        .map(ValidationSummaryInfo::new)).distinct().collect(Collectors.toList());
-        data = data.stream()
-                .sorted((f1, f2) -> Long.compare(f2.lastSuspect.toEpochMilli(), f1.lastSuspect.toEpochMilli()))
-                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(p -> p.mrid))),
-                        ArrayList::new));
+                        .map(ValidationSummaryInfo::new))
+                        .distinct()
+                        .sorted(Comparator.comparing((ValidationSummaryInfo summary) -> summary.name)
+                                .thenComparing(Comparator.comparingLong(summary -> summary.lastSuspect.toEpochMilli())))
+                        .collect(Collectors.toList());
         Validator.refreshValidatorValues();
         return PagedInfoList.fromPagedList("summary", data, queryParameters);
 
