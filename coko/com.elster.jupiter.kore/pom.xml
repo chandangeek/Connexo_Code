@@ -139,6 +139,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>kore.api.rest</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>kpi</artifactId>
                 <version>2.1.0${revision}</version>
                 <scope>provided</scope>
@@ -195,12 +201,6 @@
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>parties.rest</artifactId>
                 <version>1.2.0${revision}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>kore.api.rest</artifactId>
-                <version>1.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -296,6 +296,7 @@
                 <module>../com.elster.jupiter.issue</module>
                 <module>../com.elster.jupiter.issue.extjs</module>
                 <module>../com.elster.jupiter.issue.rest</module>
+                <module>../com.elster.jupiter.kore.api.rest</module>
                 <module>../com.elster.jupiter.kpi</module>
                 <module>../com.elster.jupiter.metering</module>
                 <module>../com.elster.jupiter.metering.bpm</module>
@@ -306,7 +307,6 @@
                 <module>../com.elster.jupiter.metering.extjs</module>
                 <module>../com.elster.jupiter.parties</module>
                 <module>../com.elster.jupiter.parties.rest</module>
-                <module>../com.elster.jupiter.kore.api.rest</module>
                 <module>../com.elster.jupiter.system.app</module>
                 <module>../com.elster.jupiter.system.app.help</module>
                 <module>../com.elster.jupiter.systemadmin.extjs</module>
