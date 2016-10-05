@@ -1,16 +1,16 @@
 package com.elster.jupiter.events.rest.impl;
 
 import com.elster.jupiter.events.EventType;
-import com.elster.jupiter.rest.util.PagedInfoList;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -87,7 +87,6 @@ public class EventTypeResourceTest extends EventApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(model.<Boolean>get("$.eventTypes[0].publish")).isFalse();
     }
-
 
     @Test
     public void updateEventTypeWithTopicConcurrentModification() {

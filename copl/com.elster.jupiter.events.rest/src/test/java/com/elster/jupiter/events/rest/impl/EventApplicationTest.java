@@ -4,11 +4,11 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import org.mockito.Matchers;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
+
+import org.mockito.Matchers;
+import org.mockito.Mock;
 
 import static org.mockito.Mockito.when;
 
@@ -35,4 +35,5 @@ public class EventApplicationTest extends FelixRestApplicationJerseyTest {
         when(transactionService.execute(Matchers.any(Transaction.class)))
                 .thenAnswer(invocation -> ((Transaction) invocation.getArguments()[0]).perform());
     }
+
 }
