@@ -54,11 +54,11 @@ Ext.define('Uni.controller.AppController', {
     searchEnabled: true,
 
     /**
-     * @cfg {Boolean} [onlineHelpEnabled=false]
+     * @cfg {Boolean} [onlineHelpEnabled=true]
      *
      * Whether the help button shows or not in the application header.
      */
-    onlineHelpEnabled: false,
+    onlineHelpEnabled: true,
 
     /**
      * @cfg {String[]} privileges
@@ -86,6 +86,7 @@ Ext.define('Uni.controller.AppController', {
         me.getController('Uni.controller.Navigation');
         me.getApplication().fireEvent('onnavigationtitlechanged', me.applicationTitle);
         me.getApplication().fireEvent('onnavigationtogglesearch', me.searchEnabled);
+        me.getApplication().fireEvent('onnavigationtogglehelp', me.onlineHelpEnabled);
 
         me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('getapplicationtitleevent', me.getApplicationTitle, me);

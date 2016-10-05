@@ -238,8 +238,13 @@ Ext.define('Uni.view.container.PreviewContainer', {
         }
     },
 
-    onLoad: function (store, records) {
-        this.updateOnChange(!this.grid.store.getCount());
+    onLoad: function (store, records, successful) {
+        var me = this,
+            isEmpty = Ext.isDefined(successful)
+                ? !(successful && store.getCount() && store.getTotalCount())
+                : !me.grid.store.getCount();
+
+        me.updateOnChange(isEmpty);
     },
 
     onChange: function(store) {
