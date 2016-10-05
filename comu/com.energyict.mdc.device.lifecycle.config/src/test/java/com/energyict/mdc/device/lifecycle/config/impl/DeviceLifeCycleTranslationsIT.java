@@ -1,20 +1,22 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsServiceImpl;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
-import com.elster.jupiter.nls.impl.NlsServiceImpl;
-import com.elster.jupiter.transaction.TransactionService;
-
 import java.sql.SQLException;
 
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * Integration test for the translations used by the
@@ -45,7 +47,7 @@ public class DeviceLifeCycleTranslationsIT {
     @Test
     public void installerUsedCorrectTranslationsForTransitions() {
         DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
-        NlsServiceImpl nlsService = inMemoryPersistence.getService(NlsServiceImpl.class);
+        NlsServiceImpl nlsService = (NlsServiceImpl) inMemoryPersistence.getService(NlsService.class);
         nlsService.addTranslationKeyProvider(service);
 
         // Business method: actually the business method is the install method of the DeviceLifeCycleServiceImpl component
