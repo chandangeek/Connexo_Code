@@ -72,7 +72,7 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
 
     @Override
     public String getName() {
-        return this.thesaurus.getString(TranslationKeys.USAGE_POINT_ASSOCIATION_PROVIDER.getKey(), TranslationKeys.USAGE_POINT_ASSOCIATION_PROVIDER.getDefaultFormat());
+        return this.thesaurus.getFormat(TranslationKeys.USAGE_POINT_ASSOCIATION_PROVIDER).format();
     }
 
     @Override
@@ -214,7 +214,7 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
 
         @Override
         public String getName() {
-            return thesaurus.getString("connectionState." + connectionState.getId(), connectionState.getId());
+            return thesaurus.getFormat(connectionState).format();
         }
     }
 
