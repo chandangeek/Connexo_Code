@@ -57,7 +57,11 @@ Ext.define('Ddv.view.validations.Filter', {
             to = _.find(filters, function (item) {
                 return item.property == 'to'
             }),
-            isDefault = from && me.filterDefault.from && from.value == me.filterDefault.from.getTime()
+            notDefaultFilters = _.filter(filters, function (item) {
+                return item.property !== 'from' && item.property !== 'to'
+            }),
+            isDefault = Ext.isEmpty(notDefaultFilters)
+                && from && me.filterDefault.from && from.value == me.filterDefault.from.getTime()
                 && to && me.filterDefault.to && to.value == me.filterDefault.to.getTime();
 
         Ext.suspendLayouts();
