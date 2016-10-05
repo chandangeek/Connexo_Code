@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
@@ -32,6 +33,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private final IEstimationService estimationService;
     private final TaskService taskService;
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
 
     private long id;
 
@@ -54,10 +56,11 @@ final class EstimationTaskImpl implements IEstimationTask {
     public QualityCodeSystem qualityCodeSystem;
 
     @Inject
-    public EstimationTaskImpl(DataModel dataModel, IEstimationService estimationService, TaskService taskService) {
+    public EstimationTaskImpl(DataModel dataModel, IEstimationService estimationService, TaskService taskService, Thesaurus thesaurus) {
         this.estimationService = estimationService;
         this.taskService = taskService;
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     static IEstimationTask from(DataModel dataModel, String name, EndDeviceGroup endDeviceGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
@@ -111,7 +114,7 @@ final class EstimationTaskImpl implements IEstimationTask {
 
     private void persist() {
         RecurrentTask task = taskService.newBuilder()
-                .setApplication(qualityCodeSystem != null ? qualityCodeSystem.name() : null)
+                .setApplication(qualityCodeSystem != null ? thesaurus.getString(qualityCodeSystem.name(), qualityCodeSystem.name()) : null)
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(estimationService.getDestination())
