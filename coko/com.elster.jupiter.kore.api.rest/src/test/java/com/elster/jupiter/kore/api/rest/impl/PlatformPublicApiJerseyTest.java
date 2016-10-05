@@ -200,8 +200,8 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
 
         when(usagePoint.forCustomProperties()).thenReturn(extension);
         when(meteringService.findUsagePointByMRID(mRID)).thenReturn(Optional.of(usagePoint));
-        when(meteringService.findAndLockUsagePointBymRIDAndVersion(eq(mRID), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
-        when(meteringService.findAndLockUsagePointBymRIDAndVersion(mRID, version)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByMRIDAndVersion(eq(mRID), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
+        when(meteringService.findAndLockUsagePointByMRIDAndVersion(mRID, version)).thenReturn(Optional.of(usagePoint));
         when(detail.getUsagePoint()).thenReturn(usagePoint);
         return usagePoint;
     }

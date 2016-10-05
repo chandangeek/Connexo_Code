@@ -127,7 +127,7 @@ public class UsagePointCustomPropertySetResource {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
         }
         try {
-            UsagePointPropertySet propertySet = meteringService.findAndLockUsagePointBymRIDAndVersion(mRID, propertySetInfo.version)
+            UsagePointPropertySet propertySet = meteringService.findAndLockUsagePointByMRIDAndVersion(mRID, propertySetInfo.version)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_USAGE_POINT))
                     .forCustomProperties()
                     .getPropertySet(cpsId);

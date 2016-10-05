@@ -121,7 +121,7 @@ public class UsagePointResource {
         if (usagePointInfo.version == null) {
             exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.VERSION_MISSING, "version");
         }
-        UsagePoint usagePoint = meteringService.findAndLockUsagePointBymRIDAndVersion(mRID, usagePointInfo.version)
+        UsagePoint usagePoint = meteringService.findAndLockUsagePointByMRIDAndVersion(mRID, usagePointInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
         usagePointInfoFactory.updateUsagePoint(usagePoint, usagePointInfo);
 
