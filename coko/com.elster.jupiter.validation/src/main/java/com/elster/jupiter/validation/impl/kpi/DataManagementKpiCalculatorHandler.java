@@ -68,7 +68,15 @@ class DataManagementKpiCalculatorHandler implements TaskExecutor {
 
     private void tryExecute(TaskOccurrence taskOccurrence, Logger taskLogger) {
         DataManagementKpiCalculator kpiCalculator = KpiType.calculatorForRecurrentPayload(taskOccurrence, new ServiceProvider());
-        kpiCalculator.calculate();
+        try {
+            try (TransactionContext transactionContext = transactionService.getContext()) {
+                kpiCalculator.calculate();
+                transactionContext.commit();
+            }
+        } catch (Exception ex) {
+            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to calculate Data Validation KPI"
+                    + " . Error: " + ex.getLocalizedMessage(), ex));
+        }
         ((DataValidationKpiCalculator) kpiCalculator).getDataValidationKpi().getDeviceGroup().getMembers(Instant.now(clock)).forEach(endDevice -> doCalculateTransactional(kpiCalculator,endDevice.getId(), taskLogger));
 
     }
@@ -80,7 +88,7 @@ class DataManagementKpiCalculatorHandler implements TaskExecutor {
                 transactionContext.commit();
             }
         } catch (Exception ex) {
-            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to calculate Data Validation KPI for device having ID of" + endDeviceId
+            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to store Validation KPI data for device having ID of" + endDeviceId
                     + " . Error: " + ex.getLocalizedMessage(), ex));
         }
     }

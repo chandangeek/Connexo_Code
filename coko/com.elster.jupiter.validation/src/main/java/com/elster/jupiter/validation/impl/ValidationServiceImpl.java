@@ -101,7 +101,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     static final String DESTINATION_NAME = "DataValidation";
     public static final String SUBSCRIBER_NAME = "DataValidation";
-    static final String VALIDATION_USER = "validation";
+    public static final String VALIDATION_USER = "validation";
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;

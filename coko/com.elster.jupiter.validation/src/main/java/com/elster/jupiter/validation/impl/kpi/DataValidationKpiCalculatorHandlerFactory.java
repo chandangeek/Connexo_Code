@@ -19,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 
-@Component(name="com.elster.jupiter.validation.impl.kpi", service = MessageHandlerFactory.class, property = {"subscriber=" + DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, "destination=" + DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION}, immediate = true)
+@Component(name = "com.elster.jupiter.validation.impl.kpi", service = MessageHandlerFactory.class, property = {"subscriber=" + DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, "destination=" + DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION}, immediate = true)
 public class DataValidationKpiCalculatorHandlerFactory implements MessageHandlerFactory {
 
     public static final String TASK_DESTINATION = "ValKpiCalcTopic";
@@ -35,10 +35,12 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     private volatile Clock clock;
     private User user;
 
-    public DataValidationKpiCalculatorHandlerFactory() {super();}
+    public DataValidationKpiCalculatorHandlerFactory() {
+        super();
+    }
 
     @Inject
-    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService, TransactionService transactionService,ThreadPrincipalService threadPrincipalService, UserService userService, User user, Clock clock) {
+    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, UserService userService, User user, Clock clock) {
         this();
         this.setTaskService(taskService);
         this.setDataValidationReportService(dataValidationReportService);
@@ -56,7 +58,7 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
                 new DataManagementKpiCalculatorHandler(
                         dataValidationKpiService,
                         transactionService, threadPrincipalService, dataValidationReportService, clock,
-                        user));
+                        getUser()));
     }
 
     @Reference
@@ -65,7 +67,7 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     }
 
     @Reference
-    public void setDataValidationReportService(DataValidationReportService dataValidationReportService){
+    public void setDataValidationReportService(DataValidationReportService dataValidationReportService) {
         this.dataValidationReportService = dataValidationReportService;
     }
 
@@ -95,6 +97,9 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     }
 
     public User getUser() {
+        if (user == null) {
+            user = userService.findUser(ValidationServiceImpl.VALIDATION_USER).get();
+        }
         return user;
     }
 }

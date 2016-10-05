@@ -127,6 +127,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
                                 .named(member + id)
                                 .add()
                 );
+        builder.named("ValidationKpi"+id);
         childrenKpis.add(DataValidationKpiChildImpl.from(dataModel, this, builder.create()));
     }
 
