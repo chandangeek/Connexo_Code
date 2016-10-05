@@ -3,12 +3,16 @@ package com.elster.partners.jbpm.extension;
 import org.jbpm.kie.services.impl.model.VariableStateDesc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 public class ProcessInstanceNodeInfos {
 
     public String processInstanceStatus;
+    public String[] unwantedNodeType = new String[] {"AsyncEventNode", "BoundaryEventNode", "CatchLinkNode", "CompositeContextNode", "CompositeNode",
+            "Constrainable", "ConstraintTrigger", "EventNode", "EventSubProcessNode", "EventTrigger", "FaultNode", "Join", "MilestoneNode", "Split",
+            "StateBasedNode", "StateNode", "SubProcessNode", "ThrowLinkNode", "TimerNode", "Transformation", "Trigger"};
     public List<ProcessInstanceNodeInfo> processInstanceNodes = new ArrayList<ProcessInstanceNodeInfo>();
     public List<ProcessInstanceVariableInfo> processInstanceVariables = new ArrayList<ProcessInstanceVariableInfo>();
 
@@ -30,7 +34,7 @@ public class ProcessInstanceNodeInfos {
 
     public ProcessInstanceNodeInfo addNode(Object[] object){
         ProcessInstanceNodeInfo processHistoryInfo = new ProcessInstanceNodeInfo(object, processInstanceStatus);
-        if(!processHistoryInfo.nodeType.equals("BoundaryEventNode")) {
+        if(!Arrays.asList(unwantedNodeType).contains(processHistoryInfo.nodeType)) {
             processInstanceNodes.add(processHistoryInfo);
         }
         return processHistoryInfo;
