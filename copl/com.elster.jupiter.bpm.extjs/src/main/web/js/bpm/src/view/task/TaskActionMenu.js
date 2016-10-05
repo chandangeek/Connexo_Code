@@ -16,6 +16,12 @@ Ext.define('Bpm.view.task.TaskActionMenu', {
             text: Uni.I18n.translate('bpm.menu.start', 'BPM', 'Start'),
             action: 'performTask',
             privileges: Bpm.privileges.BpmManagement.execute
+        },
+        {
+            itemId: 'menu-complete-task',
+            text: Uni.I18n.translate('bpm.menu.complete', 'BPM', 'Complete'),
+            action: 'completeTask',
+            privileges: Bpm.privileges.BpmManagement.execute
         }
     ]
 });

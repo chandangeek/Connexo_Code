@@ -217,14 +217,19 @@ Ext.define('Bpm.controller.Task', {
     },
 
     setupMenuItems: function (record) {
-        var ongoing = record.get('status') !== 'Reserved',
-            menuText = ongoing
-                ? Uni.I18n.translate('bpm.menu.complete', 'BPM', 'Complete')
-                : Uni.I18n.translate('bpm.menu.start', 'BPM', 'Start'),
-            menuItems = Ext.ComponentQuery.query('menu menuitem[action=performTask]');
-        if (!Ext.isEmpty(menuItems)) {
-            Ext.Array.each(menuItems, function (item) {
-                item.setText(menuText);
+        var ongoing = record.get('status') === 'InProgress',
+            completeItems = Ext.ComponentQuery.query('menu menuitem[action=completeTask]'),
+            performItems = Ext.ComponentQuery.query('menu menuitem[action=performTask]');
+
+        if (!Ext.isEmpty(completeItems)) {
+            Ext.Array.each(completeItems, function (item) {
+                item.setVisible(ongoing);
+            });
+        }
+
+        if (!Ext.isEmpty(performItems)) {
+            Ext.Array.each(performItems, function (item) {
+                item.setVisible(!ongoing);
             });
         }
     },
@@ -245,6 +250,9 @@ Ext.define('Bpm.controller.Task', {
                 break;
             case 'performTask':
                 route = 'workspace/tasks/task/performTask';
+                break;
+            case 'completeTask':
+                route = 'workspace/tasks/task/completeTask';
                 break;
         }
 

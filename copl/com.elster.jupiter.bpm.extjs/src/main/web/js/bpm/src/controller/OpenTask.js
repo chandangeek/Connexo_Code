@@ -192,7 +192,11 @@ Ext.define('Bpm.controller.OpenTask', {
                 me.getApplication().fireEvent('task', taskRecord);
 
                 topTitle = editTaskView.down('#detail-top-title');
-                topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.startTaskTitle', 'BPM', "Start '{0}'"), taskRecord.get('name')));
+                if(taskRecord.get('status') === 'InProgress') {
+                    topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.completeTaskTitle', 'BPM', "Complete '{0}'"), taskRecord.get('name')));
+                } else {
+                    topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.startTaskTitle', 'BPM', "Start '{0}'"), taskRecord.get('name')));
+                }
 
                 me.getApplication().fireEvent('changecontentevent', editTaskView);
                 if (me.getPriority()) {
