@@ -6,11 +6,13 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.Location;
@@ -19,9 +21,12 @@ import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterFilter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.PurgeConfiguration;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
@@ -48,6 +53,9 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Effective;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
@@ -56,6 +64,7 @@ import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DayMonthTime;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 import org.osgi.framework.BundleContext;
 
 import javax.validation.constraints.NotNull;
@@ -274,6 +283,22 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public Query<Meter> getMeterWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes) {
+        QueryExecutor<Meter> meterQuery = dataModel.query(Meter.class, MeterActivation.class, ChannelsContainer.class, Channel.class);
+
+        Condition suspectCondition = where("typeCode").in(Stream.of(readingQualityTypes).map(ReadingQualityType::getCode).collect(Collectors.toList()));
+        if (!Range.all().equals(readingQualityTimestamp)) {
+            suspectCondition = suspectCondition.and(where("readingTimestamp").in(readingQualityTimestamp));
+        }
+        Subquery rqrSubQuery = dataModel.query(ReadingQualityRecord.class).asSubquery(suspectCondition, "channelid");
+        Membership channelsIn = ListOperator.IN.contains(rqrSubQuery, "meterActivations.channelsContainer.channels.id");
+        // we need this subquery condition because oracle cannot handle coordinates in a distinct
+        Condition devicesWithSuspectChannels = ListOperator.IN.contains(meterQuery.asSubquery(channelsIn, "id"), "id");
+        meterQuery.setRestriction(devicesWithSuspectChannels);
+        return queryService.wrap(meterQuery);
+    }
+
+    @Override
     public Query<MeterActivation> getMeterActivationQuery() {
         return queryService.wrap(
                 dataModel.query(MeterActivation.class,
@@ -356,6 +381,19 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Optional<MeterActivation> findMeterActivation(long id) {
         return dataModel.mapper(MeterActivation.class).getOptional(id);
+    }
+
+    @Override
+    public Finder<Meter> findMeters(MeterFilter filter) {
+        Condition condition = Condition.TRUE;
+        if (!Checks.is(filter.getMrid()).emptyOrOnlyWhiteSpace()) {
+            condition = condition.and(where("mRID").likeIgnoreCase(filter.getMrid()));
+        }
+
+        condition = condition.and(ListOperator.NOT_IN.contains(DefaultFinder.of(EndDeviceLifeCycleStatus.class, where("state.name")
+                .in(filter.getStates()).and(where("interval").isEffective()), dataModel, State.class).asSubQuery("enddevice"), "id"));
+
+        return DefaultFinder.of(Meter.class, condition, dataModel).defaultSortColumn("mRID");
     }
 
     @Override
