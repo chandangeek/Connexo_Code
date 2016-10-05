@@ -66,38 +66,14 @@ Ext.define('Imt.util.CommonFields', {
         return fields;
     },
 
-    prepareCustomProperties: function(properties, upCustomPropertySets) {
-        var attributes = '',
-            valueRegExp = /(-?\d*)\:-?\d*\:.*/,
-            propertyValue;
+    prepareCustomProperties: function (properties) {
+        var me = this,
+            attributes = '';
+
         properties.each(function (cps) {
-            attributes += cps.get('name');
-
-            if(upCustomPropertySets){
-                upCustomPropertySets.each(function (upCustomPropertySet) {
-                    if(upCustomPropertySet.get('customPropertySetId') == cps.get('customPropertySet').id){
-                        upCustomPropertySet.properties().each(function(property){
-                            if(cps.get('key') == property.get('key')){
-                                if(property.getPropertyValue().get('value') && property.getPropertyValue().get('value').displayValue){
-                                    propertyValue = property.getPropertyValue().get('value').id.replace(valueRegExp, '$1') + ' '
-                                        + property.getPropertyValue().get('value').displayValue;
-                                } else if (property.getPropertyValue().get('value')){
-                                    propertyValue = property.getPropertyValue().get('value');
-                                } else {
-                                    propertyValue = '-'
-                                }
-                                attributes += ': ' + propertyValue;
-                            }
-                        });
-
-                    }
-                });
-
-            }
-            attributes += '<span class="icon-info" style="display: inline-block; font-size:16px; margin-left: 16px" data-qtip="'
-                + Uni.I18n.translate('general.tooltip.partOfCustomAttributeSet', 'IMT', 'Part of {0} custom attribute set', [cps.get('customPropertySet').name])
-                + '"></span>';
-            attributes += '<br>';
+            attributes += cps.get('name')
+                + me.prepareCustomPropertyInfoIcon(cps.get('customPropertySet').name)
+                + '<br>';
         });
 
         return attributes
@@ -107,5 +83,13 @@ Ext.define('Imt.util.CommonFields', {
             htmlEncode: false,
             value: attributes
         } : null;
+    },
+
+    prepareCustomPropertyInfoIcon: function (customPropertySetName) {
+        var tooltip = Uni.I18n.translate('general.tooltip.partOfCustomAttributeSet', 'IMT', 'Part of {0} custom attribute set', [customPropertySetName]);
+
+        return '<span class="icon-info" style="display: inline-block; font-size:16px; margin-left: 16px" data-qtip="'
+            + tooltip
+            + '"></span>'
     }
 });
