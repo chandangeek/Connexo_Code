@@ -13,6 +13,7 @@ import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.security.*;
+import com.energyict.mdc.protocol.tasks.support.ProtocolLoggingSupport;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -36,7 +37,7 @@ import java.util.logging.Logger;
  * Time: 13:30
  * Author: khe
  */
-public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumberSupport {
+public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumberSupport, ProtocolLoggingSupport {
 
     protected DlmsProperties dlmsProperties;
     protected AbstractMeterTopology meterTopology;
@@ -348,6 +349,14 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
             logger = Logger.getLogger(this.getClass().getName());
         }
         return logger;
+    }
+
+    @Override
+    public void setProtocolLogger(Logger protocolLogger) {
+        if (protocolLogger!=null) {
+            this.logger = protocolLogger;
+            getLogger().finest("Protocol logger initialized with level: " + protocolLogger.getLevel().getName());
+        }
     }
 
     public OfflineDevice getOfflineDevice() {
