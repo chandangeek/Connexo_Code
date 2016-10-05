@@ -19,6 +19,7 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,9 +43,10 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
     private Map<String, List<DataValidationStatus>> channelsSuspects;
     private Boolean allDataValidated;
     private long totalSuspects;
-    private List<String> ruleValidators;
+    private Set<String> ruleValidators;
     private Range<Instant> range;
     private long dayCount;
+    private long runnningDeviceId;
 
     DataValidationKpiCalculator(DataValidationKpiImpl dataValidationKpi, Logger logger, DataValidationReportService dataValidationReportService, Clock clock) {
         this.dataValidationKpi = dataValidationKpi;
@@ -74,20 +76,21 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
 
     @Override
     public void store(long endDeviceId) {
+        runnningDeviceId = endDeviceId;
         if (dataValidationKpi.isCancelled()) {
             dataValidationKpi.dropDataValidationKpi();
             return;
         }
         Optional<? extends List<? extends KpiMember>> memberList = dataValidationKpiClone.getDataValidationKpiChildren().stream()
                 .filter(kpi -> !kpi.getChildKpi().getMembers().isEmpty()
-                        && dataValidationKpiClone.deviceIdAsString(kpi.getChildKpi().getMembers().get(0)).equals(String.valueOf(endDeviceId)))
+                        && dataValidationKpiClone.deviceIdAsString(kpi.getChildKpi().getMembers().get(0)).equals(String.valueOf(runnningDeviceId)))
                 //.equals("ValidationKpi_grp" + dataValidationKpiClone.getDeviceGroup().getId() + "_dev" + endDeviceId))
                 .map(foundKpi -> foundKpi.getChildKpi().getMembers()).findFirst();
         if (memberList.isPresent()) {
             for (int i = 0; i < dayCount; ++i) {
                 allDataValidated = true;
                 totalSuspects = 0;
-                ruleValidators = new ArrayList<>();
+                ruleValidators = new HashSet<>();
                 Instant localTimeStamp = currentZonedDateTime.minusDays(i).toInstant();
                 memberList.get().forEach(member -> {
                     if (dataValidationKpi.isCancelled()) {
@@ -118,25 +121,15 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
         }
     }
 
-    private Set<String> aggregateRuleValidators(Map<String, List<DataValidationStatus>> suspects) {
-        return Stream.of(
-                offendedRuleNames(suspects.entrySet().stream(), DataValidationKpiMemberTypes.REGISTER.fieldName()),
-                offendedRuleNames(suspects.entrySet().stream(), DataValidationKpiMemberTypes.CHANNEL.fieldName())
-        )
-                .flatMap(Function.identity())
-                .collect(Collectors.toSet());
 
-    }
+    private void aggregateRuleValidators(List<DataValidationStatus> list) {
+        ruleValidators.addAll(list.stream()
+                .map(DataValidationStatus::getOffendedRules)
+                .flatMap(Collection::stream)
+                .map(rule -> rule.getImplementation()
+                        .substring(rule.getImplementation().lastIndexOf(".") + 1).toUpperCase() + "_" + String.valueOf(runnningDeviceId))
+                .collect(Collectors.toSet()));
 
-    private Stream<String> offendedRuleNames(Stream<Map.Entry<String, List<DataValidationStatus>>> stream, String fieldName) {
-        return stream
-                .flatMap(entry -> entry.getValue().stream()
-                        .map(DataValidationStatus::getOffendedRules)
-                        .flatMap(Collection::stream)
-                        .map(rule -> rule.getImplementation()
-                                .substring(rule.getImplementation().lastIndexOf(".") + 1))
-                        .map(rule -> rule.toUpperCase() + "_" + entry.getKey()
-                                .replace(fieldName, "")));
     }
 
     public DataValidationKpi getDataValidationKpi() {
@@ -151,7 +144,7 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
         dailyDataValidationStatus.stream().forEach(status -> allDataValidated &= status.completelyValidated());
         long count = dailyDataValidationStatus.size();
         totalSuspects += count;
-        aggregateRuleValidators(map);
+        aggregateRuleValidators(dailyDataValidationStatus);
         member.score(localTimeStamp, new BigDecimal(count));
     }
 }
