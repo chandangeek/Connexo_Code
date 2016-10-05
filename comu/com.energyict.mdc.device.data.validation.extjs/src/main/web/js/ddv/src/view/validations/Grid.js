@@ -65,8 +65,10 @@ Ext.define('Ddv.view.validations.Grid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
+                deferLoading: true,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('validations.pagingtoolbarbottom.deviceWithSuspects', 'DDV', 'Devices with suspects per page')
+                itemsPerPageMsg: Uni.I18n.translate('validations.pagingtoolbarbottom.deviceWithSuspects', 'DDV', 'Devices with suspects per page'),
+                deferLoading: true
             }
         ];
 
