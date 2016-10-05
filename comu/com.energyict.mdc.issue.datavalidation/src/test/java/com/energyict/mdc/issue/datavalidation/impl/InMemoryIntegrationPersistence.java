@@ -71,6 +71,7 @@ import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,6 +82,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class InMemoryIntegrationPersistence {
+
+    private static final Clock clock = mock(Clock.class);
 
     private TransactionService transactionService;
     private InMemoryBootstrapModule bootstrapModule;
@@ -129,7 +132,7 @@ public class InMemoryIntegrationPersistence {
                 new OrmModule(),
                 new DataVaultModule(),
                 new TaskModule(),
-                new UtilModule(),
+                new UtilModule(clock),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(showSqlLogging),
@@ -168,6 +171,10 @@ public class InMemoryIntegrationPersistence {
         this.bootstrapModule.deactivate();
     }
 
+    public Clock getClock(){
+        return clock;
+    }
+
     public TransactionService getTransactionService() {
         return transactionService;
     }
@@ -179,6 +186,7 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(Clock.class).toInstance(clock);
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
 
