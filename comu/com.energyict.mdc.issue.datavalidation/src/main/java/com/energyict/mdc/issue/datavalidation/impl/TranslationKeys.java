@@ -37,6 +37,6 @@ public enum TranslationKeys implements TranslationKey {
     }
 
     public String getTranslated(Thesaurus thesaurus) {
-        return thesaurus.getString(this.getKey(), this.getDefaultFormat());
+        return thesaurus.getFormat(this).format();
     }
 }
