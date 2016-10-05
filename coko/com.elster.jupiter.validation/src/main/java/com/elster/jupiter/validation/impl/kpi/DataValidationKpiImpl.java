@@ -129,7 +129,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
                                 .named(member + id)
                                 .add()
                 );
-        builder.named("ValidationKpi"+id);
+        builder.named("ValidationKpi_grp" + getDeviceGroup().getId() + "_dev" + id);
         childrenKpis.add(DataValidationKpiChildImpl.from(dataModel, this, builder.create()));
     }
 
@@ -211,11 +211,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     @Override
     public boolean isCancelled() {
         Optional<RecurrentTask> validationTask = this.dataValidationKpiTask.getOptional();
-        if (validationTask.isPresent()) {
-            return taskService.getRecurrentTask(validationTask.get().getId()).get().getNextExecution() == null;
-        } else {
-            return true;
-        }
+        return !validationTask.isPresent() || taskService.getRecurrentTask(validationTask.get().getId()).get().getNextExecution() == null;
     }
 
     @Override

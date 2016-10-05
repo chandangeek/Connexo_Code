@@ -79,7 +79,7 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
             return;
         }
         Optional<? extends List<? extends KpiMember>> memberList = dataValidationKpiClone.getDataValidationKpiChildren().stream()
-                .filter(kpi -> kpi.getChildKpi().getName().equals("ValidationKpi" + endDeviceId))
+                .filter(kpi -> kpi.getChildKpi().getName().equals("ValidationKpi_grp" + dataValidationKpiClone.getDeviceGroup().getId() + "_dev" + endDeviceId))
                 .map(foundKpi -> foundKpi.getChildKpi().getMembers()).findFirst();
         if (memberList.isPresent()) {
             for (int i = 0; i < dayCount; ++i) {
