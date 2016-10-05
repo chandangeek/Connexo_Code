@@ -61,7 +61,6 @@ Ext.define('Ddv.controller.Validations', {
             }
             typeOfSuspects += rec.get('name');
         });
-        //previewContainer.down('#type-of-suspects-validations-preview').setValue((typeOfSuspects.length > 0) ? typeOfSuspects : '-');
         Ext.resumeLayouts(true);
     }
 });
