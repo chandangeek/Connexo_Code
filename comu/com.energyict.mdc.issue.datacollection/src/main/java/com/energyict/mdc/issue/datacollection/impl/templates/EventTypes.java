@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 public class EventTypes {
 
@@ -13,7 +13,7 @@ public class EventTypes {
 
     public EventTypes(Thesaurus thesaurus, DataCollectionEventDescription... eventTypes) {
         this.thesaurus = thesaurus;
-        this.eventTypes = Arrays.asList(eventTypes).stream().map(EventType::new).toArray(EventType[]::new);
+        this.eventTypes = Stream.of(eventTypes).map(EventType::new).toArray(EventType[]::new);
     }
 
     public EventType[] getEventTypes() {
@@ -35,7 +35,7 @@ public class EventTypes {
 
         @Override
         public String getName() {
-            return thesaurus.getString(event.getTitle().getKey(), event.getTitle().getDefaultFormat());
+            return thesaurus.getFormat(event.getTitle()).format();
         }
     }
 }
