@@ -4,16 +4,19 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
+import org.junit.Test;
+import org.mockito.Matchers;
+
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -67,9 +70,7 @@ public class MeterResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGetMeterUnexisting(){
-        Query<Meter> query = mock(Query.class);
-        when(query.select(Matchers.any(Condition.class))).thenReturn(Collections.emptyList());
-        when(meteringService.getMeterQuery()).thenReturn(query);
+        when(meteringService.findMeterByMRID("mrid")).thenReturn(Optional.empty());
         Response response = target("/meters/mrid").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
@@ -77,9 +78,7 @@ public class MeterResourceTest extends IssueRestApplicationJerseyTest {
     @Test
     public void testGetMeter(){
         Meter meter = mockMeter(1, "0.0.0.1");
-        Query<Meter> query = mock(Query.class);
-        when(query.select(Matchers.any(Condition.class))).thenReturn(Collections.singletonList(meter));
-        when(meteringService.getMeterQuery()).thenReturn(query);
+        when(meteringService.findMeterByMRID("0.0.0.1")).thenReturn(Optional.of(meter));
         Map<String, Object> map = target("/meters/0.0.0.1").request().get(Map.class);
         assertThat(((Map)map.get("data")).get("id")).isEqualTo(1);
     }

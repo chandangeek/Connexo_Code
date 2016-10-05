@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
+import com.elster.jupiter.issue.rest.response.ResponseHelper;
 import com.elster.jupiter.issue.rest.response.device.MeterShortInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.metering.Meter;
@@ -62,11 +63,10 @@ public class MeterResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
     public Response getMeter(@PathParam(ID) String mrid){
-        Query<Meter> meterQuery = getMeteringService().getMeterQuery();
-        List<Meter> meters = meterQuery.select(where("mRID").isEqualTo(mrid));
-        if(meters == null || meters.isEmpty()){
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        return entity(new MeterShortInfo(meters.get(0))).build();
+        return getMeteringService().findMeterByMRID(mrid)
+                .map(MeterShortInfo::new)
+                .map(ResponseHelper::entity)
+                .map(Response.ResponseBuilder::build)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 }
