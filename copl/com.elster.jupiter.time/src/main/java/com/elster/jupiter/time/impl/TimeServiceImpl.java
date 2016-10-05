@@ -202,55 +202,50 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
         TimeDuration every = expression.getEvery();
         int count = every.getCount();
         TimeDuration.TimeUnit unit = every.getTimeUnit();
-        String everyTranslation = thesaurus.getFormat(TranslationKeys.every).format();
 
-        String unitTranslation = unit.getDescription();
         if (unit.equals(TimeDuration.TimeUnit.MINUTES)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.minute).format();
+                return thesaurus.getFormat(Labels.EVERY_MINUTE).format();
             } else {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.minutes).format();
+                return thesaurus.getFormat(Labels.EVERY_N_MINUTES).format(count);
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.HOURS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.hour).format();
+                return thesaurus.getFormat(Labels.EVERY_HOUR).format();
             } else {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.hours).format();
+                return thesaurus.getFormat(Labels.EVERY_N_HOUR).format(count);
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.day).format();
+                return thesaurus.getFormat(Labels.EVERY_DAY).format();
             } else {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.days).format();
+                return thesaurus.getFormat(Labels.EVERY_N_DAY).format(count);
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.week).format();
+                return thesaurus.getFormat(Labels.EVERY_WEEK).format();
             } else {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.weeks).format();
+                return thesaurus.getFormat(Labels.EVERY_N_WEEKS).format(count);
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.month).format();
+                return thesaurus.getFormat(Labels.EVERY_MONTH).format();
             } else {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.months).format();
+                return thesaurus.getFormat(Labels.EVERY_N_MONTHS).format(count);
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.year).format();
+                return thesaurus.getFormat(Labels.EVERY_YEAR).format();
             } else {
-                unitTranslation = thesaurus.getFormat(TranslationKeys.years).format();
+                return thesaurus.getFormat(Labels.EVERY_N_YEARS).format(count);
             }
-        }
-        if (count == 1) {
-            return everyTranslation + " " + unitTranslation;
         } else {
-            return everyTranslation + " " + count + " " + unitTranslation;
+            throw new IllegalArgumentException("Unknown time unit " + unit);
         }
     }
 

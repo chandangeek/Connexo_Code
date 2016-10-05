@@ -60,8 +60,6 @@ public enum TranslationKeys implements TranslationKey {
     years("years", "years"),
     ;
 
-
-
     private final String key;
     private final String defaultFormat;
 
@@ -79,4 +77,5 @@ public enum TranslationKeys implements TranslationKey {
     public String getDefaultFormat() {
         return defaultFormat;
     }
+
 }
