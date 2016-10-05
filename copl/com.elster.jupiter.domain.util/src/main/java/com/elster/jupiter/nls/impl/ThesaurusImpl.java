@@ -1,7 +1,6 @@
 package com.elster.jupiter.nls.impl;
 
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -130,24 +129,38 @@ class ThesaurusImpl implements IThesaurus {
         translations.clear();
     }
 
-    void createNewTranslationKeys(TranslationKeyProvider provider) {
+    void createNewTranslationKeys(TranslationKeyProvider provider, Languages languages) {
         List<NlsKeyImpl> newKeys = new ArrayList<>();
+        List<NlsKeyImpl> updateCandidates = new ArrayList<>();
         initTranslations(this.component, this.layer);
         provider.getKeys().forEach(translation -> {
-            if (!this.translations.containsKey(translation.getKey())) {
+            NlsKeyImpl nlsKey = this.translations.get(translation.getKey());
+            if (nlsKey == null) {
                 newKeys.add(newNlsKey(translation.getKey(), translation.getDefaultFormat()));
+            } else {
+                updateCandidates.add(nlsKey);
             }
         });
-        addNewTranslations(newKeys);
+        this.addNewTranslations(newKeys, languages);
+        this.updateExistingTranslations(updateCandidates, languages);
     }
 
-    private void addNewTranslations(List<NlsKeyImpl> nlsKeys) {
+    private void addNewTranslations(List<NlsKeyImpl> nlsKeys, Languages languages) {
         if (!nlsKeys.isEmpty()) {
             Set<String> uniqueIds = new HashSet<>();
-            List<NlsKey> uniqueKeys = nlsKeys.stream().filter(key -> uniqueIds.add(key.getKey())).collect(Collectors.toList());
-            dataModel.mapper(NlsKey.class).persist(uniqueKeys);
+            List<NlsKeyImpl> uniqueKeys = nlsKeys.stream().filter(key -> uniqueIds.add(key.getKey())).collect(Collectors.toList());
+            languages.addTranslationsTo(uniqueKeys);
+            dataModel.mapper(NlsKeyImpl.class).persist(uniqueKeys);
             updateTranslations(nlsKeys);
         }
+    }
+
+    private void updateExistingTranslations(List<NlsKeyImpl> nlsKeys, Languages languages) {
+        nlsKeys.forEach(nlsKey -> this.updateExisting(nlsKey, languages));
+    }
+
+    private void updateExisting(NlsKeyImpl nlsKey, Languages languages) {
+        languages.addTranslationsTo(nlsKey);
     }
 
     private NlsKeyImpl newNlsKey(String key, String defaultFormat) {

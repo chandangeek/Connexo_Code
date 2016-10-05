@@ -7,7 +7,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 enum TableSpecs {
 
@@ -33,9 +35,20 @@ enum TableSpecs {
             Column layerColumn = table.column("LAYER").varChar(10).notNull().conversion(ColumnConversion.CHAR2ENUM).add();
             Column keyColumn = table.column("KEY").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
             Column languageTag = table.column("LANGUAGETAG").varChar(20).notNull().map("languageTag").add();
-            table.column("TRANSLATION").varChar(SHORT_DESCRIPTION_LENGTH).map("translation").add();
-            table.primaryKey("NLS_PK_NLSENTRY").on(componentColumn, layerColumn, keyColumn, languageTag).add();
-            table.foreignKey("NLS_FK_KEY_ENTRY").on(componentColumn, layerColumn, keyColumn).references(NLS_KEY.name()).onDelete(CASCADE).map("nlsKey").reverseMap("entries").composition().add();
+            table.column("TRANSLATION").varChar(SHORT_DESCRIPTION_LENGTH).upTo(version(10, 2)).add();
+            table.column("TRANSLATION").varChar(MAX_STRING_LENGTH).map("translation").since(version(10, 2)).add();
+            table
+                .primaryKey("NLS_PK_NLSENTRY")
+                .on(componentColumn, layerColumn, keyColumn, languageTag)
+                .add();
+            table.foreignKey("NLS_FK_KEY_ENTRY")
+                    .on(componentColumn, layerColumn, keyColumn)
+                    .references(NLS_KEY.name())
+                    .onDelete(CASCADE)
+                    .map("nlsKey")
+                    .reverseMap("entries")
+                    .composition()
+                    .add();
         }
     };
 

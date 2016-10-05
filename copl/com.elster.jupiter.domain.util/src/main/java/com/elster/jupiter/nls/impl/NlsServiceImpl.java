@@ -13,7 +13,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.NestedTransactionException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -26,8 +25,10 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -39,6 +40,8 @@ import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.ValidationProviderResolver;
 import javax.validation.metadata.ConstraintDescriptor;
+import java.io.InputStream;
+import java.nio.file.FileSystem;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +50,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -61,6 +65,7 @@ public class NlsServiceImpl implements NlsService {
 
     private static final Pattern MESSAGE_PARAMETER_PATTERN = Pattern.compile("(\\{[^\\}]+?\\})");
 
+    private BundleContext bundleContext;
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
@@ -71,14 +76,18 @@ public class NlsServiceImpl implements NlsService {
     private volatile List<MessageSeedProvider> messageSeedProviders = new CopyOnWriteArrayList<>();
     private volatile boolean installed = false;
     private volatile UpgradeService upgradeService;
+    private volatile FileSystem fileSystem;
 
     private final Object translationLock = new Object();
-    private final Map<Pair<String, Layer>, IThesaurus> thesauri = new HashMap<>();
+    private Languages languages;
+    private final Map<Pair<String, Layer>, ThesaurusImpl> thesauri = new ConcurrentHashMap<>();
 
     private Map<NlsKey, NlsKeyImpl> uninstalledKeysMap = new HashMap<>();
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+        this.languages = Languages.withSettingsOf(this);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -92,33 +101,60 @@ public class NlsServiceImpl implements NlsService {
         installed = true; // upgradeService either installed, was up to date, or threw an Exception because upgrade was needed; in any case if we get here installed is true
     }
 
+    @Deactivate
+    public final void deactivate() {
+        this.languages.deactivate();
+    }
+
     public NlsServiceImpl() {
     }
 
     @Inject
-    public NlsServiceImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService, TransactionService transactionService, ValidationProviderResolver validationProviderResolver, UpgradeService upgradeService) {
+    public NlsServiceImpl(BundleContext context, FileSystem fileSystem, OrmService ormService, ThreadPrincipalService threadPrincipalService, TransactionService transactionService, ValidationProviderResolver validationProviderResolver, UpgradeService upgradeService) {
         this();
+        setFileSystem(fileSystem);
         setOrmService(ormService);
         setThreadPrincipalService(threadPrincipalService);
         setTransactionService(transactionService);
         setValidationProviderResolver(validationProviderResolver);
         setUpgradeService(upgradeService);
-        activate();
+        activate(context);
     }
 
     @Override
-    public Thesaurus getThesaurus(String componentName, Layer layer) {
-        IThesaurus thesaurus = thesauri.get(Pair.of(componentName, layer));
-        if(thesaurus == null) {
-            thesaurus = dataModel.getInstance(ThesaurusImpl.class).init(componentName, layer);
-            thesauri.put(Pair.of(componentName, layer), thesaurus);
-        }
-        return thesaurus;
+    public ThesaurusImpl getThesaurus(String componentName, Layer layer) {
+        return thesauri
+                    .computeIfAbsent(
+                        Pair.of(componentName, layer),
+                        componentAndLayer -> dataModel.getInstance(ThesaurusImpl.class).init(componentAndLayer.getFirst(), componentAndLayer.getLast()));
     }
 
     @Override
     public TranslationBuilder translate(NlsKey key) {
         return new TranslationBuilderImpl(key);
+    }
+
+    BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    @Override
+    public void addTranslations(InputStream in, Locale locale) {
+        new TranslationBatchCreator(locale, this).addTranslations(in);
+    }
+
+    @Override
+    public void updateTranslations(InputStream in, Locale locale) {
+        new TranslationBatchUpdater(locale, this).addTranslations(in);
+    }
+
+    FileSystem getFileSystem() {
+        return fileSystem;
+    }
+
+    @Reference
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 
     @Reference
@@ -164,14 +200,13 @@ public class NlsServiceImpl implements NlsService {
                 try {
                     setPrincipal();
                     threadPrincipalService.set("INSTALL-translation", provider.getComponentName());
-                    // Attempt to setup a new transaction, required when a new bundle is activated
-                    try (TransactionContext context = this.transactionService.getContext()) {
+                    if (transactionService.isInTransaction()) {
                         doInstallProvider(provider);
-                        context.commit();
-                    }
-                    catch (NestedTransactionException e) {
-                        // Fails if we were already in transaction mode when installing a License, simply try again
-                        doInstallProvider(provider);
+                    } else {
+                        try (TransactionContext context = this.transactionService.getContext()) {
+                            doInstallProvider(provider);
+                            context.commit();
+                        }
                     }
                 } finally {
                     clearPrincipal();
@@ -200,14 +235,13 @@ public class NlsServiceImpl implements NlsService {
             if (installed) {
                 try {
                     this.setPrincipal();
-                    // Attempt to setup a new transaction, required when a new bundle is activated
-                    try (TransactionContext context = this.transactionService.getContext()) {
-                        this.doInstallProvider(provider);
-                        context.commit();
-                    }
-                    catch (NestedTransactionException e) {
-                        // Fails if we were already in transaction mode when installing a License, simply try again
+                    if (this.transactionService.isInTransaction()) {
                         doInstallProvider(provider);
+                    } else {
+                        try (TransactionContext context = this.transactionService.getContext()) {
+                            this.doInstallProvider(provider);
+                            context.commit();
+                        }
                     }
                 }
                 finally {
@@ -236,7 +270,7 @@ public class NlsServiceImpl implements NlsService {
         return () -> "Jupiter Installer";
     }
 
-    public void doInstall(DataModelUpgrader dataModelUpgrader) {
+    private void doInstall(DataModelUpgrader dataModelUpgrader) {
         synchronized (translationLock) {
             dataModelUpgrader.upgrade(dataModel, Version.latest());
             translationKeyProviders.forEach(this::doInstallProvider);
@@ -379,7 +413,7 @@ public class NlsServiceImpl implements NlsService {
         return parameter.substring(1, parameter.length() - 1);
     }
 
-    private void invalidate(String component, Layer layer) {
+    void invalidate(String component, Layer layer) {
         Optional.ofNullable(thesauri.get(Pair.of(component, layer)))
                 .ifPresent(IThesaurus::invalidate);
     }
@@ -418,6 +452,7 @@ public class NlsServiceImpl implements NlsService {
             translations.put(locale, translation);
             return this;
         }
+
         @Override
         public void add() {
             NlsKeyImpl nlsKey = dataModel.mapper(NlsKeyImpl.class).getOptional(key.getComponent(), key.getLayer(), key.getKey())
@@ -500,4 +535,5 @@ public class NlsServiceImpl implements NlsService {
         }
 
     }
+
 }

@@ -4,12 +4,13 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-import javax.inject.Inject;
 
 import static java.util.Objects.requireNonNull;
 
@@ -24,7 +25,7 @@ final class NlsKeyImpl implements NlsKey {
     private String defaultMessage;
     // composite association
     private List<NlsEntry> entries = new ArrayList<>();
-    private boolean fromDB = true;
+    private boolean persistent = true;
 
     @Inject
     NlsKeyImpl(DataModel dataModel) {
@@ -35,7 +36,7 @@ final class NlsKeyImpl implements NlsKey {
         this.componentName = requireNonNull(componentName);
         this.layer = requireNonNull(layer);
         this.key = requireNonNull(key);
-        fromDB = false;
+        this.persistent = false;
         return this;
     }
 
@@ -44,12 +45,24 @@ final class NlsKeyImpl implements NlsKey {
         this.layer = key.getLayer();
         this.key = key.getKey();
         this.defaultMessage = key.getDefaultMessage();
-        fromDB = false;
+        this.persistent = false;
         return this;
     }
 
     void add(Locale locale, String translation) {
-        entries.add(new NlsEntry(this, locale).translation(translation));
+        NlsEntry existingEntry = this.bestScore(locale);
+        if (existingEntry == null) {
+            this.entries.add(new NlsEntry(this, locale).translation(translation));
+        } else {
+            if (existingEntry.getTranslation().equals(translation)) {
+                return;
+            } else {
+                existingEntry.translation(translation);
+            }
+        }
+        if (this.persistent) {
+            this.save();
+        }
     }
 
     public void clearTranslations() {
@@ -57,11 +70,12 @@ final class NlsKeyImpl implements NlsKey {
     }
 
     void save() {
-        if (fromDB) {
+        if (persistent) {
             dataModel.mapper(NlsKeyImpl.class).update(this);
         } else {
             dataModel.mapper(NlsKeyImpl.class).persist(this);
         }
+        this.persistent = true;
     }
 
     @Override
@@ -89,17 +103,22 @@ final class NlsKeyImpl implements NlsKey {
     }
 
     Optional<String> translate(Locale requested) {
-        Scorer scorer = new Scorer(requested);
-        NlsEntry max = null;
+        NlsEntry max = this.bestScore(requested);
+        return max == null ? fallBack(requested) : Optional.of(max.getTranslation());
+    }
+
+    private NlsEntry bestScore(Locale locale) {
+        Scorer scorer = new Scorer(locale);
+        NlsEntry bestCandidate = null;
         int maxScore = 0;
         for (NlsEntry candidate : entries) {
             int score = scorer.score(candidate.getLocale());
             if (score > maxScore) {
-                max = candidate;
+                bestCandidate = candidate;
                 maxScore = score;
             }
         }
-        return maxScore == 0 ? fallBack(requested) : Optional.of(max.getTranslation());
+        return bestCandidate;
     }
 
     private Optional<String> fallBack(Locale requested) {
