@@ -18,7 +18,7 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
 
     public static final String TASK_DESTINATION = "ValKpiCalcTopic";
     public static final String TASK_SUBSCRIBER = "ValKpiCalc";
-    public static final String TASK_SUBSCRIBER_DISPLAYNAME = "Calculate data validation kpi's";
+    public static final String TASK_SUBSCRIBER_DISPLAYNAME = "Calculate validation kpi's";
 
     private volatile TaskService taskService;
     private volatile DataValidationKpiService dataValidationKpiService;
