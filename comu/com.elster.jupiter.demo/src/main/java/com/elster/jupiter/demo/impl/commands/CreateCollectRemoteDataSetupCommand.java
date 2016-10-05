@@ -1,5 +1,6 @@
 package com.elster.jupiter.demo.impl.commands;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
@@ -54,9 +55,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class CreateCollectRemoteDataSetupCommand {
+    private static final String CALENDAR_IMPORTER_FACTORY = "CalendarImporterFactory";
     private final LicenseService licenseService;
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
+    private final CalendarService calendarService;
     private final Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider;
@@ -64,14 +67,13 @@ public class CreateCollectRemoteDataSetupCommand {
     private final Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider;
     private final Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider;
     private final Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider;
+    private final Provider<FileImportCommand> fileImportCommandProvider;
 
     private String comServerName;
     private String host;
     private Integer devicesPerType = null;
     private int deviceCounter = 0;
-    private Location location;
     private SpatialCoordinates spatialCoordinates;
-
 
     private static final List<String> administrativeAreaList = Arrays.asList("Ohio,Massachusetts,Tennessee,California,Maryland,Florida,Florida,California,California,California,Texas,Texas,Pennsylvania,Washington,Texas,South Dakota,California,Indiana,Louisiana,North Carolina,Washington,California,Hawaii,Oklahoma,Tennessee,Georgia,Florida,West Virginia,Nevada,California,New York,Colorado,Pennsylvania,Ohio,Texas,Texas,Iowa,Florida,Georgia,Texas,Missouri,Pennsylvania,Michigan,Utah,Minnesota,California,Hawaii,Georgia,Tennessee,Nevada,Florida,Georgia,California,Nevada,Indiana,Wisconsin,California,Alabama,Georgia,Colorado,Pennsylvania,Utah,New York,Florida,Texas,Florida,New York,Missouri,Georgia,Indiana,Minnesota,Florida,Ohio,Colorado,District of Columbia,Kentucky,Virginia,Virginia,New York,District of Columbia,Texas,Minnesota,Louisiana,Nevada,Arizona,Nevada,New York,Louisiana,North Carolina,California,Colorado,California,South Carolina,Alabama,Florida,Virginia,Alabama,California,Hawaii"
             .split(","));
@@ -98,16 +100,19 @@ public class CreateCollectRemoteDataSetupCommand {
             LicenseService licenseService,
             MeteringService meteringService,
             MeteringGroupsService meteringGroupsService,
+            CalendarService calendarService,
             Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider,
             Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
             Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
             Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider,
             Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider,
             Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider,
-            Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider) {
+            Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider,
+            Provider<FileImportCommand> fileImportCommandProvider) {
         this.licenseService = licenseService;
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
+        this.calendarService = calendarService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
         this.connectionsDevicePostBuilderProvider = connectionsDevicePostBuilderProvider;
@@ -115,6 +120,7 @@ public class CreateCollectRemoteDataSetupCommand {
         this.setUsagePointToDevicePostBuilderProvider = setUsagePointToDevicePostBuilderProvider;
         this.setValidateOnStorePostBuilderProvider = setValidateOnStorePostBuilderProvider;
         this.attachDeviceTypeCPSPostBuilderProvider = attachDeviceTypeCPSPostBuilderProvider;
+        this.fileImportCommandProvider = fileImportCommandProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -129,16 +135,12 @@ public class CreateCollectRemoteDataSetupCommand {
         this.devicesPerType = devicesPerType;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
     public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
         this.spatialCoordinates = spatialCoordinates;
     }
 
     public void run() {
-        paramersCheck();
+        parametersCheck();
         licenseCheck();
         createComBackground();
         createRegisterTypes();
@@ -147,6 +149,7 @@ public class CreateCollectRemoteDataSetupCommand {
         createLoadProfileTypes();
         createComTasks();
         createComSchedules();
+        createCalendars();
         createDeviceStructure();
         createCreationRules();
         createAssignmentRules();
@@ -154,7 +157,7 @@ public class CreateCollectRemoteDataSetupCommand {
         createKpi();
     }
 
-    private void paramersCheck() {
+    private void parametersCheck() {
         if (this.comServerName == null) {
             throw new UnableToCreate("You must specify a name for active com server");
         }
@@ -235,6 +238,21 @@ public class CreateCollectRemoteDataSetupCommand {
     private void createAssignmentRules() {
         CreateAssignmentRulesCommand command = this.createAssignmentRulesCommandProvider.get();
         command.run();
+    }
+
+    private void createCalendars() {
+        if (!this.calendarService.findCalendarByMRID("Re-Cu-01").isPresent()) {
+            this.fileImportCommandProvider.get()
+                    .useImporter(CALENDAR_IMPORTER_FACTORY)
+                    .content(this.getClass().getResourceAsStream("re-cu-01.xml"))
+                    .run();
+        }
+        if (!this.calendarService.findCalendarByMRID("Re-Cu-02").isPresent()) {
+            this.fileImportCommandProvider.get()
+                    .useImporter(CALENDAR_IMPORTER_FACTORY)
+                    .content(this.getClass().getResourceAsStream("re-cu-02.xml"))
+                    .run();
+        }
     }
 
     private void createDeviceStructure() {

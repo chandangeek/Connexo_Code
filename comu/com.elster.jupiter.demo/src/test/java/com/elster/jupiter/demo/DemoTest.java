@@ -4,6 +4,7 @@ import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
+import com.elster.jupiter.calendar.impl.importers.CalendarImporterFactory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -783,6 +784,7 @@ public class DemoTest {
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(SecurityAttributesImportFactory.class));
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceInstallationImporterFactory.class));
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceRemoveImportFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(CalendarImporterFactory.class));
 
         ((DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
         ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(StandardCsvDataFormatterFactory.class), ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));

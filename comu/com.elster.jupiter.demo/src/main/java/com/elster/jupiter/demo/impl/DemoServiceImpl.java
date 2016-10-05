@@ -1,6 +1,7 @@
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
 import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
@@ -18,6 +19,7 @@ import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
 import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
+import com.elster.jupiter.demo.impl.commands.FileImportCommand;
 import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
@@ -76,6 +78,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.security.Principal;
@@ -107,7 +111,8 @@ import java.time.Clock;
         "osgi.command.function=setUpFirmwareManagement",
         "osgi.command.function=createImporters",
         "osgi.command.function=createDemoUser",
-        "osgi.command.function=createDataLogger"
+        "osgi.command.function=createDataLogger",
+        "osgi.command.function=importCalendar",
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -151,11 +156,12 @@ public class DemoServiceImpl {
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile CalendarService calendarService;
 
     private Injector injector;
     private boolean reThrowEx = false;
 
-    public DemoServiceImpl(){
+    public DemoServiceImpl() {
     }
 
     @Inject
@@ -198,7 +204,8 @@ public class DemoServiceImpl {
             SearchService searchService,
             MetrologyConfigurationService metrologyConfigurationService,
             CustomPropertySetService customPropertySetService,
-            DeviceMessageSpecificationService deviceMessageSpecificationService) {
+            DeviceMessageSpecificationService deviceMessageSpecificationService,
+            CalendarService calendarService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -239,12 +246,13 @@ public class DemoServiceImpl {
         setMetrologyConfigurationService(metrologyConfigurationService);
         setCustomPropertySetService(customPropertySetService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setCalendarService(calendarService);
         activate();
         reThrowEx = true;
     }
 
     @Activate
-    public void activate(){
+    public void activate() {
         this.injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
@@ -291,6 +299,7 @@ public class DemoServiceImpl {
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+                bind(CalendarService.class).toInstance(calendarService);
             }
         });
         Builders.initWith(this.injector);
@@ -532,11 +541,17 @@ public class DemoServiceImpl {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
+    @Reference
+    @SuppressWarnings("unused")
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
+    }
+
     private void executeTransaction(Runnable toRunInsideTransaction) {
         setPrincipal();
         try {
             System.out.println("Starting execution");
-            transactionService.execute(() ->{
+            transactionService.execute(() -> {
                 toRunInsideTransaction.run();
                 return null;
             });
@@ -565,20 +580,20 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createA3Device(){
+    public void createA3Device() {
         executeTransaction(() -> {
             CreateA3DeviceCommand command = injector.getInstance(CreateA3DeviceCommand.class);
             command.run();
         });
     }
 
-    public void createDataLogger(String dataLoggerMrid, String dataLoggerSerial, int numberOfSlaves){
+    public void createDataLogger(String dataLoggerMrid, String dataLoggerSerial, int numberOfSlaves) {
         executeTransaction(() -> {
             CreateDataLoggerSetupCommand command = injector.getInstance(CreateDataLoggerSetupCommand.class);
-            if (!Strings.isNullOrEmpty(dataLoggerMrid)){
+            if (!Strings.isNullOrEmpty(dataLoggerMrid)) {
                 command.setDataLoggerMrid(dataLoggerMrid);
             }
-            if (!Strings.isNullOrEmpty(dataLoggerSerial)){
+            if (!Strings.isNullOrEmpty(dataLoggerSerial)) {
                 command.setDataLoggerSerial(dataLoggerSerial);
             }
             command.setNumberOfSlaves(numberOfSlaves);
@@ -588,7 +603,7 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createG3DemoBoardDevices(){
+    public void createG3DemoBoardDevices() {
         executeTransaction(() -> {
             CreateG3DemoBoardCommand command = injector.getInstance(CreateG3DemoBoardCommand.class);
             command.run();
@@ -596,10 +611,10 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createG3Gateway(String mrid){
+    public void createG3Gateway(String mrid) {
         executeTransaction(() -> {
             CreateG3GatewayCommand command = injector.getInstance(CreateG3GatewayCommand.class);
-            if (mrid != null){ //Otherwise default mrId is Used
+            if (mrid != null) { //Otherwise default mrId is Used
                 command.setGatewayMrid(mrid);
             }
             command.run();
@@ -607,11 +622,11 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createG3SlaveAS3000(String mrid){
+    public void createG3SlaveAS3000(String mrid) {
         executeTransaction(() -> {
             CreateG3SlaveCommand command = injector.getInstance(CreateG3SlaveCommand.class);
             command.setConfig("AS3000");
-            if (mrid != null){ //Otherwise default mrId is Used
+            if (mrid != null) { //Otherwise default mrId is Used
                 command.setMrId(mrid);
             }
             command.run();
@@ -619,11 +634,11 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createG3SlaveAS220(String mrid){
+    public void createG3SlaveAS220(String mrid) {
         executeTransaction(() -> {
             CreateG3SlaveCommand command = injector.getInstance(CreateG3SlaveCommand.class);
             command.setConfig("AS220");
-            if (mrid != null){ //Otherwise default mrId is Used
+            if (mrid != null) { //Otherwise default mrId is Used
                 command.setMrId(mrid);
             }
             command.run();
@@ -664,7 +679,7 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createApplicationServer(String name){
+    public void createApplicationServer(String name) {
         executeTransaction(() -> {
             CreateApplicationServerCommand command = injector.getInstance(CreateApplicationServerCommand.class);
             command.setName(name);
@@ -681,22 +696,21 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(){
+    public void createDemoData() {
         System.err.println("Usage: createDemoData <comServerName> <host> <startDate, e.g. 2015-01-01> [<numberOfDevicesPerType>]");
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String startDate ){
+    public void createDemoData(String comServerName, String host, String startDate) {
         this.createDemoData(comServerName, host, startDate, null);
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType ) {
+    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType) {
         this.createDemoData(comServerName, host, startDate, numberOfDevicesPerType, false);
     }
 
     /**
-     *
      * @param comServerName
      * @param host
      * @param startDate
@@ -710,7 +724,7 @@ public class DemoServiceImpl {
             command.setComServerName(comServerName);
             command.setHost(host);
             command.setStartDate(startDate);
-            if(!dataModel.getSqlDialect().name().equalsIgnoreCase("H2")){
+            if (!dataModel.getSqlDialect().name().equalsIgnoreCase("H2")) {
                 command.setGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue("40.7922408:-74.4462162:0"));
             }
             if (numberOfDevicesPerType == null) {
@@ -724,20 +738,20 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createCollectRemoteDataSetup(String comServerName, String host){
+    public void createCollectRemoteDataSetup(String comServerName, String host) {
         this.createCollectRemoteDataSetup(comServerName, host, null);
     }
 
 
     @SuppressWarnings("unused")
-    public void createCollectRemoteDataSetup(String comServerName, String host, String numberOfDevicesPerType){
+    public void createCollectRemoteDataSetup(String comServerName, String host, String numberOfDevicesPerType) {
         executeTransaction(() -> {
             CreateCollectRemoteDataSetupCommand command = injector.getInstance(CreateCollectRemoteDataSetupCommand.class);
             command.setComServerName(comServerName);
             command.setHost(host);
-            if (numberOfDevicesPerType != null){
+            if (numberOfDevicesPerType != null) {
                 command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
-            }else{
+            } else {
                 command.setDevicesPerType(null);
             }
             command.run();
@@ -745,7 +759,7 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createValidationSetup(){
+    public void createValidationSetup() {
         executeTransaction(() -> {
             CreateValidationSetupCommand command = injector.getInstance(CreateValidationSetupCommand.class);
             command.run();
@@ -753,7 +767,7 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createEstimationSetup(){
+    public void createEstimationSetup() {
         executeTransaction(() -> {
             CreateEstimationSetupCommand command = injector.getInstance(CreateEstimationSetupCommand.class);
             command.run();
@@ -761,7 +775,7 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createNtaConfig(){
+    public void createNtaConfig() {
         executeTransaction(() -> {
             CreateNtaConfigCommand command = injector.getInstance(CreateNtaConfigCommand.class);
             command.run();
@@ -769,7 +783,7 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createAssignmentRules(){
+    public void createAssignmentRules() {
         executeTransaction(() -> {
             CreateAssignmentRulesCommand command = injector.getInstance(CreateAssignmentRulesCommand.class);
             command.run();
@@ -777,7 +791,7 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createValidationDevice(String serialNumber){
+    public void createValidationDevice(String serialNumber) {
         executeTransaction(() -> {
             CreateValidationDeviceCommand command = injector.getInstance(CreateValidationDeviceCommand.class);
             command.setSerialNumber(serialNumber);
@@ -787,7 +801,7 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createMockedDataDevice(String serialNumber){
+    public void createMockedDataDevice(String serialNumber) {
         executeTransaction(() -> {
             CreateDeviceCommand command = injector.getInstance(CreateDeviceCommand.class);
             command.setSerialNumber(serialNumber);
@@ -797,7 +811,7 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createDeviceType(String deviceTypeName, String host){
+    public void createDeviceType(String deviceTypeName, String host) {
         executeTransaction(() -> {
             CreateDeviceTypeCommand command = injector.getInstance(CreateDeviceTypeCommand.class);
             command.setDeviceTypeName(deviceTypeName);
@@ -807,56 +821,80 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createDeliverDataSetup(){
+    public void createDeliverDataSetup() {
         executeTransaction(() -> {
             CreateDeliverDataSetupCommand command = injector.getInstance(CreateDeliverDataSetupCommand.class);
             command.run();
         });
     }
+
     @SuppressWarnings("unused")
-    public void createDefaultDeviceLifeCycle(){
+    public void createDefaultDeviceLifeCycle() {
         System.err.println("Usage: createDefaultDeviceLifeCycle <startDate, e.g. 2015-01-01>");
     }
 
-    public void createDefaultDeviceLifeCycle(String lastCheckedDate){
+    public void createDefaultDeviceLifeCycle(String lastCheckedDate) {
         executeTransaction(() -> {
             CreateDefaultDeviceLifeCycleCommand command = injector.getInstance(CreateDefaultDeviceLifeCycleCommand.class);
             command.setLastCheckedDate(lastCheckedDate);
             command.run();
         });
     }
+
     @SuppressWarnings("unused")
-    public void setUpFirmwareManagement(){
+    public void setUpFirmwareManagement() {
         executeTransaction(() -> {
             SetupFirmwareManagementCommand command = injector.getInstance(SetupFirmwareManagementCommand.class);
             command.run();
         });
     }
 
-    public void createImporters(){
+    public void createImporters() {
         executeTransaction(() -> {
             CreateImportersCommand command = injector.getInstance(CreateImportersCommand.class);
             command.run();
         });
     }
+
     @SuppressWarnings("unused")
-    public void createImporters(String appServerName){
+    public void createImporters(String appServerName) {
         executeTransaction(() -> {
             CreateImportersCommand command = injector.getInstance(CreateImportersCommand.class);
             command.setAppServerName(appServerName);
             command.run();
         });
     }
+
     @SuppressWarnings("unused")
-    public void createDemoUser(){
+    public void createDemoUser() {
         System.err.println("Usage: createDemoUser <user name>");
     }
 
-    public void createDemoUser(String name){
+    public void createDemoUser(String name) {
         executeTransaction(() -> {
-            CreateDemoUserCommand command= injector.getInstance(CreateDemoUserCommand.class);
+            CreateDemoUserCommand command = injector.getInstance(CreateDemoUserCommand.class);
             command.setUserName(name);
             command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void importCalendar() {
+        System.err.println("Usage: importCalendar <calendar xml location>");
+    }
+
+    @SuppressWarnings("unused")
+    public void importCalendar(String fileName) {
+        executeTransaction(() -> {
+            try {
+                this.injector.getInstance(FileImportCommand.class)
+                        .useImporter("CalendarImporterFactory")
+                        .content(new FileInputStream(fileName))
+                        .onSuccess(msg -> System.out.println("Import result: " + msg))
+                        .run();
+            } catch (IOException e) {
+                throw new UnableToCreate("Import failed with error: " + e.getLocalizedMessage());
+            }
         });
     }
 }
