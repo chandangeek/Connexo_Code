@@ -346,10 +346,12 @@ Ext.define('Uni.grid.filtertop.Interval', {
         me.getFromDateField().reset();
         me.getFromHourField().reset();
         me.getFromMinuteField().reset();
+        me.getFromDateField().setMaxValue(null);
 
         me.getToDateField().reset();
         me.getToHourField().reset();
         me.getToMinuteField().reset();
+        me.getToDateField().setMinValue(null);
 
         me.getClearButton().setDisabled(true);
         me.updateTitle();
