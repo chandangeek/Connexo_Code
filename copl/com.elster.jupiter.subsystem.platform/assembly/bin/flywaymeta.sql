@@ -1,0 +1,3005 @@
+--------------------------------------------------------
+--  File created - vrijdag-mei-20-2016   
+--------------------------------------------------------
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.APS
+--------------------------------------------------------
+
+ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ', ';
+
+  CREATE TABLE "FLYWAYMETA.APS" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.BIA
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.BIA" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.BPM
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.BPM" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.CES
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.CES" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.CPC
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.CPC" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.CPS
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.CPS" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.CTS
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.CTS" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.DDC
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.DDC" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.DDI
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.DDI" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.DES
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.DES" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.DLD
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.DLD" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.DSI
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.DSI" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.DTC
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.DTC" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.DTL
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.DTL" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.DVA
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.DVA" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.EST
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.EST" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.EVT
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.EVT" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.FAV
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.FAV" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.FIS
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.FIS" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.FLI
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.FLI" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.FSM
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.FSM" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.FWC
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.FWC" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.HTP
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.HTP" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.IDC
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.IDC" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.IDS
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.IDS" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.IDV
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.IDV" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.ISU
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.ISU" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.KPI
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.KPI" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.LFC
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.LFC" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.LIC
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.LIC" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.MDA
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.MDA" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.MDC
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.MDC" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.MDS
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.MDS" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.MRI
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.MRI" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.MSG
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.MSG" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.MTG
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.MTG" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.MTI
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.MTI" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.MTR
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.MTR" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.NLS
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.NLS" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.PPC
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.PPC" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.PR1
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.PR1" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.PRT
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.PRT" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.SCH
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.SCH" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.SSA
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.SSA" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.TME
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.TME" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.TSK
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.TSK" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.UPC
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.UPC" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.USR
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.USR" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.VAL
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.VAL" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Table FLYWAYMETA.YFA
+--------------------------------------------------------
+
+  CREATE TABLE "FLYWAYMETA.YFA" 
+   (	"installed_rank" NUMBER(*,0), 
+	"version" VARCHAR2(50 BYTE), 
+	"description" VARCHAR2(200 BYTE), 
+	"type" VARCHAR2(20 BYTE), 
+	"script" VARCHAR2(1000 BYTE), 
+	"checksum" NUMBER(*,0), 
+	"installed_by" VARCHAR2(100 BYTE), 
+	"installed_on" TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP, 
+	"execution_time" NUMBER(*,0), 
+	"success" NUMBER(1,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+REM INSERTING into "FLYWAYMETA.APS"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.APS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:30,960766000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.APS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.appserver.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:31,496934000','DD/MM/RR HH24:MI:SSXFF'),'456','1');
+REM INSERTING into "FLYWAYMETA.BIA"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.BIA" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:06,352035000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.BIA" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.bpmissueaction.impl.install.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:06,477331000','DD/MM/RR HH24:MI:SSXFF'),'53','1');
+REM INSERTING into "FLYWAYMETA.BPM"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.BPM" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:20,482236000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.BPM" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.bpm.impl.InstallerImpl','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:20,895276000','DD/MM/RR HH24:MI:SSXFF'),'336','1');
+REM INSERTING into "FLYWAYMETA.CES"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.CES" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:31,045457000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.CES" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.engine.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:31,323743000','DD/MM/RR HH24:MI:SSXFF'),'202','1');
+REM INSERTING into "FLYWAYMETA.CPC"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.CPC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:17,228843000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.CPC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.pluggable.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:17,450417000','DD/MM/RR HH24:MI:SSXFF'),'138','1');
+REM INSERTING into "FLYWAYMETA.CPS"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.CPS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:32,604186000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.CPS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.cps.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:32,739930000','DD/MM/RR HH24:MI:SSXFF'),'55','1');
+REM INSERTING into "FLYWAYMETA.CTS"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.CTS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:09,953339000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.CTS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.tasks.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:10,536606000','DD/MM/RR HH24:MI:SSXFF'),'510','1');
+REM INSERTING into "FLYWAYMETA.DDC"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.DDC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:20,488820000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.DDC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.device.data.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:23,856180000','DD/MM/RR HH24:MI:SSXFF'),'3289','1');
+REM INSERTING into "FLYWAYMETA.DDI"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.DDI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:19,188927000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.DDI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.device.data.importers.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:19,364231000','DD/MM/RR HH24:MI:SSXFF'),'95','1');
+REM INSERTING into "FLYWAYMETA.DES"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.DES" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:34,230152000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.DES" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.export.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:35,680182000','DD/MM/RR HH24:MI:SSXFF'),'1353','1');
+REM INSERTING into "FLYWAYMETA.DLD"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.DLD" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:27,625625000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.DLD" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.device.lifecycle.config.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:28,619438000','DD/MM/RR HH24:MI:SSXFF'),'915','1');
+REM INSERTING into "FLYWAYMETA.DSI"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.DSI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:30:34,843949000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.DSI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.dashboard.rest.DashboardApplicationInstaller','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:30:42,581203000','DD/MM/RR HH24:MI:SSXFF'),'7655','1');
+REM INSERTING into "FLYWAYMETA.DTC"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.DTC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:16,420031000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.DTC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.device.config.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:19,121334000','DD/MM/RR HH24:MI:SSXFF'),'2626','1');
+REM INSERTING into "FLYWAYMETA.DTL"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.DTL" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:28,833204000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.DTL" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.device.topology.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:29,145855000','DD/MM/RR HH24:MI:SSXFF'),'234','1');
+REM INSERTING into "FLYWAYMETA.DVA"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.DVA" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:09,032019000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.DVA" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.datavault.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:09,512688000','DD/MM/RR HH24:MI:SSXFF'),'403','1');
+REM INSERTING into "FLYWAYMETA.EST"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.EST" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:12,567197000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.EST" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.estimation.impl.InstallerImpl','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:13,428848000','DD/MM/RR HH24:MI:SSXFF'),'785','1');
+REM INSERTING into "FLYWAYMETA.EVT"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.EVT" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:15,447745000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.EVT" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.events.impl.InstallerImpl','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:15,837914000','DD/MM/RR HH24:MI:SSXFF'),'309','1');
+REM INSERTING into "FLYWAYMETA.FAV"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.FAV" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:27,798462000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.FAV" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.favorites.impl.FavoritesServiceImpl$Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:28,093776000','DD/MM/RR HH24:MI:SSXFF'),'222','1');
+REM INSERTING into "FLYWAYMETA.FIS"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.FIS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:18,473983000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.FIS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.fileimport.impl.InstallerImpl','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:18,894656000','DD/MM/RR HH24:MI:SSXFF'),'345','1');
+REM INSERTING into "FLYWAYMETA.FLI"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.FLI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:28,381623000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.FLI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.device.data.rest.impl.FavoritesLabelInstaller','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:28,500839000','DD/MM/RR HH24:MI:SSXFF'),'42','1');
+REM INSERTING into "FLYWAYMETA.FSM"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.FSM" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:16,140943000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.FSM" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.fsm.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:16,619020000','DD/MM/RR HH24:MI:SSXFF'),'400','1');
+REM INSERTING into "FLYWAYMETA.FWC"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.FWC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:26,432869000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.FWC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.firmware.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:27,332076000','DD/MM/RR HH24:MI:SSXFF'),'822','1');
+REM INSERTING into "FLYWAYMETA.HTP"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.HTP" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:21,888455000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.HTP" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.http.whiteboard.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:22,204531000','DD/MM/RR HH24:MI:SSXFF'),'236','1');
+REM INSERTING into "FLYWAYMETA.IDC"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.IDC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:29,421097000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.IDC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.issue.datacollection.impl.install.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:30,277882000','DD/MM/RR HH24:MI:SSXFF'),'779','1');
+REM INSERTING into "FLYWAYMETA.IDS"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.IDS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:09,911773000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.IDS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.ids.impl.InstallerImpl','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:10,389460000','DD/MM/RR HH24:MI:SSXFF'),'392','1');
+REM INSERTING into "FLYWAYMETA.IDV"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.IDV" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:07,065655000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.IDV" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.issue.datavalidation.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:07,903785000','DD/MM/RR HH24:MI:SSXFF'),'759','1');
+REM INSERTING into "FLYWAYMETA.ISU"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.ISU" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:04,292055000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.ISU" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.issue.impl.module.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:05,837483000','DD/MM/RR HH24:MI:SSXFF'),'1467','1');
+REM INSERTING into "FLYWAYMETA.KPI"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.KPI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:19,736583000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.KPI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.kpi.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:20,071287000','DD/MM/RR HH24:MI:SSXFF'),'255','1');
+REM INSERTING into "FLYWAYMETA.LFC"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.LFC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:02,879948000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.LFC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.data.lifecycle.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:03,241774000','DD/MM/RR HH24:MI:SSXFF'),'285','1');
+REM INSERTING into "FLYWAYMETA.LIC"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.LIC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:17,788353000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.LIC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.license.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:17,996256000','DD/MM/RR HH24:MI:SSXFF'),'131','1');
+REM INSERTING into "FLYWAYMETA.MDA"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.MDA" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:35,976665000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.MDA" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.app.impl.MdcAppInstaller$Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:38,764907000','DD/MM/RR HH24:MI:SSXFF'),'2706','1');
+REM INSERTING into "FLYWAYMETA.MDC"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.MDC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:01,753385000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.MDC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.engine.config.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:02,159811000','DD/MM/RR HH24:MI:SSXFF'),'328','1');
+REM INSERTING into "FLYWAYMETA.MDS"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.MDS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:08,289337000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.MDS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.masterdata.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:09,646711000','DD/MM/RR HH24:MI:SSXFF'),'1279','1');
+REM INSERTING into "FLYWAYMETA.MRI"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.MRI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:14,425545000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.MRI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.multisense.api.impl.PublicRestApplicationInstaller$Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:14,604232000','DD/MM/RR HH24:MI:SSXFF'),'100','1');
+REM INSERTING into "FLYWAYMETA.MSG"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.MSG" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:10,857349000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.MSG" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.messaging.oracle.impl.InstallerImpl','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:11,990689000','DD/MM/RR HH24:MI:SSXFF'),'1048','1');
+REM INSERTING into "FLYWAYMETA.MTG"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.MTG" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:11,829269000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.MTG" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.metering.groups.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:12,256431000','DD/MM/RR HH24:MI:SSXFF'),'351','1');
+REM INSERTING into "FLYWAYMETA.MTI"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.MTI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:19,891179000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.MTI" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.metering.imports.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:20,065929000','DD/MM/RR HH24:MI:SSXFF'),'96','1');
+REM INSERTING into "FLYWAYMETA.MTR"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.MTR" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:34,824408000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.MTR" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.metering.impl.InstallerImpl','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:00,560905000','DD/MM/RR HH24:MI:SSXFF'),'145657','1');
+REM INSERTING into "FLYWAYMETA.NLS"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.NLS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:05,557251000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.NLS" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.nls.impl.NlsServiceImpl$NlsInstaller','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:08,553465000','DD/MM/RR HH24:MI:SSXFF'),'2898','1');
+REM INSERTING into "FLYWAYMETA.PPC"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.PPC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:00,940189000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.PPC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.protocol.pluggable.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:01,346324000','DD/MM/RR HH24:MI:SSXFF'),'330','1');
+REM INSERTING into "FLYWAYMETA.PR1"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.PR1" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:31,827767000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.PR1" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.protocols.mdc.services.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:31,918713000','DD/MM/RR HH24:MI:SSXFF'),'13','1');
+REM INSERTING into "FLYWAYMETA.PRT"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.PRT" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:33,748447000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.PRT" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.parties.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:34,191364000','DD/MM/RR HH24:MI:SSXFF'),'369','1');
+REM INSERTING into "FLYWAYMETA.SCH"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.SCH" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:10,819780000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.SCH" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.energyict.mdc.scheduling.model.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:11,194110000','DD/MM/RR HH24:MI:SSXFF'),'295','1');
+REM INSERTING into "FLYWAYMETA.SSA"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.SSA" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:44,149506000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.SSA" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.system.app.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:44,829725000','DD/MM/RR HH24:MI:SSXFF'),'606','1');
+REM INSERTING into "FLYWAYMETA.TME"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.TME" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:24,548845000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.TME" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.time.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:25,202545000','DD/MM/RR HH24:MI:SSXFF'),'574','1');
+REM INSERTING into "FLYWAYMETA.TSK"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.TSK" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:29,165564000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.TSK" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.tasks.impl.InstallerImpl','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:29,658201000','DD/MM/RR HH24:MI:SSXFF'),'413','1');
+REM INSERTING into "FLYWAYMETA.UPC"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.UPC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:15,499228000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.UPC" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.mdm.usagepoint.config.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:15,664882000','DD/MM/RR HH24:MI:SSXFF'),'91','1');
+REM INSERTING into "FLYWAYMETA.USR"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.USR" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:12,338814000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.USR" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.users.impl.InstallerImpl','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:25:13,684241000','DD/MM/RR HH24:MI:SSXFF'),'1265','1');
+REM INSERTING into "FLYWAYMETA.VAL"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.VAL" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:14,227511000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.VAL" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.validation.impl.InstallerImpl','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:28:15,231852000','DD/MM/RR HH24:MI:SSXFF'),'925','1');
+REM INSERTING into "FLYWAYMETA.YFA"
+SET DEFINE OFF;
+Insert into "FLYWAYMETA.YFA" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('1','0.0','<< Flyway Baseline >>','BASELINE','<< Flyway Baseline >>',null,'MDR_TEST8',to_timestamp('19/05/16 17:30:29,057161000','DD/MM/RR HH24:MI:SSXFF'),'0','1');
+Insert into "FLYWAYMETA.YFA" ("installed_rank","version","description","type","script","checksum","installed_by","installed_on","execution_time","success") values ('2','1.0','com.elster.jupiter.yellowfin.impl.Installer','JDBC','com.elster.jupiter.upgrade.impl.InstallerDriver',null,'MDR_TEST8',to_timestamp('19/05/16 17:30:33,914849000','DD/MM/RR HH24:MI:SSXFF'),'4774','1');
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.APS_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.APS_pk" ON "FLYWAYMETA.APS" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.APS_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.APS_s_idx" ON "FLYWAYMETA.APS" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.BIA_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.BIA_pk" ON "FLYWAYMETA.BIA" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.BIA_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.BIA_s_idx" ON "FLYWAYMETA.BIA" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.BPM_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.BPM_pk" ON "FLYWAYMETA.BPM" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.BPM_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.BPM_s_idx" ON "FLYWAYMETA.BPM" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.CES_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.CES_pk" ON "FLYWAYMETA.CES" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.CES_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.CES_s_idx" ON "FLYWAYMETA.CES" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.CPC_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.CPC_pk" ON "FLYWAYMETA.CPC" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.CPC_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.CPC_s_idx" ON "FLYWAYMETA.CPC" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.CPS_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.CPS_pk" ON "FLYWAYMETA.CPS" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.CPS_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.CPS_s_idx" ON "FLYWAYMETA.CPS" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.CTS_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.CTS_pk" ON "FLYWAYMETA.CTS" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.CTS_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.CTS_s_idx" ON "FLYWAYMETA.CTS" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DDC_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.DDC_pk" ON "FLYWAYMETA.DDC" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DDC_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.DDC_s_idx" ON "FLYWAYMETA.DDC" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DDI_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.DDI_pk" ON "FLYWAYMETA.DDI" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DDI_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.DDI_s_idx" ON "FLYWAYMETA.DDI" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DES_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.DES_pk" ON "FLYWAYMETA.DES" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DES_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.DES_s_idx" ON "FLYWAYMETA.DES" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DLD_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.DLD_pk" ON "FLYWAYMETA.DLD" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DLD_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.DLD_s_idx" ON "FLYWAYMETA.DLD" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DSI_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.DSI_pk" ON "FLYWAYMETA.DSI" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DSI_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.DSI_s_idx" ON "FLYWAYMETA.DSI" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DTC_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.DTC_pk" ON "FLYWAYMETA.DTC" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DTC_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.DTC_s_idx" ON "FLYWAYMETA.DTC" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DTL_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.DTL_s_idx" ON "FLYWAYMETA.DTL" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DTL_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.DTL_pk" ON "FLYWAYMETA.DTL" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DVA_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.DVA_pk" ON "FLYWAYMETA.DVA" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.DVA_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.DVA_s_idx" ON "FLYWAYMETA.DVA" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.EST_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.EST_pk" ON "FLYWAYMETA.EST" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.EST_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.EST_s_idx" ON "FLYWAYMETA.EST" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.EVT_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.EVT_pk" ON "FLYWAYMETA.EVT" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.EVT_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.EVT_s_idx" ON "FLYWAYMETA.EVT" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.FAV_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.FAV_pk" ON "FLYWAYMETA.FAV" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.FAV_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.FAV_s_idx" ON "FLYWAYMETA.FAV" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.FIS_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.FIS_pk" ON "FLYWAYMETA.FIS" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.FIS_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.FIS_s_idx" ON "FLYWAYMETA.FIS" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.FLI_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.FLI_pk" ON "FLYWAYMETA.FLI" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.FLI_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.FLI_s_idx" ON "FLYWAYMETA.FLI" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.FSM_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.FSM_pk" ON "FLYWAYMETA.FSM" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.FSM_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.FSM_s_idx" ON "FLYWAYMETA.FSM" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.FWC_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.FWC_pk" ON "FLYWAYMETA.FWC" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.FWC_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.FWC_s_idx" ON "FLYWAYMETA.FWC" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.HTP_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.HTP_pk" ON "FLYWAYMETA.HTP" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.HTP_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.HTP_s_idx" ON "FLYWAYMETA.HTP" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.IDC_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.IDC_pk" ON "FLYWAYMETA.IDC" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.IDC_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.IDC_s_idx" ON "FLYWAYMETA.IDC" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.IDS_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.IDS_pk" ON "FLYWAYMETA.IDS" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.IDS_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.IDS_s_idx" ON "FLYWAYMETA.IDS" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.IDV_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.IDV_pk" ON "FLYWAYMETA.IDV" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.IDV_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.IDV_s_idx" ON "FLYWAYMETA.IDV" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.ISU_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.ISU_pk" ON "FLYWAYMETA.ISU" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.ISU_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.ISU_s_idx" ON "FLYWAYMETA.ISU" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.KPI_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.KPI_pk" ON "FLYWAYMETA.KPI" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.KPI_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.KPI_s_idx" ON "FLYWAYMETA.KPI" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.LFC_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.LFC_pk" ON "FLYWAYMETA.LFC" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.LFC_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.LFC_s_idx" ON "FLYWAYMETA.LFC" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.LIC_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.LIC_pk" ON "FLYWAYMETA.LIC" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.LIC_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.LIC_s_idx" ON "FLYWAYMETA.LIC" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MDA_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.MDA_pk" ON "FLYWAYMETA.MDA" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MDA_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.MDA_s_idx" ON "FLYWAYMETA.MDA" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MDC_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.MDC_pk" ON "FLYWAYMETA.MDC" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MDC_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.MDC_s_idx" ON "FLYWAYMETA.MDC" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MDS_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.MDS_pk" ON "FLYWAYMETA.MDS" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MDS_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.MDS_s_idx" ON "FLYWAYMETA.MDS" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MRI_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.MRI_pk" ON "FLYWAYMETA.MRI" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MRI_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.MRI_s_idx" ON "FLYWAYMETA.MRI" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MSG_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.MSG_pk" ON "FLYWAYMETA.MSG" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MSG_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.MSG_s_idx" ON "FLYWAYMETA.MSG" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MTG_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.MTG_pk" ON "FLYWAYMETA.MTG" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MTG_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.MTG_s_idx" ON "FLYWAYMETA.MTG" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MTI_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.MTI_pk" ON "FLYWAYMETA.MTI" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MTI_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.MTI_s_idx" ON "FLYWAYMETA.MTI" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MTR_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.MTR_pk" ON "FLYWAYMETA.MTR" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.MTR_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.MTR_s_idx" ON "FLYWAYMETA.MTR" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.NLS_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.NLS_pk" ON "FLYWAYMETA.NLS" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.NLS_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.NLS_s_idx" ON "FLYWAYMETA.NLS" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.PPC_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.PPC_s_idx" ON "FLYWAYMETA.PPC" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.PPC_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.PPC_pk" ON "FLYWAYMETA.PPC" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.PR1_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.PR1_pk" ON "FLYWAYMETA.PR1" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.PR1_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.PR1_s_idx" ON "FLYWAYMETA.PR1" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.PRT_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.PRT_pk" ON "FLYWAYMETA.PRT" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.PRT_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.PRT_s_idx" ON "FLYWAYMETA.PRT" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.SCH_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.SCH_pk" ON "FLYWAYMETA.SCH" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.SCH_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.SCH_s_idx" ON "FLYWAYMETA.SCH" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.SSA_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.SSA_pk" ON "FLYWAYMETA.SSA" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.SSA_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.SSA_s_idx" ON "FLYWAYMETA.SSA" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.TME_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.TME_pk" ON "FLYWAYMETA.TME" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.TME_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.TME_s_idx" ON "FLYWAYMETA.TME" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.TSK_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.TSK_pk" ON "FLYWAYMETA.TSK" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.TSK_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.TSK_s_idx" ON "FLYWAYMETA.TSK" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.UPC_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.UPC_pk" ON "FLYWAYMETA.UPC" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.UPC_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.UPC_s_idx" ON "FLYWAYMETA.UPC" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.USR_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.USR_pk" ON "FLYWAYMETA.USR" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.USR_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.USR_s_idx" ON "FLYWAYMETA.USR" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.VAL_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.VAL_pk" ON "FLYWAYMETA.VAL" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.VAL_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.VAL_s_idx" ON "FLYWAYMETA.VAL" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.YFA_pk
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "FLYWAYMETA.YFA_pk" ON "FLYWAYMETA.YFA" ("installed_rank") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  DDL for Index FLYWAYMETA.YFA_s_idx
+--------------------------------------------------------
+
+  CREATE INDEX "FLYWAYMETA.YFA_s_idx" ON "FLYWAYMETA.YFA" ("success") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.APS
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.APS" ADD CONSTRAINT "FLYWAYMETA.APS_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.APS" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.APS" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.APS" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.APS" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.APS" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.APS" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.APS" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.APS" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.BIA
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.BIA" ADD CONSTRAINT "FLYWAYMETA.BIA_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.BIA" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BIA" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BIA" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BIA" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BIA" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BIA" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BIA" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BIA" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.BPM
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.BPM" ADD CONSTRAINT "FLYWAYMETA.BPM_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.BPM" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BPM" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BPM" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BPM" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BPM" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BPM" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BPM" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.BPM" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.CES
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.CES" ADD CONSTRAINT "FLYWAYMETA.CES_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.CES" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CES" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CES" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CES" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CES" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CES" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CES" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CES" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.CPC
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.CPC" ADD CONSTRAINT "FLYWAYMETA.CPC_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.CPC" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPC" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPC" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPC" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPC" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPC" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPC" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPC" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.CPS
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.CPS" ADD CONSTRAINT "FLYWAYMETA.CPS_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.CPS" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPS" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPS" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPS" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPS" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPS" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPS" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CPS" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.CTS
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.CTS" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CTS" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CTS" MODIFY ("installed_rank" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CTS" ADD CONSTRAINT "FLYWAYMETA.CTS_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.CTS" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CTS" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CTS" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CTS" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.CTS" MODIFY ("script" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.DDC
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.DDC" ADD CONSTRAINT "FLYWAYMETA.DDC_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.DDC" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDC" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDC" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDC" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDC" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDC" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDC" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDC" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.DDI
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.DDI" ADD CONSTRAINT "FLYWAYMETA.DDI_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.DDI" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDI" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDI" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDI" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDI" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDI" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDI" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DDI" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.DES
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.DES" ADD CONSTRAINT "FLYWAYMETA.DES_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.DES" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DES" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DES" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DES" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DES" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DES" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DES" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DES" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.DLD
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.DLD" ADD CONSTRAINT "FLYWAYMETA.DLD_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.DLD" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DLD" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DLD" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DLD" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DLD" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DLD" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DLD" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DLD" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.DSI
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.DSI" ADD CONSTRAINT "FLYWAYMETA.DSI_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.DSI" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DSI" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DSI" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DSI" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DSI" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DSI" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DSI" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DSI" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.DTC
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.DTC" ADD CONSTRAINT "FLYWAYMETA.DTC_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.DTC" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTC" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTC" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTC" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTC" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTC" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTC" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTC" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.DTL
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.DTL" ADD CONSTRAINT "FLYWAYMETA.DTL_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.DTL" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTL" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTL" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTL" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTL" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTL" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTL" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DTL" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.DVA
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.DVA" ADD CONSTRAINT "FLYWAYMETA.DVA_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.DVA" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DVA" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DVA" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DVA" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DVA" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DVA" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DVA" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.DVA" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.EST
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.EST" ADD CONSTRAINT "FLYWAYMETA.EST_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.EST" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EST" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EST" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EST" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EST" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EST" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EST" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EST" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.EVT
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.EVT" ADD CONSTRAINT "FLYWAYMETA.EVT_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.EVT" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EVT" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EVT" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EVT" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EVT" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EVT" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EVT" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.EVT" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.FAV
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.FAV" ADD CONSTRAINT "FLYWAYMETA.FAV_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.FAV" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FAV" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FAV" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FAV" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FAV" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FAV" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FAV" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FAV" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.FIS
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.FIS" ADD CONSTRAINT "FLYWAYMETA.FIS_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.FIS" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FIS" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FIS" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FIS" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FIS" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FIS" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FIS" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FIS" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.FLI
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.FLI" ADD CONSTRAINT "FLYWAYMETA.FLI_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.FLI" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FLI" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FLI" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FLI" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FLI" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FLI" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FLI" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FLI" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.FSM
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.FSM" ADD CONSTRAINT "FLYWAYMETA.FSM_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.FSM" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FSM" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FSM" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FSM" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FSM" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FSM" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FSM" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FSM" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.FWC
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.FWC" ADD CONSTRAINT "FLYWAYMETA.FWC_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.FWC" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FWC" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FWC" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FWC" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FWC" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FWC" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FWC" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.FWC" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.HTP
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.HTP" ADD CONSTRAINT "FLYWAYMETA.HTP_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.HTP" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.HTP" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.HTP" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.HTP" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.HTP" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.HTP" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.HTP" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.HTP" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.IDC
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.IDC" ADD CONSTRAINT "FLYWAYMETA.IDC_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.IDC" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDC" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDC" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDC" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDC" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDC" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDC" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDC" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.IDS
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.IDS" ADD CONSTRAINT "FLYWAYMETA.IDS_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.IDS" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDS" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDS" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDS" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDS" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDS" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDS" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDS" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.IDV
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.IDV" ADD CONSTRAINT "FLYWAYMETA.IDV_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.IDV" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDV" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDV" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDV" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDV" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDV" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDV" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.IDV" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.ISU
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.ISU" ADD CONSTRAINT "FLYWAYMETA.ISU_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.ISU" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.ISU" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.ISU" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.ISU" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.ISU" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.ISU" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.ISU" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.ISU" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.KPI
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.KPI" ADD CONSTRAINT "FLYWAYMETA.KPI_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.KPI" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.KPI" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.KPI" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.KPI" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.KPI" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.KPI" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.KPI" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.KPI" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.LFC
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.LFC" ADD CONSTRAINT "FLYWAYMETA.LFC_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.LFC" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LFC" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LFC" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LFC" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LFC" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LFC" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LFC" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LFC" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.LIC
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.LIC" ADD CONSTRAINT "FLYWAYMETA.LIC_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.LIC" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LIC" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LIC" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LIC" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LIC" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LIC" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LIC" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.LIC" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.MDA
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.MDA" ADD CONSTRAINT "FLYWAYMETA.MDA_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.MDA" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDA" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDA" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDA" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDA" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDA" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDA" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDA" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.MDC
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.MDC" ADD CONSTRAINT "FLYWAYMETA.MDC_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.MDC" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDC" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDC" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDC" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDC" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDC" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDC" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDC" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.MDS
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.MDS" ADD CONSTRAINT "FLYWAYMETA.MDS_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.MDS" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDS" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDS" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDS" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDS" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDS" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDS" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MDS" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.MRI
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.MRI" ADD CONSTRAINT "FLYWAYMETA.MRI_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.MRI" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MRI" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MRI" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MRI" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MRI" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MRI" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MRI" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MRI" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.MSG
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.MSG" ADD CONSTRAINT "FLYWAYMETA.MSG_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.MSG" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MSG" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MSG" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MSG" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MSG" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MSG" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MSG" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MSG" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.MTG
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.MTG" ADD CONSTRAINT "FLYWAYMETA.MTG_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.MTG" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTG" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTG" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTG" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTG" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTG" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTG" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTG" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.MTI
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.MTI" ADD CONSTRAINT "FLYWAYMETA.MTI_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.MTI" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTI" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTI" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTI" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTI" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTI" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTI" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTI" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.MTR
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.MTR" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTR" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTR" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTR" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTR" MODIFY ("installed_rank" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTR" ADD CONSTRAINT "FLYWAYMETA.MTR_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.MTR" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTR" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.MTR" MODIFY ("installed_on" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.NLS
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.NLS" ADD CONSTRAINT "FLYWAYMETA.NLS_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.NLS" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.NLS" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.NLS" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.NLS" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.NLS" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.NLS" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.NLS" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.NLS" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.PPC
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.PPC" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PPC" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PPC" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PPC" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PPC" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PPC" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PPC" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PPC" MODIFY ("installed_rank" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PPC" ADD CONSTRAINT "FLYWAYMETA.PPC_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.PR1
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.PR1" ADD CONSTRAINT "FLYWAYMETA.PR1_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.PR1" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PR1" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PR1" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PR1" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PR1" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PR1" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PR1" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PR1" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.PRT
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.PRT" ADD CONSTRAINT "FLYWAYMETA.PRT_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.PRT" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PRT" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PRT" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PRT" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PRT" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PRT" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PRT" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.PRT" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.SCH
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.SCH" ADD CONSTRAINT "FLYWAYMETA.SCH_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.SCH" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SCH" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SCH" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SCH" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SCH" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SCH" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SCH" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SCH" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.SSA
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.SSA" ADD CONSTRAINT "FLYWAYMETA.SSA_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.SSA" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SSA" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SSA" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SSA" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SSA" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SSA" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SSA" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.SSA" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.TME
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.TME" ADD CONSTRAINT "FLYWAYMETA.TME_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.TME" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TME" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TME" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TME" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TME" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TME" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TME" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TME" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.TSK
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.TSK" ADD CONSTRAINT "FLYWAYMETA.TSK_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.TSK" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TSK" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TSK" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TSK" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TSK" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TSK" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TSK" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.TSK" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.UPC
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.UPC" ADD CONSTRAINT "FLYWAYMETA.UPC_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.UPC" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.UPC" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.UPC" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.UPC" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.UPC" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.UPC" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.UPC" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.UPC" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.USR
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.USR" ADD CONSTRAINT "FLYWAYMETA.USR_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.USR" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.USR" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.USR" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.USR" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.USR" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.USR" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.USR" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.USR" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.VAL
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.VAL" ADD CONSTRAINT "FLYWAYMETA.VAL_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.VAL" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.VAL" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.VAL" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.VAL" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.VAL" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.VAL" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.VAL" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.VAL" MODIFY ("installed_rank" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table FLYWAYMETA.YFA
+--------------------------------------------------------
+
+  ALTER TABLE "FLYWAYMETA.YFA" ADD CONSTRAINT "FLYWAYMETA.YFA_pk" PRIMARY KEY ("installed_rank")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) ENABLE;
+  ALTER TABLE "FLYWAYMETA.YFA" MODIFY ("success" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.YFA" MODIFY ("execution_time" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.YFA" MODIFY ("installed_on" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.YFA" MODIFY ("installed_by" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.YFA" MODIFY ("script" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.YFA" MODIFY ("type" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.YFA" MODIFY ("description" NOT NULL ENABLE);
+  ALTER TABLE "FLYWAYMETA.YFA" MODIFY ("installed_rank" NOT NULL ENABLE);
