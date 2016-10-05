@@ -83,6 +83,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
@@ -254,6 +255,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final MeteringGroupsService meteringGroupsService;
     private final CustomPropertySetService customPropertySetService;
     private final ServerDeviceService deviceService;
+    private final LockService lockService;
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -354,7 +356,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             MdcReadingTypeUtilService readingTypeUtilService,
             ThreadPrincipalService threadPrincipalService,
             UserPreferencesService userPreferencesService,
-            DeviceConfigurationService deviceConfigurationService, ServerDeviceService deviceService) {
+            DeviceConfigurationService deviceConfigurationService,
+            ServerDeviceService deviceService,
+            LockService lockService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -376,6 +380,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.userPreferencesService = userPreferencesService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
+        this.lockService = lockService;
         // Helper to get activation info... from 'Kore'
         this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.deviceService, this.readingTypeUtilService, clock, this.eventService);
         this.koreHelper.syncWithKore(this);
@@ -399,6 +404,18 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     ValidationService getValidationService() {
         return validationService;
+    }
+
+    ServerDeviceService getDeviceService() {
+        return deviceService;
+    }
+
+    DeviceConfigurationService getDeviceConfigurationService() {
+        return deviceConfigurationService;
+    }
+
+    LockService getLockService(){
+        return lockService;
     }
 
     private void setDeviceTypeFromDeviceConfiguration() {

@@ -100,4 +100,14 @@ public interface ServerDeviceService extends DeviceService {
 
     void clearMultiplierTypeCache();
 
+    /**
+     * Reloads and locks the device for update.
+     * </br>
+     * <b>Note that this is a blocking call</b>
+     *
+     * @param deviceId the ID of the device to lock
+     * @return the reloaded and locked device
+     */
+    Device lockDevice(long deviceId);
+
 }

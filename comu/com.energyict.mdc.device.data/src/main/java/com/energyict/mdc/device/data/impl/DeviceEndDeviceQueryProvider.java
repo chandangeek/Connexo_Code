@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
+import com.elster.jupiter.metering.groups.spi.EndDeviceQueryProvider;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyCondition;
@@ -11,7 +12,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 
@@ -78,8 +78,13 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
     }
 
     @Override
-    public SqlFragment toFragment(SqlFragment sqlFragment, String columnName) {
-        Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(() -> sqlFragment, "amrId"));
-        return meteringService.getEndDeviceQuery().asSubquery(amrCondition, columnName).toFragment();
+    public Query<EndDevice> getEndDeviceQuery(List<SearchablePropertyCondition> conditions) {
+        SearchDomain deviceSearchDomain = searchService.findDomain(Device.class.getName()).get();
+        Subquery subQuery = () -> deviceSearchDomain.finderFor(conditions).asFragment("id");
+        Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(subQuery, "amrId"));
+        Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
+        endDeviceQuery.setRestriction(amrCondition);
+        return endDeviceQuery;
     }
+
 }
