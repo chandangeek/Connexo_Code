@@ -33,7 +33,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -146,10 +145,6 @@ public class DataValidationIssueCreationRuleTemplateTest {
     @Test
     @Transactional
     public void testTemplateGetters() {
-        Thesaurus thesaurus = inMemoryPersistence.getService(Thesaurus.class);
-
-        assertThat(template.getDisplayName()).isEqualTo(TranslationKeys.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_NAME.getTranslated(thesaurus));
-        assertThat(template.getDescription()).isEqualTo(TranslationKeys.DATA_VALIDATION_ISSUE_RULE_TEMPLATE_DESCRIPTION.getTranslated(thesaurus));
         assertThat(template.getIssueType().getId()).isEqualTo(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get().getId());
     }
 
