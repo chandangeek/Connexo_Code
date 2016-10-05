@@ -155,7 +155,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     @Override
     public State getInitialState() {
         return this.findInitialState().orElseThrow(
-                () -> new IllegalStateException(this.thesaurus.getString(MessageSeeds.Keys.EXACTLY_ONE_INITIAL_STATE, "A finite state machine must have exactly one initial state")));
+                () -> new IllegalStateException(this.thesaurus.getFormat(MessageSeeds.EXACTLY_ONE_INITIAL_STATE).format()));
     }
 
     void setInitialState(State newInitialState) {
