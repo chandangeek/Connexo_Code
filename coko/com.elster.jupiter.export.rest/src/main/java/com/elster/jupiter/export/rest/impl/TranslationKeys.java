@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
 /**
@@ -15,7 +16,10 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum TranslationKeys implements TranslationKey {
     NONE("exporttask.recurrence.none", "None"),
     SINCE("status.before", "{0} since"),
-    ON("status.on", "{0} on");
+    ON("status.on", "{0} on"),
+    SCHEDULED("dataexporttask.occurrence.scheduled", "Scheduled"),
+    ON_REQUEST("dataexporttask.occurrence.onrequest", "On request"),
+    NONRECURRING("dataexporttask.occurrence.nonrecurring", "Non-recurring");
 
     private String key;
     private String defaultFormat;
@@ -33,6 +37,10 @@ public enum TranslationKeys implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return defaultFormat;
+    }
+
+    String translate(Thesaurus thesaurus) {
+        return thesaurus.getFormat(this).format();
     }
 
 }

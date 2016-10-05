@@ -14,9 +14,9 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import java.time.Instant;
 import java.util.Optional;
 
-import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.NONRECURRING;
-import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.ON_REQUEST;
-import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.SCHEDULED;
+import static com.elster.jupiter.export.rest.impl.TranslationKeys.NONRECURRING;
+import static com.elster.jupiter.export.rest.impl.TranslationKeys.ON_REQUEST;
+import static com.elster.jupiter.export.rest.impl.TranslationKeys.SCHEDULED;
 
 public class DataTaskHistoryWithoutEmbeddedTaskInfo {
     public Long id;

@@ -14,7 +14,6 @@ import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.util.time.Never;
@@ -26,9 +25,9 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.NONRECURRING;
-import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.ON_REQUEST;
-import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.SCHEDULED;
+import static com.elster.jupiter.export.rest.impl.TranslationKeys.NONRECURRING;
+import static com.elster.jupiter.export.rest.impl.TranslationKeys.ON_REQUEST;
+import static com.elster.jupiter.export.rest.impl.TranslationKeys.SCHEDULED;
 
 public class DataExportTaskHistoryInfo {
 
@@ -66,7 +65,7 @@ public class DataExportTaskHistoryInfo {
 
         this.trigger = (dataExportOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
         if (dataExportOccurrence.wasScheduled()) {
-            String scheduledTriggerDescription = this.getScheduledTriggerDescription(dataExportOccurrence, thesaurus, timeService);
+            String scheduledTriggerDescription = this.getScheduledTriggerDescription(dataExportOccurrence, timeService);
             if (scheduledTriggerDescription != null) {
                 this.trigger = this.trigger + " (" + scheduledTriggerDescription + ")";
             }
@@ -164,7 +163,7 @@ public class DataExportTaskHistoryInfo {
         return instant == null ? null : instant.toEpochMilli();
     }
 
-    private String getScheduledTriggerDescription(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
+    private String getScheduledTriggerDescription(DataExportOccurrence dataExportOccurrence, TimeService timeService) {
         ScheduleExpression scheduleExpression = dataExportOccurrence.getTask().getScheduleExpression();
         if (Never.NEVER.equals(scheduleExpression)) {
             return null;
@@ -173,7 +172,7 @@ public class DataExportTaskHistoryInfo {
             return fromPeriodicalScheduleExpression((PeriodicalScheduleExpression) scheduleExpression, timeService);
         }
         if (scheduleExpression instanceof TemporalExpression) {
-            return fromTemporalExpression((TemporalExpression) scheduleExpression, thesaurus);
+            return fromTemporalExpression((TemporalExpression) scheduleExpression, timeService);
         }
         return scheduleExpression.toString();
     }
@@ -182,45 +181,8 @@ public class DataExportTaskHistoryInfo {
         return timeService.toLocalizedString(scheduleExpression);
     }
 
-    private String fromTemporalExpression(TemporalExpression scheduleExpression, Thesaurus thesaurus) {
-        TimeDuration every = scheduleExpression.getEvery();
-        int count = every.getCount();
-        TimeDuration.TimeUnit unit = every.getTimeUnit();
-        String everyTranslation = thesaurus.getString("every", "every");
-
-        String unitTranslation = unit.getDescription();
-        if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getString("day", "day");
-            } else {
-                unitTranslation = thesaurus.getString("multipleDays", "days");
-            }
-        }
-        else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getString("week", "week");
-            } else {
-                unitTranslation = thesaurus.getString("multipleWeeks", "weeks");
-            }
-        }
-        else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getString("month", "month");
-            } else {
-                unitTranslation = thesaurus.getString("multipleMonths", "months");
-            }
-        }
-        else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
-            if (count == 1) {
-                unitTranslation = thesaurus.getString("year", "year");
-            } else {
-                unitTranslation = thesaurus.getString("multipleYears", "years");
-            }
-        }
-        if (count == 1) {
-            return everyTranslation + " " + unitTranslation;
-        } else {
-            return everyTranslation + " " + count + " " + unitTranslation;
-        }
+    private String fromTemporalExpression(TemporalExpression scheduleExpression, TimeService timeService) {
+        return timeService.toLocalizedString(scheduleExpression);
     }
+
 }

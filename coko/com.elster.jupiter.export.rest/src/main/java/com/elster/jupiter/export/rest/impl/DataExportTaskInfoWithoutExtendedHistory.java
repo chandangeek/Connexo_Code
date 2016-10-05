@@ -33,8 +33,7 @@ public class DataExportTaskInfoWithoutExtendedHistory extends DataExportTaskInfo
             }
         }
         lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataTaskHistoryWithoutEmbeddedTaskInfo(oc, thesaurus, timeService, propertyValueInfoService)).orElse(null);
-        dataExportTask.getDestinations().stream()
-                .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
+        dataExportTask.getDestinations().forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
     }
 
 }
