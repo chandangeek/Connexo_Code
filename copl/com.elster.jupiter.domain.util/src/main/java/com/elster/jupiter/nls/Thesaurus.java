@@ -23,10 +23,8 @@ public interface Thesaurus extends MessageInterpolator {
 	// It needs to honor the Locale (or LanguageTag) hierarchy.
 	//
 
-    @Deprecated
     String getString(String key, String defaultMessage);
 
-    @Deprecated
     String getString(Locale locale, String key, String defaultMessage);
 
 	NlsMessageFormat getFormat(MessageSeed seed);
