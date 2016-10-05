@@ -20,7 +20,8 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -50,7 +51,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
     @Transactional
     public void lifeCycleDatesOnNewDevice() {
         // Business method
-        Device device = this.createSimpleDevice("lifeCycleDatesOnNewDevice", Instant.now());
+        Device device = this.createSimpleDevice("lifeCycleDatesOnNewDevice", inMemoryPersistence.getClock().instant());
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();
