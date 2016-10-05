@@ -103,27 +103,23 @@ public class UsagePointConsoleCommands {
     }
 
     public void metrologyConfigurations() {
-        metrologyConfigurationService.findAllMetrologyConfigurations().stream().forEach(System.out::println);
+        metrologyConfigurationService.findAllMetrologyConfigurations().forEach(System.out::println);
     }
 
-    public void linkUsagePointToMetrologyConfiguration(String usagePointMRID, String metrologyConfigName) {
+    public void linkUsagePointToMetrologyConfiguration(String usagePointName, String metrologyConfigName) {
         try {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
                         UsagePoint up = meteringService
-                                .findUsagePointByMRID(usagePointMRID)
-                                .orElseThrow(() -> new IllegalArgumentException("Usage Point " + usagePointMRID + " not found."));
+                                .findUsagePointByName(usagePointName)
+                                .orElseThrow(() -> new IllegalArgumentException("Usage Point " + usagePointName + " not found."));
                         UsagePointMetrologyConfiguration mc = metrologyConfigurationService
                                 .findMetrologyConfiguration(metrologyConfigName)
                                 .filter(config -> config instanceof UsagePointMetrologyConfiguration)
                                 .map(UsagePointMetrologyConfiguration.class::cast)
                                 .orElseThrow(() -> new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found."));
-                        if (mc instanceof UsagePointMetrologyConfiguration) {
-                            up.apply((UsagePointMetrologyConfiguration) mc);
-                        } else {
-                            throw new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found.");
-                        }
+                        up.apply(mc);
                     });
         } catch (Exception e) {
             e.printStackTrace();
