@@ -71,7 +71,7 @@ Ext.define('Apr.view.appservers.PreviewForm', {
             },
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.webserviceEndpoints', 'APR', 'Webservice endpoints'),
+                fieldLabel: Uni.I18n.translate('general.webserviceEndpoints', 'APR', 'Web service endpoints'),
                 itemId: 'endPointConfigurations',
                 name: 'webserviceEndpointsCount',
                 renderer: function (value) {
@@ -79,7 +79,7 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                     if (value === '') {
                         result = '-';
                     } else {
-                        result = Uni.I18n.translatePlural('general.webserviceEndpointsCount', value, 'APR', 'No webservice endpoints', '{0} webservice endpoint', '{0} webservice endpoints');
+                        result = Uni.I18n.translatePlural('general.webserviceEndpointsCount', value, 'APR', 'No web service endpoints', '{0} web service endpoint', '{0} web service endpoints');
                         var url = me.router.getRoute('administration/appservers/overview/webserviceendpoints').buildUrl({appServerName: me.appServerName});
                         result = '<a href="' + url + '">' + Ext.String.htmlEncode(result) + '</a>';
                     }

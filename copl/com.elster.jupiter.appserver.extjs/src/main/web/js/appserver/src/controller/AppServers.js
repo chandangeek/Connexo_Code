@@ -1210,7 +1210,7 @@ Ext.define('Apr.controller.AppServers', {
                         callback: function (records, operation, success) {
                             if (success === true) {
                                 me.webservicesEndpointsDataChanged();
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.configureWebServicesSuccess', 'APR', 'Webservice endpoints saved'));
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.configureWebServicesSuccess', 'APR', 'Web service endpoints saved'));
                             }
                             ref.setLoading(false);
                         }
@@ -1458,7 +1458,7 @@ Ext.define('Apr.controller.AppServers', {
     updateWebserviceCounter: function () {
         var me = this;
         me.getWebservicesGrid().down('pagingtoolbartop #displayItem').setText(
-            Uni.I18n.translatePlural('general.webserviceEndpointsCount', me.getWebservicesGrid().getStore().getCount(), 'APR', 'No webservice endpoints', '{0} webservice endpoint', '{0} webservice endpoints')
+            Uni.I18n.translatePlural('general.webserviceEndpointsCount', me.getWebservicesGrid().getStore().getCount(), 'APR', 'No web service endpoints', '{0} web service endpoint', '{0} web service endpoints')
         );
     },
 

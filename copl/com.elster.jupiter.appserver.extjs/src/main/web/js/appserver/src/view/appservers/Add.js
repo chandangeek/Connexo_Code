@@ -177,7 +177,7 @@ Ext.define('Apr.view.appservers.Add', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.webserviceEnpoints', 'APR', 'Webservice endpoints'),
+                        fieldLabel: Uni.I18n.translate('general.webserviceEnpoints', 'APR', 'Web service endpoints'),
                         itemId: 'webserviceEndpointsContainer',
                         layout: 'vbox',
                         items: [
@@ -192,7 +192,7 @@ Ext.define('Apr.view.appservers.Add', {
                                     {
                                         xtype: 'component',
                                         itemId: 'webservice-empty-text-grid',
-                                        html: Uni.I18n.translate('appServers.noWebServiceEndpoints', 'APR', "No webservice endpoints have been added"),
+                                        html: Uni.I18n.translate('appServers.noWebServiceEndpoints', 'APR', "No web service endpoints have been added"),
                                         style: {
                                             'font': 'italic 13px/17px Lato',
                                             'color': '#686868',
@@ -210,7 +210,7 @@ Ext.define('Apr.view.appservers.Add', {
                                         itemId: 'add-webservices-button',
                                         xtype: 'button',
                                         margin: '0 0 10 0',
-                                        text: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add webservice endpoints'),
+                                        text: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add web service endpoints'),
                                     }
                                 ]
                             },

@@ -10,7 +10,7 @@ Ext.define('Apr.view.appservers.AddWebserviceEndpointsGrid', {
 
     counterTextFn: function (count){
         return Uni.I18n.translatePlural('general.nrOfWebserviceEndpoints.selected', count, 'APR',
-            'No webservice endpoints selected', '{0} webservice endpoints selected', '{0} webservice endpoints selected'
+            'No web service endpoints selected', '{0} web service endpoints selected', '{0} web service endpoints selected'
         );
     },
     bottomToolbarHidden: true,
@@ -18,7 +18,7 @@ Ext.define('Apr.view.appservers.AddWebserviceEndpointsGrid', {
 
     columns: [
         {
-            header: Uni.I18n.translate('general.webserviceEndpoint', 'APR', 'Webservice endpoint'),
+            header: Uni.I18n.translate('general.webserviceEndpoint', 'APR', 'Web service endpoint'),
             dataIndex: 'name',
             flex: 1
         }

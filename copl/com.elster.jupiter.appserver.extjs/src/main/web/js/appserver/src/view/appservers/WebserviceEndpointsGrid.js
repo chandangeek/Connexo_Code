@@ -13,7 +13,7 @@ Ext.define('Apr.view.appservers.WebserviceEndpointsGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('general.webserviceEndpoint', 'APR', 'Webservice endpoint'),
+                header: Uni.I18n.translate('general.webserviceEndpoint', 'APR', 'Web service endpoint'),
                 dataIndex: 'name',
                 flex: 1,
                 renderer: function (value, metadata, record) {
@@ -31,7 +31,7 @@ Ext.define('Apr.view.appservers.WebserviceEndpointsGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.webservice', 'APR', 'Webservice'),
+                header: Uni.I18n.translate('general.webservice', 'APR', 'Web service'),
                 dataIndex: 'webServiceName',
                 flex: 1,
                 renderer: function(value, field, record) {
