@@ -114,7 +114,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         Save.UPDATE.save(this.dataModel, this);
     }
 
-    void dataValidationKpiBuilder(EndDeviceGroup endDeviceGroup) {
+    private void createKpiChildren(EndDeviceGroup endDeviceGroup) {
         endDeviceGroup.getMembers(Instant.now(clock))
                 .forEach(device -> createValidationKpiMember(device.getId()));
     }
@@ -129,6 +129,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
                                 .named(member + id)
                                 .add()
                 );
+        builder.named("ValidationKpi"+id);
         childrenKpis.add(DataValidationKpiChildImpl.from(dataModel, this, builder.create()));
     }
 
@@ -153,11 +154,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     @Override
     public Optional<TemporalAmount> dataValidationKpiCalculationIntervalLength() {
-        if (this.childrenKpis != null && !this.childrenKpis.isEmpty()) {
-            return Optional.of(this.childrenKpis.get(0).getChildKpi().getIntervalLength());
-        } else {
-            return Optional.empty();
-        }
+        return frequency != null ? Optional.of(frequency) : Optional.empty();
     }
 
     @Override
@@ -251,6 +248,9 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     void updateMembers() {
+        if (childrenKpis == null) {
+            createKpiChildren(getDeviceGroup());
+        }
         updateFrequency();
         Set<Long> deviceGroupDeviceIds = deviceIdsInGroup();
         Set<Long> dataValidationKpiMembers = deviceIdsInKpiMembers();

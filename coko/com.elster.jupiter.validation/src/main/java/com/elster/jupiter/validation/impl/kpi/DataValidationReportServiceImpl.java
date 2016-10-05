@@ -32,7 +32,7 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
                     .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.REGISTER.fieldName() + endDevice.getId(),
                             endDevice -> validationService.getDataValidationAssociationProviders()
                                     .get(0)
-                                    .getRegisterSuspects(endDevice.getMRID(), range)));
+                                    .getRegisterSuspects(endDevice.getId(), range)));
         } else {
             throw new IllegalStateException("No DataValidationAssociationProviders were registered.");
         }
@@ -47,25 +47,11 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
                     .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.CHANNEL.fieldName() + endDevice.getId(),
                             endDevice -> validationService.getDataValidationAssociationProviders()
                                     .get(0)
-                                    .getChannelsSuspects(endDevice.getMRID(), range)));
+                                    .getChannelsSuspects(endDevice.getId(), range)));
         } else {
             throw new IllegalStateException("No DataValidationAssociationProviders were registered.");
         }
         return channelsSuspects;
     }
 
-    @Override
-    public Map<String, Boolean> getAllDataValidated(EndDeviceGroup deviceGroup, Range<Instant> range){
-        Map<String, Boolean> allDataValidated = new HashMap<>();
-        if(!validationService.getDataValidationAssociationProviders().isEmpty()) {
-            allDataValidated = deviceGroup.getMembers(Instant.now(clock)).stream()
-                    .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.ALLDATAVALIDATED.fieldName() + endDevice.getId(),
-                            endDevice -> validationService.getDataValidationAssociationProviders()
-                                    .get(0)
-                                    .isAllDataValidated(endDevice.getMRID(), range)));
-        } else {
-            throw new IllegalStateException("No DataValidationAssociationProviders were registered.");
-        }
-        return allDataValidated;
-    }
 }

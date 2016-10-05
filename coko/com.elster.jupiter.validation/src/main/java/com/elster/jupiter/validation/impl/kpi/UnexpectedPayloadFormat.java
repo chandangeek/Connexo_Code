@@ -14,8 +14,13 @@ class UnexpectedPayloadFormat implements DataManagementKpiCalculator {
     }
 
     @Override
-    public void calculateAndStore() {
+    public void calculate() {
         this.logger.log(Level.SEVERE, "Payload '" + this.payLoad + "' is not of the expected format");
+    }
+
+    @Override
+    public void store(long endDeviceId) {
+        calculate();
     }
 
 }
