@@ -6,7 +6,9 @@ import com.elster.jupiter.validation.impl.kpi.DataValidationKpiCalculatorHandler
 public enum TranslationKeys implements TranslationKey {
 
     MESSAGE_SPEC_SUBSCRIBER(ValidationServiceImpl.SUBSCRIBER_NAME, "Handle data validation"),
-    KPICALCULATOR_DISPLAYNAME(DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME)
+    KPICALCULATOR_DISPLAYNAME(DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
+    MDC("MDC", "MultiSense"),
+    MDM("MDM", "Insight"),
     ;
 
     TranslationKeys(String key, String defaultFormat) {
