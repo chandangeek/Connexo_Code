@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class CreateDemoDataCommand {
     private final Provider<CreateCollectRemoteDataSetupCommand> createCollectRemoteDataSetupCommandProvider;
@@ -32,10 +33,10 @@ public class CreateDemoDataCommand {
 
     private String comServerName;
     private String host;
-    private String startDate;
+    private Instant startDate;
     private Integer devicesPerType = null;
     private SpatialCoordinates geoCoordinates;
-    private boolean skipFirmwareMamanagementData;
+    private boolean skipFirmwareManagementData;
 
     @Inject
     public CreateDemoDataCommand(
@@ -80,15 +81,15 @@ public class CreateDemoDataCommand {
     }
 
     public void setSkipFirmwareManagementData(boolean skipFirmwareData) {
-        this.skipFirmwareMamanagementData = skipFirmwareData;
+        this.skipFirmwareManagementData = skipFirmwareData;
     }
 
     public void setStartDate(String startDate) {
-        this.startDate = startDate;
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.parse(this.startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault());
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault());
         if (zonedDateTime.getDayOfMonth() != 1) {
             throw new UnableToCreate("Please specify the first day of month as a start date");
         }
+        this.startDate = zonedDateTime.toInstant();
     }
 
     public void setDevicesPerType(Integer devicesPerType) {
@@ -152,12 +153,14 @@ public class CreateDemoDataCommand {
         command.setComServerName(this.comServerName);
         command.setHost(this.host);
         command.setDevicesPerType(this.devicesPerType);
-        command.setSpatialCoordinates(geoCoordinates);
+        command.setSpatialCoordinates(this.geoCoordinates);
+        command.setShipmentDate(getDeviceShipmentDateFromStartDate());
         command.run();
     }
 
     private void createValidationSetupCommand() {
         CreateValidationSetupCommand command = this.createValidationSetupCommandProvider.get();
+        command.setDeviceShipmentDate(getDeviceShipmentDateFromStartDate());
         command.run();
     }
 
@@ -181,6 +184,7 @@ public class CreateDemoDataCommand {
         CreateDeviceCommand command = this.createDeviceCommandProvider.get();
         command.setSerialNumber("093000020359");
         command.setMridPrefix(Constants.Device.MOCKED_REALISTIC_DEVICE);
+        command.setShipmentDate(getDeviceShipmentDateFromStartDate());
         command.run();
     }
 
@@ -196,7 +200,7 @@ public class CreateDemoDataCommand {
     }
 
     private void setupFirmwareManagementCommand() {
-        if (!skipFirmwareMamanagementData) {
+        if (!skipFirmwareManagementData) {
             SetupFirmwareManagementCommand setupFirmwareManagementCommand = this.setupFirmwareManagementCommandProvider.get();
             setupFirmwareManagementCommand.run();
         }
@@ -206,5 +210,9 @@ public class CreateDemoDataCommand {
         CreateImportersCommand importersCommand = this.createImportersCommandProvider.get();
         importersCommand.setAppServerName(this.comServerName);
         importersCommand.run();
+    }
+
+    private Instant getDeviceShipmentDateFromStartDate() {
+        return this.startDate.minus(1, ChronoUnit.DAYS);
     }
 }
