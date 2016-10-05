@@ -58,13 +58,12 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
         dataModel = ormService.getDataModel(ValidationService.COMPONENTNAME).orElse(null);
     }
 
-
     @Override
     public List<ValidationOverview> getValidationResultsOfDeviceGroup(long groupId, Range<Instant> range) {
         List<ValidationOverview> list = new ArrayList<>();
         List<Long> deviceIds = validationService.getDevicesIdsList(groupId).stream().filter(deviceId -> getKpiScores(groupId,deviceId,range).isPresent()).collect(Collectors.toList());;
         SqlBuilder validationOverviewBuilder = new SqlBuilder();
-        validationOverviewBuilder.append("SELECT DEV.mrid, DEV.serialnumber, DT.name, DC.name FROM DDC_DEVICE DEV ");
+        validationOverviewBuilder.append("SELECT DEV.name, DEV.serialnumber, DT.name, DC.name FROM DDC_DEVICE DEV ");
         validationOverviewBuilder.append("  LEFT JOIN DTC_DEVICETYPE DT ON dev.devicetype = DT.id");
         validationOverviewBuilder.append("  LEFT JOIN DTC_DEVICECONFIG DC ON dev.deviceconfigid = DC.id");
         whereClause(validationOverviewBuilder, deviceIds);
@@ -73,7 +72,7 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
             try (ResultSet resultSet = statement.executeQuery()) {
                 AtomicLong idx = new AtomicLong(0);
                 while (resultSet.next()) {
-                    if(getKpiScores(groupId,deviceIds.get(idx.intValue()),range).isPresent()) {
+                    if (getKpiScores(groupId, deviceIds.get(idx.intValue()), range).isPresent()) {
                         list.add(new ValidationOverviewImpl(
                                 resultSet.getString(1),
                                 resultSet.getString(2),
@@ -120,7 +119,6 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
 
     private Optional<DataValidationKpiScore> getKpiScores(long groupId, long deviceId, Range<Instant> interval) {
         return validationService.getDataValidationKpiScores(groupId, deviceId, interval);
-
     }
 
     private SqlBuilder whereClause(SqlBuilder sqlBuilder, List<Long> deviceIds) {

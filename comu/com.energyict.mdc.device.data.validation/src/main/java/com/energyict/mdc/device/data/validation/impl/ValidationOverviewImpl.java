@@ -7,58 +7,68 @@ import com.energyict.mdc.device.data.validation.ValidationOverview;
  * Created by Lucian on 7/2/2015.
  */
 public class ValidationOverviewImpl implements ValidationOverview {
-    private String mrid;
+    private String deviceName;
     private String serialNumber;
     private String deviceType;
     private String deviceConfig;
     private DeviceValidationKpiResults deviceValidationKpiResults;
 
-
-    public ValidationOverviewImpl(String mrid, String serialNumber, String deviceType, String deviceConfig, DeviceValidationKpiResults deviceValidationKpiResults){
-        this.mrid = mrid;
+    public ValidationOverviewImpl(String deviceName, String serialNumber, String deviceType, String deviceConfig,
+                                  DeviceValidationKpiResults deviceValidationKpiResults){
+        this.deviceName = deviceName;
         this.serialNumber = serialNumber;
         this.deviceType = deviceType;
         this.deviceConfig = deviceConfig;
         this. deviceValidationKpiResults = deviceValidationKpiResults;
     }
 
-    @Override public String getMrid() {
-        return mrid;
+    @Override
+    public String getDeviceName() {
+        return deviceName;
     }
 
-    @Override public void setMrid(String mrid) {
-        this.mrid = mrid;
+    @Override
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 
-    @Override public String getSerialNumber() {
+    @Override
+    public String getSerialNumber() {
         return serialNumber;
     }
 
-    @Override public void setSerialNumber(String serialNumber) {
+    @Override
+    public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
     }
 
-    @Override public String getDeviceType() {
+    @Override
+    public String getDeviceType() {
         return deviceType;
     }
 
-    @Override public void setDeviceType(String deviceType) {
+    @Override
+    public void setDeviceType(String deviceType) {
         this.deviceType = deviceType;
     }
 
-    @Override public String getDeviceConfig() {
+    @Override
+    public String getDeviceConfig() {
         return deviceConfig;
     }
 
-    @Override public void setDeviceConfig(String deviceConfig) {
+    @Override
+    public void setDeviceConfig(String deviceConfig) {
         this.deviceConfig = deviceConfig;
     }
 
-    @Override public DeviceValidationKpiResults getDeviceValidationKpiResults() {
+    @Override
+    public DeviceValidationKpiResults getDeviceValidationKpiResults() {
         return deviceValidationKpiResults;
     }
 
-    @Override public void setDeviceValidationKpiResults(DeviceValidationKpiResults deviceValidationKpiResults) {
+    @Override
+    public void setDeviceValidationKpiResults(DeviceValidationKpiResults deviceValidationKpiResults) {
         this.deviceValidationKpiResults = deviceValidationKpiResults;
     }
 }

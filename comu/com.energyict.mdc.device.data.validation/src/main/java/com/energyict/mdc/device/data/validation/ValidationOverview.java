@@ -3,9 +3,9 @@ package com.energyict.mdc.device.data.validation;
 
 public interface ValidationOverview {
 
-    String getMrid();
+    String getDeviceName();
 
-    void setMrid(String mrid);
+    void setDeviceName(String name);
 
     String getSerialNumber();
 
