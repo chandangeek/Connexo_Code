@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import java.io.ByteArrayInputStream;
@@ -67,6 +68,8 @@ public class DeviceActivationDeactivationImporterFactoryTest {
     @Mock
     private FiniteStateMachineService finiteStateMachineService;
     @Mock
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    @Mock
     private Logger logger;
     @Mock
     private Clock clock;
@@ -74,18 +77,28 @@ public class DeviceActivationDeactivationImporterFactoryTest {
     @Before
     public void beforeTest() {
         reset(logger, thesaurus, deviceService, topologyService, meteringService, deviceLifeCycleService, finiteStateMachineService);
-        when(thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
-        when(thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
+        this.setupTranslations();
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         context.setTopologyService(topologyService);
         context.setMeteringService(meteringService);
         context.setDeviceLifeCycleService(deviceLifeCycleService);
         context.setFiniteStateMachineService(finiteStateMachineService);
+        context.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
+    }
+
+    private void setupTranslations() {
+        when(thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
+        when(thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
+        when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
+                .thenAnswer(invocationOnMock -> {
+                    DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
+                    return state.getDefaultFormat();
+                });
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -127,8 +140,9 @@ public class DeviceActivationDeactivationImporterFactoryTest {
 
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(contains(thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
-                .format(2, DefaultState.ACTIVE.getKey(), DefaultState.IN_STOCK.getKey(), DefaultState.INACTIVE.getKey())));
+        verify(logger).warning(contains(
+                thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
+                         .format(2, DefaultState.ACTIVE.getDefaultFormat(), DefaultState.IN_STOCK.getDefaultFormat(), DefaultState.INACTIVE.getDefaultFormat())));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
@@ -160,8 +174,9 @@ public class DeviceActivationDeactivationImporterFactoryTest {
 
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(contains(thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
-                .format(2, DefaultState.INACTIVE.getKey(), DefaultState.COMMISSIONING.getKey(), DefaultState.ACTIVE.getKey())));
+        verify(logger).warning(contains(
+                thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
+                         .format(2, DefaultState.INACTIVE.getDefaultFormat(), DefaultState.COMMISSIONING.getDefaultFormat(), DefaultState.ACTIVE.getDefaultFormat())));
         verify(logger, never()).severe(Matchers.anyString());
     }
 }
