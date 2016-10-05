@@ -32,7 +32,7 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
                     .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.REGISTER.fieldName() + endDevice.getId(),
                             endDevice -> validationService.getDataValidationAssociatinProviders()
                                     .get(0)
-                                    .getRegisterSuspects(endDevice.getMRID(), range)));
+                                    .getRegisterSuspects(endDevice, range)));
         }
         return registerSuspects;
     }
@@ -45,7 +45,7 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
                     .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.CHANNEL.fieldName() + endDevice.getId(),
                             endDevice -> validationService.getDataValidationAssociatinProviders()
                                     .get(0)
-                                    .getChannelsSuspects(endDevice.getMRID(), range)));
+                                    .getChannelsSuspects(endDevice, range)));
         }
         return channelsSuspects;
     }
@@ -58,7 +58,7 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
                     .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.ALLDATAVALIDATED.fieldName() + endDevice.getId(),
                             endDevice -> validationService.getDataValidationAssociatinProviders()
                                     .get(0)
-                                    .isAllDataValidated(endDevice.getMRID(), range)));
+                                    .isAllDataValidated(endDevice, range)));
         }
         return allDataValidated;
     }

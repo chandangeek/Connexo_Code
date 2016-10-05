@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation;
 
+import com.elster.jupiter.metering.EndDevice;
+
 import aQute.bnd.annotation.ConsumerType;
 import com.google.common.collect.Range;
 
@@ -12,9 +14,9 @@ import java.util.List;
 @ConsumerType
 public interface DataValidationAssociationProvider {
 
-    List<DataValidationStatus> getRegisterSuspects(String mRID, Range<Instant> range);
+    List<DataValidationStatus> getRegisterSuspects(EndDevice endDevice, Range<Instant> range);
 
-    List<DataValidationStatus> getChannelsSuspects(String mRID, Range<Instant> range);
+    List<DataValidationStatus> getChannelsSuspects(EndDevice endDevice, Range<Instant> range);
 
-    boolean isAllDataValidated(String mRID, Range<Instant> range);
+    boolean isAllDataValidated(EndDevice endDevice, Range<Instant> range);
 }
