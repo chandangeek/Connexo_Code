@@ -46,8 +46,7 @@ public class CalendarImporterFactory implements FileImporterFactory {
 
     @Override
     public String getDisplayName() {
-        return context.getThesaurus()
-                .getString(TranslationKeys.CALENDAR_IMPORTER.getKey(), TranslationKeys.CALENDAR_IMPORTER.getDefaultFormat());
+        return context.getThesaurus().getFormat(TranslationKeys.CALENDAR_IMPORTER).format();
     }
 
     @Override
