@@ -78,6 +78,22 @@ public class NlsServiceImpl implements NlsService {
 
     private Map<NlsKey, NlsKeyImpl> uninstalledKeysMap = new HashMap<>();
 
+    // For OSGi purposes
+    public NlsServiceImpl() {
+    }
+
+    // For testing purposes
+    @Inject
+    public NlsServiceImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService, TransactionService transactionService, ValidationProviderResolver validationProviderResolver, UpgradeService upgradeService) {
+        this();
+        setOrmService(ormService);
+        setThreadPrincipalService(threadPrincipalService);
+        setTransactionService(transactionService);
+        setValidationProviderResolver(validationProviderResolver);
+        setUpgradeService(upgradeService);
+        activate();
+    }
+
     @Activate
     public final void activate() {
         dataModel.register(new AbstractModule() {
@@ -89,22 +105,31 @@ public class NlsServiceImpl implements NlsService {
                 bind(NlsService.class).toInstance(NlsServiceImpl.this);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, NlsInstaller.class, Collections.emptyMap());
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", COMPONENTNAME),
+                dataModel,
+                NlsInstaller.class,
+                Collections.emptyMap());
+        this.completeTranslationWhiteboard();
         installed = true; // upgradeService either installed, was up to date, or threw an Exception because upgrade was needed; in any case if we get here installed is true
     }
 
-    public NlsServiceImpl() {
+    private void completeTranslationWhiteboard() {
+        synchronized (translationLock) {
+            if (this.transactionService.isInTransaction()) {
+                this.doCompleteTranslationWhiteboard();
+            } else {
+                try (TransactionContext context = this.transactionService.getContext()) {
+                    this.doCompleteTranslationWhiteboard();
+                    context.commit();
+                }
+            }
+        }
     }
 
-    @Inject
-    public NlsServiceImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService, TransactionService transactionService, ValidationProviderResolver validationProviderResolver, UpgradeService upgradeService) {
-        this();
-        setOrmService(ormService);
-        setThreadPrincipalService(threadPrincipalService);
-        setTransactionService(transactionService);
-        setValidationProviderResolver(validationProviderResolver);
-        setUpgradeService(upgradeService);
-        activate();
+    private void doCompleteTranslationWhiteboard() {
+        translationKeyProviders.forEach(this::doInstallProvider);
+        messageSeedProviders.forEach(this::doInstallProvider);
     }
 
     @Override
@@ -243,12 +268,8 @@ public class NlsServiceImpl implements NlsService {
     }
 
     public void doInstall(DataModelUpgrader dataModelUpgrader) {
-        synchronized (translationLock) {
-            dataModelUpgrader.upgrade(dataModel, Version.latest());
-            translationKeyProviders.forEach(this::doInstallProvider);
-            messageSeedProviders.forEach(this::doInstallProvider);
-            installed = true;
-        }
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        installed = true;
     }
 
     private void doInstallProvider(TranslationKeyProvider provider) {
