@@ -97,22 +97,17 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
                         dataValidationKpi.dropDataValidationKpi();
                         return;
                     }
-                    if (registerSuspects.get(member.getName()) != null) {
-                        score(member, registerSuspects, localTimeStamp);
-                    }
                     if (channelsSuspects.get(member.getName()) != null) {
                         score(member, channelsSuspects, localTimeStamp);
-                    }
-                    if ((DataValidationKpiMemberTypes.SUSPECT.fieldName() + endDeviceId).equals(member.getName())) {
+                    } else if (registerSuspects.get(member.getName()) != null) {
+                        score(member, registerSuspects, localTimeStamp);
+                    } else if ((DataValidationKpiMemberTypes.SUSPECT.fieldName() + endDeviceId).equals(member.getName())) {
                         member.score(localTimeStamp, BigDecimal.valueOf(totalSuspects));
-                    }
-                    if ((DataValidationKpiMemberTypes.ALLDATAVALIDATED.fieldName() + endDeviceId).equals(member.getName())) {
+                    } else if ((DataValidationKpiMemberTypes.ALLDATAVALIDATED.fieldName() + endDeviceId).equals(member.getName())) {
                         member.score(localTimeStamp, allDataValidated ? BigDecimal.ONE : BigDecimal.ZERO);
                     }
-                    if (ruleValidators.stream().anyMatch(r -> r.equals(member.getName()))) {
-                        member.score(localTimeStamp, ruleValidators.size() > 0 ? BigDecimal.ONE : BigDecimal.ZERO);
-                    }
                 });
+                updateRuleValidatorData(memberList.get(),localTimeStamp);
                 range = Range.closedOpen(localTimeStamp.minus(Period.ofDays(1)), localTimeStamp);
                 logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!" + " date " + localTimeStamp + " count " + i);
             }
@@ -130,6 +125,19 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
                         .substring(rule.getImplementation().lastIndexOf(".") + 1).toUpperCase() + "_" + String.valueOf(runnningDeviceId))
                 .collect(Collectors.toSet()));
 
+    }
+
+    private void updateRuleValidatorData(List<? extends KpiMember> memberList, Instant localTimeStamp) {
+        Set<String> validatorList = Stream.of(MonitoredDataValidationKpiMemberTypes.values()).skip(4)
+                .map(memberType -> memberType.name().toUpperCase() + "_" + runnningDeviceId).collect(Collectors.toSet());
+        memberList.stream().filter(member -> validatorList.contains(member.getName())).forEach(foundElement -> {
+                    if (ruleValidators.contains(foundElement.getName())) {
+                        foundElement.score(localTimeStamp, BigDecimal.ONE);
+                    } else {
+                        foundElement.score(localTimeStamp, BigDecimal.ZERO);
+                    }
+                }
+        );
     }
 
     public DataValidationKpi getDataValidationKpi() {
