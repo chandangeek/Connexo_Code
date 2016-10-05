@@ -345,11 +345,13 @@ sub checking_ports {
 
 sub install_connexo {
 	if ("$INSTALL_CONNEXO" eq "yes") {
-		copy("$CONNEXO_DIR/conf/config.properties.temp","$config_file") or die "File cannot be copied: $!";
-		add_to_file_if($config_file,"org.osgi.service.http.port=$CONNEXO_HTTP_PORT");
-		add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
-		add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
-		add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
+	    if("$UPGRADE" ne "yes") {
+            copy("$CONNEXO_DIR/conf/config.properties.temp","$config_file") or die "File cannot be copied: $!";
+            add_to_file_if($config_file,"org.osgi.service.http.port=$CONNEXO_HTTP_PORT");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
+        }
 
 		print "\n\nInstalling Connexo database schema ...\n";
 		print "==========================================================================\n";
