@@ -91,6 +91,9 @@ Ext.define('Bpm.controller.Task', {
                         if (performTaskRecord && performTaskRecord.properties() && performTaskRecord.properties().count()) {
                             view.down('property-form').loadRecord(performTaskRecord);
                         } else {
+                            if(taskRecord.get('status') === 'Completed') {
+                                view.down('property-form').down('uni-form-empty-message').setText(Uni.I18n.translate('bpm.task.thisTaskHasBeenCompleted', 'BPM', 'This task has been completed.'))
+                            }
                             view.down('property-form').down('uni-form-empty-message').show();
                         }
                     }
