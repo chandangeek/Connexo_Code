@@ -333,7 +333,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
             condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
         }
         condition = condition.and(Where.where("obsoleteTime").isNull());
-        return DefaultFinder.of(ImportSchedule.class, condition, dataModel);
+        return DefaultFinder.of(ImportSchedule.class, condition, dataModel).defaultSortColumn("name");
     }
 
     @Override
