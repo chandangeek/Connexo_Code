@@ -28,6 +28,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
@@ -58,6 +59,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -138,6 +140,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     MeteringService meteringService;
     @Mock
+    MeteringTranslationService meteringTranslationService;
+    @Mock
     RestQueryService restQueryService;
     @Mock
     DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -159,6 +163,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     YellowfinGroupsService yellowfinGroupsService;
     @Mock
     FirmwareService firmwareService;
+    @Mock
+    DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
     DeviceLifeCycleService deviceLifeCycleService;
     @Mock
@@ -200,10 +206,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     public void setup() {
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         channelInfoFactory = new ChannelInfoFactory(clock, topologyService, readingTypeInfoFactory);
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
-        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        this.setupTranslations();
         when(taskService.findComTask(anyLong())).thenReturn(Optional.empty());
         when(taskService.findComTask(firmwareComTaskId)).thenReturn(Optional.of(firmwareComTask));
         when(firmwareComTask.isSystemComTask()).thenReturn(true);
@@ -212,6 +215,13 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(topologyService.availabilityDate(any(Register.class))).thenReturn(Optional.empty());
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
+    }
+
+    protected void setupTranslations() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        doReturn(messageFormat).when(thesaurus).getFormat(any(MessageSeed.class));
+        doReturn(messageFormat).when(thesaurus).getFormat(any(TranslationKey.class));
     }
 
     protected boolean disableDeviceConstraintsBasedOnDeviceState() {
@@ -273,6 +283,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setCalendarInfoFactory(calendarInfoFactory);
         application.setCalendarService(calendarService);
         application.setLocationService(locationService);
+        application.setMeteringTranslationService(meteringTranslationService);
+        application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }

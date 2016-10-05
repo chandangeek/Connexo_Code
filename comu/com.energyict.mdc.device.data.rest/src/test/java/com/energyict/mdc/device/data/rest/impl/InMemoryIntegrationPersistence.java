@@ -26,6 +26,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -87,6 +88,7 @@ import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -159,7 +161,9 @@ public class InMemoryIntegrationPersistence {
     private EngineConfigurationService engineConfigurationService;
     private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private MeteringService meteringService;
+    private MeteringTranslationService meteringTranslationService;
     private LocationService locationService;
     private DataModel dataModel;
     private ProtocolPluggableService protocolPluggableService;
@@ -290,6 +294,7 @@ public class InMemoryIntegrationPersistence {
             this.nlsService = injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
+            this.meteringTranslationService = injector.getInstance(MeteringTranslationService.class);
             this.locationService = injector.getInstance(LocationService.class);
             this.meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
@@ -302,6 +307,7 @@ public class InMemoryIntegrationPersistence {
             this.calendarInfoFactory = injector.getInstance(CalendarInfoFactory.class);
             this.calendarService = injector.getInstance(CalendarService.class);
             this.timeOfUseInfoFactory = injector.getInstance(TimeOfUseInfoFactory.class);
+            this.deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
@@ -399,12 +405,20 @@ public class InMemoryIntegrationPersistence {
         return meteringService;
     }
 
+    public MeteringTranslationService getMeteringTranslationService() {
+        return meteringTranslationService;
+    }
+
     public LocationService getLocationService() {
         return locationService;
     }
 
     public MasterDataService getMasterDataService() {
         return masterDataService;
+    }
+
+    public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService() {
+        return deviceLifeCycleConfigurationService;
     }
 
     public DeviceConfigurationService getDeviceConfigurationService() {

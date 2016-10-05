@@ -12,6 +12,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -40,6 +41,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -81,6 +83,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.NumericalRegisterImpl;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
+import com.energyict.mdc.device.data.rest.ReadingQualitiesTranslationKeys;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -133,17 +136,16 @@ import java.util.stream.Stream;
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doReturn;
@@ -154,7 +156,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     private static final Instant NOW = Instant.ofEpochMilli(1409738114);
@@ -168,6 +169,23 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     private ReadingType readingType;
+
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        Stream.of(MessageSeeds.values()).forEach(this::mockTranslation);
+        when(this.meteringTranslationService.getDisplayName(any(QualityCodeIndex.class)))
+                .thenAnswer(invocationOnMock -> {
+                    QualityCodeIndex qualityCodeIndex = (QualityCodeIndex) invocationOnMock.getArguments()[0];
+                    return qualityCodeIndex.getTranslationKey().getDefaultFormat();
+                });
+    }
+
+    private void mockTranslation(MessageSeeds messageSeed) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(messageSeed.getDefaultFormat());
+        doReturn(messageFormat).when(thesaurus).getFormat(messageSeed);
+    }
 
     @Before
     public void setupStubs() {

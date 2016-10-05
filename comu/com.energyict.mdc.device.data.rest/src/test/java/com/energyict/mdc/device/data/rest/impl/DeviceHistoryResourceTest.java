@@ -3,10 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -14,7 +11,6 @@ import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent.Type;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -24,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +27,6 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,21 +39,22 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
     @Mock
     UsagePoint usagePoint;
 
-    Instant deviceCreationDate = Instant.now();
+    private Instant deviceCreationDate = Instant.now();
+
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
+            .thenAnswer(invocationOnMock -> {
+                DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
+                return state.getDefaultFormat();
+            });
+    }
 
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
-        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
-        Stream
-            .of(DefaultLifeCycleTranslationKey.values())
-            .forEach(key -> when(thesaurus.getFormat(key))
-                    .thenReturn(this.mockedFormatFor(key)));
-
         when(device.getCreateTime()).thenReturn(deviceCreationDate);
         when(deviceService.findByUniqueMrid("DeviceMRID")).thenReturn(Optional.of(device));
         DeviceType deviceType = mock(DeviceType.class);
@@ -84,12 +79,6 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(meterActivation.getEnd()).thenReturn(Instant.ofEpochMilli(1410774820100L));
         when(meterActivation.getCreateDate()).thenReturn(deviceCreationDate);
         when(meterActivation.getModificationDate()).thenReturn(deviceCreationDate);
-    }
-
-    private NlsMessageFormat mockedFormatFor(DefaultLifeCycleTranslationKey key) {
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn(key.getDefaultFormat());
-        return messageFormat;
     }
 
     @Test

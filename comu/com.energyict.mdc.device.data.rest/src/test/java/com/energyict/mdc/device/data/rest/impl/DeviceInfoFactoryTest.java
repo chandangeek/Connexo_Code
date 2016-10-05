@@ -47,6 +47,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -201,13 +202,12 @@ public class DeviceInfoFactoryTest {
     @Mock
     private DeviceService deviceService;
     private Clock clock = Clock.systemDefaultZone();
-    protected ChannelInfoFactory channelInfoFactory;
-    ReadingTypeInfoFactory readingTypeInfoFactory;
+    private ChannelInfoFactory channelInfoFactory;
 
     @Before
     public void initMocks() {
-        when(thesaurus.getString(any(), any())).thenReturn("");
-        readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
+        this.setupTranslations();
+        ReadingTypeInfoFactory readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         channelInfoFactory = new ChannelInfoFactory(clock, topologyService, readingTypeInfoFactory);
         when(readingTypeForChannel1.getMRID()).thenReturn(READING_TYPE_MRID_1);
         when(readingTypeForChannel2.getMRID()).thenReturn(READING_TYPE_MRID_2);
@@ -230,7 +230,6 @@ public class DeviceInfoFactoryTest {
         prepareMockedReadingType(readingTypeForChannel5);
         prepareMockedReadingType(readingTypeForChannel6);
 
-        when(thesaurus.getString(STATE_NAME, null)).thenReturn(STATE_TRANSLATION);
         IssueType dataValidationIssueType = mock(IssueType.class);
         IssueType dataCollectionIssueType = mock(IssueType.class);
         Finder<OpenIssue> issueFinder = mock(Finder.class);
@@ -326,7 +325,7 @@ public class DeviceInfoFactoryTest {
         when(dateLoggerDeviceConfiguration.canActAsGateway()).thenReturn(false);
         when(dateLoggerDeviceConfiguration.getVersion()).thenReturn(DATALOGGER_DEVICE_CONFIGURATION_VERSION);
 
-        when(usagePoint.getCurrentMeterActivations()).thenReturn(Arrays.asList(meterActivation));
+        when(usagePoint.getCurrentMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
         when(usagePoint.getMRID()).thenReturn(USAGEPOINT_MRID);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
 
@@ -431,6 +430,15 @@ public class DeviceInfoFactoryTest {
         when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
     }
 
+    private void setupTranslations() {
+        when(thesaurus.getString(any(), any())).thenReturn("Translation not supported in unit tests");
+        when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
+                .thenAnswer(invocationOnMock -> {
+                    DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
+                    return state.getDefaultFormat();
+                });
+    }
+
     private OpenIssue mockIssue(IssueType dataCollectionIssueType) {
         OpenIssue issue = mock(OpenIssue.class);
         IssueReason issueReason = mock(IssueReason.class);
@@ -472,7 +480,6 @@ public class DeviceInfoFactoryTest {
         when(mockedChannel.getChannelSpec()).thenReturn(channelSpec);
         when(mockedChannel.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(mockedChannel.getOverflow()).thenReturn(Optional.empty());
-
     }
 
     @Test
