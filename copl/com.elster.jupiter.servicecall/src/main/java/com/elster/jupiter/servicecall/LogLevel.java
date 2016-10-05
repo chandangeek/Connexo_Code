@@ -29,6 +29,7 @@ public enum LogLevel implements TranslationKey {
     public static String getTranslationKey(LogLevel ll){
         return "servicecalltype.loglevel." + ll.name().toLowerCase();
     }
+
     @Override
     public String toString() {
         return this.name;

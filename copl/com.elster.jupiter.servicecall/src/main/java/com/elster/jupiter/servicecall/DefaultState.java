@@ -74,7 +74,7 @@ public enum DefaultState implements TranslationKey {
     }
 
     public String getDisplayName(Thesaurus thesaurus) {
-        return thesaurus.getString(getKey(), this.getDefaultFormat());
+        return thesaurus.getFormat(this).format();
     }
 
 }

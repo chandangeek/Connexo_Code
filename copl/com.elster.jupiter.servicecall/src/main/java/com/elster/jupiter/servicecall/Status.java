@@ -23,6 +23,7 @@ public enum Status implements TranslationKey {
     public static String getTranslationKey(Status status){
         return "servicecalltype.status." + status.name().toLowerCase();
     }
+
     @Override
     public String toString() {
         return this.name;
