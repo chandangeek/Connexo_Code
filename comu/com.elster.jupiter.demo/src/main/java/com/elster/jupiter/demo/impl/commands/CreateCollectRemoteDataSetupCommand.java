@@ -250,13 +250,13 @@ public class CreateCollectRemoteDataSetupCommand {
         if (!this.calendarService.findCalendarByMRID("Re-Cu-01").isPresent()) {
             this.fileImportCommandProvider.get()
                     .useImporter(CALENDAR_IMPORTER_FACTORY)
-                    .content(this.getClass().getResourceAsStream("re-cu-01.xml"))
+                    .content(this.getClass().getClassLoader().getResourceAsStream("re-cu-01.xml"))
                     .run();
         }
         if (!this.calendarService.findCalendarByMRID("Re-Cu-02").isPresent()) {
             this.fileImportCommandProvider.get()
                     .useImporter(CALENDAR_IMPORTER_FACTORY)
-                    .content(this.getClass().getResourceAsStream("re-cu-02.xml"))
+                    .content(this.getClass().getClassLoader().getResourceAsStream("re-cu-02.xml"))
                     .run();
         }
     }
