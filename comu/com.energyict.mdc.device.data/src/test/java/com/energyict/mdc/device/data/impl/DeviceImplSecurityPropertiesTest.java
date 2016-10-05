@@ -22,6 +22,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
@@ -137,7 +138,8 @@ public class DeviceImplSecurityPropertiesTest {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private MultiplierType multiplierType;
-
+    @Mock
+    private LockService lockService;
 
     @Before
     public void setup() {
@@ -253,7 +255,7 @@ public class DeviceImplSecurityPropertiesTest {
                 this.scheduledConnectionTaskProvider, this.inboundConnectionTaskProvider, this.connectionInitiationTaskProvider,
                 this.scheduledComTaskExecutionProvider, this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider, this.meteringGroupsService, this.customPropertySetService, this.readingTypeUtilService,
-                this.threadPrincipalService, this.userPreferencesService, this.deviceConfigurationService, deviceService);
+                this.threadPrincipalService, this.userPreferencesService, this.deviceConfigurationService, deviceService, lockService);
         device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services", null);
         return device;
     }
