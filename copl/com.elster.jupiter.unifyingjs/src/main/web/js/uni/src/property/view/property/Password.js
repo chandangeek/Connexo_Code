@@ -31,6 +31,7 @@ Ext.define('Uni.property.view.property.Password', {
         return {
             xtype: 'password-display-field',
             name: this.getName(),
+            passwordAsTextComponent: me.passwordAsTextComponent,
             itemId: this.key + 'passworddisplayfield'
         }
     },
@@ -81,7 +82,7 @@ Ext.define('Uni.property.view.property.Password', {
             }
             this.getField().setValue(value);
         } else {
-            if (this.getProperty().get('hasValue')) {
+            if (this.getProperty().get('hasValue') || !this.getProperty().get('isInheritedOrDefaultValue')) {
                 this.getDisplayField().setValue('********');
             } else {
                 this.getDisplayField().setValue(value);
