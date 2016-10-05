@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.validation.DataValidationAssociationProvider;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.data.Device;
@@ -16,18 +18,20 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component(name="com.energyict.mdc.device.data.impl.DataValidationMdcAssociationProvider",
         service = { DataValidationAssociationProvider.class },
         immediate = true)
+@SuppressWarnings("unused")
 public class DataValidationMdcAssociationProvider implements DataValidationAssociationProvider {
 
     private volatile DeviceService deviceService;
     private volatile Clock clock;
 
     public DataValidationMdcAssociationProvider() {
-
+        // nothing to do
     }
 
     @Inject
@@ -36,24 +40,31 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
     }
 
     @Override
-    public List<DataValidationStatus> getRegisterSuspects(String mRID, Range<Instant> range) {
-        return deviceService.findDeviceByMrid(mRID)
+    public List<DataValidationStatus> getRegisterSuspects(EndDevice endDevice, Range<Instant> range) {
+        return findDeviceByEndDevice(endDevice)
                 .map(device -> getDataValidationStatusForRegister(device, range))
                 .orElse(Collections.emptyList());
     }
 
     @Override
-    public List<DataValidationStatus> getChannelsSuspects(String mRID, Range<Instant> range) {
-        return deviceService.findDeviceByMrid(mRID)
+    public List<DataValidationStatus> getChannelsSuspects(EndDevice endDevice, Range<Instant> range) {
+        return findDeviceByEndDevice(endDevice)
                 .map(device -> getDataValidationStatusForChannels(device, range))
                 .orElse(Collections.emptyList());
     }
 
     @Override
-    public boolean isAllDataValidated(String mRID, Range<Instant> range){
-        return deviceService.findDeviceByMrid(mRID)
+    public boolean isAllDataValidated(EndDevice endDevice, Range<Instant> range) {
+        return findDeviceByEndDevice(endDevice)
                 .map(device -> isAllDataValidated(device, range))
                 .orElse(false);
+    }
+
+    private Optional<Device> findDeviceByEndDevice(EndDevice device) {
+        if (device.getAmrSystem().getId() == KnownAmrSystem.MDC.getId()) {
+            return deviceService.findDeviceById(Long.valueOf(device.getAmrId()));
+        }
+        return Optional.empty();
     }
 
     private List<DataValidationStatus> getDataValidationStatusForRegister(Device device, Range<Instant> range){
