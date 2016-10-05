@@ -41,11 +41,11 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
 
     //osgi
     public CalendarInfoFactoryImpl() {
-
     }
 
     @Inject
     public CalendarInfoFactoryImpl(Thesaurus thesaurus) {
+        this();
         this.thesaurus = thesaurus;
     }
 
@@ -101,7 +101,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         for (LocalDate date : dayTypesPerDay.keySet()) {
             DayType dayType = dayTypesPerDay.get(date);
             DayInfo dayInfo = new DayInfo();
-            dayInfo.name = thesaurus.getTranslations().get(date.getDayOfWeek().name());
+            dayInfo.name = thesaurus.getFormat(TranslationKeys.from(date.getDayOfWeek().name())).format();
             LocalDate calculatedDate  = localDate.plusDays(counter);
             dayInfo.date = calculatedDate.toEpochDay();
             dayInfo.inCalendar = isDayInCalendar(calendar, calculatedDate);
@@ -109,20 +109,19 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
             calendarInfo.weekTemplate.add(dayInfo);
             dayTypes.put(dayType.getId(), dayType);
             dayType.getEventOccurrences()
-                    .stream()
                     .forEach(eventOccurrence -> events.put(eventOccurrence.getEvent()
                             .getId(), eventOccurrence.getEvent()));
             counter ++;
         }
-        ArrayList<DayType> dayTypesList = new ArrayList<>();
+        List<DayType> dayTypesList = new ArrayList<>();
         dayTypesList.addAll(dayTypes.values());
         addDayTypes(calendarInfo, dayTypesList);
 
-        ArrayList<Event> eventList = new ArrayList<>();
+        List<Event> eventList = new ArrayList<>();
         eventList.addAll(events.values());
         addEvents(calendarInfo, eventList);
 
-        ArrayList<PeriodTransition> periodList = new ArrayList<>();
+        List<PeriodTransition> periodList = new ArrayList<>();
         periodList.addAll(periodTransistions.values());
         addPeriods(calendarInfo, periodList);
 
@@ -201,23 +200,20 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
 
     private void addDayTypes(CalendarInfo calendarInfo, List<DayType> dayTypes) {
         calendarInfo.dayTypes = new ArrayList<>();
-        dayTypes.stream()
-                .forEach(dayType -> calendarInfo.dayTypes.add(createDayType(dayType)));
+        dayTypes.forEach(dayType -> calendarInfo.dayTypes.add(createDayType(dayType)));
 
     }
 
     private void addDaysPerType(CalendarInfo calendarInfo, List<Period> periods, List<DayType> dayTypes) {
         calendarInfo.daysPerType = new ArrayList<>();
         Map<Long, LinkedHashSet<String>> daysPerDaytype = new HashMap<>();
-        dayTypes.stream()
-                .forEach(dayType -> daysPerDaytype.put(dayType.getId(), new LinkedHashSet<>()));
+        dayTypes.forEach(dayType -> daysPerDaytype.put(dayType.getId(), new LinkedHashSet<>()));
         for(Period period: periods) {
             Stream.of(DayOfWeek.values())
-                    .forEach(dow -> daysPerDaytype.get(period.getDayType(dow).getId()).add(thesaurus.getTranslations().get(dow.name())));
+                    .forEach(dow -> daysPerDaytype.get(period.getDayType(dow).getId()).add(thesaurus.getFormat(TranslationKeys.from(dow.name())).format()));
         }
 
         daysPerDaytype.keySet()
-                .stream()
                 .forEach(key -> calendarInfo.daysPerType.add(new DaysPerTypeInfo(key, new ArrayList<>(daysPerDaytype.get(key)))));
     }
 
@@ -233,7 +229,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
 
     private void createRanges(DayTypeInfo dayTypeInfo, DayType dayType) {
         dayTypeInfo.ranges = new ArrayList<>();
-        dayType.getEventOccurrences().stream()
+        dayType.getEventOccurrences()
                 .forEach(eventOccurrence -> dayTypeInfo.ranges.add(createRangeInfo(eventOccurrence)));
     }
 
@@ -245,8 +241,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
 
     private void addEvents(CalendarInfo calendarInfo, List<Event> events) {
         calendarInfo.events = new ArrayList<>();
-        events.stream()
-                .forEach(event -> calendarInfo.events.add(new EventInfo(event.getId(), event.getName(), event.getCode())));
+        events.forEach(event -> calendarInfo.events.add(new EventInfo(event.getId(), event.getName(), event.getCode())));
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
