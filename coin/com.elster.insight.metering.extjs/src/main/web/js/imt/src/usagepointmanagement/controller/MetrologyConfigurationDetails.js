@@ -59,50 +59,8 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
     },
 
     showPreview: function (selectionModel, record) {
-        var me = this,
-            model = Ext.create('Imt.metrologyconfiguration.model.Formula'),
-            reader = model.getProxy().getReader(),
-            metrologyContracts = me.usagePoint.get('metrologyConfiguration').purposes,
-            resultSet;
+        var me = this;
 
-        Ext.suspendLayouts();
-        me.getPage().down('purposes-preview').setTitle(Ext.String.htmlEncode(record.get('name')));
-        me.getPage().down('#purposes-preview-container').removeAll(true);
-        me.getPage().down('#purposes-preview-container').add(Ext.widget('displayfield', {
-                fieldLabel: ' ',
-                value: ' '
-            }
-        ));
-        Ext.Array.each(record.get('meterRoles'), function (meterRole) {
-            var deviceLink;
-            if (meterRole.mRID) {
-                if (meterRole.url) {
-                    deviceLink = Ext.String.format('<a href="{0}" target="_blank">{1}</a>', meterRole.url, Ext.String.htmlEncode(meterRole.mRID));
-                } else {
-                    deviceLink = Ext.String.htmlEncode(meterRole.mRID);
-                }
-            } else {
-                deviceLink = '-';
-            }
-            me.getPage().down('#purposes-preview-container').add(Ext.widget('displayfield', {
-                    htmlEncode: false,
-                    fieldLabel: meterRole.name,
-                    itemId: meterRole.mRID,
-                    value: deviceLink
-                }
-            ));
-        });
-
-        me.getPage().down('purposes-preview').clearFormulaComponents();
-
-        Ext.Array.each(metrologyContracts, function (metrologyContract) {
-            if(metrologyContract.name == record.get('name')){
-                Ext.Array.each(metrologyContract.readingTypeDeliverables, function (readingTypeDeliverable) {
-                    resultSet = reader.readRecords(readingTypeDeliverable.formula); // Making record with associated data
-                    me.getPage().down('purposes-preview').addFormulaComponents(resultSet.records[0], me.usagePoint.customPropertySets());
-                });
-            }
-        });
-        Ext.resumeLayouts(true);
+        me.getPage().down('purposes-preview').loadRecord(record, me.usagePoint);
     }
 });
