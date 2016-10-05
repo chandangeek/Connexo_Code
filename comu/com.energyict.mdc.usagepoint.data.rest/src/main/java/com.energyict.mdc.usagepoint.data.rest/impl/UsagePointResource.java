@@ -78,21 +78,21 @@ public class UsagePointResource {
     }
 
     @GET
-    @Path("/{mRID}/history/devices")
+    @Path("/{name}/history/devices")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
-    public PagedInfoList getDevicesHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(mRID);
+    public PagedInfoList getDevicesHistory(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(name);
         return PagedInfoList.fromCompleteList("devices", meterInfoFactory.getDevicesHistory(usagePoint), queryParameters);
     }
 
     @GET
-    @Path("/{mRID}/channels")
+    @Path("/{name}/channels")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Transactional
-    public PagedInfoList getChannels(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getChannels(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         List<UsagePointChannelInfo> channelInfos = new ArrayList<>();
-        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(mRID);
+        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().orElse(null);
         if (effectiveMetrologyConfiguration != null) {
             UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
@@ -107,12 +107,12 @@ public class UsagePointResource {
     }
 
     @GET
-    @Path("/{mRID}/channels/{channelId}")
+    @Path("/{name}/channels/{channelId}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
-    public UsagePointChannelInfo getChannel(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(mRID);
+    public UsagePointChannelInfo getChannel(@PathParam("name") String name, @PathParam("channelId") long channelId) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint.getName()));
         Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
@@ -120,12 +120,12 @@ public class UsagePointResource {
     }
 
     @GET
-    @Path("/{mRID}/channels/{channelId}/data")
+    @Path("/{name}/channels/{channelId}/data")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
-    public PagedInfoList getChannelData(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(mRID);
+    public PagedInfoList getChannelData(@PathParam("name") String name, @PathParam("channelId") long channelId, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(name);
         List<ChannelDataInfo> outputChannelDataInfoList = Collections.emptyList();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));

@@ -43,6 +43,7 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -95,8 +96,8 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
     @Before
     public void before() {
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
-        when(meteringService.findUsagePointByMRID(any())).thenReturn(Optional.empty());
-        when(meteringService.findUsagePointByMRID(UP_NAME)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName(UP_NAME)).thenReturn(Optional.of(usagePoint));
         when(validationService.getEvaluator(meter)).thenReturn(validationEvaluator);
         when(validationService.getEvaluator(meter_2)).thenReturn(validationEvaluator);
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.empty());
@@ -160,7 +161,7 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.message")).isEqualTo("No usage point with MRID xxx.");
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("No usage point with name xxx.");
     }
 
     @Test

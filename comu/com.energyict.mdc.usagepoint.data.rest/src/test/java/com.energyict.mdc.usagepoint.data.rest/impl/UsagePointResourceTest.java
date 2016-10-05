@@ -74,8 +74,8 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
     @Before
     public void before() {
         readingType = mockReadingType("11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        when(meteringService.findUsagePointByMRID("testUP")).thenReturn(Optional.of(usagePoint));
-        when(usagePoint.getMRID()).thenReturn("testUP");
+        when(meteringService.findUsagePointByName("testUP")).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getName()).thenReturn("testUP");
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
         when(meterActivation.getStart()).thenReturn(Instant.ofEpochMilli(1410774620100L));
         when(meterActivation.getEnd()).thenReturn(null);

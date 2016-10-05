@@ -22,8 +22,9 @@ public class ResourceHelper {
         this.exceptionFactory = exceptionFactory;
     }
 
-    public UsagePoint findUsagePointOrThrowException(String mRID) {
-        return meteringService.findUsagePointByMRID(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mRID));
+    public UsagePoint findUsagePointOrThrowException(String name) {
+        return meteringService.findUsagePointByName(name)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
     }
 
     public MetrologyContract findMetrologyContractOfChannelOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint, long channelId) {
