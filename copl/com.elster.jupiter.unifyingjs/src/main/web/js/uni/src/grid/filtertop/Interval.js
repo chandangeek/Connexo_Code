@@ -14,7 +14,6 @@ Ext.define('Uni.grid.filtertop.Interval', {
     defaultFromDate: undefined,
     defaultToDate: undefined,
     originalTitle: null,
-
     initComponent: function () {
         var me = this;
 
@@ -66,6 +65,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     align: 'stretch',
                                     pack: 'center'
                                 },
+                                ui: 'small',
                                 items: [
                                     {
                                         xtype: 'label',
@@ -81,7 +81,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         margins: '0 1 0 0',
                                         format: Uni.util.Preferences.lookup(Uni.DateTime.dateLongKey, Uni.DateTime.dateLongDefault),
                                         emptyText: Uni.I18n.translate('grid.filter.date.datefield.emptytext', 'UNI', 'Select a date'),
-                                        flex: 1
+                                        width: 129
                                     }
                                 ]
                             },
@@ -107,7 +107,6 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         maxValue: 23,
                                         editable: false,
                                         emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
-                                        flex: 1,
                                         valueToRaw: function (value) {
                                             if (!Ext.isDefined(value)) {
                                                 return null;
@@ -115,7 +114,8 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
                                             value = value || 0;
                                             return (value < 10 ? '0' : '') + value;
-                                        }
+                                        },
+                                        width: 57
                                     },
                                     {
                                         xtype: 'label',
@@ -130,7 +130,6 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         maxValue: 59,
                                         editable: false,
                                         emptyText: Uni.I18n.translate('grid.filter.date.minutefield.emptytext', 'UNI', '00'),
-                                        flex: 1,
                                         valueToRaw: function (value) {
                                             if (!Ext.isDefined(value)) {
                                                 return null;
@@ -138,7 +137,8 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
                                             value = value || 0;
                                             return (value < 10 ? '0' : '') + value;
-                                        }
+                                        },
+                                        width: 57
                                     }
                                 ]
                             },
@@ -165,7 +165,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         margins: '0 1 0 0',
                                         format: Uni.util.Preferences.lookup(Uni.DateTime.dateLongKey, Uni.DateTime.dateLongDefault),
                                         emptyText: Uni.I18n.translate('grid.filter.date.datefield.emptytext', 'UNI', 'Select a date'),
-                                        flex: 1
+                                        width: 129
                                     }
                                 ]
                             },
@@ -191,7 +191,6 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         maxValue: 23,
                                         editable: false,
                                         emptyText: Uni.I18n.translate('grid.filter.date.hourfield.emptytext', 'UNI', '00'),
-                                        flex: 1,
                                         valueToRaw: function (value) {
                                             if (!Ext.isDefined(value)) {
                                                 return null;
@@ -199,7 +198,8 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
                                             value = value || 0;
                                             return (value < 10 ? '0' : '') + value;
-                                        }
+                                        },
+                                        width: 57
                                     },
                                     {
                                         xtype: 'label',
@@ -214,7 +214,6 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         maxValue: 59,
                                         editable: false,
                                         emptyText: Uni.I18n.translate('grid.filter.date.minutefield.emptytext', 'UNI', '00'),
-                                        flex: 1,
                                         valueToRaw: function (value) {
                                             if (!Ext.isDefined(value)) {
                                                 return null;
@@ -222,7 +221,8 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
                                             value = value || 0;
                                             return (value < 10 ? '0' : '') + value;
-                                        }
+                                        },
+                                        width: 57
                                     }
                                 ]
                             },
