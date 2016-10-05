@@ -74,6 +74,20 @@ Ext.define('Dbp.controller.History', {
                                         status:'',
                                         process: ''
                                     }
+                                },
+                                completeTask: {
+                                    title: Uni.I18n.translate('bpm.task.comlete', 'DBP', 'Complete'),
+                                    route: 'complete',
+                                    controller: 'Bpm.controller.OpenTask',
+                                    privileges: Bpm.privileges.BpmManagement.execute,
+                                    action: 'showPerformTask',
+                                    params: {
+                                        sort: '',
+                                        user: '',
+                                        dueDate:'',
+                                        status:'',
+                                        process: ''
+                                    }
                                 }
                             }
                         },
