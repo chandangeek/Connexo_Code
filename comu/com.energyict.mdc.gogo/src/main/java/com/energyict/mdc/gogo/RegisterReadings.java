@@ -114,7 +114,9 @@ public class RegisterReadings {
                 "\tdata     : comma-separated properties formatted as field=value\n");
     }
 
-    public void addDeviceEvent(String deviceName, String eventCode, String dateTime, String mrid, String name, String alias, String description, String reason, String severity, String status, String type, String issuerId, String issuerTrackingId, long logBookId, int logBookPosition, String data) {
+    public void addDeviceEvent(String deviceName, String eventCode, String dateTime, String mrid, String name, String alias,
+                               String description, String reason, String severity, String status, String type, String issuerId,
+                               String issuerTrackingId, long logBookId, int logBookPosition, String data) {
         try {
             Instant eventTime = Instant.from(parseDateFormat.parse(dateTime));
             Optional<Device> found = this.deviceService.findDeviceByName(deviceName);
