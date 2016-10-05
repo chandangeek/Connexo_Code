@@ -186,7 +186,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public Optional<UsagePoint> findAndLockUsagePointBymRIDAndVersion(String mRID, long version) {
+    public Optional<UsagePoint> findAndLockUsagePointByMRIDAndVersion(String mRID, long version) {
         return findUsagePointByMRID(mRID).flatMap(usagePoint ->
                 dataModel.mapper(UsagePoint.class).lockObjectIfVersion(version, usagePoint.getId()));
     }

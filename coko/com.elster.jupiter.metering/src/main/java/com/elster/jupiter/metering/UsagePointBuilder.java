@@ -12,10 +12,6 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordinates);
 
-    // TODO: update import & remove
-    @Deprecated
-    UsagePointBuilder withName(String name);
-
     UsagePointBuilder withIsSdp(boolean isSdp);
 
     UsagePointBuilder withIsVirtual(boolean isVirtual);

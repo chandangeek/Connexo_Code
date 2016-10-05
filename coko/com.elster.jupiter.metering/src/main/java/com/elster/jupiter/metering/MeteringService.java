@@ -49,7 +49,7 @@ public interface MeteringService {
 
     Optional<UsagePoint> findAndLockUsagePointByIdAndVersion(long id, long version);
 
-    Optional<UsagePoint> findAndLockUsagePointBymRIDAndVersion(String mRID, long version);
+    Optional<UsagePoint> findAndLockUsagePointByMRIDAndVersion(String mRID, long version);
 
     Optional<UsagePoint> findUsagePointByMRID(String mRID);
 

@@ -65,12 +65,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder withName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    @Override
     public UsagePointBuilder withIsSdp(boolean isSdp) {
         this.isSdp = isSdp;
         return this;
