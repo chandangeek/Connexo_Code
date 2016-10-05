@@ -129,7 +129,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
                                 .named(member + id)
                                 .add()
                 );
-        builder.named("ValidationKpi_grp" + getDeviceGroup().getId() + "_dev" + id);
+        //builder.named("ValidationKpi_grp" + getDeviceGroup().getId() + "_dev" + id);
         childrenKpis.add(DataValidationKpiChildImpl.from(dataModel, this, builder.create()));
     }
 
@@ -273,6 +273,10 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
                 );
     }
 
+    String deviceIdAsString(KpiMember member) {
+        return member.getName().substring(member.getName().indexOf("_") + 1);
+    }
+
     private Set<Long> intersection(Set<Long> first, Set<Long> second) {
         return first.stream()
                 .filter(second::contains)
@@ -297,9 +301,6 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
                 .collect(Collectors.toSet());
     }
 
-    private String deviceIdAsString(KpiMember member) {
-        return member.getName().substring(member.getName().indexOf("_") + 1);
-    }
 
     private interface RecurrentTaskSaveStrategy {
         void save();

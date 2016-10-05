@@ -88,7 +88,7 @@ class DataManagementKpiCalculatorHandler implements TaskExecutor {
                 transactionContext.commit();
             }
         } catch (Exception ex) {
-            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to store Validation KPI data for device having ID of" + endDeviceId
+            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to store Validation KPI data for device having ID of " + endDeviceId
                     + " . Error: " + ex.getLocalizedMessage(), ex));
         }
     }
