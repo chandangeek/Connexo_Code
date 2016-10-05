@@ -1,9 +1,12 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
+
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -12,13 +15,17 @@ import org.mockito.Matchers;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -29,6 +36,26 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 9/12/14.
  */
 public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJerseyTest {
+
+    @Override
+    protected void setupThesaurus() {
+        super.setupThesaurus();
+        Stream.of(SecurityPropertySetPrivilegeTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(MessageSeeds.values()).forEach(this::mockTranslation);
+    }
+
+    private void mockTranslation(SecurityPropertySetPrivilegeTranslationKeys translationKey) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
+        doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
+    }
+
+    private void mockTranslation(MessageSeeds messageSeed) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg()))
+            .thenAnswer(invocationOnMock -> MessageFormat.format(messageSeed.getDefaultFormat(), invocationOnMock.getArguments()));
+        doReturn(messageFormat).when(thesaurus).getFormat(messageSeed);
+    }
 
     @Test
     public void testAddPrivilege() throws Exception {

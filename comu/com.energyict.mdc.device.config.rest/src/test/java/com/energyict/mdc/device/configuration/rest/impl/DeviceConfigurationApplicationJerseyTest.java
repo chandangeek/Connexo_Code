@@ -116,6 +116,10 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         registerTypeInfoFactory = new RegisterTypeInfoFactory(readingTypeInfoFactory);
         registerGroupInfoFactory = new RegisterGroupInfoFactory(registerTypeInfoFactory);
         loadProfileTypeOnDeviceTypeInfoFactory = new LoadProfileTypeOnDeviceTypeInfoFactory(registerTypeInfoFactory);
+        this.setupThesaurus();
+    }
+
+    protected void setupThesaurus() {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
         doReturn(messageFormat).when(thesaurus).getFormat(any(MessageSeed.class));
