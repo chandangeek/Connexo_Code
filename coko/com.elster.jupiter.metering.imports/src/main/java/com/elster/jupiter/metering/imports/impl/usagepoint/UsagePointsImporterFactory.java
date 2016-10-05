@@ -73,8 +73,7 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
 
     @Override
     public String getDisplayName() {
-        return getContext().getThesaurus()
-                .getString(USAGEPOINT_FILE_IMPORTER.getKey(), USAGEPOINT_FILE_IMPORTER.getDefaultFormat());
+        return getContext().getThesaurus().getFormat(USAGEPOINT_FILE_IMPORTER).format();
     }
 
     @Override
