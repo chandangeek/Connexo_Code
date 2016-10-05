@@ -441,6 +441,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             if (values.connectionStrategy === 'AS_SOON_AS_POSSIBLE') {
                 record.set('nextExecutionSpecs', null);
             }
+            if (values.connectionStrategy === 'MINIMIZE_CONNECTIONS') {
+                record.set('numberOfSimultaneousConnections', 1);
+            }
             if (!values.hasOwnProperty('comWindowStart')) {
                 record.set('comWindowStart', 0);
                 record.set('comWindowEnd', 0);
