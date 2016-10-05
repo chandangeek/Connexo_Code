@@ -2,8 +2,6 @@ package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer16;
-import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -12,12 +10,8 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-
-import static com.jidesoft.action.DockableBar.o;
-
 
 public class PPPSetupAttributesMapping extends RegisterMapping {
 
