@@ -71,11 +71,11 @@ public class ResourceHelper {
     }
 
     public ServiceCategory findServiceCategory(IdWithNameInfo serviceCategoryInfo) {
-        return meteringService.getServiceCategory(Arrays.stream(ServiceKind.values())
+        return Arrays.stream(ServiceKind.values())
                 .filter(kind -> kind.name().equals(serviceCategoryInfo.id))
                 .findFirst()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.SERVICE_CATEGORY_NOT_FOUND)))
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.SERVICE_CATEGORY_NOT_FOUND));
+                .flatMap(meteringService::getServiceCategory)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SERVICE_CATEGORY_NOT_FOUND));
     }
 
     public List<ReadingType> findReadingTypes(List<ReadingTypeInfo> readingTypesInfo) {
@@ -84,33 +84,38 @@ public class ResourceHelper {
 
     public Optional<UsagePoint> getLockedUsagePoint(long id, long version) {
         return meteringService
-                .findAndLockUsagePointByIdAndVersion(id, version)
-                .map(UsagePoint.class::cast);
+                .findAndLockUsagePointByIdAndVersion(id, version);
     }
 
     public UsagePoint findAndLockUsagePoint(UsagePointInfo info) {
         return getLockedUsagePoint(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
-                        .withActualVersion(() -> getCurrentUsagePointVersion(info.mRID))
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getCurrentUsagePointVersion(info.id))
                         .supplier());
     }
 
     public UsagePoint findAndLockUsagePointForMetrologyConfigSave(UsagePointInfo info) {
         return getLockedUsagePoint(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
-                        .withMessageTitle(MessageSeeds.METROLOGY_CONFIG_VERSION_CONCURRENCY_ERROR_ON_USAGE_POINT_TITLE, info.mRID)
-                        .withMessageBody(MessageSeeds.METROLOGY_CONFIG_VERSION_CONCURRENCY_ERROR_ON_USAGE_POINT_BODY, info.mRID)
-                        .withActualVersion(() -> getCurrentUsagePointVersion(info.mRID))
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withMessageTitle(MessageSeeds.METROLOGY_CONFIG_VERSION_CONCURRENCY_ERROR_ON_USAGE_POINT_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.METROLOGY_CONFIG_VERSION_CONCURRENCY_ERROR_ON_USAGE_POINT_BODY, info.name)
+                        .withActualVersion(() -> getCurrentUsagePointVersion(info.id))
                         .supplier());
     }
 
     public EffectiveMetrologyConfigurationOnUsagePoint getMetrologyConfigVersionOrThrowException(UsagePoint usagePoint, Instant start) {
-        return usagePoint.getEffectiveMetrologyConfigurationByStart(start).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_VERSION_WITH_START, start));
+        return usagePoint.getEffectiveMetrologyConfigurationByStart(start)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_VERSION_WITH_START, start));
     }
 
-    public Long getCurrentUsagePointVersion(String mRID) {
-        return meteringService.findUsagePointByMRID(mRID)
+    private Long getCurrentUsagePointVersion(long id) {
+        return meteringService.findUsagePointById(id)
                 .map(UsagePoint::getVersion)
                 .orElse(null);
+    }
+
+    public UsagePoint findUsagePointByNameOrThrowException(String name) {
+        return meteringService.findUsagePointByName(name)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(com.elster.jupiter.metering.MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
     }
 }

@@ -33,7 +33,6 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -42,8 +41,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
-
-    public static final Instant NOW = ZonedDateTime.of(2015, 12, 10, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
+    private static final String USAGE_POINT_NAME = "El nombre";
+    private static final Instant NOW = ZonedDateTime.of(2015, 12, 10, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
 
     @Mock
     private User principal;
@@ -63,7 +62,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
     @Before
     public void setUp1() {
         when(meteringService.findUsagePointById(1L)).thenReturn(Optional.of(usagePoint));
-        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
         when(serviceCategory.newUsagePoint(eq("test"), any(Instant.class))).thenReturn(usagePointBuilder);
         when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
@@ -121,7 +120,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
     @Test
     public void testGetUsagePointInfo() {
         when(principal.hasPrivilege(any(String.class), any(String.class))).thenReturn(true);
-        UsagePointInfo response = target("usagepoints/test").request().get(UsagePointInfo.class);
+        UsagePointInfo response = target("usagepoints/" + USAGE_POINT_NAME).request().get(UsagePointInfo.class);
         assertThat(response.id).isEqualTo(1L);
     }
 
@@ -147,7 +146,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         info.installationTime = Instant.EPOCH.toEpochMilli();
         info.version = 1L;
 
-        Response response = target("usagepoints/1").request().put(Entity.json(info));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
         verify(usagePoint, times(1)).setName("upd");
         verify(usagePoint, times(1)).setInstallationTime(any(Instant.class));
@@ -156,9 +155,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
 
     @Test
     public void testGetUsagePointMetrologyConfigurationHistory() {
-        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
-
-        String json = target("usagepoints/MRID/history/metrologyconfigurations").request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/history/metrologyconfigurations").request().get(String.class);
 
         //Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -169,8 +166,6 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
 
     @Test
     public void testUpdateMetrologyConfigurationVersions() {
-        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
-
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mockEffectiveMetrologyConfiguration();
         UsagePointMetrologyConfiguration config = mockMetrologyConfiguration(1L, "MC-1", "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
@@ -196,17 +191,17 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         info.version = 1L;
         info.metrologyConfigurationVersion = effectiveMCInfo;
 
-        Response response = target("usagepoints/MRID/metrologyconfigurationversion").request().post(Entity.json(info));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfigurationversion").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
         verify(usagePoint, times(1)).apply(config, Instant.EPOCH, Instant.EPOCH);
 
         effectiveMCInfo.editable = true;
 
-        response = target("usagepoints/MRID/metrologyconfigurationversion/" + Instant.EPOCH.toEpochMilli()).request().put(Entity.json(info));
+        response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfigurationversion/" + Instant.EPOCH.toEpochMilli()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
         verify(usagePoint, times(1)).updateWithInterval(effectiveMetrologyConfigurationOnUsagePoint, config, Instant.EPOCH, Instant.EPOCH);
 
-        response = target("usagepoints/MRID/metrologyconfigurationversion/1").request().build("DELETE", Entity.json(info)).invoke();
+        response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfigurationversion/1").request().build("DELETE", Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(200);
         verify(usagePoint, times(1)).removeMetrologyConfigurationVersion(effectiveMetrologyConfigurationOnUsagePoint);
     }

@@ -2,7 +2,9 @@ package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+
 import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,14 +33,13 @@ public class UsagePointInfoFactoryTest {
     public void setUp() throws Exception {
         when(thesaurus.join(any(Thesaurus.class))).thenReturn(thesaurus);
         when(nlsService.getThesaurus(anyString(), anyObject())).thenReturn(thesaurus);
-
     }
 
     @Test
     public void testModelMapsToInfoFields() throws Exception {
         UsagePointInfoFactory factory = new UsagePointInfoFactory();
         factory.setNlsService(nlsService);
-        factory.modelStructure().stream().forEach(prop -> {
+        factory.modelStructure().forEach(prop -> {
             try {
                 UsagePointTranslatedInfo.class.getField(prop.propertyName);
                 assertTrue("Missing translation for " + prop.propertyName, Arrays.stream(TranslationSeeds.values()).anyMatch(key -> key.getKey().equals(prop.propertyName)));
