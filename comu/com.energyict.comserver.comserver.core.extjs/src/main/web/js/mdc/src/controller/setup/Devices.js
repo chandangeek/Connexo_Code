@@ -426,20 +426,22 @@ Ext.define('Mdc.controller.setup.Devices', {
                 location.href = "#/devices/" + encodeURIComponent(record.get('mRID'));
             },
             failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText);
-                if (json && json.errors) {
-                    var errorsToShow = [];
-                    Ext.each(json.errors, function (item) {
-                        if (item.id != 'deviceType') { // JP-6865 #hide device type error returned from backend
-                            errorsToShow.push(item)
-                        } else {
-                            if (!form.down('#deviceAddType').getValue()) {
+                if (operation.response.status == 400) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        var errorsToShow = [];
+                        Ext.each(json.errors, function (item) {
+                            if (item.id != 'deviceType') { // JP-6865 #hide device type error returned from backend
                                 errorsToShow.push(item)
+                            } else {
+                                if (!form.down('#deviceAddType').getValue()) {
+                                    errorsToShow.push(item)
+                                }
                             }
-                        }
-                    });
-                    me.showErrorPanel(form);
-                    form.getForm().markInvalid(errorsToShow);
+                        });
+                        me.showErrorPanel(form);
+                        form.getForm().markInvalid(errorsToShow);
+                    }
                 }
             },
             callback: function () {
