@@ -66,6 +66,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -377,7 +378,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 UpgradeModule.FakeUpgradeService.getInstance(),
                                 injector.getInstance(MetrologyConfigurationService.class),
                                 injector.getInstance(ServiceCallService.class),
-                                injector.getInstance(ThreadPrincipalService.class));
+                                injector.getInstance(ThreadPrincipalService.class),
+                                injector.getInstance(LockService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }

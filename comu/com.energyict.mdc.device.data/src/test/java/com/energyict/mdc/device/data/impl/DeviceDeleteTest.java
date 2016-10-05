@@ -34,6 +34,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
@@ -197,6 +198,8 @@ public class DeviceDeleteTest {
     private EstimationService estimationService;
     @Mock
     private MeterRole meterRole;
+    @Mock
+    private LockService lockService;
 
     @Before
     public void setup() {
@@ -233,6 +236,8 @@ public class DeviceDeleteTest {
         when(historicalIssueQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
         when(issueService.findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.empty());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.MIN);
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(finiteStateMachine.getId()).thenReturn(633L);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
@@ -341,7 +346,7 @@ public class DeviceDeleteTest {
     }
 
     private DeviceImpl getNewDeviceWithMockedServices() {
-        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService);
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService);
         device.initialize(this.deviceConfiguration, "For testing purposes", "mRID", Instant.now());
         device.save();
         return device;
