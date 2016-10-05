@@ -11,10 +11,10 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -113,9 +113,9 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
                 .createDestinationSpec(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DESTINATION, ISSUE_OVERDUE_TASK_RETRY_DELAY);
         destination.activate();
-        destination.subscribe(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER);
+        destination.subscribe(TranslationKeys.SUBSCRIBER_NAME, IssueService.COMPONENT_NAME, Layer.DOMAIN);
 
-        RecurrentTask task = taskService.newBuilder()
+        taskService.newBuilder()
                 .setApplication("Admin")
                 .setName(ISSUE_OVERDUE_TASK_NAME)
                 .setScheduleExpressionString(ISSUE_OVERDUE_TASK_SCHEDULE)

@@ -3,6 +3,7 @@ package com.elster.jupiter.issue.impl.module;
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
+import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.nls.TranslationKey;
 
 /**
@@ -25,7 +26,8 @@ public enum TranslationKeys implements TranslationKey {
     ASSIGNACTION_PROPERTY_ASSIGNEE(AssignIssueAction.ASSIGNEE, "Assignee"),
     ASSIGNEACTION_PROPERTY_COMMENT(AssignIssueAction.COMMENT, "Comment"),
     COMMENTACTION_PROPERTY_COMMENT(CommentIssueAction.ISSUE_COMMENT, "Comment"),
-    UNASSIGNED(DatabaseConst.UNASSIGNED, "Unassigned");
+    UNASSIGNED(DatabaseConst.UNASSIGNED, "Unassigned"),
+    SUBSCRIBER_NAME(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DISPLAYNAME);
 
     private final String key;
     private final String defaultFormat;
