@@ -110,7 +110,7 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
                         member.score(localTimeStamp, allDataValidated ? BigDecimal.ONE : BigDecimal.ZERO);
                     }
                     if (ruleValidators.stream().anyMatch(r -> r.equals(member.getName()))) {
-                        member.score(localTimeStamp, BigDecimal.ONE);
+                        member.score(localTimeStamp, ruleValidators.size() > 0 ? BigDecimal.ONE : BigDecimal.ZERO);
                     }
                 });
                 range = Range.closedOpen(localTimeStamp.minus(Period.ofDays(1)), localTimeStamp);
