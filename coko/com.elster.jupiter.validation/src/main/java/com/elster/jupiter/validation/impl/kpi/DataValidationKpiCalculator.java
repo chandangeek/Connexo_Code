@@ -10,11 +10,12 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -132,10 +133,9 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
                         .flatMap(Collection::stream)
                         .map(rule -> rule.getImplementation()
                                 .substring(rule.getImplementation().lastIndexOf(".") + 1))
-                        .map(rule -> {
-                            return rule.toUpperCase() + "_" + entry.getKey()
-                                    .replace(fieldName, "");
-                        }));
+                        .map(rule -> rule.toUpperCase() + "_" + entry.getKey()
+                                .replace(fieldName, "")));
+    }
 
     public DataValidationKpi getDataValidationKpi() {
         return dataValidationKpi;
