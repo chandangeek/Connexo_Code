@@ -23,7 +23,7 @@ import java.util.Optional;
 
 public class UsagePointSearchableProperty extends AbstractSearchableDeviceProperty {
 
-    static final String PROPERTY_NAME = "device.usage.point.mrid";
+    static final String PROPERTY_NAME = "device.usage.point.name";
 
     private DeviceSearchDomain domain;
     private final PropertySpecService propertySpecService;
@@ -66,7 +66,7 @@ public class UsagePointSearchableProperty extends AbstractSearchableDeviceProper
         sqlBuilder.add(this.toSqlFragment(now));
         sqlBuilder.closeBracket();
         sqlBuilder.append(" AND ");
-        sqlBuilder.add(this.toSqlFragment("up.mRID", condition, now));
+        sqlBuilder.add(this.toSqlFragment("up.name", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }

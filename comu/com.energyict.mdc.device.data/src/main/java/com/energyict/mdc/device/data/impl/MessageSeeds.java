@@ -131,7 +131,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_USAGE_POINT(2106, Keys.NO_SUCH_USAGE_POINT, "No such usage point"),
     NO_CURRENT_METER_ACTIVATION(2107, Keys.NO_CURRENT_METER_ACTIVATION, "The requested meter does not seem to be active at the moment (no current meter activation)"),
     NO_METER_IN_ACTIVATION(2108, Keys.NO_METER_IN_ACTIVATION, "The meter activation does not seem to contain a meter"),
-    NO_DEVICE_FOR_METER(2109, Keys.NO_DEVICE_FOR_METER, "The meter activation of the usage point contains a meter, but the device counterpoint with MRID {0} could not be found"),
     NO_COMTASK_FOR_COMMAND(2110, Keys.NO_COMTASK_FOR_COMMAND, "A comtask to execute the device messages could not be located"),
     UNKNOWN_STATUS(2111, Keys.UNKNOWN_STATUS, "The requested contactor status is not supported at this time"),
     UNKNOWN_UNIT_CODE(2112, Keys.UNKNOWN_UNIT_CODE, "The requested load limit unit is not supported at this time"),
@@ -302,7 +301,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_SEARCH_DOMAIN = "device.invalidSearchDomain";
         public static final String NO_DESTINATION_SPEC_FOUND = "device.noDestinationSpecFound";
         public static final String NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND = "device.configchange.noBusinessLock";
-        public static final String NO_DEVICE_FOUND_FOR_MRID = "no.device.found.mrid";
         public static final String INCORRECT_DEVICE_VERSION = "incorrect.device.version";
         public static final String NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND = "device.configchange.single.device.noBusinessLock";
         public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG = "bulk.device.configchange.needto.search.on.config";
@@ -322,7 +320,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_SUCH_USAGE_POINT = "No.such.usage.point";
         public static final String NO_CURRENT_METER_ACTIVATION = "The.requested.meter.does.not.seem.to.be.active.at.the.moment.(no.current.meter.activation)";
         public static final String NO_METER_IN_ACTIVATION = "The.meter.activation.does.not.seem.to.contain.a.meter";
-        public static final String NO_DEVICE_FOR_METER = "The.meter.activation.of.the.usage.point.contains.a.meter,.but.the.device.counterpoint.with.respective.MRID.could.not.be.found";
         public static final String NO_COMTASK_FOR_COMMAND = "A.comtask.to.execute.the.device.messages.could.not.be.located";
         public static final String UNKNOWN_STATUS = "The.requested.contactor.status.is.not.supported.at.this.time";
         public static final String UNKNOWN_UNIT_CODE = "The.requested.load.limit.unit.is.not.supported.at.this.time";

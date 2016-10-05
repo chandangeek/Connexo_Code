@@ -502,9 +502,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         long eventStartUTC = 957225600000L;    // May 1st, 2000 00:00:00 (UTC)
         Instant eventStart = Instant.ofEpochMilli(eventStartUTC);
         Instant eventEnd = Instant.ofEpochMilli(eventStartUTC + DateTimeConstants.MILLIS_PER_DAY);   // May 2nd, 2000 00:00:00
-        Instant readingTimeStamp = eventEnd;
         com.elster.jupiter.metering.readings.beans.ReadingImpl reading =
-                com.elster.jupiter.metering.readings.beans.ReadingImpl.of(this.averageForwardEnergyReadingTypeMRID, readingValue, readingTimeStamp);
+                com.elster.jupiter.metering.readings.beans.ReadingImpl.of(this.averageForwardEnergyReadingTypeMRID, readingValue, eventEnd);
         reading.setTimePeriod(eventStart, eventEnd);
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addReading(reading);
@@ -520,7 +519,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(readings.get(0)).isInstanceOf(BillingReading.class);
         BillingReading billingReading = (BillingReading) readings.get(0);
         assertThat(billingReading.getType().getMRID()).isEqualTo(forwardBulkSecondaryEnergyReadingType.getMRID());
-        assertThat(billingReading.getTimeStamp()).isEqualTo(readingTimeStamp);
+        assertThat(billingReading.getTimeStamp()).isEqualTo(eventEnd);
         assertThat(billingReading.getRange().isPresent()).isTrue();
         assertThat(billingReading.getRange().get()).isEqualTo(Ranges.openClosed(eventStart, eventEnd));
         assertThat(billingReading.getValue()).isEqualTo(readingValue);
@@ -546,7 +545,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(simpleDevice.getChannels()).isEmpty();
     }
 
-
     @Test
     @Transactional
     public void createDeviceWithTwoChannelsTest() {
@@ -558,7 +556,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(reloadedDevice.getChannels()).isNotEmpty();
         assertThat(reloadedDevice.getChannels()).hasSize(2);
     }
-
 
     @Test(expected = CannotDeleteComScheduleFromDevice.class)
     @Transactional
@@ -673,7 +670,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             }
         }
     }
-
 
     // JP-5583
     @Test
@@ -1449,7 +1445,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.save();
     }
 
-
     @Test
     @Transactional
     public void createMeterConfigurationForMultipliedRegisterSpecTest() {
@@ -1521,7 +1516,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                         && channel.getBulkQuantityReadingType().isPresent() && channel.getBulkQuantityReadingType().get().getMRID().equals(channelTypeForRegisterType2.getReadingType().getMRID());
             }
         });
-
     }
 
     @Test
@@ -1655,7 +1649,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .nbrOfFractionDigits(nbrOfFractionDigits)
                 .overflow(overflow);
 
-
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
@@ -1720,7 +1713,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         deviceConfigurationBuilder.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder)
                 .nbrOfFractionDigits(nbrOfFractionDigits)
                 .overflow(overflow);
-
 
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
@@ -1917,7 +1909,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(updatedChannel.getObisCode()).isEqualTo(overruledObisCode);
     }
 
-
     @Test
     @Transactional
     public void overruleRegisterObisCodeTest() {
@@ -2012,7 +2003,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Channel channel = device.getLoadProfiles().get(0).getChannels().stream().filter(channel1 -> channel1.getReadingType().getMRID().equals(channelReadingType)).findFirst().get();
 
         device.getChannelUpdaterFor(channel).setObisCode(reverseEnergyObisCode).update();
-
     }
 
     @Test
