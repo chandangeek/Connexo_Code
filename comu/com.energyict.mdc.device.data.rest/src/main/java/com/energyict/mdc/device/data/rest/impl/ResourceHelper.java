@@ -514,9 +514,9 @@ public class ResourceHelper {
     private Condition addDeviceQueryCondition(MultivaluedMap<String, String> uriParams) {
         Condition conditionDevice = Condition.TRUE;
         JsonQueryFilter filter = new JsonQueryFilter(uriParams.getFirst("filter"));
-        String mRID = filter.getString("name");
-        if (mRID != null) {
-            conditionDevice = conditionDevice.and(where("name").likeIgnoreCase(mRID));
+        String name = filter.getString("name");
+        if (name != null) {
+            conditionDevice = conditionDevice.and(where("name").likeIgnoreCase(name));
         }
         String serialNumber = filter.getString("serialNumber");
         if (serialNumber != null) {

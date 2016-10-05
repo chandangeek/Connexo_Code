@@ -160,7 +160,7 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         when(endDeviceGroup.getMembers(Matchers.any(Instant.class))).thenReturn(Arrays.asList(endDevice));
         Finder<Device> finder = mock(Finder.class);
         when(deviceService.findAllDevices(Matchers.any())).thenReturn(finder);
-        when(finder.sorted("mRID", true)).thenReturn(finder);
+        when(finder.sorted("name", true)).thenReturn(finder);
         List<Device> devices = Arrays.asList(
                 mockDevice(1, "001", "Elster AS1440", "Default"),
                 mockDevice(2, "002", "Iskra 001", "Default"));

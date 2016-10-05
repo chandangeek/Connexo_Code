@@ -904,15 +904,15 @@ public class DeviceResource {
             return dataLoggerSlaveDeviceInfoFactory.forDataLoggerSlaves(deviceService.findAllDevices(getUnlinkedSlaveDevicesCondition(searchText))
                     .stream()
                     .limit(50)
-                    .collect(Collectors.<Device>toList()));
+                    .collect(Collectors.toList()));
         }
         return dataLoggerSlaveDeviceInfoFactory.forDataLoggerSlaves(Collections.emptyList());
     }
 
     private Condition getUnlinkedSlaveDevicesCondition(String dbSearchText) {
         // a. Datalogger slave devices
-        String regex = "*".concat(dbSearchText.replace(" ", "*").concat("*"));
-        Condition a = Where.where("mRID").likeIgnoreCase(regex)
+        String regex = '*' + dbSearchText.replace(' ', '*') + '*';
+        Condition a = Where.where("name").likeIgnoreCase(regex)
             .and(Where.where("deviceType.deviceTypePurpose").isEqualTo(DeviceTypePurpose.DATALOGGER_SLAVE));
         // b. that are not linked yet to a data logger
         Condition b = ListOperator.NOT_IN.contains(topologyService.findAllEffectiveDataLoggerSlaveDevices().asSubQuery("origin"), "id");

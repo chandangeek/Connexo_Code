@@ -2525,14 +2525,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
+    // TODO: bad test
     public void testFindAllSerialNumbers() throws Exception {
         Finder<Device> finder = mockFinder(Collections.emptyList());
         when(deviceService.findAllDevices(any())).thenReturn(finder);
-        Response response = target("/devices").queryParam("mRID", "COP*").queryParam("serialNumber", "*").request().get();
+        target("/devices").queryParam("name", "COP*").queryParam("serialNumber", "*").request().get();
         ArgumentCaptor<Condition> conditionArgumentCaptor = ArgumentCaptor.forClass(Condition.class);
         verify(deviceService).findAllDevices(conditionArgumentCaptor.capture());
         System.out.println(conditionArgumentCaptor.getValue());
-
     }
 
     public CustomPropertySet mockCustomPropertySet() {
@@ -2805,10 +2805,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
-        String mrid = "mrid";
-        when(deviceService.newDevice(deviceConfiguration, mrid, mrid, shipmentDate)).thenReturn(device);
+        String name = "Great name";
+        when(deviceService.newDevice(deviceConfiguration, name, "batch", shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.mRID = mrid;
+        deviceInfo.name = name;
         deviceInfo.deviceConfigurationId = deviceConfigId;
         deviceInfo.serialNumber = "MySerialNumber";
         deviceInfo.yearOfCertification = 1970;
@@ -2845,10 +2845,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
-        String mrid = "mrid";
-        when(deviceService.newDevice(deviceConfiguration, mrid, mrid, shipmentDate)).thenReturn(device);
+        String name = "Great name";
+        when(deviceService.newDevice(deviceConfiguration, name, "batch", shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.mRID = mrid;
+        deviceInfo.name = name;
         deviceInfo.deviceConfigurationId = deviceConfigId;
         deviceInfo.serialNumber = "MySerialNumber";
         deviceInfo.yearOfCertification = 1970;

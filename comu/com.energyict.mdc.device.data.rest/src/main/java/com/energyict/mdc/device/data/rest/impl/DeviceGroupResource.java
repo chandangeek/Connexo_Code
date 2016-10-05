@@ -28,6 +28,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -234,7 +235,7 @@ public class DeviceGroupResource {
         }
         if (!endDevices.isEmpty()) {
             Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(toList()));
-            devices = deviceService.findAllDevices(mdcMembers).sorted("mRID", true).stream().collect(toList());
+            devices = deviceService.findAllDevices(mdcMembers).sorted("name", true).stream().collect(toList());
         }
         return devices;
     }

@@ -306,8 +306,8 @@ public class DeviceAttributesInfoFactory {
                 List<String> locationData = propertyInfoList.stream()
                         .map(d -> d.propertyValueInfo.value.toString())
                         .collect(Collectors.toList());
-                EndDevice endDevice = meteringService.findEndDeviceByMRID(device.getName()).get();
-                LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId(), "Fake").newLocationBuilder();
+                EndDevice endDevice = meteringService.findEndDeviceByMRID(device.getmRID()).get();
+                LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId(), "Perversion").newLocationBuilder();
                 Map<String, Integer> ranking = meteringService
                         .getLocationTemplate()
                         .getTemplateMembers()
