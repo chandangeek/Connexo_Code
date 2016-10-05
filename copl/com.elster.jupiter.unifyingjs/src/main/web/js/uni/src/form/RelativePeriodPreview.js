@@ -94,7 +94,13 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                         maxValue: 23,
                         allowBlank: false,
                         width: 64,
-                        margin: '0 6 0 6'
+                        margin: '0 6 0 6',
+                        listeners: {
+                            blur: {
+                                fn: me.numberFieldValidation,
+                                scope: me
+                            }
+                        }
                     },
                     {
                         xtype: 'label',
@@ -114,7 +120,13 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                         maxValue: 59,
                         allowBlank: false,
                         width: 64,
-                        margin: '0 6 0 6'
+                        margin: '0 6 0 6',
+                        listeners: {
+                            blur: {
+                                fn: me.numberFieldValidation,
+                                scope: me
+                            }
+                        }
                     },
                     {
                         xtype: 'button',
@@ -290,5 +302,17 @@ Ext.define('Uni.form.RelativePeriodPreview', {
             }
         }
         return result;
+    },
+
+    numberFieldValidation: function (field) {
+        var me = this,
+            value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue) {
+            field.setValue(field.minValue);
+        } else if (value > field.maxValue) {
+            field.setValue(field.maxValue);
+        }
     }
+
 });

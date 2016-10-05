@@ -35,14 +35,20 @@ Ext.define('Uni.form.field.AtPeriod', {
                 value: 0,
                 minValue: 0,
                 maxValue: 23,
-                editable: false,
                 allowBlank: false,
                 width: 64,
-                margin: '0 6 0 0'
+                listeners: {
+                    blur: {
+                        fn: me.numberFieldValidation,
+                        scope: me
+                    }
+                }
             },
             {
                 xtype: 'label',
+                itemId: 'separator-field',
                 text: ':',
+                margin: '6 6 0 6',
                 cls: Ext.baseCSSPrefix + 'form-item-label',
                 style: {
                     fontWeight: 'normal'
@@ -56,10 +62,25 @@ Ext.define('Uni.form.field.AtPeriod', {
                 value: 0,
                 minValue: 0,
                 maxValue: 59,
-                editable: false,
                 allowBlank: false,
                 width: 64,
-                margin: '0 6 0 6'
+                margin: '0 6 0 0',
+                listeners: {
+                    blur: {
+                        fn: me.numberFieldValidation,
+                        scope: me
+                    }
+                }
+            },
+            {
+                xtype: 'label',
+                itemId: 'minutes-unit-field',
+                text: Uni.I18n.translate('period.minutes', 'UNI', 'minute(s)'),
+                cls: Ext.baseCSSPrefix + 'form-item-label',
+                style: {
+                    fontWeight: 'normal'
+                },
+                hidden: true
             }
         ];
     },
@@ -73,7 +94,9 @@ Ext.define('Uni.form.field.AtPeriod', {
             }
 
             me.lastHourTask = new Ext.util.DelayedTask(function () {
-                me.fireEvent('periodchange', me.getValue());
+                var newValue = me.getValue();
+                if (Ext.isEmpty(newValue)) return;
+                me.fireEvent('periodchange', newValue);
             });
 
             me.lastHourTask.delay(256);
@@ -85,7 +108,9 @@ Ext.define('Uni.form.field.AtPeriod', {
             }
 
             me.lastMinuteTask = new Ext.util.DelayedTask(function () {
-                me.fireEvent('periodchange', me.getValue());
+                var newValue = me.getValue();
+                if (Ext.isEmpty(newValue)) return;
+                me.fireEvent('periodchange', newValue);
             });
 
             me.lastMinuteTask.delay(256);
@@ -102,8 +127,14 @@ Ext.define('Uni.form.field.AtPeriod', {
 
     getValue: function () {
         var me = this,
-            hourValue = me.getHourField().getValue(),
-            minuteValue = me.getMinuteField().getValue();
+            hourField = me.getHourField(),
+            minuteField = me.getMinuteField(),
+            hourValue = hourField.getValue(),
+            minuteValue = minuteField.getValue();
+
+        if (hourValue < hourField.minValue || hourValue > hourField.maxValue || minuteValue < minuteField.minValue || minuteValue > minuteField.maxValue) {
+            return undefined;
+        }
 
         return {
             atHour: hourValue,
@@ -123,5 +154,17 @@ Ext.define('Uni.form.field.AtPeriod', {
             }
         }
         return result;
+    },
+
+    numberFieldValidation: function (field) {
+        var me = this,
+            value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue) {
+            field.setValue(field.minValue);
+        } else if (value > field.maxValue) {
+            field.setValue(field.maxValue);
+        }
     }
+
 });
