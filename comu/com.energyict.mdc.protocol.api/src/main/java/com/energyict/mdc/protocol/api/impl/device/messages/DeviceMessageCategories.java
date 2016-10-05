@@ -433,7 +433,7 @@ public enum DeviceMessageCategories implements TranslationKey {
 
         @Override
         public String getName() {
-            return this.thesaurus.getString(this.baseSpec.getKey(), this.baseSpec.getDefaultFormat());
+            return this.thesaurus.getFormat(this.baseSpec).format();
         }
 
         @Override
