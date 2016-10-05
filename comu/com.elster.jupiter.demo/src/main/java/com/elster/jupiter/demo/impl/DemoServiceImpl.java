@@ -574,35 +574,35 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createG3Gateway(String mrid){
+    public void createG3Gateway(String name){
         executeTransaction(() -> {
             CreateG3GatewayCommand command = injector.getInstance(CreateG3GatewayCommand.class);
-            if (mrid != null){ //Otherwise default mrId is Used
-                command.setGatewayName(mrid);
+            if (name != null){ //Otherwise default mrId is Used
+                command.setGatewayName(name);
             }
             command.run();
         });
     }
 
     @SuppressWarnings("unused")
-    public void createG3SlaveAS3000(String mrid){
+    public void createG3SlaveAS3000(String name){
         executeTransaction(() -> {
             CreateG3SlaveCommand command = injector.getInstance(CreateG3SlaveCommand.class);
             command.setConfig("AS3000");
-            if (mrid != null){ //Otherwise default mrId is Used
-                command.setMrId(mrid);
+            if (name != null){ //Otherwise default mrId is Used
+                command.setName(name);
             }
             command.run();
         });
     }
 
     @SuppressWarnings("unused")
-    public void createG3SlaveAS220(String mrid){
+    public void createG3SlaveAS220(String name){
         executeTransaction(() -> {
             CreateG3SlaveCommand command = injector.getInstance(CreateG3SlaveCommand.class);
             command.setConfig("AS220");
-            if (mrid != null){ //Otherwise default mrId is Used
-                command.setMrId(mrid);
+            if (name != null){ //Otherwise default mrId is Used
+                command.setName(name);
             }
             command.run();
         });

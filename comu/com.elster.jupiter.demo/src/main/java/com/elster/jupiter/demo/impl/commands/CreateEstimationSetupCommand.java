@@ -7,7 +7,9 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -49,7 +51,7 @@ public class CreateEstimationSetupCommand {
     }
 
     private void addEstimationToDevices(){
-        Condition devicesForActivation = where("mRID").like(Constants.Device.STANDARD_PREFIX + "*");
+        Condition devicesForActivation = where("name").like(Constants.Device.STANDARD_PREFIX + "*");
         deviceService.findAllDevices(devicesForActivation)
                 .stream().map(Device::forEstimation).forEach(DeviceEstimation::activateEstimation);
 

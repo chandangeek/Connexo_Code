@@ -101,7 +101,7 @@ public class CreateG3SlaveCommand {
 
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder;
 
-    private String mrId;
+    private String name;
     private MeterConfig meterConfig;
     private DeviceTypeTpl deviceTypeTemplate;
 
@@ -111,8 +111,8 @@ public class CreateG3SlaveCommand {
         this.lifecyclePostBuilder = lifecyclePostBuilder;;
     }
 
-    public void setMrId(String mrId) {
-        this.mrId = mrId;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setConfig(String meterConfigName){
@@ -127,8 +127,8 @@ public class CreateG3SlaveCommand {
         meterConfig.setDeviceConfiguration(deviceConfiguration);
         meterConfig.setSecurityPropertySet(deviceConfiguration.getSecurityPropertySets().stream().filter(s -> SECURITY_SET_NAME.equals(s.getName())).findFirst().get());
 
-        if (mrId != null){
-            meterConfig.setProperty("MRID", mrId);
+        if (name != null){
+            meterConfig.setProperty("name", name);
         }
         lifecyclePostBuilder.get().accept(deviceFrom(meterConfig));
     }

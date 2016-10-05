@@ -90,7 +90,7 @@ public class CreateDataLoggerCommand {
         // 1. Some basic checks
         Optional<Device> device = deviceService.findDeviceByName(name);
         if (device.isPresent()) {
-            System.out.println("Nothing was created since a device with MRID '" + this.name + "' already exists!");
+            System.out.println("Nothing was created since a device with name '" + this.name + "' already exists!");
             return;
         }
         Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(CONNECTION_TASK_PLUGGABLE_CLASS_NAME);

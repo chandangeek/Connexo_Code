@@ -68,7 +68,7 @@ public class CreateValidationSetupCommand {
     }
 
     private void addValidationToDevices(){
-        Condition devicesForActivation = where("mRID").like(MOCKED_VALIDATION_DEVICE_MRID_PREFIX + "*").or(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
+        Condition devicesForActivation = where("name").like(MOCKED_VALIDATION_DEVICE_MRID_PREFIX + "*").or(where("name").like(Constants.Device.STANDARD_PREFIX + "*"));
         List<Meter> meters = meteringService.getMeterQuery().select(devicesForActivation);
         System.out.println("==> Validation will be activated for " + meters.size() + " devices");
         for (Meter meter : meters) {
