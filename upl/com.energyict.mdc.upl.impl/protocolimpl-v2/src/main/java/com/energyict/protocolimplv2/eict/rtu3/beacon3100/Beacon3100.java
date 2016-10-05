@@ -58,6 +58,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -163,27 +164,31 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         final long frameCounter;
 
         if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
-            publicDlmsSession.getDlmsV2Connection().connectMAC();
-            publicDlmsSession.createAssociation();
+            getLogger().finest("Requesting authenticated frame counter");
             try {
+                publicDlmsSession.getDlmsV2Connection().connectMAC();
+                publicDlmsSession.createAssociation();
 
                 FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
                 frameCounter = frameCounterProvider.getFrameCounter(publicDlmsSession.getProperties().getSecurityProvider().getAuthenticationKey());
-
             } catch (IOException e) {
+                getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
                 throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
             } catch (Exception e) {
-                final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
+                getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
+                final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the frame counter, cannot continue! " + e.getMessage());
                 throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
             } finally {
                 publicDlmsSession.disconnect();
             }
         } else {
             /* Pre-established */
+            getLogger().finest("Reading frame counter with the public pre-established association");
             publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
             try {
                 frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
             } catch (IOException e) {
+                getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
                 throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
             }
             //frameCounter = new SecureRandom().nextInt();
