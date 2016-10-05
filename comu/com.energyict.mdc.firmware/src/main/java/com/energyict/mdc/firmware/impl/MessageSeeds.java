@@ -5,7 +5,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.firmware.FirmwareService;
 
-import java.text.MessageFormat;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
@@ -63,8 +62,7 @@ public enum MessageSeeds implements MessageSeed {
         if (thesaurus == null){
             throw new IllegalArgumentException("Thesaurus can't be null");
         }
-        String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
-        return MessageFormat.format(translated, args);
+        return thesaurus.getFormat(this).format(args);
     }
 
     public static class Keys {
