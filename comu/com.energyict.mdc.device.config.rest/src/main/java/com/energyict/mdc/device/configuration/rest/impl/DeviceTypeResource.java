@@ -738,13 +738,11 @@ public class DeviceTypeResource {
         Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions)
                 .orElse(Collections.emptySet());
 
-        supportedCalendarOptions.stream()
-                .forEach(op -> timeOfUseOptionsInfo.supportedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op
-                        .getId(), op.getId()))));
-        allowedOptions.stream()
+        supportedCalendarOptions
+                .forEach(op -> timeOfUseOptionsInfo.supportedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+        allowedOptions
                 .forEach(op ->
-                        timeOfUseOptionsInfo.allowedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op
-                                .getId()))));
+                        timeOfUseOptionsInfo.allowedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
 
         timeOfUseOptionsInfo.isAllowed = !allowedOptions.isEmpty();
         timeOfUseOptionsInfo.version = timeOfUseOptions.map(TimeOfUseOptions::getVersion).orElse(0L);

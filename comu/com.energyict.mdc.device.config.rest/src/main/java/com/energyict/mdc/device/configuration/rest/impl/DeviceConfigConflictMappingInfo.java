@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceType;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,12 +31,18 @@ public class DeviceConfigConflictMappingInfo {
         this.isSolved = deviceConfigConflictMapping.isSolved();
         this.fromConfiguration = deviceConfigConflictMapping.getOriginDeviceConfiguration().getName();
         this.toConfiguration = deviceConfigConflictMapping.getDestinationDeviceConfiguration().getName();
-        this.solved = deviceConfigConflictMapping.isSolved() ?
-                thesaurus.getString(MessageSeeds.HAS_SOLVED.getKey(), "Solved") :
-                thesaurus.getString(MessageSeeds.HAS_UNSOLVED.getKey(), "Unsolved");
+        this.solved = thesaurus.getFormat(this.getTranslationKey(deviceConfigConflictMapping)).format();
         this.version = deviceConfigConflictMapping.getVersion();
         DeviceType deviceType = deviceConfigConflictMapping.getDeviceType();
         this.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
+    }
+
+    private MessageSeeds getTranslationKey(DeviceConfigConflictMapping conflictMapping) {
+        if (conflictMapping.isSolved()) {
+            return MessageSeeds.HAS_SOLVED;
+        } else {
+            return MessageSeeds.HAS_UNSOLVED;
+        }
     }
 
     public static List<DeviceConfigConflictMappingInfo> from(List<DeviceConfigConflictMapping> deviceConfigConflictMappings, Thesaurus thesaurus) {
