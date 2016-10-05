@@ -40,14 +40,14 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_ROLE_FOR_KEY, key));
     }
 
-    public Meter findMeterOrThrowException(String mrid) {
-        return meteringService.findMeterByMRID(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_FOR_MRID, mrid));
+    public Meter findMeterByNameOrThrowException(String name) {
+        return meteringService.findMeterByName(name)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, name));
     }
 
-    public UsagePoint findUsagePointByMrIdOrThrowException(String mrid) {
-        return meteringService.findUsagePointByMRID(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
+    public UsagePoint findUsagePointByNameOrThrowException(String name) {
+        return meteringService.findUsagePointByName(name)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
     }
 
     public UsagePoint findUsagePointByIdOrThrowException(long id) {
@@ -55,10 +55,9 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_FOR_ID, id));
     }
 
-    public UsagePoint findAndLockUsagePointByMrIdOrThrowException(String mrid, long version) {
-        UsagePoint up = findUsagePointByMrIdOrThrowException(mrid);
-        // TODO: refactor as find by name
-        return lockUsagePointOrThrowException(up.getId(), version, up.getMRID());
+    public UsagePoint findAndLockUsagePointByNameOrThrowException(String name, long version) {
+        UsagePoint up = findUsagePointByNameOrThrowException(name);
+        return lockUsagePointOrThrowException(up.getId(), version, up.getName());
     }
 
     public EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfigurationByUsagePointOrThrowException(UsagePoint usagePoint) {
@@ -80,7 +79,6 @@ public class ResourceHelper {
             return metrologyConfiguration;
         }
         throw exceptionFactory.newException(MessageSeeds.NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT, metrologyConfiguration.getName());
-
     }
 
     public UsagePoint lockUsagePointOrThrowException(UsagePointInfo info) {
@@ -94,8 +92,8 @@ public class ResourceHelper {
                         .supplier());
     }
 
-    public ConcurrentModificationException throwUsagePointLinkedException(String mrid) {
-        return conflictFactory.conflict().withMessageBody(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION_MSG, mrid).withMessageTitle(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION, mrid).build();
+    public ConcurrentModificationException usagePointAlreadyLinkedException(String name) {
+        return conflictFactory.conflict().withMessageBody(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION_MSG, name).withMessageTitle(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION, name).build();
     }
 
     public MetrologyContract findMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, long contractId) {
@@ -105,10 +103,10 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, effectiveMC.getUsagePoint().getName()));
     }
 
-    public ReadingTypeDeliverable findReadingTypeDeliverableOrThrowException(MetrologyContract metrologyContract, long outputId, String usagePointMrid) {
+    public ReadingTypeDeliverable findReadingTypeDeliverableOrThrowException(MetrologyContract metrologyContract, long outputId, String usagePointName) {
         return metrologyContract.getDeliverables().stream()
                 .filter(deliverable -> deliverable.getId() == outputId)
                 .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, usagePointMrid, outputId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, usagePointName, outputId));
     }
 }

@@ -10,6 +10,5 @@ public class UsagePointSearchInfo {
     public String displayMetrologyConfiguration;
     public String displayType;
     public String displayConnectionState;
-    public String geoCoordinates;
     public String location;
 }

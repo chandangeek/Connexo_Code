@@ -20,10 +20,12 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJerseyTest {
+    private static final String USAGE_POINT_NAME = "Der Name";
     @Mock
     private UsagePoint usagePoint;
     @Mock
@@ -33,7 +35,8 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
 
     @Before
     public void before() {
-        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
@@ -46,7 +49,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     @Test
     public void testGetOutputsOfUsagePointPurpose() {
         // Business method
-        String json = target("/usagepoints/MRID/purposes/100/outputs").request().get(String.class);
+        String json = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs").request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -70,7 +73,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     @Test
     public void testGetOutputById() {
         // Business method
-        String json = target("/usagepoints/MRID/purposes/100/outputs/1").request().get(String.class);
+        String json = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1").request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -89,7 +92,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(0);
         PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
         // Business method
-        Response response = target("usagepoints/MRID/purposes/100").queryParam("upVersion", usagePoint.getVersion()).request().put(Entity.json(purposeInfo));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100").queryParam("upVersion", usagePoint.getVersion()).request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -103,7 +106,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.empty());
         when(meteringService.findUsagePointById(usagePoint.getId())).thenReturn(Optional.of(usagePoint));
         // Business method
-        Response response = target("usagepoints/MRID/purposes/100").queryParam("upVersion", usagePoint.getVersion()).request().put(Entity.json(purposeInfo));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100").queryParam("upVersion", usagePoint.getVersion()).request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());

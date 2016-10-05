@@ -43,7 +43,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRestApplicationJerseyTest {
-
+    private static final String USAGE_POINT_NAME = ", pls have a drink & try again";
     private static final ZonedDateTime NOW = ZonedDateTime.of(2016, 2, 29, 0, 1, 0, 0, ZoneId.of("Europe/Brussels"));
     private static final RelativePeriod TODAY = mockRelativePeriod(5, "Today", NOW.withMinute(0), NOW.plusDays(1).withMinute(0));
     private static final RelativePeriod YESTERDAY = mockRelativePeriod(6, "Yesterday", NOW.minusDays(1).withMinute(0), NOW.withMinute(0));
@@ -71,9 +71,9 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
 
     @Before
     public void before() {
-        when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
-        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
-        when(usagePoint.getName()).thenReturn(", pls have a drink & try again");
+        when(meteringService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getName()).thenReturn(USAGE_POINT_NAME);
         when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
         when(meterActivation.getRange()).thenReturn(Range.all());
         when(clock.instant()).thenReturn(NOW.toInstant());
@@ -102,7 +102,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.message")).isEqualTo("No usage point with MRID xxx");
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("No usage point with name xxx");
     }
 
     @Test
@@ -110,7 +110,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         mockUsagePointMetrologyConfiguration();
 
         // Business method
-        Response response = target("usagepoints/MRID/validationSummary").queryParam("periodId", 5).request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("periodId", 5).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -123,7 +123,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         mockUsagePointMetrologyConfiguration();
 
         // Business method
-        Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 1000).queryParam("periodId", 5).request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 1000).queryParam("periodId", 5).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -137,7 +137,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         mockMetrologyContract(1);
 
         // Business method
-        Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 1).request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 1).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -151,7 +151,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         mockMetrologyContract(2);
 
         // Business method
-        Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 2).queryParam("periodId", 100).request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 2).queryParam("periodId", 100).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -165,7 +165,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         mockMetrologyContract(3);
 
         // Business method
-        Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 3).queryParam("periodId", 7).request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 3).queryParam("periodId", 7).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -201,7 +201,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         ));
 
         // Business method
-        Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 4).queryParam("periodId", 5).request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 4).queryParam("periodId", 5).request().get();
 
         // Asserts
         verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, Range.openClosed(NOW.withMinute(0).toInstant(), NOW.toInstant()));
@@ -238,7 +238,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         when(summary1.getValues()).thenReturn(Collections.emptyMap());
 
         // Business method
-        Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
 
         // Asserts
         verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, Range.closed(meterActivated, NOW.withMinute(0).toInstant()));
@@ -269,7 +269,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         when(summary1.getValues()).thenReturn(Collections.emptyMap());
 
         // Business method
-        Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
 
         // Asserts
         verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, emptyInterval);
@@ -292,7 +292,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
                 .thenReturn(Collections.emptyMap());
 
         // Business method
-        Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
 
         // Asserts
         verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, YESTERDAY.getOpenClosedInterval(NOW));

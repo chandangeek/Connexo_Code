@@ -45,12 +45,13 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestApplicationJerseyTest {
-
+    private static final String USAGE_POINT_NAME = "Le nom";
     private static final Instant timeStamp = Instant.ofEpochMilli(1410774620100L);
 
     private static final Range<Instant> interval_1 = Range.openClosed(timeStamp.plus(0, ChronoUnit.MINUTES), timeStamp.plus(15, ChronoUnit.MINUTES));
@@ -68,8 +69,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     public void before() {
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
-        when(meteringService.findUsagePointByMRID(any())).thenReturn(Optional.empty());
-        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
 
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
@@ -94,7 +95,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Test
     public void testGetChannelDataNoSuchUsagePoint() throws Exception {
         // Business method
-        Response response = target("/usagepoints/xxx/purposes/100/outputs/1/channelData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/xxx/purposes/100/outputs/1/channelData")
+                .queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -105,7 +107,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
 
         // Business method
-        Response response = target("/usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
+                .queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -114,7 +117,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Test
     public void testGetChannelDataNoSuchContract() throws Exception {
         // Business method
-        Response response = target("/usagepoints/MRID/purposes/90030004443343/outputs/1/channelData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/90030004443343/outputs/1/channelData")
+                .queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -125,7 +129,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         String filter = ExtjsFilter.filter().property("intervalEnd", timeStamp.toEpochMilli()).create();
 
         // Business method
-        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", filter).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
+                .queryParam("filter", filter).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -138,7 +143,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         String filter = ExtjsFilter.filter().property("intervalStart", timeStamp.toEpochMilli()).create();
 
         // Business method
-        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", filter).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
+                .queryParam("filter", filter).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -149,7 +155,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Test
     public void testGetChannelDataOnIrregularReadingTypeDeliverable() throws Exception {
         // Business method
-        Response response = target("/usagepoints/MRID/purposes/100/outputs/2/channelData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/channelData")
+                .queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -163,7 +170,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
                 .create();
 
         // Business method
-        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", filter).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
+                .queryParam("filter", filter).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -182,7 +190,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         mockIntervalReadingsWithValidationResult(channel);
 
         // Business method
-        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", buildFilter()).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
+                .queryParam("filter", buildFilter()).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -234,9 +243,10 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         IntervalReadingRecord intervalReadingRecord1 = mockIntervalReadingRecord(interval_JUN, BigDecimal.ONE);
         IntervalReadingRecord intervalReadingRecord2 = mockIntervalReadingRecord(interval_JUL, BigDecimal.TEN);
         IntervalReadingRecord intervalReadingRecord3 = mockIntervalReadingRecord(interval_AUG, BigDecimal.ONE);
-        IntervalReadingRecord intervalReadingRecord4 = mockIntervalReadingRecord(interval_SEP, BigDecimal.ONE);//Intentionally returns more then three
-        List<IntervalReadingRecord> intervalReadings = Arrays.asList(intervalReadingRecord1, intervalReadingRecord2, intervalReadingRecord3, intervalReadingRecord4);
-        when(channel.getIntervalReadings(any())).thenReturn(intervalReadings);
+        IntervalReadingRecord intervalReadingRecord4 = mockIntervalReadingRecord(interval_SEP, BigDecimal.ONE);
+        List<IntervalReadingRecord> intervalReadings = Arrays.asList(
+                intervalReadingRecord1, intervalReadingRecord2, intervalReadingRecord3, intervalReadingRecord4);
+        when(channel.getIntervalReadings(any())).thenReturn(intervalReadings); //Intentionally returns more then three
         ValidationEvaluator evaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(evaluator);
 
@@ -246,7 +256,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
                 .create();
 
         // Business method
-        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", filter).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
+                .queryParam("filter", filter).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -293,15 +304,16 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         DataValidationStatus dataValidationStatus_2 = mockValidationStatus(interval_2.upperEndpoint(), missing);
         IntervalReadingRecord intervalReadingRecord3 = mockIntervalReadingRecord(interval_3, BigDecimal.TEN);
         DataValidationStatus dataValidationStatus_3 = mockValidationStatus(interval_3.upperEndpoint(), minMax);
-        DataValidationStatus dataValidationStatus_4 = mockValidationStatus(timeStamp.plus(45, ChronoUnit.MINUTES), minMax);//intentionally added one more status which is out of requested interval
+        DataValidationStatus dataValidationStatus_4 = mockValidationStatus(timeStamp.plus(45, ChronoUnit.MINUTES), minMax);
+        //intentionally added one more status which is out of requested interval
 
         List<IntervalReadingRecord> intervalReadings = Arrays.asList(intervalReadingRecord1, intervalReadingRecord3);
         when(channel.getIntervalReadings(any())).thenReturn(intervalReadings);
 
         ValidationEvaluator evaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(evaluator);
-        when(evaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, intervalReadings, Range.openClosed(interval_1.lowerEndpoint(), interval_3
-                .upperEndpoint())))
+        when(evaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, intervalReadings,
+                Range.openClosed(interval_1.lowerEndpoint(), interval_3.upperEndpoint())))
                 .thenReturn(Arrays.asList(dataValidationStatus_1, dataValidationStatus_2, dataValidationStatus_3, dataValidationStatus_4));
     }
 

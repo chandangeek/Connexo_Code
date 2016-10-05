@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRestApplicationJerseyTest {
-
+    private static final String USAGE_POINT_NAME = "Obychnoe imya";
     private static final Instant readingTimeStamp1 = Instant.ofEpochMilli(1410774620100L);
     private static final Instant readingTimeStamp2 = readingTimeStamp1.plus(5, ChronoUnit.MINUTES);
     private static final Instant readingTimeStamp3 = readingTimeStamp2.plus(10, ChronoUnit.MINUTES);
@@ -46,8 +46,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Before
     public void before() {
-        when(meteringService.findUsagePointByMRID(any())).thenReturn(Optional.empty());
-        when(meteringService.findUsagePointByMRID("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName(any())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
@@ -73,7 +73,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     @Test
     public void testGetRegisterDataNoSuchUsagePoint() throws Exception {
         // Business method
-        Response response = target("/usagepoints/xxx/purposes/1/outputs/2/registerData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/xxx/purposes/1/outputs/2/registerData")
+                .queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -84,7 +85,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
 
         // Business method
-        Response response = target("/usagepoints/MRID/purposes/1/outputs/2/registerData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/1/outputs/2/registerData")
+                .queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -93,7 +95,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     @Test
     public void testGetRegisterDataNoSuchContract() throws Exception {
         // Business method
-        Response response = target("/usagepoints/MRID/purposes/90030004443343/outputs/2/registerData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/90030004443343/outputs/2/registerData")
+                .queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -104,7 +107,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         String filter = ExtjsFilter.filter().property("intervalEnd", readingTimeStamp3.toEpochMilli()).create();
 
         // Business method
-        String json = target("usagepoints/MRID/purposes/100/outputs/2/registerData").queryParam("filter", filter).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData")
+                .queryParam("filter", filter).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -117,7 +121,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         String filter = ExtjsFilter.filter().property("intervalStart", readingTimeStamp1.toEpochMilli()).create();
 
         // Business method
-        String json = target("usagepoints/MRID/purposes/100/outputs/2/registerData").queryParam("filter", filter).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData")
+                .queryParam("filter", filter).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -128,7 +133,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     @Test
     public void testGetRegisterDataOnRegularReadingTypeDeliverable() throws Exception {
         // Business method
-        Response response = target("/usagepoints/MRID/purposes/1/outputs/1/registerData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/1/outputs/1/registerData")
+                .queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -143,7 +149,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
                 .create();
 
         // Business method
-        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", filter).request().get(String.class);
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
+                .queryParam("filter", filter).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -156,10 +163,12 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         Channel channel = mock(Channel.class);
         when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
-        when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
+                .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
 
         // Business method
-        String json = target("/usagepoints/MRID/purposes/100/outputs/2/registerData").queryParam("filter", buildFilter()).request().get(String.class);
+        String json = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData")
+                .queryParam("filter", buildFilter()).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);

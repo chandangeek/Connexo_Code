@@ -156,9 +156,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.licenseService = licenseService;
     }
 
-
     @Override
-    // for search only - so only populate fields that will be used/shown !!!
+    /**
+     * for search only - so only populate fields that will be used/shown (see {@link #modelStructure()} !!!
+     */
     public UsagePointSearchInfo from(UsagePoint usagePoint) {
         UsagePointSearchInfo info = new UsagePointSearchInfo();
         info.id = usagePoint.getId();
@@ -167,9 +168,29 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().map(mc -> mc.getMetrologyConfiguration().getName()).orElse(null);
         info.displayType = this.getUsagePointDisplayType(usagePoint);
         info.displayConnectionState = usagePoint.getConnectionState().getDisplayName(thesaurus);
-        info.geoCoordinates = usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null);
-        info.location = usagePoint.getLocation().map(Location::toString).orElse(null);
+        info.location = usagePoint.getLocation().map(Location::toString).orElse(
+                usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(""));
         return info;
+    }
+
+    @Override
+    public List<PropertyDescriptionInfo> modelStructure() {
+        List<PropertyDescriptionInfo> propertyDescriptionInfoList = new ArrayList<>();
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.NAME_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.SERVICE_CATEGORY_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.METROLOGY_CONFIGURATION_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.TYPE_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.CONNECTION_STATE_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.LOCATION_MODEL, String.class));
+        return propertyDescriptionInfoList;
+    }
+
+    @Override
+    public Class getDomainClass() {
+        if (!licenseService.getLicenseForApplication("INS").isPresent()) {
+            return EmptyDomain.class;
+        }
+        return UsagePoint.class;
     }
 
     public UsagePointInfo fullInfoFrom(UsagePoint usagePoint) {
@@ -237,26 +258,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.extendedLocation = new LocationInfo(meteringService, locationService, thesaurus, usagePoint);
         info.geoCoordinates = info.extendedGeoCoordinates.coordinatesDisplay;
         info.location = info.extendedLocation.locationValue;
-    }
-
-    @Override
-    public List<PropertyDescriptionInfo> modelStructure() {
-        List<PropertyDescriptionInfo> propertyDescriptionInfoList = new ArrayList<>();
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.MRID_MODEL, String.class));
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.SERVICE_CATEGORY_MODEL, String.class));
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.METROLOGY_CONFIGURATION_MODEL, String.class));
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.TYPE_MODEL, String.class));
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.CONNECTION_STATE_MODEL, String.class));
-        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.LOCATION_MODEL, String.class));
-        return propertyDescriptionInfoList;
-    }
-
-    @Override
-    public Class getDomainClass() {
-        if (!licenseService.getLicenseForApplication("INS").isPresent()) {
-            return EmptyDomain.class;
-        }
-        return UsagePoint.class;
     }
 
     private PropertyDescriptionInfo createDescription(UsagePointModelTranslationKeys propertyName, Class<?> aClass) {

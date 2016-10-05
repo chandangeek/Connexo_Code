@@ -23,7 +23,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -79,8 +78,8 @@ public class DeviceResource {
         Integer start = params.getStart().isPresent() ? params.getStart().get() : 1;
         Integer limit = params.getLimit().isPresent() ? params.getLimit().get() : 50;
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
-        Condition condition = where("mRID").likeIgnoreCase(dbSearchText);
-        List<Meter> listMeters = meterQuery.select(condition, start + 1, limit, Order.ascending("mRID"))
+        Condition condition = where("name").likeIgnoreCase(dbSearchText);
+        List<Meter> listMeters = meterQuery.select(condition, start + 1, limit, Order.ascending("name"))
                 .stream()
                 .filter(ed -> ed.getState().isPresent() && !ed.getState().get().getName().equals("dlc.default.removed"))
                 .filter(ed -> ed.getState().isPresent() && !ed.getState().get().getName().equals("dlc.default.decomissioned"))
@@ -90,16 +89,14 @@ public class DeviceResource {
 
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    @Path("/{mRID}/")
+    @Path("/{name}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public MeterInfos getDevice(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
-        MeterInfos result = null;
+    public MeterInfos getDevice(@PathParam("name") String name, @Context SecurityContext securityContext) {
         if (maySeeAny(securityContext)) {
-            Optional<Meter> ometer = meteringService.findMeterByMRID(mRID);
-            if (ometer.isPresent()) {
-                result = new MeterInfos(ometer.get());
-            }
+            return meteringService.findMeterByName(name)
+                    .map(MeterInfos::new)
+                    .orElse(null);
         }
-        return result;
+        return null;
     }
 }
