@@ -95,7 +95,7 @@ public class ReadingTypeTranslationKeysTest {
     }
 
     @Test
-    public void testAddAllTranslactions() {
+    public void testAddAllTranslations() {
         injector.getInstance(TransactionService.class).execute(() -> {
             NlsServiceImpl nlsService = (NlsServiceImpl) injector.getInstance(NlsService.class);
 
@@ -106,11 +106,10 @@ public class ReadingTypeTranslationKeysTest {
 
         // Asserts
         Thesaurus thesaurus = injector.getInstance(NlsService.class).getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
-        ReadingTypeTranslationKeys.allKeys().stream().forEach(translationKey -> {
-            assertThat(thesaurus.getFormat(translationKey).format())
-                    .as("Translation for " + translationKey.getKey() + " with default format " + translationKey.getDefaultFormat() + " is null or empty")
-                    .isNotEmpty();
-        });
+        ReadingTypeTranslationKeys.allKeys().forEach(translationKey ->
+                assertThat(thesaurus.getFormat(translationKey).format())
+                .as("Translation for " + translationKey.getKey() + " with default format " + translationKey.getDefaultFormat() + " is null or empty")
+                .isNotEmpty());
     }
 
     private static class ReadingTypeTranslationKeyProvider implements TranslationKeyProvider {
