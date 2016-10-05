@@ -164,6 +164,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
     onLoad: function () {
         this.reconfigure();
         this.setLoading(false);
+        this.updateLayout();
     },
 
     onBeforeDestroy: function () {
