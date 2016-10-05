@@ -355,7 +355,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     public void setProtocolLogger(Logger protocolLogger) {
         if (protocolLogger!=null) {
             this.logger = protocolLogger;
-            getLogger().finest("Protocol logger initialized with level: " + protocolLogger.getLevel().getName());
+            getLogger().finest("Protocol logger initialized");
         }
     }
 
