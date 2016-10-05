@@ -176,7 +176,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         availableScheduleStore.getProxy().startParam = false;
         availableScheduleStore.getProxy().setExtraParam('filter', Ext.encode([
             {
-                property: 'name',
+                property: 'deviceName',
                 value: deviceId
             },
             {
