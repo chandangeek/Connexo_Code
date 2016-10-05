@@ -69,7 +69,7 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
         }
 
         public String translate(Thesaurus thesaurus) {
-            return thesaurus.getString(key, defaultFormat);
+            return thesaurus.getFormat(this).format();
         }
     }
 }
