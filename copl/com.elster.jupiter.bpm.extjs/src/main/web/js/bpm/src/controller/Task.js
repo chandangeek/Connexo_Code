@@ -82,6 +82,9 @@ Ext.define('Bpm.controller.Task', {
                 me.getApplication().fireEvent('changecontentevent', view);
                 view.down('form').loadRecord(taskRecord);
                 view.down('#task-title').setTitle(taskRecord.get('name'));
+                if (view.down('bpm-task-action-menu')) {
+                    me.setupMenuItems(taskRecord);
+                }
                 me.getApplication().fireEvent('task', taskRecord);
                 performTask.load(taskId, {
                     success: function (performTaskRecord) {
@@ -206,8 +209,24 @@ Ext.define('Bpm.controller.Task', {
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
-        preview.down('bpm-task-action-menu') && (preview.down('bpm-task-action-menu').record = record);
+        if (preview.down('bpm-task-action-menu')) {
+            preview.down('bpm-task-action-menu').record = record;
+            me.setupMenuItems(record);
+        }
         Ext.resumeLayouts();
+    },
+
+    setupMenuItems: function (record) {
+        var ongoing = record.get('status') !== 'Reserved',
+            menuText = ongoing
+                ? Uni.I18n.translate('bpm.menu.complete', 'BPM', 'Complete')
+                : Uni.I18n.translate('bpm.menu.start', 'BPM', 'Start'),
+            menuItems = Ext.ComponentQuery.query('menu menuitem[action=performTask]');
+        if (!Ext.isEmpty(menuItems)) {
+            Ext.Array.each(menuItems, function (item) {
+                item.setText(menuText);
+            });
+        }
     },
 
     chooseAction: function (menu, item) {

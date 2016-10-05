@@ -83,15 +83,6 @@ Ext.define('Bpm.view.task.PerformTask', {
                                                 taskRecord: me.taskRecord
                                             },
                                             {
-                                                text: Uni.I18n.translate('task.action', 'BPM', 'Start'),
-                                                xtype: 'button',
-                                                hidden: true,
-                                                ui: 'action',
-                                                itemId: 'btn-start',
-                                                action: 'startTask',
-                                                taskRecord: me.taskRecord
-                                            },
-                                            {
                                                 text: Uni.I18n.translate('task.action.complete', 'BPM', 'Complete'),
                                                 xtype: 'button',
                                                 hidden: true,

@@ -7,7 +7,7 @@ Ext.define('Bpm.view.task.TaskActionMenu', {
     items: [
         {
             itemId: 'menu-edit-task',
-            text: Uni.I18n.translate('bpm.menu.edit', 'BPM', 'Edit'),
+            text: Uni.I18n.translate('bpm.menu.editAttributes', 'BPM', 'Edit attributes'),
             action: 'editTask',
             privileges: Bpm.privileges.BpmManagement.assign
         },

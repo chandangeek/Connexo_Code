@@ -39,7 +39,7 @@ Ext.define('Bpm.view.task.ViewTask', {
                 layout: {
                     type: 'fit'
                 },
-                title: Uni.I18n.translate('bpm.task.taskManagement', 'BPM', 'Task management'),
+                title: Uni.I18n.translate('bpm.task.taskAttributes', 'BPM', 'Task attributes'),
                 ui: 'medium',
                 margin: '-4 0 0 0',
                 flex: 1,
