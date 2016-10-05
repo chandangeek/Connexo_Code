@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -125,20 +124,17 @@ public class MeteringCommands {
         if (endDevice.isPresent()) {
             try {
                 final Instant activationDate = LocalDate.from(dateFormat.parse(date)).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
-                MeterActivation activation = executeTransaction(new Transaction<MeterActivation>() {
-                    @Override
-                    public MeterActivation perform() {
-                        MeterActivation activate = endDevice.get().activate(activationDate);
-                        for (String readingType : readingTypes) {
-                            Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
-                            if (readingTypeOptional.isPresent()) {
-                                activate.getChannelsContainer().createChannel(readingTypeOptional.get());
-                            } else {
-                                System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
-                            }
+                MeterActivation activation = executeTransaction(() -> {
+                    MeterActivation activate = endDevice.get().activate(activationDate);
+                    for (String readingType : readingTypes) {
+                        Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
+                        if (readingTypeOptional.isPresent()) {
+                            activate.getChannelsContainer().createChannel(readingTypeOptional.get());
+                        } else {
+                            System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
                         }
-                        return activate;
                     }
+                    return activate;
                 });
                 System.out.println("activation = " + activation);
                 System.out.println(" id = " + activation.getId());
@@ -187,7 +183,6 @@ public class MeteringCommands {
             System.out.println("No meter found with name: " + deviceName);
         }
     }
-
 
     public void storeIntervalData(String deviceName, String readingType, String startDateTime, int numberOfInterval, double minValue, double maxValue) {
         final Optional<Meter> endDevice = meteringService.findMeterByName(deviceName);
@@ -353,9 +348,8 @@ public class MeteringCommands {
                 executeTransaction(new VoidTransaction() {
                     @Override
                     protected void doPerform() {
-                        EndDeviceEventRecord endDeviceEventRecord = null;
                         try {
-                            endDeviceEventRecord = meter.addEventRecord(type.get(), LocalDateTime.from(dateTimeFormat.parse(dateTime)).atZone(ZoneId.systemDefault()).toInstant()).create();
+                            meter.addEventRecord(type.get(), LocalDateTime.from(dateTimeFormat.parse(dateTime)).atZone(ZoneId.systemDefault()).toInstant()).create();
                         } catch (RuntimeException e) {
                             e.printStackTrace();
                         }
@@ -457,13 +451,7 @@ public class MeteringCommands {
     }
 
     private Principal getPrincipal() {
-        return new Principal() {
-
-            @Override
-            public String getName() {
-                return "console";
-            }
-        };
+        return () -> "console";
     }
 
 }
