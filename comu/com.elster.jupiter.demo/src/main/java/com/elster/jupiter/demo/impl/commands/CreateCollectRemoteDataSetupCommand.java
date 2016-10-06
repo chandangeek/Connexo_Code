@@ -45,6 +45,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -66,8 +67,8 @@ public class CreateCollectRemoteDataSetupCommand {
     private String host;
     private Integer devicesPerType = null;
     private int deviceCounter = 0;
-    private Location location;
     private SpatialCoordinates spatialCoordinates;
+    private Instant shipmentDate;
 
 
     private static final List<String> administrativeAreaList = Arrays.asList("Ohio,Massachusetts,Tennessee,California,Maryland,Florida,Florida,California,California,California,Texas,Texas,Pennsylvania,Washington,Texas,South Dakota,California,Indiana,Louisiana,North Carolina,Washington,California,Hawaii,Oklahoma,Tennessee,Georgia,Florida,West Virginia,Nevada,California,New York,Colorado,Pennsylvania,Ohio,Texas,Texas,Iowa,Florida,Georgia,Texas,Missouri,Pennsylvania,Michigan,Utah,Minnesota,California,Hawaii,Georgia,Tennessee,Nevada,Florida,Georgia,California,Nevada,Indiana,Wisconsin,California,Alabama,Georgia,Colorado,Pennsylvania,Utah,New York,Florida,Texas,Florida,New York,Missouri,Georgia,Indiana,Minnesota,Florida,Ohio,Colorado,District of Columbia,Kentucky,Virginia,Virginia,New York,District of Columbia,Texas,Minnesota,Louisiana,Nevada,Arizona,Nevada,New York,Louisiana,North Carolina,California,Colorado,California,South Carolina,Alabama,Florida,Virginia,Alabama,California,Hawaii"
@@ -99,7 +100,8 @@ public class CreateCollectRemoteDataSetupCommand {
             Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
             Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider,
             Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider,
-            Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider, MeteringGroupsService meteringGroupsService) {
+            Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider,
+            MeteringGroupsService meteringGroupsService) {
         this.meteringService = meteringService;
         this.licenseService = licenseService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
@@ -123,16 +125,16 @@ public class CreateCollectRemoteDataSetupCommand {
         this.devicesPerType = devicesPerType;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
     public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
         this.spatialCoordinates = spatialCoordinates;
     }
 
+    public void setShipmentDate(Instant startDate) {
+        this.shipmentDate = startDate;
+    }
+
     public void run() {
-        paramersCheck();
+        parametersCheck();
         licenseCheck();
         createComBackground();
         createRegisterTypes();
@@ -148,7 +150,7 @@ public class CreateCollectRemoteDataSetupCommand {
         createKpi();
     }
 
-    private void paramersCheck() {
+    private void parametersCheck() {
         if (this.comServerName == null) {
             throw new UnableToCreate("You must specify a name for active com server");
         }
@@ -272,6 +274,7 @@ public class CreateCollectRemoteDataSetupCommand {
                 .withDeviceConfiguration(configuration)
                 .withLocation(location)
                 .withSpatialCoordinates(geoCoordinates)
+                .withShipmentDate(this.shipmentDate)
                 .withComSchedules(Collections.singletonList(Builders.from(ComScheduleTpl.DAILY_READ_ALL).get()))
                 .withPostBuilder(this.connectionsDevicePostBuilderProvider.get()
                         .withComPortPool(Builders.from(deviceTypeTpl.getPoolTpl()).get())
