@@ -15,14 +15,14 @@ Ext.define('Uni.grid.filter.Date', {
         type: 'vbox',
         align: 'stretch'
     },
-
     items: [
         {
             xtype: 'datefield',
             editable: false,
             value: undefined,
             format: Uni.util.Preferences.lookup(Uni.DateTime.dateLongKey, Uni.DateTime.dateLongDefault),
-            emptyText: Uni.I18n.translate('grid.filter.date.datefield.emptytext', 'UNI', 'Select a date')
+            emptyText: Uni.I18n.translate('grid.filter.date.datefield.emptytext', 'UNI', 'Select a date'),
+            width: 129
         },
         {
             xtype: 'container',
@@ -37,7 +37,7 @@ Ext.define('Uni.grid.filter.Date', {
                     maxValue: 23,
                     editable: false,
                     emptyText: '00',
-                    flex: 1,
+                    width: 57,
                     valueToRaw: function (value) {
                         if (!Ext.isDefined(value)) {
                             return null;
@@ -58,7 +58,7 @@ Ext.define('Uni.grid.filter.Date', {
                     maxValue: 59,
                     editable: false,
                     emptyText: '00',
-                    flex: 1,
+                    width: 57,
                     valueToRaw: function (value) {
                         if (!Ext.isDefined(value)) {
                             return null;
