@@ -16,6 +16,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+
 import org.osgi.service.event.EventConstants;
 
 import java.sql.SQLException;
@@ -126,6 +127,8 @@ public class FirmwareCampaignHandler implements MessageHandler {
                 long firmwareCampaignId = ((Number) properties.get("id")).longValue();
                 Optional<FirmwareCampaign> firmwareCampaign = context.getFirmwareService().getFirmwareCampaignById(firmwareCampaignId);
                 context.getFirmwareService().getDevicesForFirmwareCampaign(firmwareCampaign.get()).stream()
+                        .map(deviceInFirmwareCampaign1 -> ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign1))
+                        .filter(DeviceInFirmwareCampaignImpl::hasNonFinalStatus)
                         .forEach(deviceInFirmwareCampaign -> {
                                     DeviceInFirmwareCampaignImpl wrapper = getDeviceInFirmwareCampaignWrapper(context, firmwareCampaign.get(), deviceInFirmwareCampaign.getDevice());
                                     context.getEventService().postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_CANCEL.topic(), wrapper);
