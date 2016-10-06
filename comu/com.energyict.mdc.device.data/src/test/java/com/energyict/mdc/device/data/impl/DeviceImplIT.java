@@ -1204,7 +1204,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void activateMeterWhenStillActive() {
         Instant initialStart = Instant.ofEpochMilli(1000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(initialStart);
-        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, "SimpleMrid", initialStart);
+        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, initialStart);
         Instant end = Instant.ofEpochMilli(2000L);
 
         // Business method
@@ -1233,7 +1233,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void deactivateMeter() {
         Instant initialStart = Instant.ofEpochMilli(100000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(initialStart);
-        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, "SimpleMrid", initialStart);
+        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, initialStart);
 
         Instant end = Instant.ofEpochMilli(200000L);
         // Business method
@@ -1270,7 +1270,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant expectedReceivedDate = expectedInstalledDate.plusSeconds(3L);
         Instant expectedRetiredDate = expectedInstalledDate.plusSeconds(4L);
         Instant expectedRemovedDate = expectedInstalledDate.plusSeconds(5L);
-        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, "SimpleMrid", expectedReceivedDate);
+        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, expectedReceivedDate);
 
         // Business method(s)
         device
@@ -1551,7 +1551,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
-                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getmRID());
+                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getMRID());
             }
         });
     }
@@ -1635,7 +1635,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(reverseBulkSecondaryEnergyReadingType.getMRID()) &&
-                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(reverseBulkPrimaryEnergyReadingType.getmRID()); // we always use the calculated readingtype when the user defined to use it on config level
+                        value.getCalculated().isPresent() && value.getCalculated()
+                        .get()
+                        .getMRID()
+                        .equals(reverseBulkPrimaryEnergyReadingType.getMRID()); // we always use the calculated readingtype when the user defined to use it on config level
             }
         });
     }
@@ -1745,7 +1748,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
-                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getmRID()); // we always use the calculated readingtype when the user defined to use it on config level
+                        value.getCalculated().isPresent() && value.getCalculated()
+                        .get()
+                        .getMRID()
+                        .equals(forwardBulkPrimaryEnergyReadingType.getMRID()); // we always use the calculated readingtype when the user defined to use it on config level
             }
         });
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {

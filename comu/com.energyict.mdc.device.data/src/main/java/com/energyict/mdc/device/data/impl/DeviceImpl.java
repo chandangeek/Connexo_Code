@@ -1338,7 +1338,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
            koreHelper.getInitialMeterActivationStartDate().get().isAfter(this.getDeviceType().getDeviceLifeCycle().getMaximumFutureEffectiveTimestamp())){
             throw new NoLifeCycleActiveAt(clock.instant(), thesaurus, MessageSeeds.NO_LIFE_CYCLE_AT);
         }
-        Meter newMeter = amrSystem.newMeter(String.valueOf(getId()), getName())
+        return amrSystem.newMeter(String.valueOf(getId()), getName())
                 .setMRID(getmRID())
                 .setStateMachine(stateMachine)
                 .setSerialNumber(getSerialNumber())
@@ -1730,7 +1730,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     public void refreshMeter() {
         if (meter.isPresent()) {
-            meter.set(meteringService.findMeter(meter.get().getId()).get());
+            meter.set(meteringService.findMeterById(meter.get().getId()).get());
         }
     }
 
