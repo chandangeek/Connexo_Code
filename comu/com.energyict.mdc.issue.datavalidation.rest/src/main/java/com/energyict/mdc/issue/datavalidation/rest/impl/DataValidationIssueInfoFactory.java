@@ -5,7 +5,7 @@ import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.data.Channel;
@@ -16,6 +16,7 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.issue.datavalidation.rest.impl.DataValidationIssueInfo.NotEstimatedBlockInfo;
 import com.energyict.mdc.issue.datavalidation.rest.impl.DataValidationIssueInfo.NotEstimatedDataInfo;
+
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -32,9 +33,8 @@ import java.util.stream.Collectors;
 @Component(name="issue.data.validation.info.factory", service = { InfoFactory.class }, immediate = true)
 public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataValidation> {
 
+    private final ReadingTypeInfoFactory readingTypeInfoFactory;
     private DeviceService deviceService;
-
-    public DataValidationIssueInfoFactory() {}
 
     @Reference
     public void setDeviceService(DeviceService deviceService) {
@@ -42,8 +42,10 @@ public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataVali
     }
 
     @Inject
-    public DataValidationIssueInfoFactory(DeviceService deviceService) {
+    public DataValidationIssueInfoFactory(DeviceService deviceService,
+                                          ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.deviceService = deviceService;
+        this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
     public DataValidationIssueInfo asInfo(IssueDataValidation issue, Class<? extends DeviceInfo> deviceInfoClass) {
@@ -76,7 +78,7 @@ public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataVali
     private NotEstimatedDataInfo createNotEstimatedDataInfoOfChannel(ReadingType readingType, List<NotEstimatedBlock> blocks, Channel channel) {
         NotEstimatedDataInfo info = new NotEstimatedDataInfo();
         info.channelId = channel.getId();
-        info.readingType = new ReadingTypeInfo(readingType);
+        info.readingType = readingTypeInfoFactory.from(readingType);
         info.notEstimatedBlocks = blocks.stream().map(block -> {
             NotEstimatedBlockInfo blockInfo = new NotEstimatedBlockInfo();
             blockInfo.startTime = block.getStartTime();
@@ -90,7 +92,7 @@ public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataVali
     private NotEstimatedDataInfo createNotEstimatedDataInfoOfRegister(ReadingType readingType, List<NotEstimatedBlock> blocks, Register register) {
         NotEstimatedDataInfo info = new NotEstimatedDataInfo();
         info.registerId = register.getRegisterSpecId();
-        info.readingType = new ReadingTypeInfo(readingType);
+        info.readingType = readingTypeInfoFactory.from(readingType);
         info.notEstimatedBlocks = blocks.stream().map(block -> {
             NotEstimatedBlockInfo blockInfo = new NotEstimatedBlockInfo();
             List<BaseReadingRecord> readings = block.getChannel().getReadings(Range.openClosed(block.getStartTime(), block.getEndTime()));
