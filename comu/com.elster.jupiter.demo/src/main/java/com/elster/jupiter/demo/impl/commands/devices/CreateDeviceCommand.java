@@ -16,6 +16,7 @@ public class CreateDeviceCommand {
     private DeviceTypeTpl deviceType = DeviceTypeTpl.Elster_AS1440;
     private String serialNumber;
     private String deviceNamePrefix;
+    private Instant shipmentDate;
 
     public void run() {
         DeviceType deviceType = Builders.from(this.deviceType).find()
@@ -36,6 +37,10 @@ public class CreateDeviceCommand {
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    public void setShipmentDate(Instant shipmentDate) {
+        this.shipmentDate = shipmentDate;
     }
 
     protected String getDeviceNamePrefix() {
