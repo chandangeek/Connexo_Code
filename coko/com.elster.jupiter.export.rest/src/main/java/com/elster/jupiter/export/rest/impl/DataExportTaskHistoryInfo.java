@@ -9,6 +9,7 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -122,11 +123,12 @@ public class DataExportTaskHistoryInfo {
     }
 
     private void populateForReadingTypeDataExportTask(ExportTask version, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
+        ReadingTypeInfoFactory readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         version.getReadingTypeDataSelector(dataExportOccurrence.getStartDate().get()).ifPresent(readingTypeDataSelector -> {
             task.standardDataSelector = new StandardDataSelectorInfo();
             task.standardDataSelector.populateFrom(readingTypeDataSelector, thesaurus);
             for (ReadingType readingType : readingTypeDataSelector.getReadingTypes(dataExportOccurrence.getStartDate().get())) {
-                task.standardDataSelector.readingTypes.add(new ReadingTypeInfo(readingType));
+                task.standardDataSelector.readingTypes.add(readingTypeInfoFactory.from(readingType));
             }
         });
     }
