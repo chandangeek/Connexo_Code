@@ -107,6 +107,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             if (usagePoint.get().getServiceCategory().getId() != serviceCategory.get().getId()) {
                 throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
             }
+            usagePoint = context.getMeteringService().findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion()).get();
             return updateUsagePoint(usagePoint.get(), data, logger);
         } else {
             return createUsagePoint(serviceCategory.get().newUsagePoint(identifier,
@@ -504,7 +505,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                 .setAddressDetail(location.get(ranking.get("addressDetail")))
                 .setZipCode(location.get(ranking.get("zipCode")))
                 .isDaultLocation(true)
-                .setLocale(location.get(ranking.get("locale")));
+                .setLocale(data.getLocation().get(ranking.get("locale")) == null || data.getLocation().get(ranking.get("locale")).equals("") ? "en" : data.getLocation().get(ranking.get("locale")));
         return builder;
     }
 }
