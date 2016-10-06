@@ -6,9 +6,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
@@ -62,7 +63,13 @@ public class KpiResource {
     @RolesAllowed({Privileges.Constants.VIEW_DATA_COLLECTION_KPI, Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
     public Response getAvailableDeviceGroups(@BeanParam JsonQueryParameters queryParameters) {
         List<EndDeviceGroup> allGroups = meteringGroupsService.getEndDeviceGroupQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
-        List<Long> usedGroupIds = dataCollectionKpiService.findAllDataCollectionKpis().stream().map(kpi -> kpi.getDeviceGroup().getId()).collect(Collectors.toList());
+        List<Long> usedGroupIds =
+                dataCollectionKpiService
+                        .findAllDataCollectionKpis()
+                        .stream()
+                        .map(DataCollectionKpi::getDeviceGroup)
+                        .map(HasId::getId)
+                        .collect(Collectors.toList());
         Iterator<EndDeviceGroup> groupIterator = allGroups.iterator();
         while (groupIterator.hasNext()) {
             EndDeviceGroup next = groupIterator.next();

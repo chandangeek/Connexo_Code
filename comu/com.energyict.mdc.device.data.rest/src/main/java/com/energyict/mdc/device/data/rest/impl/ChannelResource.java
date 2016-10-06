@@ -56,6 +56,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -100,7 +101,7 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannels(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        return channelHelper.get().getChannels(name, (d -> this.getFilteredChannels(d, filter)), queryParameters, topologyService);
+        return channelHelper.get().getChannels(name, (d -> this.getFilteredChannels(d, filter)), queryParameters);
     }
 
     @GET
@@ -110,7 +111,7 @@ public class ChannelResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannel(@PathParam("name") String name, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
-        return channelHelper.get().getChannel(() -> channel, topologyService);
+        return channelHelper.get().getChannel(() -> channel);
     }
 
     @PUT
@@ -387,7 +388,8 @@ public class ChannelResource {
             @PathParam("epochMillis") long epochMillis) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
         Instant to = Instant.ofEpochMilli(epochMillis);
-        Instant from = to.minus(channel.getInterval().asTemporalAmount());
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, channel.getDevice().getZone());
+        Instant from = zonedDateTime.minus(channel.getInterval().asTemporalAmount()).toInstant();
         Range<Instant> range = Ranges.openClosed(from, to);
         List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
         Optional<VeeReadingInfo> veeReadingInfo = channelTimeLine.stream()
@@ -597,7 +599,7 @@ public class ChannelResource {
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationStatusPreview(@PathParam("name") String name, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
-        return channelHelper.get().getChannelValidationInfo(() -> channel, topologyService);
+        return channelHelper.get().getChannelValidationInfo(() -> channel);
     }
 
     @PUT

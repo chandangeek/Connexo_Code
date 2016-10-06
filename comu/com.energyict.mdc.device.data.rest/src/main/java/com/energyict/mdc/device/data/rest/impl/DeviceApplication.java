@@ -18,6 +18,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -257,7 +258,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(CboTranslationProvider.COMPONENT_NAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -558,6 +560,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
             bind(MeterActivationInfoFactory.class).to(MeterActivationInfoFactory.class);
+            bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
+            bind(ChannelInfoFactory.class).to(ChannelInfoFactory.class);
         }
     }
 }

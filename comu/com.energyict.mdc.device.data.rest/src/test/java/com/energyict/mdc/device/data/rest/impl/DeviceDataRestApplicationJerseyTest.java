@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.search.SearchService;
@@ -188,8 +189,13 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     LocationService locationService;
 
+    protected ChannelInfoFactory channelInfoFactory;
+    ReadingTypeInfoFactory readingTypeInfoFactory;
+
     @Before
     public void setup() {
+        readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
+        channelInfoFactory = new ChannelInfoFactory(clock, topologyService, readingTypeInfoFactory);
         when(thesaurus.getStringBeyondComponent(any(String.class), any(String.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
         when(taskService.findComTask(anyLong())).thenReturn(Optional.empty());
         when(taskService.findComTask(firmwareComTaskId)).thenReturn(Optional.of(firmwareComTask));
