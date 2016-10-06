@@ -160,7 +160,27 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, PropertySpecService propertySpecService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService, CustomPropertySetService customPropertySetService, UpgradeService upgradeService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService,
+                                          Clock clock,
+                                          ThreadPrincipalService threadPrincipalService,
+                                          EventService eventService, NlsService nlsService,
+                                          PropertySpecService propertySpecService,
+                                          MeteringService meteringService,
+                                          MdcReadingTypeUtilService mdcReadingTypeUtilService,
+                                          UserService userService,
+                                          PluggableService pluggableService,
+                                          ProtocolPluggableService protocolPluggableService,
+                                          EngineConfigurationService engineConfigurationService,
+                                          SchedulingService schedulingService,
+                                          ValidationService validationService,
+                                          EstimationService estimationService,
+                                          MasterDataService masterDataService,
+                                          FiniteStateMachineService finiteStateMachineService,
+                                          DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                          CalendarService calendarService,
+                                          CustomPropertySetService customPropertySetService,
+                                          UpgradeService upgradeService,
+                                          DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -791,7 +811,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId) {
         return this.getDataModel().
                 query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
-                select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), new Order[]{Order.ascending("deviceType"), Order.ascending("name")});
+                select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("deviceType"), Order.ascending("name"));
     }
 
 
