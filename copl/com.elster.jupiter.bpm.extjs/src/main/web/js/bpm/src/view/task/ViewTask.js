@@ -151,7 +151,7 @@ Ext.define('Bpm.view.task.ViewTask', {
                 items: [
                     {
                         xtype: 'uni-form-empty-message',
-                        text: Uni.I18n.translate('bpm.task.noProperties', 'BPM', 'This task has no properties.'),
+                        text: Uni.I18n.translate('bpm.task.taskExecutionNoAttributes', 'BPM', 'This task has no task execution attributes.'),
                         hidden: true,
                     }
                 ]

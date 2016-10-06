@@ -37,7 +37,7 @@ Ext.define('Bpm.view.task.PerformTask', {
                 items: [
                     {
                         xtype: 'uni-form-empty-message',
-                        text: Uni.I18n.translate('bpm.task.userCantPerformTask', 'BPM', "You can't perform this task"),
+                        text: Uni.I18n.translate('bpm.task.notAllowedToStartTask', 'BPM', 'You are not allowed to start this task because you are not assigned.'),
                         hidden: true,
                         margin: '0 0 0 0'
                     },

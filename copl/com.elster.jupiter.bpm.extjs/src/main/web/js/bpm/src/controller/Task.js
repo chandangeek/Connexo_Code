@@ -92,7 +92,7 @@ Ext.define('Bpm.controller.Task', {
                             view.down('property-form').loadRecord(performTaskRecord);
                         } else {
                             if(taskRecord.get('status') === 'Completed') {
-                                view.down('property-form').down('uni-form-empty-message').setText(Uni.I18n.translate('bpm.task.thisTaskHasBeenCompleted', 'BPM', 'This task has been completed.'))
+                                view.down('property-form').down('uni-form-empty-message').setText(Uni.I18n.translate('bpm.task.taskExecutionAttributesNotAvailableBecauseTaskCompleted', 'BPM', 'Task execution attributes are not available because task is completed.'))
                             }
                             view.down('property-form').down('uni-form-empty-message').show();
                         }
