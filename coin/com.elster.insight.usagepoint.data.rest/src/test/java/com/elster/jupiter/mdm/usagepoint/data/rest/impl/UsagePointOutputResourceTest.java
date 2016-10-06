@@ -28,7 +28,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJerseyTest {
+
     private static final String USAGE_POINT_NAME = "Der Name";
+    private static final String EXPECTED_FORMULA_DESCRIPTION = "Formula Description";
+
     @Mock
     private UsagePoint usagePoint;
     @Mock

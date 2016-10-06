@@ -9,8 +9,6 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -25,9 +23,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/devices")
 public class DeviceResource {
@@ -80,7 +75,7 @@ public class DeviceResource {
         Integer limit = params.getLimit().orElse(50);
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
         MeterFilter filter = new MeterFilter();
-        filter.setMrid(dbSearchText);
+        filter.setName(dbSearchText);
         filter.addState("dlc.default.removed");
         filter.addState("dlc.default.decommissioned");
         Finder<Meter> finder = meteringService.findMeters(filter);
