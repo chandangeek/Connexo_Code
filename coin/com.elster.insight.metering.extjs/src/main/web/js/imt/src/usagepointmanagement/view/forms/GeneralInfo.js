@@ -119,6 +119,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 xtype: 'location',
                 itemId: 'up-summary-location',
                 name: 'extendedLocation',
+                width: 600,
                 fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
                 findLocationsUrl: '/api/jsr/search/com.elster.jupiter.metering.UsagePoint/locationsearchcriteria/location',
                 locationDetailsUrl: '/api/udr/usagepoints/locations'
