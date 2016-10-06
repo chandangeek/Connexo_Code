@@ -94,7 +94,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
         SearchableProperty.Visibility visibility = property.getVisibility();
 
         // Asserts
-        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.STICKY);
+        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.REMOVABLE);
     }
 
     @Test
