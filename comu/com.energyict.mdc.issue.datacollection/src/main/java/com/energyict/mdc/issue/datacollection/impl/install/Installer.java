@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -88,8 +89,12 @@ public class Installer implements FullInstaller {
     private void setAQSubscriber() {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
         try {
-            destinationSpec.subscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, whereCorrelationId().like("com/energyict/mdc/connectiontask/%")
-                    .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/data/device/CREATED")
+            destinationSpec.subscribe(
+                    TranslationKeys.AQ_DATA_COLLECTION_EVENT_SUBSC,
+                    IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN,
+                    whereCorrelationId()
+                            .like("com/energyict/mdc/connectiontask/%")
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/data/device/CREATED")
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE"))));
         } catch (DuplicateSubscriberNameException e) {
