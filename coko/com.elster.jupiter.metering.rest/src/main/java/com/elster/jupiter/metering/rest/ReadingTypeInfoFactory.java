@@ -35,7 +35,7 @@ public class ReadingTypeInfoFactory {
     public ReadingTypeInfos from(Iterable<? extends ReadingType> readingTypes){
         ReadingTypeInfos readingTypeInfos = new ReadingTypeInfos();
         for (ReadingType readingType : readingTypes) {
-            readingTypeInfos.add(readingType);
+            readingTypeInfos.add(from(readingType));
         }
         return readingTypeInfos;
     }
