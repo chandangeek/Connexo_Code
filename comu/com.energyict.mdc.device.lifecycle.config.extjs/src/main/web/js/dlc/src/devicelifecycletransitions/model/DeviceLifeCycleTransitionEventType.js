@@ -2,7 +2,8 @@ Ext.define('Dlc.devicelifecycletransitions.model.DeviceLifeCycleTransitionEventT
     extend: 'Ext.data.Model',
     fields: [
         'symbol',
-        'name'
+        'name',
+        'context'
     ]
 });
 

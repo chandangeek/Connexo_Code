@@ -20,12 +20,27 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
         }
     },
 
-    fillActionsAndChecks: function (fromComboValue, toComboValue) {
-        if (!!fromComboValue && !!toComboValue && (fromComboValue != this.fromValue || this.toValue != toComboValue)) {
-            this.fromValue = fromComboValue;
-            this.toValue = toComboValue;
-            this.fillActions(fromComboValue, toComboValue);
-            this.fillChecks(fromComboValue, toComboValue);
+    fillActionsAndChecks: function () {
+        var me = this,
+            autoActionsContainer = me.down('#autoActionsContainer'),
+            pretransitionChecksContainer = me.down('#pretansitionsContainer'),
+            triggeredByCombo = me.down('#transition-triggered-by-combo'),
+            triggeredByComboValue = triggeredByCombo.getValue(),
+            eventContext = !Ext.isEmpty(triggeredByComboValue) ? triggeredByCombo.findRecordByValue(triggeredByCombo.getValue()).get('context') : null,
+            fromComboValue = me.down('#transition-from-combo').getValue(),
+            toComboValue = me.down('#transition-to-combo').getValue();
+
+        if (!!fromComboValue && !!toComboValue
+            && eventContext && eventContext != 'System') {
+            me.fillActions(fromComboValue, toComboValue);
+            me.fillChecks(fromComboValue, toComboValue);
+        } else {
+            Ext.suspendLayouts();
+            autoActionsContainer.removeAll();
+            autoActionsContainer.hide();
+            pretransitionChecksContainer.removeAll();
+            pretransitionChecksContainer.hide();
+            Ext.resumeLayouts(true);
         }
     },
 
@@ -116,6 +131,9 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                         listeners: {
                             afterrender: function () {
                                 this.getPicker().setOverflowXY('hidden', 'auto');
+                            },
+                            select: function () {
+                                me.fillActionsAndChecks();
                             }
                         }
                     },
@@ -153,7 +171,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                                             store = transitionToCombo.getStore(),
                                             id;
 
-                                        me.fillActionsAndChecks(transitionFromCombo.getValue(), transitionToCombo.getValue());
+                                        me.fillActionsAndChecks();
                                         transitionToCombo.getStore().filterBy(function (state) {
                                             id = Ext.isArray(chosenState) ? chosenState[0].getId() : chosenState.getId();
                                             return state.getId() !== id;
@@ -212,7 +230,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                                             store = transitionFromCombo.getStore(),
                                             id;
 
-                                        me.fillActionsAndChecks(transitionFromCombo.getValue(), transitionToCombo.getValue());
+                                        me.fillActionsAndChecks();
 
                                         store.filterBy(function (state) {
                                             id = Ext.isArray(chosenState) ? chosenState[0].getId() : chosenState.getId();
