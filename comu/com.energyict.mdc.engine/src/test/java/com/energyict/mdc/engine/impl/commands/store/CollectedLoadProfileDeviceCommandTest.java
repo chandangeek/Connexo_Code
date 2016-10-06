@@ -374,6 +374,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     @Transactional
     public void updateLastReadingTest() throws SQLException {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("updateLastReadingTest").loadProfileTypes(this.loadProfileType).create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(getClock().instant()).thenReturn(Instant.now());
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(loadProfile);
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);

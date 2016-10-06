@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -22,8 +23,10 @@ public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublish
     private final EngineConfigurationService engineConfigurationService;
     private final IdentificationService identificationService;
     private final EventPublisher eventPublisher;
+    private final RunningComServer comServer;
 
-    public WebSocketEventPublisherFactoryImpl(ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, DeviceService deviceService, EngineConfigurationService engineConfigurationService, IdentificationService identificationService, EventPublisher eventPublisher) {
+    public WebSocketEventPublisherFactoryImpl(RunningComServer comServer, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, DeviceService deviceService, EngineConfigurationService engineConfigurationService, IdentificationService identificationService, EventPublisher eventPublisher) {
+        this.comServer = comServer;
         this.connectionTaskService = connectionTaskService;
         this.communicationTaskService = communicationTaskService;
         this.deviceService = deviceService;
@@ -34,7 +37,7 @@ public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublish
 
     @Override
     public WebSocketEventPublisher newWebSocketEventPublisher(WebSocketCloseEventListener closeEventListener) {
-        return new WebSocketEventPublisher(new ServiceProvider(), this.eventPublisher, closeEventListener);
+        return new WebSocketEventPublisher(this.comServer, new ServiceProvider(), this.eventPublisher, closeEventListener);
     }
 
     private class ServiceProvider implements RequestParser.ServiceProvider {

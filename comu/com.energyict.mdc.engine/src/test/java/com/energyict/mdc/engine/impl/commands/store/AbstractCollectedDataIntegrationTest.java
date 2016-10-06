@@ -118,7 +118,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
     private static Injector injector;
     private static InMemoryBootstrapModule bootstrapModule;
     private static MeteringService meteringService;
-    private static Clock clock = mock(Clock.class);
+    private static final Clock clock = mock(Clock.class);
     private static MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private static MasterDataService masterDataService;
     private static TopologyService topologyService;
@@ -237,7 +237,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
     @Before
     public void resetClock() {
-        clock = mock(Clock.class);
         initializeClock();
     }
 
@@ -298,6 +297,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
         @Override
         protected void configure() {
+            bind(Clock.class).toInstance(clock);
             SerialComponentService serialComponentService = mock(SerialComponentService.class);
             bind(SerialComponentService.class).toInstance(serialComponentService);
             bind(EventAdmin.class).toInstance(eventAdmin);

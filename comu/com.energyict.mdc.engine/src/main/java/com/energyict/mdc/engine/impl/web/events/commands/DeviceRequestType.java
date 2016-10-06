@@ -14,11 +14,11 @@ import java.util.StringTokenizer;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (17:00)
  */
-public class DeviceRequestType extends IdBusinessObjectRequestType {
+class DeviceRequestType extends IdBusinessObjectRequestType {
 
     private final IdentificationService identificationService;
 
-    public DeviceRequestType(IdentificationService identificationService) {
+    DeviceRequestType(IdentificationService identificationService) {
         this.identificationService = identificationService;
     }
 

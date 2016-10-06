@@ -11,11 +11,11 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:55)
  */
-public class ComPortPoolRequestType extends IdBusinessObjectRequestType {
+class ComPortPoolRequestType extends IdBusinessObjectRequestType {
 
     private final EngineConfigurationService engineConfigurationService;
 
-    public ComPortPoolRequestType(EngineConfigurationService engineConfigurationService) {
+    ComPortPoolRequestType(EngineConfigurationService engineConfigurationService) {
         this.engineConfigurationService = engineConfigurationService;
     }
 

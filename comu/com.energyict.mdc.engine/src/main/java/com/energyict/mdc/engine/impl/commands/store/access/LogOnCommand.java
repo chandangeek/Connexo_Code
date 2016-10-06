@@ -13,6 +13,8 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
+import static com.energyict.mdc.engine.impl.commands.MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE;
+
 /**
  * A LogOn command performs a logical signOn with the device.
  * <p>
@@ -36,7 +38,7 @@ public class LogOnCommand extends SimpleComCommand {
             if (e instanceof ConnectionCommunicationException) {
                 throw e;
             } else {
-                Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, com.energyict.mdc.engine.impl.commands.MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage());
+                Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage(), e);
                 addIssue(problem, CompletionCode.InitError);
             }
         }

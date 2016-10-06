@@ -2,14 +2,13 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 import com.google.common.base.Strings;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -26,22 +25,22 @@ import static java.util.Collections.singleton;
  */
 class ComPortRequest extends IdBusinessObjectRequest {
 
-    private final EngineConfigurationService engineConfigurationService;
+    private final RunningComServer comServer;
     private List<ComPort> comPorts;
 
-    ComPortRequest(EngineConfigurationService engineConfigurationService, long comPortId) {
-        this(engineConfigurationService, singleton(comPortId));
+    ComPortRequest(RunningComServer comServer, long comPortId) {
+        this(comServer, singleton(comPortId));
     }
 
-    ComPortRequest(EngineConfigurationService engineConfigurationService, Set<Long> comPortIds) {
+    ComPortRequest(RunningComServer comServer, Set<Long> comPortIds) {
         super(comPortIds);
-        this.engineConfigurationService = engineConfigurationService;
+        this.comServer = comServer;
         this.validateComPortIds();
     }
 
-    ComPortRequest(EngineConfigurationService engineConfigurationService, String... comPortNames) {
+    ComPortRequest(RunningComServer comServer, String... comPortNames) {
         super(null);
-        this.engineConfigurationService = engineConfigurationService;
+        this.comServer = comServer;
         this.validateComPortNames(Arrays.asList(comPortNames));
     }
 
@@ -61,11 +60,6 @@ class ComPortRequest extends IdBusinessObjectRequest {
                 .collect(Collectors.toList());
     }
 
-    private ComPort findComPort (long comPortId) {
-        Optional<? extends ComPort> comPort = engineConfigurationService.findComPort(comPortId);
-        return comPort.orElseThrow(() -> new NotFoundException("ComPort with id " + comPortId + " not found"));
-    }
-
     private void validateComPortNames(List<String> comPortNames){
         this.comPorts = comPortNames
                 .stream()
@@ -75,8 +69,21 @@ class ComPortRequest extends IdBusinessObjectRequest {
     }
 
     private ComPort findComPort (String comPortName) {
-        Optional<? extends ComPort> comPort = engineConfigurationService.findComPortByName(comPortName);
-        return comPort.orElseThrow(() -> new NotFoundException("ComPort with name " + comPortName + " not found"));
+        return this.comServer.getComServer()
+                .getComPorts()
+                .stream()
+                .filter(each -> each.getName().equals(comPortName))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("ComPort with name " + comPortName + " not found"));
+    }
+
+    private ComPort findComPort (long comPortId) {
+        return this.comServer.getComServer()
+                .getComPorts()
+                .stream()
+                .filter(each -> each.getId() == comPortId)
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("ComPort with id " + comPortId + " not found"));
     }
 
     @Override

@@ -8,6 +8,6 @@ package com.energyict.mdc.engine.impl.web.events;
  */
 public interface WebSocketEventPublisherFactory {
 
-    public WebSocketEventPublisher newWebSocketEventPublisher(WebSocketCloseEventListener closeEventListener);
+    WebSocketEventPublisher newWebSocketEventPublisher(WebSocketCloseEventListener closeEventListener);
 
 }

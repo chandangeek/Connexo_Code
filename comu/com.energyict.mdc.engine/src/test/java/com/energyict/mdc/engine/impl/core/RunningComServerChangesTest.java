@@ -740,7 +740,7 @@ public class RunningComServerChangesTest {
         }
 
         private void waitForApplyChanges() throws InterruptedException {
-            this.applyChangesLatch.await(100, TimeUnit.SECONDS);
+            this.applyChangesLatch.await(500, TimeUnit.SECONDS);
         }
     }
 }

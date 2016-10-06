@@ -35,8 +35,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -91,6 +92,7 @@ public class TextBasedEventFilterIntegrationTest {
         EventGenerator eventGenerator = new EventGenerator();
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
                 new WebSocketEventPublisherFactoryImpl(
+                        this.runningComServer,
                         this.connectionTaskService,
                         this.communicationTaskService,
                         this.deviceService,
@@ -404,7 +406,7 @@ public class TextBasedEventFilterIntegrationTest {
         private CountDownLatch latch;
 
         private LatchDrivenWebSocketEventPublisher(CountDownLatch latch, EventPublisher eventPublisher, WebSocketCloseEventListener closeEventListener) {
-            super(requestParserServiceProvider, eventPublisher, closeEventListener);
+            super(runningComServer, requestParserServiceProvider, eventPublisher, closeEventListener);
             this.latch = latch;
         }
 
@@ -420,7 +422,7 @@ public class TextBasedEventFilterIntegrationTest {
         private EventPublisher eventPublisher;
 
         private LatchDrivenWebSocketEventPublisherFactory(CountDownLatch latch, EventPublisher eventPublisher) {
-            super(connectionTaskService, communicationTaskService, deviceService, engineConfigurationService, identificationService, eventPublisher);
+            super(runningComServer, connectionTaskService, communicationTaskService, deviceService, engineConfigurationService, identificationService, eventPublisher);
             this.latch = latch;
             this.eventPublisher = eventPublisher;
         }

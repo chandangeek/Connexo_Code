@@ -26,7 +26,6 @@ public final class StackTracePrinter {
      *
      * @param thrown The Throwable (can be <code>null</code>).
      * @return The stacktrace or <code>null</code> if there was not Throwable.
-     * @deprecated Use print(Throwable thrown, Loglevel serverLogLever) instead
      */
     public static String print(Throwable thrown) {
         return print(thrown, null);
@@ -36,11 +35,7 @@ public final class StackTracePrinter {
         if (thrown == null) {
             return null;
         } else {
-            if (allowedToPrintStackTrace(serverLogLevel)) {
-                return printStackTrace(thrown);
-            } else {
-                return printMessage(thrown);
-            }
+            return printStackTrace(thrown);
         }
     }
 
@@ -50,15 +45,11 @@ public final class StackTracePrinter {
      * allows printing of the stackTrace.
      *
      * @param throwableErrorMessage The Throwables error message
-     * @param throwableStackTrace   The Throwables stackTrace
+     * @param throwableStackTrace The Throwables stackTrace
      * @return The error message or stackTrace
      */
     public static String print(String throwableErrorMessage, String throwableStackTrace, LogLevel serverLogLevel) {
-        if (allowedToPrintStackTrace(serverLogLevel)) {
-            return throwableStackTrace;
-        } else {
-            return throwableErrorMessage;
-        }
+        return throwableStackTrace;
     }
 
     /**
@@ -98,7 +89,7 @@ public final class StackTracePrinter {
      * Append the error message of a given {@link Throwable} to a given {@link StringBuilder}
      *
      * @param throwable The Throwable for which the error message should be print out
-     * @param builder   The builder to which the message should be appended
+     * @param builder The builder to which the message should be appended
      */
     private static void appendThrowableMessage(Throwable throwable, StringBuilder builder) {
         String s = throwable.getClass().getSimpleName();
@@ -107,6 +98,8 @@ public final class StackTracePrinter {
     }
 
     /**
+     * Note: leaving this as it was ported from EIServer but for Connexo we do want the full stacktrace for now
+     * <p/>
      * Tests if the specified server log level is sufficient to allow a print out of full StackTraces
      *
      * @param serverLogLevel The server LogLevel

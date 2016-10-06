@@ -1,15 +1,22 @@
 package com.energyict.mdc.engine.impl.core;
 
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -33,12 +40,8 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
+
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -47,9 +50,20 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
+
+import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -98,6 +112,9 @@ public abstract class AbstractRescheduleBehaviorTest {
 
     @Before
     public void setup() {
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionStarted(any(ConnectionTask.class), any(ComServer.class));
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionFailed(any(ConnectionTask.class));
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionCompleted(any(ConnectionTask.class));
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.getDevice()).thenReturn(device);
         Optional<NextExecutionSpecs> nextExecutionSpecs = Optional.empty();
@@ -107,6 +124,7 @@ public abstract class AbstractRescheduleBehaviorTest {
         Problem problem = mock(Problem.class);
         when(problem.isProblem()).thenReturn(true);
         when(problem.getTimestamp()).thenReturn(Instant.now());
+        when(problem.getException()).thenReturn(Optional.empty());
         when(issueService.newProblem(any(Object.class), any(MessageSeed.class))).thenReturn(problem);
         when(issueService.newProblem(any(Object.class), any(MessageSeed.class), any(Object.class))).thenReturn(problem);
         when(issueService.newProblem(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(problem);
@@ -114,6 +132,7 @@ public abstract class AbstractRescheduleBehaviorTest {
         Warning warning = mock(Warning.class);
         when(warning.isWarning()).thenReturn(true);
         when(warning.getTimestamp()).thenReturn(Instant.now());
+        when(warning.getException()).thenReturn(Optional.empty());
         when(issueService.newWarning(any(Object.class), any(MessageSeed.class))).thenReturn(warning);
         when(issueService.newWarning(any(Object.class), any(MessageSeed.class), any(Object.class))).thenReturn(warning);
         when(issueService.newWarning(any(Object.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(warning);

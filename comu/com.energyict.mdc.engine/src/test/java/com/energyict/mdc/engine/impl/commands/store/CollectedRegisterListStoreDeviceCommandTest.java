@@ -85,6 +85,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
 
     @Before
     public void setUp() {
+        when(getClock().instant()).thenReturn(justBeforeRegisterReadEventTime1);
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
         ReadingType readingType = getMeteringService().getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         registerType = getMasterDataService().findRegisterTypeByReadingType(readingType).orElseGet(() -> {

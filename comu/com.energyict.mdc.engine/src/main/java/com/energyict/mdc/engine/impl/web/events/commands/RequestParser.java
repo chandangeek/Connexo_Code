@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.Arrays;
@@ -38,9 +39,11 @@ public class RequestParser {
     public static final String PONG_MESSAGE = "pong";
 
     private List<RequestType> requestTypes;
+    private final RunningComServer comServer;
     private final ServiceProvider serviceProvider;
 
-    public RequestParser(ServiceProvider serviceProvider) {
+    public RequestParser(RunningComServer comServer, ServiceProvider serviceProvider) {
+        this.comServer = comServer;
         this.serviceProvider = serviceProvider;
     }
 
@@ -86,7 +89,7 @@ public class RequestParser {
                         new DeviceRequestType(serviceProvider.identificationService()),
                         new ConnectionTaskRequestType(serviceProvider.connectionTaskService()),
                         new ComTaskExecutionRequestType(serviceProvider.communicationTaskService()),
-                        new ComPortRequestType(serviceProvider.engineConfigurationService()),
+                        new ComPortRequestType(this.comServer),
                         new ComPortPoolRequestType(serviceProvider.engineConfigurationService()));
     }
 

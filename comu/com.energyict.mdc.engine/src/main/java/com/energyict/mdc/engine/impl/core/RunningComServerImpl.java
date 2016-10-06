@@ -124,6 +124,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         EventPublisher eventPublisher = new EventPublisherImpl(this);
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
                 new WebSocketEventPublisherFactoryImpl(
+                        this,
                         serviceProvider.connectionTaskService(),
                         serviceProvider.communicationTaskService(),
                         serviceProvider.deviceService(),
@@ -164,6 +165,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         EventPublisher eventPublisher = new EventPublisherImpl(this);
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
                 new WebSocketEventPublisherFactoryImpl(
+                        this,
                         serviceProvider.connectionTaskService(),
                         serviceProvider.communicationTaskService(),
                         serviceProvider.deviceService(),

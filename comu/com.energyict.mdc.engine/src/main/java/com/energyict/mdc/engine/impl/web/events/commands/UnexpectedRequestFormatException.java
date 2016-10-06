@@ -8,9 +8,9 @@ package com.energyict.mdc.engine.impl.web.events.commands;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (11:23)
  */
-public class UnexpectedRequestFormatException extends RequestParseException {
+class UnexpectedRequestFormatException extends RequestParseException {
 
-    public UnexpectedRequestFormatException (String expectedCommandPattern) {
+    UnexpectedRequestFormatException(String expectedCommandPattern) {
         super("Request does not conform the expected form: " + expectedCommandPattern);
     }
 

@@ -13,7 +13,7 @@ import java.util.StringTokenizer;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:14)
  */
-public abstract class LoggingRequestType implements RequestType {
+abstract class LoggingRequestType implements RequestType {
 
     @Override
     public boolean canParse (String name) {

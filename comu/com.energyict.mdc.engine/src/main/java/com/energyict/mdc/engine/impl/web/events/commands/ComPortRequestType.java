@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -13,12 +13,12 @@ import java.util.StringTokenizer;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:55)
  */
-public class ComPortRequestType extends IdBusinessObjectRequestType {
+class ComPortRequestType extends IdBusinessObjectRequestType {
 
-    private final EngineConfigurationService engineConfigurationService;
+    private final RunningComServer comServer;
 
-    public ComPortRequestType(EngineConfigurationService engineConfigurationService) {
-        this.engineConfigurationService = engineConfigurationService;
+    ComPortRequestType(RunningComServer comServer) {
+        this.comServer = comServer;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ComPortRequestType extends IdBusinessObjectRequestType {
 
     @Override
     protected Request newRequestFor (Set<Long> ids) {
-        return new ComPortRequest(engineConfigurationService, ids);
+        return new ComPortRequest(this.comServer, ids);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class ComPortRequestType extends IdBusinessObjectRequestType {
             if (comportNames.length == 0) {
                 return this.newRequestForAll();
             }
-            return new ComPortRequest(engineConfigurationService, comportNames);
+            return new ComPortRequest(this.comServer, comportNames);
         } catch (NotFoundException e) {
             throw new BusinessObjectParseException(e.getMessage(), e);
         }
