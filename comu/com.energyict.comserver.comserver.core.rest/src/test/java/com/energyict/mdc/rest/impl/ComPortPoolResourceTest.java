@@ -140,9 +140,10 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         } catch (Exception ex) {}
 
         Map<String, Object> taskExecutionTimeout = (Map<String, Object>) comPortPool1.get("taskExecutionTimeout");
-        assertThat(taskExecutionTimeout).hasSize(3)
+        assertThat(taskExecutionTimeout).hasSize(4)
                 .contains(MapEntry.entry("count", 5))
                 .contains(MapEntry.entry("timeUnit", "minutes"))
+                .contains(MapEntry.entry("localizedTimeUnit", "minutes"))
                 .contains(MapEntry.entry("asSeconds", 300));
     }
 

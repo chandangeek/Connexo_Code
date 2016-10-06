@@ -117,14 +117,16 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
                 .contains(MapEntry.entry("serverLogLevel", "Information"));
 
         Map<String, Object> changesInterPollDelay = (Map<String, Object>) comServer1.get("changesInterPollDelay");
-        assertThat(changesInterPollDelay).hasSize(3)
+        assertThat(changesInterPollDelay).hasSize(4)
                 .contains(MapEntry.entry("count", 6))
                 .contains(MapEntry.entry("timeUnit", "seconds"))
+                .contains(MapEntry.entry("localizedTimeUnit", "seconds"))
                 .contains(MapEntry.entry("asSeconds", 6));
         Map<String, Object> schedulingInterPollDelay = (Map<String, Object>) comServer1.get("schedulingInterPollDelay");
-        assertThat(schedulingInterPollDelay).hasSize(3)
+        assertThat(schedulingInterPollDelay).hasSize(4)
                 .contains(MapEntry.entry("count", 7))
                 .contains(MapEntry.entry("timeUnit", "minutes"))
+                .contains(MapEntry.entry("localizedTimeUnit", "minutes"))
                 .contains(MapEntry.entry("asSeconds", 420));
     }
 
@@ -153,6 +155,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         onlineComServerInfo.name="new name";
         onlineComServerInfo.schedulingInterPollDelay=new TimeDurationInfo();
         onlineComServerInfo.schedulingInterPollDelay.timeUnit="seconds";
+        onlineComServerInfo.schedulingInterPollDelay.localizedTimeUnit="Seconds";
         onlineComServerInfo.schedulingInterPollDelay.count=6;
         onlineComServerInfo.communicationLogLevel= ComServer.LogLevel.ERROR;
         onlineComServerInfo.serverLogLevel= ComServer.LogLevel.DEBUG;
