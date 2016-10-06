@@ -154,7 +154,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-09-12 15:52:00 +0300 (Mon, 12 Sep 2016)$";
+        return "$Date: 2016-10-06 16:47:12 +0300 (Thu, 06 Oct 2016)$";
     }
 
     /**
@@ -217,6 +217,8 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     protected void readFrameCounter(ComChannel comChannel) {
         boolean weHaveValidCachedFrameCounter = false;
 
+        validateFCProperties();
+
         if (getDlmsSessionProperties().useCachedFrameCounter()) {
             weHaveValidCachedFrameCounter = readAndTestCachedFrameCounter(comChannel);
         }
@@ -233,6 +235,16 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         }
     }
 
+    private void validateFCProperties(){
+        final int clientId = getDlmsSessionProperties().getClientMacAddress();
+        if (clientId == 1 && getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()
+                && !getDlmsSessionProperties().useCachedFrameCounter()) {
+            getLogger().info("When Client 1 is configured and "+ AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER +
+                    " is active, we also need " + AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER + " to be active");
+            throw DeviceConfigurationException.unsupportedPropertyValue(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, "false");
+        }
+    }
+
 
     /**
      * Before using an cached frame counter, test it first to see if it's still good
@@ -243,26 +255,19 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     protected boolean readAndTestCachedFrameCounter(ComChannel comChannel) {
         getLogger().info("Will try to use a cached frame counter");
         final int clientId = getDlmsSessionProperties().getClientMacAddress();
-        long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         boolean frameCounterSet = false;
+        long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
+        long initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
 
-        if (cachedFrameCounter > 0) {
+        if(initialFrameCounter > cachedFrameCounter){
+            getLogger().info("Use initial frame counter: " + initialFrameCounter + " because has a higher value than cached frame counter");
+            this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter);
+            frameCounterSet = true;
+        } else if (cachedFrameCounter > 0) {
             getLogger().info(" - cached frame counter: " + cachedFrameCounter);
             this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFrameCounter + 1);
             frameCounterSet = true;
-        } else {
-            getLogger().warning("Cache does not have a cached frame counter for clientId=" + clientId);
-
-            BigDecimal initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
-            if (initialFrameCounter != null) {
-                getLogger().info("Using the configured initial framecounter: " + initialFrameCounter);
-                this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter.intValue());
-                frameCounterSet = true;
-            } else {
-                getLogger().warning("InitialFrameCounter parameter not set correctly, will try to fetch a new one if possible.: ");
-            }
         }
-
 
         if (frameCounterSet) {
             if (getDlmsSessionProperties().validateCachedFrameCounter()) {
