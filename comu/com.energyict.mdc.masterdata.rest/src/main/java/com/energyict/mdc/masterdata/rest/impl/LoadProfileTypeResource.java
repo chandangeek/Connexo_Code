@@ -15,8 +15,10 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
+import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -55,13 +57,17 @@ public class LoadProfileTypeResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final Thesaurus thesaurus;
     private final ResourceHelper resourceHelper;
+    private final RegisterTypeInfoFactory registerTypeInfoFactory;
+    private final LoadProfileTypeInfoFactory loadProfileTypeInfoFactory;
 
     @Inject
-    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, ResourceHelper resourceHelper) {
+    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, ResourceHelper resourceHelper, RegisterTypeInfoFactory registerTypeInfoFactory, LoadProfileTypeInfoFactory loadProfileTypeInfoFactory) {
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
         this.resourceHelper = resourceHelper;
+        this.registerTypeInfoFactory = registerTypeInfoFactory;
+        this.loadProfileTypeInfoFactory = loadProfileTypeInfoFactory;
     }
 
     @GET
@@ -87,9 +93,8 @@ public class LoadProfileTypeResource {
     public Response getAllProfileTypes(@BeanParam JsonQueryParameters queryParameters) {
         List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
 
-        allProfileTypes = ListPager.of(allProfileTypes, Comparator.comparing(LoadProfileType::getName, String.CASE_INSENSITIVE_ORDER))
-                .from(queryParameters).find();
-        return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileTypeInfo.from(allProfileTypes), queryParameters)).build();
+        allProfileTypes = ListPager.of(allProfileTypes, (lp1, lp2) -> lp1.getName().compareToIgnoreCase(lp2.getName())).from(queryParameters).find();
+        return Response.ok(PagedInfoList.fromPagedList("data", loadProfileTypeInfoFactory.from(allProfileTypes), queryParameters)).build();
     }
 
     @GET
@@ -99,7 +104,7 @@ public class LoadProfileTypeResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getLoadProfileType(@PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeOrThrowException(loadProfileId);
-        return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isLoadProfileTypeAlreadyInUse(loadProfileType))).build();
+        return Response.ok(loadProfileTypeInfoFactory.from(loadProfileType, isLoadProfileTypeAlreadyInUse(loadProfileType))).build();
     }
 
     @POST
@@ -126,7 +131,7 @@ public class LoadProfileTypeResource {
         }
         LoadProfileType loadProfileType = masterDataService.newLoadProfileType(request.name, request.obisCode, request.timeDuration, registerTypes);
         loadProfileType.save();
-        return Response.ok(LoadProfileTypeInfo.from(loadProfileType, false)).build();
+        return Response.ok(loadProfileTypeInfoFactory.from(loadProfileType, false)).build();
     }
 
     @PUT
@@ -150,7 +155,7 @@ public class LoadProfileTypeResource {
             }
         }
         loadProfileType.save();
-        return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isInUse)).build();
+        return Response.ok(loadProfileTypeInfoFactory.from(loadProfileType, isInUse)).build();
     }
 
 
@@ -179,7 +184,7 @@ public class LoadProfileTypeResource {
                 .limit(queryParameters.getLimit().get() + 1);
 
         List<RegisterTypeInfo> registerTypeInfos = registerTypeStream
-                .map(registerType -> new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
+                .map(registerType -> registerTypeInfoFactory.asInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
                 .collect(toList());
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
@@ -201,7 +206,7 @@ public class LoadProfileTypeResource {
                 .limit(queryParameters.getLimit().get() + 1);
 
         List<RegisterTypeInfo> registerTypeInfos = registerTypeStream
-                .map(registerType -> new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
+                .map(registerType -> registerTypeInfoFactory.asInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
                 .collect(toList());
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }

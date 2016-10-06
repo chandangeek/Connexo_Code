@@ -14,12 +14,17 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -36,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -198,7 +204,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
     @Test
     public void testUpdateRegisterTypeOkVersion() {
         RegisterType register = mockRegisterType();
-        RegisterTypeInfo info = new RegisterTypeInfo(register, false, false);
+        RegisterTypeInfo info = registerTypeInfoFactory.asInfo(register, false, false);
         Response response = target("/registertypes/" + REGISTER_ID).request().build(HttpMethod.PUT, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(register, times(1)).setObisCode(new ObisCode(1,2,3,4,5,1, false));
@@ -207,7 +213,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
     @Test
     public void testUpdateRegisterTypeBadVersion() {
         RegisterType register = mockRegisterType();
-        RegisterTypeInfo info = new RegisterTypeInfo(register, false, false);
+        RegisterTypeInfo info = registerTypeInfoFactory.asInfo(register, false, false);
         info.version = BAD_VERSION;
         Response response = target("/registertypes/" + REGISTER_ID).request().build(HttpMethod.PUT, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -217,7 +223,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
     @Test
     public void testDeleteRegisterTypeOkVersion() {
         RegisterType register = mockRegisterType();
-        RegisterTypeInfo info = new RegisterTypeInfo(register, false, false);
+        RegisterTypeInfo info = registerTypeInfoFactory.asInfo(register, false, false);
         Response response = target("/registertypes/" + REGISTER_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(register, times(1)).delete();
@@ -226,7 +232,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
     @Test
     public void testDeleteRegisterTypeBadVersion() {
         RegisterType register = mockRegisterType();
-        RegisterTypeInfo info = new RegisterTypeInfo(register, false, false);
+        RegisterTypeInfo info = registerTypeInfoFactory.asInfo(register, false, false);
         info.version = BAD_VERSION;
         Response response = target("/registertypes/" + REGISTER_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
