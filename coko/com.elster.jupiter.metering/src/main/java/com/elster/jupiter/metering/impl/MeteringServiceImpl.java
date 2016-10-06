@@ -53,7 +53,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Effective;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Operator;
@@ -409,14 +408,14 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Finder<Meter> findMeters(MeterFilter filter) {
         Condition condition = Condition.TRUE;
-        if (!Checks.is(filter.getMrid()).emptyOrOnlyWhiteSpace()) {
-            condition = condition.and(where("mRID").likeIgnoreCase(filter.getMrid()));
+        if (!Checks.is(filter.getName()).emptyOrOnlyWhiteSpace()) {
+            condition = condition.and(where("name").likeIgnoreCase(filter.getName()));
         }
 
         condition = condition.and(ListOperator.NOT_IN.contains(DefaultFinder.of(EndDeviceLifeCycleStatus.class, where("state.name")
                 .in(filter.getStates()).and(where("interval").isEffective()), dataModel, State.class).asSubQuery("enddevice"), "id"));
 
-        return DefaultFinder.of(Meter.class, condition, dataModel).defaultSortColumn("mRID");
+        return DefaultFinder.of(Meter.class, condition, dataModel).defaultSortColumn("name");
     }
 
     @Override

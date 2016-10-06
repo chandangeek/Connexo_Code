@@ -7,15 +7,15 @@ import java.util.List;
 
 @ProviderType
 public class MeterFilter {
-    private String mrid;
+    private String name;
     private List<String> states = new ArrayList<>();
 
-    public String getMrid() {
-        return mrid;
+    public String getName() {
+        return name;
     }
 
-    public void setMrid(String name) {
-        this.mrid = name;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<String> getStates(){
