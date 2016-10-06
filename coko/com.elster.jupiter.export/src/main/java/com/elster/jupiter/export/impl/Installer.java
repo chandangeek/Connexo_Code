@@ -5,6 +5,7 @@ import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -34,18 +35,16 @@ import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
 
 class Installer implements FullInstaller, PrivilegesProvider {
 
-    public static final String DESTINATION_NAME = DataExportServiceImpl.DESTINATION_NAME;
-    public static final String SUBSCRIBER_NAME = DataExportServiceImpl.SUBSCRIBER_NAME;
-    public static final String RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.dataExport";
-    public static final String RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY = "relativeperiod.category.updateWindow";
-    public static final String RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY = "relativeperiod.category.updateTimeframe";
+    private static final String DESTINATION_NAME = DataExportServiceImpl.DESTINATION_NAME;
+    static final String SUBSCRIBER_NAME = DataExportServiceImpl.SUBSCRIBER_NAME;
+    static final String RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.dataExport";
+    static final String RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY = "relativeperiod.category.updateWindow";
+    static final String RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY = "relativeperiod.category.updateTimeframe";
 
     private final DataModel dataModel;
     private final MessageService messageService;
     private final TimeService timeService;
     private final UserService userService;
-
-    private DestinationSpec destinationSpec;
 
     @Inject
     Installer(DataModel dataModel, MessageService messageService, TimeService timeService, UserService userService) {
@@ -53,10 +52,6 @@ class Installer implements FullInstaller, PrivilegesProvider {
         this.messageService = messageService;
         this.timeService = timeService;
         this.userService = userService;
-    }
-
-    public DestinationSpec getDestinationSpec() {
-        return destinationSpec;
     }
 
     @Override
@@ -108,10 +103,10 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
     private void createDestinationAndSubscriber() {
         QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
+        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(SUBSCRIBER_NAME);
+        destinationSpec.subscribe(TranslationKeys.SUBSCRIBER_NAME, DataExportService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     private RelativePeriodCategory getCategory(String name) {
@@ -119,27 +114,26 @@ class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private void createRelativePeriods() {
-        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, TODAY, YESTERDAY).stream()
+        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, TODAY, YESTERDAY)
                 .forEach(definition -> {
                     RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
                             .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_CATEGORY));
                 });
 
-        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, YESTERDAY).stream()
+        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, YESTERDAY)
                 .forEach(definition -> {
                     RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
                             .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY));
                 });
 
-        EnumSet.of(THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY).stream()
+        EnumSet.of(THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY)
                 .forEach(definition -> {
                     RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
                             .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY));
                 });
-
-
     }
+
 }
