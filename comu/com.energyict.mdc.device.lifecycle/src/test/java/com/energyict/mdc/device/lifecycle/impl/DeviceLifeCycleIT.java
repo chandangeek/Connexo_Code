@@ -51,7 +51,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
     @Transactional
     public void lifeCycleDatesOnNewDevice() {
         // Business method
-        Device device = this.createSimpleDevice("lifeCycleDatesOnNewDevice", Instant.now());
+        Device device = this.createSimpleDevice("lifeCycleDatesOnNewDevice", inMemoryPersistence.getClock().instant());
 
         // Asserts
         assertThat(device.getLifecycleDates()).isNotNull();

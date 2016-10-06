@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTimeline;
@@ -17,7 +18,7 @@ import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -177,7 +178,7 @@ public class DeviceLifeCycleServiceImplTest {
             when(this.microActionFactory.from(microAction)).thenReturn(serverMicroAction);
         }
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
-        when(userPreferencesService.getPreferenceByKey(any(User.class), any(FormatKey.class))).thenReturn(Optional.empty());
+        when(userPreferencesService.getPreferenceByKey(any(User.class), any(PreferenceType.class))).thenReturn(Optional.empty());
     }
 
     @Test
@@ -822,6 +823,33 @@ public class DeviceLifeCycleServiceImplTest {
         assertThat(executableActionProperty).isNotNull();
         assertThat(executableActionProperty.getPropertySpec()).isEqualTo(propertySpec);
         assertThat(executableActionProperty.getValue()).isEqualTo(value);
+    }
+
+    @Test
+    public void testTransitionsWithStandardEventTypesAreNotAvailableForExecution() {
+        CustomStateTransitionEventType customEventType = mock(CustomStateTransitionEventType.class);
+        StateTransition customStateTransition = mock(StateTransition.class);
+        when(customStateTransition.getEventType()).thenReturn(customEventType);
+        AuthorizedTransitionAction customTransition = mock(AuthorizedTransitionAction.class);
+        when(customTransition.getStateTransition()).thenReturn(customStateTransition);
+        when(customTransition.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.ONE));
+
+        StandardStateTransitionEventType standardEventType = mock(StandardStateTransitionEventType.class);
+        StateTransition standardStateTransition = mock(StateTransition.class);
+        when(standardStateTransition.getEventType()).thenReturn(standardEventType);
+        AuthorizedTransitionAction standardTransition = mock(AuthorizedTransitionAction.class);
+        when(standardTransition.getStateTransition()).thenReturn(standardStateTransition);
+        when(standardTransition.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.ONE));
+
+        when(lifeCycle.getAuthorizedActions(state)).thenReturn(Arrays.asList(standardTransition, customTransition));
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
+
+        // Business method
+        List<ExecutableAction> executableActions = getTestInstance().getExecutableActions(this.device);
+
+        // Assertion
+        assertThat(executableActions.size()).isEqualTo(1);
+        assertThat(executableActions.get(0).getAction()).isEqualTo(customTransition);
     }
 
     private DeviceLifeCycleServiceImpl getTestInstance() {
