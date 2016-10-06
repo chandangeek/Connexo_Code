@@ -242,6 +242,18 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
         return endDeviceQuery.asSubquery(condition, "amrId");
     }
 
+    @Override
+    public Subquery toSubQuery(String... fields) {
+        MeteringService service = getDataModel().getInstance(MeteringService.class);
+        Query<EndDevice> endDeviceQuery = service.getEndDeviceQuery();
+
+        QueryExecutor<EntryImpl> query = getDataModel().query(EntryImpl.class);
+        Subquery subQueryEndDeviceIdInGroup = query.asSubquery(where("endDeviceGroup").isEqualTo(this), "endDevice");
+        Condition condition = ListOperator.IN.contains(subQueryEndDeviceIdInGroup, "id");
+
+        return endDeviceQuery.asSubquery(condition, fields);
+    }
+
     private EndDeviceMembershipImpl forEndDevice(EndDevice endDevice) {
         return getMemberships().stream()
                 .filter(With.endDevice(endDevice))

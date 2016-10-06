@@ -1,8 +1,14 @@
-package com.elster.jupiter.metering.groups;
+/*
+ * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ */
 
+package com.elster.jupiter.metering.groups.spi;
+
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.search.SearchablePropertyCondition;
-import com.elster.jupiter.util.sql.SqlFragment;
+
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.List;
@@ -10,6 +16,7 @@ import java.util.List;
 /**
  * Responsible for converting actual content of the group into a list of EndDevices.
  */
+@ConsumerType
 public interface EndDeviceQueryProvider {
 
     String getName();
@@ -18,6 +25,6 @@ public interface EndDeviceQueryProvider {
 
     List<EndDevice> findEndDevices(Instant instant, List<SearchablePropertyCondition> conditions, int start, int limit);
 
-    SqlFragment toFragment(SqlFragment sqlFragment, String columnName);
+    Query<EndDevice> getEndDeviceQuery(List<SearchablePropertyCondition> conditions);
 
 }

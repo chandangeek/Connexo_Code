@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.groups;
 
+import com.elster.jupiter.metering.groups.spi.EndDeviceQueryProvider;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyValue;
