@@ -317,7 +317,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new MeterSearchableProperty(this, this.propertySpecService, this.meteringService)));
     }
 
-    private boolean isMultisensePropertiesOnly() {
+    protected boolean isMultisensePropertiesOnly() {
         return !this.licenseService.getLicenseForApplication("INS")
                 .isPresent() && this.licenseService.getLicenseForApplication("MDC").isPresent();
     }

@@ -7,25 +7,35 @@ import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateInstaller;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
  * Provides common functionality which can be used for clean install of 10.2 or for upgrade from 10.1 to 10.2
  */
-public class InstallerV10_2Impl implements FullInstaller {
+public class InstallerV10_2Impl implements FullInstaller, PrivilegesProvider {
 
     private final ServerMeteringService meteringService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
+    private final UserService userService;
 
     @Inject
-    public InstallerV10_2Impl(ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
+    public InstallerV10_2Impl(ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService, UserService userService) {
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.userService = userService;
     }
 
     @Override
@@ -91,6 +101,47 @@ public class InstallerV10_2Impl implements FullInstaller {
 
     private void createReadingTypeTemplates() {
         new ReadingTypeTemplateInstaller(metrologyConfigurationService).install();
+    }
+
+    @Override
+    public String getModuleName() {
+        return MeteringDataModelService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        getModuleName(),
+                        DefaultTranslationKey.RESOURCE_USAGE_POINT.getKey(),
+                        DefaultTranslationKey.RESOURCE_USAGE_POINT_DESCRIPTION.getKey(),
+                        Arrays.asList(
+                                Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
+                                Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
+                                Privileges.Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS)));
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        getModuleName(),
+                        DefaultTranslationKey.RESOURCE_READING_TYPE.getKey(),
+                        DefaultTranslationKey.RESOURCE_READING_TYPE_DESCRIPTION.getKey(),
+                        Arrays.asList(Privileges.Constants.ADMINISTER_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        getModuleName(),
+                        DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY.getKey(),
+                        DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY_DESCRIPTION.getKey(),
+                        Collections.singletonList(Privileges.Constants.VIEW_SERVICECATEGORY)));
+
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        getModuleName(),
+                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION.getKey(),
+                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION.getKey(),
+                        Arrays.asList(
+                                Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION,
+                                Privileges.Constants.VIEW_METROLOGY_CONFIGURATION)));
+        return resources;
     }
 
 }

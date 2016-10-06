@@ -6,13 +6,18 @@ import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
+import com.google.common.collect.Range;
+
 import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.util.Iterator;
 
 public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
 
@@ -119,6 +124,14 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     private ElectricityDetail buildDetail(){
+        Range<Instant> newDetailRange = interval.toClosedOpenRange();
+        Iterator<? extends UsagePointDetail> iterator = usagePoint.getDetail(newDetailRange).iterator();
+        if (iterator.hasNext()) {
+            usagePoint.terminateDetail(iterator.next(), newDetailRange.lowerEndpoint());
+            if (iterator.hasNext()) {
+                interval = Interval.of(Range.closedOpen(newDetailRange.lowerEndpoint(), iterator.next().getRange().lowerEndpoint()));
+            }
+        }
         ElectricityDetailImpl ed = dataModel.getInstance(ElectricityDetailImpl.class).init(usagePoint, interval);
         ed.setCollar(collar);
         ed.setGrounded(grounded);

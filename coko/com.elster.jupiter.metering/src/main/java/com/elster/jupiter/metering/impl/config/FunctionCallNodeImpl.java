@@ -52,7 +52,7 @@ public class FunctionCallNodeImpl extends AbstractNode implements FunctionCallNo
 
     public String toString() {
         StringBuilder result = new StringBuilder(function.toString() + "(");
-        result.append(this.getChildren().stream().map(ServerExpressionNode::toString).collect(Collectors.joining(", ")));
+        result.append(this.getServerSideChildren().stream().map(ServerExpressionNode::toString).collect(Collectors.joining(", ")));
         if (this.aggregationLevel != null) {
             result.append(", ");
             result.append(this.aggregationLevel.name());

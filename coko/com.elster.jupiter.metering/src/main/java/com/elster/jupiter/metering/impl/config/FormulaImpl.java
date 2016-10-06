@@ -63,15 +63,6 @@ public class FormulaImpl implements ServerFormula {
     }
 
     @Override
-    public String getDescription() {
-        if (expressionNode.isPresent()) {
-            return expressionNode.get().toString();
-        } else {
-            return "";
-        }
-    }
-
-    @Override
     public ServerExpressionNode getExpressionNode() {
         return expressionNode.get();
     }
@@ -120,6 +111,7 @@ public class FormulaImpl implements ServerFormula {
         }
     }
 
+    @Override
     public String toString() {
         String result = "id: " + this.id + ", mode: " + this.mode;
         if (expressionNode.isPresent()) {

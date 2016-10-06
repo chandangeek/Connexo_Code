@@ -696,10 +696,10 @@ public enum IntervalLength {
             // Period is aligned with this IntervalLength
             return period.lowerEndpoint();
         } else {
-            // Add this IntervalLength to the attempt until it is contained by the period
+            // Add this IntervalLength to the attempt until it is after the period start and possibly contained by the period but could also be after the period
             do {
                 attempt = this.addTo(attempt, zoneId);
-            } while (!period.contains(attempt));
+            } while (attempt.isBefore(period.lowerEndpoint()));
             return attempt;
         }
     }

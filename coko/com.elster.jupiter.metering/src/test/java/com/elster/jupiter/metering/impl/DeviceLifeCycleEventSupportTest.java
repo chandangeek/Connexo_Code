@@ -78,8 +78,10 @@ public class DeviceLifeCycleEventSupportTest {
         when(this.endDevice.getId()).thenReturn(METER_ID);
         when(this.endDevice.getState()).thenReturn(Optional.of(this.state));
         when(this.meteringService.findEndDeviceById(METER_ID)).thenReturn(Optional.of(this.endDevice));
+        when(this.endDevice.getAmrId()).thenReturn(String.valueOf(METER_ID));
         when(this.meter.getId()).thenReturn(METER_ID);
         when(this.meter.getState()).thenReturn(Optional.of(this.state));
+        when(this.meter.getAmrId()).thenReturn(String.valueOf(METER_ID));
         when(this.meteringService.findMeterById(METER_ID)).thenReturn(Optional.of(this.meter));
     }
 

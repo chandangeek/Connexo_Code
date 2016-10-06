@@ -61,7 +61,12 @@ public abstract class AbstractNode implements ServerExpressionNode {
     }
 
     @Override
-    public List<ServerExpressionNode> getChildren() {
+    public List<ExpressionNode> getChildren() {
+        return Collections.unmodifiableList(children);
+    }
+
+    @Override
+    public List<ServerExpressionNode> getServerSideChildren() {
         return Collections.unmodifiableList(children);
     }
 
@@ -126,7 +131,7 @@ public abstract class AbstractNode implements ServerExpressionNode {
 
     @Override
     public void delete(DataModel dataModel) {
-        children.stream().forEach(serverExpressionNode -> serverExpressionNode.delete(dataModel));
+        children.forEach(serverExpressionNode -> serverExpressionNode.delete(dataModel));
         dataModel.remove(this);
     }
 
