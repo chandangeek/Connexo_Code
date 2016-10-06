@@ -695,7 +695,7 @@ public class DemoTest {
         demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createImporters();
 
-        assertThat(fileImportService.getImportSchedules()).hasSize(9);
+        assertThat(fileImportService.getImportSchedules()).hasSize(10);
     }
 
     @Test
