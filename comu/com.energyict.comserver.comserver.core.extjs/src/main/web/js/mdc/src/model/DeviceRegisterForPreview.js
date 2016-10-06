@@ -29,7 +29,7 @@ Ext.define('Mdc.model.DeviceRegisterForPreview', {
             convert: function (v, record) {
                 if (!Ext.isEmpty(record.data.lastReading)) {
                     if (record.get('type') === 'billing') {
-                        return record.get('lastReading').value + ' ' + record.get('lastReading').unitOfMeasure;
+                        return record.get('lastReading').value + ' ' + record.get('lastReading').unit;
                     }
                     if (record.get('type') === 'numerical') {
                         if(!Ext.isEmpty(record.get('lastReading').value)) {
