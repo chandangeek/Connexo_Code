@@ -8,7 +8,6 @@ public class ValidationSummary {
     String mrID;
     long suspects;
 
-
     public Long getId() {
         return id;
     }
@@ -24,7 +23,6 @@ public class ValidationSummary {
     public void setMrID(String mrID) {
         this.mrID = mrID;
     }
-
 
     public long getSuspects() {
         return suspects;

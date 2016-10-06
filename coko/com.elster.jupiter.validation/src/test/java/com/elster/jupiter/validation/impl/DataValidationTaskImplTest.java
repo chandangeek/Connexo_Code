@@ -75,7 +75,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     private Validator validator;
 
     private DataValidationTaskImpl newTask() {
-        DataValidationTaskImpl newTask = new DataValidationTaskImpl(dataModel,taskService,dataValidationService,thesaurus, () -> destinationSpec);
+        DataValidationTaskImpl newTask = new DataValidationTaskImpl(dataModel,taskService, thesaurus, () -> destinationSpec);
         newTask.setRecurrentTask(recurrentTask);
         return newTask;
     }
@@ -198,7 +198,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         verify(recurrentTask).delete();
         verify(dataModel).remove(task);
     }
-    
+
     @Test
     public void testDeleteUsagePoint() {
         DataValidationTaskImpl task = newTask();

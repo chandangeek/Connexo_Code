@@ -244,7 +244,7 @@ public class ValidationServiceImplTest {
         when(queueTableSpec.createDestinationSpec(any(String.class), any(Integer.class))).thenReturn(destinationSpec);
         doNothing().when(destinationSpec).save();
         doNothing().when(destinationSpec).activate();
-        when(destinationSpec.subscribe(any(String.class))).thenReturn(subscriberSpec);
+        when(destinationSpec.subscribe(any(TranslationKey.class), anyString(), any(Layer.class))).thenReturn(subscriberSpec);
         doReturn(Optional.of(cimChannel1)).when(channel1).getCimChannel(any());
         doReturn(Optional.of(cimChannel2)).when(channel2).getCimChannel(any());
         doReturn(channel1).when(cimChannel1).getChannel();
@@ -255,7 +255,7 @@ public class ValidationServiceImplTest {
         validationService = new ValidationServiceImpl(bundleContext, clock, messageService, eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class), upgradeService, kpiService);
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
-        DataValidationTaskImpl newDataValidationTask = new DataValidationTaskImpl(dataModel, taskService, validationService, thesaurus, () -> destinationSpec);
+        DataValidationTaskImpl newDataValidationTask = new DataValidationTaskImpl(dataModel, taskService, thesaurus, () -> destinationSpec);
         newDataValidationTask.setRecurrentTask(recurrentTask);
 
         String validatorName = validator1.toString();
@@ -807,7 +807,7 @@ public class ValidationServiceImplTest {
     public void testCreateValidationOccurrence() {
         when(taskOccurrence.getRecurrentTask()).thenReturn(recurrentTask);
         when(dataValidationTaskFactory2.getUnique("recurrentTask", recurrentTask)).thenReturn(Optional.of(iDataTask));
-        DataValidationOccurrenceImpl dataValidationOcc = new DataValidationOccurrenceImpl(dataModel, clock);
+        DataValidationOccurrenceImpl dataValidationOcc = new DataValidationOccurrenceImpl(dataModel);
         when(dataModel.getInstance(DataValidationOccurrenceImpl.class)).thenReturn(dataValidationOcc);
         when(taskOccurrence.getTriggerTime()).thenReturn(ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant());
         assertThat(validationService.createValidationOccurrence(taskOccurrence)).isEqualTo(dataValidationOcc);

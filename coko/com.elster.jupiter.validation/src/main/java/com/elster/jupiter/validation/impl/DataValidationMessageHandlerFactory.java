@@ -8,12 +8,8 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.validation.ValidationService;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
@@ -27,7 +23,7 @@ public class DataValidationMessageHandlerFactory implements MessageHandlerFactor
 
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
-    private volatile ValidationService validationService;
+    private volatile ServerValidationService validationService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
@@ -41,7 +37,7 @@ public class DataValidationMessageHandlerFactory implements MessageHandlerFactor
     }
 
     @Reference
-    public void setValidationService(ValidationService validationService) {
+    public void setValidationService(ServerValidationService validationService) {
         this.validationService = validationService;
     }
 
@@ -75,19 +71,11 @@ public class DataValidationMessageHandlerFactory implements MessageHandlerFactor
         this.clock = clock;
     }
 
-    @Activate
-    public void activate(BundleContext context) {
-    }
-
-    @Deactivate
-    public void deactivate() {
-
-    }
-
     public User getUser() {
         if (user == null) {
             user = userService.findUser(ValidationServiceImpl.VALIDATION_USER).get();
         }
         return user;
     }
+
 }

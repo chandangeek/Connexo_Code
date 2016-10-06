@@ -30,7 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
-public class DataValidationTaskExecutor implements TaskExecutor {
+class DataValidationTaskExecutor implements TaskExecutor {
 
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
@@ -41,7 +41,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private final User user;
 
 
-    public DataValidationTaskExecutor(ValidationServiceImpl validationService, MetrologyConfigurationService metrologyConfigurationService, TransactionService transactionService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, Clock clock, User user) {
+    DataValidationTaskExecutor(ValidationServiceImpl validationService, MetrologyConfigurationService metrologyConfigurationService, TransactionService transactionService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, Clock clock, User user) {
         this.thesaurus = thesaurus;
         this.validationService = validationService;
         this.transactionService = transactionService;
@@ -80,7 +80,6 @@ public class DataValidationTaskExecutor implements TaskExecutor {
             try (TransactionContext transactionContext = transactionService.getContext()) {
                 dataValidationOccurrence = findAndLockOccurrence(occurrence); // Reload occurrence, because #doExecute can took a long time
                 dataValidationOccurrence.end(success ? DataValidationTaskStatus.SUCCESS : DataValidationTaskStatus.FAILED, errorMessage);
-                dataValidationOccurrence.update();
                 transactionContext.commit();
             }
         }
@@ -92,10 +91,8 @@ public class DataValidationTaskExecutor implements TaskExecutor {
         return logger;
     }
 
-    public DataValidationOccurrence createOccurrence(TaskOccurrence taskOccurrence) {
-        DataValidationOccurrence dataValidationOccurrence = validationService.createValidationOccurrence(taskOccurrence);
-        dataValidationOccurrence.persist();
-        return dataValidationOccurrence;
+    private DataValidationOccurrence createOccurrence(TaskOccurrence taskOccurrence) {
+        return validationService.createValidationOccurrence(taskOccurrence);
     }
 
     private DataValidationOccurrence findOccurrence(TaskOccurrence occurrence) {
@@ -155,7 +152,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                 .map(MeterActivation::getChannelsContainer)
                 .forEach(channelsContainer -> {
                     try (TransactionContext transactionContext = transactionService.getContext()) {
-                        validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer).setMetrologyContract(metrologyContract));
+                        validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer, metrologyContract));
                         transactionContext.commit();
                     }
                 });
@@ -165,7 +162,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
         effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)
                 .ifPresent(channelsContainer -> {
             try (TransactionContext transactionContext = transactionService.getContext()) {
-                validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer).setMetrologyContract(metrologyContract));
+                validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer, metrologyContract));
                 transactionContext.commit();
             }
         });

@@ -3,7 +3,7 @@ package com.elster.jupiter.validation.impl.kpi;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ServerValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 
@@ -14,10 +14,10 @@ import java.util.Optional;
 
 public class DataValidationKpiServiceImpl implements DataValidationKpiService {
 
-    private final ValidationService validationService;
+    private final ServerValidationService validationService;
 
     @Inject
-    public DataValidationKpiServiceImpl(ValidationService validationService) {
+    public DataValidationKpiServiceImpl(ServerValidationService validationService) {
         this.validationService = validationService;
     }
 
