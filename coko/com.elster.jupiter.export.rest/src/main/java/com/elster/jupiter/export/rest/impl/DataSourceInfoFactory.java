@@ -3,7 +3,6 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 
 import javax.inject.Inject;
@@ -27,8 +26,6 @@ public class DataSourceInfoFactory {
         return infos;
     }
 
-
-
     public DataSourceInfo asInfo(ReadingTypeDataExportItem item) {
         DataSourceInfo info = new DataSourceInfo();
         info.occurrenceId = item.getLastOccurrence().map(DataExportOccurrence::getId).orElse(null);
@@ -36,7 +33,7 @@ public class DataSourceInfoFactory {
         item.getLastRun().ifPresent(instant -> {
             item.getReadingContainer().getMeter(instant)
                     .ifPresent(meter -> {
-                        info.mRID = meter.getMRID();
+                        info.name = meter.getName();
                         info.serialNumber = meter.getSerialNumber();
                     });
         });
