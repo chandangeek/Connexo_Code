@@ -28,7 +28,6 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
@@ -45,6 +44,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -121,7 +121,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                     UpgraderV10_2.class));
     }
 
-
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -175,10 +174,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         // just explicitly depend
     }
 
-    DataModel getDataModel() {
-        return dataModel;
-    }
-
     @Override
     public void link(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
         usagePoint.apply(metrologyConfiguration, this.clock.instant());
@@ -221,11 +216,10 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public List<ValidationRuleSet> getValidationRuleSets(MetrologyContract metrologyContract) {
-        Condition condition = where(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
-                .isEqualTo(metrologyContract);
         return this.dataModel
                 .query(MetrologyContractValidationRuleSetUsage.class)
-                .select(condition)
+                .select(where(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                        .isEqualTo(metrologyContract))
                 .stream()
                 .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
                 .sorted(Comparator.comparing(ValidationRuleSet::getName, String.CASE_INSENSITIVE_ORDER))
@@ -284,11 +278,10 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
-        Condition condition = where(MetrologyContractValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName())
-                .isEqualTo(ruleset);
         return !this.dataModel
                 .query(MetrologyContractValidationRuleSetUsage.class)
-                .select(condition)
+                .select(where(MetrologyContractValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName())
+                        .isEqualTo(ruleset))
                 .isEmpty();
     }
 
@@ -304,6 +297,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public List<TranslationKey> getKeys() {
-        return null;
+        return Collections.emptyList();
     }
+
 }
