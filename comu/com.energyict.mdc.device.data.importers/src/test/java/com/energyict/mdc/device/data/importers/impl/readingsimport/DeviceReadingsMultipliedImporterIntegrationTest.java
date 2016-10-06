@@ -65,8 +65,9 @@ public class DeviceReadingsMultipliedImporterIntegrationTest extends Persistence
     @Test
     @Transactional
     public void testImportRegisterAndChannelReadings() {
-        DeviceConfiguration deviceConfiguration = setup();
         Instant creationDate = LocalDate.of(2015, 8, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(creationDate);
+        DeviceConfiguration deviceConfiguration = setup();
         Device device = createDevice(deviceConfiguration, creationDate);
         device.setMultiplier(BigDecimal.TEN, creationDate);
         device.save();

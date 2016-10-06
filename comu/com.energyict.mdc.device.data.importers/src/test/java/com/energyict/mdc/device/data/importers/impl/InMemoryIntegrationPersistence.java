@@ -72,7 +72,6 @@ import org.osgi.service.log.LogService;
 import javax.validation.MessageInterpolator;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.time.ZoneOffset;
 
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
@@ -80,6 +79,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class InMemoryIntegrationPersistence {
+
+    private static final Clock clock = mock(Clock.class);
 
     private TransactionService transactionService;
     private InMemoryBootstrapModule bootstrapModule;
@@ -106,7 +107,7 @@ public class InMemoryIntegrationPersistence {
                 new OrmModule(),
                 new DataVaultModule(),
                 new TaskModule(),
-                new UtilModule(Clock.system(ZoneOffset.UTC)),
+                new UtilModule(clock),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(showSqlLogging),
@@ -151,6 +152,10 @@ public class InMemoryIntegrationPersistence {
         }
     }
 
+    public Clock getClock() {
+        return clock;
+    }
+
     private void initializeCustomPropertySets() {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
@@ -172,6 +177,7 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(Clock.class).toInstance(clock);
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));

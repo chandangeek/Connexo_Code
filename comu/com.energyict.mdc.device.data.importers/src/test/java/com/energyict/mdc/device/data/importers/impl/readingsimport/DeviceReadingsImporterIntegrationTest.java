@@ -74,6 +74,7 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
     @Test
     @Transactional
     public void testImportRegisterAndChannelReadings() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDate.of(2015, 8, 1).atStartOfDay().toInstant(ZoneOffset.UTC));
         DeviceConfiguration deviceConfiguration = createDeviceConfiguration();
         Device device = createDevice(deviceConfiguration, LocalDate.of(2015, 8, 1).atStartOfDay().toInstant(ZoneOffset.UTC));
 

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.importers.impl;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
 
@@ -32,7 +33,7 @@ class Installer implements FullInstaller {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(DeviceDataImporterMessageHandler.DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(DeviceDataImporterMessageHandler.SUBSCRIBER_NAME);
+        destinationSpec.subscribe(TranslationKeys.DATA_IMPORTER_SUBSCRIBER, DeviceDataImporterMessageHandler.COMPONENT, Layer.DOMAIN);
     }
 
 }
