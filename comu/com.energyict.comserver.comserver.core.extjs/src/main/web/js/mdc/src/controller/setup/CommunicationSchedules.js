@@ -279,14 +279,14 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             recordsAlreadyPresented = [],
             hasComTasks;
 
+        Ext.suspendLayouts();
         me.record.comTaskUsages().remove(comTask);
         me.comTaskStore.add(comTask);
         me.comTaskStore.fireEvent('load', me.comTaskStore.getRange());
-        grid.down('gridview').setSize(0, 0);
-        grid.gridHeight = undefined;
         hasComTasks = me.record.comTaskUsages().getCount() ? true : false;
         form.down('#noComTasksSelectedMsg').setVisible(!hasComTasks);
         form.down('#comTasksOnForm').setVisible(hasComTasks);
+        Ext.resumeLayouts(true);
     },
 
     deleteCommunicationSchedule: function (communicationSchedule) {
@@ -340,6 +340,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             hasComTasks,
             selection;
 
+        Ext.suspendLayouts();
         grid.isAllSelected() && grid.getSelectionModel().selectAll();
 
         selection = grid.getSelectionModel().getSelection();
@@ -350,8 +351,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         form.down('#noComTasksSelectedMsg').setVisible(!hasComTasks);
         form.down('#comTasksOnForm').setVisible(hasComTasks);
         this.getCommunicationScheduleEdit().down('#card').getLayout().setActiveItem(0);
-        grid.down('gridview').setSize(0, 0);
-        grid.gridHeight = undefined;
+        Ext.resumeLayouts(true);
     },
 
     cancelAddCommunicationTasksToSchedule: function () {

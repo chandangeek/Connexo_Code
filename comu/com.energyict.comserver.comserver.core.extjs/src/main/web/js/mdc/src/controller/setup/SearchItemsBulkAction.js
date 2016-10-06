@@ -550,7 +550,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             wizard.setLoading(false);
                             if (unsolvedConflicts) {
                                 me.getNavigationMenu().markInvalid();
-                                var title = Uni.I18n.translatePlural('searchItems.bulk.devConfigUnsolvedConflictsTitle', me.devices.length, 'MDC', "Unable to change device configuration of {0} devices", "Unable to change device configuration of {0} device", "Unable to change device configuration of {0} devices"),
+                                var title = me.devices?Uni.I18n.translatePlural('searchItems.bulk.devConfigUnsolvedConflictsTitle', me.devices.length, 'MDC', "Unable to change device configuration of {0} devices", "Unable to change device configuration of {0} device", "Unable to change device configuration of {0} devices"):
+                                    Uni.I18n.translate('searchItems.bulk.devConfigUnsolvedConflictsTitleForSearch', 'MDC', "Unable to change device configuration of the selected devices"),
                                     text = Ext.String.format(Uni.I18n.translate('searchItems.bulk.devConfigUnsolvedConflictsMsg', 'MDC', 'The configuration of devices with current configuration \'{0}\' cannot be changed to \'{1}\' due to unsolved conflicts.'), me.configNames.fromconfig, me.configNames.toconfig);
                                 text = text.replace('{fromconfig}', me.configNames.fromconfig).replace('{toconfig}', me.configNames.toconfig);
                                 if (Mdc.privileges.DeviceType.canAdministrate()) {
