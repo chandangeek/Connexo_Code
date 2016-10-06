@@ -112,7 +112,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     private Device createSimpleDeviceWithName(String name, String mRID) {
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, name, mRID, Instant.now());
+                .newDevice(deviceConfiguration, name, mRID, Instant.ofEpochSecond(123456789L));
         device.save();
         return device;
     }
@@ -156,10 +156,8 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED + "}")
     public void createWithoutReleaseDateTest() {
+        Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
         Device device = createSimpleDeviceWithName("createWithoutReleaseDateTest", "createWithoutReleaseDateTest");
-
-        Instant myCurrentInstant = Instant.ofEpochSecond(123456789L);
-        when(inMemoryPersistence.getClock().instant()).thenReturn(myCurrentInstant);
 
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         device.newDeviceMessage(contactorClose).setReleaseDate(null).add();
@@ -640,7 +638,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(config2, "Name", "mrid", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(config2, "Name", "mrid", Instant.ofEpochSecond(123456789L));
         device.save();
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
@@ -663,6 +661,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void oldDeviceMessageStatusFilledInWhenMovingToTest() {
+        Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
         Device device = createSimpleDeviceWithName("updateReleaseDateWithStatusConfirmedTest", "updateReleaseDateWithStatusConfirmedTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(initializeClockWithCurrentAfterReleaseInstant()).add();

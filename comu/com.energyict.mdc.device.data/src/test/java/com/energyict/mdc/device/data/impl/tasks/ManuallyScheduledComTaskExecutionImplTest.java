@@ -591,7 +591,7 @@ Irrelevant as delete is not supported any more
         Instant fixedTimeStamp = createFixedTimeStamp(2014, 4, 4, 11, 0, 0, 0);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "TimeChecks", "TimeChecks", Instant.now());
+                .newDevice(deviceConfiguration, "TimeChecks", "TimeChecks", fixedTimeStamp);
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device, TimeDuration.minutes(5));
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
@@ -619,7 +619,7 @@ Irrelevant as delete is not supported any more
         Instant nextFromConnectionTask = createFixedTimeStamp(2014, 4, 5, 0, 0, 0, 0);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "TimeChecks", "TimeChecks", Instant.now());
+                .newDevice(deviceConfiguration, "TimeChecks", "TimeChecks", nextFromComSchedule);
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createMinimizeOneDayConnectionStandardTask(device);
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
@@ -667,7 +667,7 @@ Irrelevant as delete is not supported any more
         Instant fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 3, 0, 0, 0, TimeZone.getTimeZone("UTC"));
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "TimeChecks", "TimeChecks", Instant.now());
+                .newDevice(deviceConfiguration, "TimeChecks", "TimeChecks", fixedTimeStamp);
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder =
                 device.newManuallyScheduledComTaskExecution(
                         comTaskEnablement,
