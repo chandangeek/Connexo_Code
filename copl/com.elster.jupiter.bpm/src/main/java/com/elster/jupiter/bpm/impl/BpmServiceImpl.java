@@ -1,6 +1,5 @@
 package com.elster.jupiter.bpm.impl;
 
-import com.elster.jupiter.bpm.BpmAppService;
 import com.elster.jupiter.bpm.BpmProcess;
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmProcessDefinitionBuilder;
@@ -19,7 +18,6 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -62,6 +60,10 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
         service = {BpmService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + BpmService.COMPONENTNAME}, immediate = true)
 public final class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedProvider {
+
+    static String BPM_QUEUE_DEST = "BpmQueueDest";
+    static String BPM_QUEUE_SUBSC = "BpmQueueSubsc";
+    static String BPM_QUEUE_DISPLAYNAME = "Handle Connexo Flow";
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
@@ -107,9 +109,13 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
             }
         });
         bpmServer = new BpmServerImpl(context, threadPrincipalService);
-        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                version(10, 2), UpgraderV10_2.class
-        ));
+        upgradeService.register(
+                identifier("Pulse", COMPONENTNAME),
+                dataModel,
+                InstallerImpl.class,
+                ImmutableMap.of(
+                    version(10, 2), UpgraderV10_2.class
+                ));
     }
 
     @Deactivate
@@ -345,8 +351,8 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.add(new SimpleTranslationKey(BpmAppService.APPLICATION_KEY, BpmAppService.APPLICATION_NAME));
-        translationKeys.add(new SimpleTranslationKey(BpmService.BPM_QUEUE_SUBSC, BpmService.BPM_QUEUE_DISPLAYNAME));
+        translationKeys.add(TranslationKeys.APPLICATION);
+        translationKeys.add(TranslationKeys.QUEUE_SUBSCRIBER);
         translationKeys.addAll(Arrays.asList(Privileges.values()));
         return translationKeys;
     }
@@ -355,4 +361,5 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
+
 }
