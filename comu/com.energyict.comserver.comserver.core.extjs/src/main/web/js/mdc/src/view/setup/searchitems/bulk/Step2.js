@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
                 boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.searchItems.bulk.addSchedules', 'MDC', 'Add shared communication schedules') + '</b>',
                 name: 'operation',
                 inputValue: 'add',
-                checked: true
+                privileges: Mdc.privileges.Device.administrateDeviceCommunication
             },
             {
                 itemId: 'searchitemschangeconfig',
@@ -29,14 +29,15 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
                 afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('searchItems.bulk.changeConfigMsg', 'MDC', 'This option is only available on devices of the same device configuration of a standard device type. Please first apply the corresponding search criteria to enable this option.') + '</span>',
                 name: 'operation',
                 inputValue: 'changeconfig',
-                privilege: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication'])
+                privileges: Mdc.privileges.Device.administrateDevice
             },
             {
                 itemId: 'searchitemsremoveschedules',
                 boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.removeSchedules', 'MDC', 'Remove shared communication schedules') + '</b>',
                 afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('searchItems.bulk.removeScheduleMsg', 'MDC', 'Shared communication schedule will no longer be visible and used on the selected devices. A record is kept for tracking purposes. This action cannot be undone.') + '</span>',
                 name: 'operation',
-                inputValue: 'remove'
+                inputValue: 'remove',
+                privileges: Mdc.privileges.Device.administrateDeviceCommunication
             }
         ]
     }

@@ -1032,7 +1032,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
                     route: 'bulk',
                     controller: 'Mdc.controller.setup.SearchItemsBulkAction',
-                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                    privileges: Mdc.privileges.Device.administrateDeviceOrDeviceCommunication,
                     action: 'showBulkAction'
                 }
             }

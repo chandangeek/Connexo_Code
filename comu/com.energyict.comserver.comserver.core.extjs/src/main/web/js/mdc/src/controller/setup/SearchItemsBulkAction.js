@@ -119,6 +119,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             },
             'searchitems-bulk-step5 #viewDevicesButton': {
                 click: this.showViewDevices
+            },
+            'searchitems-bulk-step2 #searchitemsactionselect': {
+                change: this.enableNextButton
             }
         });
     },
@@ -167,6 +170,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         }
     },
 
+    enableNextButton: function() {
+        var me = this;
+
+        me.getNextButton().enable();
+    },
+
     updateScheduleSelection: function (selModel, selected) {
         var count = selected.length;
         if (count === 0) {
@@ -193,12 +202,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         this.changeContent(layout.getPrev(), currentCmp);
         (currentCmp.name !== 'statusPageViewDevices') && this.getNavigationMenu().movePrevStep();
-    },
+    }
+    ,
 
     nextClick: function () {
         var layout = this.getSearchItemsWizard().getLayout();
         this.changeContent(layout.getNext(), layout.getActiveItem()) && this.getNavigationMenu().moveNextStep();
-    },
+    }
+    ,
 
     confirmClick: function () {
         var me = this,
@@ -227,7 +238,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             request.scheduleIds = scheduleIds;
             if (me.allDevices) {
                 var store = me.getDevicesGrid().getStore();
-                request.filter =  store.getProxy().encodeFilters(store.filters.getRange());
+                request.filter = store.getProxy().encodeFilters(store.filters.getRange());
             } else {
                 request.deviceMRIDs = devicesMRID;
             }
@@ -247,7 +258,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
                 failure: function (response) {
                     var resp = Ext.decode(response.responseText, true);
-                    if(resp && resp.message) {
+                    if (resp && resp.message) {
                         me.showStatusMsg(me.buildMessage(resp.message));
                     }
                     finishBtn.enable();
@@ -268,7 +279,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.changeDeviceConfig(me.configData.fromconfig, me.configData.toconfig, callback)
         }
         me.nextClick();
-    },
+    }
+    ,
 
     goBack: function () {
         var me = this,
@@ -284,22 +296,25 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         }
 
         router.getRoute('search').forward(null, queryParams);
-    },
+    }
+    ,
 
     showStatusMsg: function (msg) {
         var me = this;
         me.getStatusPage().add(msg);
-    },
+    }
+    ,
 
     buildMessage: function (message) {
-         var messagePanel = {
-              xType: 'panel'
-          };
+        var messagePanel = {
+            xType: 'panel'
+        };
 
         messagePanel.html = '<h3>' + message + '</h3>';
 
         return messagePanel;
-    },
+    }
+    ,
 
     buildFinalMessage: function () {
         var me = this,
@@ -372,12 +387,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             result = true;
         devConfigId = devices[0].get('deviceConfigurationId');
         Ext.each(devices, function (device) {
-            if (devConfigId != device.get('deviceConfigurationId')){
+            if (devConfigId != device.get('deviceConfigurationId')) {
                 result = false;
             }
         });
         return result;
-    },
+    }
+    ,
 
     checkConflictMappings: function (fromConfig, toConfig, callback) {
         var me = this,
@@ -390,7 +406,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 var conflictMappings = false,
                     resp = Ext.JSON.decode(response.responseText, true);
                 if (success && resp) {
-                    if(resp.total) conflictMappings = resp.conflictMappings[0].id;
+                    if (resp.total) conflictMappings = resp.conflictMappings[0].id;
                 }
                 callback(conflictMappings)
             }
@@ -405,10 +421,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             jsonData = {
                 'action': 'ChangeDeviceConfiguration',
                 'deviceMRIDs': [],
-                'filter' : store.getProxy().encodeFilters(store.filters.getRange()),
+                'filter': store.getProxy().encodeFilters(store.filters.getRange()),
                 'newDeviceConfiguration': toConfig
             };
-        if(!me.allDevices){
+        if (!me.allDevices) {
             me.devices.forEach(function (item) {
                 jsonData['deviceMRIDs'].push(item.get('mRID'))
             });
@@ -434,7 +450,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     result = true;
                 }
                 me.deviceConfigId = item.value[0].criteria[0] - 0;
-            } else if(item.id === 'deviceType'){
+            } else if (item.id === 'deviceType') {
                 me.deviceType = item.value[0].criteria[0] - 0;
             }
         });
@@ -464,8 +480,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     if (nextCmp.down('#searchitemschangeconfig').getValue()) {
                         nextCmp.down('#searchitemsactionselect').setValue({operation: 'add'});
                     }
-                }
 
+                }
                 errorPanel = currentCmp.down('#step1-errors');
                 me.validation = me.allDevices || me.devices.length;
                 break;
@@ -487,8 +503,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         wizard.setLoading(true);
                         configStore.clearFilter(false);
                         configStore.addFilter([
-                            function(record) {
-                                return record.get('id')!==me.deviceConfigId && !record.get('dataloggerEnabled');
+                            function (record) {
+                                return record.get('id') !== me.deviceConfigId && !record.get('dataloggerEnabled');
                             }
                         ]);
                         configStore.load(function (operation, success) {
@@ -527,7 +543,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     me.validation && (me.configData = form.getValues());
                     me.configNames = {
                         fromconfig: form.down('#current-device-config-selection').getRawValue(),
-                        toconfig: form.down('#new-device-config-selection').getRawValue()};
+                        toconfig: form.down('#new-device-config-selection').getRawValue()
+                    };
                     errorPanel = currentCmp.down('#step3-errors');
                     errorContainer = null;
                 }
@@ -670,8 +687,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             "Remove shared communication schedules {0} from all devices?", [scheduleList]);
                     }
                     break;
-                 case 'changeconfig':
-                        titleText = Uni.I18n.translate('searchItems.bulk.changeDevConfigTitle', 'MDC', 'Change device configuration of all devices');
+                case 'changeconfig':
+                    titleText = Uni.I18n.translate('searchItems.bulk.changeDevConfigTitle', 'MDC', 'Change device configuration of all devices');
                     break;
 
             }
@@ -679,7 +696,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             switch (me.operation) {
                 case 'add':
                     if (me.schedules.length === 1) {
-                        if (me.devices.length <= 1){
+                        if (me.devices.length <= 1) {
                             pattern = Uni.I18n.translate('searchItems.bulk.addOneComScheduleToDevices.confirmMsg0', 'MDC', "Add shared communication schedule '{1}' to {0} device?")
                         } else {
                             pattern = Uni.I18n.translate('searchItems.bulk.addOneComScheduleToDevices.confirmMsgn', 'MDC', "Add shared communication schedule '{1}' to {0} devices?")
@@ -689,7 +706,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         Ext.each(me.schedules, function (item, index) {
                             scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
                         });
-                        if (me.devices.length <= 1){
+                        if (me.devices.length <= 1) {
                             pattern = Uni.I18n.translate('searchItems.bulk.addComSchedulesToDevices.confirmMsg0', 'MDC', "Add shared communication schedules '{1}' to {0} device?")
                         } else {
                             pattern = Uni.I18n.translate('searchItems.bulk.addComSchedulesToDevices.confirmMsgn', 'MDC', "Add shared communication schedules '{1}' to {0} devices?")
@@ -699,7 +716,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     break;
                 case 'remove':
                     if (me.schedules.length === 1) {
-                        if (me.devices.length <= 1){
+                        if (me.devices.length <= 1) {
                             pattern = Uni.I18n.translate('searchItems.bulk.removeOneComScheduleFromDevices.confirmMsg0', 'MDC', "Remove shared communication schedule '{1}' to {0} device?")
                         } else {
                             pattern = Uni.I18n.translate('searchItems.bulk.removeOneComScheduleFromDevices.confirmMsgn', 'MDC', "Remove shared communication schedule '{1}' to {0} devices?")
@@ -709,7 +726,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         Ext.each(me.schedules, function (item, index) {
                             scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
                         });
-                        if (me.devices.length <= 1){
+                        if (me.devices.length <= 1) {
                             pattern = Uni.I18n.translate('searchItems.bulk.removeComSchedulesFromDevices.confirmMsg0', 'MDC', "Remove shared communication schedules '{1}' to {0} device?")
                         } else {
                             pattern = Uni.I18n.translate('searchItems.bulk.removeComSchedulesFromDevices.confirmMsgn', 'MDC', "Remove shared communication schedules '{1}' to {0} devices?")
@@ -736,7 +753,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 bodyText = Uni.I18n.translate('searchItems.bulk.removeMsg', 'MDC', 'The selected devices will not execute the chosen shared communication schedules');
                 break;
             case 'changeconfig':
-                bodyText =  Uni.I18n.translate('searchItems.bulk.changeMsg', 'MDC', 'The devices will take over all data sources, communication features and rule sets from new device configuration.');
+                bodyText = Uni.I18n.translate('searchItems.bulk.changeMsg', 'MDC', 'The devices will take over all data sources, communication features and rule sets from new device configuration.');
                 break;
         }
 
@@ -745,7 +762,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             body: bodyText
         };
         return message;
-    },
+    }
+    ,
 
     updateButtonsState: function (activePage) {
         var me = this,
@@ -770,7 +788,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             case 'selectOperation' :
                 backBtn.show();
                 nextBtn.show();
-                nextBtn.setDisabled(false);
+                nextBtn.setDisabled(Ext.isEmpty(me.operation));
                 confirmBtn.hide();
                 finishBtn.hide();
                 falureFinishBtn.hide();
@@ -809,14 +827,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 cancelBtn.hide();
                 break;
         }
-    },
+    }
+    ,
 
     createCommunicationSchedule: function () {
         var newTab = window.open('#/administration/communicationschedules/add', '_blank');
 
         newTab && newTab.blur();
         window.focus();
-    },
+    }
+    ,
 
     showViewDevices: function (button) {
         var me = this, layout = me.getSearchItemsWizard().getLayout(),
