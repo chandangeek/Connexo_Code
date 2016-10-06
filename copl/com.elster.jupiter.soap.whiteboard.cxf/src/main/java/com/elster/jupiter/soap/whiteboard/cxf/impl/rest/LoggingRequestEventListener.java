@@ -28,10 +28,11 @@ public class LoggingRequestEventListener implements RequestEventListener {
                 if (requestEvent.isSuccess()) {
                     endPointConfiguration.log(LogLevel.INFO, "Request completed successfully");
                 } else {
-                    String msg = "Request failed (HTTP " + requestEvent.getContainerResponse().getStatus() + ")";
                     if (requestEvent.getException() != null) {
+                        String msg = "Request failed (exception: " + requestEvent.getException().getMessage() + ")";
                         endPointConfiguration.log(msg, new Exception(requestEvent.getException()));
                     } else {
+                        String msg = "Request failed (HTTP " + requestEvent.getContainerResponse().getStatus() + ")";
                         endPointConfiguration.log(LogLevel.SEVERE, msg);
                     }
                 }
