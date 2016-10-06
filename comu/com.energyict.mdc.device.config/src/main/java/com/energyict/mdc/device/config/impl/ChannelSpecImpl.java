@@ -235,15 +235,22 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     }
 
     private void validateChannelSpecsForDuplicateChannelTypes() {
-        List<String> readingTypesInUseByChannelType = new ArrayList<>(2);
-        readingTypesInUseByChannelType.add(getChannelType().getReadingType().getMRID());
-        getCalculatedOrOverriddenReadingType(this).map(ReadingType::getMRID).ifPresent(readingTypesInUseByChannelType::add);
+        List<String> readingTypesInUseByChannelType = getChannelReadingTypes(this);
         for (ChannelSpec channelSpec : getDeviceConfiguration().getChannelSpecs()) {
-            if (!isSameIdObject(this, channelSpec)
-                    && !readingTypesAreNotUsedByChannelType(channelSpec, readingTypesInUseByChannelType)) {
-                throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(channelSpec, getChannelType(), channelSpec.getLoadProfileSpec(), this.getThesaurus(), MessageSeeds.CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC);
+            if (!isSameIdObject(this, channelSpec)) {
+                Optional<ReadingType> duplicateReadingType = findDuplicateReadingType(channelSpec, readingTypesInUseByChannelType);
+                if(duplicateReadingType.isPresent()){
+                    throw DuplicateChannelTypeException.duplicateChannelSpecOnDeviceConfiguration(channelSpec, getChannelType(), channelSpec.getLoadProfileSpec(), this.getThesaurus(), MessageSeeds.CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC, duplicateReadingType.get());
+                }
             }
         }
+    }
+
+    private List<String> getChannelReadingTypes(ChannelSpec channelSpec) {
+        List<String> readingTypesInUseByChannelType = new ArrayList<>(2);
+        readingTypesInUseByChannelType.add(channelSpec.getChannelType().getReadingType().getMRID());
+        getCalculatedOrOverriddenReadingType(channelSpec).map(ReadingType::getMRID).ifPresent(readingTypesInUseByChannelType::add);
+        return readingTypesInUseByChannelType;
     }
 
     private Optional<ReadingType> getCalculatedOrOverriddenReadingType(ChannelSpec channelSpec) {
@@ -253,14 +260,19 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
         return channelSpec.getChannelType().getReadingType().getCalculatedReadingType();
     }
 
-    private boolean readingTypesAreNotUsedByChannelType(ChannelSpec candidate, Collection<String> readingTypeMrids) {
+    private Optional<ReadingType> findDuplicateReadingType(ChannelSpec candidate, Collection<String> readingTypeMrids) {
         Objects.requireNonNull(candidate);
         Objects.requireNonNull(readingTypeMrids);
         if (!readingTypeMrids.contains(candidate.getReadingType().getMRID())) {
             Optional<ReadingType> calculatedReadingType = getCalculatedOrOverriddenReadingType(candidate);
-            return !calculatedReadingType.isPresent() || !readingTypeMrids.contains(calculatedReadingType.get().getMRID());
+            if(calculatedReadingType.isPresent() && readingTypeMrids.contains(calculatedReadingType.get().getMRID())){
+                return calculatedReadingType;
+            } else {
+                return Optional.empty();
+            }
+        } else {
+            return Optional.of(candidate.getReadingType());
         }
-        return false;
     }
 
     private void validateDeviceTypeContainsChannelType() {

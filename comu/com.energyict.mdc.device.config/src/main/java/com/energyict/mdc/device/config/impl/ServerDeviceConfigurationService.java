@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.tasks.ComTask;
@@ -21,7 +22,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-02-18 (16:36)
  */
-public interface ServerDeviceConfigurationService extends DeviceConfigurationService {
+public interface ServerDeviceConfigurationService extends DeviceConfigurationService, LockService {
 
     Thesaurus getThesaurus();
 

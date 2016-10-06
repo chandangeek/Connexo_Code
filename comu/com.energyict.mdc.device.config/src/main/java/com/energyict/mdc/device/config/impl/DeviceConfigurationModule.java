@@ -7,8 +7,10 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.scheduling.SchedulingService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -30,8 +32,9 @@ public class DeviceConfigurationModule extends AbstractModule {
         requireBinding(ValidationService.class);
         requireBinding(EstimationService.class);
         requireBinding(CalendarService.class);
-        bind(DeviceConfigurationService.class).to(DeviceConfigurationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(DeviceConfigurationService.class).to(ServerDeviceConfigurationService.class).in(Scopes.SINGLETON);
         bind(ServerDeviceConfigurationService.class).to(DeviceConfigurationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(LockService.class).to(ServerDeviceConfigurationService.class).in(Scopes.SINGLETON);
     }
 
 }

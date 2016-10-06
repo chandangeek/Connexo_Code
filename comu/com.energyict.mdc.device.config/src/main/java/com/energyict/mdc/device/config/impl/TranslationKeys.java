@@ -11,6 +11,8 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum TranslationKeys implements TranslationKey {
 
     DEVICE_TYPE("deviceType.with.article", "a device type"),
+    CHANNEL("com.energyict.mdc.device.config.ChannelSpec", "Channel"),
+    REGISTER("com.energyict.mdc.device.config.RegisterSpec", "Register"),
     NO_ENCRYPTION("noEncryption", "No encryption"),
     NO_AUTHENTICATION("noAuthentication", "No authentication"),
     ;
