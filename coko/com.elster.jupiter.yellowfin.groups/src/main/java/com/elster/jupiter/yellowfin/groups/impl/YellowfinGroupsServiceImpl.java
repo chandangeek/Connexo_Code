@@ -18,6 +18,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -27,9 +28,10 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(
         name = "com.elster.jupiter.yellowfin.groups",
@@ -105,7 +107,13 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Trans
                     }
                 }
             }
-            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(
+                    InstallIdentifier.identifier("Pulse", COMPONENTNAME),
+                    dataModel,
+                    Installer.class,
+                    ImmutableMap.of(
+                            version(10, 2), UpgraderV10_2.class
+                    ));
         } catch (Exception e) {
             e.printStackTrace(System.err);
             throw e;
