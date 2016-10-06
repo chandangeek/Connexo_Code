@@ -32,7 +32,9 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
@@ -69,6 +71,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -160,7 +163,7 @@ public class EstimationServiceImplTest {
         when(queueTableSpec.createDestinationSpec(any(String.class), any(Integer.class))).thenReturn(destinationSpec);
         doNothing().when(destinationSpec).save();
         doNothing().when(destinationSpec).activate();
-        when(destinationSpec.subscribe(any(String.class))).thenReturn(subscriberSpec);
+        when(destinationSpec.subscribe(any(TranslationKey.class), anyString(), any(Layer.class))).thenReturn(subscriberSpec);
 
         when(timeService.findRelativePeriodCategoryByName(any(String.class))).thenReturn(Optional.of(relativePeriodCategory));
         when(timeService.findRelativePeriodByName(any(String.class))).thenReturn(Optional.of(relativePeriod));
