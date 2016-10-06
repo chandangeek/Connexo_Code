@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
 
 import javax.ws.rs.core.Application;
 
-import org.junit.Before;
 import org.mockito.Mock;
 
 public class DeviceDataValidationRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
@@ -16,10 +15,6 @@ public class DeviceDataValidationRestApplicationJerseyTest extends FelixRestAppl
     @Mock
     MeteringGroupsService meteringGroupsService;
 
-    @Before
-    public void setup() {
-    }
-
     @Override
     protected Application getApplication() {
         DeviceDataValidationApplication application = new DeviceDataValidationApplication();
@@ -28,4 +23,5 @@ public class DeviceDataValidationRestApplicationJerseyTest extends FelixRestAppl
         application.setNlsService(nlsService);
         return application;
     }
+
 }

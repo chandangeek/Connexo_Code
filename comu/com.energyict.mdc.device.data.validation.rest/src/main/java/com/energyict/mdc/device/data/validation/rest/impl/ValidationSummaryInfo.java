@@ -25,9 +25,9 @@ public class ValidationSummaryInfo {
 
     public ValidationSummaryInfo(ValidationOverview validationOverview) {
         this.name = validationOverview.getDeviceName();
-        this.serialNumber = validationOverview.getSerialNumber();
-        this.deviceType = validationOverview.getDeviceType();
-        this.deviceConfig = validationOverview.getDeviceConfig();
+        this.serialNumber = validationOverview.getDeviceSerialNumber();
+        this.deviceType = validationOverview.getDeviceTypeName();
+        this.deviceConfig = validationOverview.getDeviceConfigurationName();
         this.amountOfSuspects = validationOverview.getDeviceValidationKpiResults().getAmountOfSuspects();
         this.channelSuspects = validationOverview.getDeviceValidationKpiResults().getChannelSuspects();
         this.registerSuspects = validationOverview.getDeviceValidationKpiResults().getRegisterSuspects();
