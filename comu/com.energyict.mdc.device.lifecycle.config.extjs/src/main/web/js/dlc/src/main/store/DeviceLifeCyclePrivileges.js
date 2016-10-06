@@ -9,7 +9,7 @@ Ext.define('Dlc.main.store.DeviceLifeCyclePrivileges', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dld/devicelifecycles/{deviceLifeCycleId}/privileges',
+        url: '/api/dld/devicelifecycles/{deviceLifeCycleId}/privileges',
 
         reader: {
             type: 'json',
@@ -18,10 +18,6 @@ Ext.define('Dlc.main.store.DeviceLifeCyclePrivileges', {
 
         pageParam: false,
         startParam: false,
-        limitParam: false,
-
-        setUrl: function(params) {
-            this.url = this.urlTpl.replace('{deviceLifeCycleId}', params.deviceLifeCycleId);
-        }
+        limitParam: false
     }
 });
