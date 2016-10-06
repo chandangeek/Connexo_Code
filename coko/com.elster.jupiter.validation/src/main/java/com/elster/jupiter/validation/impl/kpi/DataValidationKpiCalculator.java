@@ -62,13 +62,12 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
             return;
         }
         dataValidationKpiClone = dataValidationKpi.clone();
-        currentZonedDateTime = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L);
         ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
         dayCount = ChronoUnit.DAYS.between(start, end);
-        registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpiClone.getDeviceGroup(), Range.closed(start.toInstant(), end.toInstant()));
-        channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpiClone.getDeviceGroup(), Range.closed(start.toInstant(), end.toInstant()));
-        currentZonedDateTime = currentZonedDateTime.plus(Period.ofDays(1));
+        registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpiClone.getDeviceGroup(), Range.openClosed(start.toInstant(), end.toInstant()));
+        channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpiClone.getDeviceGroup(), Range.openClosed(start.toInstant(), end.toInstant()));
+        currentZonedDateTime = end;
     }
 
     @Override
@@ -81,7 +80,6 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
         Optional<? extends List<? extends KpiMember>> memberList = dataValidationKpiClone.getDataValidationKpiChildren().stream()
                 .filter(kpi -> !kpi.getChildKpi().getMembers().isEmpty()
                         && dataValidationKpiClone.deviceIdAsString(kpi.getChildKpi().getMembers().get(0)).equals(String.valueOf(runnningDeviceId)))
-                //.equals("ValidationKpi_grp" + dataValidationKpiClone.getDeviceGroup().getId() + "_dev" + endDeviceId))
                 .map(foundKpi -> foundKpi.getChildKpi().getMembers()).findFirst();
         if (memberList.isPresent()) {
             for (int i = 0; i < dayCount; ++i) {
@@ -104,7 +102,7 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
                         member.score(localTimeStamp, allDataValidated ? BigDecimal.ONE : BigDecimal.ZERO);
                     }
                 });
-                updateRuleValidatorData(memberList.get(),localTimeStamp);
+                updateRuleValidatorData(memberList.get(), localTimeStamp);
                 logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!" + " date " + localTimeStamp + " count " + i);
             }
         } else {
