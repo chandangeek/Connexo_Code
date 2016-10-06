@@ -19,8 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -92,9 +90,9 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
         assertThat(jsonModel.<Boolean>get("$.summary[0].thresholdValidator")).isEqualTo(true);
     }
 
-    private ValidationOverview mockValidationOverview(String mRID, String serialNumber, String deviceTypeName, String deviceConfigurationName, DeviceValidationKpiResults kpiResults) {
+    private ValidationOverview mockValidationOverview(String deviceName, String serialNumber, String deviceTypeName, String deviceConfigurationName, DeviceValidationKpiResults kpiResults) {
         ValidationOverview validationOverview = mock(ValidationOverview.class);
-        when(validationOverview.getDevice_mRID()).thenReturn(mRID);
+        when(validationOverview.getDeviceName()).thenReturn(deviceName);
         when(validationOverview.getDeviceSerialNumber()).thenReturn(serialNumber);
         when(validationOverview.getDeviceTypeName()).thenReturn(deviceTypeName);
         when(validationOverview.getDeviceConfigurationName()).thenReturn(deviceConfigurationName);
