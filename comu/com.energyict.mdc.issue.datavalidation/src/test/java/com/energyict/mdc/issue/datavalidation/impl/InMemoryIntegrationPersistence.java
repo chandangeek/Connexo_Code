@@ -37,6 +37,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
@@ -70,6 +71,7 @@ import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -80,6 +82,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class InMemoryIntegrationPersistence {
+
+    private static final Clock clock = mock(Clock.class);
 
     private TransactionService transactionService;
     private InMemoryBootstrapModule bootstrapModule;
@@ -128,7 +132,7 @@ public class InMemoryIntegrationPersistence {
                 new OrmModule(),
                 new DataVaultModule(),
                 new TaskModule(),
-                new UtilModule(),
+                new UtilModule(clock),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(showSqlLogging),
@@ -167,6 +171,10 @@ public class InMemoryIntegrationPersistence {
         this.bootstrapModule.deactivate();
     }
 
+    public Clock getClock(){
+        return clock;
+    }
+
     public TransactionService getTransactionService() {
         return transactionService;
     }
@@ -178,6 +186,7 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(Clock.class).toInstance(clock);
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
 
@@ -194,6 +203,7 @@ public class InMemoryIntegrationPersistence {
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             if (deviceConfigurationService != null) {
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
+                bind(LockService.class).toInstance(mock(LockService.class));
             }
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }

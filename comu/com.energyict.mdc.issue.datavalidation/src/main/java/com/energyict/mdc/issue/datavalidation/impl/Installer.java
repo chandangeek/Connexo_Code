@@ -7,6 +7,7 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -14,7 +15,6 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.actions.RetryEstimationAction;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventDescription;
-import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
 
 import com.google.inject.Inject;
 
@@ -84,8 +84,12 @@ class Installer implements FullInstaller {
     }
     private void setAQSubscriber() {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
-        destinationSpec.subscribe(DataValidationEventHandlerFactory.AQ_DATA_VALIDATION_EVENT_SUBSCRIBER,
-                whereCorrelationId().isEqualTo(DataValidationEventDescription.CANNOT_ESTIMATE_DATA.getTopic())
+        destinationSpec.subscribe(
+                TranslationKeys.AQ_SUBSCRIBER,
+                IssueDataValidationService.COMPONENT_NAME,
+                Layer.DOMAIN,
+                whereCorrelationId()
+                        .isEqualTo(DataValidationEventDescription.CANNOT_ESTIMATE_DATA.getTopic())
                         .or(whereCorrelationId().isEqualTo(DataValidationEventDescription.READINGQUALITY_DELETED.getTopic())));
     }
     private void run(Runnable runnable, String explanation, Logger logger) {

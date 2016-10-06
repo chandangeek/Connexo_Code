@@ -24,6 +24,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
@@ -38,6 +39,7 @@ import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImpl;
 import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -46,7 +48,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,7 +66,6 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
     private volatile MeteringService meteringService;
-
 
     private volatile DataModel dataModel;
 
@@ -99,7 +99,13 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 bind(MessageService.class).toInstance(messageService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", IssueDataValidationService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(
+                InstallIdentifier.identifier("MultiSense", IssueDataValidationService.COMPONENT_NAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        Version.version(10, 2), UpgraderV10_2.class
+                ));
     }
 
     @Override

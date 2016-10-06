@@ -84,6 +84,7 @@ public class IssueDataValidationServiceTest {
     @BeforeClass
     public static void initialize() throws SQLException {
         DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence = new InMemoryIntegrationPersistence(mock(DeviceConfigurationService.class));
+        DataValidationIssueCreationRuleTemplateTest.initializeClock();
         DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.initializeDatabase("IssueDataValidationServiceTest", false);
 
         try (TransactionContext ctx = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getTransactionService().getContext()) {

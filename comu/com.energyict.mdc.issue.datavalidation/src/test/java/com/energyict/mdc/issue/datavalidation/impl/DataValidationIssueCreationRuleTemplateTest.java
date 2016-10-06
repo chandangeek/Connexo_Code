@@ -45,6 +45,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
@@ -62,6 +63,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -77,6 +79,7 @@ import static org.mockito.Mockito.when;
 
 public class DataValidationIssueCreationRuleTemplateTest {
 
+    protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     private static final Instant fixedTime = LocalDateTime.of(2015, 6, 16, 0, 0).toInstant(ZoneOffset.UTC);
     static InMemoryIntegrationPersistence inMemoryPersistence;
     @Rule
@@ -96,11 +99,13 @@ public class DataValidationIssueCreationRuleTemplateTest {
     @BeforeClass
     public static void initialize() throws SQLException {
         inMemoryPersistence = new InMemoryIntegrationPersistence();
+        initializeClock();
         inMemoryPersistence.initializeDatabase("DataValidationIssueCreationRuleTemplateTest", false);
-
+        when(inMemoryPersistence.getClock().instant()).thenReturn(fixedTime);
         try (TransactionContext ctx = inMemoryPersistence.getTransactionService().getContext()) {
             inMemoryPersistence.getService(FiniteStateMachineService.class);
             inMemoryPersistence.getService(IssueDataValidationService.class);
+            inMemoryPersistence.getService(DeviceDataModelService.class);
             ctx.commit();
         }
     }
@@ -139,6 +144,11 @@ public class DataValidationIssueCreationRuleTemplateTest {
 
         createRuleForDeviceConfiguration("Rule #1", deviceConfiguration);
         assertThat(issueCreationService.reReadRules()).as("Drools compilation of the rule: there are errors").isTrue();
+    }
+
+    protected static void initializeClock() {
+        when(inMemoryPersistence.getClock().getZone()).thenReturn(utcTimeZone.toZoneId());
+        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
     }
 
     @Test
