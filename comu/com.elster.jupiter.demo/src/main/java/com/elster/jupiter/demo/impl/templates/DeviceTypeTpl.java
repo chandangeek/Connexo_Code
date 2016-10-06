@@ -1,6 +1,7 @@
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.Builders;
+import com.elster.jupiter.demo.impl.builders.Builder;
 import com.elster.jupiter.demo.impl.builders.DeviceTypeBuilder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -26,7 +27,12 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG)) {
         @Override
         protected List<ProtocolSupportedCalendarOptions> getTimeOfUseOptions() {
-            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE);
+            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
+        }
+
+        @Override
+        protected List<CalendarTpl> getCalendars() {
+            return Arrays.asList(CalendarTpl.RE_CU_01, CalendarTpl.RE_CU_02);
         }
     },
 
@@ -36,7 +42,12 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG)) {
         @Override
         protected List<ProtocolSupportedCalendarOptions> getTimeOfUseOptions() {
-            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE);
+            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
+        }
+
+        @Override
+        protected List<CalendarTpl> getCalendars() {
+            return Arrays.asList(CalendarTpl.RE_CU_01, CalendarTpl.RE_CU_02);
         }
     },
 
@@ -46,7 +57,12 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG)) {
         @Override
         protected List<ProtocolSupportedCalendarOptions> getTimeOfUseOptions() {
-            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE);
+            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
+        }
+
+        @Override
+        protected List<CalendarTpl> getCalendars() {
+            return Arrays.asList(CalendarTpl.RE_CU_01, CalendarTpl.RE_CU_02);
         }
     },
 
@@ -56,7 +72,12 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG)) {
         @Override
         protected List<ProtocolSupportedCalendarOptions> getTimeOfUseOptions() {
-            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE);
+            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
+        }
+
+        @Override
+        protected List<CalendarTpl> getCalendars() {
+            return Arrays.asList(CalendarTpl.RE_CU_01, CalendarTpl.RE_CU_02);
         }
     },
 
@@ -66,7 +87,12 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG)) {
         @Override
         protected List<ProtocolSupportedCalendarOptions> getTimeOfUseOptions() {
-            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE);
+            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
+        }
+
+        @Override
+        protected List<CalendarTpl> getCalendars() {
+            return Arrays.asList(CalendarTpl.RE_CU_01, CalendarTpl.RE_CU_02);
         }
     },
 
@@ -76,7 +102,12 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG)) {
         @Override
         protected List<ProtocolSupportedCalendarOptions> getTimeOfUseOptions() {
-            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE);
+            return Arrays.asList(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
+        }
+
+        @Override
+        protected List<CalendarTpl> getCalendars() {
+            return Arrays.asList(CalendarTpl.RE_CU_01, CalendarTpl.RE_CU_02);
         }
     },
 
@@ -155,6 +186,7 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             builder.withLogBookTypes(this.logBookTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LogBookType>toList()));
         }
         builder.withTimeOfUseOptions(getTimeOfUseOptions());
+        builder.withCalendars(getCalendars().stream().map(Builders::from).map(Builder::get).collect(Collectors.toList()));
         return builder;
     }
 
@@ -175,6 +207,10 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     }
 
     protected List<ProtocolSupportedCalendarOptions> getTimeOfUseOptions() {
+        return Collections.emptyList();
+    }
+
+    protected List<CalendarTpl> getCalendars() {
         return Collections.emptyList();
     }
 

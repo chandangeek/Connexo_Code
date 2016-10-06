@@ -1,5 +1,6 @@
 package com.elster.jupiter.demo.impl.builders;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.demo.impl.Log;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -30,6 +31,7 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
     private List<LoadProfileType> loadProfileTypes;
     private List<LogBookType> logBookTypes;
     private Set<ProtocolSupportedCalendarOptions> timeOfUseOptions;
+    private List<Calendar> calendars;
 
     @Inject
     public DeviceTypeBuilder(DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
@@ -65,6 +67,11 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
         } else {
             this.timeOfUseOptions = null;
         }
+        return this;
+    }
+
+    public DeviceTypeBuilder withCalendars(List<Calendar> calendars) {
+        this.calendars = calendars;
         return this;
     }
 
@@ -107,6 +114,9 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
             this.timeOfUseOptions.retainAll(this.deviceConfigurationService.getSupportedTimeOfUseOptionsFor(result, false));
             timeOfUseOptions.setOptions(this.timeOfUseOptions);
             timeOfUseOptions.save();
+        }
+        if (this.calendars != null && !this.calendars.isEmpty()) {
+            this.calendars.forEach(result::addCalendar);
         }
         return applyPostBuilders(result);
     }
