@@ -90,7 +90,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                         ],
                         successLink: router.getRoute('usagepoints/view/processes').buildUrl({usagePointId: usagePointId}),
                         cancelLink: router.getRoute('usagepoints/view').buildUrl({usagePointId: usagePointId}),
-                        context: {id: usagePoint.get('mRID')}
+                        context: {id: usagePoint.get('name')}
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
