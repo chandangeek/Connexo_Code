@@ -101,14 +101,15 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber()));
         ServiceKind serviceKind = Arrays.stream(ServiceKind.values()).filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString)).findFirst()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber(), serviceKindString));
-        Optional<UsagePoint> usagePoint = findUsagePointByIdentifier(identifier);
+        Optional<UsagePoint> foundUsagePoint = findUsagePointByIdentifier(identifier);
         Optional<ServiceCategory> serviceCategory = getContext().getMeteringService().getServiceCategory(serviceKind);
-        if (usagePoint.isPresent()) {
-            if (usagePoint.get().getServiceCategory().getId() != serviceCategory.get().getId()) {
+        if (foundUsagePoint.isPresent()) {
+            UsagePoint usagePoint = foundUsagePoint.get();
+            if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
                 throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
             }
-            usagePoint = context.getMeteringService().findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion()).get();
-            return updateUsagePoint(usagePoint.get(), data, logger);
+            usagePoint = getContext().getMeteringService().findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion()).get();
+            return updateUsagePoint(usagePoint, data, logger);
         } else {
             return createUsagePoint(serviceCategory.get().newUsagePoint(identifier,
                     data.getInstallationTime().orElse(getContext().getClock().instant())), data, logger);
