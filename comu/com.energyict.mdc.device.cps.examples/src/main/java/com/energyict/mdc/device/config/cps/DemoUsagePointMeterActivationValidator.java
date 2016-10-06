@@ -69,10 +69,8 @@ public class DemoUsagePointMeterActivationValidator implements CustomUsagePointM
         return device.getDeviceType()
                 .getCustomPropertySets()
                 .stream()
-                .anyMatch(cas -> cas.getCustomPropertySet().getName().equals("MeterSpecs")
-                        && customPropertySetService.getUniqueValuesFor(cas.getCustomPropertySet(), device)
-                        .getProperty("meterMechanism")
-                        .equals("Credit"));
+                .anyMatch(cas -> "MeterSpecs".equals(cas.getCustomPropertySet().getName())
+                        && "Credit".equals(customPropertySetService.getUniqueValuesFor(cas.getCustomPropertySet(), device).getProperty("meterMechanism")));
     }
 
     private boolean checkUsagePointConditions(UsagePoint usagePoint) {
@@ -80,7 +78,7 @@ public class DemoUsagePointMeterActivationValidator implements CustomUsagePointM
                 .getAllPropertySets()
                 .stream()
                 .filter(cas -> cas.getCustomPropertySet().getId().equals("com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension"))
-                .anyMatch(cas -> (cas.getValues().getProperty("prepay") != null)
-                        && (cas.getValues().getProperty("prepay").equals(true)));
+                .anyMatch(cas -> cas.getValues() != null
+                        && Boolean.TRUE.equals(cas.getValues().getProperty("prepay")));
     }
 }
