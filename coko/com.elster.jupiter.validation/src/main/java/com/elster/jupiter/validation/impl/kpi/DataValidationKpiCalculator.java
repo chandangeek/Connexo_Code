@@ -44,7 +44,6 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
     private Boolean allDataValidated;
     private long totalSuspects;
     private Set<String> ruleValidators;
-    private Range<Instant> range;
     private long dayCount;
     private long runnningDeviceId;
 
@@ -67,10 +66,8 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
         ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
         dayCount = ChronoUnit.DAYS.between(start, end);
-        range = Range.closed(start.toInstant(), end.toInstant());
-        registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpiClone.getDeviceGroup(), range);
-        channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpiClone.getDeviceGroup(), range);
-        range = Range.closedOpen(currentZonedDateTime.minus(Period.ofDays(1)).toInstant(), currentZonedDateTime.toInstant());
+        registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpiClone.getDeviceGroup(), Range.closed(start.toInstant(), end.toInstant()));
+        channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpiClone.getDeviceGroup(), Range.closed(start.toInstant(), end.toInstant()));
         currentZonedDateTime = currentZonedDateTime.plus(Period.ofDays(1));
     }
 
@@ -108,7 +105,6 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
                     }
                 });
                 updateRuleValidatorData(memberList.get(),localTimeStamp);
-                range = Range.closedOpen(localTimeStamp.minus(Period.ofDays(1)), localTimeStamp);
                 logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!" + " date " + localTimeStamp + " count " + i);
             }
         } else {
