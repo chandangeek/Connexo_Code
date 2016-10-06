@@ -75,11 +75,11 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
         ));
         Ext.Array.each(record.get('meterRoles'), function (meterRole) {
             var deviceLink;
-            if (meterRole.mRID) {
+            if (meterRole.name) {
                 if (meterRole.url) {
-                    deviceLink = Ext.String.format('<a href="{0}" target="_blank">{1}</a>', meterRole.url, Ext.String.htmlEncode(meterRole.mRID));
+                    deviceLink = Ext.String.format('<a href="{0}" target="_blank">{1}</a>', meterRole.url, Ext.String.htmlEncode(meterRole.name));
                 } else {
-                    deviceLink = Ext.String.htmlEncode(meterRole.mRID);
+                    deviceLink = Ext.String.htmlEncode(meterRole.name);
                 }
             } else {
                 deviceLink = '-';
@@ -87,7 +87,7 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             me.getPage().down('#purposes-preview-container').add(Ext.widget('displayfield', {
                     htmlEncode: false,
                     fieldLabel: meterRole.name,
-                    itemId: meterRole.mRID,
+                    itemId: meterRole.name,
                     value: deviceLink
                 }
             ));

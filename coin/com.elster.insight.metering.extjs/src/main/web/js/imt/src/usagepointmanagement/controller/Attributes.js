@@ -149,7 +149,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
         usagePoint.save({
             isNotEdit: true,
             success: function () {
-                me.getController('Uni.controller.history.Router').getRoute().forward();
+                me.getController('Uni.controller.history.Router').getRoute().forward({usagePointId: usagePoint.get('name')});
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.updateSuccess', 'IMT', 'Usage point saved'));
             },
             failure: function (record, response) {

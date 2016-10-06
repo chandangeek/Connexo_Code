@@ -390,7 +390,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 
         me.doRequest({
             success: function (record) {
-                router.getRoute('usagepoints/view/metrologyconfiguration').forward({usagePointId: record.get('name')});
+                router.getRoute('usagepoints/view/metrologyconfiguration').forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyConfiguration.wizard.successMsg', 'IMT', "Metrology configuration defined"));
             }
         });

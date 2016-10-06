@@ -183,7 +183,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
 
             };
 
-        store.setExtraParam('usagePointId', usagePointId);
+        store.getProxy().setExtraParam('usagePointId', usagePointId);
         store.load({
             callback: function(){
                 store.filter(function(item){

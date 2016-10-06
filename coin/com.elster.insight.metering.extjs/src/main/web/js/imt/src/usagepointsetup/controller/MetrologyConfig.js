@@ -52,7 +52,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                             if (Ext.isEmpty(mconfig.get('meterRoles'))) {
                                 window.location.replace(router.getRoute('error/notfound').buildUrl());
                             } else {
-                                meterActivationsStore.setExtraParam('usagePointId', usagePointId);
+                                meterActivationsStore.getProxy().setExtraParam('usagePointId', usagePointId);
                                 meterActivationsStore.load({
                                     callback: function (records, operation, success) {
                                         if (success) {
