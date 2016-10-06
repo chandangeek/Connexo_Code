@@ -26,7 +26,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 flex: 1,
                 renderer: function (val) {
                     return  (Mdc.privileges.Device.canView() || Mdc.privileges.Device.canAdministrateDeviceData())
-                        ? '<a href="#/devices/' + val.id + '">' + Ext.String.htmlEncode(val.name) + '</a>' : Ext.String.htmlEncode(val.name)
+                        ? '<a href="#/devices/' + val.name + '">' + Ext.String.htmlEncode(val.name) + '</a>' : Ext.String.htmlEncode(val.name)
                 }
             },
             {
