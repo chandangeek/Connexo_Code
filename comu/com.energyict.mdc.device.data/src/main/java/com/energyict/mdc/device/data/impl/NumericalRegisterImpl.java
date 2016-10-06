@@ -36,23 +36,12 @@ public class NumericalRegisterImpl extends RegisterImpl<NumericalReading, Numeri
 
     @Override
     public Optional<ReadingType> getCalculatedReadingType(Instant timeStamp) {
-        Optional<BigDecimal> multiplierAt = getDevice().getMultiplierAt(timeStamp);
-        if (multiplierAt.isPresent() && multiplierAt.get().compareTo(BigDecimal.ONE) == 1) {
-            return device.getCalculatedReadingTypeFromMeterConfiguration(getRegisterSpec().getReadingType(), timeStamp);
-        }
-        return Optional.empty();
+        return device.getCalculatedReadingTypeFromMeterConfiguration(getRegisterSpec().getReadingType(), timeStamp);
     }
 
     @Override
     public Optional<BigDecimal> getMultiplier(Instant timeStamp) {
-        Optional<BigDecimal> multiplierAt = getDevice().getMultiplierAt(timeStamp);
-        if (multiplierAt.isPresent() && multiplierAt.get().compareTo(BigDecimal.ONE) == 1) {
-            Optional<ReadingType> koreMeterConfigBulkReadingType = device.getCalculatedReadingTypeFromMeterConfiguration(getRegisterSpec().getReadingType(), timeStamp);
-            if (koreMeterConfigBulkReadingType.isPresent()) { // if it is present, then it means we configured a ReadingType to calculate
-                return multiplierAt;
-            }
-        }
-        return Optional.empty();
+        return getRegisterSpec().isUseMultiplier()?getDevice().getMultiplierAt(timeStamp):Optional.empty();
     }
 
     @Override

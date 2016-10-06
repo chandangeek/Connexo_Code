@@ -144,7 +144,8 @@ public enum MessageSeeds implements MessageSeed {
     UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(2122, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, "This device doesn''t have the following reading types that are specified in the metrology configurations of the selected usage point: {0}"),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE(2123, "usagePointAlreadyLinkedToAnotherDeviceX", "The usage point is already linked to device {0} starting from {1}"),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(2124, "usagePointAlreadyLinkedToAnotherDeviceXUntil", "The usage point is already linked to device {0} starting from {1} until {2}"),
-    CHANGE_DEVICE_CONFIG_UNSATISFIED_REQUIREMENTS(2126, "changeDeviceConfigUnsatisfiedRequirements", "The device {0} can''t have the device configuration {1} because this device configuration doesn''t have the following reading types that are specified in the metrology configuration versions of the usage points that are linked to this device: \n {2}"),
+    METER_ACTIVATION_TIMESTAMP_NOT_AFTER_LAST_ACTIVATION(2125, "meterActivationTimestampNotAfterLastActivation", "The activation date {0} should be after the last meter activation date {1}"),
+    CHANGE_DEVICE_CONFIG_UNSATISFIED_REQUIREMENTS(2126, "changeDeviceConfigUnsatisfiedRequirements", "The device {0} can''t have the device configuration {1} because this device configuration doesn''t have the following reading types that are specified in the metrology configuration versions of the usage points that are linked to this device: {2}"),
     NO_SUCH_END_DEVICE_CONTROL_TYPE(2127, "NoSuchEndDeviceControlType", "No end device control type with MRID {0}"),
     NO_SUCH_DEVICE_MESSAGE_SPEC(2128, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
     NO_STATUS_INFORMATION_COMTASK(2129, Keys.NO_STATUS_INFORMATION_COMTASK, "A comtask to read out the status information could not be located"),
@@ -159,6 +160,7 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED(2138, Keys.CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED, "You cannot change the configuration of a datalogger enabled device"),
     INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS(2139, Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, "Invalid number of simultaneous connections, should be between 1 and 16"),
     DUPLICATE_DEVICE_NAME(2140, Keys.DUPLICATE_DEVICE_NAME, "Name must be unique"),
+    NO_LIFE_CYCLE_AT(2141, Keys.NO_LIFE_CYCLE_AT, "There is no life cycle active at {0}")
     ;
     private final int number;
     private final String key;
@@ -341,5 +343,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED = "device.config.change.not.to.datalogger";
         public static final String CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED = "device.config.change.not.from.datalogger";
         public static final String INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS = "InvalidNumberOfSimultaneousConnections";
+        public static final String NO_LIFE_CYCLE_AT = "NoLifeCycleActiveAt";
     }
 }

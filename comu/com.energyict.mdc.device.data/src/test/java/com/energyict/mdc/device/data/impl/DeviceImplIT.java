@@ -90,8 +90,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -475,7 +475,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void getRegisterReadingsShouldReturnResultsTest() {
         BigDecimal readingValue = new BigDecimal(5432.32);
-        Instant readingTimeStamp = Instant.ofEpochMilli(123456789);
+        Instant readingTimeStamp = inMemoryPersistence.getClock().instant();
         com.elster.jupiter.metering.readings.Reading reading = com.elster.jupiter.metering.readings.beans.ReadingImpl.of(forwardBulkSecondaryEnergyReadingType.getMRID(), readingValue, readingTimeStamp);
         MeterReadingImpl meterReading = MeterReadingImpl.of(reading);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
@@ -636,10 +636,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataIfRequestIntervalPreceedsActualMeterActivation() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
-        Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
-        Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
-        Instant nineOClock = Instant.ofEpochMilli(1406883600000L);  // 1/8/2014 9:00 <==  meterActivation starts at nine
-        Instant quarterPastNine = Instant.ofEpochMilli(1406884500000L); // 1/8/2014 9:00 <== end first interval
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC);
+        localDateTime = localDateTime.withHour(0).withMinute(0).withSecond(0).withNano(0);
+        Instant dayStart = localDateTime.withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC); // Fri, 01 Aug 2014 00:00:00 GMT
+        Instant dayEnd = localDateTime.plus(1, ChronoUnit.DAYS).toInstant(ZoneOffset.UTC); // Sat, 02 Aug 2014 00:00:00 GMT
+        Instant nineOClock = localDateTime.withHour(9).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC);  // 1/8/2014 9:00 <==  meterActivation starts at nine
+        Instant quarterPastNine = localDateTime.withHour(9).withMinute(15).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC); // 1/8/2014 9:00 <== end first interval
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, nineOClock);
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
@@ -676,22 +678,26 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void testGetChannelDataIfRequestedIntervalHasNoReadingsButDataWasExpected() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC);
+        localDateTime = localDateTime.withHour(0)
+                .withMinute(0)
+                .withSecond(0);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.parse("2014-08-01T00:00:00Z"));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, localDateTime.toInstant(ZoneOffset.UTC));
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
-        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
-        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock3 = IntervalBlockImpl.of(code);
-        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock4 = IntervalBlockImpl.of(code);
-        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlockX = IntervalBlockImpl.of(code);
-        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(intervalBlock1);
         meterReading.addIntervalBlock(intervalBlock2);
@@ -701,8 +707,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        Instant start = LocalDateTime.of(2014, 8, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant end = LocalDateTime.of(2014, 8, 1, 16, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant start = localDateTime.withHour(12).withMinute(0).withSecond(0).toInstant(ZoneOffset.UTC);
+        Instant end = localDateTime.withHour(16).withMinute(0).withSecond(0).toInstant(ZoneOffset.UTC);
         List<LoadProfileReading> readings = reloadedDevice.getChannels().get(0).getChannelData(Ranges.openClosed(start, end));
         assertThat(readings).describedAs("There should be data(holders) for the interval 12:00->16:00 even though there are no meter readings").hasSize(4 * 4);
     }
@@ -712,6 +718,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataIfRequestedIntervalHasNoReadingsButDataWasExpected() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(0).withHour(0).withSecond(0).withNano(0);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.parse("2014-08-01T00:00:00Z"));
 
@@ -719,15 +726,15 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
-        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
-        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock3 = IntervalBlockImpl.of(code);
-        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock4 = IntervalBlockImpl.of(code);
-        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlockX = IntervalBlockImpl.of(code);
-        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(intervalBlock1);
         meterReading.addIntervalBlock(intervalBlock2);
@@ -737,8 +744,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        Instant start = LocalDateTime.of(2014, 8, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant end = LocalDateTime.of(2014, 8, 1, 16, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant start = LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 12, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant end = LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 16, 0, 0).toInstant(ZoneOffset.UTC);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(start, end));
         assertThat(readings).describedAs("There should be data(holders) for the interval 12:00->16:00 even though there are no meter readings").hasSize(4 * 4);
     }
@@ -748,22 +755,23 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataIfRequestedIntervalIsEmptyButDataWasExpected() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(0).withHour(0).withSecond(0).withNano(0);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.parse("2014-08-01T00:00:00Z"));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, localDateTime.toInstant(ZoneOffset.UTC));
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
-        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
-        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock3 = IntervalBlockImpl.of(code);
-        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock4 = IntervalBlockImpl.of(code);
-        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlockX = IntervalBlockImpl.of(code);
-        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(2014, 8, 1, 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(intervalBlock1);
         meterReading.addIntervalBlock(intervalBlock2);
@@ -773,8 +781,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        Instant start = LocalDateTime.of(2014, 8, 1, 12, 5, 0).toInstant(ZoneOffset.UTC);
-        Instant end = LocalDateTime.of(2014, 8, 1, 12, 10, 0).toInstant(ZoneOffset.UTC);
+        Instant start = LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 12, 5, 0).toInstant(ZoneOffset.UTC);
+        Instant end = LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 12, 10, 0).toInstant(ZoneOffset.UTC);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(start, end));
 //        assertThat(readings).describedAs("There should be 1 data(holders) for the interval 12:05->12:10: 1x15 minute reading overlaps with the interval").hasSize(1);
         assertThat(readings).describedAs("Changed this behavior so we don't create duplicate entries when MeterActivations don't start/end at the interval boundary").hasSize(0);
@@ -818,24 +826,25 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataIfRequestIntervalExceedsLoadProfilesLastReading() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
-        Instant requestIntervalStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
-        Instant requestIntervalEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        Instant requestIntervalStart = localDateTime.toInstant(ZoneOffset.UTC);
+        Instant requestIntervalEnd = localDateTime.plus(1, ChronoUnit.DAYS).toInstant(ZoneOffset.UTC);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, requestIntervalStart);
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(code);
-        Instant readingTimeStamp = Instant.ofEpochMilli(1406926800000L);//  Fri, 01 Aug 2014 21:00:00 GMT
+        Instant readingTimeStamp = localDateTime.withHour(21).withMinute(0).withSecond(0).toInstant(ZoneOffset.UTC);
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp, readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
-        Instant previousReadingTimeStamp = Instant.ofEpochMilli(1406851200000L);// 1/8/2014 0:00
+        Instant previousReadingTimeStamp = localDateTime.withHour(0).withMinute(0).withSecond(0).toInstant(ZoneOffset.UTC);
         intervalBlock2.addIntervalReading(IntervalReadingImpl.of(previousReadingTimeStamp, BigDecimal.ZERO));
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(intervalBlock);
         meterReading.addIntervalBlock(intervalBlock2);
         device.store(meterReading);
-        Instant lastReading = Instant.ofEpochMilli(1406926800000L); //  Fri, 01 Aug 2014 21:00:00 GMT
+        Instant lastReading = localDateTime.withHour(21).withMinute(0).withSecond(0).toInstant(ZoneOffset.UTC);
         device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(lastReading).update();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -859,7 +868,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void testGetLoadProfileDataMonthlyMoscowTime() {
         TimeZone MSK = TimeZone.getTimeZone("GMT+4");
         when(inMemoryPersistence.getClock().getZone()).thenReturn(MSK.toZoneId());
-        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
+        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.ofEpochMilli(1385841600000L));
 
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         Instant meterActivation = Instant.ofEpochMilli(1385841600000L);
@@ -896,7 +905,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         // cfr JP-8199
         TimeZone UTC = TimeZone.getTimeZone("GMT+1"); // Paris time zone
         when(inMemoryPersistence.getClock().getZone()).thenReturn(UTC.toZoneId());
-        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
+        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.ofEpochMilli(1385851500000L));
 
         Instant requestIntervalStart = Instant.ofEpochMilli(1385851500000L); //   11/30/2013, 11:45:00 PM (UTC)
         Instant requestIntervalEnd = Instant.ofEpochMilli(1420066800000L); // 1/1/2015, 12:00:00 AM (UTC)
@@ -932,6 +941,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataIfExternalMeterActivationDoesNotAlignWithChannelIntervalBoundary() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.ofEpochMilli(1420761600000L));
         Instant requestIntervalStart = Instant.ofEpochMilli(1420761600000L); // Fri, 09 Jan 2015 00:00:00 GMT
         Instant requestIntervalEnd = Instant.ofEpochMilli(1420848000000L); //  Sat, 10 Jan 2015 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
@@ -964,6 +974,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileData() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.ofEpochMilli(1406851200000L));
         Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
@@ -1003,10 +1014,11 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataClippedOnLastReading() {
         BigDecimal readingValue = new BigDecimal(5432.32);
-        Instant readingTimeStamp_A = Instant.ofEpochMilli(1396138500000L); // 3/30/2014, 01:15:00 AM
-        Instant readingTimeStamp_B = Instant.ofEpochMilli(1396155600000L); // 3/30/2014, 05:15:00 AM
-        Instant dayStart = Instant.ofEpochMilli(1396137600000L); // 3/30/2014, 1:00:00 AM
-        Instant dayEnd = Instant.ofEpochMilli(1396159200000L); // 3/30/2014, 8:00:00 AM !! 6 hours later!!
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        Instant readingTimeStamp_A = localDateTime.withHour(0).withMinute(15).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC); // 3/30/2014, 01:15:00 AM
+        Instant readingTimeStamp_B = localDateTime.withHour(5).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC); // 3/30/2014, 05:15:00 AM
+        Instant dayStart = localDateTime.toInstant(ZoneOffset.UTC); // 3/30/2014, 1:00:00 AM
+        Instant dayEnd = localDateTime.withHour(6).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC); // 3/30/2014, 8:00:00 AM !! 6 hours later!!
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).code();
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
@@ -1030,6 +1042,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataHasValidationState() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.ofEpochMilli(1406851200000L));
         Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
@@ -1069,9 +1082,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void testEditLoadProfileDataWithSeveralMeterActivations() {
         //COMU-1763
-        Instant dayStart = ZonedDateTime.of(2015, 8, 14, 0, 15, 0, 0, ZoneOffset.UTC).toInstant();
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC);
+        Instant dayStart = localDateTime.withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.parse("2014-08-01T00:00:00Z"));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, dayStart);
 
         device.activate(dayStart);
         device.deactivate(dayStart.plus(10, ChronoUnit.MINUTES));
@@ -1148,6 +1162,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataDST() {
         BigDecimal readingValue = new BigDecimal(5432.32);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.ofEpochMilli(1396137600000L));
         Instant dayStart = Instant.ofEpochMilli(1396137600000L); // 3/30/2014, 1:00:00 AM
         Instant dayEnd = Instant.ofEpochMilli(1396159200000L); // 3/30/2014, 8:00:00 AM !! 6 hours later!!
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).code();
@@ -1174,7 +1189,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void aNewDeviceHasMeterActivation() {
-        Instant initialStart = Instant.ofEpochMilli(1000000L);
+        Instant initialStart = inMemoryPersistence.getClock().instant();
 
         // Business method
         Device device = this.createSimpleDeviceWithName(DEVICE_NAME, initialStart);
@@ -1188,16 +1203,17 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void activateMeterWhenStillActive() {
         Instant initialStart = Instant.ofEpochMilli(1000L);
-        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, initialStart);
-        Instant expectedStart = Instant.ofEpochMilli(200000L);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(initialStart);
+        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, "SimpleMrid", initialStart);
+        Instant end = Instant.ofEpochMilli(2000L);
 
         // Business method
-        device.activate(expectedStart);
+        device.activate(end);
 
         // Asserts
         assertThat(device.getCurrentMeterActivation()).isPresent();
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(2);
-        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart.truncatedTo(ChronoUnit.MINUTES));
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(end.truncatedTo(ChronoUnit.MINUTES));
     }
 
     @Test
@@ -1215,13 +1231,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void deactivateMeter() {
-        Instant initialStart = Instant.ofEpochMilli(1000L);
-        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, initialStart);
+        Instant initialStart = Instant.ofEpochMilli(100000L);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(initialStart);
+        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, "SimpleMrid", initialStart);
 
-        Instant end = Instant.ofEpochMilli(2000L);
+        Instant end = Instant.ofEpochMilli(200000L);
         // Business method
         device.deactivate(end);
-
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.ofEpochMilli(300000L));
         // Asserts
         assertThat(device.getCurrentMeterActivation()).isEmpty();
     }
@@ -1229,14 +1246,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void reactivateMeter() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.ofEpochMilli(100000L));
         Instant initialStart = Instant.ofEpochMilli(100000L);
         Device device = this.createSimpleDeviceWithName(DEVICE_NAME, initialStart);
         Instant end = Instant.ofEpochMilli(200000L);
         device.deactivate(end);
 
         Instant expectedStart = Instant.ofEpochMilli(300000L);
-
-        // Business method
+        when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.ofEpochMilli(300000L));
         device.activate(expectedStart);
 
         // Asserts
@@ -1247,13 +1264,13 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void updateCimLifecycleDates() {
-        Instant expectedInstalledDate = Instant.ofEpochSecond(1L);
-        Instant expectedManufacturedDate = Instant.ofEpochSecond(2L);
-        Instant expectedPurchasedDate = Instant.ofEpochSecond(3L);
-        Instant expectedReceivedDate = Instant.ofEpochSecond(4L);
-        Instant expectedRetiredDate = Instant.ofEpochSecond(5L);
-        Instant expectedRemovedDate = Instant.ofEpochSecond(6L);
-        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, expectedReceivedDate);
+        Instant expectedInstalledDate = inMemoryPersistence.getClock().instant();
+        Instant expectedManufacturedDate = expectedInstalledDate.plusSeconds(1L);
+        Instant expectedPurchasedDate = expectedInstalledDate.plusSeconds(2L);
+        Instant expectedReceivedDate = expectedInstalledDate.plusSeconds(3L);
+        Instant expectedRetiredDate = expectedInstalledDate.plusSeconds(4L);
+        Instant expectedRemovedDate = expectedInstalledDate.plusSeconds(5L);
+        Device device = this.createSimpleDeviceWithName(DEVICE_NAME, "SimpleMrid", expectedReceivedDate);
 
         // Business method(s)
         device
@@ -1386,11 +1403,11 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void setMultiplierOfOneDoesNotCreateMeterActivationTest() {
+    public void setMultiplierOfOneAlsoCreatesMeterActivationTest() {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "setMultiplierOfOneDoesNotCreateMeterActivationTest", Instant.now());
+                .newDevice(deviceConfiguration, "setMultiplierOfOneAlsoCreatesMeterActivationTest", Instant.now());
 
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
 
@@ -1403,6 +1420,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void settingMultiplierBackToOneShouldRemovePreviouslyDefinedMultiplierTest() {
+        // removing is not really the case anymore. If MultiSense indicates that a multiplier will be used, we still set the value of ONE on the meterActivation
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
 
         Device device = inMemoryPersistence.getDeviceService()
@@ -1416,7 +1434,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.setMultiplier(BigDecimal.ONE);
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
         assertThat(device.getMultiplier()).isEqualTo(BigDecimal.ONE);
-        assertThat(device.getCurrentMeterActivation().get().getMultipliers()).isEmpty();
+        assertThat(device.getCurrentMeterActivation().get().getMultipliers()).hasSize(1);
+        assertThat(new ArrayList<>(device.getCurrentMeterActivation().get().getMultipliers().values()).get(0)).isEqualTo(BigDecimal.ONE);
     }
 
     @Test
@@ -1532,7 +1551,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
-                        !value.getCalculated().isPresent();
+                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getmRID());
             }
         });
     }
@@ -1609,14 +1628,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
-                        !value.getCalculated().isPresent();
+                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getMRID()); // we always use the calculated readingtype when the user defined to use it on config level
             }
         });
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(reverseBulkSecondaryEnergyReadingType.getMRID()) &&
-                        !value.getCalculated().isPresent();
+                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(reverseBulkPrimaryEnergyReadingType.getmRID()); // we always use the calculated readingtype when the user defined to use it on config level
             }
         });
     }
@@ -1652,7 +1671,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", inMemoryPersistence.getClock().instant());
         device.setMultiplier(BigDecimal.TEN);
         device.save();
 
@@ -1726,14 +1745,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
-                        !value.getCalculated().isPresent();
+                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getmRID()); // we always use the calculated readingtype when the user defined to use it on config level
             }
         });
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code()) &&
-                        !value.getCalculated().isPresent() &&
+                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(getForwardBulkPrimaryEnergyReadingType().period(MacroPeriod.MONTHLY).code()) && // we always use the calculated readingtype when the user defined to use it on config level
                         (value.getOverflowValue().isPresent() && value.getOverflowValue().get().compareTo(overflow) == 0) &&
                         value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
             }

@@ -1,5 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksInComScheduleMustHaveSameConfigurationSettings;
@@ -14,14 +21,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-
 import javax.inject.Inject;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COMSCHEDULE_IS_REQUIRED + "}")
     private Reference<ComSchedule> comSchedule = ValueReference.absent();
+    private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
     @Inject
     public ScheduledComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
@@ -47,6 +47,7 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
         this.setPlannedPriority(ComTaskExecution.DEFAULT_PRIORITY);
         this.setUseDefaultConnectionTask(true);
         this.comSchedule.set(comSchedule);
+        nextExecutionSpecs.set(comSchedule.getNextExecutionSpecs());
         return this;
     }
 
@@ -85,8 +86,11 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     private void setComSchedule(ComSchedule comSchedule) {
         if (comSchedule == null) {
             this.comSchedule.setNull();
+            this.nextExecutionSpecs.setNull();
+            return;
         }
         this.comSchedule.set(comSchedule);
+        this.nextExecutionSpecs.set(comSchedule.getNextExecutionSpecs());
     }
 
     @Override

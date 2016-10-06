@@ -79,7 +79,7 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
         Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter()
                 .get()
                 .startingConfigurationOn(getStart());
-        createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder, true);
+        createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder);
         getDevice().getDeviceConfiguration().getRegisterSpecs().stream()
                 .filter(registerSpec -> registerSpec.getReadingType() != this.readingType)
                 .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1))
@@ -108,7 +108,7 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
                                 channelSpec.getOverflow(),
                                 (channelSpec.isUseMultiplier() ? channelSpec.getCalculatedReadingType().get() : null))
                 );
-        createMeterConfigurationsForRegisterSpecs(meterConfigurationBuilder, true);
+        createMeterConfigurationsForRegisterSpecs(meterConfigurationBuilder);
         return meterConfigurationBuilder;
     }
 

@@ -144,7 +144,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
 
     private Device createSimpleDeviceWithLoadProfiles() {
         return inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceName", MRID, Instant.now());
+                .newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceName", MRID, januaryFirst);
     }
 
     private LoadProfile getReloadedLoadProfile(Device device) {
@@ -156,7 +156,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     @Transactional
     public void createWithNoLoadProfileSpecsTest() {
         Device deviceWithoutLoadProfiles = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "DeviceWithoutLoadProfiles", MRID, Instant.now());
+                .newDevice(deviceConfiguration, "DeviceWithoutLoadProfiles", MRID, januaryFirst);
 
         Device reloadedDevice = getReloadedDevice(deviceWithoutLoadProfiles);
         assertThat(reloadedDevice.getLoadProfiles()).isEmpty();
@@ -166,7 +166,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     @Transactional
     public void getChannelsTest() {
         Device deviceWithLoadProfile = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID, Instant.now());
+                .newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID, januaryFirst);
         deviceWithLoadProfile.save();
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(deviceWithLoadProfile);
@@ -187,7 +187,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     @Transactional
     public void isNotVirtualLoadProfileTest() {
         Device masterWithLoadProfile = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID, Instant.now());
+                .newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID, januaryFirst);
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(masterWithLoadProfile);
         assertThat(reloadedLoadProfile.isVirtualLoadProfile()).isFalse();
@@ -197,7 +197,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     @Transactional
     public void getIntervalTest() {
         Device deviceWithLoadProfile = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID, Instant.now());
+                .newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID, januaryFirst);
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(deviceWithLoadProfile);
         assertThat(reloadedLoadProfile.getInterval()).isEqualTo(interval);
@@ -207,7 +207,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     @Transactional
     public void getDeviceObisCodeTest() {
         Device deviceWithLoadProfile = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID, Instant.now());
+                .newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID, januaryFirst);
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(deviceWithLoadProfile);
         assertThat(reloadedLoadProfile.getDeviceObisCode()).isEqualTo(loadProfileObisCode);
@@ -341,7 +341,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
             @Override
             public boolean matches(Channel channel) {
                 return channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).isPresent()
-                        && channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).get().getMRID().equals(deltaActiveEnergySecondary15MinMrid);
+                        && channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).get().getMRID().equals(deltaActiveEnergyPrimary15MinMrid); // we always use the calculated readingtype when the user defined to use it on config level
             }
         });
     }
@@ -377,7 +377,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
                 .newDevice(deviceConfiguration, "getMultiplierOfChannelWhenNoMultiplierOnDeviceTest", MRID, januaryFirst);
         final LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
 
-        assertThat(reloadedLoadProfile.getChannels()).haveExactly(2, new Condition<Channel>(){
+        assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
             @Override
             public boolean matches(Channel channel) {
                 return !channel.getMultiplier(januaryFirst).isPresent();

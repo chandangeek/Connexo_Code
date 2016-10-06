@@ -30,7 +30,7 @@ public class SynchDeviceWithKoreForMultiplierChange extends AbstractSyncDeviceWi
         this.setDevice(device);
 
         endCurrentMeterConfigurationIfPresent();
-        createKoreMeterConfiguration(true);
+        createKoreMeterConfiguration();
         // create a new MeterActivation
         MeterActivation activation = activateMeter(getStart());
         // add Kore Channels for all MDC Channels and registers

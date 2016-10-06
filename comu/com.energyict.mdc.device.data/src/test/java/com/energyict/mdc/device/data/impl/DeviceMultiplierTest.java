@@ -24,6 +24,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
@@ -152,6 +153,8 @@ public class DeviceMultiplierTest {
     private LifecycleDates lifecycleDates;
     @Mock
     private DeviceType deviceType;
+    @Mock
+    private LockService lockService;
 
     private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
     private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
@@ -187,16 +190,15 @@ public class DeviceMultiplierTest {
         when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.MIN);
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
     }
 
     private Device createMockedDevice(Instant startOfMeterActivation) {
-        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, NlsModule.FakeThesaurus.INSTANCE, clock,
-                meteringService, validationService, securityPropertyService, scheduledConnectionTaskProvider,
-                inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
-                manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider, meteringGroupsService,
-                customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
-                deviceConfigurationService, deviceService);
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
+                scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider,
+                firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService);
 //        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();

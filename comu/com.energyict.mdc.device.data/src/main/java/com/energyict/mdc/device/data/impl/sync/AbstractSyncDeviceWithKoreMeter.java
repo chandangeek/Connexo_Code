@@ -87,18 +87,18 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         }
     }
 
-    private Meter.MeterConfigurationBuilder meterconfigurationBuilder(boolean withCalculatedReadingType) {
+    private Meter.MeterConfigurationBuilder meterconfigurationBuilder() {
         Meter.MeterConfigurationBuilder meterConfigurationBuilder = device.getMeter()
                 .get()
                 .startingConfigurationOn(start);
-        createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder, withCalculatedReadingType);
-        createMeterConfigurationsForRegisterSpecs(meterConfigurationBuilder, withCalculatedReadingType);
+        createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder);
+        createMeterConfigurationsForRegisterSpecs(meterConfigurationBuilder);
         return meterConfigurationBuilder;
     }
 
-    Optional<MeterConfiguration> createKoreMeterConfiguration(boolean addCalculatedReadingType) {
+    Optional<MeterConfiguration> createKoreMeterConfiguration() {
         if (!device.getDeviceConfiguration().getChannelSpecs().isEmpty() || !device.getDeviceConfiguration().getRegisterSpecs().isEmpty()) {
-            return Optional.of(meterconfigurationBuilder(addCalculatedReadingType).create());
+            return Optional.of(meterconfigurationBuilder().create());
         }
         return Optional.empty();
     }
@@ -128,7 +128,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         }
     }
 
-    void createMeterConfigurationsForChannelSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
+    void createMeterConfigurationsForChannelSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder) {
         device.getDeviceConfiguration().getChannelSpecs()
                 .forEach(channelSpec ->
                         configureReadingType(
@@ -136,11 +136,10 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
                                 channelSpec.getReadingType(),
                                 channelSpec.getNbrOfFractionDigits(),
                                 channelSpec.getOverflow(),
-                                (addCalculatedReadingType && channelSpec.isUseMultiplier() ? getMultipliedReadingTypeForChannelSpec(channelSpec) : null))
-                );
+                                channelSpec.isUseMultiplier() ? getMultipliedReadingTypeForChannelSpec(channelSpec) : null));
     }
 
-    void createMeterConfigurationsForRegisterSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
+    void createMeterConfigurationsForRegisterSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder) {
         device.getDeviceConfiguration().getRegisterSpecs().stream().filter(registerSpec -> !registerSpec.isTextual())
                 .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1))
                 .forEach(registerSpec ->
@@ -149,8 +148,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
                                 registerSpec.getReadingType(),
                                 registerSpec.getNumberOfFractionDigits(),
                                 registerSpec.getOverflowValue(),
-                                (addCalculatedReadingType && registerSpec.isUseMultiplier() ? registerSpec.getCalculatedReadingType().get() : null))
-                );
+                                registerSpec.isUseMultiplier() ? registerSpec.getCalculatedReadingType().get() : null));
     }
 
     Meter.MeterReadingTypeConfigurationBuilder configureReadingType(Meter.MeterConfigurationBuilder meterConfigurationBuilder, ReadingType readingType, int numberOfFractionDigits, Optional<BigDecimal> overflowValue, ReadingType calculatedReadingType) {
