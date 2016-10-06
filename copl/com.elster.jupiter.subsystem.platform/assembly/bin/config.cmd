@@ -11,7 +11,7 @@ set INSTALL_CONNEXO=yes
 set INSTALL_FACTS=yes
 set INSTALL_FLOW=yes
 set INSTALL_WSO2IS=
-set ACTIVATE_SSO=
+set ACTIVATE_SSO=yes
 set APACHE_PATH=
 
 set jdbcUrl=jdbc:oracle:thin:@doraps003.eict.vpdc:7137:DEVJUPITER
