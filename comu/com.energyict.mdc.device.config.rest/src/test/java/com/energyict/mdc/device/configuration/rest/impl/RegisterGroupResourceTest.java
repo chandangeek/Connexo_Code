@@ -50,7 +50,7 @@ public class RegisterGroupResourceTest extends DeviceConfigurationApplicationJer
     @Test
     public void testDeleteRegisterGroupOkVersion() {
         RegisterGroup registerGroup = mockRegisterGroup(REGISTER_GROUP_ID);
-        RegisterGroupInfo info = new RegisterGroupInfo(registerGroup);
+        RegisterGroupInfo info = registerGroupInfoFactory.asInfo(registerGroup);
         Response response = target("/registergroups/" + REGISTER_GROUP_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(registerGroup).delete();
@@ -59,7 +59,7 @@ public class RegisterGroupResourceTest extends DeviceConfigurationApplicationJer
     @Test
     public void testDeleteRegisterGroupBadVersion() {
         RegisterGroup registerGroup = mockRegisterGroup(REGISTER_GROUP_ID);
-        RegisterGroupInfo info = new RegisterGroupInfo(registerGroup);
+        RegisterGroupInfo info = registerGroupInfoFactory.asInfo(registerGroup);
         info.version = BAD_VERSION;
         Response response = target("/registergroups/" + REGISTER_GROUP_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -69,7 +69,7 @@ public class RegisterGroupResourceTest extends DeviceConfigurationApplicationJer
     @Test
     public void testUpdateRegisterGroupOkVersion() {
         RegisterGroup registerGroup = mockRegisterGroup(REGISTER_GROUP_ID);
-        RegisterGroupInfo info = new RegisterGroupInfo(registerGroup);
+        RegisterGroupInfo info = registerGroupInfoFactory.asInfo(registerGroup);
         info.name = "new name";
         Response response = target("/registergroups/" + REGISTER_GROUP_ID).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -79,7 +79,7 @@ public class RegisterGroupResourceTest extends DeviceConfigurationApplicationJer
     @Test
     public void testUpdateRegisterGroupBadVersion() {
         RegisterGroup registerGroup = mockRegisterGroup(REGISTER_GROUP_ID);
-        RegisterGroupInfo info = new RegisterGroupInfo(registerGroup);
+        RegisterGroupInfo info = registerGroupInfoFactory.asInfo(registerGroup);
         info.name = "new name";
         info.version = BAD_VERSION;
         Response response = target("/registergroups/" + REGISTER_GROUP_ID).request().put(Entity.json(info));

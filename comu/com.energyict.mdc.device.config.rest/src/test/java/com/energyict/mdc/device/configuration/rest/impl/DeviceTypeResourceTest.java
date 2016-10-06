@@ -1245,7 +1245,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         NumericalRegisterSpec.Updater updater = mock(NumericalRegisterSpec.Updater.class);
         when(deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec)).thenReturn(updater);
 
-        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo(registerSpec, Collections.emptyList());
+        RegisterConfigInfo registerConfigInfo = registerConfigInfoFactory.asInfo(registerSpec, Collections.emptyList());
         registerConfigInfo.registerType = registerType_id;
         registerConfigInfo.numberOfFractionDigits = 6;
         registerConfigInfo.overflow = BigDecimal.valueOf(123);
@@ -1397,7 +1397,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
         NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
-        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, Collections.emptyList());
+        RegisterConfigInfo info = registerConfigInfoFactory.asInfo(registerSpec, Collections.emptyList());
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request()
                 .build(HttpMethod.DELETE, Entity.json(info))
@@ -1414,7 +1414,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
         NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
-        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, Collections.emptyList());
+        RegisterConfigInfo info = registerConfigInfoFactory.asInfo(registerSpec, Collections.emptyList());
         info.version = BAD_VERSION;
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request()
@@ -1431,7 +1431,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
         NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
-        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, Collections.emptyList());
+        RegisterConfigInfo info = registerConfigInfoFactory.asInfo(registerSpec, Collections.emptyList());
         info.parent.version = BAD_VERSION;
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request()

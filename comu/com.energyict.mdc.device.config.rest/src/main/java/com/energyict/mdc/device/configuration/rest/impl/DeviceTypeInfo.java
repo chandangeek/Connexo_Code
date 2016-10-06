@@ -6,6 +6,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -42,11 +43,11 @@ public class DeviceTypeInfo {
     public DeviceTypeInfo() {
     }
 
-    public static DeviceTypeInfo from(DeviceType deviceType, List<RegisterType> registerTypes) {
+    public static DeviceTypeInfo from(DeviceType deviceType, List<RegisterType> registerTypes, RegisterTypeInfoFactory registerTypeInfoFactory) {
         DeviceTypeInfo deviceTypeInfo = from(deviceType);
         deviceTypeInfo.registerTypes = new ArrayList<>();
         for (MeasurementType measurementType : registerTypes) {
-            deviceTypeInfo.registerTypes.add(new RegisterTypeInfo(measurementType, true, false));
+            deviceTypeInfo.registerTypes.add(registerTypeInfoFactory.asInfo(measurementType, true, false));
         }
         return deviceTypeInfo;
     }

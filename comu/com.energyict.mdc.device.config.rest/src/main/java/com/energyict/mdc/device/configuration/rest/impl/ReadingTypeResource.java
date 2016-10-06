@@ -3,15 +3,16 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.ReadingTypeComparator;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -33,13 +34,15 @@ public class ReadingTypeResource {
     private final MasterDataService masterDataService;
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
+    private final ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Inject
-    public ReadingTypeResource(MdcReadingTypeUtilService readingTypeUtilService, MeteringService meteringService, Thesaurus thesaurus, MasterDataService masterDataService) {
+    public ReadingTypeResource(MdcReadingTypeUtilService readingTypeUtilService, MeteringService meteringService, Thesaurus thesaurus, MasterDataService masterDataService, ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.readingTypeUtilService = readingTypeUtilService;
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.masterDataService = masterDataService;
+        this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
     @GET @Transactional
@@ -52,12 +55,12 @@ public class ReadingTypeResource {
             String mrid = readingTypeUtilService.getReadingTypeMridFrom(obisCode, Unit.getUndefined());
             Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
             if (readingType.isPresent()) {
-                readingTypeInfos.add(new ReadingTypeInfo(readingType.get()));
+                readingTypeInfos.add(readingTypeInfoFactory.from(readingType.get()));
             }
         } else {
             List<ReadingType> readingTypes = ListPager.of(meteringService.getAvailableReadingTypes(), new ReadingTypeComparator()).from(queryParameters).find();
             for (ReadingType readingType : readingTypes) {
-                readingTypeInfos.add(new ReadingTypeInfo(readingType));
+                readingTypeInfos.add(readingTypeInfoFactory.from(readingType));
             }
         }
         return PagedInfoList.fromPagedList("readingTypes", readingTypeInfos, queryParameters);

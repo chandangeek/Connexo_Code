@@ -1,12 +1,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.MeasurementType;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -33,25 +30,4 @@ public class ChannelSpecShortInfo {
     public List<ReadingTypeInfo> possibleCalculatedReadingTypes = new ArrayList<>();
     public long version;
     public VersionInfo<Long> parent;
-
-    @SuppressWarnings("unused")
-    public ChannelSpecShortInfo() {
-    }
-
-    public ChannelSpecShortInfo(ChannelType channelType,
-                                ReadingType collectedReadingType,
-                                List<ReadingType> multipliedCalculatedRegisterTypes){
-        this.id = channelType.getId();
-        MeasurementType measurementType = channelType.getTemplateRegister();
-        this.obisCode = measurementType.getObisCode();
-        ReadingType readingType = measurementType.getReadingType();
-        this.readingType = new ReadingTypeInfo(readingType);
-        this.isCumulative = readingType.isCumulative();
-        this.collectedReadingType = new ReadingTypeInfo(collectedReadingType);
-        if(collectedReadingType.getCalculatedReadingType().isPresent()){
-            this.calculatedReadingType = new ReadingTypeInfo(collectedReadingType.getCalculatedReadingType().get());
-        }
-        multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
-        this.version = measurementType.getVersion();
-    }
 }

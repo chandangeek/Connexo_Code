@@ -65,7 +65,7 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         when(deviceConfigurationService.findAndLockDeviceType(2, BAD_VERSION)).thenReturn(Optional.empty());
         when(masterDataService.findLoadProfileType(2)).thenReturn(Optional.of(loadProfileType));
 
-        LoadProfileTypeOnDeviceTypeInfo info =  new LoadProfileTypeOnDeviceTypeInfo(loadProfileType, deviceType);
+        LoadProfileTypeOnDeviceTypeInfo info =  loadProfileTypeOnDeviceTypeInfoFactory.from(loadProfileType, deviceType);
         Response response = target("/devicetypes/2/loadprofiletypes/2").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }

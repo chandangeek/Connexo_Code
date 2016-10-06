@@ -36,12 +36,14 @@ public class LoadProfileTypeResource {
     private final ResourceHelper resourceHelper;
     private final MasterDataService masterDataService;
     private final Thesaurus thesaurus;
+    private final LoadProfileTypeOnDeviceTypeInfoFactory loadProfileTypeOnDeviceTypeInfoFactory;
 
     @Inject
-    public LoadProfileTypeResource(ResourceHelper resourceHelper, MasterDataService masterDataService, Thesaurus thesaurus) {
+    public LoadProfileTypeResource(ResourceHelper resourceHelper, MasterDataService masterDataService, Thesaurus thesaurus, LoadProfileTypeOnDeviceTypeInfoFactory loadProfileTypeOnDeviceTypeInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.thesaurus = thesaurus;
+        this.loadProfileTypeOnDeviceTypeInfoFactory = loadProfileTypeOnDeviceTypeInfoFactory;
     }
 
     @GET @Transactional
@@ -56,7 +58,7 @@ public class LoadProfileTypeResource {
         List<LoadProfileTypeOnDeviceTypeInfo> loadProfileTypeOnDeviceTypeInfos = new ArrayList<>();
         loadProfileTypes = ListPager.of(loadProfileTypes, new LoadProfileTypeComparator()).from(queryParameters).find();
         for (LoadProfileType loadProfileType : loadProfileTypes) {
-            loadProfileTypeOnDeviceTypeInfos.add(new LoadProfileTypeOnDeviceTypeInfo(loadProfileType, deviceType));
+            loadProfileTypeOnDeviceTypeInfos.add(loadProfileTypeOnDeviceTypeInfoFactory.from(loadProfileType, deviceType));
         }
         return Response.ok(PagedInfoList.fromPagedList("data", loadProfileTypeOnDeviceTypeInfos, queryParameters)).build();
     }
@@ -69,7 +71,7 @@ public class LoadProfileTypeResource {
                                                                        @PathParam("loadProfileTypeId") long loadProfileTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeByIdOrThrowException(loadProfileTypeId);
-        return new LoadProfileTypeOnDeviceTypeInfo(loadProfileType, deviceType);
+        return loadProfileTypeOnDeviceTypeInfoFactory.from(loadProfileType, deviceType);
     }
 
     @PUT @Transactional
@@ -118,7 +120,7 @@ public class LoadProfileTypeResource {
         for (LoadProfileType loadProfileType : toAdd) {
             deviceType.addLoadProfileType(loadProfileType);
         }
-        return Response.ok(LoadProfileTypeOnDeviceTypeInfo.from(toAdd, deviceType)).build();
+        return Response.ok(loadProfileTypeOnDeviceTypeInfoFactory.from(toAdd, deviceType)).build();
     }
 
     private Iterable<? extends LoadProfileType> allLoadProfileTypes() {

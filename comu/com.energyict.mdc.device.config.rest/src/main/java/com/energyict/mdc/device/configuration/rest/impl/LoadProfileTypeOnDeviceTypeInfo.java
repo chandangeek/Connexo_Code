@@ -31,32 +31,4 @@ public class LoadProfileTypeOnDeviceTypeInfo {
     public DeviceTypeCustomPropertySetInfo customPropertySet;
     public long version;
     public VersionInfo<Long> parent;
-
-    public LoadProfileTypeOnDeviceTypeInfo() {
-    }
-
-    public static List<LoadProfileTypeOnDeviceTypeInfo> from(Iterable<? extends LoadProfileType> loadProfileTypes, DeviceType deviceType) {
-        List<LoadProfileTypeOnDeviceTypeInfo> loadProfileTypeInfos = new ArrayList<>();
-        for (LoadProfileType loadProfileType : loadProfileTypes) {
-            loadProfileTypeInfos.add(new LoadProfileTypeOnDeviceTypeInfo(loadProfileType, deviceType));
-        }
-        return loadProfileTypeInfos;
-    }
-
-    public LoadProfileTypeOnDeviceTypeInfo(LoadProfileType loadProfileType, DeviceType deviceType) {
-        this.id = loadProfileType.getId();
-        this.name = loadProfileType.getName();
-        this.obisCode = loadProfileType.getObisCode();
-        this.timeDuration = loadProfileType.getInterval();
-        this.registerTypes = new ArrayList<>(loadProfileType.getChannelTypes().size());
-        for (MeasurementType measurementType : loadProfileType.getChannelTypes()) {
-            this.registerTypes.add(new RegisterTypeInfo(measurementType, false, true));
-        }
-        this.version = loadProfileType.getVersion();
-        this.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
-        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = deviceType.getLoadProfileTypeCustomPropertySet(loadProfileType);
-        if (registeredCustomPropertySet.isPresent()) {
-            this.customPropertySet = new DeviceTypeCustomPropertySetInfo(registeredCustomPropertySet.get());
-        }
-    }
 }

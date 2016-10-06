@@ -36,12 +36,14 @@ public class RegisterConfigurationResource {
 
     private final ResourceHelper resourceHelper;
     private final MasterDataService masterDataService;
+    private final RegisterConfigInfoFactory registerConfigInfoFactory;
 
     @Inject
-    public RegisterConfigurationResource(ResourceHelper resourceHelper, MasterDataService masterDataService) {
+    public RegisterConfigurationResource(ResourceHelper resourceHelper, MasterDataService masterDataService, RegisterConfigInfoFactory registerConfigInfoFactory) {
         super();
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
+        this.registerConfigInfoFactory = registerConfigInfoFactory;
     }
 
     @GET @Transactional
@@ -50,7 +52,10 @@ public class RegisterConfigurationResource {
     public PagedInfoList getRegisterConfigs(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<RegisterSpec> pagedRegisterSpecs = ListPager.of(deviceConfiguration.getRegisterSpecs(), new RegisterConfigurationComparator()).from(queryParameters).find();
-        List<RegisterConfigInfo> registerConfigInfos = pagedRegisterSpecs.stream().map(registerSpec -> RegisterConfigInfo.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType()))).collect(Collectors.toList());
+        List<RegisterConfigInfo> registerConfigInfos = pagedRegisterSpecs.stream()
+                .map(registerSpec -> registerConfigInfoFactory.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec
+                        .getReadingType())))
+                .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("registerConfigurations", registerConfigInfos, queryParameters);
     }
 
@@ -60,7 +65,7 @@ public class RegisterConfigurationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public RegisterConfigInfo getRegisterConfigs(@PathParam("registerId") long registerId) {
         RegisterSpec registerSpec = resourceHelper.findRegisterSpecByIdOrThrowException(registerId);
-        return RegisterConfigInfo.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType()));
+        return registerConfigInfoFactory.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType()));
     }
 
     private List<ReadingType> getPossibleMultiplyReadingTypesFor(ReadingType readingType) {
@@ -74,7 +79,9 @@ public class RegisterConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         RegisterType registerType = registerConfigInfo.registerType ==null?null: findRegisterTypeOrThrowException(registerConfigInfo.registerType);
         RegisterSpec registerSpec = createRegisterSpec(registerConfigInfo, deviceConfiguration, registerType);
-        return Response.status(Response.Status.CREATED).entity(RegisterConfigInfo.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType()))).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(registerConfigInfoFactory.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType())))
+                .build();
     }
 
     private RegisterSpec createRegisterSpec(RegisterConfigInfo registerConfigInfo, DeviceConfiguration deviceConfiguration, RegisterType registerType) {
@@ -121,7 +128,7 @@ public class RegisterConfigurationResource {
             registerSpec.getDeviceConfiguration().deleteRegisterSpec(registerSpec);
             registerSpec = createRegisterSpec(info, registerSpec.getDeviceConfiguration(), registerType);
         }
-        return RegisterConfigInfo.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType()));
+        return registerConfigInfoFactory.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType()));
     }
 
     private boolean stillTheSameDiscriminator(RegisterConfigInfo info, RegisterSpec registerSpec) {
