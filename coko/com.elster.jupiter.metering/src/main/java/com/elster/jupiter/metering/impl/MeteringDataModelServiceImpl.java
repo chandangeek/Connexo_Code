@@ -193,7 +193,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
             this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService, this.truncaterFactory, this.customPropertySetService);
         }
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
-        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.metrologyConfigurationService, this.clock, this.licenseService);
+        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.meteringTranslationService, this.metrologyConfigurationService, this.clock, this.licenseService);
     }
 
     private void registerDataModel(BundleContext bundleContext) {

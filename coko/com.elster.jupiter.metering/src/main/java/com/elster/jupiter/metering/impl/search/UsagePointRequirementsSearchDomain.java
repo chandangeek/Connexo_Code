@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -20,13 +21,14 @@ import java.util.stream.Collectors;
 
 public class UsagePointRequirementsSearchDomain extends UsagePointSearchDomain implements SearchDomain {
     @Inject
-    public UsagePointRequirementsSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock, LicenseService licenseService) {
+    public UsagePointRequirementsSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, MeteringTranslationService meteringTranslationService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock, LicenseService licenseService) {
         super();
         setPropertySpecService(propertySpecService);
         setServerMetrologyConfigurationService(metrologyConfigurationService);
         setMeteringService(meteringService);
         setClock(clock);
         setLicenseService(licenseService);
+        setMeteringTranslationService(meteringTranslationService);
     }
 
     @Override
