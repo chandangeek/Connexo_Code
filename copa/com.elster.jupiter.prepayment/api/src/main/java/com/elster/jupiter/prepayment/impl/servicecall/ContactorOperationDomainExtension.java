@@ -3,7 +3,6 @@ package com.elster.jupiter.prepayment.impl.servicecall;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -42,7 +41,6 @@ public class ContactorOperationDomainExtension extends AbstractPersistentDomainE
     }
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String status;
@@ -52,10 +50,6 @@ public class ContactorOperationDomainExtension extends AbstractPersistentDomainE
 
     public ContactorOperationDomainExtension() {
         super();
-    }
-
-    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return super.getRegisteredCustomPropertySet();
     }
 
     public String getStatus() {
