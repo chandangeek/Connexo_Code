@@ -151,6 +151,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
@@ -2058,7 +2059,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
     }
 
-
     @Test
     public void testLinkSlaveToDataLoggerThroughRegistersThrowsError() throws IOException {
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
@@ -2317,11 +2317,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         doReturn(Optional.of(meterActivation)).when(device).getCurrentMeterActivation();
         when(deviceService.findDeviceByName(name)).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByNameAndVersion(eq(name), anyLong())).thenReturn(Optional.of(device));
-        if (gateway != null) {
-            when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(gateway));
-        } else {
-            when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        }
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.ofNullable(gateway));
         return device;
     }
 
@@ -2529,11 +2525,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testFindAllSerialNumbers() throws Exception {
-        Finder<Device> finder = mockFinder(Collections.emptyList());
+        Device device = mockDeviceForTopologyTest("COP_TestDevice");
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
+        Finder<Device> finder = mockFinder(Collections.singletonList(device));
         when(deviceService.findAllDevices(any())).thenReturn(finder);
-        target("/devices").queryParam("name", "COP*").queryParam("serialNumber", "*").request().get();
+        String response = target("/devices").queryParam("name", "COP*").queryParam("serialNumber", "*").request().get(String.class);
         ArgumentCaptor<Condition> conditionArgumentCaptor = ArgumentCaptor.forClass(Condition.class);
         verify(deviceService).findAllDevices(conditionArgumentCaptor.capture());
+        verifyNoMoreInteractions(deviceService);
         Condition andCondition = conditionArgumentCaptor.getValue();
         assertThat(andCondition).isInstanceOf(And.class);
         List<Condition> conditions = ((And)andCondition).getConditions();
@@ -2548,9 +2547,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(((Comparison)serialCondition).getFieldName()).isEqualTo("serialNumber");
         assertThat(((Comparison)serialCondition).getOperator()).isEqualTo(Operator.LIKEIGNORECASE);
         assertThat(((Comparison)serialCondition).getValues()).containsExactly("%");
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.devices[0].name")).isEqualTo("COP_TestDevice");
     }
 
-    public CustomPropertySet mockCustomPropertySet() {
+    private CustomPropertySet mockCustomPropertySet() {
         when(clock.instant()).thenReturn(Instant.ofEpochMilli(1448191220000L));
         Device device = mock(Device.class);
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
