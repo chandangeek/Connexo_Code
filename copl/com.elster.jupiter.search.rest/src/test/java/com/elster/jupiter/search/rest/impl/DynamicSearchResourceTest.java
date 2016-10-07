@@ -11,11 +11,8 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -25,10 +22,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DynamicSearchResourceTest extends SearchApplicationTest {
 
@@ -63,7 +67,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     private SearchableProperty mockMRIDProperty(SearchDomain searchDomain) {
         SearchableProperty mRID = mock(SearchableProperty.class);
-        when(mRID.getGroup()).thenReturn(Optional.<SearchablePropertyGroup>empty());
+        when(mRID.getGroup()).thenReturn(Optional.empty());
         when(mRID.getDomain()).thenReturn(searchDomain);
         when(mRID.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         when(mRID.getVisibility()).thenReturn(SearchableProperty.Visibility.STICKY);
@@ -82,7 +86,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     private SearchableProperty mockDeviceTypeProperty(SearchDomain searchDomain) {
         SearchableProperty deviceType = mock(SearchableProperty.class);
-        when(deviceType.getGroup()).thenReturn(Optional.<SearchablePropertyGroup>empty());
+        when(deviceType.getGroup()).thenReturn(Optional.empty());
         when(deviceType.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         when(deviceType.getDomain()).thenReturn(searchDomain);
         when(deviceType.affectsAvailableDomainProperties()).thenReturn(true);
@@ -104,7 +108,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     private SearchableProperty mockDeviceConfigProperty(SearchDomain searchDomain) {
         SearchableProperty deviceConfig = mock(SearchableProperty.class);
-        when(deviceConfig.getGroup()).thenReturn(Optional.<SearchablePropertyGroup>empty());
+        when(deviceConfig.getGroup()).thenReturn(Optional.empty());
         when(deviceConfig.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         when(deviceConfig.getVisibility()).thenReturn(SearchableProperty.Visibility.STICKY);
         when(deviceConfig.affectsAvailableDomainProperties()).thenReturn(false);
@@ -150,12 +154,10 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         assertThat(model.<String>get("$.domains[0].link[1].params.rel")).isEqualTo("glossary");
         assertThat(model.<String>get("$.domains[0].link[2].href")).isEqualTo("http://localhost:9998/search/com.devices/model");
         assertThat(model.<String>get("$.domains[0].link[2].params.rel")).isEqualTo("describedby");
-
     }
 
     @Test
     public void testGetDomainProperties() throws Exception {
-
         Response response = target("/search/com.devices/searchcriteria").request().accept("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(3);
