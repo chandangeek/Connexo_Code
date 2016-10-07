@@ -4,11 +4,11 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
 
-    TIME_MINUTE("TimeMinute", "%s minute"),
-    TIME_MINUTES("TimeMinutes", "%s minutes"),
-    TIME_HOUR("TimeHour", "%s hour"),
-    TIME_DAY("TimeDay", "%s day"),
-    TIME_MONTH("TimeMonth", "%s month");
+    TIME_MINUTE("TimeMinute", "{0} minute"),
+    TIME_MINUTES("TimeMinutes", "{0} minutes"),
+    TIME_HOUR("TimeHour", "{0} hour"),
+    TIME_DAY("TimeDay", "{0} day"),
+    TIME_MONTH("TimeMonth", "{0} month");
 
     private final String key;
     private final String format;

@@ -15,14 +15,13 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -38,6 +37,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -47,12 +48,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest {
-
-
     public static final long OK_VERSION = 11;
     public static final long BAD_VERSION = 8;
-    public static final long LOADPROFILE_ID = 1L;
-
+    private static final long LOADPROFILE_ID = 1L;
 
     @Test
     public void testIntervalsList() throws Exception {
