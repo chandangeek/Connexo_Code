@@ -60,6 +60,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -139,6 +140,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ServiceCallService serviceCallService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile LockService lockService;
 
     private ServerConnectionTaskService connectionTaskService;
@@ -166,7 +168,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService jupiterTaskService, IssueService issueService,
             PropertySpecService propertySpecService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
             CustomPropertySetService customPropertySetService, ProtocolPluggableService protocolPluggableService,
-            EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
+            EngineConfigurationService engineConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DeviceConfigurationService deviceConfigurationService,
             MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
             SchedulingService schedulingService, MessageService messageService,
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
@@ -186,6 +188,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setCustomPropertySetService(customPropertySetService);
         setProtocolPluggableService(protocolPluggableService);
         setEngineConfigurationService(engineConfigurationService);
+        this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         setDeviceConfigurationService(deviceConfigurationService);
         setMeteringService(meteringService);
         setValidationService(validationService);
@@ -390,6 +393,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
     @Override
     public TransactionService getTransactionService() {
         return transactionService;
@@ -558,6 +566,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(UserPreferencesService.class).toInstance(userService.getUserPreferencesService());
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(DeviceMessageService.class).toInstance(deviceMessageService);
+                bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
                 bind(LockService.class).toInstance(lockService);
             }
         };
