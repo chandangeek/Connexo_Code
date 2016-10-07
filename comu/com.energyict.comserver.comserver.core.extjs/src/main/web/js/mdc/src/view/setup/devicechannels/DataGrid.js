@@ -12,18 +12,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         'Uni.grid.column.Action',
         'Mdc.view.setup.devicechannels.DataBulkActionMenu'
     ],
-    plugins: [
-        {
-            ptype: 'bufferedrenderer',
-            trailingBufferZone: 12,
-            leadingBufferZone: 24
-        },
-        {
-            ptype: 'cellediting',
-            clicksToEdit: 1,
-            pluginId: 'cellplugin'
-        }
-    ],
     viewConfig: {
         loadMask: false,
         enableTextSelection: true
@@ -40,6 +28,24 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             unitOfCollectedValues = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined,
             calculatedReadingType = me.channelRecord.get('calculatedReadingType'),
             unitOfCalculatedValues = calculatedReadingType && calculatedReadingType.names ? calculatedReadingType.names.unitOfMeasure : undefined;
+
+        me.plugins = [
+            {
+                ptype: 'bufferedrenderer',
+                trailingBufferZone: 12,
+                leadingBufferZone: 24
+            },
+            {
+                ptype: 'cellediting',
+                clicksToEdit: 1,
+                pluginId: 'cellplugin',
+                listeners: {
+                    'beforeedit': function (e, f) {
+                        return !f.record.get('slaveChannel');
+                    }
+                }
+            }
+        ];
 
         me.columns = [
             {
