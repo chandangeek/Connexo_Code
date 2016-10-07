@@ -115,6 +115,7 @@ import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevic
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
+import com.energyict.mdc.device.data.exceptions.NoLifeCycleActiveAt;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
@@ -1334,6 +1335,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private Meter createKoreMeter(AmrSystem amrSystem) {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
+        if(koreHelper.getInitialMeterActivationStartDate().get().isBefore(this.getDeviceType().getDeviceLifeCycle().getMaximumPastEffectiveTimestamp()) ||
+           koreHelper.getInitialMeterActivationStartDate().get().isAfter(this.getDeviceType().getDeviceLifeCycle().getMaximumFutureEffectiveTimestamp())){
+            throw new NoLifeCycleActiveAt(clock.instant(), thesaurus, MessageSeeds.NO_LIFE_CYCLE_AT);
+        }
         Meter newMeter = amrSystem.newMeter(String.valueOf(getId()))
                 .setMRID(getmRID())
                 .setStateMachine(stateMachine)
