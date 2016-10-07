@@ -222,7 +222,6 @@ public class UsagePointProcessorTest {
         when(serviceCategoryTwo.newUsagePoint(eq("DOA_UPS1_UP001"), any(Instant.class))).thenReturn(usagePointBuilder);
         when(serviceCategoryTwo.getKind()).thenReturn(ServiceKind.ELECTRICITY);
         when(usagePointBuilder.validate()).thenReturn(usagePoint);
-        when(usagePointBuilder.validate()).thenReturn(usagePoint);
         when(usagePointBuilder.newLocationBuilder()).thenReturn(locationBuilder);
         when(serviceCategoryTwo.getId()).thenReturn(34L);
         when(thesaurus.getFormat((Matchers.any(MessageSeeds.class)))).thenReturn(nlsMessageFormat);
