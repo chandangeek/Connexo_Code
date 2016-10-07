@@ -183,11 +183,11 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     public int getTimeOutProperty() {
-        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(TranslationKeys.TIMEOUT.getKey(), "Timeout"), new BigDecimal(TIMEOUT_DEFAULT)).intValue();
+        return getTypedProperties().getIntegerProperty(this.thesaurus.getFormat(TranslationKeys.TIMEOUT).format(), new BigDecimal(TIMEOUT_DEFAULT)).intValue();
     }
 
     public int getRetriesProperty() {
-        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(TranslationKeys.RETRIES.getKey(), "Retries"), new BigDecimal(RETRIES_DEFAULT)).intValue();
+        return getTypedProperties().getIntegerProperty(this.thesaurus.getFormat(TranslationKeys.RETRIES).format(), new BigDecimal(RETRIES_DEFAULT)).intValue();
     }
 
     public TypedProperties getTypedProperties() {

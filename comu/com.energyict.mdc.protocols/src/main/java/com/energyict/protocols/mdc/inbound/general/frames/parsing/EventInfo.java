@@ -1,11 +1,10 @@
 package com.energyict.protocols.mdc.inbound.general.frames.parsing;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.text.ParseException;
@@ -35,7 +34,7 @@ public class EventInfo {
         String[] eventInfos = info.split(" ");
         if (eventInfos.length == 3) {
             int eventCode = Integer.parseInt(eventInfos[0]);
-            String eventDescription = thesaurus.getString(MessageSeeds.EVENT_VALUE.getKey(), "Value") + ": " + eventInfos[1];
+            String eventDescription = thesaurus.getFormat(MessageSeeds.EVENT_VALUE).format() + ": " + eventInfos[1];
             SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
             formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
             Date eventTimeStamp;

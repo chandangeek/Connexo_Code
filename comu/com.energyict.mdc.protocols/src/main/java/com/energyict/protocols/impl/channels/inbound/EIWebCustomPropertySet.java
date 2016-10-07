@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
+import com.energyict.protocols.impl.channels.TranslationKeys;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import java.util.Arrays;
@@ -51,6 +52,11 @@ public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionProvi
     @Override
     public Class<ConnectionProvider> getDomainClass() {
         return ConnectionProvider.class;
+    }
+
+    @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.CONNECTION_PROVIDER_DOMAIN_NAME).format();
     }
 
     @Override

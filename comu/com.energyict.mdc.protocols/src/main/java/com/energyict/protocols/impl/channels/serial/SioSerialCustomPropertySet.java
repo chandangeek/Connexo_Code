@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
+import com.energyict.protocols.impl.channels.TranslationKeys;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -55,6 +56,11 @@ public class SioSerialCustomPropertySet implements CustomPropertySet<ConnectionP
     @Override
     public Class<ConnectionProvider> getDomainClass() {
         return ConnectionProvider.class;
+    }
+
+    @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.CONNECTION_PROVIDER_DOMAIN_NAME).format();
     }
 
     @Override

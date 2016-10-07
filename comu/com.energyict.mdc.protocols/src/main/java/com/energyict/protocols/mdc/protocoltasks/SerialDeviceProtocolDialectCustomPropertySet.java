@@ -8,6 +8,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
+
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 
 import java.util.EnumSet;
@@ -46,6 +48,11 @@ public class SerialDeviceProtocolDialectCustomPropertySet implements CustomPrope
     @Override
     public Class<DeviceProtocolDialectPropertyProvider> getDomainClass() {
         return DeviceProtocolDialectPropertyProvider.class;
+    }
+
+    @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.DIALECT_CPS_DOMAIN_NAME).format();
     }
 
     @Override

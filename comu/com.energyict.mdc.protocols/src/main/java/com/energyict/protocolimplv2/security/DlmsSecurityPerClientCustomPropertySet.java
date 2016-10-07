@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.SecurityCustomPropertySet;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +26,11 @@ public class DlmsSecurityPerClientCustomPropertySet extends SecurityCustomProper
         super();
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
+    }
+
+    @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.SECURITY_PROPERTY_SET_CPS_DOMAIN_NAME).format();
     }
 
     @Override
