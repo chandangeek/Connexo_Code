@@ -720,7 +720,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         LocalDateTime localDateTime = LocalDateTime.ofInstant(inMemoryPersistence.getClock().instant(), ZoneOffset.UTC).withHour(0).withHour(0).withSecond(0).withNano(0);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.parse("2014-08-01T00:00:00Z"));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, localDateTime.toInstant(ZoneOffset.UTC));
 
         String code = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
