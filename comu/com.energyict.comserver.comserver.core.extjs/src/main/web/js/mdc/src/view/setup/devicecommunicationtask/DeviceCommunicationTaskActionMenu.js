@@ -42,10 +42,23 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskAction
             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions
         },
         {
+            text: Uni.I18n.translate('deviceCommunicationTask.activateComTask', 'MDC', 'Activate'),
+            privileges: Mdc.privileges.Device.operateDeviceCommunication,
+            itemId: 'activateDeviceComTask',
+            action: 'activateDeviceComTask',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions
+        },
+        {
+            text: Uni.I18n.translate('deviceCommunicationTask.deactivateComTask', 'MDC', 'Deactivate'),
+            privileges: Mdc.privileges.Device.operateDeviceCommunication,
+            itemId: 'deactivateDeviceComTask',
+            action: 'deactivateDeviceComTask',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions
+        },
+        {
             text: Uni.I18n.translate('deviceCommunicationTask.viewHistory', 'MDC', 'View history'),
             itemId: 'viewHistoryOfDeviceComTask',
             action: 'viewHistoryOfDeviceComTask'
-
         }
     ]
 });

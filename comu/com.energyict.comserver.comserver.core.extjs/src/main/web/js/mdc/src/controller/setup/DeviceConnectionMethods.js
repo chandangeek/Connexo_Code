@@ -236,6 +236,11 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             } else {
                 this.getDeviceConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(false);
             }
+            if (connectionMethod[0].get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
+                this.getDeviceConnectionMethodPreview().down('#numberOfSimultaneousConnections').setVisible(false);
+            } else {
+                this.getDeviceConnectionMethodPreview().down('#numberOfSimultaneousConnections').setVisible(true);
+            }
             this.getPropertyForm().loadRecord(connectionMethod[0]);
         } else {
             this.getDeviceConnectionMethodPreview().getLayout().setActiveItem(0);
@@ -358,7 +363,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             if (connectionMethod.get('temporalExpression')) {
                 this.getDeviceConnectionMethodEditView().down('#scheduleField').setValue(connectionMethod.get('temporalExpression'));
             }
-            this.getDeviceConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(false);
+            this.getDeviceConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnectionsField').setVisible(false);
         }
         if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {
             this.getActivateConnWindowRadiogroup().items.items[1].setValue(true);
@@ -385,10 +390,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                     timeUnit: 'seconds'
                 }
             });
-            this.getDeviceConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(false);
+            this.getDeviceConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnectionsField').setVisible(false);
         } else {
             this.getScheduleFieldContainer().setVisible(false);
-            this.getDeviceConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(true);
+            this.getDeviceConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnectionsField').setVisible(true);
         }
     },
 
@@ -440,6 +445,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             record.set(values);
             if (values.connectionStrategy === 'AS_SOON_AS_POSSIBLE') {
                 record.set('nextExecutionSpecs', null);
+            }
+            if (values.connectionStrategy === 'MINIMIZE_CONNECTIONS') {
+                record.set('numberOfSimultaneousConnections', 1);
             }
             if (!values.hasOwnProperty('comWindowStart')) {
                 record.set('comWindowStart', 0);
@@ -627,7 +635,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                                 me.getDeviceConnectionMethodEditView().down('form').loadRecord(connectionMethod);
                                                 if (connectionMethod.get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
                                                     widget.down('form').down('#scheduleFieldContainer').setVisible(true);
-                                                    me.getDeviceConnectionMethodEditView().down('#numberOfSimultaneousConnections').setVisible(false);
+                                                    me.getDeviceConnectionMethodEditView().down('#numberOfSimultaneousConnectionsField').setVisible(false);
                                                 }
                                                 if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {
                                                     me.getActivateConnWindowRadiogroup().items.items[1].setValue(true);
