@@ -155,7 +155,9 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     void hasRun(boolean successful) {
         if (!status.isFinal()) {
             this.endDate = clock.instant();
-            ((RecurrentTaskImpl) getRecurrentTask()).updateLastRun(getTriggerTime());
+            RecurrentTaskImpl recurrentTask = (RecurrentTaskImpl) dataModel.mapper(RecurrentTask.class).lock(getRecurrentTask().getId());
+            recurrentTask.updateLastRun(getTriggerTime());
+            this.recurrentTask = recurrentTask;
             this.status = successful ? this.status.success() : this.status.fail();
             save();
         }
