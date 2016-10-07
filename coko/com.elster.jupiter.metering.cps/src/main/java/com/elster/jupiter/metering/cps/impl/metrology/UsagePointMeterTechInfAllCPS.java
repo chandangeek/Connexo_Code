@@ -53,6 +53,11 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.CPS_DOMAIN_NAME).format();
+    }
+
+    @Override
     public PersistenceSupport<UsagePoint, UsagePointMeterTechInfAllDomExt> getPersistenceSupport() {
         return new UsagePointMeterTechInfAllPersSupp(this.getThesaurus());
     }

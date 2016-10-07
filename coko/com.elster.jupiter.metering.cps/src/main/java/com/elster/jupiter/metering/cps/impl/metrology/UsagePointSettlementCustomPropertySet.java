@@ -53,6 +53,11 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.CPS_DOMAIN_NAME).format();
+    }
+
+    @Override
     public PersistenceSupport<UsagePoint, UsagePointSettlementDomExt> getPersistenceSupport() {
         return new UsagePointSettlPersistSupp(this.getThesaurus());
     }

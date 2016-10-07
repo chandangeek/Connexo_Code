@@ -57,6 +57,11 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.CPS_DOMAIN_NAME).format();
+    }
+
+    @Override
     public PersistenceSupport<UsagePoint, UsagePointMeterTechInfGTWDomExt> getPersistenceSupport() {
         return new UsagePointMeterTechInfGTWPersSupp(this.getThesaurus());
     }

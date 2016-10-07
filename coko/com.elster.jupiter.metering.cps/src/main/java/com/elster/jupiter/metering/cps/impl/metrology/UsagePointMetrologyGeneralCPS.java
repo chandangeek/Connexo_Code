@@ -53,6 +53,11 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.CPS_DOMAIN_NAME).format();
+    }
+
+    @Override
     public PersistenceSupport<UsagePoint, UsagePointMetrologyGeneralDomExt> getPersistenceSupport() {
         return new UsagePointMetrologyGeneralPersSupp(this.getThesaurus());
     }

@@ -58,6 +58,11 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.CPS_DOMAIN_NAME).format();
+    }
+
+    @Override
     public PersistenceSupport<UsagePoint, UsagePointTechInstElectrDE> getPersistenceSupport() {
         return new UsagePointTechInstElectyPerSupp(this.getThesaurus());
     }
