@@ -257,6 +257,7 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
         if (store.getCount() > 0) {
             actualForm.add({
                 xtype: 'displayfield',
+                emptyValueDisplay: '',
                 fieldLabel: label,
                 labelAlign: 'left',
                 labelWidth: '150px',

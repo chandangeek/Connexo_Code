@@ -53,6 +53,7 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingEdi
                                 items: [
                                     {
                                         xtype: 'displayfield',
+                                        emptyValueDisplay: '',
                                         fieldLabel: this.fromConfig,
                                         labelAlign: 'right',
                                         style: {
@@ -64,6 +65,7 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingEdi
                             },
                             {
                                 xtype: 'displayfield',
+                                emptyValueDisplay: '',
                                 fieldLabel: this.toConfig,
                                 labelAlign: 'left'
                             }
@@ -90,14 +92,20 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingEdi
                                 width: 300,
                                 items: [
                                     {
-                                        xtype: 'displayfield'
+                                        xtype: 'displayfield',
+                                        emptyValueDisplay: ''
                                     }
                                 ]
                             },
                             {
                                 xtype: 'displayfield',
+                                emptyValueDisplay: '',
                                 style: {
-                                    marginTop: '20px'
+                                    marginTop: 10
+                                },
+                                fieldStyle: {
+                                    fontStyle: 'italic',
+                                    color: '#999'
                                 },
                                 itemId: 'afterConnectionsAdds'
                             }
@@ -124,14 +132,20 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingEdi
                                 width: 300,
                                 items: [
                                     {
-                                        xtype: 'displayfield'
+                                        xtype: 'displayfield',
+                                        emptyValueDisplay: ''
                                     }
                                 ]
                             },
                             {
                                 xtype: 'displayfield',
+                                emptyValueDisplay: '',
                                 style: {
-                                    marginTop: '20px'
+                                    marginTop: 10
+                                },
+                                fieldStyle: {
+                                    fontStyle: 'italic',
+                                    color: '#999'
                                 },
                                 itemId: 'afterSetsAdds'
                             }
@@ -164,7 +178,8 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingEdi
                         ]
                     }
                 ]
-            }
+            },
+
         ];
         this.callParent(arguments);
     }

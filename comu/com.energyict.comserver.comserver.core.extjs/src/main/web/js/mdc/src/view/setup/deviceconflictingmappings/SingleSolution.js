@@ -35,7 +35,6 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.SingleSolution', {
                 itemId: 'remove' + me.conflict.id,
                 inputValue: 'remove',
                 checked: true,
-                width: 500
             },
             {
                 xtype: 'button',
@@ -50,7 +49,6 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.SingleSolution', {
                 name: me.conflict.id,
                 itemId: 'map' + me.conflict.id,
                 inputValue: ['map', me.toConfiguration.get('id')],
-                width: 500,
                 listeners: {
                     change: function () {
                         var map = me.actualForm.down('#map' + me.conflict.id);
