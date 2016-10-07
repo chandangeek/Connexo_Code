@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 
 public class CreateDeviceCommand {
-
     private DeviceConfigurationTpl configurationTpl = DeviceConfigurationTpl.DEFAULT;
     private DeviceTypeTpl deviceType = DeviceTypeTpl.Elster_AS1440;
     private String serialNumber;
@@ -33,8 +32,6 @@ public class CreateDeviceCommand {
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
-    }
-
     }
 
     protected String getDeviceNamePrefix() {
