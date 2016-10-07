@@ -9,8 +9,11 @@ import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -32,11 +35,13 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -83,8 +88,10 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     @Override
     public void setupMocks() {
         super.setupMocks();
-        when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock
-                .getArguments()[1]);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
+        doReturn(messageFormat).when(thesaurus).getFormat(any(MessageSeed.class));
+        doReturn(messageFormat).when(thesaurus).getFormat(any(TranslationKey.class));
         when(deviceLifeCycleService.getName(any(MicroAction.class))).thenAnswer(invocationOnMock -> ((MicroAction) invocationOnMock
                 .getArguments()[0]).name());
         when(deviceLifeCycleService.getDescription(any(MicroAction.class))).thenAnswer(invocationOnMock -> ((MicroAction) invocationOnMock
@@ -102,25 +109,42 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
             }
             return microCheck.name();
         });
-        when(deviceLifeCycleService.getDescription(any(MicroCheck.class))).thenAnswer(invocationOnMock -> ((MicroCheck) invocationOnMock
-                .getArguments()[0]).name());
-        when(deviceLifeCycleService.getCategoryName(any(MicroCheck.class))).thenAnswer(invocationOnMock -> ((MicroCheck) invocationOnMock
-                .getArguments()[0]).getCategory().name());
+        when(deviceLifeCycleService.getDescription(any(MicroCheck.class)))
+            .thenAnswer(invocationOnMock -> ((MicroCheck) invocationOnMock.getArguments()[0]).name());
+        when(deviceLifeCycleService.getCategoryName(any(MicroCheck.class)))
+            .thenAnswer(invocationOnMock -> ((MicroCheck) invocationOnMock.getArguments()[0]).getCategory().name());
+        Stream.of(DefaultState.values()).forEach(this::mockTranslationFor);
+    }
+
+    private void mockTranslationFor(DefaultState state) {
+        when(this.deviceLifeCycleConfigurationService.getDisplayName(state)).thenReturn(state.getDefaultFormat());
     }
 
     // Common mocks for device lifecycle configuration
-    public DeviceLifeCycle mockSimpleDeviceLifeCycle(long id, String name) {
+    protected DeviceLifeCycle mockSimpleDeviceLifeCycle(long id, String name) {
         DeviceLifeCycle dlc = mock(DeviceLifeCycle.class);
         when(dlc.getId()).thenReturn(id);
         when(dlc.getName()).thenReturn(name);
         when(dlc.getVersion()).thenReturn(OK_VERSION);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(id)).thenReturn(Optional.of(dlc));
-        when(deviceLifeCycleConfigurationService.findAndLockDeviceLifeCycleByIdAndVersion(id, OK_VERSION)).thenReturn(Optional
-                .of(dlc));
+        when(deviceLifeCycleConfigurationService.findAndLockDeviceLifeCycleByIdAndVersion(id, OK_VERSION))
+            .thenReturn(Optional.of(dlc));
         return dlc;
     }
 
-    public State mockSimpleState(long id, String name) {
+    private State mockSimpleState(long id, DefaultState defaultState) {
+        State state = mock(State.class);
+        when(state.getId()).thenReturn(id);
+        when(state.getName()).thenReturn(defaultState.getKey());
+        when(state.isCustom()).thenReturn(false);
+        when(state.isInitial()).thenReturn(false);
+        when(state.getVersion()).thenReturn(OK_VERSION);
+        when(finiteStateMachineService.findFiniteStateById(id)).thenReturn(Optional.of(state));
+        when(finiteStateMachineService.findAndLockStateByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(state));
+        return state;
+    }
+
+    protected State mockSimpleState(long id, String name) {
         State state = mock(State.class);
         when(state.getId()).thenReturn(id);
         when(state.getName()).thenReturn(name);
@@ -132,7 +156,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return state;
     }
 
-    public State mockSimpleStateWithEntryAndExitProcesses(long id, String name, StateChangeBusinessProcess[] onEntry, StateChangeBusinessProcess[] onExit) {
+    private State mockSimpleStateWithEntryAndExitProcesses(long id, String name, StateChangeBusinessProcess[] onEntry, StateChangeBusinessProcess[] onExit) {
         State state = mock(State.class);
         when(state.getId()).thenReturn(id);
         when(state.getName()).thenReturn(name);
@@ -164,45 +188,48 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return state;
     }
 
-    public List<State> mockDefaultStates() {
+    protected List<State> mockDefaultStates() {
         List<State> states = new ArrayList<>(3);
-        states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED.getKey()));
-        states.add(mockSimpleState(1, DefaultState.COMMISSIONING.getKey()));
-        states.add(mockSimpleState(3, DefaultState.IN_STOCK.getKey()));
+        states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED));
+        states.add(mockSimpleState(1, DefaultState.COMMISSIONING));
+        states.add(mockSimpleState(3, DefaultState.IN_STOCK));
         return states;
     }
 
-    public List<State> mockDefaultStatesWithOnEntryProcessesForDecommissioned() {
+    protected List<State> mockDefaultStatesWithOnEntryProcessesForDecommissioned() {
         List<State> states = new ArrayList<>(3);
         states.add(mockSimpleStateWithEntryAndExitProcesses(2, DefaultState.DECOMMISSIONED.getKey(),
-                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, "nameOnEntry1", "deploymentIdOnEntry1", "processIdOnEntry1"),
+                new StateChangeBusinessProcess[]{
+                        mockStateChangeBusinessProcess(1, "nameOnEntry1", "deploymentIdOnEntry1", "processIdOnEntry1"),
                         mockStateChangeBusinessProcess(2, "nameOnEntry2", "deploymentIdOnEntry2", "processIdOnEntry2")},
                 null));
-        states.add(mockSimpleState(1, DefaultState.COMMISSIONING.getKey()));
-        states.add(mockSimpleState(3, DefaultState.IN_STOCK.getKey()));
+        states.add(mockSimpleState(1, DefaultState.COMMISSIONING));
+        states.add(mockSimpleState(3, DefaultState.IN_STOCK));
         return states;
     }
 
-    public List<State> mockDefaultStatesWithOnExitProcessesForInStock() {
+    protected List<State> mockDefaultStatesWithOnExitProcessesForInStock() {
         List<State> states = new ArrayList<>(3);
-        states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED.getKey()));
-        states.add(mockSimpleState(1, DefaultState.COMMISSIONING.getKey()));
+        states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED));
+        states.add(mockSimpleState(1, DefaultState.COMMISSIONING));
         states.add(mockSimpleStateWithEntryAndExitProcesses(3, DefaultState.IN_STOCK.getKey(), null,
-                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, "nameOnExit1", "deploymentIdOnExit1", "processIdOnExit1"),
+                new StateChangeBusinessProcess[]{
+                        mockStateChangeBusinessProcess(1, "nameOnExit1", "deploymentIdOnExit1", "processIdOnExit1"),
                         mockStateChangeBusinessProcess(2, "nameOnExit2", "deploymentIdOnExit2", "processIdOnExit2"),
                         mockStateChangeBusinessProcess(3, "nameOnExit3", "deploymentIdOnExit3", "processIdOnExit3")}));
         return states;
     }
 
-    public List<State> mockDefaultStatesWithOnEntryAndOnExitProcessesForCommissioning() {
+    protected List<State> mockDefaultStatesWithOnEntryAndOnExitProcessesForCommissioning() {
         List<State> states = new ArrayList<>(3);
-        states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED.getKey()));
+        states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED));
         states.add(mockSimpleStateWithEntryAndExitProcesses(1,
                 DefaultState.COMMISSIONING.getKey(),
-                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, ",nameOnEntry1", "deploymentIdOnEntry1", "processIdOnEntry1"),
+                new StateChangeBusinessProcess[]{
+                        mockStateChangeBusinessProcess(1, ",nameOnEntry1", "deploymentIdOnEntry1", "processIdOnEntry1"),
                         mockStateChangeBusinessProcess(2, "nameOnEntry2", "deploymentIdOnEntry2", "processIdOnEntry2")},
                 new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(3, "nameOnExit1", "deploymentIdOnExit1", "processIdOnExit1")}));
-        states.add(mockSimpleState(3, DefaultState.IN_STOCK.getKey()));
+        states.add(mockSimpleState(3, DefaultState.IN_STOCK));
         return states;
     }
 
@@ -223,7 +250,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return action;
     }
 
-    public AuthorizedTransitionAction mockSimpleAction(long id, String name, State from, State to) {
+    protected AuthorizedTransitionAction mockSimpleAction(long id, String name, State from, State to) {
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
         when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE, MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
         when(action.getChecks()).thenReturn(EnumSet.of(
@@ -237,7 +264,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return action;
     }
 
-    public AuthorizedTransitionAction mockSimpleActionWithoutCommunications(long id, String name, State from, State to) {
+    private AuthorizedTransitionAction mockSimpleActionWithoutCommunications(long id, String name, State from, State to) {
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
         when(action.getActions()).thenReturn(EnumSet.of(MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
         when(action.getChecks()).thenReturn(EnumSet.of(
@@ -246,7 +273,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return action;
     }
 
-    public AuthorizedTransitionAction mockSimpleActionCommunicationRelatedMicroActions(long id, String name, State from, State to) {
+    private AuthorizedTransitionAction mockSimpleActionCommunicationRelatedMicroActions(long id, String name, State from, State to) {
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
         when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE, MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
         when(action.getChecks()).thenReturn(EnumSet.of(
@@ -255,7 +282,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return action;
     }
 
-    public AuthorizedTransitionAction mockSimpleActionCommunicationRelatedMicroChecks(long id, String name, State from, State to) {
+    private AuthorizedTransitionAction mockSimpleActionCommunicationRelatedMicroChecks(long id, String name, State from, State to) {
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
         when(action.getActions()).thenReturn(EnumSet.of(MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
         when(action.getChecks()).thenReturn(EnumSet.of(
@@ -269,7 +296,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return action;
     }
 
-    public List<AuthorizedAction> mockDefaultActions() {
+    protected List<AuthorizedAction> mockDefaultActions() {
         List<State> states = mockDefaultStates();
         List<AuthorizedAction> actions = new ArrayList<>(2);
         actions.add(mockSimpleAction(1, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING.getDefaultFormat(), states
@@ -279,7 +306,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return actions;
     }
 
-    public List<AuthorizedAction> mockActionsWithoutTheCommunicationCategory() {
+    protected List<AuthorizedAction> mockActionsWithoutTheCommunicationCategory() {
         List<State> states = mockDefaultStates();
         List<AuthorizedAction> actions = new ArrayList<>(2);
         actions.add(mockSimpleActionWithoutCommunications(1, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING
@@ -289,7 +316,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return actions;
     }
 
-    public List<AuthorizedAction> mockActionsWithCommunicationRelatedActionsInMicroActions() {
+    protected List<AuthorizedAction> mockActionsWithCommunicationRelatedActionsInMicroActions() {
         List<State> states = mockDefaultStates();
         List<AuthorizedAction> actions = new ArrayList<>(2);
         actions.add(mockSimpleActionCommunicationRelatedMicroActions(1, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING
@@ -299,7 +326,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return actions;
     }
 
-    public List<AuthorizedAction> mockActionsWithCommunicationRelatedActionsInMicroChecks() {
+    protected List<AuthorizedAction> mockActionsWithCommunicationRelatedActionsInMicroChecks() {
         List<State> states = mockDefaultStates();
         List<AuthorizedAction> actions = new ArrayList<>(2);
         actions.add(mockSimpleActionWithoutCommunications(1, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING
@@ -310,7 +337,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     }
 
 
-    public StateChangeBusinessProcess mockStateChangeBusinessProcess(long id, String name, String deploymentId, String processId) {
+    protected StateChangeBusinessProcess mockStateChangeBusinessProcess(long id, String name, String deploymentId, String processId) {
         StateChangeBusinessProcess process = mock(StateChangeBusinessProcess.class);
         when(process.getId()).thenReturn(id);
         when(process.getName()).thenReturn(name);

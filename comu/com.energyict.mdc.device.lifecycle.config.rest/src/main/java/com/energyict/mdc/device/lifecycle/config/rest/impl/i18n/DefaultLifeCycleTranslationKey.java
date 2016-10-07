@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.i18n;
 
 import com.elster.jupiter.nls.TranslationKey;
-
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 /**
  * Copyrights EnergyICT
@@ -11,12 +9,6 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
  * Time: 15:41
  */
 public enum DefaultLifeCycleTranslationKey implements TranslationKey {
-    IN_STOCK(DefaultState.IN_STOCK.getKey(), "In stock"),
-    COMMISSIONING(DefaultState.COMMISSIONING.getKey(), "Commissioning"),
-    ACTIVE(DefaultState.ACTIVE.getKey(), "Active"),
-    INACTIVE(DefaultState.INACTIVE.getKey(), "Inactive"),
-    DECOMMISSIONED(DefaultState.DECOMMISSIONED.getKey(), "Decommissioned"),
-    REMOVED(DefaultState.REMOVED.getKey(), "Removed"),
     STATE_TRANSITION_EVENT_TYPE_START_COMMISSIONING(DefaultCustomStateTransitionEventType.COMMISSIONING.getSymbol(), "Start commissioning"),
     STATE_TRANSITION_EVENT_TYPE_ACTIVATE(DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol(), "Activate"),
     STATE_TRANSITION_EVENT_TYPE_DEACTIVATE(DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol(), "Deactivate"),

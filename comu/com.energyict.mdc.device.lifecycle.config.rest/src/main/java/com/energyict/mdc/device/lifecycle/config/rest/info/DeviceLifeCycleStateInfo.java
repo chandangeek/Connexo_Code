@@ -2,14 +2,15 @@ package com.energyict.mdc.device.lifecycle.config.rest.info;
 
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceLifeCycleStateInfo {
@@ -24,21 +25,13 @@ public class DeviceLifeCycleStateInfo {
 
     public DeviceLifeCycleStateInfo() {}
 
-    public DeviceLifeCycleStateInfo(Thesaurus thesaurus, DeviceLifeCycle deviceLifeCycle, State state) {
+    public DeviceLifeCycleStateInfo(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DeviceLifeCycle deviceLifeCycle, State state) {
         super();
         this.id = state.getId();
         this.isCustom = state.isCustom();
         this.isInitial = state.isInitial();
         this.version = state.getVersion();
-        Optional<DefaultState> defaultState = DefaultState.from(state);
-        if (defaultState.isPresent()){
-            this.name = thesaurus.getString(defaultState.get().getKey(), null);
-            if (this.name == null) {
-                this.name = thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
-            }
-        } else {
-            this.name = state.getName();
-        }
+        this.name = DefaultState.from(state).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(state::getName);
         if (deviceLifeCycle != null) {
             this.parent = new VersionInfo<>(deviceLifeCycle.getId(), deviceLifeCycle.getVersion());
         }
