@@ -71,14 +71,24 @@ Ext.define('Uni.view.container.ContentContainer', {
     content: null,
 
     listeners: {
-        resize: function() {
-            var element = this.getEl(), domElement = element.dom;
-            if (domElement.scrollHeight > domElement.clientHeight) {
+        afterlayout: function () {
+            var me = this,
+                element = this.getEl();
+
+            if (element.isScrollable()) {
                 element.setStyle('padding-right', '16px');
             } else {
                 element.setStyle('padding-right', '0px');
             }
-            this.doLayout();
+
+            me.suspendEvent('afterlayout');
+            me.updateLayout();
+            me.resumeEvent('afterlayout');
+
+            if (this.lastScrollPosition) {
+                element.scrollTo('left', this.lastScrollPosition.left);
+                element.scrollTo('top', this.lastScrollPosition.top);
+            }
         }
     },
 
@@ -160,19 +170,5 @@ Ext.define('Uni.view.container.ContentContainer', {
 
     onScroll: function (e ,t, eOpts) {
         this.lastScrollPosition = this.getEl().getScroll();
-    },
-
-    afterLayout: function () {
-        this.callParent(arguments);
-
-        var element = this.getEl(),
-            domElement = element.dom;
-        if (domElement.scrollHeight > domElement.clientHeight) {
-            element.setStyle('padding-right', '16px');
-        }
-        if (this.lastScrollPosition) {
-            element.scrollTo('left', this.lastScrollPosition.left);
-            element.scrollTo('top', this.lastScrollPosition.top);
-        }
     }
 });
