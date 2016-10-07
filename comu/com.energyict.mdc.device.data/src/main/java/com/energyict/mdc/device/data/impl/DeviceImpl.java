@@ -1337,7 +1337,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
         if(koreHelper.getInitialMeterActivationStartDate().get().isBefore(this.getDeviceType().getDeviceLifeCycle().getMaximumPastEffectiveTimestamp()) ||
            koreHelper.getInitialMeterActivationStartDate().get().isAfter(this.getDeviceType().getDeviceLifeCycle().getMaximumFutureEffectiveTimestamp())){
-            throw new NoLifeCycleActiveAt(clock.instant(), thesaurus, MessageSeeds.NO_LIFE_CYCLE_AT);
+            throw new NoLifeCycleActiveAt(koreHelper.getInitialMeterActivationStartDate().get(), thesaurus, MessageSeeds.NO_LIFE_CYCLE_AT);
         }
         Meter newMeter = amrSystem.newMeter(String.valueOf(getId()))
                 .setMRID(getmRID())
