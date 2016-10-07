@@ -10,9 +10,9 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private final DeviceService deviceService;
@@ -25,7 +25,8 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private int yearOfCertification;
     private Location location;
     private SpatialCoordinates spatialCoordinates;
-    private Instant shipmentDate;
+
+    private List<Consumer<Device>> postBuilders;
 
     @Inject
     public DeviceBuilder(DeviceService deviceService, Clock clock) {
@@ -35,13 +36,13 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         this.yearOfCertification = 2013;
     }
 
-    public DeviceBuilder withMrid(String mrid) {
+    public DeviceBuilder withMrid(String mrid){
         this.mrid = mrid;
         super.withName(mrid);
         return this;
     }
 
-    public DeviceBuilder withLocation(Location location) {
+    public DeviceBuilder withLocation(Location location){
         this.location = location;
         return this;
     }
@@ -51,28 +52,23 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         return this;
     }
 
-    public DeviceBuilder withSerialNumber(String serialNumber) {
+    public DeviceBuilder withSerialNumber(String serialNumber){
         this.serialNumber = serialNumber;
         return this;
     }
 
-    public DeviceBuilder withDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+    public DeviceBuilder withDeviceConfiguration(DeviceConfiguration deviceConfiguration){
         this.deviceConfiguration = deviceConfiguration;
         return this;
     }
 
-    public DeviceBuilder withComSchedules(List<ComSchedule> comSchedules) {
+    public DeviceBuilder withComSchedules(List<ComSchedule> comSchedules){
         this.comSchedules = comSchedules;
         return this;
     }
 
-    public DeviceBuilder withYearOfCertification(int year) {
+    public DeviceBuilder withYearOfCertification(int year){
         this.yearOfCertification = year;
-        return this;
-    }
-
-    public DeviceBuilder withShipmentDate(Instant shipmentDate) {
-        this.shipmentDate = shipmentDate;
         return this;
     }
 
@@ -83,20 +79,17 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
 
     @Override
     public Device create() {
-        if (this.shipmentDate == null) {
-            this.shipmentDate = this.clock.instant();
-        }
         Log.write(this);
-        Device device = this.deviceService.newDevice(this.deviceConfiguration, getName(), mrid, this.shipmentDate);
-        device.setSerialNumber(this.serialNumber);
+        Device device = deviceService.newDevice(deviceConfiguration, getName(), mrid, clock.instant());
+        device.setSerialNumber(serialNumber);
         device.setYearOfCertification(this.yearOfCertification);
-        if (this.comSchedules != null) {
-            for (ComSchedule comSchedule : this.comSchedules) {
+        if (comSchedules != null) {
+            for (ComSchedule comSchedule : comSchedules) {
                 device.newScheduledComTaskExecution(comSchedule).add();
             }
         }
-        device.setLocation(this.location);
-        device.setSpatialCoordinates(this.spatialCoordinates);
+        device.setLocation(location);
+        device.setSpatialCoordinates(spatialCoordinates);
         device.save();
         applyPostBuilders(device);
         return device;
