@@ -52,7 +52,10 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.conditions.And;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ComWindow;
@@ -2525,14 +2528,26 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    // TODO: bad test
     public void testFindAllSerialNumbers() throws Exception {
         Finder<Device> finder = mockFinder(Collections.emptyList());
         when(deviceService.findAllDevices(any())).thenReturn(finder);
         target("/devices").queryParam("name", "COP*").queryParam("serialNumber", "*").request().get();
         ArgumentCaptor<Condition> conditionArgumentCaptor = ArgumentCaptor.forClass(Condition.class);
         verify(deviceService).findAllDevices(conditionArgumentCaptor.capture());
-        System.out.println(conditionArgumentCaptor.getValue());
+        Condition andCondition = conditionArgumentCaptor.getValue();
+        assertThat(andCondition).isInstanceOf(And.class);
+        List<Condition> conditions = ((And)andCondition).getConditions();
+        assertThat(conditions).hasSize(2);
+        Condition nameCondition = conditions.get(0);
+        assertThat(nameCondition).isInstanceOf(Comparison.class);
+        assertThat(((Comparison)nameCondition).getFieldName()).isEqualTo("name");
+        assertThat(((Comparison)nameCondition).getOperator()).isEqualTo(Operator.LIKEIGNORECASE);
+        assertThat(((Comparison)nameCondition).getValues()).containsExactly("COP%");
+        Condition serialCondition = conditions.get(1);
+        assertThat(serialCondition).isInstanceOf(Comparison.class);
+        assertThat(((Comparison)serialCondition).getFieldName()).isEqualTo("serialNumber");
+        assertThat(((Comparison)serialCondition).getOperator()).isEqualTo(Operator.LIKEIGNORECASE);
+        assertThat(((Comparison)serialCondition).getValues()).containsExactly("%");
     }
 
     public CustomPropertySet mockCustomPropertySet() {
