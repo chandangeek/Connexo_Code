@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
+import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.UnsupportedException;
@@ -52,7 +53,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getAuthenticationKey() {
         if (this.authenticationKey == null) {
-            String hex = properties.<String>getTypedProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey());
+            String hex = properties.<HexString>getTypedProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey()).getContent();
             this.authenticationKey = DLMSUtils.hexStringToByteArray(hex);
         }
         return this.authenticationKey;
@@ -63,7 +64,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getGlobalKey() {
         if (this.encryptionKey == null) {
-            String hex = properties.<String>getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY.getKey());
+            String hex = properties.<HexString>getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY.getKey()).getContent();
             this.encryptionKey = DLMSUtils.hexStringToByteArray(hex);
         }
         return this.encryptionKey;
