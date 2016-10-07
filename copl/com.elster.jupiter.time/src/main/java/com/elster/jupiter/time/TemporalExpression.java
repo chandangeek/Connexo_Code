@@ -2,7 +2,6 @@ package com.elster.jupiter.time;
 
 import com.elster.jupiter.util.time.ScheduleExpression;
 
-import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;

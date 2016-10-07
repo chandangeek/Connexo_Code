@@ -3,4 +3,4 @@
 Private-Package: com.elster.jupiter.time.impl,\
 	com.elster.jupiter.time.security,\
 	com.elster.jupiter.time.impl.parser
-Export-Package: com.elster.jupiter.time
+Export-Package: com.elster.jupiter.time, com.elster.jupiter.time.spi

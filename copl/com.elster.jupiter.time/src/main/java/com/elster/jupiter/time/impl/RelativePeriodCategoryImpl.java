@@ -3,6 +3,8 @@ package com.elster.jupiter.time.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.EventType;
 import com.elster.jupiter.time.RelativePeriodCategory;
@@ -22,9 +24,12 @@ final class RelativePeriodCategoryImpl extends EntityImpl implements RelativePer
 
     private List<RelativePeriodCategoryUsage> relativePeriodCategoryUsages = new ArrayList<>();
 
+    private final Thesaurus thesaurus;
+
     @Inject
-    RelativePeriodCategoryImpl(DataModel dataModel, EventService eventService) {
+    RelativePeriodCategoryImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(dataModel, eventService);
+        this.thesaurus = thesaurus;
     }
 
     static RelativePeriodCategoryImpl from(DataModel dataModel, String name) {
@@ -42,6 +47,11 @@ final class RelativePeriodCategoryImpl extends EntityImpl implements RelativePer
 
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return this.thesaurus.getFormat(new SimpleTranslationKey(this.name, this.name)).format();
     }
 
     @Override

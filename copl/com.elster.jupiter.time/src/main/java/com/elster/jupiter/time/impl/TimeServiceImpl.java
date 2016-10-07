@@ -16,10 +16,13 @@ import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.parser.CronExpressionDescriptorImpl;
 import com.elster.jupiter.time.impl.parser.TranslationKeys;
 import com.elster.jupiter.time.security.Privileges;
+import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
@@ -32,13 +35,18 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,7 +60,10 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
     private volatile OrmService ormService;
+    private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private Set<ComponentAndLayer> alreadyJoined = ConcurrentHashMap.newKeySet();
+    private final Object thesaurusLock = new Object();
     private volatile UserService userService;
     private volatile EventService eventService;
     private volatile UpgradeService upgradeService;
@@ -65,7 +76,7 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
         this();
         this.setQueryService(queryService);
         this.setOrmService(ormService);
-        this.setThesaurus(nlsService);
+        this.setNlsService(nlsService);
         this.setUserService(userService);
         this.setEventService(eventService);
         this.setUpgradeService(upgradeService);
@@ -99,7 +110,7 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
         relativePeriod.setRelativeDateFrom(from);
         relativePeriod.setRelativeDateTo(to);
         relativePeriod.setIsCreatedByInstaller(true);
-        categories.stream().forEach(relativePeriod::addRelativePeriodCategory);
+        categories.forEach(relativePeriod::addRelativePeriodCategory);
         relativePeriod.save();
         return relativePeriod;
     }
@@ -111,7 +122,7 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
         relativePeriod.setName(name);
         relativePeriod.setRelativeDateFrom(from);
         relativePeriod.setRelativeDateTo(to);
-        categories.stream().forEach(relativePeriod::addRelativePeriodCategory);
+        categories.forEach(relativePeriod::addRelativePeriodCategory);
         relativePeriod.save();
         return relativePeriod;
     }
@@ -187,6 +198,58 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
     }
 
     @Override
+    public String toLocalizedString(TemporalExpression expression) {
+        TimeDuration every = expression.getEvery();
+        int count = every.getCount();
+        TimeDuration.TimeUnit unit = every.getTimeUnit();
+
+        if (unit.equals(TimeDuration.TimeUnit.MINUTES)) {
+            if (count == 1) {
+                return thesaurus.getFormat(Labels.EVERY_MINUTE).format();
+            } else {
+                return thesaurus.getFormat(Labels.EVERY_N_MINUTES).format(count);
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.HOURS)) {
+            if (count == 1) {
+                return thesaurus.getFormat(Labels.EVERY_HOUR).format();
+            } else {
+                return thesaurus.getFormat(Labels.EVERY_N_HOUR).format(count);
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
+            if (count == 1) {
+                return thesaurus.getFormat(Labels.EVERY_DAY).format();
+            } else {
+                return thesaurus.getFormat(Labels.EVERY_N_DAY).format(count);
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
+            if (count == 1) {
+                return thesaurus.getFormat(Labels.EVERY_WEEK).format();
+            } else {
+                return thesaurus.getFormat(Labels.EVERY_N_WEEKS).format(count);
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
+            if (count == 1) {
+                return thesaurus.getFormat(Labels.EVERY_MONTH).format();
+            } else {
+                return thesaurus.getFormat(Labels.EVERY_N_MONTHS).format(count);
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
+            if (count == 1) {
+                return thesaurus.getFormat(Labels.EVERY_YEAR).format();
+            } else {
+                return thesaurus.getFormat(Labels.EVERY_N_YEARS).format(count);
+            }
+        } else {
+            throw new IllegalArgumentException("Unknown time unit " + unit);
+        }
+    }
+
+    @Override
     public RelativePeriod getAllRelativePeriod() {
         return AllRelativePeriod.INSTANCE;
     }
@@ -206,7 +269,8 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
     }
 
     @Reference
-    public void setThesaurus(NlsService nlsService) {
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
@@ -223,6 +287,24 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @SuppressWarnings("unused") // Called by OSGi framework when RelativePeriodCategoryTranslationProvider component activates
+    public void addIssueGroupTranslationProvider(RelativePeriodCategoryTranslationProvider provider) {
+        synchronized (this.thesaurusLock) {
+            ComponentAndLayer componentAndLayer = ComponentAndLayer.from(provider);
+            if (!this.alreadyJoined.contains(componentAndLayer)) {
+                Thesaurus providerThesaurus = this.nlsService.getThesaurus(provider.getComponentName(), provider.getLayer());
+                this.thesaurus = this.thesaurus.join(providerThesaurus);
+                this.alreadyJoined.add(componentAndLayer);
+            }
+        }
+    }
+
+    @SuppressWarnings("unused") // Called by OSGi framework when RelativePeriodCategoryTranslationProvider component deactivates
+    public void removeIssueGroupTranslationProvider(RelativePeriodCategoryTranslationProvider obsolete) {
+        // Don't bother unjoining the provider's thesaurus
     }
 
     DataModel getDataModel() {
@@ -257,6 +339,38 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    private static final class ComponentAndLayer {
+        private final String componentName;
+        private final Layer layer;
+
+        private ComponentAndLayer(String componentName, Layer layer) {
+            this.componentName = componentName;
+            this.layer = layer;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            ComponentAndLayer that = (ComponentAndLayer) o;
+            return Objects.equals(componentName, that.componentName) &&
+                    layer == that.layer;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(componentName, layer);
+        }
+
+        public static ComponentAndLayer from(RelativePeriodCategoryTranslationProvider provider) {
+            return new ComponentAndLayer(provider.getComponentName(), provider.getLayer());
+        }
     }
 
 }
