@@ -1,19 +1,21 @@
 package com.energyict.genericprotocolimpl.webrtu.common;
 
 
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 
 public class ConvertShortIdTest {
     private final static String EXPECTED_SHORT_ID_LANDIS_GYR = "FML1000013500003";
