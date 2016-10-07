@@ -200,7 +200,7 @@ public class QueryEndDeviceGroupImplIT {
             Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName("group");
             assertThat(endDeviceGroup).isPresent();
 
-            //create the another group with the same name
+            //create another group with the same name
             groupBuilder = meteringGroupsService.createQueryEndDeviceGroup();
             groupBuilder.setName("group");
             groupBuilder.setMRID("MRID");

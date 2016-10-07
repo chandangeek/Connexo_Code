@@ -248,14 +248,14 @@ public class EnumeratedEndDeviceGroupImplIT {
 
     @Test
     @Transactional
-    public void testAmrIdQuey() {
+    public void testAmrIdQuery() {
         int NUMBER_OF_DEVICES_IN_GROUP = 24;
         List<EndDevice> endDevices = new ArrayList<>();
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         AmrSystem MDC = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalStateException::new);
         AmrSystem EAMS = meteringService.findAmrSystem(KnownAmrSystem.ENERGY_AXIS.getId()).orElseThrow(IllegalStateException::new);
         for (int i = 0; i < 2 * NUMBER_OF_DEVICES_IN_GROUP; i++) {
-            EndDevice endDevice = (i % 2 == 0 ? MDC : EAMS).newMeter("" + i, "MRID" + i).create();
+            EndDevice endDevice = (i % 2 == 0 ? MDC : EAMS).newMeter("" + i, "Name" + i).create();
             endDevices.add(endDevice);
         }
 
