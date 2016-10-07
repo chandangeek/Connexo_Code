@@ -10,11 +10,11 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum PropertyTranslationKeys implements TranslationKey {
 
-    ENDDEVICE_MRID("enddevice.mRID", "mRID"),
+    ENDDEVICE_MRID("enddevice.mRID", "MRID"),
     ENDDEVICE_NAME("enddevice.name", "Name"),
 
 
-    ENDDEVICE_DOMAIN("enddevice.domain", "End Device"),
+    ENDDEVICE_DOMAIN("enddevice.domain", "Device"),
     ;
 
     private String key;
@@ -39,5 +39,4 @@ public enum PropertyTranslationKeys implements TranslationKey {
     public String getDisplayName(Thesaurus thesaurus) {
         return thesaurus.getFormat(this).format();
     }
-
 }
