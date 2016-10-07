@@ -157,7 +157,7 @@ class ThesaurusImpl implements IThesaurus {
     }
 
     @Override
-    public Map<String, String> getTranslations() {
+    public Map<String, String> getTranslationsForCurrentLocale() {
         this.ensureTranslationsLoaded();
         Map<String, String> map = new TreeMap<>();
         for (Map.Entry<String, NlsKeyImpl> entry : translations.entrySet()) {

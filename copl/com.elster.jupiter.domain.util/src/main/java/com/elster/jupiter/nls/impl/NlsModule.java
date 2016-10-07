@@ -46,9 +46,15 @@ public class NlsModule extends AbstractModule {
         }
 
         @Override
-        public Map<String, String> getTranslations() {
+        public Map<String, String> getTranslationsForCurrentLocale() {
             return Collections.emptyMap();
         }
+
+        @Override
+        public boolean hasKey(String key) {
+            return false;
+        }
+
 
         @Override
         public Thesaurus join(Thesaurus thesaurus) {

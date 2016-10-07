@@ -12,6 +12,4 @@ public interface IThesaurus extends Thesaurus {
 
     void invalidate();
 
-    boolean hasKey(String key);
-
 }

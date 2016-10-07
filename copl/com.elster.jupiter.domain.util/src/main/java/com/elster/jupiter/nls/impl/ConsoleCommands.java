@@ -48,7 +48,7 @@ public class ConsoleCommands {
 
     public void listKeys() {
         if (thesaurus != null) {
-            thesaurus.getTranslations().keySet().stream()
+            thesaurus.getTranslationsForCurrentLocale().keySet().stream()
                     .forEach(System.out::println);
         }
     }
@@ -61,7 +61,7 @@ public class ConsoleCommands {
 
     public void translations() {
         if (thesaurus != null) {
-            thesaurus.getTranslations().entrySet().stream()
+            thesaurus.getTranslationsForCurrentLocale().entrySet().stream()
                     .map(entry -> entry.getKey() + " -> " + entry.getValue())
                     .forEach(System.out::println);
         }

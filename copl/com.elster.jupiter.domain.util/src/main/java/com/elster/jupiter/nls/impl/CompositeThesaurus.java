@@ -81,9 +81,9 @@ public class CompositeThesaurus implements IThesaurus {
     }
 
     @Override
-    public Map<String, String> getTranslations() {
+    public Map<String, String> getTranslationsForCurrentLocale() {
         return components.stream()
-                .map(Thesaurus::getTranslations)
+                .map(Thesaurus::getTranslationsForCurrentLocale)
                 .collect(HashMap::new, HashMap::putAll, HashMap::putAll);
     }
 

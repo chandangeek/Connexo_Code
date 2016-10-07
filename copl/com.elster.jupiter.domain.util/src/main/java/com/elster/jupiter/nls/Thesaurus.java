@@ -12,27 +12,32 @@ import java.util.Map;
 @ProviderType
 public interface Thesaurus extends MessageInterpolator {
 
-	//
-	// Locale is obtained from security.thread
-	// TODO:
-	//   - Add Locale to existing principal, action and module in security.thread (if no locale is set, return Locale.getDefault().
-	//   - update User with languageTag persistent attribute and <Optional> Locale getLocale() method
-	//   - in rest whiteboard set Locale in security.thread based on user record if language tag present, otherwise parse from Accept-Language Header
-	//
-	// Note that the query behind this is more complex than at first sight.
-	// It needs to honor the Locale (or LanguageTag) hierarchy.
-	//
+    //
+    // Locale is obtained from security.thread
+    // Note that the query behind this is more complex than at first sight.
+    // It needs to honor the Locale (or LanguageTag) hierarchy.
+    //
 
     String getString(String key, String defaultMessage);
 
     String getString(Locale locale, String key, String defaultMessage);
 
-	NlsMessageFormat getFormat(MessageSeed seed);
+    NlsMessageFormat getFormat(MessageSeed seed);
 
-	NlsMessageFormat getFormat(TranslationKey key);
+    NlsMessageFormat getFormat(TranslationKey key);
 
-    @Deprecated
-    Map<String, String> getTranslations();
+    /**
+     * @return map containing the key and the translation to the current locale (as obtained from security.thread) for all the keys of the thesausrus
+     * @since v3.0
+     */
+    Map<String, String> getTranslationsForCurrentLocale();
+
+    /**
+     * @param key the key to check
+     * @return true if this thesaurus has the passed key
+     * @since v3.0
+     */
+    boolean hasKey(String key);
 
     Thesaurus join(Thesaurus thesaurus);
 
