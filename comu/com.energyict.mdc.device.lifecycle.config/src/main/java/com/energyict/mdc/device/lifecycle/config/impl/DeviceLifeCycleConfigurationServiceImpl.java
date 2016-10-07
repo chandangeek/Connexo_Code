@@ -53,6 +53,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -65,6 +66,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -120,7 +122,10 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(DefaultLifeCycleTranslationKey.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        Stream.of(DefaultLifeCycleTranslationKey.values()).forEach(keys::add);
+        Stream.of(DefaultState.values()).forEach(keys::add);
+        return keys;
     }
 
     @Override
@@ -411,6 +416,11 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                     .isPresent();
         }
         return true;
+    }
+
+    @Override
+    public String getDisplayName(DefaultState state) {
+        return this.thesaurus.getFormat(state).format();
     }
 
 }
