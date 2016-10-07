@@ -13,6 +13,7 @@ import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.FileImportRecord;
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionRecord;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -50,8 +51,7 @@ public class DeviceCommissioningImportFactory extends AbstractDeviceDataFileImpo
 
     @Override
     public String getDisplayName() {
-        return getContext().getThesaurus()
-                .getString(DEVICE_COMMISSIONING_IMPORTER.getKey(), DEVICE_COMMISSIONING_IMPORTER.getDefaultFormat());
+        return getContext().getThesaurus().getFormat(DEVICE_COMMISSIONING_IMPORTER).format();
     }
 
     @Override

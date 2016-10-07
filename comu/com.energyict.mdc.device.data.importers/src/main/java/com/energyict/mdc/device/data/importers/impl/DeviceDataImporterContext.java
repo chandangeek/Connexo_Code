@@ -12,6 +12,7 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import org.osgi.service.component.annotations.Component;
@@ -25,6 +26,7 @@ public class DeviceDataImporterContext {
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
     private volatile MeteringService meteringService;
@@ -42,6 +44,7 @@ public class DeviceDataImporterContext {
     public DeviceDataImporterContext(PropertySpecService propertySpecService,
                                      NlsService nlsService,
                                      DeviceConfigurationService deviceConfigurationService,
+                                     DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                      DeviceService deviceService,
                                      TopologyService topologyService,
                                      MeteringService meteringService,
@@ -54,6 +57,7 @@ public class DeviceDataImporterContext {
         setPropertySpecService(propertySpecService);
         setNlsService(nlsService);
         setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         setDeviceService(deviceService);
         setTopologyService(topologyService);
         setMeteringService(meteringService);
@@ -90,6 +94,15 @@ public class DeviceDataImporterContext {
     @Reference
     public final void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService() {
+        return deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     public DeviceService getDeviceService() {
