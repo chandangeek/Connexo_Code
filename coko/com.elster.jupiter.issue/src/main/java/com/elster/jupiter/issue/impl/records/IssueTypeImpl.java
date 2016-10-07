@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
@@ -46,7 +47,7 @@ public final class IssueTypeImpl extends EntityImpl implements IssueType {
 
     @Override
     public String getName() {
-        return this.thesaurus.getStringBeyondComponent(this.translationKey, this.translationKey);
+        return this.thesaurus.getFormat(new SimpleTranslationKey(this.translationKey, this.translationKey)).format();
     }
 
     @Override
