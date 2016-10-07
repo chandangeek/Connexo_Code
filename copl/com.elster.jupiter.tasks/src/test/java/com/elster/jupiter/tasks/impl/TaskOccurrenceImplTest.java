@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -68,6 +69,7 @@ public class TaskOccurrenceImplTest {
 
         when(clock.instant()).thenReturn(now, instant2);
         recurrentTask = RecurrentTaskImpl.from(dataModel, "Pulse", NAME, mock(ScheduleExpression.class), mock(DestinationSpec.class), "payload");
+        when(mapper.lock(any())).thenReturn(recurrentTask);
     }
 
     @After
