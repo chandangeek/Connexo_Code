@@ -4,8 +4,12 @@ import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.data.Channel;
@@ -13,6 +17,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.issue.datavalidation.rest.impl.DataValidationIssueInfo.NotEstimatedBlockInfo;
 import com.energyict.mdc.issue.datavalidation.rest.impl.DataValidationIssueInfo.NotEstimatedDataInfo;
@@ -33,12 +38,23 @@ import java.util.stream.Collectors;
 @Component(name="issue.data.validation.info.factory", service = { InfoFactory.class }, immediate = true)
 public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataValidation> {
 
-    private final ReadingTypeInfoFactory readingTypeInfoFactory;
+    private ReadingTypeInfoFactory readingTypeInfoFactory;
     private DeviceService deviceService;
+    private volatile Thesaurus thesaurus;
 
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
+        this.readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
+    }
+
+    public DataValidationIssueInfoFactory() {
     }
 
     @Inject
