@@ -1,5 +1,6 @@
 package com.elster.jupiter.prepayment.export.redknee.impl;
 
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.Thesaurus;
@@ -27,7 +28,7 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
 
     @Override
     public String getComponentName() {
-        return "RKN";
+        return DataExportService.COMPONENTNAME;
     }
 
     @Override
@@ -46,7 +47,7 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
     }
 
     enum Labels implements TranslationKey {
-        CSV_PROCESSSOR(ReadingDataFormatterFactory.NAME, "Prepayment specific formatter"),
+        CSV_FORMATTER(ReadingDataFormatterFactory.NAME, ReadingDataFormatterFactory.DISPLAY_NAME),
         AND("des.processor.and", "and");
 
         private final String key;
@@ -68,7 +69,7 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
         }
 
         public String translate(Thesaurus thesaurus) {
-            return thesaurus.getString(key, defaultFormat);
+            return thesaurus.getFormat(this).format();
         }
     }
 }
