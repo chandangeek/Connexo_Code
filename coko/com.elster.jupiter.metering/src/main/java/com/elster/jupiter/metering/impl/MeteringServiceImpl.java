@@ -231,18 +231,12 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public Optional<Meter> findMeterByName(String name) {
-        return dataModel.stream(Meter.class)
-                .filter(Operator.EQUAL.compare("name", name))
-                .filter(Operator.ISNULL.compare("obsoleteTime"))
-                .findFirst();
+        return dataModel.mapper(Meter.class).getUnique("name", name, "obsoleteTime", null);
     }
 
     @Override
     public Optional<EndDevice> findEndDeviceByName(String name) {
-        return dataModel.stream(EndDevice.class)
-                .filter(Operator.EQUAL.compare("name", name))
-                .filter(Operator.ISNULL.compare("obsoleteTime"))
-                .findFirst();
+        return dataModel.mapper(EndDevice.class).getUnique("name", name, "obsoleteTime", null);
     }
 
     @Override

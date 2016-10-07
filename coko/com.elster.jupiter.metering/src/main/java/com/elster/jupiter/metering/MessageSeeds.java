@@ -29,7 +29,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_MULTIPLIER(2015, Constants.INVALID_MULTIPLIER, "Multiplier must be between {min} and {max}", Level.SEVERE),
     INVALID_UNIT(2016, Constants.INVALID_UNIT, "Invalid unit", Level.SEVERE),
 
-    DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "MRID must be unique", Level.SEVERE),
+    DUPLICATE_USAGE_POINT_MRID(3001, Constants.DUPLICATE_USAGE_POINT_MRID, "MRID must be unique", Level.SEVERE),
+    DUPLICATE_USAGE_POINT_NAME(3007, Constants.DUPLICATE_USAGE_POINT_NAME, "Usage point name must be unique", Level.SEVERE),
     NO_USAGE_POINT_WITH_NAME(3002, Constants.NO_USAGE_POINT_WITH_NAME, "No usage point with name {0}"),
     NO_CHANNEL_WITH_ID(3003, Constants.NO_CHANNEL_WITH_ID, "No channel with id {0}"),
     NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT(3004, Constants.NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT, "No effective metrology configuration on usage point {0}"),
@@ -165,7 +166,8 @@ public enum MessageSeeds implements MessageSeed {
 
     public enum Constants {
         ;
-        public static final String DUPLICATE_USAGEPOINT = "usagepoint.mridalreadyexists";
+        public static final String DUPLICATE_USAGE_POINT_NAME = "usagepoint.name.already.exists";
+        public static final String DUPLICATE_USAGE_POINT_MRID = "usagepoint.mrid.already.exists";
         public static final String FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION = "fail.manage.cps.on.active.metrology.configuration";
         public static final String OBJECT_MUST_HAVE_UNIQUE_NAME = "name.must.be.unique";
         public static final String REQUIRED = "isRequired";

@@ -98,7 +98,8 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Currying.test;
 
-@UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGEPOINT + "}")
+@UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_MRID + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_NAME + "}")
 public class UsagePointImpl implements UsagePoint {
     // persistent fields
     @SuppressWarnings("unused")

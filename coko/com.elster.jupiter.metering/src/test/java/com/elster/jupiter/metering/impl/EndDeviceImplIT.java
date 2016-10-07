@@ -95,7 +95,7 @@ public class EndDeviceImplIT {
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "DeviceName");
 
         // Business method
         endDevice.update();
@@ -113,7 +113,7 @@ public class EndDeviceImplIT {
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
         FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice("amrID", "DeviceName");
 
         // Business method
         endDevice.changeState(stateMachine.getInitialState(), Instant.now());
@@ -128,7 +128,7 @@ public class EndDeviceImplIT {
 
         FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
         FiniteStateMachine otherStateMachine = this.createBiggerFiniteStateMachine();
-        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "DeviceName");
 
         // Business method
         endDevice.changeState(otherStateMachine.getInitialState(), Instant.now());
@@ -146,7 +146,7 @@ public class EndDeviceImplIT {
         when(clock.instant()).thenReturn(now);
 
         FiniteStateMachine stateMachine = this.createBiggerFiniteStateMachine();
-        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "DeviceName");
         endDevice.update();
         deviceId = endDevice.getId();
 
@@ -180,7 +180,7 @@ public class EndDeviceImplIT {
         State initialState = stateMachine.getInitialState();
         initialStateId = initialState.getId();
         State changedState = stateMachine.getState("Second").get();
-        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "DeviceName");
         endDevice.update();
         deviceId = endDevice.getId();
         changedStateId = changedState.getId();
@@ -216,7 +216,7 @@ public class EndDeviceImplIT {
         State initialState = stateMachine.getInitialState();
         initialStateId = initialState.getId();
         State changedState = stateMachine.getState("Second").get();
-        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "DeviceName");
         endDevice.update();
         deviceId = endDevice.getId();
         changedStateId = changedState.getId();
@@ -248,7 +248,7 @@ public class EndDeviceImplIT {
     public void cimLifecycleDatesAreAllEmptyAtCreationTime() {
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "DeviceName");
 
 
         // Asserts
@@ -267,7 +267,7 @@ public class EndDeviceImplIT {
     public void cimLifecycleDatesAreAllEmptyAtCreationTimeAfterFind() {
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "DeviceName");
 
         // Business method
         LifecycleDates lifecycleDates = meteringService.findEndDeviceById(endDevice.getId()).get().getLifecycleDates();
@@ -287,7 +287,7 @@ public class EndDeviceImplIT {
     public void updateCimLifecycleDates() {
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "DeviceName");
 
         // Business method
         LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
@@ -321,7 +321,7 @@ public class EndDeviceImplIT {
     public void updateCimLifecycleDatesAfterFind() {
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "DeviceName");
 
         // Business method
         LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
