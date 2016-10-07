@@ -103,7 +103,9 @@ public class NlsServiceImpl implements NlsService {
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+        this.languages = Languages.withSettingsOf(this);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -140,14 +142,17 @@ public class NlsServiceImpl implements NlsService {
         messageSeedProviders.forEach(this::doInstallProvider);
     }
 
+    @Deactivate
+    public final void deactivate() {
+        this.languages.deactivate();
+    }
+
     @Override
-    public Thesaurus getThesaurus(String componentName, Layer layer) {
-        IThesaurus thesaurus = thesauri.get(Pair.of(componentName, layer));
-        if (thesaurus == null) {
-            thesaurus = dataModel.getInstance(ThesaurusImpl.class).init(componentName, layer);
-            thesauri.put(Pair.of(componentName, layer), thesaurus);
-        }
-        return thesaurus;
+    public ThesaurusImpl getThesaurus(String componentName, Layer layer) {
+        return thesauri
+                .computeIfAbsent(
+                        Pair.of(componentName, layer),
+                        componentAndLayer -> dataModel.getInstance(ThesaurusImpl.class).init(componentAndLayer.getFirst(), componentAndLayer.getLast()));
     }
 
     @Override
@@ -269,8 +274,7 @@ public class NlsServiceImpl implements NlsService {
                             context.commit();
                         }
                     }
-                }
-                finally {
+                } finally {
                     this.clearPrincipal();
                 }
             }
@@ -297,12 +301,8 @@ public class NlsServiceImpl implements NlsService {
     }
 
     private void doInstall(DataModelUpgrader dataModelUpgrader) {
-        synchronized (translationLock) {
-            dataModelUpgrader.upgrade(dataModel, Version.latest());
-            translationKeyProviders.forEach(this::doInstallProvider);
-            messageSeedProviders.forEach(this::doInstallProvider);
-            installed = true;
-        }
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        installed = true;
     }
 
     private void doInstallProvider(TranslationKeyProvider provider) {
