@@ -63,6 +63,7 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE(501, "UsagePointAlreadyLinkedToAnotherDeviceX", "Can''t process line {0}: Usage point with MRID: {1} is already linked to device with MRID: {2} starting from {3}", Level.WARNING),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(502, "UsagePointAlreadyLinkedToAnotherDeviceXUntil", "Can''t process line {0}: Usage point with MRID: {1} is already linked to device with MRID: {2} starting from {3} until {4}", Level.WARNING),
     UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(503, "DeviceDoesNotProvideRequiredReadingTypes", "Can''t process line {0}: The device with MRID: {1} doesn''t have the following reading types that are specified in the metrology configurations of the selected usage point with MRID: {2}: {3}", Level.WARNING),
+    PROCESS_SQL_EXCEPTION(504, "ProcessSqlException", "Can''t process line {0}.  There was a problem accessing the database", Level.SEVERE),
     ;
 
     private final int number;

@@ -4,6 +4,8 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -20,7 +22,10 @@ import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
 import java.io.ByteArrayInputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,9 +68,15 @@ public class DeviceShipmentImporterFactoryTest {
     private BatchService batchService;
     @Mock
     private Logger logger;
+    @Mock
+    private OrmService ormService;
+    @Mock
+    private Connection connection;
+    @Mock
+    private DataModel dataModel;
 
     @Before
-    public void beforeTest() {
+    public void beforeTest() throws SQLException {
         reset(logger, thesaurus, deviceConfigurationService, deviceService, batchService);
         when(thesaurus.getFormat(any(TranslationKey.class)))
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
@@ -75,7 +86,10 @@ public class DeviceShipmentImporterFactoryTest {
         context.setDeviceService(deviceService);
         context.setDeviceConfigurationService(deviceConfigurationService);
         context.setPropertySpecService(propertySpecService);
+        when(ormService.getDataModels()).thenReturn(Collections.singletonList(dataModel));
+        context.setOrmService(ormService);
         when(context.getThesaurus()).thenReturn(thesaurus);
+        when(context.getConnection()).thenReturn(connection);
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
