@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.LastSeenDateInfo;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.GeneralCipheringKeyType;
@@ -218,16 +217,17 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
             //No need to read out the global FC if we're going to use a new session key in this AA.
             return;
         }
-        
-        // construct a temporary session with 0:0 security and clientId=16 (public)
-        final TypedProperties publicProperties = getDlmsSessionProperties().getProperties().clone();
-        publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, ClientConfiguration.PUBLIC.clientId);
 
         final Beacon3100Properties publicClientProperties = new Beacon3100Properties();
-        publicClientProperties.addProperties(publicProperties);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, publicProperties));    //SecurityLevel 0:0
+        
+        publicClientProperties.addProperties(getDlmsSessionProperties().getProperties().clone());
+        publicClientProperties.getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS.toString(), 
+        												   BigDecimal.valueOf(ClientConfiguration.PUBLIC.clientId));
+        
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, getDlmsSessionProperties().getProperties()));    //SecurityLevel 0:0
 
         final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
+        
         final long frameCounter;
 
         final com.energyict.dlms.protocolimplv2.DlmsSessionProperties sessionProperties = this.getDlmsSessionProperties();
