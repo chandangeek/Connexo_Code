@@ -73,6 +73,11 @@ public class LoadProfileTwoVersionedCustomPropertySet implements CustomPropertyS
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Channel";
+    }
+
+    @Override
     public PersistenceSupport<ChannelSpec, LoadProfileTwoVersionedDomainExtension> getPersistenceSupport() {
         return new LoadProfileTwoVersionedPeristenceSupport();
     }
