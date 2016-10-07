@@ -146,7 +146,7 @@ final class ChannelValidationImpl implements ChannelValidation {
     public void validate() {
         Instant end = getChannel().getLastDateTime();
         if (end != null && lastChecked.isBefore(end)) {
-            Range<Instant> dataRange = Range.openClosed(lastChecked, end);
+            Range<Instant> dataRange = Range.openClosed(lastChecked.plusMillis(1L), end);
             List<? extends ValidationRuleSetVersion> versions = getChannelsContainerValidation().getRuleSet().getRuleSetVersions();
 
             Instant newLastChecked = versions.stream()
@@ -161,7 +161,7 @@ final class ChannelValidationImpl implements ChannelValidation {
                     })
                     .min(Comparator.naturalOrder()).orElse(end);
 
-            updateLastChecked(newLastChecked);
+            updateLastChecked(lastChecked.plusMillis(1L).equals(newLastChecked) ? lastChecked : newLastChecked);
         }
     }
 }
