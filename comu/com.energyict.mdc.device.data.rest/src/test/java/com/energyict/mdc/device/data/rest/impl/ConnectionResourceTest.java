@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
@@ -37,8 +39,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -50,9 +54,25 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Mock
     Device device;
 
-    Instant comSessionStart = Instant.now();
-    Instant comSessionEnd = comSessionStart.plus(Duration.ofMinutes(1));
-    Instant nextExecution = Instant.now();
+    private Instant comSessionStart = Instant.now();
+    private Instant comSessionEnd = comSessionStart.plus(Duration.ofMinutes(1));
+    private Instant nextExecution = Instant.now();
+
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        Stream.of(CompletionCodeTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(TaskStatusTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(ConnectionTaskSuccessIndicatorTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(ConnectionStrategyTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(ComSessionSuccessIndicatorTranslationKeys.values()).forEach(this::mockTranslation);
+    }
+
+    private void mockTranslation(TranslationKey translationKey) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
+        doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
+    }
 
     @Override
     @Before

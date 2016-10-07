@@ -9,7 +9,7 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.cbo.impl.CboTranslationProvider;
+import com.elster.jupiter.cbo.I18N;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -17,6 +17,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
@@ -59,6 +60,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -113,6 +115,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile MeteringService meteringService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile LocationService locationService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile RestQueryService restQueryService;
@@ -141,6 +144,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile CalendarService calendarService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -257,7 +261,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
-                .join(nlsService.getThesaurus(CboTranslationProvider.COMPONENT_NAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
@@ -390,6 +394,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
     public void setLocationService(LocationService locationService) {
         this.locationService = locationService;
     }
@@ -474,6 +483,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.searchService = searchService;
     }
 
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -502,6 +516,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(validationService).to(ValidationService.class);
             bind(estimationService).to(EstimationService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(meteringTranslationService).to(MeteringTranslationService.class);
             bind(locationService).to(LocationService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(restQueryService).to(RestQueryService.class);
@@ -560,6 +575,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
             bind(MeterActivationInfoFactory.class).to(MeterActivationInfoFactory.class);
+            bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ChannelInfoFactory.class).to(ChannelInfoFactory.class);
         }

@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -38,7 +39,9 @@ public class DeviceSearchInfo {
 
 
     public static DeviceSearchInfo from(Device device, GatewayRetriever gatewayRetriever,
-                                        IssueRetriever issueService, Thesaurus thesaurus, DeviceValidationRetriever deviceValidationRetriever) {
+                                        IssueRetriever issueService, Thesaurus thesaurus,
+                                        DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                        DeviceValidationRetriever deviceValidationRetriever) {
         DeviceSearchInfo searchInfo = new DeviceSearchInfo();
         searchInfo.id = device.getId();
         searchInfo.mRID = device.getmRID();
@@ -47,7 +50,7 @@ public class DeviceSearchInfo {
         searchInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
         searchInfo.deviceTypeId = device.getDeviceType().getId();
         searchInfo.deviceTypeName = device.getDeviceType().getName();
-        searchInfo.state = getStateName(device.getState(), thesaurus);
+        searchInfo.state = getStateName(device.getState(), deviceLifeCycleConfigurationService);
         searchInfo.batch = device.getBatch().map(Batch::getName).orElse(null);
 
         searchInfo.hasOpenDataCollectionIssues = issueService.hasOpenDataCollectionIssues(device);
@@ -73,15 +76,11 @@ public class DeviceSearchInfo {
         return searchInfo;
     }
 
-    private static String getStateName(State state, Thesaurus thesaurus) {
-        Optional<DefaultState> defaultState = DefaultState.from(state);
-        String name;
-        if (defaultState.isPresent()) {
-            name = thesaurus.getString(defaultState.get().getKey(), defaultState.get().getKey());
-        } else {
-            name = state.getName();
-        }
-        return name;
+    private static String getStateName(State state, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        return DefaultState
+                .from(state)
+                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .orElseGet(state::getName);
     }
 
     private static String getStatus(boolean isActive, Thesaurus thesaurus) {

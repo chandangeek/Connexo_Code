@@ -40,6 +40,11 @@ public class IpConnectionCustomPropertySet implements CustomPropertySet<Connecti
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getSimpleName();
+    }
+
+    @Override
     public PersistenceSupport<ConnectionProvider, IpConnectionPropertyValues> getPersistenceSupport() {
         return new IpConnectionPersistenceSupport();
     }

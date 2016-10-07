@@ -4,6 +4,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
@@ -13,6 +14,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import org.osgi.service.component.annotations.Component;
@@ -39,20 +41,22 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private volatile DeviceService deviceService;
     private volatile Clock clock;
     private volatile DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
-
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     public DeviceInfoFactory() {
     }
 
     @Inject
-    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceService deviceService, Clock clock) {
+    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceService deviceService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, Clock clock) {
+        this();
         this.thesaurus = thesaurus;
-        this.batchService = batchService;
-        this.topologyService = topologyService;
-        this.issueService = issueService;
+        this.setBatchService(batchService);
+        this.setTopologyService(topologyService);
+        this.setIssueService(issueService);
         this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
-        this.deviceService = deviceService;
+        this.setDeviceService(deviceService);
         this.clock = clock;
+        this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
     }
 
     @Reference
@@ -81,6 +85,11 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         this.deviceService = deviceService;
     }
 
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
     public List<DeviceInfo> fromDevices(List<Device> devices) {
         return devices.stream().map(this::deviceInfo).collect(Collectors.toList());
     }
@@ -91,8 +100,14 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     @Override
     public DeviceSearchInfo from(Device device) {
-        return DeviceSearchInfo.from(device, new GatewayRetriever(topologyService), new IssueRetriever(issueService),
-                thesaurus, new DeviceValidationRetriever(deviceService));
+        return DeviceSearchInfo
+                .from(
+                    device,
+                    new GatewayRetriever(topologyService),
+                    new IssueRetriever(issueService),
+                    this.thesaurus,
+                    this.deviceLifeCycleConfigurationService,
+                    new DeviceValidationRetriever(deviceService));
     }
 
     @Override
@@ -101,7 +116,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         IssueRetriever issueRetriever = new IssueRetriever(issueService, domainObjects);
         DeviceValidationRetriever validationRetriever = new DeviceValidationRetriever(deviceService, domainObjects);
         return domainObjects.stream()
-                .map(device -> DeviceSearchInfo.from(device, topologyService, issueRetriever, thesaurus, validationRetriever))
+                .map(device -> DeviceSearchInfo.from(device, topologyService, issueRetriever, thesaurus, deviceLifeCycleConfigurationService, validationRetriever))
                 .collect(Collectors.toList());
     }
 
@@ -117,8 +132,8 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
         }
-        return DeviceInfo.from(device, slaveDevices, topologyService, new IssueRetriever(issueService), thesaurus,
-                dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(coord -> coord.toString()).orElse(null), clock);
+        return DeviceInfo.from(device, slaveDevices, topologyService, new IssueRetriever(issueService), deviceLifeCycleConfigurationService,
+                dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(SpatialCoordinates::toString).orElse(null), clock);
     }
 
     @Override
@@ -156,7 +171,10 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     private PropertyDescriptionInfo createDescription(String propertyName, Class<?> aClass) {
-        return new PropertyDescriptionInfo(propertyName, aClass, thesaurus.getString(DeviceSearchModelTranslationKeys.Keys.PREFIX + propertyName, propertyName));
+        return new PropertyDescriptionInfo(
+                propertyName,
+                aClass,
+                thesaurus.getFormat(new SimpleTranslationKey(DeviceSearchModelTranslationKeys.Keys.PREFIX + propertyName, propertyName)).format());
     }
 
 }

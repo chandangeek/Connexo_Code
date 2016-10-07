@@ -28,15 +28,19 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
@@ -55,6 +59,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -88,6 +93,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -134,6 +140,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     MeteringService meteringService;
     @Mock
+    MeteringTranslationService meteringTranslationService;
+    @Mock
     RestQueryService restQueryService;
     @Mock
     DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -155,6 +163,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     YellowfinGroupsService yellowfinGroupsService;
     @Mock
     FirmwareService firmwareService;
+    @Mock
+    DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
     DeviceLifeCycleService deviceLifeCycleService;
     @Mock
@@ -196,7 +206,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     public void setup() {
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         channelInfoFactory = new ChannelInfoFactory(clock, topologyService, readingTypeInfoFactory);
-        when(thesaurus.getStringBeyondComponent(any(String.class), any(String.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+        this.setupTranslations();
         when(taskService.findComTask(anyLong())).thenReturn(Optional.empty());
         when(taskService.findComTask(firmwareComTaskId)).thenReturn(Optional.of(firmwareComTask));
         when(firmwareComTask.isSystemComTask()).thenReturn(true);
@@ -205,6 +215,13 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(topologyService.availabilityDate(any(Register.class))).thenReturn(Optional.empty());
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
+    }
+
+    protected void setupTranslations() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        doReturn(messageFormat).when(thesaurus).getFormat(any(MessageSeed.class));
+        doReturn(messageFormat).when(thesaurus).getFormat(any(TranslationKey.class));
     }
 
     protected boolean disableDeviceConstraintsBasedOnDeviceState() {
@@ -266,6 +283,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setCalendarInfoFactory(calendarInfoFactory);
         application.setCalendarService(calendarService);
         application.setLocationService(locationService);
+        application.setMeteringTranslationService(meteringTranslationService);
+        application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
