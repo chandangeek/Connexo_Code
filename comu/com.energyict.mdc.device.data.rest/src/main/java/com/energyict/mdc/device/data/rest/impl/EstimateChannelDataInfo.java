@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.energyict.mdc.common.rest.IntervalInfo;
 
@@ -19,6 +20,9 @@ public class EstimateChannelDataInfo {
 
     @JsonProperty("estimateBulk")
     public boolean estimateBulk;
+
+    @JsonProperty("readingType")
+    public ReadingTypeInfo readingType;
 
     public EstimateChannelDataInfo() {
 
