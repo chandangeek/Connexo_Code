@@ -172,8 +172,8 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
                 bind(DataModel.class).toInstance(dataModel);
                 bind(QueryService.class).toInstance(queryService);
                 bind(OrmService.class).toInstance(ormService);
-                bind(Thesaurus.class).toInstance(thesaurus);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(Thesaurus.class).toProvider(() -> thesaurus);
+                bind(MessageInterpolator.class).toProvider(() -> thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(EventService.class).toInstance(eventService);
                 bind(TimeService.class).toInstance(TimeServiceImpl.this);
