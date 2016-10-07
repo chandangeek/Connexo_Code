@@ -8,15 +8,12 @@ import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 
-import java.time.Instant;
-
 public class CreateDeviceCommand {
 
     private DeviceConfigurationTpl configurationTpl = DeviceConfigurationTpl.DEFAULT;
     private DeviceTypeTpl deviceType = DeviceTypeTpl.Elster_AS1440;
     private String serialNumber;
     private String deviceNamePrefix;
-    private Instant shipmentDate;
 
     public void run() {
         DeviceType deviceType = Builders.from(this.deviceType).find()
@@ -26,21 +23,18 @@ public class CreateDeviceCommand {
         Builders.from(DeviceBuilder.class)
                 .withName(getDeviceName())
                 .withDeviceConfiguration(configuration)
-                .withSerialNumber(this.serialNumber)
-                .withShipmentDate(this.shipmentDate)
+                .withSerialNumber(serialNumber)
                 .get();
     }
 
     protected String getSerialNumber() {
-        return this.serialNumber;
+        return serialNumber;
     }
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
     }
 
-    public void setShipmentDate(Instant shipmentDate) {
-        this.shipmentDate = shipmentDate;
     }
 
     protected String getDeviceNamePrefix() {
