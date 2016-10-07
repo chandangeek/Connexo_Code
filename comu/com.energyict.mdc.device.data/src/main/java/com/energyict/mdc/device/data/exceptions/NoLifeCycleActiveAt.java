@@ -8,8 +8,10 @@ import java.time.Instant;
 
 public class NoLifeCycleActiveAt extends LocalizedException {
 
-    public NoLifeCycleActiveAt(Instant time, Thesaurus thesaurus, MessageSeed messageSeed) {
-        super(thesaurus, messageSeed, time.toString());
-        set("time", time);
+    public NoLifeCycleActiveAt(Thesaurus thesaurus, MessageSeed messageSeed, Instant shipmentDate, Instant maxPast, Instant maxFuture) {
+        super(thesaurus, messageSeed, shipmentDate, maxPast, maxFuture);
+        set("shipmentDate", shipmentDate);
+        set("maxPast", maxPast);
+        set("maxFuture", maxFuture);
     }
 }
