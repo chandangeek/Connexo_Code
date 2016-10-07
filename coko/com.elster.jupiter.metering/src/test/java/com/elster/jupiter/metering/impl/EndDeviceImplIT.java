@@ -153,11 +153,12 @@ public class EndDeviceImplIT {
         deviceId = endDevice.getId();
 
         // Business method
+        when(clock.instant()).thenReturn(now.plus(5, ChronoUnit.SECONDS));
         State second = stateMachine.getState("Second").get();
         stateId = second.getId();
         endDevice.changeState(second, Instant.now());
 
-        when(clock.instant()).thenReturn(now.plus(1, ChronoUnit.SECONDS));
+        when(clock.instant()).thenReturn(now.plus(10, ChronoUnit.SECONDS));
         EndDevice endDeviceReloaded = meteringService.findEndDevice(deviceId).get();
 
         // Asserts
