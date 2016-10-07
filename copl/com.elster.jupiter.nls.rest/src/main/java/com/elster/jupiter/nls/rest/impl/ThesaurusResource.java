@@ -4,8 +4,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 
-import java.util.Optional;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -14,10 +12,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
-
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 @Path("/thesaurus")
 public class ThesaurusResource {
@@ -53,8 +50,7 @@ public class ThesaurusResource {
             thesaurus = optional.get();
         }
 
-        for (Map.Entry<String, String> entry : thesaurus.getTranslations().entrySet()) {
-            thesaurusInfo.translations.add(new TranslationInfo(component, entry.getKey(), entry.getValue()));
-        }
+        thesaurus.getTranslationsForCurrentLocale().forEach((key, value) -> thesaurusInfo.translations.add(new TranslationInfo(component, key, value)));
+
     }
 }
