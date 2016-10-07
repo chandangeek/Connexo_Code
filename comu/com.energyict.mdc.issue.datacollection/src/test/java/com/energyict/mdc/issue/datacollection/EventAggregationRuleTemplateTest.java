@@ -22,7 +22,7 @@ public class EventAggregationRuleTemplateTest extends BaseTest {
     @Transactional
     public void testCanCreateIssue() {
         CreationRule rule = getCreationRule("testCanCreateIssue", ModuleConstants.REASON_POWER_OUTAGE);
-        Meter meter = createMeter("1", "mrid");
+        Meter meter = createMeter("1", "Name");
         OpenIssue baseIssue = getBaseIssue(rule, meter);
 
         EventAggregationRuleTemplate template = getInjector().getInstance(EventAggregationRuleTemplate.class);
