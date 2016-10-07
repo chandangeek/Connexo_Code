@@ -18,7 +18,6 @@ Ext.define('Uni.form.field.Location', {
         align: 'stretch'
     },
     labelWidth: 150,
-    minWidth: 600,
 
     editLocation: Uni.I18n.translate('location.editLocation', 'UNI', 'Input location'),
     findLocationsUrl: null,
@@ -28,13 +27,8 @@ Ext.define('Uni.form.field.Location', {
         return true;
     },
     initComponent: function () {
-        var me = this, comboLocation, locationContainer, editLocation, propertyFormLocation, store,
+        var me = this, comboLocation, locationContainer, editLocation, propertyFormLocation,
             labelPad = 15,
-        //completeWidth = me.width-me.labelWidth-labelPad,
-        //itemsWidth = me.displayResetButton ?  me.width-me.labelWidth-labelPad-40 : me.width-me.labelWidth-labelPad,
-            completeWidth = me.width || me.minWidth,
-            propertyWidth = me.displayResetButton ? completeWidth - me.labelWidth - labelPad - 40 : completeWidth - me.labelWidth - labelPad,
-            itemsWidth = me.displayResetButton ? completeWidth - 40 : completeWidth,
             store = Ext.create('Uni.store.FindLocations');
 
         store.getProxy().setUrl(me.findLocationsUrl);
@@ -69,50 +63,7 @@ Ext.define('Uni.form.field.Location', {
             style: {
                 display: 'inline'
             },
-            labelWidth: me.labelWidth,
-            width: itemsWidth
-        };
-        locationContainer = {
-            xtype: 'container',
-            itemId: 'ctn-location',
-            width: completeWidth,
-            layout: {
-                type: 'hbox',
-                align: 'stretch'
-            },
-            items: [
-                {
-                    xtype: 'container',
-                    itemId: 'ctn-txtCoordinates',
-                    width: itemsWidth,
-                    layout: {
-                        type: 'hbox',
-                        align: 'top'
-                    },
-                    items: [comboLocation]
-                },
-                {
-                    xtype: 'container',
-                    itemId: 'ctn-restore',
-                    width: 40,
-                    layout: {
-                        type: 'hbox',
-                        align: 'top'
-                    },
-                    items: [
-                        {
-                            xtype: 'uni-default-button',
-                            itemId: 'uni-location-default-button',
-                            listeners: {
-                                click: {
-                                    fn: me.onClickDefault,
-                                    scope: me
-                                }
-                            }
-                        }
-                    ]
-                }
-            ]
+            labelWidth: me.labelWidth
         };
         editLocation = {
             xtype: 'checkbox',
@@ -132,15 +83,29 @@ Ext.define('Uni.form.field.Location', {
             defaults: {
                 resetButtonHidden: true,
                 labelWidth: this.labelWidth,
-                width: propertyWidth
+                width: '100%'
             },
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             }
         };
-        me.items = [locationContainer, editLocation, propertyFormLocation];
-
+        me.items = [comboLocation, editLocation, propertyFormLocation];
+        me.rbar = {
+            xtype: 'container',
+            items: [
+                {
+                    xtype: 'uni-default-button',
+                    itemId: 'uni-location-default-button',
+                    listeners: {
+                        click: {
+                            fn: me.onClickDefault,
+                            scope: me
+                        }
+                    }
+                }
+            ]
+        };
         me.callParent(arguments);
         if (me.value) {
             me.setValue(me.value);

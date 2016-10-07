@@ -7,29 +7,22 @@ Ext.define('Uni.form.field.Coordinates', {
     mixins: {
         field: 'Ext.form.field.Field'
     },
-    layout: 'vbox',
+    layout: 'hbox',
     requires: [
         'Ext.container.Container',
         'Uni.property.view.DefaultButton'
     ],
     displayResetButton: false,
     labelWidth: 150,
-    minWidth: 600,
 
     initComponent: function () {
         var me = this,
-            width = me.width || me.minWidth,
-            completeWidth = width - me.labelWidth - me.labelPad,
-            itemsWidth = me.displayResetButton ? completeWidth - 40 : completeWidth,
             noCoordinate = {
                 xtype: 'displayfield',
                 itemId: 'no-coordinate',
                 value: Uni.I18n.translate('coordinate.noInput', 'UNI', 'No coordinates input'),
-                fieldStyle: {
-                    fontStyle: 'italic',
-                    color: '#999'
-                },
-                width: itemsWidth
+                fieldStyle: 'font-style:italic; color:#999',
+                margin: 0
             },
             displayCoordinateLat = {
                 xtype: 'displayfield',
@@ -53,10 +46,10 @@ Ext.define('Uni.form.field.Coordinates', {
                 xtype: 'container',
                 itemId: 'ctn-coordinate',
                 hidden: true,
-                width: itemsWidth,
-                layout: {
-                    type: 'hbox',
-                    align: 'middle'
+                layout: 'hbox',
+                flex: 1,
+                defaults: {
+                    fieldStyle: 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap'
                 },
                 items: [displayCoordinateLat, displayCoordinateLong, displayCoordinateElev]
             },
@@ -141,52 +134,37 @@ Ext.define('Uni.form.field.Coordinates', {
                     fontStyle: 'italic',
                     color: '#999'
                 },
-                width: itemsWidth
+                width: '100%'
             },
             textContainer = {
                 xtype: 'container',
-                itemId: 'ctn-coordinates',
-                width: completeWidth,
+                itemId: 'ctn-txtCoordinates',
                 layout: {
                     type: 'hbox',
-                    align: 'stretch'
+                    align: 'top'
                 },
-                items: [
-                    {
-                        xtype: 'container',
-                        itemId: 'ctn-txtCoordinates',
-                        width: itemsWidth,
-                        layout: {
-                            type: 'hbox',
-                            align: 'top'
-                        },
-                        items: [textCoordinateLat, coordinateSeparator, textCoordinateLong, coordinateSeparator, textCoordinateElev]
-                    },
-                    {
-                        xtype: 'container',
-                        itemId: 'ctn-restore',
-                        width: 40,
-                        layout: {
-                            type: 'hbox',
-                            align: 'top'
-                        },
-                        items: [
-                            {
-                                xtype: 'uni-default-button',
-                                itemId: 'uni-coordinate-default-button',
-                                listeners: {
-                                    click: {
-                                        fn: me.onClickDefault,
-                                        scope: me
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                ]
+                width: '100%',
+                items: [textCoordinateLat, coordinateSeparator, textCoordinateLong, coordinateSeparator, textCoordinateElev]
             };
 
-        me.items = [noCoordinate, displayContainer, textContainer, invalidCoordinate, textNote];
+        me.items = [
+            {
+                xtype: 'container',
+                flex: 1,
+                items: [noCoordinate, displayContainer, textContainer, invalidCoordinate, textNote]
+            },
+            {
+                xtype: 'uni-default-button',
+                itemId: 'uni-coordinate-default-button',
+                margin: '34 0 0 5',
+                listeners: {
+                    click: {
+                        fn: me.onClickDefault,
+                        scope: me
+                    }
+                }
+            }
+        ];
 
         me.callParent(arguments);
         if (me.value) {
@@ -218,15 +196,17 @@ Ext.define('Uni.form.field.Coordinates', {
 
         me.down('#no-coordinate').setVisible(isNoCoordinateVisible);
         me.down('#ctn-coordinate').setVisible(!isNoCoordinateVisible);
-        if (field.getValue() != null) {
+        if (newValue != null) {
             if (field.itemId == 'txt-coordinate-lat') {
-                latField.setValue(me.convertDDToDMS(field.getValue(), 'lat'));
+                latField.setValue(me.convertDDToDMS(newValue, 'lat'));
             }
             else if (field.itemId == 'txt-coordinate-long') {
-                longField.setValue(me.convertDDToDMS(field.getValue(), 'long'));
+                longField.setValue(me.convertDDToDMS(newValue, 'long'));
             }
             else if (field.itemId == 'txt-coordinate-elev') {
-                elevField.setValue(Ext.String.format('{0} {1}', field.getValue(), Uni.I18n.translate('coordinates.elevationUnit', 'UNI', 'm '))); // Intentionally added space in translation
+                elevField.setValue(newValue > field.maxValue || newValue < field.minValue
+                    ? '-'
+                    : Ext.String.format('{0} {1}', newValue, Uni.I18n.translate('coordinates.elevationUnit', 'UNI', 'm '))); // Intentionally added space in translation
             }                                                                                                                                     // as I18nAnalyzer has problems with single character translations
             // defaultButton.setDisabled(me.getValue().spatialCoordinates == me.displayValue.usagePointSpatialCoordinates);
         }
@@ -311,9 +291,9 @@ Ext.define('Uni.form.field.Coordinates', {
         Abs = Math.abs(Math.round(value * 1000000.));
 
         if (type == "lat" && Abs > (90 * 1000000)) {
-            return false;
+            return '-';
         } else if (type == "long" && Abs > (180 * 1000000)) {
-            return false;
+            return '-';
         }
 
         days = Math.floor(Abs / 1000000);
