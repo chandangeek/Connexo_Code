@@ -117,8 +117,8 @@ Ext.define('Uni.property.view.property.Period', {
                 && typeof countValue !== 'undefined' && countValue !== null
                 && typeof timeUnitValue !== 'undefined' && timeUnitValue !== null
             ) {
-                if (!me.getProperty().get('default')) {
-                    button.setTooltip(Uni.I18n.translate('general.clear', 'UNI', 'Clear'));
+                if (Ext.isEmpty(me.getProperty().get('default'))) {
+                    button.setTooltip(Uni.I18n.translate('general.restoreDefaultEmptyValue', 'UNI', 'Restore to default empty value'));
                 } else {
                     button.setTooltip(
                         Ext.String.format(
