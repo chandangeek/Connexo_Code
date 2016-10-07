@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -11,15 +12,6 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -30,6 +22,14 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -46,9 +46,8 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
     private static final Instant NOW = Instant.ofEpochMilli(5000000);
     private static final Instant NEXT = Instant.ofEpochMilli(6000000);
     private static final String SERIALIZED1 = "S1";
-    private static final String SERIALIZED2 = "S2";
-    public static final long INSTANCEA_ID = 45;
-    public static final String APPLICATION = "Pulse";
+    private static final long INSTANCEA_ID = 45;
+    private static final String APPLICATION = "Pulse";
 
     private RecurrentTaskImpl instanceA;
     private RecurrentTaskImpl recurrentTask;
@@ -77,15 +76,12 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
     private ValidatorFactory validatorFactory;
     @Mock
     private Validator validator;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
-        when(dataModel.getInstance(TaskOccurrenceImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new TaskOccurrenceImpl(dataModel, clock);
-            }
-        });
+        when(dataModel.getInstance(TaskOccurrenceImpl.class)).thenAnswer(invocationOnMock -> new TaskOccurrenceImpl(dataModel, clock, thesaurus));
         when(dataModel.mapper(TaskOccurrence.class)).thenReturn(taskOccurrenceFactory);
         when(dataModel.mapper(RecurrentTask.class)).thenReturn(recurrentTaskFactory);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);

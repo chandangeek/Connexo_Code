@@ -1,5 +1,6 @@
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogEntry;
@@ -37,13 +38,15 @@ class TaskOccurrenceImpl implements TaskOccurrence {
 
     private final DataModel dataModel;
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private transient TaskLogEntryFinder taskLogEntryFinder;
 
     @Inject
-    TaskOccurrenceImpl(DataModel dataModel, Clock clock) {
+    TaskOccurrenceImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus) {
         // for persistence
         this.dataModel = dataModel;
         this.clock = clock;
+        this.thesaurus = thesaurus;
     }
 
     static TaskOccurrenceImpl createScheduled(DataModel dataModel, RecurrentTask recurrentTask, Instant triggerTime) {
@@ -143,6 +146,11 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     @Override
     public TaskStatus getStatus() {
         return status;
+    }
+
+    @Override
+    public String getStatusName() {
+        return this.thesaurus.getFormat(this.getStatus()).format();
     }
 
     TaskOccurrenceImpl init(RecurrentTask recurrentTask, Instant triggerTime) {
