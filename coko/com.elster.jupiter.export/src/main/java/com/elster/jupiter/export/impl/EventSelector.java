@@ -95,12 +95,12 @@ class EventSelector implements DataSelector {
     }
 
     private Stream<ExportData> getExportDataStream(Range<Instant> range) {
-        Stream<ExportData> stream = selector.getEndDeviceGroup()
+        List<ExportData> result = selector.getEndDeviceGroup()
                 .getMembers(range)
                 .stream()
                 .map(EndDeviceMembership::getEndDevice)
-                .map(endDevice -> buildEventData(endDevice, range));
-        List<ExportData> result = stream.collect(Collectors.toList());
+                .map(endDevice -> buildEventData(endDevice, range))
+                .collect(Collectors.toList());
         return result.stream();
     }
 
