@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataLoggerSlaveHistory', {
                         },
                         {
                             header: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
-                            dataIndex: 'name',
+                            dataIndex: 'deviceName',
                             flex: 1,
                             renderer: function (value, meta, record) {
                                 if (Ext.isEmpty(value)) {
