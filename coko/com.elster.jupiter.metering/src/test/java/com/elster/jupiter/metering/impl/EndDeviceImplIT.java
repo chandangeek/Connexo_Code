@@ -166,6 +166,29 @@ public class EndDeviceImplIT {
 
     @Test
     @Transactional
+    public void changeStateInFuture() {
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
+
+        Instant now = Instant.now();
+        when(clock.instant()).thenReturn(now);
+
+        FiniteStateMachine stateMachine = this.createBiggerFiniteStateMachine();
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "name");
+        // Business method
+
+        when(clock.instant()).thenReturn(now.plus(1, ChronoUnit.HOURS));
+        State second = stateMachine.getState("Second").get();
+        endDevice.changeState(second, now.plus(2, ChronoUnit.HOURS));
+
+        EndDevice endDeviceReloaded = meteringService.findEndDeviceById(endDevice.getId()).get();
+
+        // Asserts
+        assertThat(endDeviceReloaded.getState().isPresent()).isTrue();
+        assertThat(endDeviceReloaded.getState().get().getId()).isEqualTo(stateMachine.getState("First").get().getId());
+    }
+
+    @Test
+    @Transactional
     public void changingStateAndHistory() {
         Instant march1st = Instant.ofEpochMilli(1425168000000L);    // Midnight of March 1st, 2015 (GMT)
         Instant april1st = Instant.ofEpochMilli(1427846400000L);    // Midnight of April 1st, 2015 (GMT)
