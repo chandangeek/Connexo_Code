@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.upgrade.UpgradeService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
 /**
@@ -82,7 +84,9 @@ public class MessageServiceImpl implements MessageService {
                 bind(MessageService.class).toInstance(MessageServiceImpl.this);
             }
         });
-        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+                version(10, 2), UpgraderV10_2.class
+        ));
     }
 
     @Deactivate
