@@ -1,27 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.GeneralCipheringKeyType;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
-import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.mdw.core.TimeZoneInUse;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-
-import java.math.BigDecimal;
-import java.util.TimeZone;
-
 import static com.energyict.dlms.common.DlmsProtocolProperties.ADDRESSING_MODE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
 import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
@@ -72,6 +50,27 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.USE_GBT;
 import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
 import static com.energyict.dlms.common.DlmsProtocolProperties.WAKE_UP;
 
+import java.math.BigDecimal;
+import java.util.TimeZone;
+
+import com.energyict.cbo.TimeDuration;
+import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdw.core.TimeZoneInUse;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+
 /**
  * Class that holds all DLMS device properties (general, dialect & security related)
  * Based on these properties, a DLMS session and its connection layer can be fully configured.
@@ -83,6 +82,9 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.WAKE_UP;
  * Time: 11:26:48
  */
 public class DlmsProperties implements DlmsSessionProperties {
+	
+    /** The default is non-pre-established associations. */
+	private static final boolean PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED_DEFAULT = false;
 
     private final TypedProperties properties;
     protected SecurityProvider securityProvider;
@@ -418,4 +420,12 @@ public class DlmsProperties implements DlmsSessionProperties {
     public boolean incrementFrameCounterForRetries() {
         return true;    // Protocols who don't want the frame counter to be increased for retries, can override this method
     }
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public final boolean isPublicClientPreEstablished() {
+		return this.properties.getTypedProperty(PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED_DEFAULT);
+	}
 }

@@ -23,6 +23,9 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
     String CLIENT_PRIVATE_SIGNING_KEY = "ClientPrivateSigningKey";
     String GENERAL_CIPHERING_KEY_TYPE = "GeneralCipheringKeyType";
     String SERVER_TLS_CERTIFICATE = "ServerTLSCertificate";
+   
+    /** Property indicating whether the public client is pre-established or not. */
+    String PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED = "PublicClient-PreEstablished";
 
     /**
      * The device timezone
@@ -202,4 +205,10 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
      */
     boolean isGeneralSigning();
 
+    /**
+     * Indicates whether or not the public client has a pre-established association or not.
+     * 
+     * @return		<code>true</code> if the public client is pre-established, false if not.
+     */
+    boolean isPublicClientPreEstablished();
 }
