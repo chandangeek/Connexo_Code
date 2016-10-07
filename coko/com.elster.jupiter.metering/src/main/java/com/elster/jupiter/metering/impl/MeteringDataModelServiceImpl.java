@@ -495,7 +495,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     @Override
     public void copyKeyIfMissing(NlsKey name, String localKey) {
-        if (this.thesaurus.getTranslations().get(localKey) == null) {
+        if (!this.thesaurus.hasKey(localKey)) {
             this.nlsService.copy(name, COMPONENT_NAME, Layer.DOMAIN, key -> localKey);
         }
     }
