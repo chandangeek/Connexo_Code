@@ -159,7 +159,8 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                 viewDefaults: me.viewDefaults,
                 editDefaults: {
                     labelWidth: me.editDefaults.labelWidth,
-                    width: 191
+                    width: 191,
+                    hasNotValueSameAsDefaultMessage: true
                 },
                 record: cps,
                 hasEditMode: hasEditMode,
