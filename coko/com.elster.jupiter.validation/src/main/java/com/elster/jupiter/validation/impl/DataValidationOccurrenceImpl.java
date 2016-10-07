@@ -105,7 +105,9 @@ class DataValidationOccurrenceImpl implements DataValidationOccurrence {
     public void end(DataValidationTaskStatus status, String message) {
         this.status = status;
         this.failureReason = message;
-        getTask().updateLastRun(getTriggerTime());
+        DataValidationTask dataValidationTask = dataModel.mapper(DataValidationTask.class).lock(this.dataValidationTask.get().getId());
+        dataValidationTask.updateLastRun(getTriggerTime());
+        this.dataValidationTask.set(dataValidationTask);
         this.update();
     }
 
