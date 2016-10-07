@@ -1,56 +1,35 @@
 package com.elster.jupiter.validation;
 
-
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
-public enum DataValidationTaskStatus {
-    BUSY("Ongoing"),
-    SUCCESS("Successful"),
-    WARNING("Warning"),
-    FAILED("Failed"),
-    NOT_PERFORMED("Created");
+public enum DataValidationTaskStatus implements TranslationKey {
+    BUSY("ongoing", "Ongoing"),
+    SUCCESS("successful", "Successful"),
+    WARNING("warning", "Warning"),
+    FAILED("failed", "Failed"),
+    NOT_PERFORMED("created", "Created");
 
-    private String name;
+    private final String key;
+    private final String defaultFormat;
 
-    DataValidationTaskStatus(String name) {
-        this.name = name;
+    DataValidationTaskStatus(String key, String defaultFormat) {
+        this.key = key;
+        this.defaultFormat = defaultFormat;
+    }
+
+    @Override
+    public String getKey() {
+        return "validation.task.status." + this.key;
+    }
+
+    @Override
+    public String getDefaultFormat() {
+        return defaultFormat;
     }
 
     @Override
     public String toString() {
-        return this.name;
-    }
-
-    public String getDisplayName(Thesaurus thesaurus) {
-        return thesaurus.getString("validation.task.status." + this.name.toLowerCase(), this.name);
-    }
-
-    public enum DataValidationTaskStatusTranslationKeys implements TranslationKey {
-        BUSY("validation.task.status.ongoing", "Ongoing"),
-        SUCCESS("validation.task.status.successful", "Successful"),
-        WARNING("validation.task.status.warning", "Warning"),
-        FAILED("validation.task.status.failed", "Failed"),
-        NOT_PERFORMED("validation.task.status.created", "Created");
-        private final String key;
-        private final String defaultFormat;
-
-        DataValidationTaskStatusTranslationKeys(String key, String defaultFormat) {
-            this.key = key;
-            this.defaultFormat = defaultFormat;
-        }
-
-        @Override
-        public String getKey() {
-            return key;
-        }
-
-        @Override
-        public String getDefaultFormat() {
-            return defaultFormat;
-        }
-
-
+        return this.key;
     }
 
 }

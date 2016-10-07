@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -23,10 +24,12 @@ class DataValidationOccurrenceImpl implements DataValidationOccurrence {
     private DataValidationTaskStatus status = DataValidationTaskStatus.BUSY;
 
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
 
     @Inject
-    DataValidationOccurrenceImpl(DataModel dataModel) {
+    DataValidationOccurrenceImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     static DataValidationOccurrenceImpl from(DataModel model, TaskOccurrence occurrence, DataValidationTask task) {
@@ -57,6 +60,11 @@ class DataValidationOccurrenceImpl implements DataValidationOccurrence {
     @Override
     public DataValidationTaskStatus getStatus() {
         return status;
+    }
+
+    @Override
+    public String getStatusName() {
+        return this.thesaurus.getFormat(this.getStatus()).format();
     }
 
     @Override

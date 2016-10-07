@@ -807,7 +807,7 @@ public class ValidationServiceImplTest {
     public void testCreateValidationOccurrence() {
         when(taskOccurrence.getRecurrentTask()).thenReturn(recurrentTask);
         when(dataValidationTaskFactory2.getUnique("recurrentTask", recurrentTask)).thenReturn(Optional.of(iDataTask));
-        DataValidationOccurrenceImpl dataValidationOcc = new DataValidationOccurrenceImpl(dataModel);
+        DataValidationOccurrenceImpl dataValidationOcc = new DataValidationOccurrenceImpl(dataModel, thesaurus);
         when(dataModel.getInstance(DataValidationOccurrenceImpl.class)).thenReturn(dataValidationOcc);
         when(taskOccurrence.getTriggerTime()).thenReturn(ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant());
         assertThat(validationService.createValidationOccurrence(taskOccurrence)).isEqualTo(dataValidationOcc);
