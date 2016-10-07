@@ -1,10 +1,9 @@
 package com.elster.jupiter.time.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.RelativePeriodCategory;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RelativePeriodCategoryInfo {
     public Long id;
@@ -13,21 +12,17 @@ public class RelativePeriodCategoryInfo {
     public RelativePeriodCategoryInfo() {}
 
     private RelativePeriodCategoryInfo(Long id, String name) {
+        this();
         this.id = id;
         this.name = name;
     }
 
-    public RelativePeriodCategoryInfo(RelativePeriodCategory category , Thesaurus thesaurus) {
-        this(category.getId(), getName(category, thesaurus));
+    public RelativePeriodCategoryInfo(RelativePeriodCategory category) {
+        this(category.getId(), category.getDisplayName());
     }
 
-    static public List<RelativePeriodCategoryInfo> from (List<RelativePeriodCategory> categories, Thesaurus thesaurus) {
-        List<RelativePeriodCategoryInfo> categoryInfos = new ArrayList<>();
-        categories.stream().forEach(c -> categoryInfos.add(new RelativePeriodCategoryInfo(c.getId(), getName(c, thesaurus))));
-        return categoryInfos;
+    public static List<RelativePeriodCategoryInfo> from(List<RelativePeriodCategory> categories) {
+        return categories.stream().map(RelativePeriodCategoryInfo::new).collect(Collectors.toList());
     }
 
-    private static String getName(RelativePeriodCategory category, Thesaurus thesaurus) {
-        return thesaurus.getStringBeyondComponent(category.getName(), category.getName());
-    }
 }

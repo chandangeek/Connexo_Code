@@ -84,7 +84,7 @@ public class RelativePeriodResource {
         }
         RestQuery<? extends RelativePeriod> restQuery = restQueryService.wrap(query);
         List<? extends RelativePeriod> relativePeriods = restQuery.select(queryParameters, Order.ascending("name").toUpperCase());
-        RelativePeriodInfos relativePeriodInfos = new RelativePeriodInfos(queryParameters.clipToLimit(relativePeriods), thesaurus);
+        RelativePeriodInfos relativePeriodInfos = new RelativePeriodInfos(queryParameters.clipToLimit(relativePeriods));
         relativePeriodInfos.total = queryParameters.determineTotal(relativePeriods.size());
 
         return relativePeriodInfos;
@@ -95,7 +95,7 @@ public class RelativePeriodResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD, Privileges.Constants.VIEW_RELATIVE_PERIOD})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativePeriodInfo getRelativePeriod(@PathParam("id") long id) {
-        return new RelativePeriodInfo(getRelativePeriodOrThrowException(id), thesaurus);
+        return RelativePeriodInfo.withCategories(getRelativePeriodOrThrowException(id));
     }
 
     @POST
@@ -111,7 +111,7 @@ public class RelativePeriodResource {
             period = timeService.createRelativePeriod(relativePeriodInfo.name, relativeDateFrom, relativeDateTo, categories);
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new RelativePeriodInfo(period, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(RelativePeriodInfo.withCategories(period)).build();
     }
 
     @PUT
@@ -129,7 +129,7 @@ public class RelativePeriodResource {
             RelativePeriod period;
             period = timeService.updateRelativePeriod(relativePeriod.getId(), relativePeriodInfo.name, relativeDateFrom, relativeDateTo, categories);
             context.commit();
-            return new RelativePeriodInfo(period, thesaurus);
+            return RelativePeriodInfo.withCategories(period);
         }
     }
 
@@ -224,7 +224,7 @@ public class RelativePeriodResource {
     private List<RelativePeriodCategory> getRelativePeriodCategoriesList(RelativePeriodInfo relativePeriodInfo) {
         List<RelativePeriodCategory> categories = new ArrayList<>();
         if (relativePeriodInfo.categories != null) {
-            relativePeriodInfo.categories.stream().forEach(category -> {
+            relativePeriodInfo.categories.forEach(category -> {
                 Optional<RelativePeriodCategory> relativePeriodCategoryRef = timeService.findRelativePeriodCategory(category.id);
                 if (relativePeriodCategoryRef.isPresent()) {
                     categories.add(relativePeriodCategoryRef.get());
