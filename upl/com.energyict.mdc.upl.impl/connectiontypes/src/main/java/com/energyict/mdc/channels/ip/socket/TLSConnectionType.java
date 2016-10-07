@@ -260,7 +260,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
          */
         @Override
         public String[] getClientAliases(String keyType, Principal[] issuers) {
-            System.out.println("getClientAliases = "+x509KeyManager.getClientAliases(keyType, issuers));
             return x509KeyManager.getClientAliases(keyType, issuers);
 
         }
@@ -394,7 +393,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-06 14:37:42 +0300 (Thu, 06 Oct 2016)$";
+        return "$Date: 2016-10-07 13:23:09 +0300 (Fri, 07 Oct 2016)$";
     }
 
 }
