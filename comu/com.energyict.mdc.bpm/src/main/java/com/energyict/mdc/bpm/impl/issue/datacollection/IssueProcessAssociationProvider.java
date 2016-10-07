@@ -82,7 +82,7 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
 
     @Override
     public String getName() {
-        return this.thesaurus.getString(TranslationKeys.DATA_COLLECTION_ISSUE_ASSOCIATION_PROVIDER.getKey(), TranslationKeys.DATA_COLLECTION_ISSUE_ASSOCIATION_PROVIDER.getDefaultFormat());
+        return this.thesaurus.getFormat(TranslationKeys.DATA_COLLECTION_ISSUE_ASSOCIATION_PROVIDER).format();
     }
 
     @Override

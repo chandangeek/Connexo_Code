@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-
 @Component(name = "DeviceProcessAssociationProvider",
         service = {ProcessAssociationProvider.class, TranslationKeyProvider.class},
         property = "name=DeviceProcessAssociationProvider", immediate = true)
@@ -88,7 +87,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
 
     @Override
     public String getName() {
-        return this.thesaurus.getString(TranslationKeys.DEVICE_ASSOCIATION_PROVIDER.getKey(), TranslationKeys.DEVICE_ASSOCIATION_PROVIDER.getDefaultFormat());
+        return this.thesaurus.getFormat(TranslationKeys.DEVICE_ASSOCIATION_PROVIDER).format();
     }
 
     @Override
@@ -119,7 +118,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
                 this.deviceLifeCycleConfigurationService
                         .findAllDeviceLifeCycles().stream()
                         .flatMap(lifeCycle -> lifeCycle.getFiniteStateMachine().getStates().stream())
-                        .map(state -> new DeviceStateInfo(thesaurus, deviceLifeCycleConfigurationService, state))
+                        .map(state -> new DeviceStateInfo(deviceLifeCycleConfigurationService, state))
                         .sorted((info1, info2) -> (info1.getLifeCycleId() != info2.getLifeCycleId()) ?
                                 info1.getLifeCycleName().compareToIgnoreCase(info2.getLifeCycleName()) :
                                 info1.getName().compareToIgnoreCase(info2.getName()))
@@ -153,13 +152,13 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
 
     @XmlRootElement
     static class DeviceStateInfo extends HasIdAndName {
+        private transient DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
         private transient DeviceLifeCycle deviceLifeCycle;
         private transient State deviceState;
-        private transient Thesaurus thesaurus;
 
-        DeviceStateInfo(Thesaurus thesaurus, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, State deviceState) {
-            this.thesaurus = thesaurus;
+        DeviceStateInfo(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, State deviceState) {
             this.deviceState = deviceState;
+            this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
             this.deviceLifeCycle = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles()
                     .stream()
                     .filter(lifeCycle -> lifeCycle.getFiniteStateMachine().equals(deviceState.getFiniteStateMachine()))
@@ -174,12 +173,10 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
 
         @Override
         public String getName() {
-            Optional<DefaultState> defaultState = DefaultState.from(deviceState);
-            if (defaultState.isPresent()) {
-                return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
-            } else {
-                return deviceState.getName();
-            }
+            return DefaultState
+                    .from(deviceState)
+                    .map(deviceLifeCycleConfigurationService::getDisplayName)
+                    .orElseGet(deviceState::getName);
         }
 
         @Override
@@ -221,7 +218,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
         public HasIdAndName fromStringValue(String stringValue) {
             return finiteStateMachineService
                     .findFiniteStateById(Long.parseLong(stringValue))
-                    .map(state -> new DeviceStateInfo(thesaurus, deviceLifeCycleConfigurationService, state))
+                    .map(state -> new DeviceStateInfo(deviceLifeCycleConfigurationService, state))
                     .orElse(null);
         }
 
