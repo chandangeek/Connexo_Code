@@ -14,6 +14,8 @@ public interface NlsService {
 
     Thesaurus getThesaurus(String componentName, Layer layer);
 
+    PrivilegeThesaurus getPrivilegeThesaurus();
+
     /**
      * Starts the translation process for a single key at a time.
      *

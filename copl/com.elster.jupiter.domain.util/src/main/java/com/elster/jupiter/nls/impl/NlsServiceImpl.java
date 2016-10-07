@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.PrivilegeThesaurus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -84,31 +85,11 @@ public class NlsServiceImpl implements NlsService {
 
     private Map<NlsKey, NlsKeyImpl> uninstalledKeysMap = new HashMap<>();
 
-    @Activate
-    public final void activate(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-        this.languages = Languages.withSettingsOf(this);
-        dataModel.register(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(DataModel.class).toInstance(dataModel);
-                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
-                bind(MessageInterpolator.class).toInstance(messageInterpolator);
-                bind(NlsService.class).toInstance(NlsServiceImpl.this);
-            }
-        });
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, NlsInstaller.class, Collections.emptyMap());
-        installed = true; // upgradeService either installed, was up to date, or threw an Exception because upgrade was needed; in any case if we get here installed is true
-    }
-
-    @Deactivate
-    public final void deactivate() {
-        this.languages.deactivate();
-    }
-
+    // For OSGi purposes
     public NlsServiceImpl() {
     }
 
+    // For testing purposes
     @Inject
     public NlsServiceImpl(BundleContext context, FileSystem fileSystem, OrmService ormService, ThreadPrincipalService threadPrincipalService, TransactionService transactionService, ValidationProviderResolver validationProviderResolver, UpgradeService upgradeService) {
         this();
@@ -121,12 +102,57 @@ public class NlsServiceImpl implements NlsService {
         activate(context);
     }
 
+    @Activate
+    public final void activate() {
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(DataModel.class).toInstance(dataModel);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(MessageInterpolator.class).toInstance(messageInterpolator);
+                bind(NlsService.class).toInstance(NlsServiceImpl.this);
+            }
+        });
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", COMPONENTNAME),
+                dataModel,
+                NlsInstaller.class,
+                Collections.emptyMap());
+        this.completeTranslationWhiteboard();
+        installed = true; // upgradeService either installed, was up to date, or threw an Exception because upgrade was needed; in any case if we get here installed is true
+    }
+
+    private void completeTranslationWhiteboard() {
+        synchronized (translationLock) {
+            if (this.transactionService.isInTransaction()) {
+                this.doCompleteTranslationWhiteboard();
+            } else {
+                try (TransactionContext context = this.transactionService.getContext()) {
+                    this.doCompleteTranslationWhiteboard();
+                    context.commit();
+                }
+            }
+        }
+    }
+
+    private void doCompleteTranslationWhiteboard() {
+        translationKeyProviders.forEach(this::doInstallProvider);
+        messageSeedProviders.forEach(this::doInstallProvider);
+    }
+
     @Override
-    public ThesaurusImpl getThesaurus(String componentName, Layer layer) {
-        return thesauri
-                    .computeIfAbsent(
-                        Pair.of(componentName, layer),
-                        componentAndLayer -> dataModel.getInstance(ThesaurusImpl.class).init(componentAndLayer.getFirst(), componentAndLayer.getLast()));
+    public Thesaurus getThesaurus(String componentName, Layer layer) {
+        IThesaurus thesaurus = thesauri.get(Pair.of(componentName, layer));
+        if (thesaurus == null) {
+            thesaurus = dataModel.getInstance(ThesaurusImpl.class).init(componentName, layer);
+            thesauri.put(Pair.of(componentName, layer), thesaurus);
+        }
+        return thesaurus;
+    }
+
+    @Override
+    public PrivilegeThesaurus getPrivilegeThesaurus() {
+        return new GlobalThesaurus();
     }
 
     @Override
@@ -534,6 +560,33 @@ public class NlsServiceImpl implements NlsService {
             nlsService.doInstall(dataModelUpgrader);
         }
 
+    }
+
+    private class GlobalThesaurus implements PrivilegeThesaurus {
+        @Override
+        public String translateComponentName(String privilegeKey) {
+            return this.getString(privilegeKey, privilegeKey);
+        }
+
+        @Override
+        public String translateResourceName(String privilegeKey) {
+            return this.getString(privilegeKey, privilegeKey);
+        }
+
+        @Override
+        public String translatePrivilegeKey(String privilegeKey) {
+            return this.getString(privilegeKey, privilegeKey);
+        }
+
+        private String getString(String key, String defaultMessage) {
+            for (IThesaurus thesaurus : thesauri.values()) {
+                String attempt = thesaurus.getString(key, null);
+                if (attempt != null) {
+                    return attempt;
+                }
+            }
+            return defaultMessage;
+        }
     }
 
 }

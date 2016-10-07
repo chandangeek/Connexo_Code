@@ -9,8 +9,9 @@ import com.elster.jupiter.util.conditions.Condition;
 import java.util.Collections;
 import java.util.Locale;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -68,24 +69,6 @@ public class ThesaurusImplTest {
         when(threadPrincipalService.getLocale()).thenReturn(Locale.GERMAN);
 
         assertThat(thesaurus.getString("noKey", "default")).isEqualTo("default");
-    }
-
-    @Test
-    public void firstCallToStringBeyondComponentDoesNotDisruptSubsequentCallToGetString() {
-        NlsKeyImpl externalKey = new NlsKeyImpl(dataModel).init(COMPONENT, Layer.DOMAIN, "key.from.another.bundle");
-        externalKey.setDefaultMessage("car");
-        externalKey.add(Locale.ITALY, "machina");
-        NlsKeyImpl key = new NlsKeyImpl(dataModel).init(COMPONENT, Layer.DOMAIN, "coat");
-        key.setDefaultMessage("coat");
-        key.add(Locale.ITALY, "cappotto");
-        when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(externalKey), Collections.singletonList(key));
-        thesaurus.getStringBeyondComponent("key.from.another.bundle", "Whatever");
-
-        // Business method
-        String translation = thesaurus.getString("coat", "WRONG");
-
-        // Asserts
-        assertThat(translation).isEqualTo("cappotto");
     }
 
 }

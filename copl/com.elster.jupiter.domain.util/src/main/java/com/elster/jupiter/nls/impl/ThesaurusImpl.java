@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -35,7 +34,7 @@ class ThesaurusImpl implements IThesaurus {
     private static final Pattern VALIDATION_KEY = Pattern.compile("^\\{(.*)\\}$");
 
     private final ThreadPrincipalService threadPrincipalService;
-    private final Map<String, NlsKeyImpl> translations = new HashMap<>();
+    private Map<String, NlsKeyImpl> translations;
     private final Provider<NlsKeyImpl> nlsKeyProvider;
     private final DataModel dataModel;
     private Layer layer;
@@ -55,7 +54,7 @@ class ThesaurusImpl implements IThesaurus {
     }
 
     private void initTranslations(String component, Layer layer) {
-        translations.clear();
+        this.translations = new HashMap<>();
         for (NlsKeyImpl nlsKey : getNlsKeys(component, layer)) {
             translations.put(nlsKey.getKey(), nlsKey);
         }
@@ -73,33 +72,6 @@ class ThesaurusImpl implements IThesaurus {
         return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition);
     }
 
-    private Optional<NlsKeyImpl> getAdditionalKey(String key) {
-        Condition condition = Operator.EQUAL.compare("key", key);
-        return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition).stream().findFirst();
-    }
-
-    @Override
-    public String getStringBeyondComponent(String key, String defaultMessage) {
-        return this.getStringBeyondComponent(getLocale(), key, defaultMessage);
-    }
-
-    @Override
-    public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
-        if (translations.containsKey(key)) {
-            return translations.get(key).translate(locale).orElse(defaultMessage);
-        } else {
-            Optional<NlsKeyImpl> first = getAdditionalKey(key);
-            if (first.isPresent()) {
-                // Load translations to avoid that they are not loaded when this happens to be the first call
-                this.ensureTranslationsLoaded();
-                translations.put(key, first.get());
-                return translations.get(key).translate(locale).orElse(defaultMessage);
-            } else {
-                return defaultMessage;
-            }
-        }
-    }
-
     @Override
     public String getString(String key, String defaultMessage) {
         return this.getString(getLocale(), key, defaultMessage);
@@ -115,7 +87,7 @@ class ThesaurusImpl implements IThesaurus {
     }
 
     private void ensureTranslationsLoaded() {
-        if (translations.isEmpty()) {
+        if (translations == null) {
             initTranslations(component, layer);
         }
     }
@@ -126,7 +98,7 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public void invalidate() {
-        translations.clear();
+        translations = null;
     }
 
     void createNewTranslationKeys(TranslationKeyProvider provider, Languages languages) {
@@ -198,7 +170,7 @@ class ThesaurusImpl implements IThesaurus {
     }
 
     @Override
-    public Map<String, String> getTranslations() {
+    public Map<String, String> getTranslationsForCurrentLocale() {
         this.ensureTranslationsLoaded();
         Map<String, String> map = new TreeMap<>();
         for (Map.Entry<String, NlsKeyImpl> entry : translations.entrySet()) {
@@ -253,10 +225,12 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public boolean hasKey(String key){
+        this.ensureTranslationsLoaded();
         return this.translations.entrySet()
                 .stream()
                 .filter(e -> e.getKey().equals(key))
                 .findFirst()
                 .isPresent();
     }
+
 }

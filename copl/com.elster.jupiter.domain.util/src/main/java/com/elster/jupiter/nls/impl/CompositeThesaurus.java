@@ -27,16 +27,6 @@ public class CompositeThesaurus implements IThesaurus {
     }
 
     @Override
-    public String getStringBeyondComponent(String key, String defaultMessage) {
-        return components.stream().findFirst().map(thesaurus -> thesaurus.getStringBeyondComponent(key, defaultMessage)).orElse(defaultMessage);
-    }
-
-    @Override
-    public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
-        return components.stream().findFirst().map(thesaurus -> thesaurus.getStringBeyondComponent(locale, key, defaultMessage)).orElse(defaultMessage);
-    }
-
-    @Override
     public String getString(String key, String defaultMessage) {
         return components.stream()
                 .map(th -> th.getString(key, null))
@@ -91,9 +81,9 @@ public class CompositeThesaurus implements IThesaurus {
     }
 
     @Override
-    public Map<String, String> getTranslations() {
+    public Map<String, String> getTranslationsForCurrentLocale() {
         return components.stream()
-                .map(Thesaurus::getTranslations)
+                .map(Thesaurus::getTranslationsForCurrentLocale)
                 .collect(HashMap::new, HashMap::putAll, HashMap::putAll);
     }
 
