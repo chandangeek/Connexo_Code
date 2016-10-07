@@ -182,8 +182,7 @@ public class IssueResource extends BaseResource {
               .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))  // Reason id
               .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
               .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS)) // All selected statuses
-                // TODO: MRID or name?
-              .withMeterMrid(filter.getString(IssueRestModuleConst.METER)) // Filter by meter MRID
+                .withMeterName(filter.getString(IssueRestModuleConst.METER)) // Filter by meter name
               .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
               .setAscOrder(false) // Sorting (descending direction)
               .from(params.getFrom()).to(params.getTo()); // Pagination

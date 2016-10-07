@@ -346,7 +346,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(issueGroupFilter.onlyGroupWithKey(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
         when(issueGroupFilter.withIssueTypes(Matchers.<List<String>>anyObject())).thenReturn(issueGroupFilter);
         when(issueGroupFilter.withStatuses(Matchers.<List<String>>anyObject())).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.withMeterMrid(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withMeterName(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
         when(issueGroupFilter.groupBy(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
         when(issueGroupFilter.setAscOrder(false)).thenReturn(issueGroupFilter);
         when(issueGroupFilter.from(1L)).thenReturn(issueGroupFilter);
