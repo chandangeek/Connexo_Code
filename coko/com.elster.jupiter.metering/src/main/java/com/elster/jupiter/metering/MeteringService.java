@@ -68,7 +68,7 @@ public interface MeteringService {
 
     Optional<EndDevice> findEndDeviceByName(String name);
 
-    Finder<Meter> findMeters (MeterFilter filter);
+    Finder<Meter> findMeters(MeterFilter filter);
 
     Optional<MeterActivation> findMeterActivation(long meterActivationId);
 

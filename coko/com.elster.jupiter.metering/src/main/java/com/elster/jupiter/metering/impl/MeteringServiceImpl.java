@@ -407,14 +407,15 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public Finder<Meter> findMeters(MeterFilter filter) {
-        Condition condition = Condition.TRUE;
+        Condition condition = where("obsoleteTime").isNull();
         if (!Checks.is(filter.getName()).emptyOrOnlyWhiteSpace()) {
             condition = condition.and(where("name").likeIgnoreCase(filter.getName()));
         }
-
-        condition = condition.and(ListOperator.NOT_IN.contains(DefaultFinder.of(EndDeviceLifeCycleStatus.class, where("state.name")
-                .in(filter.getStates()).and(where("interval").isEffective()), dataModel, State.class).asSubQuery("enddevice"), "id"));
-
+        if (!filter.getExcludedStates().isEmpty()) {
+            condition = condition.and(ListOperator.NOT_IN.contains(DefaultFinder.of(EndDeviceLifeCycleStatus.class,
+                    where("state.name").in(filter.getExcludedStates())
+                            .and(where("interval").isEffective()), dataModel, State.class).asSubQuery("enddevice"), "id"));
+        }
         return DefaultFinder.of(Meter.class, condition, dataModel).defaultSortColumn("name");
     }
 
