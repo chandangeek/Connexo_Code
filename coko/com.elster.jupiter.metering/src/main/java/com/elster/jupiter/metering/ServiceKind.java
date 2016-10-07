@@ -29,7 +29,7 @@ public enum ServiceKind implements TranslationKey {
 	}
 
 	public String getDisplayName(Thesaurus thesaurus) {
-		return thesaurus.getString(getTranslationKey(this), this.defaultFormat);
+		return thesaurus.getFormat(this).format();
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.metering.BypassStatus;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -29,9 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,6 +49,8 @@ public class BypassStatusSearchablePropertyTest {
     private OrmService ormService;
     @Mock
     private Clock clock;
+    @Mock
+    private MeteringTranslationService meteringTranslationService;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -113,7 +114,7 @@ public class BypassStatusSearchablePropertyTest {
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_BYPASS_STATUS.getKey()), anyString());
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.USAGEPOINT_BYPASS_STATUS);
     }
 
     @Test
@@ -186,6 +187,6 @@ public class BypassStatusSearchablePropertyTest {
     }
 
     private BypassStatusSearchableProperty getTestInstance() {
-        return new BypassStatusSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, new GasAttributesSearchablePropertyGroup(this.thesaurus), this.clock);
+        return new BypassStatusSearchableProperty(this.propertySpecService, this.meteringTranslationService, this.thesaurus).init(this.domain, new GasAttributesSearchablePropertyGroup(this.thesaurus), this.clock);
     }
 }

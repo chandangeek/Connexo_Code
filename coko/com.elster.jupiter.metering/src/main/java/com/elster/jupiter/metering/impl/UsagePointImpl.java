@@ -655,6 +655,11 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public String getConnectionStateDisplayName() {
+        return this.thesaurus.getFormat(this.getConnectionState()).format();
+    }
+
+    @Override
     public void setConnectionState(ConnectionState connectionState) {
         this.setConnectionState(connectionState, this.clock.instant());
     }

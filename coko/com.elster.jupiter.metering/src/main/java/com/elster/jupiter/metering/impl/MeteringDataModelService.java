@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
@@ -38,6 +39,8 @@ public interface MeteringDataModelService {
     void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException;
 
     ServerMeteringService getMeteringService();
+
+    MeteringTranslationService getMeteringTranslationService();
 
     DataAggregationService getDataAggregationService();
 

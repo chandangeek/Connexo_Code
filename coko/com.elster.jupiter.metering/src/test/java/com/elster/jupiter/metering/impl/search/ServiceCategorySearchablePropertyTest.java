@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,9 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,6 +53,8 @@ public class ServiceCategorySearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private MeteringTranslationService meteringTranslationService;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -116,7 +118,7 @@ public class ServiceCategorySearchablePropertyTest {
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY.getKey()), anyString());
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY);
     }
 
     @Test
@@ -191,18 +193,21 @@ public class ServiceCategorySearchablePropertyTest {
     public void displayEnum() {
         ServiceCategorySearchableProperty property = this.getTestInstance();
         ServiceKind valueToDisplay = ServiceKind.ELECTRICITY;
+        Stream.of(ServiceKind.values()).forEach(this::mockTranslationFor);
 
-        when(this.thesaurus.getStringBeyondComponent(eq(ServiceKind.ELECTRICITY.getKey()), anyString())).thenReturn("Electricity");
-        when(this.thesaurus.getString(eq(ServiceKind.ELECTRICITY.getKey()), anyString())).thenReturn("Electricity");
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(ServiceKind.ELECTRICITY.getDisplayName(thesaurus));
+        assertThat(displayValue).isEqualTo(ServiceKind.ELECTRICITY.getDefaultFormat());
+    }
+
+    private void mockTranslationFor(ServiceKind serviceKind) {
+        when(this.meteringTranslationService.getDisplayName(serviceKind)).thenReturn(serviceKind.getDefaultFormat());
     }
 
     private ServiceCategorySearchableProperty getTestInstance() {
-        return new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+        return new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.meteringTranslationService, this.thesaurus);
     }
 
 }

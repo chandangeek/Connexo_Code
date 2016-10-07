@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.metering.BypassStatus;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -23,6 +24,7 @@ import java.util.Optional;
 class BypassStatusSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
+    private final MeteringTranslationService meteringTranslationService;
     private final Thesaurus thesaurus;
 
     private SearchDomain domain;
@@ -32,8 +34,9 @@ class BypassStatusSearchableProperty implements SearchableUsagePointProperty {
     private String uniqueName;
 
     @Inject
-    BypassStatusSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    BypassStatusSearchableProperty(PropertySpecService propertySpecService, MeteringTranslationService meteringTranslationService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
+        this.meteringTranslationService = meteringTranslationService;
         this.thesaurus = thesaurus;
     }
 
@@ -96,7 +99,7 @@ class BypassStatusSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.singletonList(new BypassSearchableProperty(this.propertySpecService, this.thesaurus)
+        return Collections.singletonList(new BypassSearchableProperty(this.propertySpecService, meteringTranslationService, this.thesaurus)
                 .init(this.domain, this.group, this.clock));
     }
 

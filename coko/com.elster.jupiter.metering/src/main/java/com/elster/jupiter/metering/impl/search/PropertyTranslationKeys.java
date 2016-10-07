@@ -66,8 +66,6 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_CLAMPED("usagepoint.clamped", "Clamped"),
     USAGEPOINT_PRESSURE("usagepoint.pressure", "Pressure"),
     USAGEPOINT_BYPASS_STATUS("usagepoint.bypassStatus", "Bypass status")
-
-
     ;
 
     private String key;
@@ -77,7 +75,6 @@ public enum PropertyTranslationKeys implements TranslationKey {
         this.key = key;
         this.defaultFormat = defaultFormat;
     }
-
 
     @Override
     public String getKey() {
@@ -90,6 +87,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     }
 
     public String getDisplayName(Thesaurus thesaurus) {
-        return thesaurus.getString(this.key, this.defaultFormat);
+        return thesaurus.getFormat(this).format();
     }
+
 }
