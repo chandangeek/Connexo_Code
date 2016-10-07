@@ -15,7 +15,7 @@ use Archive::Zip;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20161004";
+my $INSTALL_VERSION="v20161006";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -270,6 +270,16 @@ sub read_config {
             chomp($APACHE_PATH=<STDIN>);
         }
     }
+    if ("$ACTIVATE_SSO" eq "yes") {
+        if ("$APACHE_PATH" eq "") {
+            print "If SSO has been activated, the variable APACHE_PATH needs to be filled in.\n";
+            exit (0);
+        }
+        if (! -e "$APACHE_PATH/conf/httpd.conf") {
+            print "The file $APACHE_PATH/conf/httpd.conf could not be found. Please make sure the variable APACHE_PATH has been filled in correctly.\n";
+            exit (0);
+        }
+    }
     if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
         $TOMCAT_SHUTDOWN_PORT=$TOMCAT_HTTP_PORT+5;
         $TOMCAT_AJP_PORT=$TOMCAT_HTTP_PORT+6;
@@ -334,11 +344,25 @@ sub check_port {
 sub checking_ports {
     my $CONNEXO_PORT=0;
     my $TOMCAT_PORT=0;
+    my $TOMCAT_SHUTDOWN_PRT=0;
+    my $TOMCAT_AJP_PRT=0;
+    my $TOMCAT_SSH_PRT=0;
+    my $TOMCAT_DAEMON_PRT=0;
     if ("$INSTALL_CONNEXO" eq "yes") { $CONNEXO_PORT=check_port($CONNEXO_HTTP_PORT); };
-    if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) { $TOMCAT_PORT=check_port($TOMCAT_HTTP_PORT); };
-    if ($CONNEXO_PORT>0 || $TOMCAT_PORT>0) {
+    if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
+        $TOMCAT_PORT=check_port($TOMCAT_HTTP_PORT);
+        $TOMCAT_SHUTDOWN_PRT=check_port($TOMCAT_SHUTDOWN_PORT);
+        $TOMCAT_AJP_PRT=check_port($TOMCAT_AJP_PORT);
+        $TOMCAT_SSH_PRT=check_port($TOMCAT_SSH_PORT);
+        $TOMCAT_DAEMON_PRT=check_port($TOMCAT_DAEMON_PORT);
+    };
+    if ($CONNEXO_PORT>0 || $TOMCAT_PORT>0 || $TOMCAT_SHUTDOWN_PRT>0 || $TOMCAT_AJP_PRT>0 || $TOMCAT_SSH_PRT>0 || $TOMCAT_DAEMON_PRT>0) {
         if ($CONNEXO_PORT>0) { print "Port $CONNEXO_HTTP_PORT for Connexo already in use!\n"; }
         if ($TOMCAT_PORT>0) { print "Port $TOMCAT_HTTP_PORT for Tomcat already in use!\n"; }
+        if ($TOMCAT_SHUTDOWN_PRT>0) { print "Port $TOMCAT_SHUTDOWN_PRT for Tomcat shutdown already in use!\n"; }
+        if ($TOMCAT_AJP_PRT>0) { print "Port $TOMCAT_AJP_PRT for Tomcat AJP already in use!\n"; }
+        if ($TOMCAT_SSH_PRT>0) { print "Port $TOMCAT_SSH_PRT for Tomcat SSH already in use!\n"; }
+        if ($TOMCAT_DAEMON_PRT>0) { print "Port $TOMCAT_DAEMON_PRT for Tomcat daemon already in use!\n"; }
         exit (0);
     }
 }
