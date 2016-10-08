@@ -1,7 +1,9 @@
 package com.elster.jupiter.rest.util;
 
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -26,7 +28,8 @@ public class ConcurrentModificationException extends LocalizedException {
 
     public String getMessageTitle() {
         if (messageTitle != null) {
-            return getThesaurus().getFormat(this.messageTitle).format(this.messageTitleArgs);
+            TranslationKey key = new SimpleTranslationKey(messageTitle.getKey(), messageTitle.getDefaultFormat());
+            return getThesaurus().getFormat(key).format(this.messageTitleArgs);
         } else {
             return getLocalizedMessage();
         }
