@@ -235,7 +235,7 @@ public class DeviceFirmwareMessagesResource {
             info.version = device.getVersion();
             deviceFirmwareActions.add(info);
         }
-        String runNowActionTitle = thesaurus.getFormat(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW).format();
+        String runNowActionTitle = thesaurus.getFormat(MessageSeeds.Keys.FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY).format();
         DeviceFirmwareActionInfo info = new DeviceFirmwareActionInfo("runnow", runNowActionTitle);
         info.version = device.getVersion();
         deviceFirmwareActions.add(info);
@@ -264,7 +264,7 @@ public class DeviceFirmwareMessagesResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
     public Response runFirmwareVersionCheckNow(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters, DeviceFirmwareActionInfo info) {
-        String actionName = thesaurus.getFormat(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW).format();
+        String actionName = thesaurus.getFormat(MessageSeeds.Keys.FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY).format();
         Device device = resourceHelper.getLockedDevice(mrid, info.version)
                 .orElseThrow(conflictFactory.conflict()
                         .withActualVersion(() -> deviceService.findByUniqueMrid(mrid).map(Device::getVersion).orElse(null))
