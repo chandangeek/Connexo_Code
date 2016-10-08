@@ -45,9 +45,10 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
     public DataCollectionIssueInfoFactory() {}
 
     @Inject
-    public DataCollectionIssueInfoFactory(DeviceService deviceService) {
+    public DataCollectionIssueInfoFactory(DeviceService deviceService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.deviceService = deviceService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     @Reference

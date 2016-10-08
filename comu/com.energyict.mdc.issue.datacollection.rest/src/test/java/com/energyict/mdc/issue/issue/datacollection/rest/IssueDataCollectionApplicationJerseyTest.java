@@ -22,6 +22,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
@@ -53,6 +54,8 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
     @Mock
     DeviceService deviceService;
     @Mock
+    DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    @Mock
     MessageService messageService;
     @Mock
     AppService appService;
@@ -79,6 +82,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         application.setNlsService(nlsService);
         when(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
         application.setDeviceService(deviceService);
+        application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         application.setMessageService(messageService);
         application.setAppService(appService);
         application.setJsonService(jsonService);

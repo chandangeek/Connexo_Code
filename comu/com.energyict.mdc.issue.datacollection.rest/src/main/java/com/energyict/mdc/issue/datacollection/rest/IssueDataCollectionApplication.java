@@ -25,6 +25,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.rest.i18n.DataCollectionIssueTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
@@ -58,6 +59,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile MessageService messageService;
     private volatile AppService appService;
     private volatile JsonService jsonService;
@@ -144,6 +146,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     }
 
     @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
     }
@@ -205,6 +212,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
+            bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
         }
     }
 }
