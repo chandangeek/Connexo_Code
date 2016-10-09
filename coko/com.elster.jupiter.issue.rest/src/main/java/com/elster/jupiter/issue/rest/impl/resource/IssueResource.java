@@ -12,7 +12,6 @@ import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
-import com.elster.jupiter.issue.rest.response.IssueInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
@@ -65,14 +64,12 @@ import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 public class IssueResource extends BaseResource {
 
     private final IssueResourceHelper issueResourceHelper;
-    private final IssueInfoFactory issueInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final IssueInfoFactoryService issueInfoFactoryService;
 
     @Inject
-    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService) {
+    public IssueResource(IssueResourceHelper issueResourceHelper, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService) {
         this.issueResourceHelper = issueResourceHelper;
-        this.issueInfoFactory = issueInfoFactory;
         this.conflictFactory = conflictFactory;
         this.issueInfoFactoryService = issueInfoFactoryService;
     }
@@ -92,7 +89,7 @@ public class IssueResource extends BaseResource {
         for(Issue baseIssue : issues) {
             for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
                 Optional<? extends Issue> issueRef = issueProvider.findIssue(baseIssue.getId());
-               if (issueRef.isPresent()) {
+                if (issueRef.isPresent()) {
                     issueInfos.add(IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issueRef.get()).from(issueRef.get())));
                 }
             }
@@ -182,7 +179,7 @@ public class IssueResource extends BaseResource {
               .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))  // Reason id
               .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
               .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS)) // All selected statuses
-                .withMeterName(filter.getString(IssueRestModuleConst.METER)) // Filter by meter name
+              .withMeterName(filter.getString(IssueRestModuleConst.METER)) // Filter by meter name
               .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
               .setAscOrder(false) // Sorting (descending direction)
               .from(params.getFrom()).to(params.getTo()); // Pagination
