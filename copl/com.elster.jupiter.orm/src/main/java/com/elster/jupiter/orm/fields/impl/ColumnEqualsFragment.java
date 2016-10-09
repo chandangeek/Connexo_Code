@@ -22,7 +22,6 @@ public class ColumnEqualsFragment extends ColumnFragment implements SqlFragment 
 
     @Override
     public String getText() {
-        return " " + getColumn().getName(getAlias()) +
-                (value == null ? " is ? " : " = ? ");
+        return " " + getColumn().getName(getAlias()) + " = ? ";
     }
 }
