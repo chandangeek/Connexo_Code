@@ -106,6 +106,7 @@ import java.time.Clock;
         "osgi.command.function=createDefaultDeviceLifeCycle",
         "osgi.command.function=setUpFirmwareManagement",
         "osgi.command.function=createImporters",
+        "osgi.command.function=createImportDirectories",
         "osgi.command.function=createDemoUser",
         "osgi.command.function=createDataLogger"
 }, immediate = true)
@@ -847,6 +848,14 @@ public class DemoServiceImpl {
             command.run();
         });
     }
+//    @SuppressWarnings("unused")
+//    public void createImportDirectories(String importPath){
+//        executeTransaction(() -> {
+//            CreateImportersCommand command = injector.getInstance(CreateImportersCommand.class);
+//            command.setAppServerName(appServerName);
+//            command.run();
+//        });
+//    }
     @SuppressWarnings("unused")
     public void createDemoUser(){
         System.err.println("Usage: createDemoUser <user name>");

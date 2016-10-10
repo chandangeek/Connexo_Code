@@ -110,8 +110,6 @@ public class ImportScheduleBuilder extends NamedBuilder<ImportSchedule, ImportSc
         importProperties.keySet().stream().forEach(propname -> builder.addProperty(propname).withValue(importProperties.get(propname)));
 
         ImportSchedule importSchedule = builder.create();
-        importSchedule.setActive(true);
-        importSchedule.update();
 
         applyPostBuilders(importSchedule);
 
