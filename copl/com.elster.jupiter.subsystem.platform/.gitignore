@@ -55,7 +55,7 @@ crashlytics-build.properties
 .mtj.tmp/
 
 # Package Files #
-*.jar
+# *.jar - don't ignore because of bpm processes packed as .jars
 *.war
 *.ear
 
