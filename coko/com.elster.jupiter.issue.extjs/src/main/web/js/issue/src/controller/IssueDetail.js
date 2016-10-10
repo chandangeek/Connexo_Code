@@ -25,7 +25,7 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel,
             widget;
 
-        if (issueType == 'datacollection') {
+        if (issueType === 'datacollection') {
             processStore.getProxy().setUrl(id);
             processStore.load(function (records) {
             });
@@ -40,10 +40,10 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         }
 
-        if (issueType == 'datacollection') {
+        if (issueType === 'datacollection') {
             widgetXtype = 'data-collection-issue-detail';
             issueModel = 'Idc.model.Issue';
-        } else if (issueType == 'datavalidation') {
+        } else if (issueType === 'datavalidation') {
             widgetXtype = 'data-validation-issue-detail';
             issueModel = 'Idv.model.Issue';
         }
@@ -67,7 +67,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     me.getApplication().fireEvent('issueLoad', record);
                     Ext.suspendLayouts();
                     widget.down('#issue-detail-top-title').setTitle(record.get('title'));
-                    if (issueType == 'datacollection') {
+                    if (issueType === 'datacollection') {
                         me.loadDataCollectionIssueDetails(widget, record);
                     } else {
                         widget.down('#issue-detail-form').loadRecord(record);
@@ -81,7 +81,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 router.getRoute(router.currentRoute.replace('/view', '')).forward();
             }
         });
-        if (issueType == 'datavalidation') {
+        if (issueType === 'datavalidation') {
             me.addValidationBlocksWidget(widget);
         }
     },
@@ -163,17 +163,19 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && Isu.privileges.Issue.canComment());
-                if (issueType == 'datacollection')
+                if (issueType === 'datacollection') {
                     me.loadTimeline(commentsStore);
+                }
                 Ext.resumeLayouts(true);
                 commentsView.setLoading(false);
             }
         });
         if (router.queryParams.addComment) {
-            if (issueType == 'datacollection')
+            if (issueType === 'datacollection') {
                 this.showCommentForm();
-            else
+            } else {
                 this.showCommentFormValidation();
+            }
         }
     },
 
@@ -186,10 +188,11 @@ Ext.define('Isu.controller.IssueDetail', {
         page.down('#no-issue-comments').hide();
         page.down('#issue-comments-add-comment-button').hide();
 
-        if(page.down('#tab-issue-context'))
+        if (page.down('#tab-issue-context')) {
             page.down('#tab-issue-context').setActiveTab(1);
-        else
+        } else {
             page.up('#tab-issue-context').setActiveTab(1);
+        }
         Ext.resumeLayouts(true);
     },
 
@@ -405,9 +408,9 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel;
 
 
-        if (issueType == 'datacollection') {
+        if (issueType === 'datacollection') {
             issueModel = 'Idc.model.Issue';
-        } else if (issueType == 'datavalidation') {
+        } else if (issueType === 'datavalidation') {
             issueModel = 'Idv.model.Issue';
         }
 
@@ -423,7 +426,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     me.getApplication().fireEvent('issueLoad', record);
                     Ext.suspendLayouts();
                     widget.down('#issue-detail-top-title').setTitle(record.get('title'));
-                    if (issueType == 'datacollection') {
+                    if (issueType === 'datacollection') {
                         me.loadDataCollectionIssueDetails(widget, record);
                     } else {
                         widget.down('#issue-detail-form').loadRecord(record);
@@ -435,7 +438,7 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         });
 
-        if (issueType == 'datavalidation') {
+        if (issueType === 'datavalidation') {
             me.addValidationBlocksWidget(widget);
         }
     }
