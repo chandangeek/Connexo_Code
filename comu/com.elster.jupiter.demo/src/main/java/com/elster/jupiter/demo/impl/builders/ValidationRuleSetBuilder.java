@@ -48,7 +48,7 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
                 .withReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .withReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .havingProperty("minimum").withValue(BigDecimal.ZERO)
-                .havingProperty("maximum").withValue(new BigDecimal(1000))
+                .havingProperty("maximum").withValue(new BigDecimal(1200))
                 .active(true)
                 .create();
     }
