@@ -25,6 +25,20 @@ Ext.define('Dbp.controller.History', {
                         process: ''
                     },
                     items: {
+                        bulkaction: {
+                            title: Uni.I18n.translate('bpm.task.bulkAction', 'DBP', 'Bulk action'),
+                            route: 'bulkaction',
+                            controller: 'Bpm.controller.TaskBulk',
+                            privileges: Bpm.privileges.BpmManagement.assignOrExecute,
+                            action: 'showOverview',
+                            params: {
+                                sort: '',
+                                user: '',
+                                dueDate:'',
+                                status:'',
+                                process: ''
+                            }
+                        },
                         task: {
                             title: Uni.I18n.translate('bpm.task', 'DBP', 'Task'),
                             route: '{taskId}',
@@ -89,20 +103,6 @@ Ext.define('Dbp.controller.History', {
                                         process: ''
                                     }
                                 }
-                            }
-                        },
-                        bulkaction: {
-                            title: Uni.I18n.translate('bpm.task.bulkAction', 'DBP', 'Bulk action'),
-                            route: 'bulkaction',
-                            controller: 'Bpm.controller.TaskBulk',
-                            privileges: Bpm.privileges.BpmManagement.assignOrExecute,
-                            action: 'showOverview',
-                            params: {
-                                sort: '',
-                                user: '',
-                                dueDate:'',
-                                status:'',
-                                process: ''
                             }
                         }
                     }
