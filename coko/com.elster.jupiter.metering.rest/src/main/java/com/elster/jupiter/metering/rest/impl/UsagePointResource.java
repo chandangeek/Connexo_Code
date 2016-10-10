@@ -131,7 +131,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public UsagePointInfo updateUsagePoint(@PathParam("name") String mRID, UsagePointInfo info) {
+    public UsagePointInfo updateUsagePoint(@PathParam("name") String name, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
         info.writeTo(usagePoint);
         return usagePointInfoFactory.from(usagePoint);
