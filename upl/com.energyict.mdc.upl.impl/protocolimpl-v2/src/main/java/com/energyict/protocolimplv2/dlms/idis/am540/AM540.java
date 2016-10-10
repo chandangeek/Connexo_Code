@@ -154,7 +154,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-06 17:37:16 +0300 (Thu, 06 Oct 2016)$";
+        return "$Date: 2016-10-10 09:28:01 +0300 (Mon, 10 Oct 2016)$";
     }
 
     /**
@@ -365,16 +365,20 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     @Override
     protected ObisCode getFrameCounterForClient(int clientId) {
         // handle some special frame-counters for EVN
-        switch (clientId) {
-            case EVN_CLIENT_DATA_READOUT:
-                return EVN_FRAMECOUNTER_DATA_READOUT;
-            case EVN_CLIENT_INSTALLATION:
-                return EVN_FRAMECOUNTER_INSTALLATION;
-            case EVN_CLIENT_MAINTENANCE:
-                return EVN_FRAMECOUNTER_MAINTENANCE;
-            case EVN_CLIENT_CERTIFICATION:
-                return EVN_FRAMECOUNTER_CERTIFICATION;
-            default:
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            return new ObisCode(0, 0, 43, 1, clientId, 255);
+        } else {
+            switch (clientId) {
+                case EVN_CLIENT_DATA_READOUT:
+                    return EVN_FRAMECOUNTER_DATA_READOUT;
+                case EVN_CLIENT_INSTALLATION:
+                    return EVN_FRAMECOUNTER_INSTALLATION;
+                case EVN_CLIENT_MAINTENANCE:
+                    return EVN_FRAMECOUNTER_MAINTENANCE;
+                case EVN_CLIENT_CERTIFICATION:
+                    return EVN_FRAMECOUNTER_CERTIFICATION;
+                default:
+            }
         }
         return super.getFrameCounterForClient(clientId); // get the standard IDIS ones
     }
