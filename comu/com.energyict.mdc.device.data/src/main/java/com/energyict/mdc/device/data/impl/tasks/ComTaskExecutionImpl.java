@@ -500,8 +500,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      */
     private Optional<Instant> calculateNextExecutionTimestampFromTriggers() {
         Optional<ComTaskExecutionTrigger> earliestComTaskExecutionTrigger = getComTaskExecutionTriggers().stream()
-                .filter(comTaskExecutionTrigger -> comTaskExecutionTrigger.getTriggerTimeStamp()
-                        .isAfter(getLastExecutionStartTimestamp() != null ? getLastExecutionStartTimestamp() : Instant.now(clock)))
+                .filter(comTaskExecutionTrigger -> getLastExecutionStartTimestamp() == null || comTaskExecutionTrigger.getTriggerTimeStamp().isAfter(getLastExecutionStartTimestamp()))
                 .sorted((e1, e2) -> e1.getTriggerTimeStamp().compareTo(e2.getTriggerTimeStamp())).findFirst();
         return earliestComTaskExecutionTrigger.isPresent() ? Optional.of(earliestComTaskExecutionTrigger.get().getTriggerTimeStamp()) : Optional.empty();
     }
@@ -586,7 +585,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public void resume() {
         this.onHold = false;
-        this.plannedNextExecutionTimestamp = this.calculateNextExecutionTimestamp(clock.instant());
         this.schedule(getPlannedNextExecutionTimestamp());
     }
 

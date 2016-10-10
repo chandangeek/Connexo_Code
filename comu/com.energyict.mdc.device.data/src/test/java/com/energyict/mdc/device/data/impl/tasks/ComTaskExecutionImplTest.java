@@ -1149,6 +1149,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
 
         // Asserts
-        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(nextExecutionAccordingToSchedule);
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(triggerTimeStamp);
     }
 }
