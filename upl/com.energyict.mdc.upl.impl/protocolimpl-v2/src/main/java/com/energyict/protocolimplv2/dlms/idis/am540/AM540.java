@@ -86,6 +86,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
         getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
         getLogger().info("-version: " + getVersion());
         initDlmsSession(comChannel);
@@ -154,7 +155,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-10 09:28:01 +0300 (Mon, 10 Oct 2016)$";
+        return "$Date: 2016-10-10 14:56:19 +0300 (Mon, 10 Oct 2016)$";
     }
 
     /**
@@ -486,8 +487,6 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
      * Method to check whether the cache needs to be read out or not, if so the read will be forced
      */
     protected void checkCacheObjects() {
-        getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
-
         boolean readCache = getDlmsSessionProperties().isReadCache();
         if ((getDeviceCache().getObjectList() == null) || (readCache)) {
             getLogger().info(readCache ? "ReReadCache property is true, reading cache!" : "The cache was empty, reading out the object list!");

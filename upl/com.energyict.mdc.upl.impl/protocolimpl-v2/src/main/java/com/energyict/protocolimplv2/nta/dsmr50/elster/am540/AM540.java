@@ -85,6 +85,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
 
         HHUSignOnV2 hhuSignOn = null;
         if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
@@ -131,7 +132,6 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
      * Method to check whether the cache needs to be read out or not, if so the read will be forced
      */
     protected void checkCacheObjects() {
-        getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
 
         //Refresh the object list if it doesn't exist or if the property is enabled
         if ((getDeviceCache().getObjectList() == null) || (getDlmsSessionProperties().isReadCache())) {
@@ -368,7 +368,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-05-03 14:54:30 +0200 (Tue, 03 May 2016)$";
+        return "$Date: 2016-10-10 14:56:19 +0300 (Mon, 10 Oct 2016)$";
     }
 
     @Override
