@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.util.stream.Stream;
 
-
 public enum TaskStatusTranslationKeys implements TranslationKey {
 
     PENDING(TaskStatus.Pending, "Pending"),

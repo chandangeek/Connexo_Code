@@ -1335,9 +1335,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private Meter createKoreMeter(AmrSystem amrSystem) {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
-        if(koreHelper.getInitialMeterActivationStartDate().get().isBefore(this.getDeviceType().getDeviceLifeCycle().getMaximumPastEffectiveTimestamp()) ||
-           koreHelper.getInitialMeterActivationStartDate().get().isAfter(this.getDeviceType().getDeviceLifeCycle().getMaximumFutureEffectiveTimestamp())){
-            throw new NoLifeCycleActiveAt(koreHelper.getInitialMeterActivationStartDate().get(), thesaurus, MessageSeeds.NO_LIFE_CYCLE_AT);
+        Instant maximumPastEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumPastEffectiveTimestamp();
+        Instant maximumFutureEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumFutureEffectiveTimestamp();
+        if(koreHelper.getInitialMeterActivationStartDate().get().isBefore(maximumPastEffectiveTimestamp) ||
+           koreHelper.getInitialMeterActivationStartDate().get().isAfter(maximumFutureEffectiveTimestamp)){
+            throw new NoLifeCycleActiveAt(thesaurus, MessageSeeds.INVALID_SHIPMENT_DATE, koreHelper.getInitialMeterActivationStartDate().get(), maximumPastEffectiveTimestamp,  maximumFutureEffectiveTimestamp);
         }
         Meter newMeter = amrSystem.newMeter(String.valueOf(getId()))
                 .setMRID(getmRID())

@@ -25,9 +25,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -42,7 +42,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCategorySearchablePropertyTest {
 
-    public static final String TRANSLATION_FOR_GAS_SERVICE_KIND = "Translation for gas service kind";
+    private static final String TRANSLATION_FOR_GAS_SERVICE_KIND = "Translation for gas service kind";
+
     @Mock
     private DataVaultService dataVaultService;
     @Mock
@@ -63,7 +64,6 @@ public class ServiceCategorySearchablePropertyTest {
     private MeteringService meteringService;
 
     private BeanService beanService = new DefaultBeanService();
-    private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private PropertySpecService propertySpecService;
 
     @Before
@@ -79,7 +79,7 @@ public class ServiceCategorySearchablePropertyTest {
     @Before
     public void initializeMocks() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
+        com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
         ServiceCategory gasCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(any())).thenReturn(Optional.empty());
@@ -192,17 +192,12 @@ public class ServiceCategorySearchablePropertyTest {
     public void testDisplayValue() {
         ServiceCategorySearchableProperty property = this.getTestInstance();
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
-        when(serviceCategory.getTranslationKey()).thenReturn(ServiceKind.GAS.getKey());
-        when(serviceCategory.getKind()).thenReturn(ServiceKind.GAS);
 
         // Business method
         property.toDisplay(serviceCategory);
 
         // Asserts
-        ArgumentCaptor<TranslationKey> translationKeyCaptor = ArgumentCaptor.forClass(TranslationKey.class);
-        verify(this.thesaurus).getFormat(translationKeyCaptor.capture());
-        TranslationKey translationKey = translationKeyCaptor.getValue();
-        assertThat(translationKey.getKey()).isEqualTo(ServiceKind.GAS.getKey());
+        verify(serviceCategory).getDisplayName();
     }
 
     private ServiceCategorySearchableProperty getTestInstance() {
