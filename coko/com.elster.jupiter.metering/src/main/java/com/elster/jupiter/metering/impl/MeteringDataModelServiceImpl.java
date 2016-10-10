@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.I18N;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -9,11 +10,13 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.BypassStatus;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
@@ -111,6 +114,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     private MeteringServiceImpl meteringService;
+    private MeteringTranslationServiceImpl meteringTranslationService;
     private InstantTruncaterFactory truncaterFactory;
     private DataAggregationService dataAggregationService;
     private UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
@@ -183,12 +187,13 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.meteringService = new MeteringServiceImpl(this, getDataModel(), getThesaurus(), getClock(), this.idsService,
                 this.eventService, this.queryService, this.messageService, this.jsonService, this.upgradeService);
         this.meteringService.defineLocationTemplates(bundleContext, createDefaultLocationTemplate); // This call has effect on resulting table spec!
+        this.meteringTranslationService = new MeteringTranslationServiceImpl(this.thesaurus);
         this.truncaterFactory = new InstantTruncaterFactory(this.meteringService);
         if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
             this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService, this.truncaterFactory, this.customPropertySetService);
         }
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
-        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.metrologyConfigurationService, this.clock, this.licenseService);
+        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.meteringTranslationService, this.metrologyConfigurationService, this.clock, this.licenseService);
     }
 
     private void registerDataModel(BundleContext bundleContext) {
@@ -202,6 +207,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(MeteringServiceImpl.class).toInstance(meteringService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(ServerMeteringService.class).toInstance(meteringService);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
                 bind(InstantTruncaterFactory.class).toInstance(truncaterFactory);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
@@ -240,6 +246,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     private void registerServices(BundleContext bundleContext) {
         registerMeteringService(bundleContext);
+        registerMeteringTranslationService(bundleContext);
         registerTruncationFactory(bundleContext);
         registerDataAggregationService(bundleContext);
         registerMetrologyConfigurationService(bundleContext); // Search domain must already be registered
@@ -257,6 +264,16 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                     MeteringService.class.getName(),
                                     ServerMeteringService.class.getName()},
                             this.meteringService,
+                            noServiceProperties()));
+        }
+    }
+
+    private void registerMeteringTranslationService(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            this.serviceRegistrations.add(
+                    bundleContext.registerService(
+                            MeteringTranslationService.class,
+                            this.meteringTranslationService,
                             noServiceProperties()));
         }
     }
@@ -310,6 +327,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>();
+        Arrays.stream(ConnectionState.values()).forEach(translationKeys::add);
         Arrays.stream(DefaultTranslationKey.values()).forEach(translationKeys::add);
         Arrays.stream(DefaultMeterRole.values()).forEach(translationKeys::add);
         Arrays.stream(ServiceKind.values()).forEach(translationKeys::add);
@@ -444,7 +462,9 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+        Thesaurus myThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+        Thesaurus cboThesaurus = nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = myThesaurus.join(cboThesaurus);
     }
 
     @Override
@@ -475,19 +495,27 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     @Override
     public void copyKeyIfMissing(NlsKey name, String localKey) {
-        if (this.thesaurus.getTranslations().get(localKey) == null) {
+        if (!this.thesaurus.hasKey(localKey)) {
             this.nlsService.copy(name, COMPONENT_NAME, Layer.DOMAIN, key -> localKey);
         }
     }
 
+    @Override
     public ServerMeteringService getMeteringService() {
         return this.meteringService;
     }
 
+    @Override
+    public MeteringTranslationServiceImpl getMeteringTranslationService() {
+        return meteringTranslationService;
+    }
+
+    @Override
     public DataAggregationService getDataAggregationService() {
         return this.dataAggregationService;
     }
 
+    @Override
     public ServerMetrologyConfigurationService getMetrologyConfigurationService() {
         return this.metrologyConfigurationService;
     }

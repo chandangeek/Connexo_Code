@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.metering.ConnectionState;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -75,7 +76,7 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
     public String toDisplay(Object value) {
         if (value instanceof ConnectionState) {
             String string = ((ConnectionState) value).getName();
-            return this.thesaurus.getString(string, string);
+            return this.thesaurus.getFormat(new SimpleTranslationKey(string, string)).format();
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }

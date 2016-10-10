@@ -25,6 +25,7 @@ public enum BypassStatus implements TranslationKey {
     }
 
     public String getDisplayValue(Thesaurus thesaurus) {
-        return thesaurus.getString(key, value);
+        return thesaurus.getFormat(this).format();
     }
+
 }

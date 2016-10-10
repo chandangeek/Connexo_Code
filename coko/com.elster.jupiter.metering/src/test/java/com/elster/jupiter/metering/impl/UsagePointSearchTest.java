@@ -22,6 +22,7 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -151,6 +152,7 @@ public class UsagePointSearchTest {
             user = injector.getInstance(UserService.class).findUser("admin")
                     .orElseThrow(() -> new NoSuchElementException("User 'admin' is not found"));
             injector.getInstance(ThreadPrincipalService.class).set(user);
+            injector.getInstance(MeteringTranslationService.class);
             usagePointSearchDomain = injector.getInstance(UsagePointSearchDomain.class);
             propertySpecService = injector.getInstance(PropertySpecService.class);
             context.commit();

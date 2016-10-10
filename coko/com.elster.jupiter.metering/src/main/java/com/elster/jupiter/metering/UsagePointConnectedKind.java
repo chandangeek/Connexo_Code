@@ -22,7 +22,7 @@ public enum UsagePointConnectedKind implements TranslationKey {
     }
 
     public String getDisplayName(Thesaurus thesaurus) {
-        return thesaurus.getString(this.value, this.defaultFormat);
+        return thesaurus.getFormat(this).format();
     }
 
     @Override
