@@ -51,6 +51,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ConnectionSetupException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -236,7 +237,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
         try {        	
 	        // Associate if necessary.
-	        if (preEstablished) {
+	        if (preEstablished && !this.getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
 	        	if (this.getLogger().isLoggable(Level.FINE)) {
 	        		this.getLogger().log(Level.FINE, "Public client association is pre-established.");
 	        	}
