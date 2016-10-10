@@ -48,6 +48,7 @@ public enum MessageSeeds implements MessageSeed {
     CIPHERING_EXCEPTION(132, "issue.protocol.ciphering", "Encountered an exception related to the ciphering of data: {0}"),
     CONNECTION_DISCONNECT_ERROR(133, "connectionDisconnectError", "Disconnect of connection failed: {0}"),
     COULD_NOT_READ_BREAKER_STATE(134, "issue.protocol.readingOfBreakerStateFailed", "Could not correctly read the breaker state: {0}"),
+    MISSING_PROPERTY(135, "protocol.required.property", "Required property \"{0}\" is missing"),
     //TODO complete this list with the entries of 9.1, will happen when the 9.1 codebase is used
     ;
 

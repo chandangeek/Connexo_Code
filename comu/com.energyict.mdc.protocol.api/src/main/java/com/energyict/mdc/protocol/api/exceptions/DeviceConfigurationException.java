@@ -1,8 +1,8 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
-import com.energyict.mdc.common.ComServerRuntimeException;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.ComServerRuntimeException;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 
 /**
  * Provides functionality to create exceptions based on the configuration of a Device
@@ -47,4 +47,12 @@ public class DeviceConfigurationException extends ComServerRuntimeException {
         return new TimeDifferenceExceededException(messageSeed, actualTimeDifference, maximumTimeDifference);
     }
 
+    /**
+     * Creates a {@link DeviceConfigurationException} indicating that a required property was not filled in
+     *
+     * @param propertyName the name of the required property
+     */
+    public static DeviceConfigurationException missingProperty(final String propertyName) {
+        return new DeviceConfigurationException(MessageSeeds.MISSING_PROPERTY, propertyName);
+    }
 }
