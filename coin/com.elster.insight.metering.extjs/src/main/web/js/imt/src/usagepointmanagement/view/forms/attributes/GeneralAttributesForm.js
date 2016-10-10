@@ -28,14 +28,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                 fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
             },
             {
-                name: 'name',
-                itemId: 'fld-up-name',
-                fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
-                renderer: function (value) {
-                    return value ? value : '-';
-                }
-            },
-            {
                 name: 'installationTime',
                 itemId: 'fld-up-created',
                 fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
@@ -103,22 +95,16 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
 
         me.editForm = [
             {
-                xtype: 'displayfield',
-                name: 'mRID',
-                itemId: 'up-mrid-textfield',
-                fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID')
+                xtype: 'textfield',
+                name: 'name',
+                itemId: 'up-name-textfield',
+                fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
             },
             {
                 xtype: 'displayfieldwithicon',
                 name: 'serviceCategory',
                 itemId: 'up-service-category-combo',
                 fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
-            },
-            {
-                xtype: 'textfield',
-                name: 'name',
-                itemId: 'up-name-textfield',
-                fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
             },
             {
                 xtype: 'displayfield',
