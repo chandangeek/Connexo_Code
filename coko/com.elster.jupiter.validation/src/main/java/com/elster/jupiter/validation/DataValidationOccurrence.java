@@ -24,6 +24,14 @@ public interface DataValidationOccurrence {
 
     DataValidationTaskStatus getStatus();
 
+    /**
+     * Returns the name of the status of this DataValidationOccurrence
+     * in the user's preferred language.
+     *
+     * @return The name of the status of this DataValidationOccurrence
+     */
+    String getStatusName();
+
     Instant getTriggerTime();
 
     boolean wasScheduled();
