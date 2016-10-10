@@ -1,7 +1,8 @@
 package com.elster.jupiter.fileimport;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.io.InputStream;
 import java.time.Instant;
@@ -27,7 +28,8 @@ public interface FileImportOccurrence {
 
     /**
      * Opens a new inputStream of the contents of the file.
-     * @return
+     *
+     * @return The InputStream
      */
     InputStream getContents();
 
@@ -42,11 +44,18 @@ public interface FileImportOccurrence {
     Status getStatus();
 
     /**
+     * Returns the name of the status of this FileImportOccurrence
+     * in the user's preferred language.
+     *
+     * @return The name of the status of this FileImportOccurrence
+     */
+    String getStatusName();
+
+    /**
      * Marks the file as successfully imported
      * @throws IllegalStateException if the current state is not PROCESSING
      */
     void markSuccess(String message) throws IllegalStateException;
-
 
     /**
      * Marks the file as successfully imported but the import process encounter failures
@@ -80,4 +89,5 @@ public interface FileImportOccurrence {
     Finder<ImportLogEntry> getLogsFinder();
 
     String getMessage();
+
 }
