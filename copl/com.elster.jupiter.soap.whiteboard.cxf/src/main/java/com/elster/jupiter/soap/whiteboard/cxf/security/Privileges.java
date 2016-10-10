@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 public enum Privileges implements TranslationKey {
 
     //Resources
-    RESOURCE_WEB_SERVICES("webservices.webservices", "Webservices"),
-    RESOURCE_WEB_SERVICES_DESCRIPTION("webservices.webservices.description", "Manage webservices"),
+    RESOURCE_WEB_SERVICES("webservices.webservices", "Web services"),
+    RESOURCE_WEB_SERVICES_DESCRIPTION("webservices.webservices.description", "Manage web services"),
 
 
     //Privileges
