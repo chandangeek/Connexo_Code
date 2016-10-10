@@ -111,8 +111,7 @@ Ext.define('Cfg.view.field.ReadingQualities', {
             }
             if (rule.application && rule.application.id == "MDM" && !me.usedInInsight) {
                 str += Uni.I18n.translate('device.suspectInInsight', 'CFG', 'Suspect in Insight');
-            }
-            if (!Ext.isEmpty(application) && !rule.deleted) {
+            } else if (!Ext.isEmpty(application) && !rule.deleted) {
                 str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
 
                 if (Cfg.privileges.Validation.canViewOrAdministrate()) {
