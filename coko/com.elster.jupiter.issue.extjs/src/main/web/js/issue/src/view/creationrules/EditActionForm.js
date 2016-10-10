@@ -19,7 +19,8 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
             {
                 itemId: 'form-errors',
                 xtype: 'uni-form-error-message',
-                hidden: true
+                hidden: true,
+                width: 595
             },
             {
                 xtype: 'radiogroup',
