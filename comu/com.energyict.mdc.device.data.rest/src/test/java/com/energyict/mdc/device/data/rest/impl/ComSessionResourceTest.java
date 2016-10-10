@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -16,23 +18,28 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -45,6 +52,18 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     private final Instant start = ZonedDateTime.of(2014, 10, 10, 13, 10, 10, 0, ZoneId.of("Europe/Brussels")).toInstant();
     private final Instant end = ZonedDateTime.of(2014, 10,10,13,10,20, 0, ZoneId.of("Europe/Brussels")).toInstant();
     private ComSession comSession1;
+
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        Stream.of(ComSessionSuccessIndicatorTranslationKeys.values()).forEach(this::mockTranslation);
+    }
+
+    private void mockTranslation(TranslationKey translationKey) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
+        doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
+    }
 
     @Test
     public void testGetComTaskExecutions() throws Exception {
@@ -64,7 +83,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
         doReturn(partialConnectionTask).when(connectionTask).getPartialConnectionTask();
         ComSession comSession1 = mockComSession(connectionTask, 61L, 0);
-        when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
+        when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Collections.singletonList(comSession1));
         String response = target("/devices/XAW1/connectionmethods/3/comsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
@@ -94,7 +113,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
 
     private Device mockDevice(ConnectionTask<?, ?> connectionTask) {
         Device device = mock(Device.class);
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getId()).thenReturn(1001L);
         when(deviceType.getName()).thenReturn("device type");
@@ -109,7 +128,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     public void testGetComSessionById() throws Exception {
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
         Device device = mockDevice(connectionTask);
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         when(deviceService.findByUniqueMrid("XAW1")).thenReturn(Optional.of(device));
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
@@ -124,7 +143,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
         doReturn(partialConnectionTask).when(connectionTask).getPartialConnectionTask();
         ComSession comSession1 = mockComSession(connectionTask, 777L, 0);
-        when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
+        when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Collections.singletonList(comSession1));
         String response = target("/devices/XAW1/connectionmethods/3/comsessions/777").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
@@ -153,7 +172,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     public void testGetComTaskExecutionsSorted() throws Exception {
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
         Device device = mockDevice(connectionTask);
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         when(deviceService.findByUniqueMrid("XAW1")).thenReturn(Optional.of(device));
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
@@ -181,7 +200,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     public void testConnectionTaskJournalEntries() throws Exception {
         setupJournalMocking();
         String response = target("/devices/XAW1/connectionmethods/3/comsessions/888/journals")
-                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("Connections")).create())
+                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Collections.singletonList("Connections")).create())
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .request().get(String.class);
@@ -193,8 +212,8 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Test
     public void testConnectionTaskJournalEntriesByLogLevel() throws Exception {
         setupJournalMocking();
-        String response = target("/devices/XAW1/connectionmethods/3/comsessions/888/journals")
-                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("Connections")).create())
+        target("/devices/XAW1/connectionmethods/3/comsessions/888/journals")
+                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Collections.singletonList("Connections")).create())
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .request().get(String.class);
@@ -207,7 +226,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     private void setupJournalMocking() {
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
         Device device = mockDevice(connectionTask);
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         when(deviceService.findByUniqueMrid("XAW1")).thenReturn(Optional.of(device));
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
@@ -222,7 +241,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
         doReturn(partialConnectionTask).when(connectionTask).getPartialConnectionTask();
         comSession1 = mockComSession(connectionTask, 888L, 1);
-        when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
+        when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Collections.singletonList(comSession1));
 
         ComTaskExecutionJournalEntry journalEntry1 = mockComTaskExecutionMessageJournalEntry(start, ComServer.LogLevel.INFO, "Starting connection", "i/o error");
         ComTaskExecutionJournalEntry journalEntry1bis = mockComTaskExecutionCommandJournalEntry(start.plusSeconds(1), ComServer.LogLevel.TRACE, "ATDT", "");

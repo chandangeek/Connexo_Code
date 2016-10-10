@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -103,8 +104,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private static final long endTimeSecond = 1489561597000L;
     private static final long startTimeNew = 1469561597000L;
     private static final long endTimeNew = 1499561597000L;
-    private static long intervalStart = 1410774630000L;
-    private static long intervalEnd = 1410828630000L;
+    private static final long INTERVAL_START = 1410774630000L;
+    private static final long INTERVAL_END = 1410828630000L;
+
     @Mock
     private Device device;
     @Mock
@@ -129,8 +131,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private EstimationRule estimationRule;
     @Mock
     private ReadingQualityRecord quality1, quality2, quality3, quality4;
-    /*    @Mock
-        private ReadingQualityRecord quality2;*/
     @Mock
     private ValidationRuleSet validationRuleSet;
     @Mock
@@ -154,12 +154,32 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private ReadingQualityType readingQualityTypeConfirmedInMDC = new ReadingQualityType("2.10.1");
     private ReadingQualityType readingQualityTypeConfirmedInMDM = new ReadingQualityType("3.10.1");
 
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        when(this.meteringTranslationService.getDisplayName(any(QualityCodeIndex.class)))
+                .thenAnswer(invocationOnMock -> {
+                    QualityCodeIndex qualityCodeIndex = (QualityCodeIndex) invocationOnMock.getArguments()[0];
+                    return qualityCodeIndex.getTranslationKey().getDefaultFormat();
+                });
+        when(this.meteringTranslationService.getDisplayName(any(QualityCodeSystem.class)))
+                .thenAnswer(invocationOnMock -> {
+                    QualityCodeSystem qualityCodeSystem = (QualityCodeSystem) invocationOnMock.getArguments()[0];
+                    return qualityCodeSystem.getTranslationKey().getDefaultFormat();
+                });
+        when(this.meteringTranslationService.getDisplayName(any(QualityCodeCategory.class)))
+                .thenAnswer(invocationOnMock -> {
+                    QualityCodeCategory qualityCodeCategory = (QualityCodeCategory) invocationOnMock.getArguments()[0];
+                    return qualityCodeCategory.getTranslationKey().getDefaultFormat();
+                });
+    }
+
     @Before
     public void setUpStubs() {
         when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation));
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         when(meterActivation.getStart()).thenReturn(NOW);
-        Interval intervalActivation = Interval.of(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
+        Interval intervalActivation = Interval.of(Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant.ofEpochMilli(INTERVAL_END)));
         when(meterActivation.getInterval()).thenReturn(intervalActivation);
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
@@ -177,10 +197,10 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
         when(loadProfileType.getName()).thenReturn("LoadProfileTypeName");
-        Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
+        Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant.ofEpochMilli(INTERVAL_END));
         when(channel.getChannelData(interval)).thenReturn(Arrays.asList(
                 loadProfileReading, addedLoadProfileReading, editedProfileReading, removedProfileReading, confirmedProfileReading, missingReadingRecord));
-        Range<Instant> interval2 = Ranges.openClosed(Instant.ofEpochMilli(intervalStart - 900000), Instant.ofEpochMilli(intervalStart));
+        Range<Instant> interval2 = Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START - 900000), Instant.ofEpochMilli(INTERVAL_START));
         when(channel.getChannelData(interval2)).thenReturn(Arrays.asList(loadProfileReading));
         when(loadProfileReading.getRange()).thenReturn(interval);
         doReturn(BATTERY_LOW).when(thesaurus).getString(BATTERY_LOW, BATTERY_LOW);
@@ -235,7 +255,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.isValidationActive(channel, NOW)).thenReturn(true);
 
-        DataValidationStatusImpl dataValidationStatus = new DataValidationStatusImpl(Instant.ofEpochMilli(intervalEnd), true);
+        DataValidationStatusImpl dataValidationStatus = new DataValidationStatusImpl(Instant.ofEpochMilli(INTERVAL_END), true);
         //add validation quality
         dataValidationStatus.addReadingQuality(quality1, asList(validationRule));
         dataValidationStatus.addBulkReadingQuality(quality1, asList(validationRule));
@@ -368,9 +388,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testChannelData() throws UnsupportedEncodingException {
-        String filter = ExtjsFilter.filter().property("intervalStart", intervalStart).property("intervalEnd", intervalEnd).create();
-        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel, Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
-                .ofEpochMilli(intervalEnd)))));
+        String filter = ExtjsFilter.filter().property("intervalStart", INTERVAL_START).property("intervalEnd", INTERVAL_END).create();
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel, Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant
+                .ofEpochMilli(INTERVAL_END)))));
 
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
@@ -379,8 +399,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(6);
-        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(intervalStart);
-        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(intervalEnd);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(INTERVAL_START);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(INTERVAL_END);
         assertThat(jsonModel.<List<?>>get("$.data[0].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0]")).isEqualTo(BATTERY_LOW);
         assertThat(jsonModel.<String>get("$.data[0].collectedValue")).isEqualTo("200.000");
@@ -448,8 +468,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         ChannelDataInfo channelDataInfo = new ChannelDataInfo();
         channelDataInfo.value = BigDecimal.TEN;
         channelDataInfo.interval = new IntervalInfo();
-        channelDataInfo.interval.start = intervalStart;
-        channelDataInfo.interval.end = intervalEnd;
+        channelDataInfo.interval.start = INTERVAL_START;
+        channelDataInfo.interval.end = INTERVAL_END;
 
         List<ChannelDataInfo> infos = new ArrayList<>();
         infos.add(channelDataInfo);
@@ -478,8 +498,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testChannelDataFilteredMatches() throws UnsupportedEncodingException {
         String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).property("suspect", "suspect").create();
-        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel, Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
-                .ofEpochMilli(intervalEnd)))));
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel, Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant
+                .ofEpochMilli(INTERVAL_END)))));
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
                 .request().get(String.class);

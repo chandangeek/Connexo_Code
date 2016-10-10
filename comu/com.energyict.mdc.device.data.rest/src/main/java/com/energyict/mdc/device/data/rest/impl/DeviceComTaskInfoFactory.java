@@ -49,7 +49,7 @@ public class DeviceComTaskInfoFactory {
         if (!compatibleComTaskExecutions.isEmpty()) {
             return this.fromCompatibleComTaskExecutions(comTaskEnablement, compatibleComTaskExecutions);
         } else {
-            return this.from(comTaskEnablement,device);
+            return this.fromForEnablementWhichIsNotOnDeviceYet(comTaskEnablement,device);
         }
     }
 
@@ -168,12 +168,12 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
     }
 
-    private DeviceComTaskInfo from(ComTaskEnablement comTaskEnablement, Device device) {
+    private DeviceComTaskInfo fromForEnablementWhichIsNotOnDeviceYet(ComTaskEnablement comTaskEnablement, Device device) {
         DeviceComTaskInfo deviceComTasksInfo = new DeviceComTaskInfo();
         deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.ON_REQUEST).format();
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.ON_REQUEST.name();
         deviceComTasksInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
-        deviceComTasksInfo.status = thesaurus.getFormat(TaskStatusTranslationKeys.ON_HOLD).format();
+        deviceComTasksInfo.status = thesaurus.getFormat(TaskStatusTranslationKeys.WAITING).format();
         if (comTaskEnablement.usesDefaultConnectionTask()) {
             if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
                 PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();

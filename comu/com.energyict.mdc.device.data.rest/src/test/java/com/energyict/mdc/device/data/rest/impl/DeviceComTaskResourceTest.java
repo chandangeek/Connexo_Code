@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.devtools.tests.Matcher;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -47,11 +49,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.longThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -60,17 +65,31 @@ import static org.mockito.Mockito.when;
 
 public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    public static final long DEVICE_CONFIGURATION_ID = 58L;
-    public static final String DEVICE_MRID = "mrid";
+    private static final long DEVICE_CONFIGURATION_ID = 58L;
+    private static final String DEVICE_MRID = "mrid";
 
-    public static final long OK_VERSION = 1L;
-    public static final long BAD_VERSION = 5L;
+    private static final long OK_VERSION = 1L;
+    private static final long BAD_VERSION = 5L;
 
     @Mock
     private DeviceConfiguration deviceConfiguration;
 
     @Mock
     private Device device;
+
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        Stream.of(CompletionCodeTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(ComSessionSuccessIndicatorTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(DefaultTranslationKey.values()).forEach(this::mockTranslation);
+    }
+
+    private void mockTranslation(TranslationKey translationKey) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
+        doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
+    }
 
     @Override
     public void setupMocks() {
@@ -164,7 +183,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
 
-        ComTask comTask = mockComTask(comTaskEnablement, 111L);
+        mockComTask(comTaskEnablement, 111L);
 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
@@ -185,9 +204,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testRunComTaskFromEnablementIncompleteInfo() throws Exception {
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
 
-        ComTask comTask = mockComTask(comTaskEnablement, 111L);
+        mockComTask(comTaskEnablement, 111L);
 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
@@ -205,9 +224,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testRunNowComTaskFromEnablement() throws Exception {
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
 
-        ComTask comTask = mockComTask(comTaskEnablement, 111L);
+        mockComTask(comTaskEnablement, 111L);
 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
@@ -228,9 +247,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testRunNowComTaskFromEnablementWithIncompleteInfo() throws Exception {
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
 
-        ComTask comTask = mockComTask(comTaskEnablement, 111L);
+        mockComTask(comTaskEnablement, 111L);
 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
@@ -253,7 +272,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
 
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
 
         device.getComTaskExecutions().add(comTaskExecution);
 
@@ -275,7 +294,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
 
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
 
         device.getComTaskExecutions().add(comTaskExecution);
 
@@ -290,14 +309,14 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testRunNowComTaskFromExecution() throws Exception {
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
 
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
 
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
@@ -317,10 +336,10 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         info.device.version = BAD_VERSION;
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
 
         Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/runnow").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -339,7 +358,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution.isScheduledManually()).thenReturn(true);
 
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
 
         device.getComTaskExecutions().add(comTaskExecution);
 
@@ -381,7 +400,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution.usesSharedSchedule()).thenReturn(true);
 
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
 
         device.getComTaskExecutions().add(comTaskExecution);
 

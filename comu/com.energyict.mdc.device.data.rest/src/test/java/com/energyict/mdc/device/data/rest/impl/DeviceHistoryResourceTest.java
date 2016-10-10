@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -12,7 +11,6 @@ import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent.Type;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -29,7 +27,6 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,21 +39,22 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
     @Mock
     UsagePoint usagePoint;
 
-    Instant deviceCreationDate = Instant.now();
+    private Instant deviceCreationDate = Instant.now();
+
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
+            .thenAnswer(invocationOnMock -> {
+                DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
+                return state.getDefaultFormat();
+            });
+    }
 
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            for (TranslationKey key : DefaultLifeCycleTranslationKey.values()) {
-                if (key.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return key.getDefaultFormat();
-                }
-            }
-            return invocationOnMock.getArguments()[1];
-        });
-
         when(device.getCreateTime()).thenReturn(deviceCreationDate);
         when(deviceService.findByUniqueMrid("DeviceMRID")).thenReturn(Optional.of(device));
         DeviceType deviceType = mock(DeviceType.class);

@@ -47,6 +47,8 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
@@ -87,52 +89,52 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceInfoFactoryTest {
 
-    private final static Unit kiloWattHours = Unit.get("kWh");
+    private static final Unit kiloWattHours = Unit.get("kWh");
 
-    private final static String READING_TYPE_MRID_1 = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    private final static String READING_TYPE_MRID_2 = "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    private final static String READING_TYPE_MRID_3 = "0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0";
-    private final static String READING_TYPE_MRID_4 = "0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0";
-    private final static String READING_TYPE_MRID_5 = "0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0";
-    private final static String READING_TYPE_MRID_6 = "0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0";
+    private static final String READING_TYPE_MRID_1 = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String READING_TYPE_MRID_2 = "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String READING_TYPE_MRID_3 = "0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0";
+    private static final String READING_TYPE_MRID_4 = "0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0";
+    private static final String READING_TYPE_MRID_5 = "0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0";
+    private static final String READING_TYPE_MRID_6 = "0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0";
 
-    private final static String LOADPROFILE_TYPE_NAME_1 = "TheLoadProfileTypeName1";
-    private final static String LOADPROFILE_TYPE_NAME_2 = "TheLoadProfileTypeName2";
-    private final static String LOADPROFILE_TYPE_NAME_3 = "TheLoadProfileTypeName3";
-    private final static String LOADPROFILE_TYPE_NAME_4 = "TheLoadProfileTypeName4";
+    private static final String LOADPROFILE_TYPE_NAME_1 = "TheLoadProfileTypeName1";
+    private static final String LOADPROFILE_TYPE_NAME_2 = "TheLoadProfileTypeName2";
+    private static final String LOADPROFILE_TYPE_NAME_3 = "TheLoadProfileTypeName3";
+    private static final String LOADPROFILE_TYPE_NAME_4 = "TheLoadProfileTypeName4";
 
-    private final static String STATE_NAME = "dlc.default.active";
-    private final static String STATE_TRANSLATION = "Active";
+    private static final String STATE_NAME = "dlc.default.active";
+    private static final String STATE_TRANSLATION = "Active";
 
-    private final static String USAGEPOINT_MRID = "TheUsagePointMrid";
-    private final static String SERVICE_CATEGORY_NAME = "TheServiceCategoryName";
+    private static final String USAGEPOINT_MRID = "TheUsagePointMrid";
+    private static final String SERVICE_CATEGORY_NAME = "TheServiceCategoryName";
 
-    private final static int ISSUE_COUNT = 2;
-    private final static long ISSUE_DATA_VALIDATION_ID = 142L;
-    private final static long PROTOCOL_ID = 5421L;
+    private static final int ISSUE_COUNT = 2;
+    private static final long ISSUE_DATA_VALIDATION_ID = 142L;
+    private static final long PROTOCOL_ID = 5421L;
 
-    private final static long DATA_LOGGER_DEVICE_TYPE_ID = 33236L;
-    private final static String DATA_LOGGER_DEVICE_TYPE_NAME = "TheDataLoggerDeviceTypesName";
-    private final static String SLAVE_DEVICE_TYPE_NAME_1 = "TheSlave1TypesName";
-    private final static String SLAVE_DEVICE_TYPE_NAME_2 = "TheSlave2TypesName";
+    private static final long DATA_LOGGER_DEVICE_TYPE_ID = 33236L;
+    private static final String DATA_LOGGER_DEVICE_TYPE_NAME = "TheDataLoggerDeviceTypesName";
+    private static final String SLAVE_DEVICE_TYPE_NAME_1 = "TheSlave1TypesName";
+    private static final String SLAVE_DEVICE_TYPE_NAME_2 = "TheSlave2TypesName";
 
-    private final static long DATALOGGER_DEVICE_CONFIGURATION_ID = 6586L;
-    private final static String DATALOGGER_DEVICE_CONFIGURATION_NAME = "TheDeviceTypesName";
-    private final static long DATALOGGER_DEVICE_CONFIGURATION_VERSION = 3L;
-    private final static String SLAVE_DEVICE_CONFIGURATION_NAME_1 = "Slave1DeviceConfiguration";
-    private final static String SLAVE_DEVICE_CONFIGURATION_NAME_2 = "Slave2DeviceConfiguration";
+    private static final long DATALOGGER_DEVICE_CONFIGURATION_ID = 6586L;
+    private static final String DATALOGGER_DEVICE_CONFIGURATION_NAME = "TheDeviceTypesName";
+    private static final long DATALOGGER_DEVICE_CONFIGURATION_VERSION = 3L;
+    private static final String SLAVE_DEVICE_CONFIGURATION_NAME_1 = "Slave1DeviceConfiguration";
+    private static final String SLAVE_DEVICE_CONFIGURATION_NAME_2 = "Slave2DeviceConfiguration";
 
-    private final static long DATALOGGER_ID = 397L;
-    private final static String DATALOGGER_MRID = "TheDataLoggersMrid";
-    private final static String DATALOGGER_SERIAL = "TheDataLoggersSerialNumber";
-    private final static int DATALOGGER_YEAR_OF_CERTIFICATION = 1960;
-    private final static long DATALOGGER_VERSION = 1L;
-    private final static String SLAVE_MRID_1 = "TheFirstSlavesMrid";
-    private final static String SLAVE_MRID_2 = "TheSecondSlavesMrid";
-    private final static String SLAVE_CHANNEL_NAME_1 = "slaveChannel1";
-    private final static String SLAVE_CHANNEL_NAME_2 = "slaveChannel2";
+    private static final long DATALOGGER_ID = 397L;
+    private static final String DATALOGGER_MRID = "TheDataLoggersMrid";
+    private static final String DATALOGGER_SERIAL = "TheDataLoggersSerialNumber";
+    private static final int DATALOGGER_YEAR_OF_CERTIFICATION = 1960;
+    private static final long DATALOGGER_VERSION = 1L;
+    private static final String SLAVE_MRID_1 = "TheFirstSlavesMrid";
+    private static final String SLAVE_MRID_2 = "TheSecondSlavesMrid";
+    private static final String SLAVE_CHANNEL_NAME_1 = "slaveChannel1";
+    private static final String SLAVE_CHANNEL_NAME_2 = "slaveChannel2";
 
-    private final static String BATCH_NAME = "TheBatchesName";
+    private static final String BATCH_NAME = "TheBatchesName";
 
     @Mock
     private Thesaurus thesaurus;
@@ -156,6 +158,8 @@ public class DeviceInfoFactoryTest {
     private Batch batch;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -198,13 +202,12 @@ public class DeviceInfoFactoryTest {
     @Mock
     private DeviceService deviceService;
     private Clock clock = Clock.systemDefaultZone();
-    protected ChannelInfoFactory channelInfoFactory;
-    ReadingTypeInfoFactory readingTypeInfoFactory;
+    private ChannelInfoFactory channelInfoFactory;
 
     @Before
     public void initMocks() {
-        when(thesaurus.getString(any(), any())).thenReturn("");
-        readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
+        this.setupTranslations();
+        ReadingTypeInfoFactory readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         channelInfoFactory = new ChannelInfoFactory(clock, topologyService, readingTypeInfoFactory);
         when(readingTypeForChannel1.getMRID()).thenReturn(READING_TYPE_MRID_1);
         when(readingTypeForChannel2.getMRID()).thenReturn(READING_TYPE_MRID_2);
@@ -227,7 +230,6 @@ public class DeviceInfoFactoryTest {
         prepareMockedReadingType(readingTypeForChannel5);
         prepareMockedReadingType(readingTypeForChannel6);
 
-        when(thesaurus.getString(STATE_NAME, null)).thenReturn(STATE_TRANSLATION);
         IssueType dataValidationIssueType = mock(IssueType.class);
         IssueType dataCollectionIssueType = mock(IssueType.class);
         Finder<OpenIssue> issueFinder = mock(Finder.class);
@@ -323,7 +325,7 @@ public class DeviceInfoFactoryTest {
         when(dateLoggerDeviceConfiguration.canActAsGateway()).thenReturn(false);
         when(dateLoggerDeviceConfiguration.getVersion()).thenReturn(DATALOGGER_DEVICE_CONFIGURATION_VERSION);
 
-        when(usagePoint.getCurrentMeterActivations()).thenReturn(Arrays.asList(meterActivation));
+        when(usagePoint.getCurrentMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
         when(usagePoint.getMRID()).thenReturn(USAGEPOINT_MRID);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
 
@@ -428,6 +430,15 @@ public class DeviceInfoFactoryTest {
         when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
     }
 
+    private void setupTranslations() {
+        when(thesaurus.getString(any(), any())).thenReturn("Translation not supported in unit tests");
+        when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
+                .thenAnswer(invocationOnMock -> {
+                    DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
+                    return state.getDefaultFormat();
+                });
+    }
+
     private OpenIssue mockIssue(IssueType dataCollectionIssueType) {
         OpenIssue issue = mock(OpenIssue.class);
         IssueReason issueReason = mock(IssueReason.class);
@@ -469,14 +480,13 @@ public class DeviceInfoFactoryTest {
         when(mockedChannel.getChannelSpec()).thenReturn(channelSpec);
         when(mockedChannel.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(mockedChannel.getOverflow()).thenReturn(Optional.empty());
-
     }
 
     @Test
     public void fromDataLoggerTest() {
         DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService, deviceDataInfoFactory, batchService, channelInfoFactory);
 
-        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService, clock);
+        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService, deviceLifeCycleConfigurationService, clock);
         DeviceInfo info = deviceInfoFactory.deviceInfo(dataLogger);
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);

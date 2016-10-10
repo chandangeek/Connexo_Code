@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -10,6 +11,7 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -24,6 +26,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
@@ -33,6 +36,8 @@ import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourc
 import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Visibility.CAN_VIEW;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +45,25 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 9/30/14.
  */
 public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJerseyTest {
+
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        Stream.of(SecurityPropertySetPrivilegeTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(DefaultTranslationKey.values()).forEach(this::mockTranslation);
+    }
+
+    private void mockTranslation(SecurityPropertySetPrivilegeTranslationKeys translationKey) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
+        doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
+    }
+
+    private void mockTranslation(DefaultTranslationKey translationKey) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
+        doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
+    }
 
     @Test
     public void testPasswordPropertyWithViewAndEditPrivilege() throws Exception {

@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -11,6 +10,7 @@ import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 
@@ -90,7 +90,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         return deviceInfo;
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, TopologyService topologyService, IssueRetriever issueRetriever, Thesaurus thesaurus, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, TopologyService topologyService, IssueRetriever issueRetriever, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = from(device, location, geoCoordinates);
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().map(HasId::getId).orElse(0L);
@@ -127,7 +127,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         }
         deviceInfo.estimationStatus = new DeviceEstimationStatusInfo(device);
         State deviceState = device.getState();
-        deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, null, deviceState);
+        deviceInfo.state = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, deviceState);
         deviceInfo.dataLoggerSlaveDevices = dataLoggerSlaveDeviceInfoFactory.from(device);
         return deviceInfo;
     }

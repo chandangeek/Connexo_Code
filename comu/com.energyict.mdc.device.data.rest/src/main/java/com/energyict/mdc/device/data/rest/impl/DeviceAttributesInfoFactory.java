@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
@@ -20,6 +21,7 @@ import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.impl.DeviceAttributesInfo.DeviceAttribute;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -37,23 +39,16 @@ public class DeviceAttributesInfoFactory {
     private final Thesaurus thesaurus;
     private final ThreadPrincipalService threadPrincipalService;
     private final LocationService locationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Inject
-    public DeviceAttributesInfoFactory(BatchService batchService, MeteringService meteringService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, LocationService locationService) {
+    public DeviceAttributesInfoFactory(BatchService batchService, MeteringService meteringService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, LocationService locationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.batchService = batchService;
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.threadPrincipalService = threadPrincipalService;
         this.locationService = locationService;
-    }
-
-    public static String getStateName(Thesaurus thesaurus, State state) {
-        Optional<DefaultState> defaultState = DefaultState.from(state);
-        if (defaultState.isPresent()) {
-            return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
-        } else {
-            return state.getName();
-        }
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     public DeviceAttributesInfo from(Device device) {
@@ -155,10 +150,13 @@ public class DeviceAttributesInfoFactory {
     }
 
     private String getStateName(State state) {
-        return getStateName(thesaurus, state);
+        return DefaultState
+                .from(state)
+                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .orElseGet(state::getName);
     }
 
-    public void validateOn(Device device, DeviceAttributesInfo info) {
+    void validateOn(Device device, DeviceAttributesInfo info) {
         State currentState = device.getState();
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
         if (DeviceAttributesInfo.DeviceAttribute.SHIPMENT_DATE.isEditableForState(currentState)) {
@@ -190,12 +188,14 @@ public class DeviceAttributesInfoFactory {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, fieldName));
         } else {
             if (previousDate.isPresent() && !currentDate.get().isAfter(previousDate.get())) {
-                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.CIM_DATE_SHOULD_BE_AFTER_X, fieldName,
-                        thesaurus.getString(cimDateTranslation.getKey(), cimDateTranslation.getDefaultFormat())));
+                validationBuilder.addValidationError(
+                        new LocalizedFieldValidationException(
+                                MessageSeeds.CIM_DATE_SHOULD_BE_AFTER_X,
+                                fieldName,
+                                thesaurus.getFormat(new SimpleTranslationKey(cimDateTranslation.getKey(), cimDateTranslation.getDefaultFormat())).format()));
             }
         }
     }
-
 
     private void validateLocation(RestValidationBuilder validationBuilder, DeviceAttributeInfo<EditLocationInfo> editLocation) {
         if (editLocation.displayValue.properties != null) {
@@ -223,8 +223,7 @@ public class DeviceAttributesInfoFactory {
             return;
         }
 
-        if (Arrays.asList(parts)
-                .stream()
+        if (Arrays.stream(parts)
                 .anyMatch(element -> element.split(",").length > 2
                         || element.split(".").length > 2)) {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
@@ -245,7 +244,7 @@ public class DeviceAttributesInfoFactory {
         }
     }
 
-    public void writeTo(Device device, DeviceAttributesInfo info) {
+    void writeTo(Device device, DeviceAttributesInfo info) {
         State state = device.getState();
         if (DeviceAttribute.SERIAL_NUMBER.isEditableForState(state) && info.serialNumber != null) {
             device.setSerialNumber(info.serialNumber.displayValue);

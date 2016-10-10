@@ -86,13 +86,30 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     @Mock
     private ChannelsContainer channelsContainer;
 
-    public static final Instant BILLING_READING_INTERVAL_END = Instant.ofEpochMilli(1410786196000L);
-    public static final Instant BILLING_READING_INTERVAL_START = Instant.ofEpochMilli(1409570229000L);
-    public static final Instant READING_TIMESTAMP = Instant.ofEpochMilli(1409570229000L);
+    private static final Instant BILLING_READING_INTERVAL_END = Instant.ofEpochMilli(1410786196000L);
+    private static final Instant BILLING_READING_INTERVAL_START = Instant.ofEpochMilli(1409570229000L);
+    private static final Instant READING_TIMESTAMP = Instant.ofEpochMilli(1409570229000L);
 
-    public static final Instant NOW = ZonedDateTime.of(2014, 10, 01, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant NOW = ZonedDateTime.of(2014, 10, 01, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
 
-    public RegisterDataResourceTest() {
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        when(this.meteringTranslationService.getDisplayName(any(QualityCodeIndex.class)))
+                .thenAnswer(invocationOnMock -> {
+                    QualityCodeIndex qualityCodeIndex = (QualityCodeIndex) invocationOnMock.getArguments()[0];
+                    return qualityCodeIndex.getTranslationKey().getDefaultFormat();
+                });
+        when(this.meteringTranslationService.getDisplayName(any(QualityCodeSystem.class)))
+                .thenAnswer(invocationOnMock -> {
+                    QualityCodeSystem qualityCodeSystem = (QualityCodeSystem) invocationOnMock.getArguments()[0];
+                    return qualityCodeSystem.getTranslationKey().getDefaultFormat();
+                });
+        when(this.meteringTranslationService.getDisplayName(any(QualityCodeCategory.class)))
+                .thenAnswer(invocationOnMock -> {
+                    QualityCodeCategory qualityCodeCategory = (QualityCodeCategory) invocationOnMock.getArguments()[0];
+                    return qualityCodeCategory.getTranslationKey().getDefaultFormat();
+                });
     }
 
     @Before
