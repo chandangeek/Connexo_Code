@@ -25,7 +25,6 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
@@ -148,7 +147,7 @@ public final class Beacon3100Test {
 	 * Tests the readout of the frame counter, pre-established.
 	 */
 	@Test
-	public final void testReadFrameCounterStandardPreEstablished() {
+	public final void testReadFramecounterStandardPreEstablished() {
 		this.currentResponse = GET_RESPONSE_DATA;
 		this.currentIndex = 0;
 		
