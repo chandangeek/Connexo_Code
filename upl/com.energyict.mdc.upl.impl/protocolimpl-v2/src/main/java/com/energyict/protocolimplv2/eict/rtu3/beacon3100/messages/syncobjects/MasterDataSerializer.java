@@ -403,16 +403,23 @@ public class MasterDataSerializer {
                 if (protocolTask instanceof LogBooksTask) {
                     final List<LogBookType> logBookTypes = ((LogBooksTask) protocolTask).getLogBookTypes();
                     if (logBookTypes.isEmpty()) {
+                    //if no specific logbook type is specified in logbook protocol task then use the logbook specification from device configuration
                         for (LogBookSpec logBook : deviceConfiguration.getLogBookSpecs()) {
                             logBookObisCodes.add(logBook.getDeviceObisCode());
                         }
                     } else {
-                        for (LogBookType logBookType : logBookTypes) {
-                            logBookObisCodes.add(logBookType.getObisCode());
+                    //if we have specific logbook types defined in logbook protocol task then add only then add only logbook types obiscodes
+                    // that are present in both device configuration and protocol task configuration
+
+                        for (LogBookSpec logBook : deviceConfiguration.getLogBookSpecs()) {
+                            if(logBookTypes.contains(logBook.getLogBookType())){
+                                logBookObisCodes.add(logBook.getDeviceObisCode());
+                            }
                         }
                     }
                 }
             }
+
         }
         return new ArrayList<>(logBookObisCodes);
     }
