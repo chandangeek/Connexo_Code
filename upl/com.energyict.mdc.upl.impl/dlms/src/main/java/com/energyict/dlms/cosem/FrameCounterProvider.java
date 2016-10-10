@@ -1,13 +1,5 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.methods.FrameCounterProviderMethods;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -15,20 +7,36 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.cosem.methods.FrameCounterProviderMethods;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * Created by iulian on 8/25/2016.
  */
-public class FrameCounterProvider extends AbstractCosemObject {
-    public static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.0.43.1.0.255");
+public final class FrameCounterProvider extends AbstractCosemObject {
+	
+	/** The default OBIS code. */
+    private static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.0.43.1.0.255");
 
     /**
      * Creates a new instance of AbstractCosemObject
      *
      * @param protocolLink
      * @param objectReference
+     * @param	meterSystemTitle		The system title of the meter.
+     * @param	ourSystemTitle			Our system title.
+     * 
      */
     public FrameCounterProvider(ProtocolLink protocolLink, ObjectReference objectReference) {
         super(protocolLink, objectReference);
@@ -43,39 +51,41 @@ public class FrameCounterProvider extends AbstractCosemObject {
         return DLMSClassId.FRAME_COUNTER_PROVIDER.getClassId();
     }
 
-    public long getFrameCounter(byte[] authenticationKey) throws IOException {
-        final byte[] challenge = new byte[64];
-        byte[] cSystemTitle;
-        byte[] sSystemTitle;
-
+    public final long getFrameCounter(byte[] authenticationKey) throws IOException {
         getProtocolLink().getLogger().info("Getting secure frame counter ...");
+        
+        final byte[] challenge = new byte[64];
         new SecureRandom().nextBytes(challenge);
 
         if (authenticationKey == null || authenticationKey.length !=16){
             throw new ProtocolException("Cannot invoke get_frame_counter because Authentication Key is invalid.");
         }
 
-        cSystemTitle = getProtocolLink().getAso().getAssociationControlServiceElement().getCallingApplicationProcessTitle();
-        if (cSystemTitle==null){
+        final byte[] clientSystemTitle = this.getProtocolLink().getAso().getAssociationControlServiceElement().getCallingApplicationProcessTitle();
+        final byte[] serverSystemTitle = this.getProtocolLink().getAso().getAssociationControlServiceElement().getRespondingAPTtitle();
+        
+        if (clientSystemTitle == null){
             throw new ProtocolException("Cannot invoke get_frame_counter because getCallingApplicationProcessTitle is null.");
-        }
-
-        sSystemTitle = getProtocolLink().getAso().getSecurityContext().getSystemTitle();
-        if (sSystemTitle==null){
+        } 
+        
+        if (serverSystemTitle == null){
             throw new ProtocolException("Cannot invoke get_frame_counter because getRespondingAPTtitle is null.");
         }
 
-        getLogger().finest(" - all validation passed cST=["+cSystemTitle+"], sST=["+sSystemTitle+"], invoking method  ...");
+        getLogger().finest(" - all validation passed cST=["+clientSystemTitle+"], sST=["+serverSystemTitle+"], invoking method  ...");
         byte[] responseByteArray = this.methodInvoke(FrameCounterProviderMethods.GET_FRAME_COUNTER, OctetString.fromByteArray(challenge));
 
         getLogger().finest(" - response received!");
         Structure response =  AXDRDecoder.decode(responseByteArray, Structure.class);
-        if (response.isStructure()) {
+        if (response != null && response.isStructure()) {
             OctetString mac = response.getDataType(0).getOctetString();
             long counter = response.getDataType(1).longValue();
             getLogger().finest(" - response decoded, frameCounter=["+counter+"], but first will validate the challenge ...");
-            //validateMac(mac.getOctetStr(),counter, challenge, authenticationKey, cSystemTitle, sSystemTitle);
+            
+            this.validateMac(mac.getOctetStr(),counter, challenge, authenticationKey, clientSystemTitle, serverSystemTitle);
+            
             getLogger().finest(" - finished with happy-ending, returning frameCounter="+counter);
+            
             return counter;
         } else {
             if (response!=null) {
@@ -87,9 +97,8 @@ public class FrameCounterProvider extends AbstractCosemObject {
 
     }
 
-    /** do not use this validation since the clientSystem title is not the one sent by the meter */
-    @Deprecated
-    private void validateMac(byte[] mac, long frameCounter, byte[] challenge, byte[] ak, byte[] cSystemTitle, byte[] sSystemTitle) throws ProtocolException {
+
+    private final void validateMac(byte[] mac, long frameCounter, byte[] challenge, byte[] ak, byte[] cSystemTitle, byte[] sSystemTitle) throws ProtocolException {
         final Mac hmac;
         try {
             hmac = Mac.getInstance("HmacSHA256");
@@ -101,8 +110,13 @@ public class FrameCounterProvider extends AbstractCosemObject {
             hmac.update((byte) ((frameCounter >> 16) & 0xff));
             hmac.update((byte) ((frameCounter >> 8) & 0xff));
             hmac.update((byte) (frameCounter & 0xff));
-            if (!Arrays.equals(mac, hmac.doFinal())) {
-                getLogger().warning("Framecounter HMAC validation failed.");
+            
+            final byte[] expectedChallengeResponse = hmac.doFinal();
+            
+            if (!Arrays.equals(mac, expectedChallengeResponse)) {
+                getLogger().warning("Framecounter HMAC validation failed, received MAC [" + ProtocolTools.getHexStringFromBytes(mac, "") + "] while expecting [" + ProtocolTools.getHexStringFromBytes(expectedChallengeResponse, "") + "]");
+                
+                throw new ProtocolException("Framecounter HMAC validation failed, received MAC [" + ProtocolTools.getHexStringFromBytes(mac, "") + "] while expecting [" + ProtocolTools.getHexStringFromBytes(expectedChallengeResponse, "") + "]");
             }
         } catch (NoSuchAlgorithmException e) {
             logException(e);
