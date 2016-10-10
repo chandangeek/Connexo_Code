@@ -2,8 +2,7 @@ Ext.define('Fwc.firmwarecampaigns.model.Device', {
     extend: 'Ext.data.Model',
     fields: [
         'campaignId',
-        'mrid',
-        'name',
+        'deviceName',
         'status',
         {name: 'startedOn', type: 'date', dateFormat: 'time'},
         {name: 'finishedOn', type: 'date', dateFormat: 'time'}
