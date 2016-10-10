@@ -120,39 +120,41 @@ public class MasterDataSerializer {
         final Beacon3100ProtocolConfiguration protocolConfiguration = getProtocolConfiguration(deviceConfiguration, masterDevice, deviceConfiguration.getDeviceType());
         final List<Beacon3100Schedulable> schedulables = getSchedulables(deviceConfiguration, allMasterData);
         if (schedulables.isEmpty()) {
-            throw DeviceConfigurationException.invalidPropertyFormat("Comtask enablements on device configuration with ID " + deviceConfiguration.getId(), "empty", "Device configuration should have at least one comtask enablement that reads out meter data");
-        }
+            getLogger().warning("Comtask enablements on device configuration with ID " + deviceConfiguration.getId() +"are empty. Device configuration should have at least one comtask enablement that reads out meter data.");
+        } else {
 
-        final Beacon3100ClockSyncConfiguration clockSyncConfiguration = getClockSyncConfiguration(deviceConfiguration);
+            final Beacon3100ClockSyncConfiguration clockSyncConfiguration = getClockSyncConfiguration(deviceConfiguration);
 
-        //Use the security set of the first task to read out the serial number.. doesn't really matter
-        final Beacon3100MeterSerialConfiguration meterSerialConfiguration = new Beacon3100MeterSerialConfiguration(FIXED_SERIAL_NUMBER_OBISCODE, schedulables.get(0).getClientTypeId());
+            //Use the security set of the first task to read out the serial number.. doesn't really matter
+            final Beacon3100MeterSerialConfiguration meterSerialConfiguration = new Beacon3100MeterSerialConfiguration(FIXED_SERIAL_NUMBER_OBISCODE, schedulables.get(0).getClientTypeId());
 
-        final Beacon3100DeviceType beacon3100DeviceType = new Beacon3100DeviceType(deviceTypeConfigId, deviceTypeName, meterSerialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration);
-        allMasterData.getDeviceTypes().add(beacon3100DeviceType);
+            final Beacon3100DeviceType beacon3100DeviceType = new Beacon3100DeviceType(deviceTypeConfigId, deviceTypeName, meterSerialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration);
+            allMasterData.getDeviceTypes().add(beacon3100DeviceType);
 
-        final TimeZoneInUse beaconTimeZone = device.getProtocolProperties().getTypedProperty(DlmsProtocolProperties.TIMEZONE);
-        final TimeZone localTimezone = device.getTimeZone();
-        //Now add all information about the comtasks (get from configuration level, so it's the same for every device of the same device type)
-        for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getCommunicationConfiguration().getEnabledComTasks()) {
+            final TimeZoneInUse beaconTimeZone = device.getProtocolProperties().getTypedProperty(DlmsProtocolProperties.TIMEZONE);
+            final TimeZone localTimezone = device.getTimeZone();
+            //Now add all information about the comtasks (get from configuration level, so it's the same for every device of the same device type)
+            for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getCommunicationConfiguration().getEnabledComTasks()) {
 
-            //Only sync tasks & schedules for meter data. Don't sync basic check, messages,...
-            if (isMeterDataTask(comTaskEnablement, schedulables)) {
-                //Don't add the security set again if it's already there (based on EIServer database ID)
-                if (!clientTypeAlreadyExists(allMasterData.getClientTypes(), getClientTypeId(comTaskEnablement))) {
-                    final Beacon3100ClientType clientType = getClientType(device, comTaskEnablement);
-                    allMasterData.getClientTypes().add(clientType);
-                }
+                //Only sync tasks & schedules for meter data. Don't sync basic check, messages,...
+                if (isMeterDataTask(comTaskEnablement, schedulables)) {
+                    //Don't add the security set again if it's already there (based on EIServer database ID)
+                    if (!clientTypeAlreadyExists(allMasterData.getClientTypes(), getClientTypeId(comTaskEnablement))) {
+                        final Beacon3100ClientType clientType = getClientType(device, comTaskEnablement);
+                        allMasterData.getClientTypes().add(clientType);
+                    }
 
-                //Don't add a schedule if one already exists that has exactly the same name (e.g. 'every day at 00:00')
-                final NextExecutionSpecs nextExecutionSpecs = comTaskEnablement.getNextExecutionSpecs();
-                final long scheduleId = getScheduleId(nextExecutionSpecs);
-                if (scheduleId != NO_SCHEDULE && !scheduleAlreadyExists(allMasterData.getSchedules(), nextExecutionSpecs)) {
-                    final Beacon3100Schedule beacon3100Schedule = new Beacon3100Schedule(scheduleId, getScheduleName(nextExecutionSpecs), CronTabStyleConverter.convert(nextExecutionSpecs, beaconTimeZone.getTimeZone(), localTimezone));
-                    allMasterData.getSchedules().add(beacon3100Schedule);
+                    //Don't add a schedule if one already exists that has exactly the same name (e.g. 'every day at 00:00')
+                    final NextExecutionSpecs nextExecutionSpecs = comTaskEnablement.getNextExecutionSpecs();
+                    final long scheduleId = getScheduleId(nextExecutionSpecs);
+                    if (scheduleId != NO_SCHEDULE && !scheduleAlreadyExists(allMasterData.getSchedules(), nextExecutionSpecs)) {
+                        final Beacon3100Schedule beacon3100Schedule = new Beacon3100Schedule(scheduleId, getScheduleName(nextExecutionSpecs), CronTabStyleConverter.convert(nextExecutionSpecs, beaconTimeZone.getTimeZone(), localTimezone));
+                        allMasterData.getSchedules().add(beacon3100Schedule);
+                    }
                 }
             }
         }
+
     }
 
     private static boolean isMeterDataTask(ComTaskEnablement comTaskEnablement, List<Beacon3100Schedulable> schedulables) {
