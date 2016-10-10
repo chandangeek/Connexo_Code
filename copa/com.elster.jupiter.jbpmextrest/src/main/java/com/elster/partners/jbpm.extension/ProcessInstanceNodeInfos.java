@@ -1,10 +1,7 @@
 package com.elster.partners.jbpm.extension;
 
-import org.jbpm.kie.services.impl.model.VariableStateDesc;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 public class ProcessInstanceNodeInfos {
@@ -34,14 +31,19 @@ public class ProcessInstanceNodeInfos {
 
     public ProcessInstanceNodeInfo addNode(Object[] object){
         ProcessInstanceNodeInfo processHistoryInfo = new ProcessInstanceNodeInfo(object, processInstanceStatus);
-        if(!Arrays.asList(unwantedNodeType).contains(processHistoryInfo.nodeType)) {
-            processInstanceNodes.add(processHistoryInfo);
-        }
+        processInstanceNodes.add(processHistoryInfo);
         return processHistoryInfo;
     }
 
     private ProcessInstanceVariableInfo addVariable(Object[] variable){
-        ProcessInstanceVariableInfo processInstanceVariableInfo = new ProcessInstanceVariableInfo(variable, processInstanceNodes);
+        List<ProcessInstanceNodeInfo> nodesWithVars = new ArrayList<ProcessInstanceNodeInfo>();
+        for (ProcessInstanceNodeInfo node : processInstanceNodes) {
+            if (!Arrays.asList(unwantedNodeType).contains(node.nodeType)) {
+                nodesWithVars.add(node);
+            }
+        }
+
+        ProcessInstanceVariableInfo processInstanceVariableInfo = new ProcessInstanceVariableInfo(variable, nodesWithVars);
         processInstanceVariables.add(processInstanceVariableInfo);
         return processInstanceVariableInfo;
     }
