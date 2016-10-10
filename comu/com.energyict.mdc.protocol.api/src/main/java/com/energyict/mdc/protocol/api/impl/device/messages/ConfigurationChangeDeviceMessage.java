@@ -468,6 +468,7 @@ enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
                             .bigDecimalSpec()
                             .named(DeviceMessageAttributes.DefaultResetWindowAttributeName)
                             .fromThesaurus(thesaurus)
+                            .markRequired()
                             .finish());
         }
     },
