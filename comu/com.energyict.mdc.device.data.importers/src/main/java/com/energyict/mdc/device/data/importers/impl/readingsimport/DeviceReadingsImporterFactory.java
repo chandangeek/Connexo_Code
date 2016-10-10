@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.importers.impl.FileImportDescriptionBasedPa
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportParser;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -62,8 +63,7 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
 
     @Override
     public String getDisplayName() {
-        return getContext().getThesaurus()
-                .getString(DEVICE_READINGS_IMPORTER.getKey(), DEVICE_READINGS_IMPORTER.getDefaultFormat());
+        return getContext().getThesaurus().getFormat(DEVICE_READINGS_IMPORTER).format();
     }
 
     @Override

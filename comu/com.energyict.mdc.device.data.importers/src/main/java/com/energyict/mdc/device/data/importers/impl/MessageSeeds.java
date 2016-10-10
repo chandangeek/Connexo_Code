@@ -24,10 +24,10 @@ public enum MessageSeeds implements MessageSeed {
             "New usage point can't be created because of incorrect value of Service category. The list of available Service categories: {2}", Level.WARNING),
     DEVICE_ALREADY_EXISTS(107, "ImportProcessorDeviceAlreadyExists", "Can''t process line {0}: The device (MRID: {1}) is already in use", Level.WARNING),
     DEVICE_ALREADY_IN_THAT_STATE(108, "ImportProcessorDeviceAlreadyInThatState", "Can''t process line {0}: The device is already in {1} state", Level.WARNING),
-    DEVICE_CAN_NOT_BE_MOVED_TO_STATE(109, "ImportProcessorDeviceCanNotBeMovedToState", "Can''t process line {0}: The device can''t be moved to {1} from {2} state", Level.WARNING),
+    DEVICE_CAN_NOT_BE_MOVED_TO_STATE(109, "ImportProcessorDeviceCanNotBeMovedToState", "Can''t process line {0}: The device can''t be moved from state {2} to {1}", Level.WARNING),
     PRE_TRANSITION_CHECKS_FAILED(110, "ImportProcessorPreTransitionsChecksFailed", "Can''t process line {0}: Pre-transition check(s) failed: {1}", Level.WARNING),
     TRANSITION_ACTION_DATE_IS_INCORRECT(111, "ImportProcessorTransitionActionDateIsIncorrect", "Can''t process line {0}: The transition action date has incorrect value: {1}, {2}", Level.WARNING),
-    DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER(112, "ImportProcessorDeviceCanNotBeMovedToStateByImporter", "Can''t process line {0}: The device can''t be moved to {1} from {2} state by this importer. Appropriate initial state(s) is(are) {3}", Level.WARNING),
+    DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER(112, "ImportProcessorDeviceCanNotBeMovedToStateByImporter", "Can''t process line {0}: The device can''t be moved from state {2} to {1}. Appropriate initial state(s) is(are) {3}", Level.WARNING),
     INCORRECT_MULTIPLIER_VALUE(113, "ImportProcessorInvalidMultiplierValue", "Can''t process line {0}: The value of the multiplier is not valid {1}", Level.WARNING),
     USELESS_MULTIPLIER_CONFIGURED(114, "ImportProcessorMultiplierConfiguredButNotUsed", "There is a multiplier configured on line {0} with value {1}, but the action 'set multiplier' is not defined on the lifecycle transition", Level.WARNING),
 
