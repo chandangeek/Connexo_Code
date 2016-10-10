@@ -7,6 +7,7 @@ import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -82,9 +83,10 @@ public class ChannelResource {
     private final IssueDataValidationService issueDataValidationService;
     private final EstimationHelper estimationHelper;
     private final TopologyService topologyService;
+    private final MeteringService meteringService;
 
     @Inject
-    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper, TopologyService topologyService) {
+    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper, TopologyService topologyService, MeteringService meteringService) {
         this.exceptionFactory = exceptionFactory;
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
@@ -94,6 +96,7 @@ public class ChannelResource {
         this.issueDataValidationService = issueDataValidationService;
         this.estimationHelper = estimationHelper;
         this.topologyService = topologyService;
+        this.meteringService = meteringService;
     }
 
     @GET
@@ -574,10 +577,28 @@ public class ChannelResource {
                 }
             }
         }
-        channel.startEditingData()
-                .editBulkChannelData(editedBulkReadings)
-                .complete();
 
+        Optional<ReadingType> readingTypeToUpdate = Optional.ofNullable(estimateChannelDataInfo.readingType).flatMap(rt -> meteringService.getReadingType(rt.mRID));
+        Optional<ReadingType> calculatedReadingType = channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview);
+
+        if (readingTypeToUpdate
+                .flatMap(rt -> calculatedReadingType.filter(crt -> crt.equals(rt))).isPresent()) {
+            channel.startEditingData()
+                    .editChannelData(editedBulkReadings)
+                    .complete();
+        } else if (calculatedReadingType.isPresent() && readingTypeToUpdate.filter(rt -> rt.equals(channel.getReadingType())).isPresent()) {
+            channel.startEditingData()
+                    .editBulkChannelData(editedBulkReadings)
+                    .complete();
+        } else if (!calculatedReadingType.isPresent() && readingTypeToUpdate.filter(rt -> rt.equals(channel.getReadingType())).isPresent()) {
+            channel.startEditingData()
+                    .editChannelData(editedBulkReadings)
+                    .complete();
+        } else {
+            channel.startEditingData()
+                    .editBulkChannelData(editedBulkReadings)
+                    .complete();
+        }
         return Response.status(Response.Status.OK).build();
     }
 
