@@ -1,7 +1,8 @@
 package com.energyict.dlms.protocolimplv2;
 
-import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+
+import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 
 import java.io.IOException;
 
@@ -90,4 +91,10 @@ public interface SecurityProvider {
      * @throws java.io.IOException if the key is not correctly filled in
      */
     public void changeAuthenticationKey(byte[] newAuthenticationKey) throws IOException;
+
+    /**
+     * A master key shall be present in each COSEM server logical device configured in the system.
+     * This key is used for wrapping global keys. The MasterKey should not be transfered during a session.
+     */
+    byte[] getMasterKey();
 }

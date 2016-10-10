@@ -14,6 +14,7 @@ public enum SecurityPropertySpecName implements TranslationKey {
 
     PASSWORD("Password", "Password"),
     ENCRYPTION_KEY("EncryptionKey", "Encryption key"),
+    MASTER_KEY("MasterKey", "Master key"),
     ENCRYPTION_KEY_1("EncryptionKey1", "Encryption key"),
     ENCRYPTION_KEY_2("EncryptionKey2", "Encryption key"),
     ENCRYPTION_KEY_3("EncryptionKey3", "Encryption key"),

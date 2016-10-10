@@ -43,6 +43,10 @@ public class DSMR40RespondingFrameCounterHandler implements RespondingFrameCount
         return this.responseFrameCounter;
     }
 
+    @Override
+    public void resetRespondingFrameCounter(int initialValue) {
+        responseFrameCounter = initialValue;
+    }
 
     private boolean isFrameCounterInitialized() {
         return frameCounterInitialized;

@@ -123,7 +123,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
-    private SecurityProvider securityProvider;
+    protected SecurityProvider securityProvider;
     private String serialNumber = "";
 
     public DlmsProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -412,4 +412,9 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
                 .setDefaultValue(defaultValue)
                 .finish();
     }
+    @Override
+    public boolean isGeneralSigning() {
+        return false;
+    }
+
 }
