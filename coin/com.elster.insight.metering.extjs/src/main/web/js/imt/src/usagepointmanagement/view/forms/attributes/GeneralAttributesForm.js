@@ -20,7 +20,14 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                     return value ? Ext.htmlEncode(value) : '-';
                 }
             },
-
+            {
+                name: 'name',
+                itemId: 'fld-up-name',
+                fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
+                renderer: function (value) {
+                    return value ? Ext.htmlEncode(value) : '-';
+                }
+            },
             {
                 xtype: 'displayfieldwithicon',
                 name: 'serviceCategory',
@@ -95,9 +102,19 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
 
         me.editForm = [
             {
+                xtype: 'displayfield',
+                name: 'mRID',
+                itemId: 'fld-up-mRID',
+                fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID'),
+                renderer: function (value) {
+                    return value ? Ext.htmlEncode(value) : '-';
+                }
+            },
+            {
                 xtype: 'textfield',
                 name: 'name',
                 itemId: 'up-name-textfield',
+                required: true,
                 fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
             },
             {
