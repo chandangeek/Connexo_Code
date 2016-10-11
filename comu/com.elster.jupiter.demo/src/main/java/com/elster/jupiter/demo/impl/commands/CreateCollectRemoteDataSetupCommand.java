@@ -56,6 +56,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class CreateCollectRemoteDataSetupCommand {
+    public static final int VALIDATION_STRICT_DEVICE_COUNT = 21;
     private final LicenseService licenseService;
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
@@ -209,6 +210,9 @@ public class CreateCollectRemoteDataSetupCommand {
         Builders.from(LoadProfileTypeTpl._15_MIN_ELECTRICITY).get();
         Builders.from(LoadProfileTypeTpl.DAILY_ELECTRICITY).get();
         Builders.from(LoadProfileTypeTpl.MONTHLY_ELECTRICITY).get();
+        Builders.from(LoadProfileTypeTpl._15_MIN_ELECTRICITY_A_PLUS).get();
+        Builders.from(LoadProfileTypeTpl.DAILY_ELECTRICITY_A_PLUS).get();
+        Builders.from(LoadProfileTypeTpl.MONTHLY_ELECTRICITY_A_PLUS).get();
     }
 
     private void createComTasks() {
@@ -250,10 +254,15 @@ public class CreateCollectRemoteDataSetupCommand {
     private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl) {
         DeviceTypeBuilder deviceTypeBuilder = Builders.from(deviceTypeTpl);
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
-            deviceTypeBuilder.withPostBuilder(attachDeviceTypeCPSPostBuilderProvider.get());
+            deviceTypeBuilder.withPostBuilder(this.attachDeviceTypeCPSPostBuilderProvider.get());
         }
         DeviceType deviceType = deviceTypeBuilder.get();
         int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : this.devicesPerType);
+        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
+            int validationStrictDeviceCount = this.devicesPerType == null ? VALIDATION_STRICT_DEVICE_COUNT : this.devicesPerType / 3; // 3 device conf on this type
+            createDeviceConfigurationWithDevices(deviceType, deviceTypeTpl, DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT, validationStrictDeviceCount);
+            deviceCount = Math.max(0, deviceCount - VALIDATION_STRICT_DEVICE_COUNT);
+        }
         createDeviceConfigurationWithDevices(deviceType, deviceTypeTpl, DeviceConfigurationTpl.PROSUMERS, deviceCount >> 1);
         createDeviceConfigurationWithDevices(deviceType, deviceTypeTpl, DeviceConfigurationTpl.CONSUMERS, deviceCount >> 1);
     }
@@ -338,7 +347,6 @@ public class CreateCollectRemoteDataSetupCommand {
     }
 
     private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder) {
-
         builder.setCountryCode("US")
                 .setCountryName("United States")
                 .setAdministrativeArea(administrativeAreaList.get((int) (Math.random() * (administrativeAreaList.size() - 1))))
