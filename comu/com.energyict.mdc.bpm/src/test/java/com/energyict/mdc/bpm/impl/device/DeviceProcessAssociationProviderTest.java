@@ -13,9 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by dragos on 2/26/2016.
@@ -38,47 +36,48 @@ public class DeviceProcessAssociationProviderTest {
     @Test
     public void testProviderType() {
         ProcessAssociationProvider provider = inMemoryPersistence.getDeviceAssociationProvider();
-        assertEquals("device", provider.getType());
+        assertThat(provider.getType()).isEqualTo("device");
     }
 
     @Test
     public void testProviderPropertySpecNotAvailable() {
         ProcessAssociationProvider provider = inMemoryPersistence.getDeviceAssociationProvider();
-        assertFalse(provider.getPropertySpec("unavailable").isPresent());
+        assertThat(provider.getPropertySpec("unavailable").isPresent()).isFalse();
     }
 
     @Test
     public void testProviderDeviceStatePropertySpec() {
         ProcessAssociationProvider provider = inMemoryPersistence.getDeviceAssociationProvider();
 
-        assertTrue(provider.getPropertySpec("deviceStates").isPresent());
+        assertThat(provider.getPropertySpec("deviceStates")).isPresent();
 
         PropertySpec spec = provider.getPropertySpec("deviceStates").get();
-        assertEquals("deviceStates", spec.getName());
-        assertEquals("Device states", spec.getDisplayName());
-        assertTrue(spec.isRequired());
-        assertTrue(spec.supportsMultiValues());
-        assertTrue(spec.getPossibleValues().isExhaustive());
-        assertFalse(spec.getPossibleValues().isEditable());
+        assertThat(spec.getName()).isEqualTo("deviceStates");
+        assertThat(spec.getDisplayName()).isEqualTo("Device states");
+        assertThat(spec.isRequired()).isTrue();
+        assertThat(spec.supportsMultiValues()).isTrue();
+        assertThat(spec.getPossibleValues().isExhaustive()).isTrue();
+        assertThat(spec.getPossibleValues().isEditable()).isFalse();
 
         List<DeviceProcessAssociationProvider.DeviceStateInfo> values = spec.getPossibleValues().getAllValues();
 
-        assertEquals("dlc.default.active", values.get(0).getName());
-        assertEquals("Standard device life cycle", values.get(0).getLifeCycleName());
+        assertThat(values.get(0).getName()).isEqualTo("Active");
+        assertThat(values.get(0).getLifeCycleName()).isEqualTo("Standard device life cycle");
 
-        assertEquals("dlc.default.commissioning", values.get(1).getName());
-        assertEquals("Standard device life cycle", values.get(1).getLifeCycleName());
+        assertThat(values.get(1).getName()).isEqualTo("Commissioning");
+        assertThat(values.get(1).getLifeCycleName()).isEqualTo("Standard device life cycle");
 
-        assertEquals("dlc.default.decommissioned", values.get(2).getName());
-        assertEquals("Standard device life cycle", values.get(2).getLifeCycleName());
+        assertThat(values.get(2).getName()).isEqualTo("Decommissioned");
+        assertThat(values.get(2).getLifeCycleName()).isEqualTo("Standard device life cycle");
 
-        assertEquals("dlc.default.inactive", values.get(3).getName());
-        assertEquals("Standard device life cycle", values.get(3).getLifeCycleName());
+        assertThat(values.get(3).getName()).isEqualTo("In stock");
+        assertThat(values.get(3).getLifeCycleName()).isEqualTo("Standard device life cycle");
 
-        assertEquals("dlc.default.inStock", values.get(4).getName());
-        assertEquals("Standard device life cycle", values.get(4).getLifeCycleName());
+        assertThat(values.get(4).getName()).isEqualTo("Inactive");
+        assertThat(values.get(4).getLifeCycleName()).isEqualTo("Standard device life cycle");
 
-        assertEquals("dlc.default.removed", values.get(5).getName());
-        assertEquals("Standard device life cycle", values.get(5).getLifeCycleName());
+        assertThat(values.get(5).getName()).isEqualTo("Removed");
+        assertThat(values.get(5).getLifeCycleName()).isEqualTo("Standard device life cycle");
     }
+
 }
