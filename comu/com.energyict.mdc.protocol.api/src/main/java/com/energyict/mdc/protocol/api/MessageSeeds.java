@@ -52,6 +52,8 @@ public enum MessageSeeds implements MessageSeed {
     DATA_ENCRYPTION_EXCEPTION(136, "data.encryption.exception", "Failure to decrypt encrypted data received from device"),
     DATA_ENCRYPTION_EXCEPTION_WITH_CAUSE(137, "data.encryption.with.cause", "Failure to decrypt encrypted data received from device: {0}"),
     INDEX_OUT_OF_BOUND_DATA_PARSE_EXCEPTION(138, "index.out.of.bound.parse.exception", "Referenced a non-existing index: {0}"),
+    PROTOCOL_IO_PARSE_ERROR(139, "protocol.io.parse.error", "Protocol parse error: {0}"),
+    GENERAL_PARSE_EXCEPTION(140, "general.parse.exception", "A general parsing error occurred: {0}"),
 //TODO complete this list with the entries of 9.1, will happen when the 9.1 codebase is used
     ;
 

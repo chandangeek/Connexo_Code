@@ -14,6 +14,10 @@ import java.io.IOException;
  */
 public class DataParseException extends ComServerRuntimeException {
 
+    protected DataParseException(Throwable cause, MessageSeed messageSeed, Object... messageArguments) {
+        super(cause, messageSeed, messageArguments);
+    }
+
     /**
      * Creates exception based on an IndexOutOfBoundsException
      *
@@ -53,7 +57,7 @@ public class DataParseException extends ComServerRuntimeException {
      * @param cause the cause of the error
      */
     public static DataParseException ioException(final IOException cause) {
-        return new DataParseException(cause, ProtocolExceptionReference.PROTOCOL_IO_PARSE_ERROR, cause.getMessage());
+        return new DataParseException(cause, MessageSeeds.PROTOCOL_IO_PARSE_ERROR);
     }
 
 
@@ -64,6 +68,6 @@ public class DataParseException extends ComServerRuntimeException {
      * @param cause the cause of the error
      */
     public static DataParseException generalParseException(final Exception cause) {
-        return new DataParseException(cause, ProtocolExceptionReference.GENERAL_PARSE_EXCEPTION, cause.getMessage());
+        return new DataParseException(cause, MessageSeeds.GENERAL_PARSE_EXCEPTION);
     }
 }
