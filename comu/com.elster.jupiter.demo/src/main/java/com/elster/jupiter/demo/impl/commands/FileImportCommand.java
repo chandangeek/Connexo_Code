@@ -98,7 +98,7 @@ public class FileImportCommand {
 
         @Override
         public String getStatusName() {
-            return Status.PROCESSING.toString();
+            return Status.PROCESSING.name();
         }
 
         @Override
