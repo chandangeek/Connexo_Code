@@ -25,6 +25,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -45,7 +46,6 @@ import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -59,6 +59,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.nls", service = {NlsService.class}, property = {"name=" + NlsService.COMPONENTNAME, "osgi.command.scope=nls", "osgi.command.function=addTranslation"})
@@ -119,7 +120,9 @@ public class NlsServiceImpl implements NlsService {
                 InstallIdentifier.identifier("Pulse", COMPONENTNAME),
                 dataModel,
                 NlsInstaller.class,
-                Collections.emptyMap());
+                ImmutableMap.of(
+                        version(10, 2), UpgraderV10_2.class
+                ));
         this.completeTranslationWhiteboard();
         installed = true; // upgradeService either installed, was up to date, or threw an Exception because upgrade was needed; in any case if we get here installed is true
     }
