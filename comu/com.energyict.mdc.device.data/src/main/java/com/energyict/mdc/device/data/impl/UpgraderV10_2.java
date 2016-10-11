@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.DeviceDataServices;
 
@@ -24,11 +25,13 @@ class UpgraderV10_2 implements Upgrader {
 
     private final DataModel dataModel;
     private final InstallerV10_2Impl installerV10_2;
+    private final UserService userService;
 
     @Inject
-    UpgraderV10_2(DataModel dataModel, InstallerV10_2Impl installerV10_2) {
+    UpgraderV10_2(DataModel dataModel, InstallerV10_2Impl installerV10_2, UserService userService) {
         this.dataModel = dataModel;
         this.installerV10_2 = installerV10_2;
+        this.userService = userService;
     }
 
     @Override
@@ -56,6 +59,7 @@ class UpgraderV10_2 implements Upgrader {
         });
         this.upgradeSubscriberSpecs();
         installerV10_2.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_2.class.getName()));
+        userService.addModulePrivileges(installerV10_2);
     }
 
     private void execute(Statement statement, String sql) {
