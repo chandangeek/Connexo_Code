@@ -8,14 +8,11 @@ import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.search.rest.impl.PropertyInfo;
 import com.elster.jupiter.search.rest.impl.SearchCriterionInfoFactory;
 
-import aQute.bnd.annotation.ConsumerType;
-
 import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@ConsumerType
 /**
  * Info object for displaying saved search criterias.
  */
