@@ -234,9 +234,10 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     private void createNewState(Instant effective, State state) {
+        Interval stateEffectivityInterval = Interval.of(Range.atLeast(effective));
         EndDeviceLifeCycleStatusImpl deviceLifeCycleStatus = this.dataModel
                 .getInstance(EndDeviceLifeCycleStatusImpl.class)
-                .initialize(Interval.of(Range.atLeast(effective)), this, state);
+                .initialize(stateEffectivityInterval, this, state);
         this.status.add(deviceLifeCycleStatus);
     }
 
@@ -439,9 +440,20 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private class CreateInitialState implements StateManager {
         @Override
         public StateManager save() {
-            createNewState(AbstractEndDeviceImpl.this.receivedDate != null ? AbstractEndDeviceImpl.this.receivedDate : getCreateTime(),
-                    getFiniteStateMachine().get().getInitialState());
+            createNewState(getInitialStateStartTime(), getFiniteStateMachine().get().getInitialState());
             return new UpdateStateNotSupportedYet();
+        }
+
+        /**
+         * If we create device with shipment date in the past -> use the shipment date,
+         * If shipment date is in the future -> use creation time, otherwise we will introduce case when device exists without any state
+         */
+        private Instant getInitialStateStartTime() {
+            if (AbstractEndDeviceImpl.this.receivedDate != null &&
+                    !AbstractEndDeviceImpl.this.receivedDate.isAfter(AbstractEndDeviceImpl.this.clock.instant())) {
+                return AbstractEndDeviceImpl.this.receivedDate;
+            }
+            return getCreateTime();
         }
     }
 

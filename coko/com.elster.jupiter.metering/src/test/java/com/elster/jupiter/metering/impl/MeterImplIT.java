@@ -4,6 +4,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -15,6 +16,7 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -42,7 +44,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -149,6 +154,60 @@ public class MeterImplIT {
             assertThat(meter.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
             assertThat(meter.getState().isPresent()).isTrue();
             assertThat(meter.getState().get().getId()).isEqualTo(stateMachine.getInitialState().getId());
+        }
+    }
+
+    @Test
+    public void deviceCreatedInPastHasInitialStateInPast() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+
+        try (TransactionContext context = transactionService.getContext()) {
+            FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
+            Instant twoHoursAgo = injector.getInstance(Clock.class).instant().minus(2, ChronoUnit.HOURS);
+
+            // Business method
+            Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get()
+                    .newMeter("amrID")
+                    .setMRID("mRID")
+                    .setReceivedDate(twoHoursAgo)
+                    .setStateMachine(stateMachine)
+                    .create();
+            meter = meteringService.findMeter(meter.getId()).get();
+
+            // Asserts
+            assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
+            assertThat(meter.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
+            assertThat(meter.getState(twoHoursAgo).isPresent()).isTrue();
+            assertThat(meter.getState(twoHoursAgo).get().getId()).isEqualTo(stateMachine.getInitialState().getId());
+        }
+    }
+
+    @Test
+    @Transactional
+    public void deviceCreatedInFutureHasInitialStateNow() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+
+        try (TransactionContext context = transactionService.getContext()) {
+            FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
+            Instant now = injector.getInstance(Clock.class).instant().plus(10, ChronoUnit.MINUTES);
+            Instant twoHoursAfter = now.plus(2, ChronoUnit.HOURS);
+
+            // Business method
+            Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get()
+                    .newMeter("amrID")
+                    .setMRID("mRID")
+                    .setReceivedDate(twoHoursAfter)
+                    .setStateMachine(stateMachine)
+                    .create();
+            meter = meteringService.findMeter(meter.getId()).get();
+
+            // Asserts
+            assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
+            assertThat(meter.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
+            assertThat(meter.getState(now).isPresent()).isTrue();
+            assertThat(meter.getState(now).get().getId()).isEqualTo(stateMachine.getInitialState().getId());
         }
     }
 

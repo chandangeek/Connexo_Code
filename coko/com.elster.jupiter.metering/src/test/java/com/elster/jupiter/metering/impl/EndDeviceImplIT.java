@@ -64,7 +64,7 @@ public class EndDeviceImplIT {
 
     @Before
     public void setUp() {
-        when(this.clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
+        when(clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
     }
 
     @Test
@@ -164,6 +164,29 @@ public class EndDeviceImplIT {
         // Asserts
         assertThat(endDeviceReloaded.getState().isPresent()).isTrue();
         assertThat(endDeviceReloaded.getState().get().getId()).isEqualTo(stateId);
+    }
+
+    @Test
+    @Transactional
+    public void changeStateInFuture() {
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
+
+        Instant now = Instant.now();
+        when(clock.instant()).thenReturn(now);
+
+        FiniteStateMachine stateMachine = this.createBiggerFiniteStateMachine();
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+        // Business method
+
+        when(clock.instant()).thenReturn(now.plus(1, ChronoUnit.HOURS));
+        State second = stateMachine.getState("Second").get();
+        endDevice.changeState(second, now.plus(2, ChronoUnit.HOURS));
+
+        EndDevice endDeviceReloaded = meteringService.findEndDevice(endDevice.getId()).get();
+
+        // Asserts
+        assertThat(endDeviceReloaded.getState().isPresent()).isTrue();
+        assertThat(endDeviceReloaded.getState().get().getId()).isEqualTo(stateMachine.getState("First").get().getId());
     }
 
     @Test
