@@ -73,6 +73,11 @@ public class DeviceTypeOneVersionedCustomPropertySet implements CustomPropertySe
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Device";
+    }
+
+    @Override
     public PersistenceSupport<Device, DeviceTypeOneVersionedDomainExtension> getPersistenceSupport() {
         return new DeviceTypeOneVersionedPeristenceSupport();
     }

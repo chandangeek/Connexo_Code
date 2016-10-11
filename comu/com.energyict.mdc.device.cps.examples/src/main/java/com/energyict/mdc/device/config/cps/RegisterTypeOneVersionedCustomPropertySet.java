@@ -73,6 +73,11 @@ public class RegisterTypeOneVersionedCustomPropertySet implements CustomProperty
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Register";
+    }
+
+    @Override
     public PersistenceSupport<RegisterSpec, RegisterTypeOneVersionedDomainExtension> getPersistenceSupport() {
         return new RegisterTypeOneVersionedPeristenceSupport();
     }
