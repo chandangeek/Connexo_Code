@@ -5,11 +5,13 @@ import com.elster.jupiter.fileimport.ImportSchedule;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  *
@@ -24,6 +26,7 @@ public class CreateImporterDirectoriesCommand {
     private String baseImportPath;
     private FileImportService fileImportService;
     private static final Logger LOGGER = Logger.getLogger(CreateImporterDirectoriesCommand.class.getName());
+    private Path basePath;
 
     @Inject
     public CreateImporterDirectoriesCommand(FileImportService fileImportService){
@@ -35,9 +38,9 @@ public class CreateImporterDirectoriesCommand {
     }
 
     public void run(){
-        Path basePath = Paths.get(baseImportPath);
+        basePath = Paths.get(baseImportPath);
         try {
-            Files.createDirectory(basePath);
+            Files.createDirectories(basePath);
         } catch (IOException e) {
             throw new IllegalArgumentException("Unable to create base importer directory");
         }
@@ -46,16 +49,25 @@ public class CreateImporterDirectoriesCommand {
             createDirectory(importSchedule.getSuccessDirectory());
             createDirectory(importSchedule.getFailureDirectory());
             createDirectory(importSchedule.getInProcessDirectory());
+            importSchedule.setActive(Stream.of(importSchedule.getImportDirectory(),
+                    importSchedule.getInProcessDirectory(),
+                    importSchedule.getSuccessDirectory(),
+                    importSchedule.getFailureDirectory())
+                    .map(path -> basePath.resolve(path))
+                    .allMatch(path -> Files.exists(path)));
+            importSchedule.update();
         }
     }
 
     private void createDirectory(Path path){
         try{
             if(path!=null){
-                Files.createDirectory(path);
+                Files.createDirectories(basePath.resolve(path));
             }
+        } catch (FileAlreadyExistsException e){
+            LOGGER.log(Level.INFO, "Directory " + path + " is already exists");
         } catch (IOException e){
-            LOGGER.log(Level.WARNING, "Unable to create importer directory " + path, e);
+            LOGGER.log(Level.WARNING, "Unable to create importer directory " + path);
         }
     }
 
