@@ -89,7 +89,7 @@ public class XDlmsDecryption {
 		if (containsNull(getGlobalKey(), getCipherText(), generateInitialisationVector(), generateAssociatedData(), getAuthenticationTag())) {
 			return null;
 		} else {
-			AesGcm128 aes = new AesGcm128();
+			AesGcm aes = new AesGcm();
 			aes.setGlobalKey(new BitVector(getGlobalKey()));
 			aes.setCipherText(new BitVector(getCipherText()));
 			aes.setInitializationVector(new BitVector(generateInitialisationVector()));

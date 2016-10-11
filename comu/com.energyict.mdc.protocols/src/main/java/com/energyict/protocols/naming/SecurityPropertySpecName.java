@@ -53,7 +53,11 @@ public enum SecurityPropertySpecName implements TranslationKey {
     AUTHENTICATION_KEY_EXT_DATA("AuthenticationKeyExtData", "Extra dta authentication key"),
     AUTHENTICATION_KEY_MANAGEMENT("AuthenticationKeyManagement", "Management client authentication key"),
     AUTHENTICATION_KEY_FIRMWARE("AuthenticationKeyFirmware", "Firmware client authentication key"),
-    AUTHENTICATION_KEY_MANUFACTURER("AuthenticationKeyManufacturer", "Manufacturer authentication key");
+    AUTHENTICATION_KEY_MANUFACTURER("AuthenticationKeyManufacturer", "Manufacturer authentication key"),
+
+    SERVER_SIGNING_CERTIFICATE("ServerSigningCertificate", "Server signing request"),
+    SERVER_KEY_AGREEMENT_CERTIFICATE("ServerKeyAgreementCertificate", "Server key agreement certificate"),
+    ;
 
     private final String key;
     private final String defaultFormat;
