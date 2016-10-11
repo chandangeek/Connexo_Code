@@ -173,6 +173,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     ConnectionState getConnectionState();
 
+    String getConnectionStateDisplayName();
+
     void setConnectionState(ConnectionState connectionState);
 
     void setConnectionState(ConnectionState connectionState, Instant instant);

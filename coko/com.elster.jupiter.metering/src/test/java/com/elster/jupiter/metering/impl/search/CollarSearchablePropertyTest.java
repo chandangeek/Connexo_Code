@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -31,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,6 +50,8 @@ public class CollarSearchablePropertyTest {
     private OrmService ormService;
     @Mock
     private Clock clock;
+    @Mock
+    private  MeteringTranslationService meteringTranslationService;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -114,7 +116,7 @@ public class CollarSearchablePropertyTest {
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_COLLAR.getKey()), anyString());
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.USAGEPOINT_COLLAR);
     }
 
     @Test
@@ -187,7 +189,7 @@ public class CollarSearchablePropertyTest {
     }
 
     private CollarSearchableProperty getTestInstance() {
-        return new CollarSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain,
+        return new CollarSearchableProperty(this.propertySpecService, this.meteringTranslationService, this.thesaurus).init(this.domain,
                 new ElectricityAttributesSearchablePropertyGroup(this.thesaurus), this.clock);
     }
 }

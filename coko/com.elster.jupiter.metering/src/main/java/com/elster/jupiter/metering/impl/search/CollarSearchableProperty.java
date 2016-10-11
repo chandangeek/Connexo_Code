@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -23,6 +24,7 @@ import java.util.Optional;
 class CollarSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
+    private final MeteringTranslationService meteringTranslationService;
     private final Thesaurus thesaurus;
 
     private Clock clock;
@@ -32,8 +34,9 @@ class CollarSearchableProperty implements SearchableUsagePointProperty {
     private String uniqueName;
 
     @Inject
-    CollarSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    CollarSearchableProperty(PropertySpecService propertySpecService, MeteringTranslationService meteringTranslationService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
+        this.meteringTranslationService = meteringTranslationService;
         this.thesaurus = thesaurus;
     }
 
@@ -98,7 +101,7 @@ class CollarSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.singletonList(new ServiceCategorySearchableProperty(domain, propertySpecService, thesaurus));
+        return Collections.singletonList(new ServiceCategorySearchableProperty(domain, propertySpecService, meteringTranslationService, thesaurus));
     }
 
     @Override

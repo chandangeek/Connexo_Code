@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -16,8 +17,8 @@ public class WaterPhysicalCapacitySearchableProperty extends PhysicalCapacitySea
     private static final String FIELD_NAME = "detail.physicalCapacity";
 
     @Inject
-    public WaterPhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super(propertySpecService, thesaurus);
+    public WaterPhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, MeteringTranslationService meteringTranslationService, Thesaurus thesaurus) {
+        super(propertySpecService, meteringTranslationService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }

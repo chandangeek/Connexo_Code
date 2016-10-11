@@ -12,7 +12,7 @@ public enum AmiBillingReadyKind implements TranslationKey {
 	AMIDISABLED("amiDisabled", "AMI disabled"),
 	AMICAPABLE("amiCapable", "AMI capable"),
 	NONMETERED("nonMetered", "Non metered");
-	
+
 	private final String value;
 	private final String defaultFormat;
 
@@ -20,21 +20,21 @@ public enum AmiBillingReadyKind implements TranslationKey {
 		this.value = value;
 		this.defaultFormat = defaultFormat;
 	}
-	
+
 	public static AmiBillingReadyKind get(int id) {
-		return values()[id-1];		
+		return values()[id-1];
 	}
-	
+
 	public int getId() {
 		return ordinal() + 1;
 	}
-	
+
 	public String getValue() {
 		return value;
 	}
 
 	public String getDisplayName(Thesaurus thesaurus) {
-		return thesaurus.getString(this.value, this.defaultFormat);
+		return thesaurus.getFormat(this).format();
 	}
 
 	@Override

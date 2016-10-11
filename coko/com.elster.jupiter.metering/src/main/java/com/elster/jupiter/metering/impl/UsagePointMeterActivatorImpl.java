@@ -794,7 +794,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void meterActiveOnDifferentUsagePoint(Meter meter, MeterRole currentRole, MeterRole desiredRole, UsagePoint meterCurrentUsagePoint, Range<Instant> conflictActivationRange) {
             this.valid = false;
-            String errorMessage = this.thesaurus.getString(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT.getKey(), MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT.getKey());
+            String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT).format();
             errorMessage = MessageFormat.format(errorMessage, meter.getName(), meterCurrentUsagePoint.getName(), currentRole.getDisplayName());
             this.context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(desiredRole.getKey()).addConstraintViolation();
         }
@@ -809,20 +809,22 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void usagePointHasMeterOnThisRole(Meter meterActiveOnRole, MeterRole meterRole, Range<Instant> conflictActivationRange) {
             this.valid = false;
-            String messageTemplate = this.thesaurus.getString(MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE.getKey(),
-                    MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE.getDefaultFormat());
-            String errorMessage = MessageFormat.format(messageTemplate, meterActiveOnRole.getName(), meterRole.getDisplayName());
-            this.context.buildConstraintViolationWithTemplate(errorMessage)
-                    .addPropertyNode(meterRole.getKey()).addConstraintViolation();
+            String message = this.thesaurus.getFormat(MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE).format(meterActiveOnRole.getName(), meterRole.getDisplayName());
+            this.context.buildConstraintViolationWithTemplate(message).addPropertyNode(meterRole.getKey()).addConstraintViolation();
         }
 
         @Override
         public void meterHasUnsatisfiedRequirements(Meter meter, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
             this.valid = false;
-            String messageTemplate = this.thesaurus.getString(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT.getKey(),
-                    MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT.getDefaultFormat());
-            String errorMessage = MessageFormat.format(messageTemplate,
-                    unsatisfiedRequirements.values().stream().flatMap(Collection::stream).map(ReadingTypeRequirement::getDescription).collect(Collectors.joining(", ")));
+            String errorMessage =
+                    this.thesaurus
+                            .getFormat(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT)
+                            .format(unsatisfiedRequirements
+                                    .values()
+                                    .stream()
+                                    .flatMap(Collection::stream)
+                                    .map(ReadingTypeRequirement::getDescription)
+                                    .collect(Collectors.joining(", ")));
             this.context.buildConstraintViolationWithTemplate(errorMessage)
                     .addPropertyNode(meterRole.getKey())
                     .addConstraintViolation();

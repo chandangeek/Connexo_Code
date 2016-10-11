@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ServiceCategoryImpl implements ServiceCategory {
+class ServiceCategoryImpl implements ServiceCategory {
 
     enum Fields {
         CUSTOMPROPERTYSETUSAGE("serviceCategoryCustomPropertySetUsages"),
@@ -118,11 +118,6 @@ public class ServiceCategoryImpl implements ServiceCategory {
     @Override
     public UsagePointBuilder newUsagePoint(String name, Instant installationTime) {
         return new UsagePointBuilderImpl(dataModel, name, installationTime, this);
-    }
-
-    @Override
-    public String getTranslationKey() {
-        return ServiceKind.getTranslationKey(this.kind);
     }
 
     @Override

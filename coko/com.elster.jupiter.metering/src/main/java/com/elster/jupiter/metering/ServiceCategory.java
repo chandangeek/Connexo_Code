@@ -2,9 +2,11 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.nls.HasTranslatableName;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ProviderType;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -12,7 +14,7 @@ import java.time.Instant;
 import java.util.List;
 
 @ProviderType
-public interface ServiceCategory extends HasTranslatableName, HasAuditInfo, HasId {
+public interface ServiceCategory extends HasName, HasAuditInfo, HasId {
 
     String getAliasName();
 
