@@ -3,12 +3,13 @@ package com.elster.jupiter.system.app.impl;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.system.app.SysAppService;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 import java.util.logging.Logger;
 
-final class Installer implements FullInstaller {
+final class Installer implements FullInstaller, Upgrader {
 
     private final UserService userService;
 
@@ -19,13 +20,21 @@ final class Installer implements FullInstaller {
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
-        String[] adminPrivileges = getAdminPrivileges();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
+        grantPrivileges();
+    }
+
+    @Override
+    public void migrate(DataModelUpgrader dataModelUpgrader) {
+        grantPrivileges();
     }
 
     private String[] getAdminPrivileges() {
         return SysAppPrivileges.getApplicationPrivileges().stream().toArray(String[]::new);
     }
 
+    private void grantPrivileges() {
+        String[] adminPrivileges = getAdminPrivileges();
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
+    }
 }
