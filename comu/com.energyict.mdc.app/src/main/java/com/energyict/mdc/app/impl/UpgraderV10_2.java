@@ -21,10 +21,14 @@ public class UpgraderV10_2 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        String[] newPrivileges = new String[]{com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE};
+        String[] mdcPrivileges = getMdcPrivileges();
 
-        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.APPLICATION_KEY, newPrivileges);
-        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, newPrivileges);
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, newPrivileges);
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.APPLICATION_KEY, mdcPrivileges);
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, mdcPrivileges);
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, mdcPrivileges);
+    }
+
+    private String[] getMdcPrivileges() {
+        return MdcAppPrivileges.getApplicationPrivileges().stream().toArray(String[]::new);
     }
 }
