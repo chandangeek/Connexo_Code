@@ -517,17 +517,17 @@ public class DemoTest {
                 assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
                 assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.minutes(15));
                 assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getRegisterTypes()).containsExactly(
-                        RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E);
+                        RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS);
             } else if (LoadProfileTypeTpl.DAILY_ELECTRICITY.getName().equals(loadProfileType.getName())) {
                 assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
                 assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.days(1));
                 assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getRegisterTypes()).containsExactly(
-                        RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2);
+                        RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2);
             } else if (LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getName().equals(loadProfileType.getName())) {
                 assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
                 assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.months(1));
                 assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getRegisterTypes()).containsExactly(
-                        RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2);
+                        RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2);
             } else {
                 fail("The device type of device with MRID = " + mridDevice + " contains an unwanted loadprofile: " + loadProfileType.getName());
             }
@@ -535,12 +535,12 @@ public class DemoTest {
         List<RegisterType> registerTypes = deviceType.getRegisterTypes();
         assertThat(registerTypes).hasSize(6);
         for (RegisterType registerType : registerTypes) {
-            if (!RegisterTypeTpl.B_F_E_S_M_E.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.B_R_E_S_M_E.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T1.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T2.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T1.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T2.getObisCode().equals(registerType.getObisCode().toString())) {
+            if (!RegisterTypeTpl.SECONDARY_BULK_A_PLUS.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_BULK_A_MINUS.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2.getObisCode().equals(registerType.getObisCode().toString())) {
                 fail("The device type of device with MRID = " + mridDevice + " contains an unwanted register type: " + registerType.getObisCode());
             }
         }
@@ -599,12 +599,12 @@ public class DemoTest {
         List<Register> registers = device.getRegisters();
         assertThat(registers).hasSize(6);
         for (Register register : registers) {
-            if (!RegisterTypeTpl.B_F_E_S_M_E.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.B_R_E_S_M_E.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T2.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T2.getObisCode().equals(register.getRegisterSpecObisCode().toString())) {
+            if (!RegisterTypeTpl.SECONDARY_BULK_A_PLUS.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_BULK_A_MINUS.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2.getObisCode().equals(register.getRegisterSpecObisCode().toString())) {
                 fail("The device with MRID = " + mridDevice + " contains an unwanted register : " + register.getRegisterSpecObisCode());
             }
         }

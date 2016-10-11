@@ -183,12 +183,12 @@ public class CreateCollectRemoteDataSetupCommand {
     }
 
     private void createRegisterTypes() {
-        Builders.from(RegisterTypeTpl.B_F_E_S_M_E).get();
-        Builders.from(RegisterTypeTpl.B_R_E_S_M_E).get();
-        Builders.from(RegisterTypeTpl.S_F_E_S_M_E_T1).get();
-        Builders.from(RegisterTypeTpl.S_F_E_S_M_E_T2).get();
-        Builders.from(RegisterTypeTpl.S_R_E_S_M_E_T1).get();
-        Builders.from(RegisterTypeTpl.S_R_E_S_M_E_T2).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_BULK_A_PLUS).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_BULK_A_MINUS).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2).get();
     }
 
     private void createRegisterGroups() {
