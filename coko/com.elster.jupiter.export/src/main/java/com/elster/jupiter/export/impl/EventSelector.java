@@ -111,8 +111,8 @@ class EventSelector implements DataSelector {
     }
 
     private StructureMarker buildStructureMarker(EndDevice endDevice, Range<Instant> range) {
-        // TODO replace with Name or not
-        return dataExportService.forRoot(endDevice.getMRID()).withPeriod(range);
+        return dataExportService.forRoot(endDevice.getMRID()).withPeriod(range)
+                .child(endDevice.getName()); // structure of both device identifiers to form two columns in the exported file
     }
 
     private MeterReadingImpl buildMeterReading(EndDevice endDevice, Range<Instant> range) {

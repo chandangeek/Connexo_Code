@@ -327,21 +327,19 @@ class DefaultItemDataSelector implements ItemDataSelector {
     }
 
     private StructureMarker structureMarker(IReadingTypeDataExportItem item, Instant instant, Range<Instant> exportInterval) {
-        // TODO replace with Name or not
         return DefaultStructureMarker.createRoot(clock, item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
                 .withPeriod(exportInterval)
-                // TODO replace with Name or not
                 .child(item.getReadingContainer().getUsagePoint(instant).map(UsagePoint::getMRID).orElse(""))
                 .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID())
+                // all the MRIDs above are not used anywhere
                 .child("export");
     }
 
     private StructureMarker structureMarkerForUpdate(IReadingTypeDataExportItem item, Instant instant) {
-        // TODO replace with Name or not
         return DefaultStructureMarker.createRoot(clock, item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
-                // TODO replace with Name or not
                 .child(item.getReadingContainer().getUsagePoint(instant).map(UsagePoint::getMRID).orElse(""))
                 .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID())
+                // all the MRIDs above are not used anywhere
                 .child("update");
     }
 
