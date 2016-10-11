@@ -866,11 +866,21 @@ public class DemoServiceImpl {
             command.run();
         });
     }
+
     @SuppressWarnings("unused")
-    public void createImportDirectories(String importPath){
+    public void createImportDirectories() {
+        System.err.println("Usage: createImportDirectories [<basePath>, if not specified then the base path from the active appserver will be used]");
         executeTransaction(() -> {
             CreateImporterDirectoriesCommand command = injector.getInstance(CreateImporterDirectoriesCommand.class);
-            command.setBaseImportPath(importPath);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createImportDirectories(String basePath) {
+        executeTransaction(() -> {
+            CreateImporterDirectoriesCommand command = injector.getInstance(CreateImporterDirectoriesCommand.class);
+            command.setBaseImportPath(basePath);
             command.run();
         });
     }
