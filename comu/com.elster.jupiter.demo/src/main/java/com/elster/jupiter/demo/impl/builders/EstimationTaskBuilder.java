@@ -8,6 +8,12 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import com.google.inject.Inject;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -20,12 +26,16 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, EstimationTaskBuilder> {
 
     private final EstimationService estimationService;
+    private final Clock clock;
+    private Instant nextExecution;
     private EndDeviceGroup deviceGroup;
-    private ScheduleExpression scheduleExpression = PeriodicalScheduleExpression.every(1).days().at(8, 0, 0).build();
+    private ScheduleExpression scheduleExpression = PeriodicalScheduleExpression.every(1).days().at(7, 0, 0).build();
 
-    public EstimationTaskBuilder(EstimationService estimationService){
+    @Inject
+    public EstimationTaskBuilder(EstimationService estimationService, Clock clock){
         super(EstimationTaskBuilder.class);
         this.estimationService = estimationService;
+        this.clock = clock;
     }
 
     public EstimationTaskBuilder withEndDeviceGroup(EndDeviceGroup group){
@@ -38,12 +48,21 @@ public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, Estimati
         return this;
     }
 
+    public EstimationTaskBuilder withNextExecution(){
+        ZonedDateTime now = ZonedDateTime.ofInstant(clock.instant(), ZoneId.systemDefault());
+        Optional<ZonedDateTime> nextOccurrence = scheduleExpression.nextOccurrence(now);
+        this.nextExecution =  nextOccurrence.map(ZonedDateTime::toInstant).orElse(null);
+        return this;
+    }
+
     @Override
     public Optional<EstimationTask> find() {
-        return estimationService.getEstimationTaskQuery()
-                .select(where("name").isEqualTo(getName()).and(where("obsoleteTime").isNull()))
-                .stream().map(EstimationTask.class::cast)
-                .findFirst();
+        return Optional.empty();
+        //TODO: update findEstimationTask
+//        return estimationService.getEstimationTaskQuery()
+//                .select(where("name").isEqualTo(getName()).and(where("obsoleteTime").isNull()))
+//                .stream().map(EstimationTask.class::cast)
+//                .findFirst();
     }
 
     @Override
@@ -54,6 +73,7 @@ public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, Estimati
         taskBuilder.setQualityCodeSystem(QualityCodeSystem.MDC);
         taskBuilder.setEndDeviceGroup(deviceGroup);
         taskBuilder.setScheduleExpression(scheduleExpression);
+        taskBuilder.setNextExecution(nextExecution);
 
         EstimationTask task = taskBuilder.create();
         applyPostBuilders(task);

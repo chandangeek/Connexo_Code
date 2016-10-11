@@ -21,9 +21,11 @@ import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.CreationRuleTpl;
 import com.elster.jupiter.demo.impl.templates.DataCollectionKpiTpl;
+import com.elster.jupiter.demo.impl.templates.DataValidationTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.demo.impl.templates.EstimationTaskTpl;
 import com.elster.jupiter.demo.impl.templates.InboundComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
 import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
@@ -148,6 +150,8 @@ public class CreateCollectRemoteDataSetupCommand {
         createCreationRules();
         createAssignmentRules();
         createDeviceGroups();
+        createEstimationTasks();
+        createValidationTasks();
         createKpi();
     }
 
@@ -323,6 +327,14 @@ public class CreateCollectRemoteDataSetupCommand {
             group = Builders.from(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES).get();
         }
         Builders.from(FavoriteGroupBuilder.class).withGroup(group).get();
+    }
+
+    private void createEstimationTasks(){
+        Builders.from(EstimationTaskTpl.ALL_ELECTRICITY_DEVICES).get();
+    }
+
+    private void createValidationTasks(){
+        Builders.from(DataValidationTaskTpl.A1800_DEVICES).get();
     }
 
     private void createKpi() {
