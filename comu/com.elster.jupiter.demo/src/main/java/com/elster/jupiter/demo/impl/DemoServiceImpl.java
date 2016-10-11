@@ -14,6 +14,7 @@ import com.elster.jupiter.demo.impl.commands.CreateDemoUserCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
 import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
+import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
@@ -848,14 +849,14 @@ public class DemoServiceImpl {
             command.run();
         });
     }
-//    @SuppressWarnings("unused")
-//    public void createImportDirectories(String importPath){
-//        executeTransaction(() -> {
-//            CreateImportersCommand command = injector.getInstance(CreateImportersCommand.class);
-//            command.setAppServerName(appServerName);
-//            command.run();
-//        });
-//    }
+    @SuppressWarnings("unused")
+    public void createImportDirectories(String importPath){
+        executeTransaction(() -> {
+            CreateImporterDirectoriesCommand command = injector.getInstance(CreateImporterDirectoriesCommand.class);
+            command.setBaseImportPath(importPath);
+            command.run();
+        });
+    }
     @SuppressWarnings("unused")
     public void createDemoUser(){
         System.err.println("Usage: createDemoUser <user name>");
