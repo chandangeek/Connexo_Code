@@ -232,9 +232,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             }
         }
         if (record.get('calculatedReadingType')) {
-            calculatedReadingTypeField.show();
+            calculatedReadingTypeField && calculatedReadingTypeField.show();
         } else {
-            calculatedReadingTypeField.hide();
+            calculatedReadingTypeField && calculatedReadingTypeField.hide();
         }
 
         previewContainer.removeAll();

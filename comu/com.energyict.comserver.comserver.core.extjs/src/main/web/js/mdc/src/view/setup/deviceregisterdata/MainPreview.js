@@ -175,7 +175,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         }
         if (multiplierField) {
             if (hasCalculatedValue) {
-                multiplierField.setValue(record.get('multiplier'));
+                multiplierField.setValue(registerRecord.get('multiplier'));
             }
             multiplierField.setVisible(hasCalculatedValue);
         }

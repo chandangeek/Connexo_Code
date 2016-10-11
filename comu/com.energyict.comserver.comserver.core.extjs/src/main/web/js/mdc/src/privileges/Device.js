@@ -11,6 +11,7 @@ Ext.define('Mdc.privileges.Device', {
 
     viewDeviceData:['privilege.administrate.deviceData','privilege.view.device'],
     viewDevice:['privilege.administrate.device','privilege.view.device'],
+    administrateDeviceOrDeviceCommunication: ['privilege.administrate.device', 'privilege.administrate.deviceCommunication'],
     viewDevices: ['privilege.administrate.deviceData','privilege.view.device','privilege.view.masterData'],
     deviceOperator: ['privilege.view.device','privilege.administrate.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
     administrateDevice:['privilege.administrate.device'],
@@ -67,6 +68,9 @@ Ext.define('Mdc.privileges.Device', {
     },
     canAdministrateOrOperateDeviceCommunication : function(){
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.administrateOrOperateDeviceCommunication );
+    },
+    canAadministrateDeviceOrDeviceCommunication : function(){
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.administrateDeviceOrDeviceCommunication );
     },
     canViewDeviceCommunication: function() {
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewDeviceCommunication);

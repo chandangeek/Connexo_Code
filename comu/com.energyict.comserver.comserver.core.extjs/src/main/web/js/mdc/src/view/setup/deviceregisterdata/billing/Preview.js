@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                             var form = this.up('form'),
                                 record = form.getRecord();
                             if (record && value) {
-                                return value + ' ' + record.get('unitOfMeasure');
+                                return value + ' ' + record.get('unit');
                             } else {
                                 return null
                             }
@@ -69,7 +69,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                     var form = this.up('form'),
                         record = form.getRecord();
                     if (record && value) {
-                        return Ext.String.htmlEncode(value) + ' ' + record.get('unitOfMeasure');
+                        return Ext.String.htmlEncode(value) + ' ' + record.get('unit');
                     } else {
                         return null
                     }
