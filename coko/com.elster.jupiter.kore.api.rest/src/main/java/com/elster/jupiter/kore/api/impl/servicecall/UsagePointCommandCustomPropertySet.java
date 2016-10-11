@@ -1,21 +1,17 @@
 package com.elster.jupiter.kore.api.impl.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallService;
 
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,10 +21,12 @@ import java.util.Set;
 
 public class UsagePointCommandCustomPropertySet implements CustomPropertySet<ServiceCall, UsagePointCommandDomainExtension> {
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
-    public UsagePointCommandCustomPropertySet(PropertySpecService propertySpecService) {
+    public UsagePointCommandCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -39,6 +37,11 @@ public class UsagePointCommandCustomPropertySet implements CustomPropertySet<Ser
     @Override
     public Class<ServiceCall> getDomainClass() {
         return ServiceCall.class;
+    }
+
+    @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.CPS_DOMAIN_NAME_SERVICE_CALL).format();
     }
 
     @Override

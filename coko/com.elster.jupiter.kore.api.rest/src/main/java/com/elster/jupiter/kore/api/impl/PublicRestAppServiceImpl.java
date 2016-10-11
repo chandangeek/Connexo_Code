@@ -1,6 +1,7 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.security.Privileges;
+import com.elster.jupiter.kore.api.impl.servicecall.TranslationKeys;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -8,7 +9,6 @@ import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 
 import org.osgi.service.component.annotations.Component;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,8 +43,8 @@ public class PublicRestAppServiceImpl implements TranslationKeyProvider, Applica
         return
             Stream
                 .concat(
-                    Arrays.stream(Privileges.values()),
-                    Arrays.stream(TranslationKeys.values()))
+                    Stream.of(Privileges.values()),
+                    Stream.of(TranslationKeys.values()))
                 .collect(Collectors.toList());
     }
 

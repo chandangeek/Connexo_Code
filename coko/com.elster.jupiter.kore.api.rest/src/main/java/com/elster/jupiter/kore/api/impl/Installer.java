@@ -10,6 +10,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -26,13 +27,15 @@ public class Installer implements FullInstaller {
     private final CustomPropertySetService customPropertySetService;
     private final MessageService messageService;
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public Installer(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, PropertySpecService propertySpecService, MessageService messageService) {
+    public Installer(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, PropertySpecService propertySpecService, MessageService messageService, Thesaurus thesaurus) {
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
         this.messageService = messageService;
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class Installer implements FullInstaller {
         if (customPropertySet.isPresent()) {
             createUsagePointCommandServiceCallType(customPropertySet.get());
         } else {
-            customPropertySetService.addCustomPropertySet(new UsagePointCommandCustomPropertySet(propertySpecService));
+            customPropertySetService.addCustomPropertySet(new UsagePointCommandCustomPropertySet(propertySpecService, thesaurus));
             findUsagePointCommandCustomPropertySet()
                     .ifPresent(this::createUsagePointCommandServiceCallType);
         }
