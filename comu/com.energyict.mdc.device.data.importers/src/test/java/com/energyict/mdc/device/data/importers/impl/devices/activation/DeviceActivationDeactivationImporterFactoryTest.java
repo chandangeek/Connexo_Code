@@ -33,7 +33,6 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -41,6 +40,7 @@ import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterPro
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -133,18 +133,18 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         when(device.forValidation().getLastChecked()).thenReturn(Optional.empty());
 
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
-        when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
+        when(finiteStateMachineService.findCustomStateTransitionEventType(anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
         when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
 
         createDeviceActivationDeactivationImporter().process(importOccurrence);
 
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
-        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).info(anyString());
         verify(logger).warning(contains(
                 thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
                          .format(2, DefaultState.ACTIVE.getDefaultFormat(), DefaultState.IN_STOCK.getDefaultFormat(), DefaultState.INACTIVE.getDefaultFormat())));
-        verify(logger, never()).severe(Matchers.anyString());
+        verify(logger, never()).severe(anyString());
     }
 
     @Test
@@ -166,17 +166,17 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         when(validation.getLastChecked()).thenReturn(Optional.empty());
 
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
-        when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
+        when(finiteStateMachineService.findCustomStateTransitionEventType(anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
         when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
 
         createDeviceActivationDeactivationImporter().process(importOccurrence);
 
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
-        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).info(anyString());
         verify(logger).warning(contains(
                 thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
                          .format(2, DefaultState.INACTIVE.getDefaultFormat(), DefaultState.COMMISSIONING.getDefaultFormat(), DefaultState.ACTIVE.getDefaultFormat())));
-        verify(logger, never()).severe(Matchers.anyString());
+        verify(logger, never()).severe(anyString());
     }
 }

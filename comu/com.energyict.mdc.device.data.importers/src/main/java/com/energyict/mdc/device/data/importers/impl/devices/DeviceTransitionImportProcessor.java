@@ -74,7 +74,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
                     this.getStateName(device.getState()),
                     sourceStates
                             .stream()
-                            .map(context.getDeviceLifeCycleConfigurationService()::getDisplayName)
+                            .map(getContext().getDeviceLifeCycleConfigurationService()::getDisplayName)
                             .collect(Collectors.joining(", ")));
         }
 
@@ -101,7 +101,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     private ExecutableAction getExecutableAction(Device device, T data) {
         DefaultCustomStateTransitionEventType eventType = getTransitionEventType(data);
         return getContext().getDeviceLifeCycleService().getExecutableActions(device,
-                eventType.findOrCreate(this.context.getFiniteStateMachineService()))
+                eventType.findOrCreate(getContext().getFiniteStateMachineService()))
                 .orElseThrow(() -> new ProcessorException(
                         MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE,
                         data.getLineNumber(),
@@ -110,13 +110,13 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     }
 
     private String getStateName(T data) {
-        return this.context.getDeviceLifeCycleConfigurationService().getDisplayName(getTargetState(data));
+        return this.getContext().getDeviceLifeCycleConfigurationService().getDisplayName(getTargetState(data));
     }
 
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(context.getDeviceLifeCycleConfigurationService()::getDisplayName)
+                .map(getContext().getDeviceLifeCycleConfigurationService()::getDisplayName)
                 .orElseGet(state::getName);
     }
 
