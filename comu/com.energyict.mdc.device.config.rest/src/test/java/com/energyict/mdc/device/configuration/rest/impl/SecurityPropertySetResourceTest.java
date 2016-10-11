@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
@@ -10,6 +11,7 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
+import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -35,7 +38,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,6 +52,18 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
 
     public static final long OK_VERSION = 24L;
     public static final long BAD_VERSION = 17L;
+
+    @Override
+    protected void setupThesaurus() {
+        super.setupThesaurus();
+        Stream.of(SecurityPropertySetPrivilegeTranslationKeys.values()).forEach(this::mockTranslation);
+    }
+
+    private void mockTranslation(SecurityPropertySetPrivilegeTranslationKeys translationKey) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
+        doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
+    }
 
     @Test
     public void addSecurityPropertySetAddsUserActions() throws Exception {

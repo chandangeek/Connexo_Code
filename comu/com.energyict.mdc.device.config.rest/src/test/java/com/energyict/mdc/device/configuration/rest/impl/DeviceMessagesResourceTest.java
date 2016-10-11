@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -26,15 +27,30 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
+
+    @Override
+    protected void setupThesaurus() {
+        super.setupThesaurus();
+        Stream.of(DeviceMessageExecutionLevelTranslationKeys.values()).forEach(this::mockTranslation);
+    }
+
+    private void mockTranslation(DeviceMessageExecutionLevelTranslationKeys translationKey) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
+        doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
+    }
 
     @Test
     public void testDeviceTypeDoesNotSupportMessages() {

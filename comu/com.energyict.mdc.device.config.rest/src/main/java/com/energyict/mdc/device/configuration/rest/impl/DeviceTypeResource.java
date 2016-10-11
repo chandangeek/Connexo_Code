@@ -35,6 +35,7 @@ import com.energyict.mdc.device.config.exceptions.DeviceMessageFileTooBigExcepti
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -92,6 +93,7 @@ public class DeviceTypeResource {
     private final ResourceHelper resourceHelper;
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider;
     private final Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider;
     private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
@@ -109,7 +111,7 @@ public class DeviceTypeResource {
             ResourceHelper resourceHelper,
             MasterDataService masterDataService,
             DeviceConfigurationService deviceConfigurationService,
-            Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider,
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider,
             ProtocolPluggableService protocolPluggableService,
             Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider,
             Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider,
@@ -121,6 +123,7 @@ public class DeviceTypeResource {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.protocolPluggableService = protocolPluggableService;
         this.loadProfileTypeResourceProvider = loadProfileTypeResourceProvider;
         this.deviceConfigurationResourceProvider = deviceConfigurationResourceProvider;
@@ -231,7 +234,7 @@ public class DeviceTypeResource {
         info.targetDeviceLifeCycle = new DeviceLifeCycleInfo(targetDeviceLifeCycle);
         info.notMappableStates = lifeCycleChangeError.getMissingStates()
                 .stream()
-                .map(state -> new DeviceLifeCycleStateInfo(thesaurus, null, state))
+                .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state))
                 .collect(Collectors.toList());
         return info;
     }
@@ -736,13 +739,11 @@ public class DeviceTypeResource {
         Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions)
                 .orElse(Collections.emptySet());
 
-        supportedCalendarOptions.stream()
-                .forEach(op -> timeOfUseOptionsInfo.supportedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op
-                        .getId(), op.getId()))));
-        allowedOptions.stream()
+        supportedCalendarOptions
+                .forEach(op -> timeOfUseOptionsInfo.supportedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+        allowedOptions
                 .forEach(op ->
-                        timeOfUseOptionsInfo.allowedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op
-                                .getId()))));
+                        timeOfUseOptionsInfo.allowedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
 
         timeOfUseOptionsInfo.isAllowed = !allowedOptions.isEmpty();
         timeOfUseOptionsInfo.version = timeOfUseOptions.map(TimeOfUseOptions::getVersion).orElse(0L);
