@@ -2,6 +2,9 @@ package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
+import com.elster.jupiter.demo.impl.builders.ValidationRuleDetectMissingValuesPostBuilder;
+import com.elster.jupiter.demo.impl.builders.ValidationRuleDetectThresholdViolationPostBuilder;
+import com.elster.jupiter.demo.impl.builders.ValidationRuleRegisterIncreasePostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.templates.ValidationRuleSetTpl;
 import com.elster.jupiter.metering.Meter;
@@ -27,6 +30,7 @@ public class CreateValidationSetupCommand {
     private final Provider<CreateValidationDeviceCommand> createValidationDeviceCommandProvider;
 
     private ValidationRuleSet validationRuleSet;
+    private ValidationRuleSet strictValidationRuleSet;
 
     @Inject
     public CreateValidationSetupCommand(
@@ -48,7 +52,14 @@ public class CreateValidationSetupCommand {
     }
 
     private void createValidationRuleSet(){
-        this.validationRuleSet = Builders.from(ValidationRuleSetTpl.RESIDENTIAL_CUSTOMERS).get();
+        this.validationRuleSet = Builders.from(ValidationRuleSetTpl.RESIDENTIAL_CUSTOMERS)
+                .withVersionPostBuilder(new ValidationRuleRegisterIncreasePostBuilder())
+                .withVersionPostBuilder(new ValidationRuleDetectMissingValuesPostBuilder())
+                .withVersionPostBuilder(new ValidationRuleDetectThresholdViolationPostBuilder(1200))
+                .get();
+        this.strictValidationRuleSet = Builders.from(ValidationRuleSetTpl.RESIDENTIAL_CUSTOMERS_STRICT)
+                .withVersionPostBuilder(new ValidationRuleDetectThresholdViolationPostBuilder(900))
+                .get();
     }
 
     private void createValidationDevice(){

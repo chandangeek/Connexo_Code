@@ -15,6 +15,7 @@ import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleSt
 import com.elster.jupiter.demo.impl.builders.device.SetUsagePointToDevicePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetValidateOnStorePostBuilder;
 import com.elster.jupiter.demo.impl.builders.type.AttachDeviceTypeCPSPostBuilder;
+import com.elster.jupiter.demo.impl.templates.CalendarTpl;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
@@ -52,6 +53,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class CreateCollectRemoteDataSetupCommand {
     private final LicenseService licenseService;
@@ -69,9 +71,7 @@ public class CreateCollectRemoteDataSetupCommand {
     private String host;
     private Integer devicesPerType = null;
     private int deviceCounter = 0;
-    private Location location;
     private SpatialCoordinates spatialCoordinates;
-
 
     private static final List<String> administrativeAreaList = Arrays.asList("Ohio,Massachusetts,Tennessee,California,Maryland,Florida,Florida,California,California,California,Texas,Texas,Pennsylvania,Washington,Texas,South Dakota,California,Indiana,Louisiana,North Carolina,Washington,California,Hawaii,Oklahoma,Tennessee,Georgia,Florida,West Virginia,Nevada,California,New York,Colorado,Pennsylvania,Ohio,Texas,Texas,Iowa,Florida,Georgia,Texas,Missouri,Pennsylvania,Michigan,Utah,Minnesota,California,Hawaii,Georgia,Tennessee,Nevada,Florida,Georgia,California,Nevada,Indiana,Wisconsin,California,Alabama,Georgia,Colorado,Pennsylvania,Utah,New York,Florida,Texas,Florida,New York,Missouri,Georgia,Indiana,Minnesota,Florida,Ohio,Colorado,District of Columbia,Kentucky,Virginia,Virginia,New York,District of Columbia,Texas,Minnesota,Louisiana,Nevada,Arizona,Nevada,New York,Louisiana,North Carolina,California,Colorado,California,South Carolina,Alabama,Florida,Virginia,Alabama,California,Hawaii"
             .split(","));
@@ -129,16 +129,12 @@ public class CreateCollectRemoteDataSetupCommand {
         this.devicesPerType = devicesPerType;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
     public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
         this.spatialCoordinates = spatialCoordinates;
     }
 
     public void run() {
-        paramersCheck();
+        parametersCheck();
         licenseCheck();
         createComBackground();
         createRegisterTypes();
@@ -147,6 +143,7 @@ public class CreateCollectRemoteDataSetupCommand {
         createLoadProfileTypes();
         createComTasks();
         createComSchedules();
+        createCalendars();
         createDeviceStructure();
         createCreationRules();
         createAssignmentRules();
@@ -154,7 +151,7 @@ public class CreateCollectRemoteDataSetupCommand {
         createKpi();
     }
 
-    private void paramersCheck() {
+    private void parametersCheck() {
         if (this.comServerName == null) {
             throw new UnableToCreate("You must specify a name for active com server");
         }
@@ -186,12 +183,12 @@ public class CreateCollectRemoteDataSetupCommand {
     }
 
     private void createRegisterTypes() {
-        Builders.from(RegisterTypeTpl.B_F_E_S_M_E).get();
-        Builders.from(RegisterTypeTpl.B_R_E_S_M_E).get();
-        Builders.from(RegisterTypeTpl.S_F_E_S_M_E_T1).get();
-        Builders.from(RegisterTypeTpl.S_F_E_S_M_E_T2).get();
-        Builders.from(RegisterTypeTpl.S_R_E_S_M_E_T1).get();
-        Builders.from(RegisterTypeTpl.S_R_E_S_M_E_T2).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_BULK_A_PLUS).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_BULK_A_MINUS).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1).get();
+        Builders.from(RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2).get();
     }
 
     private void createRegisterGroups() {
@@ -237,6 +234,10 @@ public class CreateCollectRemoteDataSetupCommand {
         command.run();
     }
 
+    private void createCalendars() {
+        Stream.of(CalendarTpl.values()).forEach(tpl -> Builders.from(tpl).get());
+    }
+
     private void createDeviceStructure() {
         createDeviceStructureForDeviceType(DeviceTypeTpl.Actaris_SL7000);
         createDeviceStructureForDeviceType(DeviceTypeTpl.Elster_AS1440);
@@ -252,28 +253,30 @@ public class CreateCollectRemoteDataSetupCommand {
             deviceTypeBuilder.withPostBuilder(attachDeviceTypeCPSPostBuilderProvider.get());
         }
         DeviceType deviceType = deviceTypeBuilder.get();
-        DeviceConfiguration configuration = createDeviceConfiguration(deviceType, DeviceConfigurationTpl.DEFAULT);
-        int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : devicesPerType);
-        for (int i = 0; i < deviceCount; i++) {
-            deviceCounter++;
-            String serialNumber = "01000001" + String.format("%04d", deviceCounter);
-            String mrid = Constants.Device.STANDARD_PREFIX + serialNumber;
-            if (spatialCoordinates != null) {
-                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), createSpatialCoordinates());
-            } else {
-                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), spatialCoordinates);
-            }
-
-        }
+        int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : this.devicesPerType);
+        createDeviceConfigurationWithDevices(deviceType, deviceTypeTpl, DeviceConfigurationTpl.PROSUMERS, deviceCount >> 1);
+        createDeviceConfigurationWithDevices(deviceType, deviceTypeTpl, DeviceConfigurationTpl.CONSUMERS, deviceCount >> 1);
     }
 
-    private DeviceConfiguration createDeviceConfiguration(DeviceType deviceType, DeviceConfigurationTpl deviceConfigurationTpl) {
+    private void createDeviceConfigurationWithDevices(DeviceType deviceType, DeviceTypeTpl deviceTypeTpl, DeviceConfigurationTpl deviceConfigurationTpl, int deviceCount) {
         DeviceConfiguration configuration = Builders.from(deviceConfigurationTpl).withDeviceType(deviceType)
                 .withPostBuilder(this.connectionMethodsProvider.get().withHost(host).withDefaultOutboundTcpProperties())
                 .withPostBuilder(new ChannelsOnDevConfPostBuilder())
                 .get();
         configuration.activate();
-        return configuration;
+        if (deviceCount < 1) {
+            deviceCount = 1;
+        }
+        for (int i = 0; i < deviceCount; i++) {
+            this.deviceCounter++;
+            String serialNumber = "01000001" + String.format("%04d", deviceCounter);
+            String mrid = Constants.Device.STANDARD_PREFIX + serialNumber;
+            if (this.spatialCoordinates != null) {
+                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), createSpatialCoordinates());
+            } else {
+                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), this.spatialCoordinates);
+            }
+        }
     }
 
     private void createDevice(DeviceConfiguration configuration, String mrid, String serialNumber, DeviceTypeTpl deviceTypeTpl, Location location, SpatialCoordinates geoCoordinates) {

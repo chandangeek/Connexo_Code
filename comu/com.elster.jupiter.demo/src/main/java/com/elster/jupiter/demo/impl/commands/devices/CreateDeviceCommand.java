@@ -10,7 +10,7 @@ import com.energyict.mdc.device.config.DeviceType;
 
 public class CreateDeviceCommand {
 
-    private DeviceConfigurationTpl configurationTpl = DeviceConfigurationTpl.DEFAULT;
+    private DeviceConfigurationTpl configurationTpl = DeviceConfigurationTpl.PROSUMERS;
     private DeviceTypeTpl deviceType = DeviceTypeTpl.Elster_AS1440;
     private String serialNumber;
     private String mridPrefix;

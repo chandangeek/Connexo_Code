@@ -2,6 +2,7 @@ package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
@@ -25,8 +26,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.NamedBuilder<CreationRule, IssueRuleBuilder> {
 
-    private static final String DEFAULT_CONFIGURATION = "Default";
-
     public static final String BASIC_DATA_COLLECTION_RULE_TEMPLATE = "BasicDataCollectionRuleTemplate";
     public static final String BASIC_DATA_VALIDATION_RULE_TEMPLATE = "DataValidationIssueCreationRuleTemplate";
 
@@ -37,7 +36,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private String type;
     private String reason;
     private String ruleTemplate;
-    private DueInType dueInType= null;
+    private DueInType dueInType = null;
 
     @Inject
     public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService) {
@@ -58,7 +57,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     }
 
     public IssueRuleBuilder withRuleTemplate(String ruleTemplate) {
-        this.ruleTemplate  = ruleTemplate;
+        this.ruleTemplate = ruleTemplate;
         return this;
     }
 
@@ -81,8 +80,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         builder.setReason(getReasonForRule());
         if (this.dueInType == null) {
             builder.setDueInTime(DueInType.WEEK, 1);
-        }
-        else {
+        } else {
             builder.setDueInTime(dueInType, 1);
         }
 
@@ -112,15 +110,15 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private Map<String, Object> getProperties(CreationRuleTemplate template) {
         Map<String, Object> properties = new HashMap<>();
         if (template.getName().equals(BASIC_DATA_COLLECTION_RULE_TEMPLATE)) {
-             properties.put(
-                     BasicDataCollectionRuleTemplate.EVENTTYPE,
-                     template.getPropertySpec(BasicDataCollectionRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
-             properties.put(
-                     BasicDataCollectionRuleTemplate.AUTORESOLUTION,
-                     template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("1"));
+            properties.put(
+                    BasicDataCollectionRuleTemplate.EVENTTYPE,
+                    template.getPropertySpec(BasicDataCollectionRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
+            properties.put(
+                    BasicDataCollectionRuleTemplate.AUTORESOLUTION,
+                    template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("1"));
 
         } else if (template.getName().equals(BASIC_DATA_VALIDATION_RULE_TEMPLATE)) {
-            List<HasIdAndName>  deviceConfigurations = getAllDefaultConfigurations();
+            List<HasIdAndName> deviceConfigurations = getAllDefaultConfigurations();
             if (!deviceConfigurations.isEmpty()) {
                 properties.put(BASIC_DATA_VALIDATION_RULE_TEMPLATE + ".deviceConfigurations", deviceConfigurations);
             }
@@ -130,27 +128,27 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
 
     private List<HasIdAndName> getAllDefaultConfigurations() {
         List<HasIdAndName> listValue = new ArrayList<>();
-        for (DeviceType type: deviceConfigurationService.findAllDeviceTypes().find()) {
-             if (type.getName().equals("Landis+Gyr ZMD")) {
-                 continue;
-             }
-             for (DeviceConfiguration configuration: type.getConfigurations()) {
-                 if (configuration.getName().equals(DEFAULT_CONFIGURATION)) {
-                     listValue.add(new HasIdAndName() {
-                         @Override
-                         public Object getId() {
-                             return configuration.getId();
-                         }
+        for (DeviceType type : this.deviceConfigurationService.findAllDeviceTypes().find()) {
+            if (type.getName().equals("Landis+Gyr ZMD")) {
+                continue;
+            }
+            for (DeviceConfiguration configuration : type.getConfigurations()) {
+                if (configuration.getName().equals(DeviceConfigurationTpl.PROSUMERS.getName()) ||
+                        configuration.getName().equals(DeviceConfigurationTpl.CONSUMERS.getName())) {
+                    listValue.add(new HasIdAndName() {
+                        @Override
+                        public Object getId() {
+                            return configuration.getId();
+                        }
 
-                         @Override
-                         public String getName() {
-                             return configuration.getName();
-                         }
-                     });
-                 }
-             }
+                        @Override
+                        public String getName() {
+                            return configuration.getName();
+                        }
+                    });
+                }
+            }
         }
         return listValue;
     }
-
 }

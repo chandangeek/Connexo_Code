@@ -4,6 +4,7 @@ import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
+import com.elster.jupiter.calendar.impl.importers.CalendarImporterFactory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -516,17 +517,17 @@ public class DemoTest {
                 assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
                 assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.minutes(15));
                 assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getRegisterTypes()).containsExactly(
-                        RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E);
+                        RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS);
             } else if (LoadProfileTypeTpl.DAILY_ELECTRICITY.getName().equals(loadProfileType.getName())) {
                 assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
                 assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.days(1));
                 assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getRegisterTypes()).containsExactly(
-                        RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2);
+                        RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2);
             } else if (LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getName().equals(loadProfileType.getName())) {
                 assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
                 assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.months(1));
                 assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getRegisterTypes()).containsExactly(
-                        RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2);
+                        RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2);
             } else {
                 fail("The device type of device with MRID = " + mridDevice + " contains an unwanted loadprofile: " + loadProfileType.getName());
             }
@@ -534,12 +535,12 @@ public class DemoTest {
         List<RegisterType> registerTypes = deviceType.getRegisterTypes();
         assertThat(registerTypes).hasSize(6);
         for (RegisterType registerType : registerTypes) {
-            if (!RegisterTypeTpl.B_F_E_S_M_E.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.B_R_E_S_M_E.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T1.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T2.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T1.getObisCode().equals(registerType.getObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T2.getObisCode().equals(registerType.getObisCode().toString())) {
+            if (!RegisterTypeTpl.SECONDARY_BULK_A_PLUS.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_BULK_A_MINUS.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1.getObisCode().equals(registerType.getObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2.getObisCode().equals(registerType.getObisCode().toString())) {
                 fail("The device type of device with MRID = " + mridDevice + " contains an unwanted register type: " + registerType.getObisCode());
             }
         }
@@ -598,12 +599,12 @@ public class DemoTest {
         List<Register> registers = device.getRegisters();
         assertThat(registers).hasSize(6);
         for (Register register : registers) {
-            if (!RegisterTypeTpl.B_F_E_S_M_E.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.B_R_E_S_M_E.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_F_E_S_M_E_T2.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
-                    !RegisterTypeTpl.S_R_E_S_M_E_T2.getObisCode().equals(register.getRegisterSpecObisCode().toString())) {
+            if (!RegisterTypeTpl.SECONDARY_BULK_A_PLUS.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_BULK_A_MINUS.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                    !RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2.getObisCode().equals(register.getRegisterSpecObisCode().toString())) {
                 fail("The device with MRID = " + mridDevice + " contains an unwanted register : " + register.getRegisterSpecObisCode());
             }
         }
@@ -694,7 +695,7 @@ public class DemoTest {
         demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createImporters();
 
-        assertThat(fileImportService.getImportSchedules()).hasSize(9);
+        assertThat(fileImportService.getImportSchedules()).hasSize(10);
     }
 
     @Test
@@ -783,6 +784,7 @@ public class DemoTest {
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(SecurityAttributesImportFactory.class));
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceInstallationImporterFactory.class));
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceRemoveImportFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(CalendarImporterFactory.class));
 
         ((DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
         ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(StandardCsvDataFormatterFactory.class), ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
