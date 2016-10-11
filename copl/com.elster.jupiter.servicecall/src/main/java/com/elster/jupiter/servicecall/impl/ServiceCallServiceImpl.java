@@ -432,6 +432,9 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         if (filter.parent != null) {
             condition = condition.and(where(ServiceCallImpl.Fields.parent.fieldName()).isEqualTo(filter.parent));
         }
+        if (filter.targetObject != null) {
+            condition = condition.and(where(ServiceCallImpl.Fields.targetObject.fieldName()).isEqualTo(dataModel.asRefAny(filter.targetObject)));
+        }
 
         return condition;
     }
