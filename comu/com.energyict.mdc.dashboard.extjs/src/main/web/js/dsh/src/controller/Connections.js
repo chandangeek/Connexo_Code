@@ -132,12 +132,10 @@ Ext.define('Dsh.controller.Connections', {
             devType: record.data.deviceType
         };
 
-        record.data.title = record.data.comTask.name + ' on ' + record.data.device.name;
-
         preview.loadRecord(record);
-        preview.setTitle(record.data.title);
+        preview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [record.get('comTask').name, record.get('device').id]));
         Ext.resumeLayouts(true);
-        this.initMenu(record, menuItems);
+        me.initMenu(record, menuItems);
     },
 
     initMenu: function (record, menuItems) {
@@ -187,7 +185,7 @@ Ext.define('Dsh.controller.Connections', {
 
             Ext.suspendLayouts();
             preview.setTitle(title);
-            commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationTasksOfX', 'DSH', 'Communication tasks of {0}',[title]));
+            commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationTasksOfX', 'DSH', 'Communication tasks of {0}', [title], false));
             preview.loadRecord(record);
             Ext.resumeLayouts(true);
 
