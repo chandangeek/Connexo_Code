@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -19,12 +21,16 @@ import com.jayway.jsonpath.JsonModel;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,11 +41,23 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
     private final Instant start = Instant.ofEpochMilli(1412341200000L);
     private final Instant end = Instant.ofEpochMilli(1412341300000L);
 
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        Stream.of(CompletionCodeTranslationKeys.values()).forEach(this::mockTranslation);
+    }
+
+    private void mockTranslation(TranslationKey translationKey) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
+        doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
+    }
+
     @Test
     public void testGetComTaskExecutionsWithScheduleComTask() throws Exception {
         Device device = mock(Device.class);
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         when(device.getId()).thenReturn(13L);
         when(device.getName()).thenReturn("AX1");
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);

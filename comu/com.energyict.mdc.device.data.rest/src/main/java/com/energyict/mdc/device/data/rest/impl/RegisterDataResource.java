@@ -105,16 +105,15 @@ public class RegisterDataResource {
     /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.
        The Delta value won't be stored in the database yet, as it has a performance impact */
         if (!register.getRegisterSpec().isTextual()) {
-            NumericalRegister numericalRegister = (NumericalRegister) register;
-            ReadingType readingTypeForCalculation = numericalRegister.getCalculatedReadingType(register.getLastReadingDate().orElse(clock.instant()))
-                    .isPresent() ? numericalRegister.getCalculatedReadingType(register.getLastReadingDate().orElse(clock.instant())).get() : numericalRegister.getReadingType();
+            ReadingType readingTypeForCalculation = register.getCalculatedReadingType(register.getLastReadingDate().orElse(clock.instant()))
+                    .isPresent() ? register.getCalculatedReadingType(register.getLastReadingDate().orElse(clock.instant())).get() : register.getReadingType();
             boolean cumulative = readingTypeForCalculation.isCumulative();
             if (cumulative) {
                 List<NumericalReadingInfo> numericalReadingInfos = readingInfos.stream().map(readingInfo -> ((NumericalReadingInfo) readingInfo)).collect(Collectors.toList());
                 for (int i = 0; i < numericalReadingInfos.size() - 1; i++) {
                     NumericalReadingInfo previous = numericalReadingInfos.get(i + 1);
                     NumericalReadingInfo current = numericalReadingInfos.get(i);
-                    if (numericalRegister.getCalculatedReadingType(current.timeStamp).isPresent() && previous.calculatedValue != null && current.calculatedValue != null) {
+                    if (register.getCalculatedReadingType(current.timeStamp).isPresent() && previous.calculatedValue != null && current.calculatedValue != null) {
                         calculateDelta(current, previous.calculatedValue, current.calculatedValue);
                     } else if (previous.value != null && current.value != null) {
                         calculateDelta(current, previous.value, current.value);

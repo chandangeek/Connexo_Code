@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -61,15 +62,15 @@ import static org.mockito.Mockito.when;
 
 public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    public static final String BATTERY_LOW = "Battery low";
-    public static final String BAD_TIME = "Clock error";
-    public static final Instant NOW = Instant.ofEpochMilli(1410786205000L);
-    public static final Instant LAST_READING = Instant.ofEpochMilli(1410786196000L);
-    public static final Date LAST_CHECKED = new Date(1409570229000L);
-    public static final long CHANNEL_ID1 = 151521354L;
-    public static final long CHANNEL_ID2 = 7487921005L;
-    private static long intervalStart = 1410774630000L;
-    private static long intervalEnd = 1410828630000L;
+    private static final String BATTERY_LOW = "Battery low";
+    private static final String BAD_TIME = "Clock error";
+    private static final Instant NOW = Instant.ofEpochMilli(1410786205000L);
+    private static final Instant LAST_READING = Instant.ofEpochMilli(1410786196000L);
+    private static final Date LAST_CHECKED = new Date(1409570229000L);
+    private static final long CHANNEL_ID1 = 151521354L;
+    private static final long CHANNEL_ID2 = 7487921005L;
+    private static final long INTERVAL_START = 1410774630000L;
+    private static final long INTERVAL_END = 1410828630000L;
 
     @Mock
     private Device device;
@@ -104,7 +105,24 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
 
     private ReadingQualityType readingQualityType = new ReadingQualityType("2.0.1");
 
-    public LoadProfileTypeResourceTest() {
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        when(this.meteringTranslationService.getDisplayName(any(QualityCodeIndex.class)))
+                .thenAnswer(invocationOnMock -> {
+                    QualityCodeIndex qualityCodeIndex = (QualityCodeIndex) invocationOnMock.getArguments()[0];
+                    return qualityCodeIndex.getTranslationKey().getDefaultFormat();
+                });
+        when(this.meteringTranslationService.getDisplayName(any(QualityCodeSystem.class)))
+                .thenAnswer(invocationOnMock -> {
+                    QualityCodeSystem qualityCodeSystem = (QualityCodeSystem) invocationOnMock.getArguments()[0];
+                    return qualityCodeSystem.getTranslationKey().getDefaultFormat();
+                });
+        when(this.meteringTranslationService.getDisplayName(any(QualityCodeCategory.class)))
+                .thenAnswer(invocationOnMock -> {
+                    QualityCodeCategory qualityCodeCategory = (QualityCodeCategory) invocationOnMock.getArguments()[0];
+                    return qualityCodeCategory.getTranslationKey().getDefaultFormat();
+                });
     }
 
     @Before
@@ -116,9 +134,9 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(device.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(loadProfile.getId()).thenReturn(1L);
         when(loadProfile.getVersion()).thenReturn(1L);
-        Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
+        Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant.ofEpochMilli(INTERVAL_END));
         when(loadProfile.getChannelData(interval)).thenReturn(asList(loadProfileReading));
-        Range<Instant> firstInterval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart - 900000), Instant.ofEpochMilli(intervalStart));
+        Range<Instant> firstInterval = Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START - 900000), Instant.ofEpochMilli(INTERVAL_START));
         when(loadProfile.getChannelData(firstInterval)).thenReturn(Arrays.asList(loadProfileReading));
         when(loadProfileReading.getRange()).thenReturn(interval);
 
@@ -172,7 +190,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(deviceValidation.isValidationActive(channel1, NOW)).thenReturn(true);
         when(deviceValidation.isValidationActive(channel2, NOW)).thenReturn(true);
 
-        DataValidationStatusImpl state1 = new DataValidationStatusImpl(Instant.ofEpochMilli(intervalEnd), true);
+        DataValidationStatusImpl state1 = new DataValidationStatusImpl(Instant.ofEpochMilli(INTERVAL_END), true);
         state1.addReadingQuality(quality1, asList(rule1));
         when(quality1.getType()).thenReturn(readingQualityType);
         when(rule1.getRuleSet()).thenReturn(ruleSet);
@@ -189,7 +207,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
 
-        DataValidationStatusImpl state2 = new DataValidationStatusImpl(Instant.ofEpochMilli(intervalEnd), true);
+        DataValidationStatusImpl state2 = new DataValidationStatusImpl(Instant.ofEpochMilli(INTERVAL_END), true);
         state2.addReadingQuality(quality2, Collections.emptyList());
         when(quality2.hasEstimatedCategory()).thenReturn(true);
         when(estimationRule.getId()).thenReturn(13L);

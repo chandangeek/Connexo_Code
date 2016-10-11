@@ -102,10 +102,10 @@ import static org.mockito.Mockito.when;
  */
 public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
 
-    public static final String AS_1440_INCOMPLETE = "AS1440";
-    public static final String AS_1440_COMPLETED = "AS1440Completed";
-    public static final String IP_ADDRESS_FROM_PARTIAL = "192.168.1.1";
-    public static final BigDecimal PORT_FROM_PARTIAL = BigDecimal.valueOf(4096);
+    private static final String AS_1440_INCOMPLETE = "AS1440";
+    private static final String AS_1440_COMPLETED = "AS1440Completed";
+    private static final String IP_ADDRESS_FROM_PARTIAL = "192.168.1.1";
+    private static final BigDecimal PORT_FROM_PARTIAL = BigDecimal.valueOf(4096);
     private static final String DEVICE_TYPE_NAME = ConnectionMethodResourceIntegrationTest.class.getSimpleName() + "Type";
     private static final String DEVICE_CONFIGURATION_NAME = ConnectionMethodResourceIntegrationTest.class.getSimpleName() + "Config";
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
@@ -170,7 +170,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         registerConnectionTypePluggableClasses();
     }
 
-    public static void registerConnectionTypePluggableClasses() {
+    private static void registerConnectionTypePluggableClasses() {
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
             outboundIpConnectionTypePluggableClass = registerConnectionTypePluggableClass(OutboundIpConnectionTypeImpl.class);
             transactionContext.commit();
@@ -353,6 +353,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setCalendarService(inMemoryPersistence.getCalendarService());
         application.setThreadPrincipalService(inMemoryPersistence.getThreadPrincipalService());
         application.setPropertyValueInfoService(inMemoryPersistence.getPropertyValueInfoService());
+        application.setMeteringTranslationService(inMemoryPersistence.getMeteringTranslationService());
+        application.setDeviceLifeCycleConfigurationService(inMemoryPersistence.getDeviceLifeCycleConfigurationService());
         return application;
     }
 

@@ -38,6 +38,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -89,9 +90,10 @@ public class ResourceHelper {
     private final TopologyService topologyService;
     private final Clock clock;
     private final Thesaurus thesaurus;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Inject
-    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService, TopologyService topologyService, NlsService nlsService) {
+    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService, TopologyService topologyService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -113,6 +115,7 @@ public class ResourceHelper {
 
         this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST));
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     public Long getCurrentDeviceConfigurationVersion(long id) {
@@ -1113,7 +1116,10 @@ public class ResourceHelper {
 
     public List<DeviceTopologyInfo> getDataLoggerSlaves(Device device) {
         List<Device> slaves = topologyService.findDataLoggerSlaves(device);
-        return slaves.stream().map((slave) -> DeviceTopologyInfo.from(slave, getLinkingDate(slave), thesaurus)).collect(Collectors.toList());
+        return slaves
+                .stream()
+                .map(slave -> DeviceTopologyInfo.from(slave, getLinkingDate(slave), deviceLifeCycleConfigurationService))
+                .collect(Collectors.toList());
     }
 
     private Optional<Instant> getLinkingDate(Device slave) {

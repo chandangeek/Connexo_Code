@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -57,6 +59,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategories;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -84,6 +87,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -94,6 +98,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -107,6 +113,20 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     private DeviceMessageCategoryImpl deviceMessageCategoryDeviceActions;
     private DeviceMessageCategoryImpl deviceMessageCategoryActivityCalendar;
     private DeviceMessageCategoryImpl deviceMessageCategoryClock;
+
+    @Override
+    protected void setupTranslations() {
+        super.setupTranslations();
+        Stream.of(TrackingCategory.values()).forEach(this::mockTranslation);
+        Stream.of(DeviceMessageStatusTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(ContactorDeviceMessage.values()).forEach(this::mockTranslation);
+    }
+
+    private void mockTranslation(TranslationKey translationKey) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
+        doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
+    }
 
     @Before
     public void initDependenciesOnPropertySpecService() {
