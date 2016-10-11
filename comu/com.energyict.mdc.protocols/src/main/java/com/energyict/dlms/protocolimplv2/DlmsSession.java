@@ -4,6 +4,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
+import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import com.energyict.dlms.CipheringType;
@@ -23,6 +24,8 @@ import com.energyict.dlms.protocolimplv2.connection.HDLCConnection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
 
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
