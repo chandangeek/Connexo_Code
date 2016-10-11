@@ -221,6 +221,18 @@ public class G3RegisterMapper {
     public static final ObisCode PPP_SETUP_ATTR5 = ObisCode.fromString("0.5.25.3.0.255");
     public static final ObisCode PPP_SETUP_ATTR6 = ObisCode.fromString("0.6.25.3.0.255");
 
+    public static final ObisCode INSTANTANEOUS_VOLTAGE_L1 = ObisCode.fromString("1.0.32.7.0.255");
+    public static final ObisCode INSTANTANEOUS_VOLTAGE_L2 = ObisCode.fromString("1.0.52.7.0.255");
+    public static final ObisCode INSTANTANEOUS_VOLTAGE_L3 = ObisCode.fromString("1.0.72.7.0.255");
+    public static final ObisCode INSTANTANEOUS_FREQUENCY = ObisCode.fromString("1.0.34.7.0.255");
+    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L1 = ObisCode.fromString("1.0.81.7.0.255");
+    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L2 = ObisCode.fromString("1.0.81.7.1.255");
+    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L3 = ObisCode.fromString("1.0.81.7.2.255");
+
+    public static final ObisCode MODEM_WATCHDOG_ATTR1 = ObisCode.fromString("0.1.128.0.11.255");
+    public static final ObisCode MODEM_WATCHDOG_ATTR2 = ObisCode.fromString("0.2.128.0.11.255");
+    public static final ObisCode MODEM_WATCHDOG_ATTR3 = ObisCode.fromString("0.3.128.0.11.255");
+
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
     private final Logger logger;
     private final CosemObjectFactory cosemObjectFactory;
@@ -257,6 +269,7 @@ public class G3RegisterMapper {
         this.mappings.addAll(getDisconnectControlRegistering());
         this.mappings.addAll(getGprsModemSetupRegistering());
         this.mappings.addAll(getPPPSetupRegistering());
+        this.mappings.addAll(getMetrologyRegistering());
     }
 
     /**
@@ -475,6 +488,26 @@ public class G3RegisterMapper {
         pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR5));
         pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR6));
         return pppSetupMappings;
+    }
+
+    protected final List<G3Mapping> getMetrologyRegistering() {
+        final List<G3Mapping> MetrologyMappings = new ArrayList<G3Mapping>();
+        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_VOLTAGE_L1));
+        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_VOLTAGE_L2));
+        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_VOLTAGE_L3));
+        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_FREQUENCY));
+        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_PHASE_ANGLE_L1));
+        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_PHASE_ANGLE_L2));
+        MetrologyMappings.add(new MetrologyMapping(INSTANTANEOUS_PHASE_ANGLE_L3));
+        return MetrologyMappings;
+    }
+
+    protected final List<G3Mapping> getModemWatchdogRegistering() {
+        final List<G3Mapping> ModemWatchdogMappings = new ArrayList<G3Mapping>();
+        ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR1));
+        ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR2));
+        ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR3));
+        return ModemWatchdogMappings;
     }
 
     protected final List<G3Mapping> getPLCStatisticsMappings() {

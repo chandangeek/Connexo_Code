@@ -133,6 +133,8 @@ public final class AXDRDecoder {
                     return new BooleanObject(data, offset);
                 case FLOAT32:
                     return new Float32(data, offset);
+                case FLOAT64:
+                    return new Float64(data, offset);
                 default:
                     throw new ProtocolException("AXDRDecoder, unknown datatype " + data[offset]);
             }
