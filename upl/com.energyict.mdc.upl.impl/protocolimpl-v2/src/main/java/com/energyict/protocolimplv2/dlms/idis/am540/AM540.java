@@ -97,7 +97,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         setMeterToTransparentMode(comChannel);
         readFrameCounter(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
-        initFrameCounterCache(null);
+        updateSecurityContextFrameCounterCache(null);
     }
 
     private void setMeterToTransparentMode(ComChannel comChannel) {
@@ -155,7 +155,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-10 14:56:19 +0300 (Mon, 10 Oct 2016)$";
+        return "$Date: 2016-10-11 15:14:43 +0300 (Tue, 11 Oct 2016)$";
     }
 
     /**
@@ -204,7 +204,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         return new AM540ConfigurationSupport();
     }
 
-    protected void initFrameCounterCache(SecurityContext securityContext) {
+    protected void updateSecurityContextFrameCounterCache(SecurityContext securityContext) {
         if (securityContext == null) {
             securityContext = getDlmsSession().getAso().getSecurityContext();
         }
@@ -266,11 +266,11 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
         if(initialFrameCounter > cachedFrameCounter){
             getLogger().info("Use initial frame counter: " + initialFrameCounter + " because has a higher value than cached frame counter");
-            this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter);
+            setTXFrameCounter(clientId, (int) initialFrameCounter);
             frameCounterSet = true;
         } else if (cachedFrameCounter > 0) {
             getLogger().info(" - cached frame counter: " + cachedFrameCounter);
-            this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFrameCounter + 1);
+            setTXFrameCounter(clientId, (int)(cachedFrameCounter + 1));
             frameCounterSet = true;
         }
 
@@ -299,7 +299,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
             step = 0;
         }
 
-        initFrameCounterCache(testDlmsSession.getAso().getSecurityContext());
+        updateSecurityContextFrameCounterCache(testDlmsSession.getAso().getSecurityContext());
 
         do {
             try {
@@ -310,15 +310,12 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
                     getLogger().info("Cached FrameCounter is valid!");
                     return true;
                 }
-            } catch (CommunicationException ex) {
+            } catch (Exception ex) {
                 long frameCounter = this.getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter();
                 getLogger().warning("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
                 frameCounter += step;
-                this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
                 setTXFrameCounter(getDlmsSessionProperties().getClientMacAddress(), (int) frameCounter);
-            } catch (Exception ex) {
-                getLogger().warning("Received an unexpected exception while testing the frame counter " + ex.getMessage());
-                throw ex;
+                testDlmsSession.getAso().getSecurityContext().setFrameCounter(frameCounter);
             }
             retries--;
         } while (retries > 0);
@@ -360,7 +357,8 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         } finally {
             publicDlmsSession.disconnect();
         }
-        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+
+        setTXFrameCounter(getDlmsSessionProperties().getClientMacAddress(), (int) (frameCounter + 1));
     }
 
     @Override
@@ -535,13 +533,14 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
     @Override
     public void setTXFrameCounter(int clientId, int frameCounter) {
         if (clientId == getDlmsSessionProperties().getClientMacAddress()) {
-            getDlmsSessionProperties().getSecurityProvider().getRespondingFrameCounterHandler().resetRespondingFrameCounter(frameCounter);
+            this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
+            getDeviceCache().setTXFrameCounter(getDlmsSessionProperties().getClientMacAddress(), frameCounter);
         }
     }
 
     @Override
     public long getTXFrameCounter(int clientId) {
-        return 0;
+        return getDeviceCache().getTXFrameCounter(clientId);
     }
 
 
