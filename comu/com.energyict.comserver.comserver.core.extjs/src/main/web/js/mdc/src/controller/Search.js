@@ -150,9 +150,9 @@ Ext.define('Mdc.controller.Search', {
         searchDomains.lastRequest = Ext.Ajax.getLatest();
 
         var grid = me.getResultsGrid();
-
         grid.down('pagingtoolbartop').insert(3, {
             xtype: 'button',
+            hidden: !Mdc.privileges.Device.canAadministrateDeviceOrDeviceCommunication(),
             text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
             itemId: 'search-bulk-actions-button',
             handler: me.showBulkAction,

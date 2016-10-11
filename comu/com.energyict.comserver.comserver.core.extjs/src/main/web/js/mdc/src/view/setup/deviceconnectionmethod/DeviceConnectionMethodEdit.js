@@ -244,6 +244,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                     type: 'hbox',
                                     align: 'stretch'
                                 },
+                                itemId: 'numberOfSimultaneousConnectionsField',
                                 items: [
                                     {
 
@@ -370,7 +371,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
             } else if (this.direction === 'Inbound') {
                 this.down('#addEditButton').action = 'editDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
-                this.down('#numberOfSimultaneousConnections').setVisible(false);
+                this.down('#numberOfSimultaneousConnectionsField').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
             }
         } else {
@@ -391,7 +392,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
             } else if (this.direction === 'Inbound') {
                 this.down('#addEditButton').action = 'addDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
-                this.down('#numberOfSimultaneousConnections').setVisible(false);
+                this.down('#numberOfSimultaneousConnectionsField').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
             }
         }

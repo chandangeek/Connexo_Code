@@ -39,6 +39,7 @@ Ext.define('Mdc.view.setup.devicegeneralattributes.Setup', {
                     {
                         xtype: 'uni-button-action',
                         itemId: 'mdc-general-attributes-actions-button',
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.generalAttributesActions,
                         menu: {
                             itemId: 'editBtnContainer',
                             items: [
