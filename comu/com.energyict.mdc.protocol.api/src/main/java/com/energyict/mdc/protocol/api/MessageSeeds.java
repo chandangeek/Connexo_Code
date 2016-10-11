@@ -49,7 +49,10 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_DISCONNECT_ERROR(133, "connectionDisconnectError", "Disconnect of connection failed: {0}"),
     COULD_NOT_READ_BREAKER_STATE(134, "issue.protocol.readingOfBreakerStateFailed", "Could not correctly read the breaker state: {0}"),
     MISSING_PROPERTY(135, "protocol.required.property", "Required property \"{0}\" is missing"),
-    //TODO complete this list with the entries of 9.1, will happen when the 9.1 codebase is used
+    DATA_ENCRYPTION_EXCEPTION(136, "data.encryption.exception", "Failure to decrypt encrypted data received from device"),
+    DATA_ENCRYPTION_EXCEPTION_WITH_CAUSE(137, "data.encryption.with.cause", "Failure to decrypt encrypted data received from device: {0}"),
+    INDEX_OUT_OF_BOUND_DATA_PARSE_EXCEPTION(138, "index.out.of.bound.parse.exception", "Referenced a non-existing index: {0}"),
+//TODO complete this list with the entries of 9.1, will happen when the 9.1 codebase is used
     ;
 
     private final int number;
