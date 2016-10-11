@@ -181,8 +181,8 @@ Ext.define('Uni.property.view.property.Base', {
         if (this.isEdit) {
             button.setVisible(!resetButtonHidden);
             if(!this.getProperty().get('isInheritedOrDefaultValue')){
-                if (!this.getProperty().get('default')) {
-                    button.setTooltip(Uni.I18n.translate('general.clear', 'UNI', 'Clear'));
+                if (Ext.isEmpty(this.getProperty().get('default'))) {
+                    button.setTooltip(Uni.I18n.translate('general.restoreDefaultEmptyValue', 'UNI', 'Restore to default empty value'));
                 } else {
                     button.setTooltip(
                         Ext.String.format(
@@ -225,12 +225,10 @@ Ext.define('Uni.property.view.property.Base', {
      */
     doEnable: function(enable) {
         if (this.getField()) {
-            if (this.getField()) {
-                if (enable) {
-                    this.getField().enable();
-                } else {
-                    this.getField().disable();
-                }
+            if (enable) {
+                this.getField().enable();
+            } else {
+                this.getField().disable();
             }
         }
     },
@@ -437,14 +435,16 @@ Ext.define('Uni.property.view.property.Base', {
                 me.customHandlerLogic();
             });
             field.on('blur', function () {
-                if (!(field.hasNotValueSameAsDefaultMessage || field.up().hasNotValueSameAsDefaultMessage) && field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
+                if (!(field.hasNotValueSameAsDefaultMessage || field.up().hasNotValueSameAsDefaultMessage) &&
+                      !Ext.isEmpty(field.getValue()) && !me.getProperty().get('isInheritedOrDefaultValue') &&
+                      field.getValue() === me.getProperty().get('default')) {
                     me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
                 }
-                if (field.getValue() === ''  && field.getValue() === me.getProperty().get('default')) {
+                if (!Ext.isEmpty(field.getValue()) && field.getValue() === me.getProperty().get('default')) {
                     me.getProperty().set('isInheritedOrDefaultValue', true);
                     me.updateResetButton();
                 }
-                if (!field.getValue() && field.up().required && field.up().getResetButton()) {
+                if (Ext.isEmpty(field.getValue()) && field.up().required && field.up().getResetButton()) {
                     me.restoreDefault();
                 }
                 me.customHandlerLogic();
