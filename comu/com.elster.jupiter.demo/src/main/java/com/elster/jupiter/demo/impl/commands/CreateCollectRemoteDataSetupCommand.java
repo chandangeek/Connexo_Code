@@ -253,28 +253,30 @@ public class CreateCollectRemoteDataSetupCommand {
             deviceTypeBuilder.withPostBuilder(attachDeviceTypeCPSPostBuilderProvider.get());
         }
         DeviceType deviceType = deviceTypeBuilder.get();
-        DeviceConfiguration configuration = createDeviceConfiguration(deviceType, DeviceConfigurationTpl.DEFAULT);
-        int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : devicesPerType);
-        for (int i = 0; i < deviceCount; i++) {
-            deviceCounter++;
-            String serialNumber = "01000001" + String.format("%04d", deviceCounter);
-            String mrid = Constants.Device.STANDARD_PREFIX + serialNumber;
-            if (spatialCoordinates != null) {
-                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), createSpatialCoordinates());
-            } else {
-                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), spatialCoordinates);
-            }
-
-        }
+        int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : this.devicesPerType);
+        createDeviceConfigurationWithDevices(deviceType, deviceTypeTpl, DeviceConfigurationTpl.PROSUMERS, deviceCount >> 1);
+        createDeviceConfigurationWithDevices(deviceType, deviceTypeTpl, DeviceConfigurationTpl.CONSUMERS, deviceCount >> 1);
     }
 
-    private DeviceConfiguration createDeviceConfiguration(DeviceType deviceType, DeviceConfigurationTpl deviceConfigurationTpl) {
+    private void createDeviceConfigurationWithDevices(DeviceType deviceType, DeviceTypeTpl deviceTypeTpl, DeviceConfigurationTpl deviceConfigurationTpl, int deviceCount) {
         DeviceConfiguration configuration = Builders.from(deviceConfigurationTpl).withDeviceType(deviceType)
                 .withPostBuilder(this.connectionMethodsProvider.get().withHost(host).withDefaultOutboundTcpProperties())
                 .withPostBuilder(new ChannelsOnDevConfPostBuilder())
                 .get();
         configuration.activate();
-        return configuration;
+        if (deviceCount < 1) {
+            deviceCount = 1;
+        }
+        for (int i = 0; i < deviceCount; i++) {
+            this.deviceCounter++;
+            String serialNumber = "01000001" + String.format("%04d", deviceCounter);
+            String mrid = Constants.Device.STANDARD_PREFIX + serialNumber;
+            if (this.spatialCoordinates != null) {
+                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), createSpatialCoordinates());
+            } else {
+                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), this.spatialCoordinates);
+            }
+        }
     }
 
     private void createDevice(DeviceConfiguration configuration, String mrid, String serialNumber, DeviceTypeTpl deviceTypeTpl, Location location, SpatialCoordinates geoCoordinates) {
