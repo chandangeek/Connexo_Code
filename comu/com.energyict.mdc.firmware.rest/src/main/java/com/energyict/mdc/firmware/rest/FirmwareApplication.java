@@ -141,6 +141,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(FirmwareStatusTranslationKeys.values()));
+        keys.add(MessageSeeds.Keys.FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY);
         return keys;
     }
 

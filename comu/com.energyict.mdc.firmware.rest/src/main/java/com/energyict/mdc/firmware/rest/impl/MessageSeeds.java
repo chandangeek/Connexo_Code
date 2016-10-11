@@ -1,5 +1,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -28,7 +30,7 @@ public enum MessageSeeds implements MessageSeed {
     FILE_IO(16, Keys.FILE_IO, "Failure while doing IO on file"),
     FIRMWARE_VERSION_NOT_FOUND(14, Keys.FIRMWARE_VERSION_NOT_FOUND, "No firmware version with id {0} could be found"),
     FIRMWARE_ACTION_CHECK_VERSION (15, Keys.FIRMWARE_ACTION_CHECK_VERSION, "Check firmware version"),
-    FIRMWARE_ACTION_CHECK_VERSION_NOW (16, Keys.FIRMWARE_ACTION_CHECK_VERSION_NOW, "Check firmware version now"),
+
     FIRMWARE_CAMPAIGN_NOT_FOUND(17, Keys.FIRMWARE_CAMPAIGN_NOT_FOUND, "No firmware campaign with id {0} could be found"),
     DEVICE_GROUP_NOT_FOUND(18, Keys.DEVICE_GROUP_NOT_FOUND, "No device group with id {0} could be found"),
 
@@ -110,7 +112,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MAX_FILE_SIZE_EXCEEDED = "MaxFileSizeExceeded";
         public static final String FILE_IO = "FileIO";
         public static final String FIRMWARE_ACTION_CHECK_VERSION = "FirmwareActionCheckVersion";
-        public static final String FIRMWARE_ACTION_CHECK_VERSION_NOW = "FirmwareActionCheckVersionNow";
         public static final String FIRMWARE_CAMPAIGN_STATUS_PROCESSING = "FirmwareCampaignStatusProcessing";
         public static final String FIRMWARE_CAMPAIGN_STATUS_SCHEDULED = "FirmwareCampaignStatusScheduled";
         public static final String FIRMWARE_CAMPAIGN_STATUS_ONGOING = "FirmwareCampaignStatusOngoing";
@@ -120,5 +121,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIRMWARE_VERSION_NOT_FOUND = "firmwareVersionNotFound";
         public static final String DEVICE_GROUP_NOT_FOUND = "deviceGroupNotFound";
         public static final String FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX = "FirmwareManagementDeviceStatus.";
+
+        public static final TranslationKey FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY = new SimpleTranslationKey("FirmwareActionCheckVersionNow", "Check firmware version now");
     }
 }
