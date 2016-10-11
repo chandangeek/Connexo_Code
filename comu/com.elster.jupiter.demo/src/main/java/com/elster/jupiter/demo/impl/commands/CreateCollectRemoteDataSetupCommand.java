@@ -27,6 +27,7 @@ import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.InboundComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
 import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
+import com.elster.jupiter.demo.impl.templates.MetrologyConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
@@ -144,6 +145,7 @@ public class CreateCollectRemoteDataSetupCommand {
         createComTasks();
         createComSchedules();
         createCalendars();
+        createMetrologyConfigurations();
         createDeviceStructure();
         createCreationRules();
         createAssignmentRules();
@@ -236,6 +238,11 @@ public class CreateCollectRemoteDataSetupCommand {
 
     private void createCalendars() {
         Stream.of(CalendarTpl.values()).forEach(tpl -> Builders.from(tpl).get());
+    }
+
+    private void createMetrologyConfigurations() {
+        Builders.from(MetrologyConfigurationTpl.CONSUMER).get();
+        Builders.from(MetrologyConfigurationTpl.PROSUMER).get();
     }
 
     private void createDeviceStructure() {
