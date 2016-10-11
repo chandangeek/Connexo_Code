@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -188,29 +189,24 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
 
     private Optional<String> writeReading(BaseReading reading, ValidationResult validationResult) {
         if (reading.getValue() != null) {
-            StringBuilder writer = new StringBuilder();
             ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
-            writer.append(date.format(DEFAULT_DATE_TIME_FORMAT));
-            writer.append(fieldSeparator);
-            writer.append(meter.getMRID());
-            writer.append(fieldSeparator);
-            writer.append(meter.getName());
-            writer.append(fieldSeparator);
-            writer.append(readingType.getMRID());
-            writer.append(fieldSeparator);
-            writer.append(reading.getValue().toString());
-            writer.append(fieldSeparator);
+            StringJoiner joiner = new StringJoiner(fieldSeparator, "", "\n")
+                    .add(DEFAULT_DATE_TIME_FORMAT.format(date))
+                    .add(meter.getMRID())
+                    .add(meter.getName())
+                    .add(readingType.getMRID())
+                    .add(reading.getValue().toString());
             switch (validationResult) {
                 case VALID:
-                    writer.append(VALID_STRING);
+                    joiner.add(VALID_STRING);
                     break;
                 case SUSPECT:
-                    writer.append(INVALID_STRING);
+                    joiner.add(INVALID_STRING);
                     break;
+                default:
+                    joiner.add("");
             }
-            writer.append(fieldSeparator);
-            writer.append('\n');
-            return Optional.of(writer.toString());
+            return Optional.of(joiner.toString());
         }
         return Optional.empty();
     }

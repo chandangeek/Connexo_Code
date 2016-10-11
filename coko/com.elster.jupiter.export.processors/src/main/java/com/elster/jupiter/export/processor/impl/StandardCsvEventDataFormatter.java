@@ -23,8 +23,8 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 class StandardCsvEventDataFormatter implements StandardFormatter {
 
-    public static final String SEMICOLON_SEPARATOR = ";";
-    public static final String COMMA_SEPARATOR = ",";
+    private static final String SEMICOLON_SEPARATOR = ";";
+    private static final String COMMA_SEPARATOR = ",";
     private final DataExportService dataExportService;
     private String separator;
     private String tag;
@@ -56,29 +56,29 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
     private List<FormattedExportData> processToLines(Stream<ExportData> data, StructureMarker rootStructureMarker) {
         return decorate(data)
                 .filterSubType(MeterEventData.class)
-                .flatMap(meterEventData -> meterEventData.getMeterReading().getEvents().stream()
-                        .map(endDeviceEvent -> formatPayload(endDeviceEvent, meterEventData.getStructureMarker()))
-                        .map(payload -> TextLineExportData.of(
-                                rootStructureMarker.adopt(meterEventData.getStructureMarker()).withPeriodOf(meterEventData.getStructureMarker()),
-                                payload)))
+                .flatMap(meterEventData -> {
+                    StructureMarker structureMarker = meterEventData.getStructureMarker();
+                    return meterEventData.getMeterReading().getEvents().stream()
+                            .map(endDeviceEvent -> formatPayload(endDeviceEvent, structureMarker))
+                            .map(payload -> TextLineExportData.of(
+                                    rootStructureMarker.adopt(structureMarker).withPeriodOf(structureMarker),
+                                    payload));
+                })
                 .collect(Collectors.toList());
     }
 
     private String formatPayload(EndDeviceEvent endDeviceEvent, StructureMarker structureMarker) {
         ZonedDateTime eventTime = ZonedDateTime.ofInstant(endDeviceEvent.getCreatedDateTime(), ZoneId.systemDefault());
-        String formattedTime = DEFAULT_DATE_TIME_FORMAT.format(eventTime);
-        String eventMrid = endDeviceEvent.getEventTypeCode();
-        String deviceMrid = structureMarker.getStructurePath().get(0);
-        return new StringJoiner(separator, "", "\n")
-                .add(formattedTime)
-                .add(eventMrid)
-                .add(deviceMrid)
-                .toString();
+        StringJoiner joiner = new StringJoiner(separator, "", "\n")
+                .add(DEFAULT_DATE_TIME_FORMAT.format(eventTime))
+                .add(endDeviceEvent.getEventTypeCode());
+        // adding list of device identifiers; see com.elster.jupiter.export.impl.EventSelector.buildStructureMarker
+        structureMarker.getStructurePath().forEach(joiner::add);
+        return joiner.toString();
     }
 
     @Override
     public void endExport() {
-
     }
 
     private String defineSeparator(TranslatablePropertyValueInfo translatablePropertyValueInfo) {
