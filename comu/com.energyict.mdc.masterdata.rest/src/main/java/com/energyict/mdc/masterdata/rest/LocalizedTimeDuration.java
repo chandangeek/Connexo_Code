@@ -1,9 +1,8 @@
 package com.energyict.mdc.masterdata.rest;
 
-import com.energyict.mdc.masterdata.rest.impl.TranslationKeys;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.masterdata.rest.impl.TranslationKeys;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
@@ -38,7 +37,7 @@ public class LocalizedTimeDuration {
     }
 
     public String toString(Thesaurus thesaurus) {
-        return String.format(thesaurus.getString(localizedUnit.getKey(), localizedUnit.getDefaultFormat()), timeDuration.getCount());
+        return thesaurus.getFormat(localizedUnit).format(timeDuration.getCount());
     }
 
     public static class TimeDurationInfo {

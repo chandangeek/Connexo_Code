@@ -36,9 +36,10 @@ public class ReadingTypeResource {
         this.thesaurus = thesaurus;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/unusedreadingtypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public ReadingTypeInfos getUnusedReadingTypes(@BeanParam JsonQueryParameters queryParameters) {
         String searchText = queryParameters.getLike();
@@ -55,9 +56,10 @@ public class ReadingTypeResource {
         return new ReadingTypeInfos();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/readingtypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryParameters queryParameters) {
         String searchText = queryParameters.getLike();
@@ -73,6 +75,21 @@ public class ReadingTypeResource {
 
     private Condition getReadingTypeFilterCondition(String dbSearchText) {
         String regex = "*" + dbSearchText.replace(" ", "*") + "*";
-        return Where.where("fullAliasName").likeIgnoreCase(regex).and(Where.where("mRID").matches("^0\\.\\d+\\.0", ""));
+        return Where.where("fullAliasName").likeIgnoreCase(regex)
+                .and(mrIdMatchOfNormalRegisters()
+                        .or(mrIdMatchOfBillingRegisters())
+                        .or(mrIdMatchOfPeriodRelatedRegisters()));
+    }
+
+    private Condition mrIdMatchOfPeriodRelatedRegisters() {
+        return Where.where("mRID").matches("^[11-13]\\.\\[1-24]\\.0", "");
+    }
+
+    private Condition mrIdMatchOfBillingRegisters() {
+        return Where.where("mRID").matches("^8\\.\\d+\\.0", "");
+    }
+
+    private Condition mrIdMatchOfNormalRegisters() {
+        return Where.where("mRID").matches("^0\\.\\d+\\.0", "");
     }
 }
