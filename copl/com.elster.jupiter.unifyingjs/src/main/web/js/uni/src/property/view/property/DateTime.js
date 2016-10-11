@@ -133,7 +133,7 @@ Ext.define('Uni.property.view.property.DateTime', {
             hours = 0,
             minutes = 0;
 
-        if (value) {
+        if (!Ext.isEmpty(value)) {
             var date = new Date(value);
             dateValue = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
             hours = date.getHours();
@@ -154,7 +154,7 @@ Ext.define('Uni.property.view.property.DateTime', {
             hourValue = this.getHoursField().getValue(),
             minValue = this.getMinutesField().getValue();
 
-        if (dateValue !== null && dateValue !== '') {
+        if (!Ext.isEmpty(dateValue)) {
             if (hourValue !== null && hourValue !== '' && minValue !== null && minValue !== '') {
                 var newDate = new Date(dateValue);
                 var resultDate = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate(), hourValue, minValue, 0);
@@ -183,7 +183,7 @@ Ext.define('Uni.property.view.property.DateTime', {
     },
 
     getValueAsDisplayString: function (value /*Date in milliseconds*/) {
-        return (value !== null && value !== '') ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '';
+        return !Ext.isEmpty(value) ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '';
     }
 
 });
