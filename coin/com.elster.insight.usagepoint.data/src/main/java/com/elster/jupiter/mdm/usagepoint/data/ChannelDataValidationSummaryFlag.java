@@ -39,7 +39,7 @@ public enum ChannelDataValidationSummaryFlag implements TranslationKey {
     }
 
     public String getDisplayName(Thesaurus thesaurus) {
-        return thesaurus.getString(key, translation);
+        return thesaurus.getFormat(this).format();
     }
 
     public Predicate<ReadingQualityType> getQualityTypePredicate() {
