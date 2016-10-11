@@ -97,6 +97,11 @@ public class FileImportCommand {
         }
 
         @Override
+        public String getStatusName() {
+            return Status.PROCESSING.toString();
+        }
+
+        @Override
         public void markSuccess(String message) throws IllegalStateException {
             if (FileImportCommand.this.onSuccess != null) {
                 FileImportCommand.this.onSuccess.accept(message);
