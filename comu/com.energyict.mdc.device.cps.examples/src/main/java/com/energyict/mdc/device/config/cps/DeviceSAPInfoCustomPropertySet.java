@@ -188,6 +188,11 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME_DEVICE).format();
+    }
+
+    @Override
     public PersistenceSupport<Device, DeviceSAPInfoDomainExtension> getPersistenceSupport() {
         return new DeviceSAPInfoPersistentSupport();
     }

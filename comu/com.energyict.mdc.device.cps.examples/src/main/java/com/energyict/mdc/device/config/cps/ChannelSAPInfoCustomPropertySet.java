@@ -205,6 +205,11 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME_CHANNEL).format();
+    }
+
+    @Override
     public PersistenceSupport<ChannelSpec, ChannelSAPInfoDomainExtension> getPersistenceSupport() {
         return new ChannelSAPInfoPersistentSupport();
     }

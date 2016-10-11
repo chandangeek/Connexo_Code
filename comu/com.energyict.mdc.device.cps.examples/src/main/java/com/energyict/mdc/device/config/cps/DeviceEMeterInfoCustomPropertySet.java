@@ -227,6 +227,11 @@ public class DeviceEMeterInfoCustomPropertySet implements CustomPropertySet<Devi
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME_DEVICE).format();
+    }
+
+    @Override
     public PersistenceSupport<Device, DeviceEMeterInfoDomainExtension> getPersistenceSupport() {
         return new DeviceEMeterInfoPersistentSupport();
     }
