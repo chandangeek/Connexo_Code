@@ -642,14 +642,22 @@ public class BpmResource {
                     processDefinitionInfo.setAppKey(foundProvider.get().getAppKey());
                 }
             } else {
-                String association = queryParameters.get("association").get(0);
-                Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(association);
-                if (foundProvider.isPresent()) {
-                    processDefinitionInfo.setProperties(propertyValueInfoService.getPropertyInfos(foundProvider.get().getPropertySpecs(),
-                                    bpmProcessDefinition.isPresent() ? bpmProcessDefinition.get().getProperties() : new HashMap<>()));
-                    processDefinitionInfo.setAppKey(foundProvider.get().getAppKey());
+                if (queryParameters.get("association") != null) {
+                    String association = queryParameters.get("association").get(0);
+                    Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(association);
+                    if (foundProvider.isPresent()) {
+                        processDefinitionInfo.setProperties(propertyValueInfoService.getPropertyInfos(foundProvider.get()
+                                        .getPropertySpecs(),
+                                bpmProcessDefinition.isPresent() ? bpmProcessDefinition.get()
+                                        .getProperties() : new HashMap<>()));
+                        processDefinitionInfo.setAppKey(foundProvider.get().getAppKey());
+                    }
                 }
             }
+        } else {
+            processDefinitionInfo = getBpmProcessDefinitions(auth).processes.stream()
+                    .filter(s -> s.name.equals(id)).findFirst()
+                    .orElseThrow(() -> new BpmProcessNotAvailable(thesaurus, id));
         }
         return processDefinitionInfo;
     }
