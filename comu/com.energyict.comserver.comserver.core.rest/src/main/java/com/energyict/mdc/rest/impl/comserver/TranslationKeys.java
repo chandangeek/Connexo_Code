@@ -30,7 +30,7 @@ public enum TranslationKeys implements TranslationKey {
     }
 
     public String getDisplayName(Thesaurus thesaurus) {
-        return thesaurus.getString(this.displayName, this.defaultFormat);
+        return thesaurus.getFormat(this).format();
     }
 
     @Override
