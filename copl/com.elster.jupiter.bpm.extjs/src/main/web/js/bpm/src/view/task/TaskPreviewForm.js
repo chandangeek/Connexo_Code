@@ -32,21 +32,27 @@ Ext.define('Bpm.view.task.TaskPreviewForm', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('bpm.task.process', 'BPM', 'Process'),
-                                name: 'processName',
-                                itemId: 'bpm-preview-process-name'
+                                fieldLabel: Uni.I18n.translate('bpm.task.assignee', 'BPM', 'Assignee'),
+                                name: 'actualOwner',
+                                itemId: 'bpm-preview-assignee'
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('bpm.task.processId', 'BPM', 'Process ID'),
-                                name: 'processInstancesId',
-                                itemId: 'bpm-preview-process-id'
+                                fieldLabel: Uni.I18n.translate('bpm.task.dueDate', 'BPM', 'Due date'),
+                                name: 'dueDateDisplay',
+                                itemId: 'bpm-preview-due-date'
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('bpm.task.deploymentId', 'BPM', 'Deployment ID'),
-                                name: 'deploymentId',
-                                itemId: 'bpm-preview-deployment-id'
+                                fieldLabel: Uni.I18n.translate('bpm.task.priority', 'BPM', 'Priority'),
+                                name: 'priorityDisplay',
+                                itemId: 'bpm-task-view-priority'
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('bpm.task.status', 'BPM', 'Status'),
+                                name: 'statusDisplay',
+                                itemId: 'bpm-preview-status'
                             }
                         ]
                     },
@@ -64,21 +70,15 @@ Ext.define('Bpm.view.task.TaskPreviewForm', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('bpm.task.status', 'BPM', 'Status'),
-                                name: 'statusDisplay',
-                                itemId: 'bpm-preview-status'
+                                fieldLabel: Uni.I18n.translate('bpm.task.process', 'BPM', 'Process'),
+                                name: 'processName',
+                                itemId: 'bpm-preview-process-name'
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('bpm.task.dueDate', 'BPM', 'Due date'),
-                                name: 'dueDateDisplay',
-                                itemId: 'bpm-preview-due-date'
-                            },
-                            {
-                                xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('bpm.task.assignee', 'BPM', 'Assignee'),
-                                name: 'actualOwner',
-                                itemId: 'bpm-preview-assignee'
+                                fieldLabel: Uni.I18n.translate('bpm.task.processId', 'BPM', 'Process ID'),
+                                name: 'processInstancesId',
+                                itemId: 'bpm-preview-process-id'
                             },
                             {
                                 xtype: 'displayfield',

@@ -7,7 +7,8 @@ Ext.define('Bpm.controller.Task', {
         'Uni.component.sort.model.Sort'
     ],
     views: [
-        'Bpm.view.task.Tasks'
+        'Bpm.view.task.Tasks',
+        'Bpm.view.task.ViewTask'
     ],
     stores: [
         'Bpm.store.task.Tasks',
@@ -15,7 +16,12 @@ Ext.define('Bpm.controller.Task', {
         'Bpm.store.task.TasksFilterProcesses',
         'Bpm.store.task.TasksFilterStatuses',
         'Bpm.store.task.TasksFilterUsers',
-        'Bpm.store.task.TasksUsers'
+        'Bpm.store.task.TasksUsers',
+        'Bpm.store.Clipboard'
+    ],
+    models: [
+        'Bpm.model.task.Task',
+        'Bpm.model.task.OpenTask'
     ],
     refs: [
         {
@@ -41,6 +47,67 @@ Ext.define('Bpm.controller.Task', {
             }
         });
         this.application.getController('Bpm.controller.FilterSortTasks');
+    },
+
+    showTask: function (taskId) {
+        var me = this,
+            store = me.getStore('Bpm.store.task.Tasks');
+        if(store.count() === 0) {
+            store.load({
+                callback: function ()  {
+                    me.performLoadOfTask(taskId);
+                }
+            });
+        } else {
+            me.performLoadOfTask(taskId)
+        }
+    },
+
+    performLoadOfTask: function (taskId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            view,
+            listLink,
+            task = me.getModel('Bpm.model.task.Task'),
+            performTask = me.getModel('Bpm.model.task.OpenTask');
+        listLink = me.makeLinkToList(router);
+        task.load(taskId, {
+            success: function (taskRecord) {
+                view = Ext.widget('bpm-task-view-task', {
+                    taskRecord: taskRecord,
+                    router: router,
+                    listLink: listLink
+                });
+                me.getController('Bpm.controller.OpenTask').taskId = taskId;
+                me.getApplication().fireEvent('changecontentevent', view);
+                view.down('form').loadRecord(taskRecord);
+                view.down('#task-title').setTitle(taskRecord.get('name'));
+                if (view.down('bpm-task-action-menu')) {
+                    me.setupMenuItems(taskRecord);
+                }
+                me.getApplication().fireEvent('task', taskRecord);
+                performTask.load(taskId, {
+                    success: function (performTaskRecord) {
+                        if (performTaskRecord && performTaskRecord.properties() && performTaskRecord.properties().count()) {
+                            view.down('property-form').loadRecord(performTaskRecord);
+                        } else {
+                            if(taskRecord.get('status') === 'Completed') {
+                                view.down('property-form').down('uni-form-empty-message').setText(Uni.I18n.translate('bpm.task.taskExecutionAttributesNotAvailableBecauseTaskCompleted', 'BPM', 'Task execution attributes are not available because task is completed.'))
+                            }
+                            view.down('property-form').down('uni-form-empty-message').show();
+                        }
+                    }
+                })
+            }
+        });
+    },
+
+    makeLinkToList: function (router) {
+        var link = '<a href="{0}">' + Uni.I18n.translate('general.tasks.title', 'BPM', 'Tasks').toLowerCase() + '</a>',
+            filter = this.getStore('Bpm.store.Clipboard').get('latest-tasks-filter'),
+            queryParams = filter ? filter : null;
+
+        return Ext.String.format(link, router.getRoute('workspace/tasks').buildUrl(null, queryParams));
     },
 
     showTasks: function () {
@@ -130,6 +197,8 @@ Ext.define('Bpm.controller.Task', {
             filterSortController.updateSortingToolbar();
             me.updateApplyButtonState(view, queryString);
         }
+        me.getStore('Bpm.store.Clipboard').set('latest-tasks-filter', queryString);
+        me.getController('Bpm.controller.OpenTask').taskId = null;
     },
 
     showPreview: function (selectionModel, record) {
@@ -138,11 +207,34 @@ Ext.define('Bpm.controller.Task', {
             preview = page.down('bpm-task-preview'),
             previewForm = page.down('bpm-task-preview-form');
 
+        Ext.getStore('Bpm.store.Clipboard').set('latest-tasks-filter', Uni.util.QueryString.getQueryStringValues(false));
+
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
-        preview.down('bpm-task-action-menu') && (preview.down('bpm-task-action-menu').record = record);
+        if (preview.down('bpm-task-action-menu')) {
+            preview.down('bpm-task-action-menu').record = record;
+            me.setupMenuItems(record);
+        }
         Ext.resumeLayouts();
+    },
+
+    setupMenuItems: function (record) {
+        var ongoing = record.get('status') === 'InProgress',
+            completeItems = Ext.ComponentQuery.query('menu menuitem[action=completeTask]'),
+            performItems = Ext.ComponentQuery.query('menu menuitem[action=performTask]');
+
+        if (!Ext.isEmpty(completeItems)) {
+            Ext.Array.each(completeItems, function (item) {
+                item.setVisible(ongoing);
+            });
+        }
+
+        if (!Ext.isEmpty(performItems)) {
+            Ext.Array.each(performItems, function (item) {
+                item.setVisible(!ongoing);
+            });
+        }
     },
 
     chooseAction: function (menu, item) {
@@ -157,10 +249,13 @@ Ext.define('Bpm.controller.Task', {
 
         switch (item.action) {
             case 'editTask':
-                route = 'workspace/tasks/editTask';
+                route = 'workspace/tasks/task/editTask';
                 break;
             case 'performTask':
-                route = 'workspace/tasks/performTask';
+                route = 'workspace/tasks/task/performTask';
+                break;
+            case 'completeTask':
+                route = 'workspace/tasks/task/completeTask';
                 break;
         }
 

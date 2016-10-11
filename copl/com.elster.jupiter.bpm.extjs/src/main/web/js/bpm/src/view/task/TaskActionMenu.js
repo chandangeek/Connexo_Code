@@ -7,14 +7,20 @@ Ext.define('Bpm.view.task.TaskActionMenu', {
     items: [
         {
             itemId: 'menu-edit-task',
-            text: Uni.I18n.translate('bpm.menu.editTask', 'BPM', 'Edit task'),
+            text: Uni.I18n.translate('bpm.menu.editAttributes', 'BPM', 'Edit attributes'),
             action: 'editTask',
             privileges: Bpm.privileges.BpmManagement.assign
         },
         {
             itemId: 'menu-perform-task',
-            text: Uni.I18n.translate('bpm.menu.performTask', 'BPM', 'Perform task'),
+            text: Uni.I18n.translate('bpm.menu.start', 'BPM', 'Start'),
             action: 'performTask',
+            privileges: Bpm.privileges.BpmManagement.execute
+        },
+        {
+            itemId: 'menu-complete-task',
+            text: Uni.I18n.translate('bpm.menu.complete', 'BPM', 'Complete'),
+            action: 'completeTask',
             privileges: Bpm.privileges.BpmManagement.execute
         }
     ]
