@@ -98,6 +98,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                     },
                                     {
                                         itemId: 'every',
+                                        margin: '7 0 0 0',
                                         boxLabel: Uni.I18n.translate('general.every', 'DES', 'Every'),
                                         inputValue: true
                                     }

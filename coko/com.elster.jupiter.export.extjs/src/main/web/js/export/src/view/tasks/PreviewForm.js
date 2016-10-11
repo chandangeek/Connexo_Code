@@ -34,8 +34,8 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('general.trigger', 'DES', 'Trigger'),
-                        name: 'trigger'
+                        fieldLabel: Uni.I18n.translate('general.recurrence', 'DES', 'Recurrence'),
+                        name: 'recurrence'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
