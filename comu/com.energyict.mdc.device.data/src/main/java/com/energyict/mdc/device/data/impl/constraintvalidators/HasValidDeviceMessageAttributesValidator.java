@@ -83,8 +83,8 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
         List<PropertySpec> propertySpecs = deviceMessage.getSpecification().getPropertySpecs();
         List<DeviceMessageAttribute> deviceMessageAttributes = deviceMessage.getAttributes();
         if (!propertySpecs.isEmpty()) {
-            propertySpecs.stream().forEach(propertySpec -> {
-                Optional<DeviceMessageAttribute> deviceMessageAttributeExists = deviceMessageAttributes.stream().filter(deviceMessageAttribute -> deviceMessageAttribute.getName().equals(propertySpec.getName())).findFirst();
+            propertySpecs.stream().filter(PropertySpec::isRequired).forEach(propertySpec -> {
+                Optional<DeviceMessageAttribute> deviceMessageAttributeExists = getDeviceMessageAttribute(deviceMessageAttributes, propertySpec);
                 if (!deviceMessageAttributeExists.isPresent()) {
                     this.valid = false;
                     context.disableDefaultConstraintViolation();
@@ -95,6 +95,10 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
                 }
             });
         }
+    }
+
+    private Optional<DeviceMessageAttribute> getDeviceMessageAttribute(List<DeviceMessageAttribute> deviceMessageAttributes, PropertySpec propertySpec) {
+        return deviceMessageAttributes.stream().filter(deviceMessageAttribute -> deviceMessageAttribute.getName().equals(propertySpec.getName())).findFirst();
     }
 
 }
