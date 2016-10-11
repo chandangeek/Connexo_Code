@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.api.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 
 import java.io.IOException;
 
@@ -40,7 +41,7 @@ public class DataParseException extends ComServerRuntimeException {
      * @param cause the cause of the exception
      */
     public static DataParseException indexOutOfBoundsException(final IndexOutOfBoundsException cause) {
-        return new DataParseException(cause, com.energyict.protocols.mdc.services.impl.MessageSeeds.INDEX_OUT_OF_BOUND_DATA_PARSE_EXCEPTION, cause.getMessage());
+        return new DataParseException(cause, MessageSeeds.INDEX_OUT_OF_BOUND_DATA_PARSE_EXCEPTION);
     }
 
 
