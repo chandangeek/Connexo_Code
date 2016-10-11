@@ -672,7 +672,17 @@ public class ParseUtils {
         }
         
     }
-    
-    
+
+    public static final String asHex(final byte[] data) {
+        if (data == null) {
+            return "";
+        }
+
+        StringBuilder strBuff = new StringBuilder();
+        for (int i = 0; i < data.length; i++) {
+            strBuff.append(String.format("%02X", ((int)data[i] & 0xFF)));
+        }
+        return strBuff.toString();
+    }
     
 }
