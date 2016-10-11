@@ -51,22 +51,21 @@ Ext.define('Ddv.view.validations.Filter', {
 
     enableClearAll: function (filters) {
         var me = this,
-            from = _.find(filters, function (item) {
-                return item.property == 'from'
+            enableClearAllBasedOnOtherThanFromTo = Ext.Array.filter(filters, function (filter) {
+                return filter.property !== 'from' && filter.property !== 'to' && !Ext.Array.contains(me.noUiFilters, filter.property);
+            }).length > 0,
+            fromFilter = _.find(filters, function (item) {
+                return item.property === 'from';
             }),
-            to = _.find(filters, function (item) {
-                return item.property == 'to'
+            toFilter = _.find(filters, function (item) {
+                return item.property === 'to';
             }),
-            notDefaultFilters = _.filter(filters, function (item) {
-                return item.property !== 'from' && item.property !== 'to'
-            }),
-            isDefault = Ext.isEmpty(notDefaultFilters)
-                && from && me.filterDefault.from && from.value == me.filterDefault.from.getTime()
-                && to && me.filterDefault.to && to.value == me.filterDefault.to.getTime();
+            fromToFilterIsDefault = fromFilter && me.filterDefault.from && fromFilter.value === me.filterDefault.from.getTime() &&
+                toFilter && me.filterDefault.to && toFilter.value === me.filterDefault.to.getTime();
 
         Ext.suspendLayouts();
-        me.down('button[action=clearAll]').setDisabled(isDefault);
-        me.down('#validations-topfilter-between button[action=clear]').setDisabled(isDefault);
+        me.down('button[action=clearAll]').setDisabled(enableClearAllBasedOnOtherThanFromTo ? false : fromToFilterIsDefault);
+        me.down('#validations-topfilter-between button[action=clear]').setDisabled(fromToFilterIsDefault);
         Ext.resumeLayouts(true);
     }
 });
