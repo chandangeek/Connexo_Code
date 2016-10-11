@@ -9,15 +9,10 @@ public enum DataExportStatus implements TranslationKey {
     FAILED("Failed"),
     NOT_PERFORMED("Created");
 
-    private String name;
+    private final String defaultFormat;
 
-    DataExportStatus(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return this.name;
+    DataExportStatus(String defaultFormat) {
+        this.defaultFormat = defaultFormat;
     }
 
     @Override
@@ -27,6 +22,7 @@ public enum DataExportStatus implements TranslationKey {
 
     @Override
     public String getDefaultFormat() {
-        return toString();
+        return this.defaultFormat;
     }
+
 }

@@ -35,6 +35,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -78,10 +79,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.export",
-        service = {DataExportService.class, IDataExportService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {DataExportService.class, IDataExportService.class, TranslationKeyProvider.class, MessageSeedProvider.class, RelativePeriodCategoryTranslationProvider.class},
         property = "name=" + DataExportService.COMPONENTNAME,
         immediate = true)
-public class DataExportServiceImpl implements IDataExportService, TranslationKeyProvider, MessageSeedProvider {
+public class DataExportServiceImpl implements IDataExportService, TranslationKeyProvider, MessageSeedProvider, RelativePeriodCategoryTranslationProvider {
 
     static final String DESTINATION_NAME = "DataExport";
     static final String SUBSCRIBER_NAME = "DataExport";
@@ -150,16 +151,16 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
 
     @Override
     public List<DataFormatterFactory> getAvailableFormatters() {
-        return this.dataFormatterFactories.keySet().stream()
-                .sorted(Comparator.comparing(DataFormatterFactory::getName))
-                .collect(Collectors.toList());
+        List<DataFormatterFactory> dataFormatterFactories = new ArrayList<>(this.dataFormatterFactories.keySet());
+        dataFormatterFactories.sort(Comparator.comparing(HasName::getName));
+        return dataFormatterFactories;
     }
 
     @Override
     public List<DataSelectorFactory> getAvailableSelectors() {
-        return this.dataSelectorFactories.keySet().stream()
-                .sorted(Comparator.comparing(DataSelectorFactory::getName))
-                .collect(Collectors.toList());
+        List<DataSelectorFactory> dataSelectorFactories = new ArrayList<>(this.dataSelectorFactories.keySet());
+        dataSelectorFactories.sort(Comparator.comparing(HasName::getName));
+        return dataSelectorFactories;
     }
 
     @Override

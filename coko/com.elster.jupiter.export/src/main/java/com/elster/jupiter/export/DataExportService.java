@@ -1,9 +1,10 @@
 package com.elster.jupiter.export;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.properties.PropertySpec;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.nio.file.Path;
 import java.time.Instant;
@@ -21,8 +22,6 @@ public interface DataExportService {
     String STANDARD_READING_DATA_TYPE = "standardReadingDataType";
     String STANDARD_EVENT_DATA_TYPE = "standardEventDataType";
 
-    Optional<DataFormatterFactory> getDataFormatterFactory(String name);
-
     DataExportTaskBuilder newBuilder();
 
     Optional<? extends ExportTask> findExportTask(long id);
@@ -33,13 +32,19 @@ public interface DataExportService {
 
     Optional<? extends ExportTask> getReadingTypeDataExportTaskByName(String name);
 
-    List<PropertySpec> getPropertiesSpecsForFormatter(String name);
+    List<DataFormatterFactory> getAvailableFormatters();
 
-    List<PropertySpec> getPropertiesSpecsForDataSelector(String name);
+    Optional<DataFormatterFactory> getDataFormatterFactory(String name);
+
+    List<PropertySpec> getPropertiesSpecsForFormatter(String name);
 
     List<DataSelectorFactory> getAvailableSelectors();
 
-    List<DataFormatterFactory> getAvailableFormatters();
+    List<DataFormatterFactory> formatterFactoriesMatching(DataSelectorFactory selectorFactory);
+
+    Optional<DataSelectorFactory> getDataSelectorFactory(String dataSelector);
+
+    List<PropertySpec> getPropertiesSpecsForDataSelector(String name);
 
     List<? extends ExportTask> findReadingTypeDataExportTasks();
 
@@ -55,7 +60,4 @@ public interface DataExportService {
 
     StructureMarker forRoot(String root);
 
-    List<DataFormatterFactory> formatterFactoriesMatching(DataSelectorFactory selectorFactory);
-
-    Optional<DataSelectorFactory> getDataSelectorFactory(String dataSelector);
 }

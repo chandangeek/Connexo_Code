@@ -8,6 +8,8 @@ import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.EventDataSelector;
 import com.elster.jupiter.export.ExportTask;
@@ -29,6 +31,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 
@@ -57,6 +60,7 @@ final class ExportTaskImpl implements IExportTask {
     private String dataSelector;
     private transient ScheduleExpression scheduleExpression;
     private transient Instant nextExecution;
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private List<DataExportProperty> properties = new ArrayList<>();
@@ -64,9 +68,13 @@ final class ExportTaskImpl implements IExportTask {
     private transient boolean scheduleImmediately;
     private transient boolean recurrentTaskDirty;
     private transient boolean propertiesDirty;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
     @Valid
     private Reference<IStandardDataSelector> readingTypeDataSelector = Reference.empty();
@@ -137,11 +145,10 @@ final class ExportTaskImpl implements IExportTask {
 
     void doSave() {
         // TODO  : separate properties per Factory
-
-        List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForFormatter(dataFormatter);
-        List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(dataSelector);
-        List<DataExportProperty> processorProperties = new ArrayList<DataExportProperty>();
-        List<DataExportProperty> selectorProperties = new ArrayList<DataExportProperty>();
+        List<PropertySpec> propertiesSpecsForProcessor = this.getDataFormatterPropertySpecs();
+        List<PropertySpec> propertiesSpecsForDataSelector = this.getDataSelectorPropertySpecs();
+        List<DataExportProperty> processorProperties = new ArrayList<>();
+        List<DataExportProperty> selectorProperties = new ArrayList<>();
         for (DataExportProperty property : properties) {
             for (PropertySpec processorPropertySpec : propertiesSpecsForProcessor) {
                 if (property.instanceOfSpec(processorPropertySpec)) {
@@ -221,31 +228,31 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public String getDataFormatter() {
-        return dataFormatter;
+    public DataFormatterFactory getDataFormatterFactory() {
+        return this.dataExportService.getDataFormatterFactory(this.dataFormatter).orElseThrow(() -> new IllegalArgumentException("No such data formatter: " + dataSelector));
     }
 
     @Override
-    public String getDataSelector() {
-        return dataSelector;
+    public DataSelectorFactory getDataSelectorFactory() {
+        return this.dataExportService.getDataSelectorFactory(this.dataSelector).orElseThrow(() -> new IllegalArgumentException("No such data selector: " + dataSelector));
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> allSpecs = new ArrayList<>();
-        allSpecs.addAll(getDataProcessorPropertySpecs());
+        allSpecs.addAll(getDataFormatterPropertySpecs());
         allSpecs.addAll(getDataSelectorPropertySpecs());
         return allSpecs;
     }
 
     @Override
     public List<PropertySpec> getDataSelectorPropertySpecs() {
-        return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(() -> new IllegalArgumentException("No such data selector: " + dataSelector)).getPropertySpecs();
+        return this.getDataSelectorFactory().getPropertySpecs();
     }
 
     @Override
-    public List<PropertySpec> getDataProcessorPropertySpecs() {
-        return dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(() -> new IllegalArgumentException("No such data processor: " + dataFormatter)).getPropertySpecs();
+    public List<PropertySpec> getDataFormatterPropertySpecs() {
+        return this.getDataFormatterFactory().getPropertySpecs();
     }
 
     @Override
@@ -449,7 +456,7 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public void setDataFormatter(String formatter) {
+    public void setDataFormatterFactoryName(String formatter) {
         this.dataFormatter = formatter;
     }
 

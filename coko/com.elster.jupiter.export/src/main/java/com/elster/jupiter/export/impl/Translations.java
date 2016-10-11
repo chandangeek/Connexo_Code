@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Arrays;
@@ -63,7 +64,8 @@ public class Translations implements TranslationKeyProvider {
         }
 
         public String translate(Thesaurus thesaurus) {
-            return thesaurus.getString(key, defaultFormat);
+            return thesaurus.getFormat(this).format();
         }
     }
+
 }

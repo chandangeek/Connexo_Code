@@ -23,6 +23,7 @@ import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -58,7 +59,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             DataExportTaskBuilder.ReadingTypeSelectorBuilder builder = dataExportService.newBuilder()
                     .setName(name)
-                    .setDataFormatterName(dataFormatter)
+                    .setDataFormatterFactoryName(dataFormatter)
                     .setNextExecution(Instant.ofEpochMilli(nextExecution))
                     .setScheduleExpression(parse(scheduleExpression))
                     .selectingReadingTypes()

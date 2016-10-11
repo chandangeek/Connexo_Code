@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -36,15 +37,17 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     private final DataModel dataModel;
     private final TaskService taskService;
     private final TransactionService transactionService;
+    private final Thesaurus thesaurus;
     private final Clock clock;
 
     private transient Range<Instant> exportedDataRange;
 
     @Inject
-    DataExportOccurrenceImpl(DataModel dataModel, TaskService taskService, TransactionService transactionService, Clock clock) {
+    DataExportOccurrenceImpl(DataModel dataModel, TaskService taskService, TransactionService transactionService, Thesaurus thesaurus, Clock clock) {
         this.dataModel = dataModel;
         this.taskService = taskService;
         this.transactionService = transactionService;
+        this.thesaurus = thesaurus;
         this.clock = clock;
     }
 
@@ -85,6 +88,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     @Override
     public DataExportStatus getStatus() {
         return status;
+    }
+
+    @Override
+    public String getStatusName() {
+        return this.thesaurus.getFormat(this.getStatus()).format();
     }
 
     @Override
@@ -190,8 +198,12 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DataExportOccurrenceImpl)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DataExportOccurrenceImpl)) {
+            return false;
+        }
         DataExportOccurrenceImpl that = (DataExportOccurrenceImpl) o;
         return Objects.equals(taskOccurrence, that.taskOccurrence);
     }
