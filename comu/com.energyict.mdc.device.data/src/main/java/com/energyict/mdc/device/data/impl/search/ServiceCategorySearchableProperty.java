@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
@@ -54,8 +53,7 @@ public class ServiceCategorySearchableProperty extends AbstractSearchableDeviceP
     @Override
     protected String toDisplayAfterValidation(Object value) {
         ServiceCategory serviceCategory = (ServiceCategory) value;
-        TranslationKey translationKey = new SimpleTranslationKey(serviceCategory.getTranslationKey(), serviceCategory.getKind().getDefaultFormat());
-        return this.getThesaurus().getFormat(translationKey).format();
+        return serviceCategory.getDisplayName();
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
@@ -45,18 +46,18 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
      * of the current {@link com.elster.jupiter.fsm.State}
      * of a {@link Device}.
      */
-    public static final String VIRTUAL_FIELD_NAME = "device.state.name";
+    private static final String VIRTUAL_FIELD_NAME = "device.state.name";
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private DeviceSearchDomain domain;
     private SearchableProperty parent;
     private DeviceState[] states = new DeviceState[0];
 
     @Inject
-    public StateNameSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public StateNameSearchableProperty(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     StateNameSearchableProperty init(DeviceSearchDomain domain, DeviceTypeSearchableProperty parent) {
@@ -143,7 +144,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         this.states = deviceTypes.stream()
                 .map(DeviceType.class::cast)
                 .flatMap(this::getDeviceStatesFor)
-                .sorted(Comparator.comparing(DeviceState::getName, String.CASE_INSENSITIVE_ORDER))
+                .sorted((state1, state2) -> state1.getName().compareToIgnoreCase(state2.getName()))
                 .toArray(DeviceState[]::new);
     }
 
@@ -163,16 +164,14 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
                 .getFiniteStateMachine()
                 .getStates()
                 .stream()
-                .map(s -> new DeviceState(s.getId(), getStateName(s, thesaurus) + " (" + deviceType.getDeviceLifeCycle().getName() + ")"));
+                .map(s -> new DeviceState(s.getId(), getStateName(s, deviceLifeCycleConfigurationService) + " (" + deviceType.getDeviceLifeCycle().getName() + ")"));
     }
 
-    protected String getStateName(State state, Thesaurus thesaurus) {
-        Optional<DefaultState> defaultState = DefaultState.from(state);
-        if (defaultState.isPresent()) {
-            return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
-        } else {
-            return state.getName();
-        }
+    private String getStateName(State state, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        return DefaultState
+                .from(state)
+                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .orElseGet(state::getName);
     }
 
     @Override

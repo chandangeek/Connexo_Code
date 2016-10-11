@@ -21,6 +21,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -88,6 +89,8 @@ public class DeviceSearchDomainTest {
     private Thesaurus thesaurus;
     @Mock
     private NlsMessageFormat messageFormat;
+    @Mock
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -290,6 +293,7 @@ public class DeviceSearchDomainTest {
                 bind(OrmService.class).toInstance(ormService);
                 bind(TimeService.class).toInstance(timeService);
                 bind(BeanService.class).toInstance(new DefaultBeanService());
+                bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceService.class).toInstance(deviceService);
