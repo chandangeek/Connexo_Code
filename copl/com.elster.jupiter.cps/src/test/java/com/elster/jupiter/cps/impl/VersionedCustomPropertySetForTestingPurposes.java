@@ -32,8 +32,8 @@ import java.util.Set;
  */
 public class VersionedCustomPropertySetForTestingPurposes implements CustomPropertySet<TestDomain, VersionedDomainExtensionForTestingPurposes> {
 
-    public static final String TABLE_NAME = "T04_CUSTOM_BILLING";
-    public static final String FK_CUST_BILLING_DOMAIN = "FK_04CUST_BILLING_DOMAIN";
+    private static final String TABLE_NAME = "T04_CUSTOM_BILLING";
+    private static final String FK_CUST_BILLING_DOMAIN = "FK_04CUST_BILLING_DOMAIN";
 
     private final PropertySpecService propertySpecService;
 
@@ -55,6 +55,11 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
     @Override
     public Class<TestDomain> getDomainClass() {
         return TestDomain.class;
+    }
+
+    @Override
+    public String getDomainClassDisplayName() {
+        return this.getDomainClass().getName();
     }
 
     @Override
