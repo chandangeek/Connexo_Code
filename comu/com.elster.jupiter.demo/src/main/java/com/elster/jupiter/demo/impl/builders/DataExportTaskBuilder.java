@@ -17,8 +17,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
 public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTaskBuilder> {
     private final DataExportService dataExportService;
     private final MeteringGroupsService meteringGroupsService;
