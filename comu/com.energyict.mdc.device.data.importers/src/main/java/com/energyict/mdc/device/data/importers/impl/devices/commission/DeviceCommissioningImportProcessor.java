@@ -9,9 +9,9 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import java.util.Collections;
 import java.util.List;
 
-public class DeviceCommissioningImportProcessor extends DeviceTransitionImportProcessor<DeviceTransitionRecord> {
+class DeviceCommissioningImportProcessor extends DeviceTransitionImportProcessor<DeviceTransitionRecord> {
 
-    public DeviceCommissioningImportProcessor(DeviceDataImporterContext context) {
+    DeviceCommissioningImportProcessor(DeviceDataImporterContext context) {
         super(context);
     }
 

@@ -40,7 +40,7 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
 
     private static final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.longDate().withLongTime().build().withZone(ZoneId.systemDefault());
 
-    public DeviceInstallationImportProcessor(DeviceDataImporterContext context) {
+    DeviceInstallationImportProcessor(DeviceDataImporterContext context) {
         super(context);
     }
 

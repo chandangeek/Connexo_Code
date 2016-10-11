@@ -42,6 +42,7 @@ import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.topology.TopologyService;
 
@@ -105,6 +106,8 @@ public class DeviceInstallationImporterFactoryTest {
     @Mock
     private DeviceLifeCycleService deviceLifeCycleService;
     @Mock
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    @Mock
     private FiniteStateMachineService finiteStateMachineService;
     @Mock
     private Logger logger;
@@ -120,18 +123,14 @@ public class DeviceInstallationImporterFactoryTest {
     @Before
     public void beforeTest() {
         reset(logger, thesaurus, deviceService, topologyService, meteringService, deviceLifeCycleService, finiteStateMachineService);
-        when(thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
-        when(thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
-        when(thesaurus.getStringBeyondComponent(anyString(), anyString()))
-                .thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+        this.setupTranslations();
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         context.setTopologyService(topologyService);
         context.setMeteringService(meteringService);
         context.setDeviceLifeCycleService(deviceLifeCycleService);
         context.setFiniteStateMachineService(finiteStateMachineService);
+        context.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
         when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
@@ -165,6 +164,18 @@ public class DeviceInstallationImporterFactoryTest {
         when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
         when(context.getMetrologyConfigurationService()).thenReturn(metrologyConfigurationService);
         when(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT)).thenReturn(defaultMeterRole);
+    }
+
+    private void setupTranslations() {
+        when(thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
+        when(thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
+        when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
+                .thenAnswer(invocationOnMock -> {
+                    DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
+                    return state.getDefaultFormat();
+                });
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -708,7 +719,7 @@ public class DeviceInstallationImporterFactoryTest {
         importer.process(importOccurrence);
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE).format(2, DefaultState.ACTIVE.getKey(), DefaultState.IN_STOCK.getKey()));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE).format(2, DefaultState.ACTIVE.getDefaultFormat(), DefaultState.IN_STOCK.getDefaultFormat()));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
@@ -728,7 +739,7 @@ public class DeviceInstallationImporterFactoryTest {
         importer.process(importOccurrence);
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.DEVICE_ALREADY_IN_THAT_STATE).format(2, DefaultState.ACTIVE.getKey()));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.DEVICE_ALREADY_IN_THAT_STATE).format(2, DefaultState.ACTIVE.getDefaultFormat()));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
@@ -782,7 +793,7 @@ public class DeviceInstallationImporterFactoryTest {
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
-                .format(2, DefaultState.ACTIVE.getKey(), DefaultState.INACTIVE.getKey(), DefaultState.IN_STOCK.getKey() + ", " + DefaultState.COMMISSIONING.getKey()));
+                .format(2, DefaultState.ACTIVE.getDefaultFormat(), DefaultState.INACTIVE.getDefaultFormat(), DefaultState.IN_STOCK.getDefaultFormat() + ", " + DefaultState.COMMISSIONING.getDefaultFormat()));
         verify(logger, never()).severe(Matchers.anyString());
     }
 

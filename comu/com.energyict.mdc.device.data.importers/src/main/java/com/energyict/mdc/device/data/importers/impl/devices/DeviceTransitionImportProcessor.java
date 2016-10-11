@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.devices;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.GatewayType;
@@ -32,10 +33,6 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
         super(context);
     }
 
-    public String translate(String key) {
-        return getContext().getThesaurus().getStringBeyondComponent(key, key);
-    }
-
     @Override
     public void process(T data, FileImportLogger logger) throws ProcessorException {
         Device device = findDeviceByIdentifier(data.getDeviceIdentifier())
@@ -60,7 +57,10 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     private void performDeviceTransition(T data, Device device, FileImportLogger logger) {
         String targetStateName = getTargetState(data).getKey();
         if (targetStateName.equals(device.getState().getName())) {
-            throw new ProcessorException(MessageSeeds.DEVICE_ALREADY_IN_THAT_STATE, data.getLineNumber(), translate(targetStateName));
+            throw new ProcessorException(
+                    MessageSeeds.DEVICE_ALREADY_IN_THAT_STATE,
+                    data.getLineNumber(),
+                    this.getStateName(data));
         }
 
         ExecutableAction executableAction = getExecutableAction(device, data);
@@ -70,8 +70,12 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
             throw new ProcessorException(
                     MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER,
                     data.getLineNumber(),
-                    translate(targetStateName), translate(device.getState().getName()),
-                    sourceStates.stream().map(DefaultState::getKey).map(this::translate).collect(Collectors.joining(", ")));
+                    this.getStateName(data),
+                    this.getStateName(device.getState()),
+                    sourceStates
+                            .stream()
+                            .map(context.getDeviceLifeCycleConfigurationService()::getDisplayName)
+                            .collect(Collectors.joining(", ")));
         }
 
         try {
@@ -97,9 +101,23 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     private ExecutableAction getExecutableAction(Device device, T data) {
         DefaultCustomStateTransitionEventType eventType = getTransitionEventType(data);
         return getContext().getDeviceLifeCycleService().getExecutableActions(device,
-                eventType.findOrCreate(getContext().getFiniteStateMachineService()))
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE, data.getLineNumber(),
-                        translate(getTargetState(data).getKey()), translate(device.getState().getName())));
+                eventType.findOrCreate(this.context.getFiniteStateMachineService()))
+                .orElseThrow(() -> new ProcessorException(
+                        MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE,
+                        data.getLineNumber(),
+                        this.getStateName(data),
+                        this.getStateName(device.getState())));
+    }
+
+    private String getStateName(T data) {
+        return this.context.getDeviceLifeCycleConfigurationService().getDisplayName(getTargetState(data));
+    }
+
+    private String getStateName(State state) {
+        return DefaultState
+                .from(state)
+                .map(context.getDeviceLifeCycleConfigurationService()::getDisplayName)
+                .orElseGet(state::getName);
     }
 
     private Map<String, PropertySpec> getAllPropertySpecsForAction(ExecutableAction executableAction) {
@@ -107,7 +125,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
             return ((AuthorizedTransitionAction) executableAction.getAction()).getActions()
                     .stream()
                     .flatMap(microAction -> getContext().getDeviceLifeCycleService().getPropertySpecsFor(microAction).stream())
-                    .collect(Collectors.toMap(PropertySpec::getName, Function.<PropertySpec>identity(), (prop1, prop2) -> prop1));
+                    .collect(Collectors.toMap(PropertySpec::getName, Function.identity(), (prop1, prop2) -> prop1));
         }
         return Collections.emptyMap();
     }
