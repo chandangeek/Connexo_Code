@@ -140,7 +140,7 @@ public class DataExportTaskResource {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
                 .setApplication(info.application)
-                .setDataFormatterName(info.dataProcessor.name)
+                .setDataFormatterFactoryName(info.dataProcessor.name)
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
 
@@ -148,10 +148,11 @@ public class DataExportTaskResource {
             builder.selectingCustom(info.dataSelector.name).endSelection();
             List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
 
-            propertiesSpecsForDataSelector.forEach(spec -> {
-                Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
-                builder.addProperty(spec.getName()).withValue(value);
-            });
+            propertiesSpecsForDataSelector
+                    .forEach(spec -> {
+                        Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
+                        builder.addProperty(spec.getName()).withValue(value);
+                    });
         } else {
             if (info.dataSelector.selectorType == SelectorType.DEFAULT_READINGS) {
                 if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
@@ -250,7 +251,7 @@ public class DataExportTaskResource {
                 if (info.destinations.isEmpty()) {
                     throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
                 }
-                String selectorString = task.getDataSelector();
+                String selectorString = task.getDataSelectorFactory().getName();
                 SelectorType selectorType = SelectorType.forSelector(selectorString);
                 if(selectorType.equals(SelectorType.DEFAULT_READINGS)){
                     StandardDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
@@ -406,20 +407,22 @@ public class DataExportTaskResource {
 
     private void updateProperties(DataExportTaskInfo info, ExportTask task) {
         List<PropertySpec> propertiesSpecsForDataProcessor = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
-        List<PropertySpec> propertiesSpecsOfCurrentTask = dataExportService.getPropertiesSpecsForFormatter(task.getDataFormatter());
+        List<PropertySpec> propertiesSpecsOfCurrentTask = task.getDataFormatterFactory().getPropertySpecs();
         propertiesSpecsOfCurrentTask.forEach(task::removeProperty);
 
-        task.setDataFormatter(info.dataProcessor.name);
-        propertiesSpecsForDataProcessor.forEach(spec -> {
-            Object value = propertyValueInfoService.findPropertyValue(spec, info.dataProcessor.properties);
-            task.setProperty(spec.getName(), value);
-        });
+        task.setDataFormatterFactoryName(info.dataProcessor.name);
+        propertiesSpecsForDataProcessor
+                .forEach(spec -> {
+                    Object value = propertyValueInfoService.findPropertyValue(spec, info.dataProcessor.properties);
+                    task.setProperty(spec.getName(), value);
+                });
         if (info.dataSelector.selectorType == SelectorType.CUSTOM) {
             List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
-            propertiesSpecsForDataSelector.forEach(spec -> {
-                Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
-                task.setProperty(spec.getName(), value);
-            });
+            propertiesSpecsForDataSelector
+                    .forEach(spec -> {
+                        Object value = propertyValueInfoService.findPropertyValue(spec, info.dataSelector.properties);
+                        task.setProperty(spec.getName(), value);
+                    });
         }
     }
 

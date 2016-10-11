@@ -3,7 +3,6 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.security.Privileges;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
 import javax.annotation.security.RolesAllowed;
@@ -22,13 +21,11 @@ import java.util.List;
 public class FormattersResource {
 
     private final DataExportService dataExportService;
-    private final Thesaurus thesaurus;
     private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    public FormattersResource(DataExportService dataExportService, Thesaurus thesaurus, PropertyValueInfoService propertyValueInfoService) {
+    public FormattersResource(DataExportService dataExportService, PropertyValueInfoService propertyValueInfoService) {
         this.dataExportService = dataExportService;
-        this.thesaurus = thesaurus;
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
@@ -50,7 +47,7 @@ public class FormattersResource {
     private ProcessorInfos toInfos(List<DataFormatterFactory> formatters) {
         ProcessorInfos infos = new ProcessorInfos();
         for (DataFormatterFactory processor : formatters) {
-            infos.add(processor.getName(), thesaurus.getStringBeyondComponent(processor.getName(), processor.getDisplayName()),
+            infos.add(processor.getName(), processor.getDisplayName(),
                     propertyValueInfoService.getPropertyInfos(processor.getPropertySpecs()));
         }
         infos.total = formatters.size();
@@ -59,7 +56,7 @@ public class FormattersResource {
 
     private ProcessorInfos getAvailableFormatters(String selector) {
         List<DataFormatterFactory> dataFormatterFactories = dataExportService.getDataSelectorFactory(selector)
-                .map(selectorFactory -> dataExportService.formatterFactoriesMatching(selectorFactory))
+                .map(dataExportService::formatterFactoriesMatching)
                 .orElseGet(Collections::emptyList);
         return toInfos(dataFormatterFactories);
     }

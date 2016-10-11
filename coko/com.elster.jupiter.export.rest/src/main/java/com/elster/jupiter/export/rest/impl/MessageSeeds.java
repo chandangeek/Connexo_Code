@@ -1,15 +1,10 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,29 +71,4 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REQUIRED_FIELD = "RequiredField";
     }
 
-    public enum Labels {
-        SCHEDULED("dataexporttask.occurrence.scheduled", "Scheduled"),
-        ON_REQUEST("dataexporttask.occurrence.onrequest", "On request"),
-        NONRECURRING("dataexporttask.occurrence.nonrecurring", "Non-recurring");
-
-        private final String key;
-        private final String defaultTranslation;
-
-        Labels(String key, String defaultTranslation) {
-            this.key = key;
-            this.defaultTranslation = defaultTranslation;
-        }
-
-        public Translation toDefaultTransation() {
-            return SimpleTranslation.translation(SimpleNlsKey.key(DataExportApplication.COMPONENT_NAME, Layer.REST, key), Locale.ENGLISH, defaultTranslation);
-        }
-
-        public String translate(Thesaurus thesaurus) {
-            return thesaurus.getString(key, defaultTranslation);
-        }
-
-        public String translate(Thesaurus thesaurus, Locale locale) {
-            return thesaurus.getString(locale, key, defaultTranslation);
-        }
-    }
 }
