@@ -75,6 +75,11 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Service call";
+    }
+
+    @Override
     public PersistenceSupport<ServiceCall, DeviceGroupCertificationDomainExtension> getPersistenceSupport() {
         return new MyPersistenceSupport();
     }

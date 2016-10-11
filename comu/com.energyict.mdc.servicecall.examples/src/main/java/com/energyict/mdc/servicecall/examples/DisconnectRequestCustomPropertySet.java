@@ -75,6 +75,11 @@ public class DisconnectRequestCustomPropertySet implements CustomPropertySet<Ser
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+        return "Service call";
+    }
+
+    @Override
     public PersistenceSupport<ServiceCall, DisconnectRequestDomainExtension> getPersistenceSupport() {
         return new MyPersistenceSupport();
     }
