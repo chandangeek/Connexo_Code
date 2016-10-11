@@ -18,6 +18,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -52,6 +53,8 @@ public class UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyT
     @Mock
     ValidationService validationService;
     @Mock
+    DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    @Mock
     Clock clock;
 
     @Override
@@ -66,6 +69,7 @@ public class UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyT
                 return Collections.unmodifiableSet(hashSet);
             }
         };
+        app.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         app.setMeteringService(meteringService);
         app.setTransactionService(transactionService);
         app.setNlsService(nlsService);

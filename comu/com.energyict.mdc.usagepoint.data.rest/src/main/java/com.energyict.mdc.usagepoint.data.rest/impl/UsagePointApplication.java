@@ -12,6 +12,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -31,6 +32,7 @@ import java.util.Set;
 public class UsagePointApplication extends Application implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "UPR";
 
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile DeviceService deviceService;
     private volatile MeteringService meteringService;
     private volatile TransactionService transactionService;
@@ -41,6 +43,11 @@ public class UsagePointApplication extends Application implements MessageSeedPro
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(UsagePointResource.class);
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     @Reference
@@ -96,6 +103,7 @@ public class UsagePointApplication extends Application implements MessageSeedPro
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
+            bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(deviceService).to(DeviceService.class);
             bind(meteringService).to(MeteringService.class);
             bind(thesaurus).to(Thesaurus.class);
