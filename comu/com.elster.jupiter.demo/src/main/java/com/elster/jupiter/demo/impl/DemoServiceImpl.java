@@ -15,6 +15,7 @@ import com.elster.jupiter.demo.impl.commands.CreateDemoUserCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
 import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
+import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
@@ -110,6 +111,7 @@ import java.time.Clock;
         "osgi.command.function=createDefaultDeviceLifeCycle",
         "osgi.command.function=setUpFirmwareManagement",
         "osgi.command.function=createImporters",
+        "osgi.command.function=createImportDirectories",
         "osgi.command.function=createDemoUser",
         "osgi.command.function=createDataLogger",
         "osgi.command.function=importCalendar",
@@ -861,6 +863,24 @@ public class DemoServiceImpl {
         executeTransaction(() -> {
             CreateImportersCommand command = injector.getInstance(CreateImportersCommand.class);
             command.setAppServerName(appServerName);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createImportDirectories() {
+        System.err.println("Usage: createImportDirectories [<basePath>, if not specified then the base path from the active appserver will be used]");
+        executeTransaction(() -> {
+            CreateImporterDirectoriesCommand command = injector.getInstance(CreateImporterDirectoriesCommand.class);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createImportDirectories(String basePath) {
+        executeTransaction(() -> {
+            CreateImporterDirectoriesCommand command = injector.getInstance(CreateImporterDirectoriesCommand.class);
+            command.setBaseImportPath(basePath);
             command.run();
         });
     }
