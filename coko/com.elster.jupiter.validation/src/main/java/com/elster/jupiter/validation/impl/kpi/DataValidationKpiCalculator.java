@@ -16,7 +16,6 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.IValidationRule;
-import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -38,7 +37,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -49,8 +47,6 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
 
     private final ValidationService validationService;
     private final DataValidationKpiImpl dataValidationKpi;
-    private final Logger logger;
-    private final DataValidationReportService dataValidationReportService;
     private final Clock clock;
     private final DataModel dataModel;
     private Map<ReadingQualityType, IValidationRule> qualitiesToRules;
@@ -59,12 +55,10 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
     private Map<Key, LongCounter> counterMap;
     private Map<Long, DataValidationKpiChild> dataValidationKpiChildMap;
 
-    DataValidationKpiCalculator(ValidationService validationService, DataModel dataModel, DataValidationKpiImpl dataValidationKpi, Logger logger, DataValidationReportService dataValidationReportService, Clock clock) {
+    DataValidationKpiCalculator(ValidationService validationService, DataModel dataModel, DataValidationKpiImpl dataValidationKpi, Clock clock) {
         this.validationService = validationService;
         this.dataModel = dataModel;
         this.dataValidationKpi = dataValidationKpi;
-        this.logger = logger;
-        this.dataValidationReportService = dataValidationReportService;
         this.clock = clock;
     }
 

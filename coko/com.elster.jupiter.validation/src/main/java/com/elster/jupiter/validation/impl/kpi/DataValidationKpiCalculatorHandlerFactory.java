@@ -11,7 +11,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
-import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -28,7 +27,6 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
 
     private volatile TaskService taskService;
     private volatile DataValidationKpiService dataValidationKpiService;
-    private volatile DataValidationReportService dataValidationReportService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
@@ -41,10 +39,11 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     }
 
     @Inject
-    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, UserService userService, User user, Clock clock) {
+    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService,
+                                                     TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
+                                                     UserService userService, User user, Clock clock) {
         this();
         this.setTaskService(taskService);
-        this.setDataValidationReportService(dataValidationReportService);
         this.setDataValidationKpiService(dataValidationKpiService);
         this.setClock(clock);
         this.setUserService(userService);
@@ -58,18 +57,13 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
         return this.taskService.createMessageHandler(
                 new DataManagementKpiCalculatorHandler(
                         dataValidationKpiService,
-                        transactionService, threadPrincipalService, dataValidationReportService, validationService, clock,
+                        transactionService, threadPrincipalService, validationService, clock,
                         getUser()));
     }
 
     @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
-    }
-
-    @Reference
-    public void setDataValidationReportService(DataValidationReportService dataValidationReportService) {
-        this.dataValidationReportService = dataValidationReportService;
     }
 
     @Reference

@@ -6,7 +6,7 @@ import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class DataManagementKpiDoesNotExist  implements DataManagementKpiCalculator{
+class DataManagementKpiDoesNotExist implements DataManagementKpiCalculator {
 
     private final Logger logger;
     private final String payLoad;

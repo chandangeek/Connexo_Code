@@ -148,6 +148,4 @@ public interface ValidationService {
 
     List<DataValidationTask> findByDeviceGroup(EndDeviceGroup endDevice, int skip, int limit);
 
-    List<DataValidationAssociationProvider> getDataValidationAssociationProviders();
-
 }

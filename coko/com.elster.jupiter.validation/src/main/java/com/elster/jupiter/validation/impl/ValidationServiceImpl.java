@@ -39,7 +39,6 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.validation.DataValidationAssociationProvider;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
@@ -56,9 +55,7 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
-import com.elster.jupiter.validation.impl.kpi.DataValidationReportServiceImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
-import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -113,7 +110,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     private volatile QueryService queryService;
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
-    private List<DataValidationAssociationProvider> dataValidationAssociationProviders = new CopyOnWriteArrayList<>();
 
     private volatile KpiService kpiService;
 
@@ -122,7 +118,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     private DestinationSpec destinationSpec;
     private DataValidationKpiService dataValidationKpiService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
-    private DataValidationReportService dataValidationReportService;
 
     public ValidationServiceImpl() {
     }
@@ -154,7 +149,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     @Activate
     public final void activate(BundleContext context) {
         this.dataValidationKpiService = new DataValidationKpiServiceImpl(this);
-        this.dataValidationReportService = new DataValidationReportServiceImpl(this, clock);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -173,19 +167,17 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 bind(DataValidationKpiService.class).toInstance(dataValidationKpiService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
-                bind(DataValidationReportService.class).toInstance(dataValidationReportService);
                 bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
                 bind(MessageService.class).toInstance(messageService);
             }
         });
         this.registerDataValidationKpiService(context);
-        this.registerDataValidationReportService(context);
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", COMPONENTNAME),
                 dataModel,
                 InstallerImpl.class,
                 ImmutableMap.of(
-                    Version.version(10, 2), UpgraderV10_2.class
+                        Version.version(10, 2), UpgraderV10_2.class
                 ));
     }
 
@@ -500,11 +492,11 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 .map(validationPair -> validationPair.getLast().orElseGet(() -> applyRuleSet(validationPair.getFirst(), validationContext.getChannelsContainer())))
                 .collect(Collectors.toList());
         returnList
-            .forEach(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer().getChannels()
-                    .stream()
-                    .filter(channel -> !channelsContainerValidation.getRuleSet().getRules(channel.getReadingTypes()).isEmpty())
-                    .filter(channel -> !channelsContainerValidation.getChannelValidation(channel).isPresent())
-                    .forEach(channelsContainerValidation::addChannelValidation));
+                .forEach(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer().getChannels()
+                        .stream()
+                        .filter(channel -> !channelsContainerValidation.getRuleSet().getRules(channel.getReadingTypes()).isEmpty())
+                        .filter(channel -> !channelsContainerValidation.getChannelValidation(channel).isPresent())
+                        .forEach(channelsContainerValidation::addChannelValidation));
         persistedChannelsContainerValidations.stream()
                 .filter(channelsContainerValidation -> {
                     ValidationRuleSet validationRuleSet = channelsContainerValidation.getRuleSet();
@@ -815,22 +807,4 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         this.serviceRegistrations.add(bundleContext.registerService(DataValidationKpiService.class, this.dataValidationKpiService, null));
     }
 
-    private void registerDataValidationReportService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(DataValidationReportService.class, this.dataValidationReportService, null));
-    }
-
-    @Reference(name = "ZDataValidation", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addDataValidationAssociationProvider(DataValidationAssociationProvider provider) {
-        dataValidationAssociationProviders.add(provider);
-    }
-
-    @SuppressWarnings("unused")
-    public void removeDataValidationAssociationProvider(DataValidationAssociationProvider provider) {
-        dataValidationAssociationProviders.remove(provider);
-    }
-
-    @Override
-    public List<DataValidationAssociationProvider> getDataValidationAssociationProviders() {
-        return Collections.unmodifiableList(dataValidationAssociationProviders);
-    }
 }

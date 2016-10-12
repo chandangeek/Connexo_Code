@@ -5,13 +5,11 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskStatus;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
-import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -22,7 +20,6 @@ import java.util.logging.Logger;
 class DataManagementKpiCalculatorHandler implements TaskExecutor {
 
     private final DataValidationKpiService dataValidationKpiService;
-    private final DataValidationReportService dataValidationReportService;
     private final TransactionService transactionService;
     private final ThreadPrincipalService threadPrincipalService;
     private final ValidationService validationService;
@@ -30,12 +27,11 @@ class DataManagementKpiCalculatorHandler implements TaskExecutor {
     private final User user;
 
 
-
-    DataManagementKpiCalculatorHandler(DataValidationKpiService dataValidationKpiService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, DataValidationReportService dataValidationReportService, ValidationService validationService, Clock clock, User user) {
+    DataManagementKpiCalculatorHandler(DataValidationKpiService dataValidationKpiService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
+                                       ValidationService validationService, Clock clock, User user) {
         this.dataValidationKpiService = dataValidationKpiService;
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
-        this.dataValidationReportService = dataValidationReportService;
         this.validationService = validationService;
         this.clock = clock;
         this.user = user;
@@ -43,15 +39,14 @@ class DataManagementKpiCalculatorHandler implements TaskExecutor {
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
-        if (taskOccurrence.getStatus().equals(TaskStatus.BUSY) && taskOccurrence.getRecurrentTask().getNextExecution() == null) {
-            return;
-        }
+        // do nothing during execute/dequeing transaction - we do our own transaction management - ahum
     }
 
 
     @Override
     public void postExecute(TaskOccurrence taskOccurrence) {
-        if (taskOccurrence.getStatus().equals(TaskStatus.BUSY) && taskOccurrence.getRecurrentTask().getNextExecution() == null) {
+        if (TaskStatus.BUSY.equals(taskOccurrence.getStatus()) && taskOccurrence.getRecurrentTask().getNextExecution() == null) {
+            // task has been cancelled
             return;
         }
         threadPrincipalService.runAs(user, () -> runCalculator(taskOccurrence), Locale.getDefault());
@@ -65,35 +60,33 @@ class DataManagementKpiCalculatorHandler implements TaskExecutor {
             } catch (Exception e) {
                 transactionService.run(() -> loggingContext.severe(taskLogger, e));
             } finally {
-               // transactionService.run(() -> occurrence.getRecurrentTask().updateLastRun(occurrence.getTriggerTime()));
+                // should we do the thing below ?? Tom ?
+                // transactionService.run(() -> occurrence.getRecurrentTask().updateLastRun(occurrence.getTriggerTime()));
             }
         }
     }
 
     private void tryExecute(TaskOccurrence taskOccurrence, Logger taskLogger) {
-        DataManagementKpiCalculator kpiCalculator = KpiType.calculatorForRecurrentPayload(taskOccurrence, new ServiceProvider(), validationService);
+        DataManagementKpiCalculator kpiCalculator = KpiType.calculatorForRecurrentPayload(taskOccurrence, clock, validationService, dataValidationKpiService);
         try {
-            try (TransactionContext transactionContext = transactionService.getContext()) {
-                kpiCalculator.calculate();
-                transactionContext.commit();
-            }
+            transactionService.run(kpiCalculator::calculate);
         } catch (Exception ex) {
             transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to calculate Data Validation KPI"
                     + " . Error: " + ex.getLocalizedMessage(), ex));
         }
-        ((DataValidationKpiCalculator) kpiCalculator).getDataValidationKpi().getDeviceGroup().getMembers(Instant.now(clock)).forEach(endDevice -> doCalculateTransactional(kpiCalculator, endDevice, taskLogger));
+        ((DataValidationKpiCalculator) kpiCalculator).getDataValidationKpi()
+                .getDeviceGroup()
+                .getMembers(Instant.now(clock))
+                .forEach(endDevice -> doCalculateTransactional(kpiCalculator, endDevice, taskLogger));
 
     }
 
     private void doCalculateTransactional(DataManagementKpiCalculator dataManagementKpiCalculator, EndDevice endDevice, Logger taskLogger) {
         try {
-            try (TransactionContext transactionContext = transactionService.getContext()) {
-                dataManagementKpiCalculator.store(endDevice);
-                transactionContext.commit();
-            }
+            transactionService.run(() -> dataManagementKpiCalculator.store(endDevice));
         } catch (Exception ex) {
-            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to store Validation KPI data for device having ID of " + endDevice.getMRID()
-                    + " . Error: " + ex.getLocalizedMessage(), ex));
+            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to store Validation KPI data for device with MRID " + endDevice.getMRID()
+                    + ". Error: " + ex.getLocalizedMessage(), ex));
         }
     }
 
@@ -103,23 +96,5 @@ class DataManagementKpiCalculatorHandler implements TaskExecutor {
         return taskLogger;
     }
 
-
-    private class ServiceProvider implements KpiType.ServiceProvider {
-
-        @Override
-        public DataValidationKpiService dataValidationKpiService() {
-            return dataValidationKpiService;
-        }
-
-        @Override
-        public DataValidationReportService dataValidationReportService() {
-            return dataValidationReportService;
-        }
-
-        @Override
-        public Clock getClock() {
-            return clock;
-        }
-    }
 
 }
