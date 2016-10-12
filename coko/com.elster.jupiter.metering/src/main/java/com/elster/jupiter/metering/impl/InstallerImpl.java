@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.EndDeviceControlTypeCodeBuilder;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
@@ -19,7 +18,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.impl.upgraders.GasDayOptionsCreator;
-import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
@@ -47,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,8 +54,6 @@ public class InstallerImpl implements FullInstaller {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final int SLOT_COUNT = 8;
     private static final String IMPORT_FILE_NAME = "enddeviceeventtypes.csv";
-    //TODO update the enddevicecontroltypes csv file
-    private static final String IMPORT_CONTROL_TYPES = "enddevicecontroltypes.csv";
     private static final String NOT_APPLICABLE = "n/a";
 
     private final ServerMeteringService meteringService;
@@ -139,11 +134,7 @@ public class InstallerImpl implements FullInstaller {
                 this::createEventTypes,
                 logger
         );
-        doTry(
-                "Create End Device control types",
-                () -> createEndDeviceControlTypes(logger),
-                logger
-        );
+
         doTry(
                 "Create Queues for MTR",
                 this::createQueues,
@@ -343,41 +334,7 @@ public class InstallerImpl implements FullInstaller {
         destinationSpec.subscribe(queueSubscriber, MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-    private void createEndDeviceControlTypes(Logger logger) {
-        try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(getClass().getPackage().getName().replace('.', '/') + '/' + IMPORT_CONTROL_TYPES)) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
-            for (String line : new BufferedReaderIterable(reader)) {
-                String[] fields = line.split(",");
-
-                for (EndDeviceType deviceType : endDeviceTypes(fields[0])) {
-                    for (EndDeviceDomain domain : domains(fields[1])) {
-                        for (EndDeviceSubDomain subDomain : subDomains(fields[2])) {
-                            for (EndDeviceEventOrAction eventOrAction : eventOrActions(fields[3])) {
-                                String code = EndDeviceControlTypeCodeBuilder
-                                        .type(deviceType)
-                                        .domain(domain)
-                                        .subDomain(subDomain)
-                                        .eventOrAction(eventOrAction)
-                                        .toCode();
-                                try {
-                                    if (meteringService.getEndDeviceControlType(code).isPresent()) {
-                                        logger.finer("Skipping code " + code + ": already exists");
-                                    } else {
-                                        logger.finer("adding code " + code);
-                                        meteringService.createEndDeviceControlType(code);
-                                    }
-                                } catch (Exception e) {
-                                    logger.log(Level.SEVERE, "Error creating EndDeviceType \'" + code + "\' : " + e.getMessage(), e);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 }
+
 
