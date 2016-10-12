@@ -7,11 +7,10 @@ import com.elster.jupiter.demo.impl.builders.ValidationRuleDetectThresholdViolat
 import com.elster.jupiter.demo.impl.builders.ValidationRuleRegisterIncreasePostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.templates.DataValidationTaskTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.ValidationRuleSetTpl;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -28,7 +27,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class CreateValidationSetupCommand {
     public static final String MOCKED_VALIDATION_DEVICE_MRID_PREFIX = Constants.Device.MOCKED_VALIDATION_DEVICE;
 
-    private final ValidationService validationService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
     private final Clock clock;
@@ -39,12 +37,10 @@ public class CreateValidationSetupCommand {
 
     @Inject
     public CreateValidationSetupCommand(
-            ValidationService validationService,
             DeviceConfigurationService deviceConfigurationService,
             DeviceService deviceService,
             Clock clock,
             Provider<CreateValidationDeviceCommand> createValidationDeviceCommandProvider) {
-        this.validationService = validationService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.clock = clock;
         this.deviceService = deviceService;
@@ -82,12 +78,17 @@ public class CreateValidationSetupCommand {
     }
 
     private void addValidationToDeviceConfigurations() {
-        List<DeviceConfiguration> configurations = deviceConfigurationService.getLinkableDeviceConfigurations(this.validationRuleSet);
-        for (DeviceConfiguration configuration : configurations) {
-            System.out.println("==> Validation rule set added to: " + configuration.getName() + " (id = " + configuration.getId() + ")");
-            configuration.addValidationRuleSet(this.validationRuleSet);
-            configuration.save();
-        }
+        this.deviceConfigurationService.getLinkableDeviceConfigurations(this.validationRuleSet)
+                .stream()
+                .forEach(configuration -> {
+                    if (DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName().equals(configuration.getName())) {
+                        configuration.addValidationRuleSet(this.strictValidationRuleSet);
+                        configuration.save();
+                    } else {
+                        configuration.addValidationRuleSet(this.validationRuleSet);
+                        configuration.save();
+                    }
+                });
     }
 
     private void addValidationToDevices() {
