@@ -89,9 +89,7 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
     }
 
     private List<EndDeviceMembershipImpl> getMemberships() {
-        if (entries == null) {
-            getEntries();
-        }
+        doGetEntries();
         return memberships;
     }
 
@@ -170,15 +168,15 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
 
     @Override
     public List<EndDevice> getMembers(final Instant instant) {
-        return this.getMemberStream(instant).collect(Collectors.toList());
+        return this.getMemberStream(instant)
+                .sorted(Comparator.comparing(EndDevice::getName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
     }
 
     private Stream<EndDevice> getMemberStream(Instant instant) {
         return getMemberships().stream()
-                .sorted(Comparator.comparing(m -> m.getEndDevice().getName()))
                 .filter(Active.at(instant))
-                .map(EndDeviceMembership::getEndDevice)
-                .sorted(Comparator.comparing(EndDevice::getName, String.CASE_INSENSITIVE_ORDER));
+                .map(EndDeviceMembership::getEndDevice);
     }
 
     @Override
