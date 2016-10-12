@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -127,7 +128,7 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-            return Collections.singletonList(table.column(Fields.DEVICE.name()).number().map(Fields.DEVICE.javaName()).notNull().add());
+            return Collections.singletonList(table.column(Fields.DEVICE.name()).number().map(Fields.DEVICE.javaName()).conversion(ColumnConversion.NUMBER2LONG).notNull().add());
         }
 
         @Override
