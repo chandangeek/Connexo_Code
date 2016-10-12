@@ -39,7 +39,7 @@ Ext.define('Wss.controller.Main', {
             Uni.store.MenuItems.add(menuItem);
 
             var calendarItem = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.webservices', 'WSS', 'Webservices'),
+                title: Uni.I18n.translate('general.webServices', 'WSS', 'Web services'),
                 portal: 'administration',
                 items: [
                     {
