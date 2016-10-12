@@ -1,6 +1,7 @@
 package com.elster.jupiter.kpi;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.TimeZone;
 
@@ -32,6 +33,12 @@ public interface KpiBuilder {
      * @return the builder to chain on
      */
     KpiBuilder timeZone(TimeZone zone);
+
+    /**
+     * @param zone the TimeZone the Kpi will work against. If not specified, a Kpi will work against UTC by defautlt.
+     * @return the builder to chain on
+     */
+    KpiBuilder timeZone(ZoneId zone);
 
     /**
      * @param interval the IntervalLength this Kpi will need to register results

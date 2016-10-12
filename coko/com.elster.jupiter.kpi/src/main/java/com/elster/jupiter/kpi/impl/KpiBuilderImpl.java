@@ -5,6 +5,7 @@ import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.orm.DataModel;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,12 @@ class KpiBuilderImpl implements KpiBuilder {
     @Override
     public KpiBuilder timeZone(TimeZone zone) {
         this.timeZone = zone;
+        return this;
+    }
+
+    @Override
+    public KpiBuilder timeZone(ZoneId zone) {
+        this.timeZone = TimeZone.getTimeZone(zone);
         return this;
     }
 
