@@ -134,7 +134,8 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             }
             for (DeviceConfiguration configuration : type.getConfigurations()) {
                 if (configuration.getName().equals(DeviceConfigurationTpl.PROSUMERS.getName()) ||
-                        configuration.getName().equals(DeviceConfigurationTpl.CONSUMERS.getName())) {
+                        configuration.getName().equals(DeviceConfigurationTpl.CONSUMERS.getName()) ||
+                        configuration.getName().equals(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName())) {
                     listValue.add(new HasIdAndName() {
                         @Override
                         public Object getId() {

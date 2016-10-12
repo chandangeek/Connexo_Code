@@ -38,9 +38,7 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
     private void setChannelSAPInfoCPS(Device device) {
         for (Channel channel : device.getChannels()) {
             Optional<CustomPropertySet> customPropertySet = device.getDeviceType()
-                    .getLoadProfileTypeCustomPropertySet(channel.getLoadProfile()
-                            .getLoadProfileSpec()
-                            .getLoadProfileType())
+                    .getLoadProfileTypeCustomPropertySet(channel.getLoadProfile().getLoadProfileSpec().getLoadProfileType())
                     .map(RegisteredCustomPropertySet::getCustomPropertySet)
                     .filter(cps -> cps.getId().equals(AttachChannelSAPInfoCPSPostBuilder.CPS_ID));
             if (customPropertySet.isPresent()) {
@@ -49,8 +47,8 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
                 values.setProperty("profileNumber", BigDecimal.ZERO);
                 values.setProperty("inUse", false);
                 values.setProperty("billingFactor", BigDecimal.ZERO);
-                customPropertySetService.setValuesVersionFor(customPropertySet.get(), channel.getChannelSpec(), values, values
-                        .getEffectiveRange(), device.getId());
+                this.customPropertySetService.setValuesVersionFor(customPropertySet.get(), channel.getChannelSpec(), values,
+                        values.getEffectiveRange(), device.getId());
             }
         }
     }
@@ -60,22 +58,19 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                 .filter(cps -> cps.getId().equals(AttachDeviceSAPInfoCPSPostBuilder.CPS_ID))
                 .findFirst();
-
         if (customPropertySet.isPresent()) {
-            CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(clock.instant());
+            CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(this.clock.instant());
             values.setProperty("usageType", "usageType");
             values.setProperty("inUse", false);
-            customPropertySetService.setValuesVersionFor(customPropertySet.get(), device, values, values.getEffectiveRange());
+            this.customPropertySetService.setValuesVersionFor(customPropertySet.get(), device, values, values.getEffectiveRange());
         }
     }
-
 
     private void setEMeterInfoCPS(Device device) {
         Optional<CustomPropertySet> customPropertySet = device.getDeviceType().getCustomPropertySets().stream()
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                 .filter(cps -> cps.getId().equals(AttachEMeterInfoCPSPostBuilder.CPS_ID))
                 .findFirst();
-
         if (customPropertySet.isPresent()) {
             CustomPropertySetValues values = CustomPropertySetValues.empty();
             values.setProperty("manufacturer", "manufacturer");
@@ -87,8 +82,7 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
             values.setProperty("maxCurrentRating", Quantity.create(BigDecimal.ZERO, 100, "A"));
             values.setProperty("maxVoltage", Quantity.create(BigDecimal.ZERO, 400, "V"));
 
-            customPropertySetService.setValuesFor(customPropertySet.get(), device, values);
+            this.customPropertySetService.setValuesFor(customPropertySet.get(), device, values);
         }
     }
-
 }
