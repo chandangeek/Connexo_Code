@@ -1354,10 +1354,10 @@ Ext.define('Dxp.controller.Tasks', {
                     + '<div style="text-indent: 40px">{5}</div>',
                     Uni.I18n.translate('addDataExportTask.formatter.tooltip.col1', 'DES', 'Interval timestamp (YYYY-MM-DDThh:mm:ss.sTZD)'),
                     Uni.I18n.translate('addDataExportTask.formatter.tooltip.col2', 'DES', 'Device MRID (text)'),
-                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col2', 'DES', 'Device name (text)'),
-                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col3', 'DES', 'Reading type (text)'),
-                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col4', 'DES', 'Value (number)'),
-                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col5', 'DES', 'Validation result (text)')));
+                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col3', 'DES', 'Device name (text)'),
+                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col4', 'DES', 'Reading type (text)'),
+                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col5', 'DES', 'Value (number)'),
+                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col6', 'DES', 'Validation result (text)')));
         } else if (formatterType === 'standardCsvEventDataProcessorFactory') {
             tooltip.setVisible(true);
             tooltip.setTooltip(
@@ -1372,7 +1372,7 @@ Ext.define('Dxp.controller.Tasks', {
                     Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col1', 'DES', 'Event date (YYYY-MM-DDThh:mm:ss.sTZD)'),
                     Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col2', 'DES', 'Event type (text)'),
                     Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col3', 'DES', 'Device MRID (text)'),
-                    Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col3', 'DES', 'Device name (text)')));
+                    Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col4', 'DES', 'Device name (text)')));
         } else {
             tooltip.setTooltip('');
             tooltip.setVisible(false);
