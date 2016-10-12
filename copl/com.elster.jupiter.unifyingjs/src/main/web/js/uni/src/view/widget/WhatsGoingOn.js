@@ -107,6 +107,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 }
                 var tabContents = [];
                 var lines = [];
+                var emptyText;
                 Ext.suspendLayouts();
                 me.store.each(function (item, index, total) {
                     if (index !== 0 && (index + 1) % 10 === 0) {
@@ -121,6 +122,21 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                     tabContents.push(lines);
                 }
                 if (tabContents.length===0){
+                    switch (type) {
+                        case 'issue':
+                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowIssues', 'UNI', 'No active issues to show');
+                            break;
+                        case 'servicecall':
+                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowServiceCalls', 'UNI', 'No active service calls to show');
+                            break;
+                        case 'process':
+                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowProcesses', 'UNI', 'No active processes to show');
+                            break;
+                        default:
+                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShow', 'UNI', 'No active issues, processes or service calls to show');
+                            break;
+
+                    }
                     me.down('tabpanel').add({
                         layout: 'hbox',
                         margin: '38 0 0 0',
@@ -135,7 +151,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                             {
                                 html: '<span style="color:#686868;font-size:20px;">' +
                                 '<i class="icon-info" style="color:#686868;margin-right:15px;"></i>' +
-                                    Uni.I18n.translate('whatsGoingOn.nothingToShow', 'UNI', 'No active issues, processes or service calls to show') +
+                                    emptyText +
                                     '</span>'
                             },
                             {
