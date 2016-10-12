@@ -8,7 +8,9 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.util.units.Unit;
 import com.energyict.mdc.device.data.Device;
 
@@ -54,6 +56,14 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
         this.usagePointBuilder.get().forCustomProperties().getAllPropertySets().stream()
                 .filter(cps -> "com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrDE".equals(cps.getCustomPropertySet().getId()))
                 .forEach(cps -> cps.setValues(getUsagePointTechnicalInstallationDomainExtensionValues()));
+        switch (device.getDeviceConfiguration().getName()) {
+            case "Prosumers":
+                linkMetrologyConfiguration(this.usagePointBuilder.get(), "Prosumer");
+                break;
+            case "Consumers":
+                linkMetrologyConfiguration(this.usagePointBuilder.get(), "Consumer");
+                break;
+        }
         setUsagePoint(device, this.usagePointBuilder.get());
     }
 
@@ -86,4 +96,13 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
         });
     }
 
+    private void linkMetrologyConfiguration(UsagePoint usagePoint, String metrologyConfigurationName) {
+        Optional<MetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findAllMetrologyConfigurations()
+                .stream()
+                .filter(mc -> mc.getName().equals(metrologyConfigurationName) && mc.isActive() && mc instanceof UsagePointMetrologyConfiguration)
+                .findFirst();
+        if (metrologyConfiguration.isPresent()) {
+            usagePoint.apply((UsagePointMetrologyConfiguration) metrologyConfiguration.get());
+        }
+    }
 }

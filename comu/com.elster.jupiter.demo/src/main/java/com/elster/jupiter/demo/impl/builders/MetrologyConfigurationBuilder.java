@@ -75,6 +75,7 @@ public class MetrologyConfigurationBuilder extends NamedBuilder<UsagePointMetrol
                 .create();
 
         setReadingTypes(metrologyConfiguration, meteringService.findReadingTypes(this.readingTypes));
+        metrologyConfiguration.activate();
 
         return metrologyConfiguration;
     }
