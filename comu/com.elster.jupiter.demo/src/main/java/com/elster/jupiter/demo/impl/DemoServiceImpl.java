@@ -159,6 +159,7 @@ public class DemoServiceImpl {
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile CalendarService calendarService;
+    private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -207,7 +208,8 @@ public class DemoServiceImpl {
             MetrologyConfigurationService metrologyConfigurationService,
             CustomPropertySetService customPropertySetService,
             DeviceMessageSpecificationService deviceMessageSpecificationService,
-            CalendarService calendarService) {
+            CalendarService calendarService,
+            com.elster.jupiter.tasks.TaskService platformTaskService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -249,6 +251,7 @@ public class DemoServiceImpl {
         setCustomPropertySetService(customPropertySetService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setCalendarService(calendarService);
+        setPlatformTaskService(platformTaskService);
         activate();
         reThrowEx = true;
     }
@@ -302,6 +305,7 @@ public class DemoServiceImpl {
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(CalendarService.class).toInstance(calendarService);
+                bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
             }
         });
         Builders.initWith(this.injector);
@@ -547,6 +551,12 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void setCalendarService(CalendarService calendarService) {
         this.calendarService = calendarService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setPlatformTaskService(com.elster.jupiter.tasks.TaskService platformTaskService) {
+        this.platformTaskService = platformTaskService;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {
