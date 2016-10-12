@@ -60,9 +60,9 @@ public enum TableSpecs {
             table.column("STATUSURI").varChar(512).map("statusUri").upTo(version(10, 2)).add();
             table.column("DEFAULTSTATUSURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultStatusUri").upTo(version(10, 2)).add();
             table.column("SERVERNAME").varChar().map("serverName").since(version(10, 2)).add();
-            table.column("STATUSPORT").number().conversion(ColumnConversion.NUMBER2INT).map("statusPort").since(version(10, 2)).add();
-            table.column("QUERYAPIPORT").number().conversion(ColumnConversion.NUMBER2INT).map("queryApiPort").since(version(10, 2)).add();
-            table.column("EVENTREGISTRATIONPORT").number().conversion(ColumnConversion.NUMBER2INT).map("eventRegistrationPort").since(version(10, 2)).add();
+            table.column("STATUSPORT").number().conversion(ColumnConversion.NUMBER2INT).map("statusPort").since(version(10, 2)).installValue("8080").add();
+            table.column("QUERYAPIPORT").number().conversion(ColumnConversion.NUMBER2INT).map("queryApiPort").since(version(10, 2)).installValue("0").add();
+            table.column("EVENTREGISTRATIONPORT").number().conversion(ColumnConversion.NUMBER2INT).map("eventRegistrationPort").since(version(10, 2)).installValue("8888").add();
 
             Column obsoleteColumn = table.column("OBSOLETE_DATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("obsoleteDate").add();
             Column onlineComServer = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
