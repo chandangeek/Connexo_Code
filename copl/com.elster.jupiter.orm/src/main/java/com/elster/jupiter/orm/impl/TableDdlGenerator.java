@@ -328,10 +328,10 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
                 builder.append(")");
             }
             if (addNullable) {
+                if (column.getInstallValue() != null) {
+                    builder.append(" DEFAULT ").append(column.getInstallValue());
+                }
                 if (column.isNotNull()) {
-                    if (column.getInstallValue() != null) {
-                        builder.append(" DEFAULT ").append(column.getInstallValue());
-                    }
                     builder.append(" NOT");
                 }
                 builder.append(" NULL");
