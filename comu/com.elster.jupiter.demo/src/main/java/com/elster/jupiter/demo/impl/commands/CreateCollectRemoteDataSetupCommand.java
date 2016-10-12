@@ -11,6 +11,7 @@ import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnection
 import com.elster.jupiter.demo.impl.builders.configuration.WebRTUNTASimultationToolPropertyPostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.ConnectionsDevicePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePostBuilder;
+import com.elster.jupiter.demo.impl.builders.device.SetCustomAttributeValuesToDevicePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetUsagePointToDevicePostBuilder;
 import com.elster.jupiter.demo.impl.builders.type.AttachDeviceTypeCPSPostBuilder;
@@ -62,6 +63,7 @@ public class CreateCollectRemoteDataSetupCommand {
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider;
     private final Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider;
     private final Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider;
+    private final Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider;
 
     private String comServerName;
     private String host;
@@ -98,7 +100,8 @@ public class CreateCollectRemoteDataSetupCommand {
             Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
             Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider,
             Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider,
-            Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider) {
+            Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider,
+            Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider) {
         this.licenseService = licenseService;
         this.meteringService = meteringService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
@@ -107,6 +110,7 @@ public class CreateCollectRemoteDataSetupCommand {
         this.setDeviceInActiveLifeCycleStatePostBuilderProvider = setDeviceInActiveLifeCycleStatePostBuilderProvider;
         this.setUsagePointToDevicePostBuilderProvider = setUsagePointToDevicePostBuilderProvider;
         this.attachDeviceTypeCPSPostBuilderProvider = attachDeviceTypeCPSPostBuilderProvider;
+        this.setCustomAttributeValuesToDevicePostBuilderProvider = setCustomAttributeValuesToDevicePostBuilderProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -294,6 +298,7 @@ public class CreateCollectRemoteDataSetupCommand {
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .withPostBuilder(this.setDeviceInActiveLifeCycleStatePostBuilderProvider.get())
                 .withPostBuilder(this.setUsagePointToDevicePostBuilderProvider.get())
+                .withPostBuilder(this.setCustomAttributeValuesToDevicePostBuilderProvider.get())
                 .get();
     }
 
