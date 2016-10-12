@@ -16,21 +16,12 @@ my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 my $SCRIPT_DIR=dirname(abs_path($0));
 
 sub read_config(){
-    open(my $FH,"< $SCRIPT_DIR/upgrade.cmd") or die "Could not open $SCRIPT_DIR/upgrade.cmd: $!";
-    while (my $row = <$FH>) {
-        $row=~s/set (.*)/$1/;
-        chomp($row);
-        if ( "$row" ne "") {
-            my @val=split('=',$row);
-            if ( "$val[0]" eq "JAVA_HOME" )                {$JAVA_HOME=$val[1];}
-            if ( "$val[0]" eq "FLOW_JDBC_URL" )            {$FLOW_JDBC_URL=$val[1];}
-            if ( "$val[0]" eq "FLOW_DB_USER" )             {$FLOW_DB_USER=$val[1];}
-            if ( "$val[0]" eq "FLOW_DB_PASSWORD" )         {$FLOW_DB_PASSWORD=$val[1];}
-            if ( "$val[0]" eq "UPGRADE_FROM" )             {$UPGRADE_FROM=$val[1];}
-			if ( "$val[0]" eq "UPGRADE_TO" )               {$UPGRADE_TO=$val[1];}
-        }
-    }
-    close($FH);
+    $JAVA_HOME = $ARGV[0];
+    $UPGRADE_FROM = $ARGV[1];
+    $UPGRADE_TO = $ARGV[2];
+    $FLOW_JDBC_URL = $ARGV[3];
+    $FLOW_DB_USER = $ARGV[4];
+    $FLOW_DB_PASSWORD = $ARGV[5];
 }
 
 sub upgrade_facts {
@@ -58,6 +49,12 @@ sub upgrade_flow {
 }
 
 # Main
+if ($#ARGV + 1 != 6) {
+    print "Invalid syntax when calling upgrade.pl\n";
+    print "Usage: upgrade.pl java_home old_version new_version flow_jdbc flow_user flow_password\n";
+    exit 1;
+}
+
 print "Partners upgrade started\n";
 read_config();
 if($UPGRADE_FACTS){

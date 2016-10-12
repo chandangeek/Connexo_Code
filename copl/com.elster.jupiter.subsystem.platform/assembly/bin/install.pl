@@ -1285,21 +1285,13 @@ sub perform_upgrade {
             dircopy("$UPGRADE_PATH/temp/partners","$CONNEXO_DIR/partners");
 
             print "Starting upgrade of partners\n";
-            open(my $FH,"> $UPGRADE_PATH/temp/partners/upgrade.cmd") or die "Could not open $UPGRADE_PATH/temp/partners/upgrade.cmd: $!";
-            print $FH "set JAVA_HOME=$JAVA_HOME\n";
-            print $FH "set FLOW_JDBC_URL=$FLOW_JDBC_URL\n";
-            print $FH "set FLOW_DB_USER=$FLOW_DB_USER\n";
-            print $FH "set FLOW_DB_PASSWORD=$FLOW_DB_PASSWORD\n";
-            print $FH "set UPGRADE_FROM=$UPGRADE_OLD_SERVICE_VERSION\n";
-            print $FH "set UPGRADE_TO=$SERVICE_VERSION\n";
-            close $FH;
-
+            my $upgrade_params = "$JAVA_HOME $UPGRADE_OLD_SERVICE_VERSION $SERVICE_VERSION $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD";
             my $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.pl";
             if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
                 $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.exe";
             }
             if (-e "$upgrade_exe") {
-                system($upgrade_exe) == 0 or die "Could not execute partners upgrade script!";
+                system("$upgrade_exe $upgrade_params") == 0 or die "Could not execute partners upgrade script!";
             } else {
                 print "No upgrade of facts/flow found.\n";
             }
