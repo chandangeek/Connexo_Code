@@ -57,6 +57,13 @@ Ext.define('Mdc.model.DeviceRegisterForPreview', {
             }
         },
         {
+            name: 'validationInfo_channelValidationStatus',
+            persist: false,
+            mapping: function (data) {
+                return (data.detailedValidationInfo && data.detailedValidationInfo.channelValidationStatus) ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
+            }
+        },
+        {
             name: 'validationInfo_dataValidated',
             persist: false,
             mapping: function (data) {
