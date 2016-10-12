@@ -181,7 +181,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
                                 }
                             } else if (Mdc.privileges.UsagePoint.canView()) {
-                                url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.name});
+                                url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.displayValue});
                                 return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
                             }
                             return Ext.String.htmlEncode(value.displayValue);
