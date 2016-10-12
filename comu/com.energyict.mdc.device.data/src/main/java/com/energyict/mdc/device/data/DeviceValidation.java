@@ -49,6 +49,10 @@ public interface DeviceValidation {
 
     boolean isValidationActive(Channel channel, Instant when);
 
+    boolean isChannelStatusActive(Channel channel);
+
+    boolean isChannelStatusActive(Register<?, ?> register);
+
     boolean isValidationActive(Register<?, ?> register, Instant when);
 
     boolean allDataValidated(Channel channel, Instant when);

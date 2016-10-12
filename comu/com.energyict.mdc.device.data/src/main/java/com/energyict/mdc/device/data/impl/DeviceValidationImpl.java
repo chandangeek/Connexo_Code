@@ -139,6 +139,16 @@ class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
+    public boolean isChannelStatusActive(Channel channel) {
+        return hasActiveRules(channel);
+    }
+
+    @Override
+    public boolean isChannelStatusActive(Register<?, ?> register) {
+        return hasActiveRules(register);
+    }
+
+    @Override
     public boolean isValidationActive(Register<?, ?> register, Instant when) {
         if (!isValidationActive()) {
             return false;
