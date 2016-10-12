@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum CustomPropertySetsTranslationKeys implements TranslationKey {
 
+    DOMAIN_NAME("Service call"),
     RELEASE_DATE("Release date"),
     DEVICE_MSG("ID of device commands"),
     NR_OF_UNCONFIRMED_DEVICE_COMMANDS("Number of unconfirmed device commands"),

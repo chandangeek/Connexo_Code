@@ -24,6 +24,8 @@ import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
 import org.osgi.service.event.EventConstants;
 
 import java.util.HashMap;
@@ -85,9 +87,9 @@ public class DeviceConfigChangeHandler implements MessageHandler {
             private Stream<Device> getDeviceStream(ConfigChangeContext configChangeContext, ItemizeConfigChangeQueueMessage queueMessage) {
                 if (queueMessage.deviceMRIDs.isEmpty() && queueMessage.search != null) {
 
-                    /*************************************************************************************************/
-                    /** We currently only support this if the user selected the DeviceType and a single DeviceConfig */
-                    /*************************************************************************************************/
+                    /* ***********************************************************************************************
+                     * We currently only support this if the user selected the DeviceType and a single DeviceConfig  *
+                     * ***********************************************************************************************/
                     validateUniqueDeviceConfiguration(queueMessage.search, configChangeContext.thesaurus);
 
                     SearchDomain searchDomain = configChangeContext.searchService.findDomain(Device.class.getName())
@@ -127,18 +129,16 @@ public class DeviceConfigChangeHandler implements MessageHandler {
                         consumerForAllowedDevices.accept(device);
                     } else {
                         LOGGER.warning(configChangeContext.thesaurus.getFormat(MessageSeeds.CHANGE_CONFIG_WRONG_DEVICE_STATE)
-                                .format(device.getmRID(), getStateName(configChangeContext.thesaurus, device.getState())));
+                                .format(device.getmRID(), getStateName(configChangeContext.deviceLifeCycleConfigurationService, device.getState())));
                     }
                 };
             }
 
-            public String getStateName(Thesaurus thesaurus, State state) {
-                Optional<DefaultState> defaultState = DefaultState.from(state);
-                if (defaultState.isPresent()) {
-                    return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
-                } else {
-                    return state.getName();
-                }
+            String getStateName(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, State state) {
+                return DefaultState
+                        .from(state)
+                        .map(deviceLifeCycleConfigurationService::getDisplayName)
+                        .orElseGet(state::getName);
             }
         },
         CONFIGCHANGEEXECUTOR(ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SINGLE_START_ACTION) {
@@ -214,8 +214,9 @@ public class DeviceConfigChangeHandler implements MessageHandler {
         final ServerDeviceService deviceService;
         final DeviceDataModelService deviceDataModelService;
         final DeviceConfigurationService deviceConfigurationService;
+        final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
-        public ConfigChangeContext(MessageService messageService, JsonService jsonService, SearchService searchService, Thesaurus thesaurus, ServerDeviceService deviceService, DeviceDataModelService deviceDataModelService, DeviceConfigurationService deviceConfigurationService) {
+        public ConfigChangeContext(MessageService messageService, JsonService jsonService, SearchService searchService, Thesaurus thesaurus, ServerDeviceService deviceService, DeviceDataModelService deviceDataModelService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
             this.messageService = messageService;
             this.jsonService = jsonService;
             this.searchService = searchService;
@@ -223,6 +224,7 @@ public class DeviceConfigChangeHandler implements MessageHandler {
             this.deviceService = deviceService;
             this.deviceDataModelService = deviceDataModelService;
             this.deviceConfigurationService = deviceConfigurationService;
+            this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         }
     }
 }
