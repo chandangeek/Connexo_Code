@@ -18,10 +18,9 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
     defaultValue: undefined,
 
     initComponent: function () {
-        var me = this, array = [];
+        var me = this;
 
-        array[0] = me.value;
-        me.defaultValue = array.slice(0)[0]; // trick to become a deep copy of me.value, instead of a reference.
+        me.defaultValue = Ext.clone(me.value);
         me.items = [
             {
                 xtype: 'button',
@@ -101,6 +100,7 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
         me.fireFilterUpdateEvent();
         me.getChooseIntervalButton().hideMenu();
         me.updateTitle();
+        me.updateClearButton();
     },
 
     setFilterValue: function (date) {
@@ -114,6 +114,7 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
 
     applyParamValue: function () {
         this.getDateTime().applyParamValue.apply(this.getDateTime(), arguments);
+        this.updateTitle();
         this.updateClearButton();
     },
 
