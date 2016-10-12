@@ -6,17 +6,21 @@ import com.elster.jupiter.demo.impl.builders.ValidationRuleDetectMissingValuesPo
 import com.elster.jupiter.demo.impl.builders.ValidationRuleDetectThresholdViolationPostBuilder;
 import com.elster.jupiter.demo.impl.builders.ValidationRuleRegisterIncreasePostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
+import com.elster.jupiter.demo.impl.templates.DataValidationTaskTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.ValidationRuleSetTpl;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -26,7 +30,8 @@ public class CreateValidationSetupCommand {
 
     private final ValidationService validationService;
     private final DeviceConfigurationService deviceConfigurationService;
-    private final MeteringService meteringService;
+    private final DeviceService deviceService;
+    private final Clock clock;
     private final Provider<CreateValidationDeviceCommand> createValidationDeviceCommandProvider;
 
     private ValidationRuleSet validationRuleSet;
@@ -36,22 +41,29 @@ public class CreateValidationSetupCommand {
     public CreateValidationSetupCommand(
             ValidationService validationService,
             DeviceConfigurationService deviceConfigurationService,
-            MeteringService meteringService,
+            DeviceService deviceService,
+            Clock clock,
             Provider<CreateValidationDeviceCommand> createValidationDeviceCommandProvider) {
         this.validationService = validationService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.meteringService = meteringService;
+        this.clock = clock;
+        this.deviceService = deviceService;
         this.createValidationDeviceCommandProvider = createValidationDeviceCommandProvider;
     }
 
-    public void run(){
+    public void run() {
+        createValidationTask();
         createValidationRuleSet();
         createValidationDevice();
         addValidationToDeviceConfigurations();
         addValidationToDevices();
     }
 
-    private void createValidationRuleSet(){
+    private void createValidationTask() {
+        Builders.from(DataValidationTaskTpl.A1800_DEVICES).get();
+    }
+
+    private void createValidationRuleSet() {
         this.validationRuleSet = Builders.from(ValidationRuleSetTpl.RESIDENTIAL_CUSTOMERS)
                 .withVersionPostBuilder(new ValidationRuleRegisterIncreasePostBuilder())
                 .withVersionPostBuilder(new ValidationRuleDetectMissingValuesPostBuilder())
@@ -62,14 +74,14 @@ public class CreateValidationSetupCommand {
                 .get();
     }
 
-    private void createValidationDevice(){
+    private void createValidationDevice() {
         CreateValidationDeviceCommand command = this.createValidationDeviceCommandProvider.get();
         command.setMridPrefix(MOCKED_VALIDATION_DEVICE_MRID_PREFIX);
         command.setSerialNumber("085600010352"); // TODO
         command.run();
     }
 
-    private void addValidationToDeviceConfigurations(){
+    private void addValidationToDeviceConfigurations() {
         List<DeviceConfiguration> configurations = deviceConfigurationService.getLinkableDeviceConfigurations(this.validationRuleSet);
         for (DeviceConfiguration configuration : configurations) {
             System.out.println("==> Validation rule set added to: " + configuration.getName() + " (id = " + configuration.getId() + ")");
@@ -78,13 +90,18 @@ public class CreateValidationSetupCommand {
         }
     }
 
-    private void addValidationToDevices(){
-        Condition devicesForActivation = where("mRID").like(MOCKED_VALIDATION_DEVICE_MRID_PREFIX + "*").or(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*"));
-        List<Meter> meters = meteringService.getMeterQuery().select(devicesForActivation);
-        System.out.println("==> Validation will be activated for " + meters.size() + " devices");
-        for (Meter meter : meters) {
-            validationService.activateValidation(meter);
-            validationService.enableValidationOnStorage(meter);
-        }
+    private void addValidationToDevices() {
+        List<Device> devices = deviceService.deviceQuery().select(where("mRID").like(MOCKED_VALIDATION_DEVICE_MRID_PREFIX + "*")
+                .or(where("mRID").like(Constants.Device.STANDARD_PREFIX + "*")));
+        System.out.println("==> Validation will be activated for " + devices.size() + " devices");
+        DeviceType elsterA1800DeviceType = Builders.from(DeviceTypeTpl.Elster_A1800).get();
+        Instant now = this.clock.instant();
+        devices.forEach(device -> {
+            if (device.getDeviceType().equals(elsterA1800DeviceType)) {
+                device.forValidation().activateValidation(now);
+            } else {
+                device.forValidation().activateValidationOnStorage(now);
+            }
+        });
     }
 }

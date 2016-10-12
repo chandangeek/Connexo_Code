@@ -5,6 +5,7 @@ import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.builders.EstimationRuleEstimateWithSamplesPostBuilder;
 import com.elster.jupiter.demo.impl.builders.EstimationRuleValueFillPostBuilder;
 import com.elster.jupiter.demo.impl.templates.EstimationRuleSetTpl;
+import com.elster.jupiter.demo.impl.templates.EstimationTaskTpl;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -38,9 +39,14 @@ public class CreateEstimationSetupCommand {
     }
 
     public void run() {
+        createEstimationTask();
         createEstimationRuleSets();
         addEstimationToDeviceConfigurations();
         addEstimationToDevices();
+    }
+
+    private void createEstimationTask() {
+        Builders.from(EstimationTaskTpl.ALL_ELECTRICITY_DEVICES).get();
     }
 
     private void createEstimationRuleSets() {

@@ -121,7 +121,7 @@ public class CreateDataLoggerSetupCommand {
         for (int i = existing + 1; i <= existing + numberOfSlaves; i++) {
             CreateDataLoggerSlaveCommand slave = new CreateDataLoggerSlaveCommand();
             slave.setActiveLifeCyclestatePostBuilder(this.activeLifeCyclestatePostBuilder);
-            slave.setMridPrefix(DeviceTypeTpl.EIMETER_FLEX.getLongName());
+            slave.setMridPrefix(DeviceTypeTpl.EIMETER_FLEX.getName());
             slave.setSerialNumber("" + i);
             slave.run();
         }

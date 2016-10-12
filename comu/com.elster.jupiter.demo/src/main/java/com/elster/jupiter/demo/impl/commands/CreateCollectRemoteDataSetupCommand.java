@@ -13,7 +13,6 @@ import com.elster.jupiter.demo.impl.builders.device.ConnectionsDevicePostBuilder
 import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetUsagePointToDevicePostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetValidateOnStorePostBuilder;
 import com.elster.jupiter.demo.impl.builders.type.AttachDeviceTypeCPSPostBuilder;
 import com.elster.jupiter.demo.impl.templates.CalendarTpl;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
@@ -21,11 +20,9 @@ import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.CreationRuleTpl;
 import com.elster.jupiter.demo.impl.templates.DataCollectionKpiTpl;
-import com.elster.jupiter.demo.impl.templates.DataValidationTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.elster.jupiter.demo.impl.templates.EstimationTaskTpl;
 import com.elster.jupiter.demo.impl.templates.InboundComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
 import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
@@ -39,8 +36,6 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -61,13 +56,11 @@ public class CreateCollectRemoteDataSetupCommand {
     public static final int VALIDATION_STRICT_DEVICE_COUNT = 21;
     private final LicenseService licenseService;
     private final MeteringService meteringService;
-    private final MeteringGroupsService meteringGroupsService;
     private final Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider;
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider;
     private final Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider;
-    private final Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider;
     private final Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider;
 
     private String comServerName;
@@ -100,23 +93,19 @@ public class CreateCollectRemoteDataSetupCommand {
     public CreateCollectRemoteDataSetupCommand(
             LicenseService licenseService,
             MeteringService meteringService,
-            MeteringGroupsService meteringGroupsService,
             Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider,
             Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
             Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
             Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider,
             Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider,
-            Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider,
             Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider) {
         this.licenseService = licenseService;
         this.meteringService = meteringService;
-        this.meteringGroupsService = meteringGroupsService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
         this.connectionsDevicePostBuilderProvider = connectionsDevicePostBuilderProvider;
         this.setDeviceInActiveLifeCycleStatePostBuilderProvider = setDeviceInActiveLifeCycleStatePostBuilderProvider;
         this.setUsagePointToDevicePostBuilderProvider = setUsagePointToDevicePostBuilderProvider;
-        this.setValidateOnStorePostBuilderProvider = setValidateOnStorePostBuilderProvider;
         this.attachDeviceTypeCPSPostBuilderProvider = attachDeviceTypeCPSPostBuilderProvider;
     }
 
@@ -151,8 +140,6 @@ public class CreateCollectRemoteDataSetupCommand {
         createCreationRules();
         createAssignmentRules();
         createDeviceGroups();
-        createEstimationTasks();
-        createValidationTasks();
         createKpi();
     }
 
@@ -307,43 +294,13 @@ public class CreateCollectRemoteDataSetupCommand {
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .withPostBuilder(this.setDeviceInActiveLifeCycleStatePostBuilderProvider.get())
                 .withPostBuilder(this.setUsagePointToDevicePostBuilderProvider.get())
-                .withPostBuilder(this.setValidateOnStorePostBuilderProvider.get())
                 .get();
     }
 
     private void createDeviceGroups() {
-        EndDeviceGroup group;
-        Optional<EndDeviceGroup> northGroup = meteringGroupsService.findEndDeviceGroupByName(DeviceGroupTpl.NORTH_REGION.getName());
-        if (northGroup.isPresent()) {
-            group = northGroup.get();
-        } else {
-            group = Builders.from(DeviceGroupTpl.NORTH_REGION).get();
-        }
-        Builders.from(FavoriteGroupBuilder.class).withGroup(group).get();
-
-        Optional<EndDeviceGroup> southGroup = meteringGroupsService.findEndDeviceGroupByName(DeviceGroupTpl.SOUTH_REGION.getName());
-        if (southGroup.isPresent()) {
-            group = southGroup.get();
-        } else {
-            group = Builders.from(DeviceGroupTpl.SOUTH_REGION).get();
-        }
-        Builders.from(FavoriteGroupBuilder.class).withGroup(group).get();
-
-        Optional<EndDeviceGroup> allElectricityGroup = meteringGroupsService.findEndDeviceGroupByName(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES.getName());
-        if (allElectricityGroup.isPresent()) {
-            group = allElectricityGroup.get();
-        } else {
-            group = Builders.from(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES).get();
-        }
-        Builders.from(FavoriteGroupBuilder.class).withGroup(group).get();
-    }
-
-    private void createEstimationTasks(){
-        Builders.from(EstimationTaskTpl.ALL_ELECTRICITY_DEVICES).get();
-    }
-
-    private void createValidationTasks(){
-        Builders.from(DataValidationTaskTpl.A1800_DEVICES).get();
+        Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.NORTH_REGION).get()).get();
+        Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.SOUTH_REGION).get()).get();
+        Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES).get()).get();
     }
 
     private void createKpi() {

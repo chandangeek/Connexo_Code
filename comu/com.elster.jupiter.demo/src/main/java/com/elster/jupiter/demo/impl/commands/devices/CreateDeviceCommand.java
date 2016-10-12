@@ -25,7 +25,7 @@ public class CreateDeviceCommand {
 
     public void run(){
         DeviceType deviceType = Builders.from(this.deviceType).find()
-                .orElseThrow(() -> new UnableToCreate("Unable to find the " + this.deviceType.getLongName()+ " device type"));
+                .orElseThrow(() -> new UnableToCreate("Unable to find the " + this.deviceType.getName() + " device type"));
         DeviceConfiguration configuration = Builders.from(configurationTpl).withDeviceType(deviceType).find()
                 .orElseThrow(() -> new UnableToCreate("Unable to find the device configuration '" + configurationTpl.getName() +"'"));
         Builders.from(DeviceBuilder.class)

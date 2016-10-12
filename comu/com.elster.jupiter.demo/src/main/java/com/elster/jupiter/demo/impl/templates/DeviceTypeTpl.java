@@ -198,7 +198,7 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
         return poolTpl;
     }
 
-    public String getLongName() {
+    public String getName() {
         return longName;
     }
 
