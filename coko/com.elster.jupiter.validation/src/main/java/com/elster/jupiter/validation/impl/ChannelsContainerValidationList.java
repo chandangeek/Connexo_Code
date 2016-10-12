@@ -63,6 +63,10 @@ class ChannelsContainerValidationList {
         });
     }
 
+    boolean isActive() {
+        return channelsContainerValidations.stream().anyMatch(ChannelsContainerValidation::isActive);
+    }
+
     void updateLastChecked(Channel channel, Instant date) {
         channelValidationsFor(channel).updateLastChecked(date);
     }

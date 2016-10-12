@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation.impl.kpi;
 
+import com.elster.jupiter.metering.EndDevice;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,7 +24,7 @@ class PayloadContainsInvalidId implements DataManagementKpiCalculator {
     }
 
     @Override
-    public void store(long endDeviceId) {
+    public void store(EndDevice endDevice) {
         calculate();
     }
 

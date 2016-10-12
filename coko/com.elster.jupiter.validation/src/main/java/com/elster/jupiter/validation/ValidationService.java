@@ -77,6 +77,8 @@ public interface ValidationService {
 
     boolean validationEnabled(Meter meter);
 
+    boolean isValidationActive(ChannelsContainer channelsContainer);
+
     List<Meter> validationEnabledMetersIn(List<String> meterMrids);
 
     boolean validationOnStorageEnabled(Meter meter);

@@ -3,12 +3,12 @@ package com.elster.jupiter.validation.impl.kpi;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
@@ -32,6 +32,7 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
+    private volatile ValidationService validationService;
     private volatile Clock clock;
     private User user;
 
@@ -57,7 +58,7 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
         return this.taskService.createMessageHandler(
                 new DataManagementKpiCalculatorHandler(
                         dataValidationKpiService,
-                        transactionService, threadPrincipalService, dataValidationReportService, clock,
+                        transactionService, threadPrincipalService, dataValidationReportService, validationService, clock,
                         getUser()));
     }
 
@@ -94,6 +95,11 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
     }
 
     public User getUser() {

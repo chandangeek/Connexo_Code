@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl.kpi;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -8,6 +9,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.logging.LoggingContext;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
@@ -23,16 +25,18 @@ class DataManagementKpiCalculatorHandler implements TaskExecutor {
     private final DataValidationReportService dataValidationReportService;
     private final TransactionService transactionService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final ValidationService validationService;
     private final Clock clock;
     private final User user;
 
 
 
-    DataManagementKpiCalculatorHandler(DataValidationKpiService dataValidationKpiService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, DataValidationReportService dataValidationReportService, Clock clock, User user) {
+    DataManagementKpiCalculatorHandler(DataValidationKpiService dataValidationKpiService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, DataValidationReportService dataValidationReportService, ValidationService validationService, Clock clock, User user) {
         this.dataValidationKpiService = dataValidationKpiService;
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
         this.dataValidationReportService = dataValidationReportService;
+        this.validationService = validationService;
         this.clock = clock;
         this.user = user;
     }
@@ -67,7 +71,7 @@ class DataManagementKpiCalculatorHandler implements TaskExecutor {
     }
 
     private void tryExecute(TaskOccurrence taskOccurrence, Logger taskLogger) {
-        DataManagementKpiCalculator kpiCalculator = KpiType.calculatorForRecurrentPayload(taskOccurrence, new ServiceProvider());
+        DataManagementKpiCalculator kpiCalculator = KpiType.calculatorForRecurrentPayload(taskOccurrence, new ServiceProvider(), validationService);
         try {
             try (TransactionContext transactionContext = transactionService.getContext()) {
                 kpiCalculator.calculate();
@@ -77,18 +81,18 @@ class DataManagementKpiCalculatorHandler implements TaskExecutor {
             transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to calculate Data Validation KPI"
                     + " . Error: " + ex.getLocalizedMessage(), ex));
         }
-        ((DataValidationKpiCalculator) kpiCalculator).getDataValidationKpi().getDeviceGroup().getMembers(Instant.now(clock)).forEach(endDevice -> doCalculateTransactional(kpiCalculator,endDevice.getId(), taskLogger));
+        ((DataValidationKpiCalculator) kpiCalculator).getDataValidationKpi().getDeviceGroup().getMembers(Instant.now(clock)).forEach(endDevice -> doCalculateTransactional(kpiCalculator, endDevice, taskLogger));
 
     }
 
-    private void doCalculateTransactional(DataManagementKpiCalculator dataManagementKpiCalculator, long endDeviceId, Logger taskLogger) {
+    private void doCalculateTransactional(DataManagementKpiCalculator dataManagementKpiCalculator, EndDevice endDevice, Logger taskLogger) {
         try {
             try (TransactionContext transactionContext = transactionService.getContext()) {
-                dataManagementKpiCalculator.store(endDeviceId);
+                dataManagementKpiCalculator.store(endDevice);
                 transactionContext.commit();
             }
         } catch (Exception ex) {
-            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to store Validation KPI data for device having ID of " + endDeviceId
+            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to store Validation KPI data for device having ID of " + endDevice.getMRID()
                     + " . Error: " + ex.getLocalizedMessage(), ex));
         }
     }

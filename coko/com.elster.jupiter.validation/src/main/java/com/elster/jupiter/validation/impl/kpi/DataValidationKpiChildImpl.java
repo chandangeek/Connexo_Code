@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl.kpi;
 
 import com.elster.jupiter.kpi.Kpi;
+import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -60,6 +61,19 @@ public class DataValidationKpiChildImpl implements DataValidationKpiChild {
     @Override
     public void remove() {
         childKpi.get().remove();
+    }
+
+    @Override
+    public long getDeviceId() {
+        return getChildKpi().getMembers().stream()
+                .map(this::deviceIdAsString)
+                .map(Long::parseLong)
+                .findFirst()
+                .get();
+    }
+
+    private String deviceIdAsString(KpiMember member) {
+        return member.getName().substring(member.getName().indexOf("_") + 1);
     }
 
 }

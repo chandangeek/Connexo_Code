@@ -12,4 +12,5 @@ public interface DataValidationKpiChild {
 
     void remove();
 
+    long getDeviceId();
 }

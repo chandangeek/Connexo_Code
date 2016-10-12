@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl.kpi;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 
 import java.util.logging.Level;
@@ -22,7 +23,7 @@ class DataManagementKpiDoesNotExist  implements DataManagementKpiCalculator{
     }
 
     @Override
-    public void store(long endDeviceId) {
+    public void store(EndDevice endDevice) {
         calculate();
     }
 

@@ -332,6 +332,11 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     @Override
+    public boolean isValidationActive(ChannelsContainer channelsContainer) {
+        return activeChannelsContainerValidationsFor(channelsContainer).isActive();
+    }
+
+    @Override
     public List<Meter> validationEnabledMetersIn(List<String> meterMrids) {
         Condition isActive = ListOperator.IN.contains("meter.mRID", meterMrids).and(where("isActive").isEqualTo(true));
         QueryExecutor<MeterValidationImpl> query = dataModel.query(MeterValidationImpl.class, EndDevice.class);

@@ -1,6 +1,9 @@
 package com.elster.jupiter.validation.impl.kpi;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ServerValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
@@ -20,8 +23,9 @@ enum KpiType {
         }
 
         @Override
-        protected DataManagementKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, ServiceProvider serviceProvider) {
-            return new DataValidationKpiCalculator(dataValidationKpi, LOGGER, serviceProvider.dataValidationReportService(), serviceProvider.getClock());
+        protected DataManagementKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, ServiceProvider serviceProvider, ValidationService validationService) {
+            DataModel dataModel = ((ServerValidationService) validationService).dataModel();
+            return new DataValidationKpiCalculator(validationService, dataModel, dataValidationKpi, LOGGER, serviceProvider.dataValidationReportService(), serviceProvider.getClock());
         }
     };
 
@@ -35,7 +39,7 @@ enum KpiType {
         return this.name() + '-' + id;
     }
 
-    protected abstract DataManagementKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, ServiceProvider serviceProvider);
+    protected abstract DataManagementKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, ServiceProvider serviceProvider, ValidationService validationService);
 
     public interface ServiceProvider {
         DataValidationKpiService dataValidationKpiService();
@@ -43,7 +47,7 @@ enum KpiType {
         Clock getClock();
     }
 
-    public static DataManagementKpiCalculator calculatorForRecurrentPayload(TaskOccurrence taskOccurrence, ServiceProvider serviceProvider) {
+    public static DataManagementKpiCalculator calculatorForRecurrentPayload(TaskOccurrence taskOccurrence, ServiceProvider serviceProvider, ValidationService validationService) {
         String payload = taskOccurrence.getPayLoad();
         Matcher matcher = PAYLOAD_PARSE_PATTERN.matcher(payload);
         if (matcher.matches()) {
@@ -53,7 +57,7 @@ enum KpiType {
                 Optional<DataValidationKpi> dataValidationKpi = serviceProvider.dataValidationKpiService().findDataValidationKpi(id);
                 return dataValidationKpi
                         .map(DataValidationKpiImpl.class::cast)
-                        .map(kpi -> kpiType.newValidationCalculator(kpi, serviceProvider))
+                        .map(kpi -> kpiType.newValidationCalculator(kpi, serviceProvider, validationService))
                         .orElseGet(() -> new DataManagementKpiDoesNotExist(LOGGER, payload));
             }
             catch (NumberFormatException e) {

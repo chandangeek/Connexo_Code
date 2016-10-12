@@ -1,53 +1,67 @@
 package com.elster.jupiter.validation.impl.kpi;
 
-import com.elster.jupiter.kpi.KpiMember;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.kpi.DataValidationKpi;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.Counters;
+import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.LongCounter;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.IValidationRule;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Comparator;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-class DataValidationKpiCalculator implements DataManagementKpiCalculator {
+import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.streams.Predicates.not;
 
-    private volatile DataValidationKpiImpl dataValidationKpi;
-    private volatile Logger logger;
-    private volatile DataValidationReportService dataValidationReportService;
-    private volatile Clock clock;
-    private DataValidationKpiImpl dataValidationKpiClone;
-    private ZonedDateTime currentZonedDateTime;
+public class DataValidationKpiCalculator implements DataManagementKpiCalculator {
 
-    private Map<String, List<DataValidationStatus>> registerSuspects;
-    private Map<String, List<DataValidationStatus>> channelsSuspects;
-    private Boolean allDataValidated;
-    private long totalSuspects;
-    private Set<String> ruleValidators;
-    private long dayCount;
-    private long runnningDeviceId;
+    private final ValidationService validationService;
+    private final DataValidationKpiImpl dataValidationKpi;
+    private final Logger logger;
+    private final DataValidationReportService dataValidationReportService;
+    private final Clock clock;
+    private final DataModel dataModel;
+    private Map<ReadingQualityType, IValidationRule> qualitiesToRules;
+    private ZonedDateTime end;
+    private ZonedDateTime start;
+    private Map<Key, LongCounter> counterMap;
+    private Map<Long, DataValidationKpiChild> dataValidationKpiChildMap;
 
-    DataValidationKpiCalculator(DataValidationKpiImpl dataValidationKpi, Logger logger, DataValidationReportService dataValidationReportService, Clock clock) {
+    DataValidationKpiCalculator(ValidationService validationService, DataModel dataModel, DataValidationKpiImpl dataValidationKpi, Logger logger, DataValidationReportService dataValidationReportService, Clock clock) {
+        this.validationService = validationService;
+        this.dataModel = dataModel;
         this.dataValidationKpi = dataValidationKpi;
         this.logger = logger;
         this.dataValidationReportService = dataValidationReportService;
@@ -56,97 +70,287 @@ class DataValidationKpiCalculator implements DataManagementKpiCalculator {
 
     @Override
     public void calculate() {
-        dataValidationKpi.updateMembers();
+        dataValidationKpiChildMap = dataValidationKpi.updateMembers();
         if (dataValidationKpi.isCancelled()) {
             dataValidationKpi.dropDataValidationKpi();
             return;
         }
-        dataValidationKpiClone = dataValidationKpi.clone();
-        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
-        ZonedDateTime start = end.minusMonths(1);
-        dayCount = ChronoUnit.DAYS.between(start, end);
-        registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpiClone.getDeviceGroup(), Range.openClosed(start.toInstant(), end.toInstant()));
-        channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpiClone.getDeviceGroup(), Range.openClosed(start.toInstant(), end.toInstant()));
-        currentZonedDateTime = end;
+        qualitiesToRules = mapQualitiesToRules();
+        end = clock.instant().atZone(clock.getZone()).with(LocalTime.MIDNIGHT).plusDays(1);
+        start = end.minusMonths(1);
+        counterMap = calculateFromQuery(start, end);
     }
 
     @Override
-    public void store(long endDeviceId) {
-        runnningDeviceId = endDeviceId;
-        if (dataValidationKpi.isCancelled()) {
-            dataValidationKpi.dropDataValidationKpi();
+    public void store(EndDevice endDevice) {
+        if (!(endDevice instanceof Meter)) {
             return;
         }
-        Optional<? extends List<? extends KpiMember>> memberList = dataValidationKpiClone.getDataValidationKpiChildren().stream()
-                .filter(kpi -> !kpi.getChildKpi().getMembers().isEmpty()
-                        && dataValidationKpiClone.deviceIdAsString(kpi.getChildKpi().getMembers().get(0)).equals(String.valueOf(runnningDeviceId)))
-                .map(foundKpi -> foundKpi.getChildKpi().getMembers()).findFirst();
-        if (memberList.isPresent()) {
-            for (int i = 0; i < dayCount; ++i) {
-                allDataValidated = true;
-                totalSuspects = 0;
-                ruleValidators = new HashSet<>();
-                Instant localTimeStamp = currentZonedDateTime.minusDays(i).toInstant();
-                memberList.get().forEach(member -> {
-                    if (dataValidationKpi.isCancelled()) {
-                        dataValidationKpi.dropDataValidationKpi();
-                        return;
-                    }
-                    if (channelsSuspects.get(member.getName()) != null) {
-                        score(member, channelsSuspects, localTimeStamp);
-                    } else if (registerSuspects.get(member.getName()) != null) {
-                        score(member, registerSuspects, localTimeStamp);
-                    } else if ((DataValidationKpiMemberTypes.SUSPECT.fieldName() + endDeviceId).equals(member.getName())) {
-                        member.score(localTimeStamp, BigDecimal.valueOf(totalSuspects));
-                    } else if ((DataValidationKpiMemberTypes.ALLDATAVALIDATED.fieldName() + endDeviceId).equals(member.getName())) {
-                        member.score(localTimeStamp, allDataValidated ? BigDecimal.ONE : BigDecimal.ZERO);
-                    }
-                });
-                updateRuleValidatorData(memberList.get(), localTimeStamp);
-                logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!" + " date " + localTimeStamp + " count " + i);
-            }
-        } else {
-            return;
-        }
-    }
-
-
-    private void aggregateRuleValidators(List<DataValidationStatus> list) {
-        ruleValidators.addAll(list.stream()
-                .map(DataValidationStatus::getOffendedRules)
+        Meter meter = (Meter) endDevice;
+        Set<Channel> channels = meter.getMeterActivations(Range.openClosed(start.toInstant(), end.toInstant()))
+                .stream()
+                .map(MeterActivation::getChannelsContainer)
+                .map(ChannelsContainer::getChannels)
                 .flatMap(Collection::stream)
-                .map(rule -> rule.getImplementation()
-                        .substring(rule.getImplementation().lastIndexOf(".") + 1).toUpperCase() + "_" + String.valueOf(runnningDeviceId))
-                .collect(Collectors.toSet()));
+                .collect(Collectors.toSet());
 
+        Instant lastChecked = meter.getMeterActivations(Range.openClosed(start.toInstant(), end.toInstant()))
+                .stream()
+                .map(MeterActivation::getChannelsContainer)
+                .filter(validationService::isValidationActive)
+                .map(validationService::getLastChecked)
+                .map(optional -> optional.orElse(Instant.MIN))
+                .min(Comparator.naturalOrder())
+                .orElse(Instant.MIN);
+
+        ZonedDateTime calculateDate = start;
+        while (!calculateDate.isAfter(end)) {
+
+            Instant calculateInstant = calculateDate.toInstant();
+            long registers = channels.stream()
+                    .filter(not(Channel::isRegular))
+                    .map(channelToKey(calculateDate, SpecialValidatorTypes.SUSPECT))
+                    .map(counterMap::get)
+                    .filter(Objects::nonNull)
+                    .mapToLong(LongCounter::getValue)
+                    .sum();
+            long regular = channels.stream()
+                    .filter(Channel::isRegular)
+                    .map(channelToKey(calculateDate, SpecialValidatorTypes.SUSPECT))
+                    .map(counterMap::get)
+                    .filter(Objects::nonNull)
+                    .mapToLong(LongCounter::getValue)
+                    .sum();
+            long total = registers + regular;
+
+            long missing = channels.stream()
+                    .map(channelToKey(calculateDate, SpecialValidatorTypes.MISSING))
+                    .map(counterMap::get)
+                    .filter(Objects::nonNull)
+                    .mapToLong(LongCounter::getValue)
+                    .sum();
+
+            long threshold = channels.stream()
+                    .map(channelToKey(calculateDate, SpecialValidatorTypes.THRESHOLDVALIDATOR))
+                    .map(counterMap::get)
+                    .filter(Objects::nonNull)
+                    .mapToLong(LongCounter::getValue)
+                    .sum();
+
+            long registerIncrease = channels.stream()
+                    .map(channelToKey(calculateDate, SpecialValidatorTypes.REGISTERINCREASEVALIDATOR))
+                    .map(counterMap::get)
+                    .filter(Objects::nonNull)
+                    .mapToLong(LongCounter::getValue)
+                    .sum();
+
+            long readingQualitiesValidator = channels.stream()
+                    .map(channelToKey(calculateDate, SpecialValidatorTypes.READINGQUALITIESVALIDATOR))
+                    .map(counterMap::get)
+                    .filter(Objects::nonNull)
+                    .mapToLong(LongCounter::getValue)
+                    .sum();
+
+            boolean allDataValidated = calculateInstant.isBefore(lastChecked);
+
+            DataValidationKpiChild dataValidationKpiChild = dataValidationKpiChildMap.get(meter.getId());
+
+            ImmutableMap.<DataValidationKpiMemberTypes, Long>builder()
+                    .put(DataValidationKpiMemberTypes.CHANNEL, regular)
+                    .put(DataValidationKpiMemberTypes.REGISTER, registers)
+                    .put(DataValidationKpiMemberTypes.SUSPECT, total)
+                    .put(DataValidationKpiMemberTypes.ALLDATAVALIDATED, allDataValidated ? 1L : 0L)
+                    .put(DataValidationKpiMemberTypes.MISSINGVALUESVALIDATOR, missing)
+                    .put(DataValidationKpiMemberTypes.THRESHOLDVALIDATOR, threshold)
+                    .put(DataValidationKpiMemberTypes.READINGQUALITIESVALIDATOR, readingQualitiesValidator)
+                    .put(DataValidationKpiMemberTypes.REGISTERINCREASEVALIDATOR, registerIncrease)
+                    .build()
+                    .forEach((type, scoreValue) -> {
+                        dataValidationKpiChild.getChildKpi()
+                                .getMembers()
+                                .stream()
+                                .filter(kpiMember -> kpiMember.getName().toUpperCase().startsWith(type.name()))
+                                .findAny()
+                                .get()
+                                .score(calculateInstant, BigDecimal.valueOf(scoreValue));
+                    });
+
+            calculateDate = calculateDate.plusDays(1);
+        }
     }
 
-    private void updateRuleValidatorData(List<? extends KpiMember> memberList, Instant localTimeStamp) {
-        Set<String> validatorList = Stream.of(MonitoredDataValidationKpiMemberTypes.values()).skip(4)
-                .map(memberType -> memberType.name().toUpperCase() + "_" + runnningDeviceId).collect(Collectors.toSet());
-        memberList.stream().filter(member -> validatorList.contains(member.getName())).forEach(foundElement -> {
-                    if (ruleValidators.contains(foundElement.getName())) {
-                        foundElement.score(localTimeStamp, BigDecimal.ONE);
-                    } else {
-                        foundElement.score(localTimeStamp, BigDecimal.ZERO);
-                    }
-                }
-        );
+    private Function<Channel, Key> channelToKey(ZonedDateTime calculateDate, SpecialValidatorTypes validatorType) {
+        return channel -> new Key(channel.getId(), calculateDate.toLocalDate(), validatorType);
     }
 
-    public DataValidationKpi getDataValidationKpi() {
+    DataValidationKpiImpl getDataValidationKpi() {
         return dataValidationKpi;
     }
 
-    private void score(KpiMember member, Map<String, List<DataValidationStatus>> map, Instant localTimeStamp) {
-        List<DataValidationStatus> dataValidationStatus = map.get(member.getName());
-        List<DataValidationStatus> dailyDataValidationStatus = dataValidationStatus.stream()
-                .filter(val -> val.getReadingTimestamp().atOffset(ZoneOffset.UTC).toLocalDate().equals(localTimeStamp.atOffset(ZoneOffset.UTC).toLocalDate()))
-                .collect(Collectors.toList());
-        dailyDataValidationStatus.stream().forEach(status -> allDataValidated &= status.completelyValidated());
-        long count = dailyDataValidationStatus.size();
-        totalSuspects += count;
-        aggregateRuleValidators(dailyDataValidationStatus);
-        member.score(localTimeStamp, new BigDecimal(count));
+    private interface ValidatorType extends HasName {
+    }
+
+    private enum SpecialValidatorTypes implements ValidatorType {
+        MISSING, SUSPECT, UNKNOWN, THRESHOLDVALIDATOR, READINGQUALITIESVALIDATOR, REGISTERINCREASEVALIDATOR;
+
+        @Override
+        public String getName() {
+            return name();
+        }
+    }
+
+    private static final class SimpleValidatorType implements ValidatorType {
+        private final String validator;
+
+        public SimpleValidatorType(String validator) {
+            this.validator = validator;
+        }
+
+        @Override
+        public String getName() {
+            return validator;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            SimpleValidatorType that = (SimpleValidatorType) o;
+            return Objects.equals(validator, that.validator);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(validator);
+        }
+    }
+
+    private final static class Key {
+        private final long channelId;
+        private final LocalDate localDate;
+        private final ValidatorType validator;
+
+        private Key(long channelId, LocalDate localDate, ValidatorType validator) {
+            this.channelId = channelId;
+            this.localDate = localDate;
+            this.validator = validator;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Key key = (Key) o;
+            return channelId == key.channelId &&
+                    Objects.equals(localDate, key.localDate) &&
+                    Objects.equals(validator, key.validator);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(channelId, localDate, validator);
+        }
+    }
+
+    private Map<Key, LongCounter> calculateFromQuery(ZonedDateTime from, ZonedDateTime to) {
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT q.channelid, TRUNC(utc2date(q.readingtimestamp, t.TIMEZONENAME), 'DDD'), q.type, COUNT(*)" +
+                " from MTR_READINGQUALITY q, IDS_TIMESERIES t WHERE" +
+                " exists (select id from MTR_CHANNEL c where q.CHANNELID = c.ID and c.TIMESERIESID = t.ID)" +
+                " AND q.channelid in (select ID from MTR_CHANNEL" +
+                " WHERE CHANNEL_CONTAINER IN (SELECT ID FROM MTR_CHANNEL_CONTAINER " +
+                " where METER_ACTIVATION in (select ID from MTR_METERACTIVATION where METERID in (");
+        sqlBuilder.add(dataValidationKpi.getDeviceGroup().toSubQuery("ID").toFragment());
+        sqlBuilder.append("))))" +
+                " AND (q.type IN ('2.5.258', '3.5.258', '2.5.259', '3.5.259') OR q.type LIKE '2.6.%' OR q.type LIKE '3.6.%')" +
+                " AND q.actual ='Y'" +
+                " AND readingtimestamp  > ");
+        sqlBuilder.addLong(from.toInstant().toEpochMilli());
+        sqlBuilder.append(" AND readingtimestamp <= ");
+        sqlBuilder.addLong(to.toInstant().toEpochMilli());
+        sqlBuilder.append(" GROUP BY TRUNC(utc2date(q.readingtimestamp, t.TIMEZONENAME), 'DDD')," +
+                " q.type," +
+                " q.channelid");
+        try (
+                Connection connection = dataModel.getConnection(false);
+                PreparedStatement statement = sqlBuilder.prepare(connection);
+                ResultSet resultSet = statement.executeQuery()
+        ) {
+
+            return StreamSupport.stream(new ResultSetSpliterator(resultSet), false)
+                    .collect(Collectors.toMap(
+                            this::toKey,
+                            this::toCounter,
+                            (c1, c2) -> {
+                                c1.add(c2.getValue());
+                                return c1;
+                            }
+                    ));
+
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private Key toKey(ResultSet resultSet) {
+        try {
+            Timestamp sqlDate = resultSet.getTimestamp(2);
+            LocalDate localDate = LocalDate.from(ZonedDateTime.ofInstant(sqlDate.toInstant(), clock.getZone()));
+            String type = resultSet.getString(3);
+            ReadingQualityType readingQualityType = new ReadingQualityType(type);
+
+            if (readingQualityType.isSuspect()) {
+                return new Key(resultSet.getLong(1), localDate, SpecialValidatorTypes.SUSPECT);
+            }
+            if (readingQualityType.isMissing()) {
+                return new Key(resultSet.getLong(1), localDate, SpecialValidatorTypes.MISSING);
+            }
+            IValidationRule validationRule = qualitiesToRules.get(readingQualityType);
+            if (validationRule == null) {
+                // this should normally not happen
+                return new Key(resultSet.getLong(1), localDate, SpecialValidatorTypes.UNKNOWN);
+            }
+            for (SpecialValidatorTypes validatorType : SpecialValidatorTypes.values()) {
+                if (is(validationRule.getImplementation()).containingIgnoringCase(validatorType.name())) {
+                    return new Key(resultSet.getLong(1), localDate, validatorType);
+                }
+            }
+            return new Key(resultSet.getLong(1), localDate, new SimpleValidatorType(validationRule.getImplementation()));
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private LongCounter toCounter(ResultSet resultSet) {
+        try {
+            LongCounter counter = Counters.newLenientLongCounter();
+            counter.add(resultSet.getLong(4));
+            return counter;
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private Map<ReadingQualityType, IValidationRule> mapQualitiesToRules() {
+        return validationService.getValidationRuleSets()
+                .stream()
+                .map(ValidationRuleSet::getRuleSetVersions)
+                .flatMap(Collection::stream)
+                .map(ValidationRuleSetVersion::getRules)
+                .flatMap(Collection::stream)
+                .map(IValidationRule.class::cast)
+                .filter(rule -> !rule.getReadingQualityType().isMissing())
+                .filter(rule -> !rule.getReadingQualityType().isSuspect())
+                .collect(Collectors.toMap(
+                        IValidationRule::getReadingQualityType,
+                        Function.identity()
+                ));
     }
 }
