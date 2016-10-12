@@ -30,4 +30,7 @@ public class StringChecker extends ObjectChecker<String> {
         return true;
     }
 
+    public boolean containingIgnoringCase(String other) {
+        return getToCheck().toUpperCase().contains(other.toUpperCase());
+    }
 }
