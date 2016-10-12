@@ -267,6 +267,33 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("         AND lastsuccessfulcommunicationend is not null");
             this.appendBreakdownThenClause(sqlBuilder);
         }
+    },
+
+
+    /**
+     * Purely technical state which serves as an indication that there is some inconsitent state in a particular communication task
+     */
+    ProcessingError {
+        @Override
+        public TaskStatus getPublicStatus() {
+            return TaskStatus.ProcessingError;
+        }
+
+        @Override
+        public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
+            return false;
+        }
+
+        @Override
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
+            super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
+            sqlBuilder.append("and (1 = 0)");
+        }
+
+        @Override
+        public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
+            sqlBuilder.append("1 = 0");
+        }
     };
 
     public static final String BUSY_TASK_ALIAS_NAME = "busytask";

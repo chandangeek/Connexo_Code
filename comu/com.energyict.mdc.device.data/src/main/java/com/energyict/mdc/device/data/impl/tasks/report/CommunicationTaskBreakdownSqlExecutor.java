@@ -157,7 +157,9 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
         sqlBuilder.append("                       WHEN onhold <> 0");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.OnHold.name() + "'");
         sqlBuilder.append("                       ELSE");
-        sqlBuilder.append("                         to_char(id)");
+//        sqlBuilder.append("                         to_char(id)");
+        sqlBuilder.append("                         '" + ServerComTaskStatus.ProcessingError.name() + "'");
+
         sqlBuilder.append("                   END AS status");
         sqlBuilder.append("             FROM alldata)");
         sqlBuilder.append("   GROUP BY status, comtask, comschedule, devicetype)");

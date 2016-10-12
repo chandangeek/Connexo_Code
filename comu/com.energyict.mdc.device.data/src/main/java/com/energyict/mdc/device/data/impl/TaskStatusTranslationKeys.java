@@ -14,7 +14,8 @@ public enum TaskStatusTranslationKeys implements TranslationKey {
     ON_HOLD(TaskStatus.OnHold, "Inactive"),
     RETRYING(TaskStatus.Retrying, "Retrying"),
     NEVER_COMPLETED(TaskStatus.NeverCompleted, "Never completed"),
-    WAITING(TaskStatus.Waiting, "Waiting");
+    WAITING(TaskStatus.Waiting, "Waiting"),
+    PROCESSING_ERROR(TaskStatus.ProcessingError, "Processing error");
 
     private TaskStatus taskStatus;
     private String defaultFormat;

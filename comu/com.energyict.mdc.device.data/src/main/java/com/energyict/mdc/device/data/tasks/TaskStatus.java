@@ -89,7 +89,12 @@ public enum TaskStatus {
      * @see ComTaskExecution#scheduleNow()
      * @see ComTaskExecution#schedule(java.time.Instant)
      */
-    OnHold;
+    OnHold,
+
+    /**
+     * Invalid state that should indicate that a particular communication task has some invalid 'state'
+     */
+    ProcessingError;
 
     public static TaskStatus initial () {
         return TaskStatus.NeverCompleted;
