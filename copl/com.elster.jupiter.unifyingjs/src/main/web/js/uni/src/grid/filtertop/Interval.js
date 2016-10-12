@@ -277,6 +277,8 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
         me.callParent(arguments);
 
+        me.updateClearButton();
+        me.updateTitle();
         me.initActions();
     },
 
@@ -353,7 +355,6 @@ Ext.define('Uni.grid.filtertop.Interval', {
         me.getToMinuteField().reset();
         me.getToDateField().setMinValue(null);
 
-        me.getClearButton().setDisabled(true);
         me.updateTitle();
         me.fireEvent('filtervaluechange');
     },
@@ -412,7 +413,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
         } else if (includeUndefined) {
             params[me.dataIndexTo] = undefined;
         }
-        me.getClearButton().setDisabled(false);
+        me.updateClearButton();
     },
 
     setFromDateValue: function (date) {
@@ -467,6 +468,26 @@ Ext.define('Uni.grid.filtertop.Interval', {
         }
 
         return undefined;
+    },
+
+    updateClearButton: function() {
+        var me = this,
+            currentFromDate = me.getFromDateField() ? me.getFromDateField().getValue() : undefined,
+            currentToDate = me.getToDateField() ? me.getToDateField().getValue() : undefined;
+        if ( ( (Ext.isEmpty(me.defaultFromDate) && Ext.isEmpty(currentFromDate))
+                ||
+                (!Ext.isEmpty(me.defaultFromDate) && !Ext.isEmpty(currentFromDate) && me.defaultFromDate.getTime() === currentFromDate.getTime())
+            )
+            &&
+            ( (Ext.isEmpty(me.defaultToDate) && Ext.isEmpty(currentToDate))
+                ||
+                (!Ext.isEmpty(me.defaultToDate) && !Ext.isEmpty(currentToDate) && me.defaultToDate.getTime() === currentToDate.getTime())
+            )
+        ) {
+            me.getClearButton().setDisabled(true);
+        } else {
+            me.getClearButton().setDisabled(false);
+        }
     },
 
     getChooseIntervalButton: function () {
