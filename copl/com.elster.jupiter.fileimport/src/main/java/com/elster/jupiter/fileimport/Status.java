@@ -11,7 +11,7 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum Status implements TranslationKey {
     NEW("New"),
-    PROCESSING("Busy"),
+    PROCESSING("Ongoing"),
     SUCCESS("Successful"),
     SUCCESS_WITH_FAILURES("Partial success"),
     FAILURE("Failed");
