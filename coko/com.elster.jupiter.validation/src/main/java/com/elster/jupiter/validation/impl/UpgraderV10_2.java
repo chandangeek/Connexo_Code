@@ -67,6 +67,14 @@ public class UpgraderV10_2 implements Upgrader {
 
         dataModelUpgrader.upgrade(dataModel, VERSION);
         this.upgradeSubscriberSpecs();
+
+        sql.add("UPDATE VAL_VALIDATIONRULESET set quality_system=2 where quality_system is null");
+
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                sql.forEach(sqlCommand -> execute(statement, sqlCommand));
+            }
+        });
     }
 
     private String convertToCIMCodes(String oldValues) {
