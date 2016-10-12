@@ -1,5 +1,7 @@
 package com.elster.jupiter.kpi;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
@@ -8,6 +10,7 @@ import java.util.TimeZone;
 /**
  * Builder for Kpi and its KpiMembers
  */
+@ProviderType
 public interface KpiBuilder {
 
     /**

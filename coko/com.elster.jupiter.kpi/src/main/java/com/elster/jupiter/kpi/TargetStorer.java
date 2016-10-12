@@ -1,11 +1,14 @@
 package com.elster.jupiter.kpi;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
  * Allows storing dynamic target values for a KpiMember.
  */
+@ProviderType
 public interface TargetStorer {
 
     /**

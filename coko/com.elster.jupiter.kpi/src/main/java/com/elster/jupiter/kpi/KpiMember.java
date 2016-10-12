@@ -1,16 +1,19 @@
 package com.elster.jupiter.kpi;
 
 import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
-import java.util.Optional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * One specific metric within a Kpi, which has a separate name and its own target (if any).
  */
+@ProviderType
 public interface KpiMember extends HasName {
 
     /**

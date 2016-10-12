@@ -1,10 +1,13 @@
 package com.elster.jupiter.kpi;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
 /**
  * Central Kpi Service. Allows for creating and getting Kpi instances.
  */
+@ProviderType
 public interface KpiService {
 
     /**

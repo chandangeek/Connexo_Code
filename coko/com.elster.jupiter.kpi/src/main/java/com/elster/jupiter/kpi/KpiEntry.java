@@ -1,11 +1,14 @@
 package com.elster.jupiter.kpi;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
  * Models a score and matching target at a certain time.
  */
+@ProviderType
 public interface KpiEntry {
 
     /**
