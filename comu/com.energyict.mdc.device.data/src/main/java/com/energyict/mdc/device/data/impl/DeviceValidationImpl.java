@@ -12,6 +12,7 @@ import com.elster.jupiter.util.RangeComparatorFactory;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -23,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -45,13 +47,15 @@ class DeviceValidationImpl implements DeviceValidation {
     private final ValidationService validationService;
     private final Thesaurus thesaurus;
     private final DeviceImpl device;
+    private final Clock clock;
     private transient Meter meter;
     private transient ValidationEvaluator evaluator;
 
-    DeviceValidationImpl(ValidationService validationService, Thesaurus thesaurus, DeviceImpl device) {
+    DeviceValidationImpl(ValidationService validationService, Thesaurus thesaurus, DeviceImpl device, Clock clock) {
         this.validationService = validationService;
         this.thesaurus = thesaurus;
         this.device = device;
+        this.clock = clock;
     }
 
     @Override
@@ -135,7 +139,17 @@ class DeviceValidationImpl implements DeviceValidation {
             return false;
         }
         Optional<com.elster.jupiter.metering.Channel> found = findKoreChannel(channel, when);
-        return found.isPresent() ? evaluator.isValidationEnabled(found.get()) : hasActiveRules(channel);
+        return found.isPresent() ? evaluator.isValidationEnabled(found.get()) : hasSameRule(channel);
+    }
+
+    @Override
+    public boolean isChannelStatusActive(Channel channel) {
+        return hasActiveRule(channel);
+    }
+
+    @Override
+    public boolean isChannelStatusActive(Register<?, ?> register) {
+        return hasActiveRule(register);
     }
 
     @Override
@@ -144,7 +158,7 @@ class DeviceValidationImpl implements DeviceValidation {
             return false;
         }
         Optional<com.elster.jupiter.metering.Channel> found = findKoreChannel(register, when);
-        return found.isPresent() ? evaluator.isValidationEnabled(found.get()) : hasActiveRules(register);
+        return found.isPresent() ? evaluator.isValidationEnabled(found.get()) : hasSameRule(register);
     }
 
     @Override
@@ -241,15 +255,46 @@ class DeviceValidationImpl implements DeviceValidation {
                 .forEach(c -> this.validationService.updateLastChecked(c, start));
     }
 
-    private boolean hasActiveRules(Channel channel) {
-        return hasActiveRules(channel.getReadingType());
+    private boolean hasActiveRule(Channel channel){
+        if(channel.getCalculatedReadingType(clock.instant()).isPresent()){
+            return hasActiveRule(channel.getReadingType()) || hasActiveRule(channel.getCalculatedReadingType(clock.instant()).get());
+        }else{
+            return hasActiveRule(channel.getReadingType());
+        }
     }
 
-    private boolean hasActiveRules(Register<?, ?> register) {
-        return hasActiveRules(register.getReadingType());
+    private boolean hasActiveRule(Register<?, ?> register) {
+        if(register.getCalculatedReadingType(clock.instant()).isPresent()){
+            return hasActiveRule(register.getReadingType()) || hasActiveRule(register.getCalculatedReadingType(clock.instant()).get());
+        }else{
+            return hasActiveRule(register.getReadingType());
+        }
     }
 
-    private boolean hasActiveRules(ReadingType readingType) {
+    private boolean hasActiveRule(ReadingType readingType) {
+        return device.getDeviceConfiguration().getValidationRuleSets().stream()
+                .flatMap(s -> s.getRules().stream())
+                .filter(ValidationRule::isActive)
+                .anyMatch(r -> r.getReadingTypes().contains(readingType));
+    }
+
+    private boolean hasSameRule(Channel channel) {
+        if(channel.getCalculatedReadingType(clock.instant()).isPresent()){
+            return hasSameRule(channel.getReadingType()) || hasSameRule(channel.getCalculatedReadingType(clock.instant()).get());
+        }else{
+            return hasSameRule(channel.getReadingType());
+        }
+    }
+
+    private boolean hasSameRule(Register<?, ?> register) {
+        if(register.getCalculatedReadingType(clock.instant()).isPresent()){
+            return hasSameRule(register.getReadingType()) || hasSameRule(register.getCalculatedReadingType(clock.instant()).get());
+        }else{
+            return hasSameRule(register.getReadingType());
+        }
+    }
+
+    private boolean hasSameRule(ReadingType readingType) {
         return device.getDeviceConfiguration().getValidationRuleSets().stream()
                 .flatMap(s -> s.getRules().stream())
                 .anyMatch(r -> r.getReadingTypes().contains(readingType));
