@@ -35,6 +35,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataLoggerSlaveHistory', {
                     store: 'Mdc.store.DataLoggerSlaveChannelHistory',
                     maxHeight: 450,
                     viewConfig: {
+                        loadMask: false,
                         disableSelection: true,
                         enableTextSelection: true
                     },
