@@ -1,7 +1,10 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LiteralSql;
@@ -10,6 +13,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.kpi.DataValidationKpiCalculatorHandlerFactory;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -34,10 +38,12 @@ public class UpgraderV10_2 implements Upgrader {
 
     private static final Version VERSION = version(10, 2);
     private final DataModel dataModel;
+    private final MessageService messageService;
 
     @Inject
-    public UpgraderV10_2(DataModel dataModel) {
+    public UpgraderV10_2(DataModel dataModel, MessageService messageService) {
         this.dataModel = dataModel;
+        this.messageService = messageService;
     }
 
     @Override
@@ -69,13 +75,24 @@ public class UpgraderV10_2 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, VERSION);
         this.upgradeSubscriberSpecs();
 
+        createMessageHandler(DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
         sql.add("UPDATE VAL_VALIDATIONRULESET set quality_system=2 where quality_system is null");
+        sql.add("UPDATE VAL_DATAVALIDATIONTASK set quality_system=2 where quality_system is null");
 
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
             }
         });
+    }
+
+    private void createMessageHandler(String destinationName, TranslationKey subscriberName) {
+        Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
+        if (!destinationSpecOptional.isPresent()) {
+            DestinationSpec queue = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get().createDestinationSpec(destinationName, 60);
+            queue.activate();
+            queue.subscribe(subscriberName, ValidationService.COMPONENTNAME, Layer.DOMAIN);
+        }
     }
 
     private String convertToCIMCodes(String oldValues) {
