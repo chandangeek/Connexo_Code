@@ -412,7 +412,7 @@ sub install_tomcat {
 		print "\n\nExtracting Apache Tomcat 7 ...\n";
 		print "==========================================================================\n";
 
-		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user='$CONNEXO_ADMIN_ACCOUNT';-Dconnexo.password='$CONNEXO_ADMIN_PASSWORD';-Dbtm.root='$CATALINA_HOME';-Dbitronix.tm.configuration='$CATALINA_HOME/conf/btm-config.properties';-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=$CATALINA_HOME/conf/connexo.properties";
+		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\"";
 
 		chdir "$TOMCAT_BASE";
 		print "Extracting $TOMCAT_ZIP.zip\n";
@@ -436,7 +436,7 @@ sub install_tomcat {
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
-			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir='$CATALINA_HOME' -Dorg.uberfire.metadata.index.dir='$CATALINA_HOME' -Dorg.uberfire.nio.git.ssh.cert.dir='$CATALINA_HOME' -Dorg.guvnor.m2repo.dir='$CATALINA_HOME/repositories' -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user='$CONNEXO_ADMIN_ACCOUNT' -Dconnexo.password='$CONNEXO_ADMIN_PASSWORD' -Dbtm.root='$CATALINA_HOME' -Dbitronix.tm.configuration='$CATALINA_HOME/conf/btm-config.properties' -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\n";
+			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=\"$CATALINA_HOME\" -Dorg.uberfire.metadata.index.dir=\"$CATALINA_HOME\" -Dorg.uberfire.nio.git.ssh.cert.dir=\"$CATALINA_HOME\" -Dorg.guvnor.m2repo.dir=\"$CATALINA_HOME/repositories\" -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\" -Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\" -Dbtm.root=\"$CATALINA_HOME\" -Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\" -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\n";
 			close($FH);
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 		} else {
@@ -1293,21 +1293,13 @@ sub perform_upgrade {
             dircopy("$UPGRADE_PATH/temp/partners","$CONNEXO_DIR/partners");
 
             print "Starting upgrade of partners\n";
-            open(my $FH,"> $UPGRADE_PATH/temp/partners/upgrade.cmd") or die "Could not open $UPGRADE_PATH/temp/partners/upgrade.cmd: $!";
-            print $FH "set JAVA_HOME=$JAVA_HOME\n";
-            print $FH "set FLOW_JDBC_URL=$FLOW_JDBC_URL\n";
-            print $FH "set FLOW_DB_USER=$FLOW_DB_USER\n";
-            print $FH "set FLOW_DB_PASSWORD=$FLOW_DB_PASSWORD\n";
-            print $FH "set UPGRADE_FROM=$UPGRADE_OLD_SERVICE_VERSION\n";
-            print $FH "set UPGRADE_TO=$SERVICE_VERSION\n";
-            close $FH;
-
+            my $upgrade_params = "$JAVA_HOME $UPGRADE_OLD_SERVICE_VERSION $SERVICE_VERSION $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD";
             my $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.pl";
             if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
                 $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.exe";
             }
             if (-e "$upgrade_exe") {
-                system($upgrade_exe) == 0 or die "Could not execute partners upgrade script!";
+                system("$upgrade_exe $upgrade_params") == 0 or die "Could not execute partners upgrade script!";
             } else {
                 print "No upgrade of facts/flow found.\n";
             }
