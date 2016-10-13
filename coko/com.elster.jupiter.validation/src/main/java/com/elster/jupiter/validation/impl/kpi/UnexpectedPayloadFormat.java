@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation.impl.kpi;
 
+import com.elster.jupiter.metering.EndDevice;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,8 +16,13 @@ class UnexpectedPayloadFormat implements DataManagementKpiCalculator {
     }
 
     @Override
-    public void calculateAndStore() {
+    public void calculate() {
         this.logger.log(Level.SEVERE, "Payload '" + this.payLoad + "' is not of the expected format");
+    }
+
+    @Override
+    public void store(EndDevice endDevice) {
+        calculate();
     }
 
 }

@@ -1,11 +1,12 @@
 package com.elster.jupiter.validation.impl.kpi;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class DataManagementKpiDoesNotExist  implements DataManagementKpiCalculator{
+class DataManagementKpiDoesNotExist implements DataManagementKpiCalculator {
 
     private final Logger logger;
     private final String payLoad;
@@ -17,8 +18,13 @@ class DataManagementKpiDoesNotExist  implements DataManagementKpiCalculator{
     }
 
     @Override
-    public void calculateAndStore() {
+    public void calculate() {
         this.logger.log(Level.SEVERE, "Payload '" + this.payLoad + "' does not contain the unique identifier of a " + DataValidationKpi.class.getSimpleName());
+    }
+
+    @Override
+    public void store(EndDevice endDevice) {
+        calculate();
     }
 
 }

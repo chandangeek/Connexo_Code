@@ -77,6 +77,8 @@ public interface ValidationService {
 
     boolean validationEnabled(Meter meter);
 
+    boolean isValidationActive(ChannelsContainer channelsContainer);
+
     List<Meter> validationEnabledMetersIn(List<String> meterMrids);
 
     boolean validationOnStorageEnabled(Meter meter);
@@ -145,7 +147,5 @@ public interface ValidationService {
     Optional<? extends ValidationRule> findAndLockValidationRuleByIdAndVersion(long id, long version);
 
     List<DataValidationTask> findByDeviceGroup(EndDeviceGroup endDevice, int skip, int limit);
-
-    List<DataValidationAssociationProvider> getDataValidationAssociatinProviders();
 
 }
