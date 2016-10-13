@@ -233,11 +233,16 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
         final com.energyict.dlms.protocolimplv2.DlmsSessionProperties sessionProperties = this.getDlmsSessionProperties();
 
-        final boolean preEstablished = sessionProperties.isPublicClientPreEstablished();
+        if (this.getDlmsSessionProperties().isPublicClientPreEstablished() && this.getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
+        	if (this.getLogger().isLoggable(Level.WARNING)) {
+        		this.getLogger().log(Level.WARNING, "Invalid configuration detected : cannot use a pre-established public client association in combination with and authenticated frame counter, overriding to non-pre-established.");
+        	}
+        }
+        final boolean preEstablished = sessionProperties.isPublicClientPreEstablished() && !this.getDlmsSessionProperties().getRequestAuthenticatedFrameCounter();
 
         try {        	
 	        // Associate if necessary.
-	        if (preEstablished && !this.getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
+	        if (preEstablished) {
 	        	if (this.getLogger().isLoggable(Level.FINE)) {
 	        		this.getLogger().log(Level.FINE, "Public client association is pre-established.");
 	        	}
