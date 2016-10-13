@@ -153,7 +153,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-12 17:47:16 +0200 (Wed, 12 Oct 2016)$";
+        return "$Date: 2016-10-13 15:55:43 +0200 (Thu, 13 Oct 2016)$";
     }
 
     /**
@@ -254,6 +254,11 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         boolean frameCounterSet = false;
         long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         long initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
+
+        //Value -1 means that no FC was present in the cache for the given client.
+        if (cachedFrameCounter == -1) {
+            return false;
+        }
 
         if (initialFrameCounter > cachedFrameCounter) {
             getLogger().info("Use initial frame counter: " + initialFrameCounter + " because has a higher value than cached frame counter");
