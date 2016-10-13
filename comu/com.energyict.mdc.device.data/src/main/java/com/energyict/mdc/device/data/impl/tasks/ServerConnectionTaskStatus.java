@@ -292,7 +292,6 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
-            sqlBuilder.append("1 = 0");
         }
     };
 
