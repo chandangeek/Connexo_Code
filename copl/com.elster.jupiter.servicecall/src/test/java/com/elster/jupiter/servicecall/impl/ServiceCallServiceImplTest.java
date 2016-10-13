@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
