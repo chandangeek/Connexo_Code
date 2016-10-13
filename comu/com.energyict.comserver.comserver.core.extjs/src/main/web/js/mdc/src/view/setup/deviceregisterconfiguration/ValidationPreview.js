@@ -17,8 +17,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
         me.items = [
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('device.registerData.validationStatus', 'MDC', 'Validation status'),
+                fieldLabel: Uni.I18n.translate('device.registerData.deviceValidationStatus', 'MDC', 'Device validation status'),
                 name: 'validationInfo_validationActive'
+            },
+            {
+                xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('device.registerData.registerValidationStatus', 'MDC', 'Register validation status'),
+                name: 'validationInfo_channelValidationStatus'
             },
             {
                 xtype: 'displayfield',

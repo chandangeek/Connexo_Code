@@ -4,6 +4,8 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Navigation', {
     width: 256,
     jumpForward: false,
     jumpBack: false,
+    ui: 'medium',
+    title: Uni.I18n.translate('deviceLifeCycle.change', 'MDC', 'Change device life cycle'),
     items: [
         {
             itemId: 'select-device-life-cycle',
