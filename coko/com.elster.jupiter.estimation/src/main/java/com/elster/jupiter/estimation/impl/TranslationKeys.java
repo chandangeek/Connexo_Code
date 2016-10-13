@@ -7,6 +7,8 @@ public enum TranslationKeys implements TranslationKey {
     ESTIMATIONS_PRIVILEGE_CATEGORY_DESCRIPTION("estimation.estimations.description", "Estimation"),
     RELATIVE_PERIOD_CATEGORY("relativeperiod.category.estimation", "Estimation"),
     SUBSCRIBER_NAME(EstimationServiceImpl.SUBSCRIBER_NAME, EstimationServiceImpl.SUBSCRIBER_DISPLAYNAME),
+    MDC("MDC", "MultiSense"),
+    MDM("MDM", "Insight"),
     ;
 
     private final String key;
