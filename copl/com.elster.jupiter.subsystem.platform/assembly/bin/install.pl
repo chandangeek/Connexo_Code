@@ -15,7 +15,7 @@ use Archive::Zip;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20161007";
+my $INSTALL_VERSION="v20161013";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -375,6 +375,11 @@ sub install_connexo {
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
+            if ("$ACTIVATE_SSO" eq "yes") {
+                replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME/apps/multisense/index.html");
+            } else {
+                replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/apps/multisense/index.html");
+            }
         }
 
 		print "\n\nInstalling Connexo database schema ...\n";
@@ -435,8 +440,11 @@ sub install_tomcat {
 			close($FH);
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 		} else {
+            (my $replaceHOME = $CATALINA_HOME) =~ s/ /\\ /g;
+            (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
+            (my $replacePASSWORD = $CONNEXO_ADMIN_PASSWORD) =~ s/ /\\ /g;
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
-			print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir='$CATALINA_HOME' -Dorg.uberfire.metadata.index.dir='$CATALINA_HOME' -Dorg.uberfire.nio.git.ssh.cert.dir='$CATALINA_HOME' -Dorg.guvnor.m2repo.dir='$CATALINA_HOME/repositories' -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user='$CONNEXO_ADMIN_ACCOUNT' -Dconnexo.password='$CONNEXO_ADMIN_PASSWORD' -Dbtm.root='$CATALINA_HOME' -Dbitronix.tm.configuration='$CATALINA_HOME/conf/btm-config.properties' -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\"\n";
+			print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$replaceHOME -Dorg.uberfire.metadata.index.dir=$replaceHOME -Dorg.uberfire.nio.git.ssh.cert.dir=$replaceHOME -Dorg.guvnor.m2repo.dir=$replaceHOME/repositories -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=$replaceACCOUNT -Dconnexo.password=$replacePASSWORD -Dbtm.root=$replaceHOME -Dbitronix.tm.configuration=$replaceHOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\"\n";
 			close($FH);
 			
 			open(my $FH,"> /etc/init.d/ConnexoTomcat$SERVICE_VERSION") or die "Could not open /etc/init.d/ConnexoTomcat$SERVICE_VERSION: $!";
@@ -807,12 +815,12 @@ sub start_tomcat {
 			my $ENCRYPTED_PASSWORD=`"$JAVA_HOME/bin/java" -jar \"$CONNEXO_DIR/partners/facts/EncryptPassword.jar\" $dbPassword`;
 
 			copy("$CONNEXO_DIR/partners/facts/open-reports.xml","$CONNEXO_DIR/datasource.xml");
-			replace_in_file("$CONNEXO_DIR/datasource.xml",'\${jdbc}',"$jdbcUrl");
-			replace_in_file("$CONNEXO_DIR/datasource.xml",'\${user}',"$dbUserName");
-			replace_in_file("$CONNEXO_DIR/datasource.xml",'\${password}',"$ENCRYPTED_PASSWORD");
-			replace_in_file("$CONNEXO_DIR/datasource.xml",'\${host}',"$FACTS_DB_HOST");
-			replace_in_file("$CONNEXO_DIR/datasource.xml",'\${port}',"$FACTS_DB_PORT");
-			replace_in_file("$CONNEXO_DIR/datasource.xml",'\${instance}',"$FACTS_DB_NAME");
+			replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{jdbc\}',"$jdbcUrl");
+			replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{user\}',"$dbUserName");
+			replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{password\}',"$ENCRYPTED_PASSWORD");
+			replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{host\}',"$FACTS_DB_HOST");
+			replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{port\}',"$FACTS_DB_PORT");
+			replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{instance\}',"$FACTS_DB_NAME");
 
 			chdir "$CONNEXO_DIR";
 			if ("$ACTIVATE_SSO" eq "yes") {
