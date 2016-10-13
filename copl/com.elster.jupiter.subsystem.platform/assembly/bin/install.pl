@@ -1310,7 +1310,17 @@ sub perform_upgrade {
 
         print "Install new versions for tomcat and partner apps";
         install_tomcat();
+
         dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/webapps/facts", "$CONNEXO_DIR/partners/tomcat/webapps/facts");
+        make_path("$UPGRADE_PATH/temp/partners/facts/unpacked");
+        chdir "$UPGRADE_PATH/temp/partners/facts/unpacked";
+        system("\"$JAVA_HOME/bin/jar\" -xf \"$UPGRADE_PATH/temp/partners/facts/facts.jar\"") == 0 or die "$JAVA_HOME/bin/jar -xvf \"$UPGRADE_PATH/temp/partners/facts/facts.jar\" failed: $?";
+        dircopy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/customcss", "$CONNEXO_DIR/partners/tomcat/webapps/facts/customcss");
+        dircopy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/customimages", "$CONNEXO_DIR/partners/tomcat/webapps/facts/customimages");
+        copy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/header.jsp", "$CONNEXO_DIR/partners/tomcat/webapps/facts/header.jsp");
+        copy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/index_jupiter.jsp", "$CONNEXO_DIR/partners/tomcat/webapps/facts/index_jupiter.jsp");
+        chdir "$CONNEXO_DIR/bin";
+
         install_flow();
 
         #copy existing flow repository
