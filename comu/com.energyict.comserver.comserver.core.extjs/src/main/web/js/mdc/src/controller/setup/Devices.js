@@ -335,7 +335,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         });
         Ext.Array.forEach(slaves, function(slaveRecord){
             store.add({
-                deviceId: slaveRecord.deviceId,
+                name: slaveRecord.name,
                 deviceTypeName: slaveRecord.deviceTypeName,
                 deviceConfigurationName: slaveRecord.deviceConfigurationName,
                 linkingTimeStamp: slaveRecord.linkingTimeStamp
