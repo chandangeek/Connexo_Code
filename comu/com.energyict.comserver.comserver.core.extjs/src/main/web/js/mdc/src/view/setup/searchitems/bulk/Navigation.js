@@ -4,6 +4,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Navigation', {
     width: 200,
     jumpForward: false,
     jumpBack: false,
+    ui: 'medium',
+    title: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
     items: [
         {
             itemId: 'SelectDevices',

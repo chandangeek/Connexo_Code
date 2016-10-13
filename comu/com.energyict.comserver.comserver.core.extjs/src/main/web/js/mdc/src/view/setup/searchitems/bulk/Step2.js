@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
     alias: 'widget.searchitems-bulk-step2',
     border: false,
     name: 'selectOperation',
-    title: Uni.I18n.translate('searchItems.bulk.step2title', 'MDC', 'Bulk action - Step 2 of 5: Select action'),
+    title: Uni.I18n.translate('searchItems.bulk.step2title', 'MDC', 'Step 2: Select action'),
     ui: 'large',
     items: {
         itemId: 'searchitemsactionselect',

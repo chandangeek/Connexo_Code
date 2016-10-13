@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step1', {
         'Mdc.view.setup.searchitems.bulk.DevicesSelectionGrid'
     ],
 
-    title: Uni.I18n.translate('searchItems.bulk.step1title', 'MDC', 'Bulk action - Step 1 of 5: Select devices'),
+    title: Uni.I18n.translate('searchItems.bulk.step1.title', 'MDC', 'Step 1: Select devices'),
 
     initComponent: function () {
         this.items = [
