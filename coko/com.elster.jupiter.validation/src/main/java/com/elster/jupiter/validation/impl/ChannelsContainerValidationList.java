@@ -98,7 +98,7 @@ class ChannelsContainerValidationList {
     }
 
     boolean isAllDataValidated() {
-        return channelsContainerValidations.stream().allMatch(ChannelsContainerValidation::isAllDataValidated);
+        return !channelsContainerValidations.isEmpty() && channelsContainerValidations.stream().allMatch(ChannelsContainerValidation::isAllDataValidated);
     }
 
     ChannelValidationContainer channelValidationsFor(Channel channel) {
