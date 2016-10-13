@@ -65,8 +65,6 @@ public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, 
         return super.getConfProgChange();
     }
 
-
-    @Override
     public void setTXFrameCounter(final int clientId, long frameCounter){
         if (isConnectionToBeaconMirror()) {
             frameCountersMirror.put(clientId, frameCounter);
@@ -74,6 +72,11 @@ public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, 
             frameCountersGateway.put(clientId, frameCounter);
         }
         setChanged(true);
+    }
+
+    @Override
+    public void setTXFrameCounter(int clientId, int frameCounter) {
+
     }
 
     @Override

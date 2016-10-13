@@ -63,9 +63,13 @@ public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, 
         super.setConfProgChange(confProgChange);
     }
 
-    @Override
     public void setTXFrameCounter(int clientId, long frameCounter) {
         this.frameCounter = frameCounter;
+    }
+
+    @Override
+    public void setTXFrameCounter(int clientId, int frameCounter) {
+
     }
 
     @Override
