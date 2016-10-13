@@ -71,4 +71,8 @@ public class Beacon3100Properties extends DlmsProperties {
             return keyTypeDescription == null ? null : GeneralCipheringKeyType.fromDescription(keyTypeDescription);
         }
     }
+
+    public boolean getRequestAuthenticatedFrameCounter() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false);
+    }
 }

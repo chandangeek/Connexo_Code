@@ -21,6 +21,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -161,5 +162,27 @@ public class Beacon3100 extends AbstractDlmsProtocol {
      */
     private boolean usesSessionKey() {
         return getDlmsSessionProperties().getCipheringType().equals(CipheringType.GENERAL_CIPHERING) && getDlmsSessionProperties().getGeneralCipheringKeyType() != GeneralCipheringKeyType.IDENTIFIED_KEY;
+    }
+
+    /**
+     * Will return the correct frame counter obis code, for each client ID.
+     * Management Client (1): 0 0 43 1 1 255 -> With a pre-established framecounter association.
+     * R/W Client (32): 0 0 43 1 2 255 -> With a pre-established framecounter association.
+     * Firmware Client (64): 0 0 43 1 3 255 255 -> With a pre-established framecounter association.
+     * https://jira.eict.vpdc/browse/COMMUNICATION-1552
+     *
+     * @param clientId - DLMS Client ID used in association
+     * @return - the correct obis code for this client
+     */
+    protected ObisCode getFrameCounterObisCode(int clientId) {
+        switch (clientId) {
+            case CLIENT_32_RW:
+                return FRAMECOUNTER_OBISCODE_32_RW;
+
+            case CLIENT_64_MNG:
+                return FRAMECOUNTER_OBISCODE_64_FW;
+        }
+
+        return FRAMECOUNTER_OBISCODE_1_MNG;
     }
 }

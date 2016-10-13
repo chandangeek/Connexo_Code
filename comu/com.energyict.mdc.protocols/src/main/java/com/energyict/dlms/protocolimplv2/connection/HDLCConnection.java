@@ -1,6 +1,11 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.HDLC2Connection;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
@@ -8,11 +13,6 @@ import com.energyict.dlms.ReceiveBuffer;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 
@@ -24,6 +24,8 @@ import java.io.IOException;
 public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection {
 
     private final ComChannel comChannel;
+    private boolean useGeneralBlockTransfer;
+    private int generalBlockTransferWindowSize;
 
     public HDLCConnection(ComChannel comChannel, CommunicationSessionProperties properties) {
         super(properties);
@@ -35,6 +37,8 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
         this.boolHDLCConnected = false;
         this.hhuSignonBaudRateCode = properties.getHHUSignonBaudRateCode();
         this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
+        this.useGeneralBlockTransfer = properties.useGeneralBlockTransfer();
+        this.generalBlockTransferWindowSize = properties.getGeneralBlockTransferWindowSize();
         parseAddressingMode(properties.getAddressingMode());
         setProtocolParams();
         setSNRMType(properties.getSNRMType());
@@ -172,5 +176,24 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
         } else {
             this.bAddressingMode = (byte) addressingMode;
         }
+    }
+
+    @Override
+    public boolean useGeneralBlockTransfer() {
+        return useGeneralBlockTransfer;
+}
+
+    @Override
+    public int getGeneralBlockTransferWindowSize() {
+        return generalBlockTransferWindowSize;
+    }
+
+    @Override
+    public void prepareComChannelForReceiveOfNextPacket() {
+        comChannel.startWriting();
+        // skipping this for now, should be covered by the universal protocol layer ...
+//        if (comChannel instanceof ServerComChannel) {
+//            ((ServerComChannel) comChannel).sessionCountersStartWriting();
+//        }
     }
 }

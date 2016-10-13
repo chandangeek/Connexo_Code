@@ -72,7 +72,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 if (this.acse.hlsChallengeMatch()) {
                     silentDisconnect();
                     ConnectionException connectionException = new ConnectionException("Invalid responding authenticationValue.");
-                    throw CommunicationException.protocolConnectFailed(connectionException);
+                    throw new CommunicationException(MessageSeeds.PROTOCOL_DISCONNECT_FAILED, connectionException);
                 }
                 if (!DLMSMeterConfig.OLD2.equalsIgnoreCase(this.protocolLink.getMeterConfig().getExtra())) {
                     this.associationStatus = ASSOCIATION_CONNECTED;
