@@ -306,7 +306,7 @@ final class DataValidationTaskImpl implements DataValidationTask {
 
     private void persistRecurrentTask() {
         RecurrentTask task = taskService.newBuilder()
-                .setApplication(qualityCodeSystem != null ? qualityCodeSystem.name() : null)
+                .setApplication(qualityCodeSystem != null ? thesaurus.getString(qualityCodeSystem.name(), qualityCodeSystem.name()) : null)
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(destinationSpecProvider.get())
