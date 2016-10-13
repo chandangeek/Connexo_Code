@@ -116,7 +116,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         if (this.am540Cache == null) {
             am540Cache = new AM540Cache(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
         }
-        this.am540Cache.setTXFrameCounter(1, (int) (getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1));     //Save this for the next session
+        this.am540Cache.setTXFrameCounter(1, getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
         return this.am540Cache;
     }
 
@@ -368,7 +368,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-13 15:16:33 +0200 (Thu, 13 Oct 2016)$";
+        return "$Date: 2016-10-13 18:07:16 +0300 (Thu, 13 Oct 2016)$";
     }
 
     @Override
