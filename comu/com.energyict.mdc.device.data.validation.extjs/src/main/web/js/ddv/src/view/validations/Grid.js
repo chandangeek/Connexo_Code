@@ -39,16 +39,6 @@ Ext.define('Ddv.view.validations.Grid', {
                 header: Uni.I18n.translate('validations.amountOfSuspects', 'DDV', 'Amount of suspects'),
                 dataIndex: 'amountOfSuspects',
                 flex: 1
-            },
-            {
-                header: Uni.I18n.translate('validations.allDataValidated', 'DDV', 'All data validated'),
-                dataIndex: 'allDataValidated',
-                flex: 1,
-                renderer: function (value) {
-                    return value
-                        ? Uni.I18n.translate('general.yes', 'DDV', 'Yes')
-                        : Uni.I18n.translate('general.no', 'DDV', 'No');
-                }
             }
         ];
 
