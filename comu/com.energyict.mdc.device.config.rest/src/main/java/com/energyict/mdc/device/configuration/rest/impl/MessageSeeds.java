@@ -120,8 +120,6 @@ public enum MessageSeeds implements MessageSeed {
     WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0(204, Keys.WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0, "Standard Wavenis encryption"),
     NO_SUCH_DEVICE_LIFE_CYCLE(206, "NoSuchDeviceLifeCycle", "There is no device life cycle with id = {0}"),
     UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE(207, "UnableToChangeDeviceLifeCycle", "Unable to change device life cycle to \"{0}\""),
-    HAS_SOLVED(208, Keys.SOLVED, "Solved"),
-    HAS_UNSOLVED(209, Keys.UNSOLVED, "Unsolved"),
     CONCURRENT_FAIL_ACTIVATE_TITLE(210, "ConcurrentFailActivateTitle", "Failed to activate ''{0}''"),
     CONCURRENT_FAIL_DEACTIVATE_TITLE(211, "ConcurrentFailDeActivateTitle", "Failed to deactivate ''{0}''"),
     CONCURRENT_FAIL_ACTIVATE_BODY(212, "ConcurrentFailActivateBody", "{0} has changed since the page was last updated."),
@@ -265,8 +263,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String SIMPLEPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0 = "SimplePasswordSecuritySupport.authenticationlevel.0";
         public static final String WAVENISSECURITYSUPPORT_AUTHENTICATIONLEVEL_0 = "WavenisSecuritySupport.authenticationlevel.0";
         public static final String WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0 = "WavenisSecuritySupport.encryptionlevel.0";
-        public static final String SOLVED = "Solved";
-        public static final String UNSOLVED = "Unsolved";
         public static final String FILE_IO = "file.IO";
 
         public static final String CALENDAR_OPTION_SEND = ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR.getId();
