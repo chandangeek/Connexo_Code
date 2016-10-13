@@ -39,7 +39,7 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                         variableId: 'deviceId',
                         name: 'device',
                         value: device.get('mRID'),
-                        route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/performTask': null
+                        route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/task': null
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -71,7 +71,7 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                         variableId: 'usagePointId',
                         name: 'usagePoint',
                         value: usagepoint.get('mRID'),
-                        route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/performTask': null
+                        route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/task': null
                     }
             });
             me.getApplication().fireEvent('changecontentevent', widget);
