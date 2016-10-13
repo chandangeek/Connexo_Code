@@ -12,12 +12,19 @@ Ext.define('Yfn.controller.history.YellowfinReports', {
     currentPath: null,
 
     routeConfig: {
-         generatereport: {
-             title: Uni.I18n.translate('generatereport.reportGenerator', 'YFN', 'Report generator'),
-             route: 'workspace/generatereport',
-                 controller: 'Yfn.controller.setup.GenerateReportWizard',
-                 privileges: Yfn.privileges.Yellowfin.view,
-                 action: 'showGenerateReportWizard'
+        workspace: {
+            title: Uni.I18n.translate('general.workspace', 'YFN', 'Devices'),
+            route: 'workspace',
+            disabled: true,
+            items: {
+                generatereport: {
+                    title: Uni.I18n.translate('generatereport.wizardMenu', 'YFN', 'Generate report'),
+                    route: 'generatereport',
+                    controller: 'Yfn.controller.setup.GenerateReportWizard',
+                    privileges: Yfn.privileges.Yellowfin.view,
+                    action: 'showGenerateReportWizard'
+                }
+            }
         },
         viewreport: {
             title: Uni.I18n.translate('generatereport.viewReport', 'YFN', 'View Report'),
