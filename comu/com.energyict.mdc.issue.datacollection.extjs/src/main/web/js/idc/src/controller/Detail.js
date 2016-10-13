@@ -83,7 +83,7 @@ Ext.define('Idc.controller.Detail', {
             router = me.getController('Uni.controller.history.Router'),
             route;
         router.arguments.taskId = task;
-        route = 'workspace/tasks/performTask';
+        route = 'workspace/tasks/task/performTask';
         route && (route = router.getRoute(route));
         route && route.forward(router.arguments);
     }
