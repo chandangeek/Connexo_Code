@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DeviceValidationResource {
     private final ResourceHelper resourceHelper;
@@ -232,7 +233,7 @@ public class DeviceValidationResource {
                                 lp ->
                                         lp.getChannels().stream()
                                                 .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
-                                                .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
+                                                .filter(s -> (Stream.concat(s.getReadingQualities().stream(), s.getBulkReadingQualities().stream()).anyMatch(q -> q.getType().isSuspect())))
                                                 .collect(Collectors.toList())
                         )).entrySet().stream().filter(m -> (((List<DataValidationStatus>) m.getValue()).size()) > 0L)
                         .collect(Collectors.toMap(m -> (LoadProfile) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue()))));

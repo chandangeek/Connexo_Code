@@ -206,7 +206,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
                 .request().get(MonitorValidationInfo.class);
 
         assertThat(response.detailedValidationLoadProfile.size()).isEqualTo(1);
-        assertThat(response.detailedValidationLoadProfile.get(0).total).isEqualTo(3);
+        assertThat(response.detailedValidationLoadProfile.get(0).total).isEqualTo(4);
         assertThat(response.detailedValidationLoadProfile.get(0).name).isEqualTo("Profile1");
     }
 
