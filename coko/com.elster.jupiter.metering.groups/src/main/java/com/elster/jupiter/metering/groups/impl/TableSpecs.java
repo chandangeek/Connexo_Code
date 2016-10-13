@@ -157,7 +157,7 @@ public enum TableSpecs {
             Column searchablePropertyColumn = table.column("PROPERTY").varChar(Table.SHORT_DESCRIPTION_LENGTH).notNull().map(QueryEndDeviceGroupCondition.Fields.SEARCHABLE_PROPERTY.fieldName()).add();
             table.column("OPERATOR").number().notNull().conversion(NUMBER2ENUM).map(QueryEndDeviceGroupCondition.Fields.OPERATOR.fieldName()).add();
             table.setJournalTableName("MTG_QUERY_EDG_CONDITIONJRNL").since(version(10, 2));
-            table.addAuditColumns().forEach(column -> column.since(version(20, 2)));
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.primaryKey("MTG_PK_QUERY_EDG_CONDTION").on(groupColumn, searchablePropertyColumn).add();
             table.foreignKey("MTG_FK_QUERY_EDG_COND2GROUP")
                     .on(groupColumn)
@@ -177,7 +177,7 @@ public enum TableSpecs {
             Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map(QueryEndDeviceGroupConditionValue.Fields.POSITION.fieldName()).add();
             table.column("VALUE").varChar(Table.SHORT_DESCRIPTION_LENGTH).notNull().map(QueryEndDeviceGroupConditionValue.Fields.VALUE.fieldName()).add();
             table.setJournalTableName("MTG_QUERY_EDG_COND_VALUEJRNL").since(version(10, 2));
-            table.addAuditColumns().forEach(column -> column.since(version(20, 2)));
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.primaryKey("MTG_PK_QUERY_EDGCONDVALUE").on(groupColumn, searchablePropertyColumn, positionColumn).add();
             table.foreignKey("MTG_FK_QUERY_EDG_VALUE2COND")
                     .on(groupColumn, searchablePropertyColumn)
