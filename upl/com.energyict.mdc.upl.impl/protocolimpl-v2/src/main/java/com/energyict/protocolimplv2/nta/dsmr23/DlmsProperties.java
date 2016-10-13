@@ -97,7 +97,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     public void addProperties(TypedProperties properties) {
-        this.properties.setAllProperties(properties);
+        this.properties.setAllProperties(properties, true);
     }
 
     public TypedProperties getProperties() {

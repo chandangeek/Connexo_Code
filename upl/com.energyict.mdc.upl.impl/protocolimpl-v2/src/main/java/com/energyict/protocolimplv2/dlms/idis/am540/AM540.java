@@ -5,7 +5,6 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -30,7 +29,6 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.*;
-import com.energyict.protocol.support.FrameCounterCache;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -63,7 +61,7 @@ import java.util.List;
  * @author sva
  * @since 11/08/2015 - 14:04
  */
-public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCache {
+public class AM540 extends AM130 implements SerialNumberSupport {
     protected static final ObisCode EVN_FRAMECOUNTER_DATA_READOUT = ObisCode.fromString("0.0.43.3.0.255");
     protected static final ObisCode EVN_FRAMECOUNTER_INSTALLATION = ObisCode.fromString("0.0.43.4.0.255");
     protected static final ObisCode EVN_FRAMECOUNTER_MAINTENANCE = ObisCode.fromString("0.0.43.5.0.255");
@@ -97,7 +95,6 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         setMeterToTransparentMode(comChannel);
         readFrameCounter(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
-        initFrameCounterCache(null);
     }
 
     private void setMeterToTransparentMode(ComChannel comChannel) {
@@ -155,7 +152,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-10 14:56:19 +0300 (Mon, 10 Oct 2016)$";
+        return "$Date: 2016-10-13 18:28:35 +0300 (Thu, 13 Oct 2016)$";
     }
 
     /**
@@ -204,13 +201,6 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         return new AM540ConfigurationSupport();
     }
 
-    protected void initFrameCounterCache(SecurityContext securityContext) {
-        if (securityContext == null) {
-            securityContext = getDlmsSession().getAso().getSecurityContext();
-        }
-        securityContext.setFrameCounterCache(getDlmsSessionProperties().getClientMacAddress(), getDeviceCache());
-    }
-
     /**
      * First read out the frame counter for the management client, using the public client.
      * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
@@ -227,7 +217,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
 
         if (!weHaveValidCachedFrameCounter) {
             if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
-                if(clientId != EVN_CLIENT_MANAGEMENT){
+                if (clientId != EVN_CLIENT_MANAGEMENT) {
                     readFrameCounterSecure(comChannel);
                 } else {
                     getLogger().info("Reading frame counter with client " + EVN_CLIENT_MANAGEMENT + " is not allowed. " +
@@ -242,10 +232,10 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         }
     }
 
-    private void validateFCProperties(int clientId){
+    private void validateFCProperties(int clientId) {
         if (clientId == EVN_CLIENT_MANAGEMENT && getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()
                 && !getDlmsSessionProperties().useCachedFrameCounter()) {
-            getLogger().info("When Client 1 is configured and "+ AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER +
+            getLogger().info("When Client 1 is configured and " + AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER +
                     " is active, we also need " + AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER + " to be active");
             throw DeviceConfigurationException.unsupportedPropertyValue(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, "false");
         }
@@ -264,13 +254,18 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         long initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
 
-        if(initialFrameCounter > cachedFrameCounter){
+        //Value -1 means that no FC was present in the cache for the given client.
+        if (cachedFrameCounter == -1) {
+            return false;
+        }
+
+        if (initialFrameCounter > cachedFrameCounter) {
             getLogger().info("Use initial frame counter: " + initialFrameCounter + " because has a higher value than cached frame counter");
-            this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter);
+            setTXFrameCounter(initialFrameCounter);
             frameCounterSet = true;
         } else if (cachedFrameCounter > 0) {
             getLogger().info(" - cached frame counter: " + cachedFrameCounter);
-            this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFrameCounter + 1);
+            setTXFrameCounter(cachedFrameCounter + 1);
             frameCounterSet = true;
         }
 
@@ -292,6 +287,7 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         DlmsSession testDlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
         int retries = getDlmsSessionProperties().getFrameCounterRecoveryRetries();
         int step = getDlmsSessionProperties().getFrameCounterRecoveryStep();
+        boolean releaseOnce = true;
 
         getLogger().info("Will test the frameCounter. Recovery mechanism: retries=" + retries + ", step=" + step);
         if (retries <= 0) {
@@ -299,26 +295,33 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
             step = 0;
         }
 
-        initFrameCounterCache(testDlmsSession.getAso().getSecurityContext());
-
         do {
             try {
                 testDlmsSession.getDlmsV2Connection().connectMAC();
                 testDlmsSession.createAssociation();
                 if (testDlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
-                    //testDlmsSession.disconnect();
+                    testDlmsSession.disconnect();
                     getLogger().info("Cached FrameCounter is valid!");
+                    setTXFrameCounter(testDlmsSession.getAso().getSecurityContext().getFrameCounter());
                     return true;
                 }
-            } catch (CommunicationException ex) {
-                long frameCounter = this.getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter();
+            } catch (Exception ex) {
+                long frameCounter = testDlmsSession.getAso().getSecurityContext().getFrameCounter();
                 getLogger().warning("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
                 frameCounter += step;
-                this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
-                setTXFrameCounter(getDlmsSessionProperties().getClientMacAddress(), (int) frameCounter);
-            } catch (Exception ex) {
-                getLogger().warning("Received an unexpected exception while testing the frame counter " + ex.getMessage());
-                throw ex;
+                setTXFrameCounter(frameCounter);
+                testDlmsSession.getAso().getSecurityContext().setFrameCounter(frameCounter);
+
+                if (releaseOnce) {
+                    releaseOnce = false;
+                    //Try to release that association once, it may be that it was still open from a previous session, causing troubles to create the new association.
+                    try {
+                        testDlmsSession.getAso().releaseAssociation();
+                    } catch (ProtocolRuntimeException e) {
+                        testDlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
+                        // Absorb exception: in 99% of the cases we expect an exception here ...
+                    }
+                }
             }
             retries--;
         } while (retries > 0);
@@ -360,7 +363,8 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         } finally {
             publicDlmsSession.disconnect();
         }
-        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+
+        setTXFrameCounter(frameCounter + 1);
     }
 
     @Override
@@ -482,20 +486,12 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         }
     }
 
-
-    /**
-     * Method to check whether the cache needs to be read out or not, if so the read will be forced
-     */
-    protected void checkCacheObjects() {
-        boolean readCache = getDlmsSessionProperties().isReadCache();
-        if ((getDeviceCache().getObjectList() == null) || (readCache)) {
-            getLogger().info(readCache ? "ReReadCache property is true, reading cache!" : "The cache was empty, reading out the object list!");
-            readObjectList();
-            getDeviceCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
-        } else {
-            getLogger().info("Cache exist, will not be read!");
+    @Override
+    public void terminate() {
+        //As a last step, update the cache with the last FC
+        if (getDlmsSession() != null && getDlmsSession().getAso() != null && getDlmsSession().getAso().getSecurityContext() != null) {
+            getDeviceCache().setTXFrameCounter(getDlmsSessionProperties().getClientMacAddress(), getDlmsSession().getAso().getSecurityContext().getFrameCounter());
         }
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
     }
 
     @Override
@@ -532,18 +528,12 @@ public class AM540 extends AM130 implements SerialNumberSupport, FrameCounterCac
         return idisMessaging;
     }
 
-    @Override
-    public void setTXFrameCounter(int clientId, int frameCounter) {
-        if (clientId == getDlmsSessionProperties().getClientMacAddress()) {
-            getDlmsSessionProperties().getSecurityProvider().getRespondingFrameCounterHandler().resetRespondingFrameCounter(frameCounter);
-        }
+    /**
+     * Set the initial frame counter to be used when starting this DLMS session.
+     */
+    public void setTXFrameCounter(long frameCounter) {
+        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
     }
-
-    @Override
-    public long getTXFrameCounter(int clientId) {
-        return 0;
-    }
-
 
     @Override
     public CollectedTopology getDeviceTopology() {
