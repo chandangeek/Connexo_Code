@@ -42,7 +42,7 @@ public class DeviceShipmentImportProcessor extends AbstractDeviceDataFileImportP
                             .newDevice(deviceConfiguration, data.getDeviceIdentifier(), data.getBatch(), Instant.from(data.getShipmentDate()));
                 } else {
                     device = getContext().getDeviceService()
-                            .newDevice(deviceConfiguration, data.getDeviceIdentifier(), data.getDeviceIdentifier(), Instant.from(data.getShipmentDate()));
+                            .newDevice(deviceConfiguration, data.getDeviceIdentifier(), Instant.from(data.getShipmentDate()));
                 }
             } catch (NoLifeCycleActiveAt e) {
                 connection.rollback(savepoint);
