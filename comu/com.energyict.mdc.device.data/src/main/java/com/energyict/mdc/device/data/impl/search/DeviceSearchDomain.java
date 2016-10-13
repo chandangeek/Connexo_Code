@@ -127,7 +127,6 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(ConnectionMethodSearchableProperty.class).init(this),
                 injector.getInstance(SharedScheduleSearchableProperty.class).init(this),
                 injector.getInstance(UsagePointSearchableProperty.class).init(this),
-                injector.getInstance(ServiceCategorySearchableProperty.class).init(this),
                 injector.getInstance(MasterDeviceSearchableProperty.class).init(this, topologyGroup),
                 injector.getInstance(SlaveDeviceSearchableProperty.class).init(this, topologyGroup),
                 injector.getInstance(ValidationStatusSearchableProperty.class).init(this, validationGroup),
