@@ -29,14 +29,14 @@ class UpgraderV10_2 implements Upgrader {
 
     private void upgradeUserPreferences() {
         try (Connection connection = this.dataModel.getConnection(true)) {
-            this.upgradeUserPreferences(connection, "SPACE", "-", Integer.toString(PreferenceType.DATETIME_SEPARATOR.ordinal()));
-            this.upgradeUserPreferences(connection, "TD", "DT", Integer.toString(PreferenceType.DATETIME_ORDER.ordinal()));
+            this.upgradeUserPreferences(connection, PreferenceType.DATETIME_SEPARATOR.ordinal(), "SPACE", "-");
+            this.upgradeUserPreferences(connection, PreferenceType.DATETIME_ORDER.ordinal(), "TD", "DT");
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
 
-    private void upgradeUserPreferences(Connection connection, String formatKey, String formatBE, String formatFE) {
+    private void upgradeUserPreferences(Connection connection, int formatKey, String formatBE, String formatFE) {
         try (PreparedStatement statement = this.upgradeUserPreferencesStatement(connection, formatKey, formatBE, formatFE)) {
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -44,12 +44,12 @@ class UpgraderV10_2 implements Upgrader {
         }
     }
 
-    private PreparedStatement upgradeUserPreferencesStatement(Connection connection, String formatKey, String formatBE, String formatFE) throws
+    private PreparedStatement upgradeUserPreferencesStatement(Connection connection, int formatKey, String formatBE, String formatFE) throws
             SQLException {
         PreparedStatement statement = connection.prepareStatement("UPDATE USR_PREFERENCES SET format_be = ?, format_fe = ? WHERE formatkey = ?");
         statement.setString(1, formatBE);
         statement.setString(2, formatFE);
-        statement.setString(3, formatKey);
+        statement.setInt(3, formatKey);
         return statement;
     }
 }
