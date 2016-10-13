@@ -104,6 +104,19 @@ public class UpgraderV10_2 implements Upgrader {
         new GasDayOptionsCreator(this.meteringService).createIfMissing(this.bundleContext);
         installerV10_2.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_2.class.getName()));
         this.upgradeSubscriberSpecs();
+
+
+        ImmutableList<String> privilegeRenameUpgradeSql = ImmutableList.of(
+                "delete from USR_PRIVILEGEINGROUP where privilegename in (select name from usr_privilege where resourceid in (select id from USR_RESOURCE where name in ('metering.usage.points','metering.reading.types')))",
+                "delete from USR_PRIVILEGE where resourceid in (select id from USR_RESOURCE where name in ('metering.usage.points','metering.reading.types'))",
+                "delete from USR_RESOURCE where name in ('metering.usage.points','metering.reading.types')",
+                "UPDATE MTR_USAGEPOINTDETAILJRNL SET GROUNDED = 'NO' where MTR_USAGEPOINTDETAILJRNL.GROUNDED = 'N'"
+        );
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                privilegeRenameUpgradeSql.forEach(sqlCommand -> execute(statement, sqlCommand));
+            }
+        });
         userService.addModulePrivileges(installerV10_2);
     }
 
