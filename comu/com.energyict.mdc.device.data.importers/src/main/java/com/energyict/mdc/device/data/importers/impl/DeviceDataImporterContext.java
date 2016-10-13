@@ -6,6 +6,8 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -19,6 +21,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Clock;
 
 @Component(name = "com.energyict.mdc.device.data.importers.DeviceDataImporterContext", service = {DeviceDataImporterContext.class})
@@ -36,6 +40,7 @@ public class DeviceDataImporterContext {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile DataModel dataModel;
 
     public DeviceDataImporterContext() {
     }
@@ -53,7 +58,7 @@ public class DeviceDataImporterContext {
                                      UserService userService,
                                      ThreadPrincipalService threadPrincipalService,
                                      Clock clock,
-                                     MetrologyConfigurationService metrologyConfigurationService) {
+                                     MetrologyConfigurationService metrologyConfigurationService, OrmService ormService) {
         setPropertySpecService(propertySpecService);
         setNlsService(nlsService);
         setDeviceConfigurationService(deviceConfigurationService);
@@ -67,6 +72,7 @@ public class DeviceDataImporterContext {
         setThreadPrincipalService(threadPrincipalService);
         setClock(clock);
         setMetrologyConfigurationService(metrologyConfigurationService);
+        setOrmService(ormService);
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -85,6 +91,11 @@ public class DeviceDataImporterContext {
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceDataImporterMessageHandler.COMPONENT, Layer.DOMAIN);
+    }
+
+    @Reference
+    public final void setOrmService(OrmService ormService) {
+        this.dataModel = ormService.getDataModels().get(0);
     }
 
     public DeviceConfigurationService getDeviceConfigurationService() {
@@ -170,6 +181,10 @@ public class DeviceDataImporterContext {
 
     public Clock getClock() {
         return clock;
+    }
+
+    public Connection getConnection() throws SQLException {
+        return dataModel.getConnection(false);
     }
 
     @Reference

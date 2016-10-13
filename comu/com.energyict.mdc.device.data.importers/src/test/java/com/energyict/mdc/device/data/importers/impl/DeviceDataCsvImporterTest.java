@@ -11,6 +11,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.logging.Logger;
 
 import org.junit.Before;
@@ -98,7 +99,8 @@ public class DeviceDataCsvImporterTest {
         return parser;
     }
 
-    public FileImportProcessor<FileImportRecord> mockProcessor(Integer errorLineNumber, Integer warningLineNumber) {
+    public FileImportProcessor<FileImportRecord> mockProcessor(Integer errorLineNumber, Integer warningLineNumber) throws
+            SQLException {
         FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
         if (errorLineNumber != null) {
             doThrow(new ProcessorException(MessageSeeds.FILE_FORMAT_ERROR, 0, 0, 0))
