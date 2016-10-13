@@ -4,6 +4,8 @@ Ext.define('Mtr.readingtypes.view.bulk.Navigation', {
     width: 256,
     jumpForward: false,
     jumpBack: true,
+    ui: 'medium',
+    title: Uni.I18n.translate('general.bulk', 'MTR', 'Bulk action'),
     items: [
         {
             itemId: 'select-reading-type',

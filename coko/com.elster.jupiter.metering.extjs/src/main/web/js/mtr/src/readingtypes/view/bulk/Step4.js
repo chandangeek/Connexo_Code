@@ -7,7 +7,7 @@ Ext.define('Mtr.readingtypes.view.bulk.Step4', {
     requires: [
         'Uni.view.notifications.NotificationPanel'
     ],
-    title: Uni.I18n.translate('readingtypesmanagment.bulk.step4title', 'MTR', 'Bulk action - Step 4 of 5: Confirmation'),
+    title: Uni.I18n.translate('readingtypesmanagment.bulk.step4.title', 'MTR', 'Step 4: Confirmation'),
 
 
     addNotificationPanel: function (title, message, htmlMsg) {

@@ -3,7 +3,7 @@ Ext.define('Mtr.readingtypes.view.bulk.Step2', {
     alias: 'widget.reading-types-bulk-step2',
     border: false,
     name: 'selectOperation',
-    title: Uni.I18n.translate('readingtypesmanagment.bulk.step2title', 'MTR', 'Bulk action - Step 2 of 5: Select action'),
+    title: Uni.I18n.translate('readingtypesmanagment.bulk.step2.title', 'MTR', 'Step 2: Select action'),
     ui: 'large',
     items: {
         itemId: 'reading-types-bulk-step2-radio-group',

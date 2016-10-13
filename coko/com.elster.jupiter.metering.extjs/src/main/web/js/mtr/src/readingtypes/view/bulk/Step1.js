@@ -9,7 +9,7 @@ Ext.define('Mtr.readingtypes.view.bulk.Step1', {
         'Mtr.readingtypes.view.bulk.ReadingTypesSelectionGrid'
     ],
 
-    title: Uni.I18n.translate('readingtypesmanagment.bulk.step1title', 'MTR', 'Bulk action - Step 1 of 5: Select reading types'),
+    title: Uni.I18n.translate('readingtypesmanagment.bulk.step1.title', 'MTR', 'Step 1: Select reading types'),
 
     initComponent: function () {
         this.items = [

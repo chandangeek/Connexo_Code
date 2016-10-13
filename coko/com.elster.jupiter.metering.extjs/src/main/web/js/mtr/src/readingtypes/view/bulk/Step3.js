@@ -6,7 +6,7 @@ Ext.define('Mtr.readingtypes.view.bulk.Step3', {
 
     requires: [
     ],
-    title: Uni.I18n.translate('readingtypesmanagment.bulk.step3title', 'MTR', 'Bulk action - Step 3 of 5: Action details'),
+    title: Uni.I18n.translate('readingtypesmanagment.bulk.step3.title', 'MTR', 'Step 3: Action details'),
 
 
     items: [
