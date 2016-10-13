@@ -232,7 +232,7 @@ Ext.define('Dsh.controller.Communications', {
             }
         });
 
-        router.getRoute('generatereport').forward(null, {
+        router.getRoute('workspace/generatereport').forward(null, {
             category: 'MDC',
             subCategory: 'Device Communication',
             filter: Ext.JSON.encode(reportFilter)

@@ -3,6 +3,8 @@ Ext.define('Dsh.view.communicationsbulk.Navigation', {
     alias: 'widget.communications-bulk-navigation',
     jumpForward: false,
     jumpBack: true,
+    ui: 'medium',
+    title: Uni.I18n.translate('general.bulkAction', 'DSH', 'Bulk action'),
     items: [
         {
             itemId: 'cmbn-select-connections',
