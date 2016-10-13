@@ -32,7 +32,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -88,15 +87,6 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        Instant lastChecked = meter.getMeterActivations(Range.openClosed(start.toInstant(), end.toInstant()))
-                .stream()
-                .map(MeterActivation::getChannelsContainer)
-                .filter(validationService::isValidationActive)
-                .map(validationService::getLastChecked)
-                .map(optional -> optional.orElse(Instant.MIN))
-                .min(Comparator.naturalOrder())
-                .orElse(Instant.MIN);
-
         ZonedDateTime calculateDate = start;
         while (!calculateDate.isAfter(end)) {
 
@@ -145,15 +135,13 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                     .mapToLong(LongCounter::getValue)
                     .sum();
 
-            boolean allDataValidated = calculateInstant.isBefore(lastChecked);
-
             DataValidationKpiChild dataValidationKpiChild = dataValidationKpiChildMap.get(meter.getId());
 
             ImmutableMap.<DataValidationKpiMemberTypes, Long>builder()
                     .put(DataValidationKpiMemberTypes.CHANNEL, regular)
                     .put(DataValidationKpiMemberTypes.REGISTER, registers)
                     .put(DataValidationKpiMemberTypes.SUSPECT, total)
-                    .put(DataValidationKpiMemberTypes.ALLDATAVALIDATED, allDataValidated ? 1L : 0L)
+                    .put(DataValidationKpiMemberTypes.ALLDATAVALIDATED, 0L)
                     .put(DataValidationKpiMemberTypes.MISSINGVALUESVALIDATOR, missing)
                     .put(DataValidationKpiMemberTypes.THRESHOLDVALIDATOR, threshold)
                     .put(DataValidationKpiMemberTypes.READINGQUALITIESVALIDATOR, readingQualitiesValidator)
