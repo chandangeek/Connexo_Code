@@ -8,6 +8,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -60,6 +62,8 @@ public class ServiceCallServiceImplTest {
     private ServiceCall serviceCall1, serviceCall2;
     @Mock
     private UpgradeService upgradeService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private TableImpl serviceCallTable;
 
     @Before
     public void setUp() {
@@ -71,6 +75,9 @@ public class ServiceCallServiceImplTest {
         when(dataModel.stream(ServiceCall.class)).thenReturn(
                 FakeBuilder.initBuilderStub((Set<ServiceCall>) ImmutableSet.of(serviceCall1, serviceCall2), QueryStream.class, Stream.class)
         );
+
+        when(dataModel.addTable(TableSpecs.SCS_SERVICE_CALL.name(), ServiceCall.class)).thenReturn(serviceCallTable);
+        when(serviceCallTable.addRefAnyColumns("TARGET", false, ServiceCallImpl.Fields.targetObject.fieldName())).thenCallRealMethod();
     }
 
     @After
