@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -45,13 +46,15 @@ class DeviceValidationImpl implements DeviceValidation {
     private final ValidationService validationService;
     private final Thesaurus thesaurus;
     private final DeviceImpl device;
+    private final Clock clock;
     private transient Meter meter;
     private transient ValidationEvaluator evaluator;
 
-    DeviceValidationImpl(ValidationService validationService, Thesaurus thesaurus, DeviceImpl device) {
+    DeviceValidationImpl(ValidationService validationService, Thesaurus thesaurus, DeviceImpl device, Clock clock) {
         this.validationService = validationService;
         this.thesaurus = thesaurus;
         this.device = device;
+        this.clock = clock;
     }
 
     @Override
@@ -252,11 +255,19 @@ class DeviceValidationImpl implements DeviceValidation {
     }
 
     private boolean hasActiveRules(Channel channel) {
-        return hasActiveRules(channel.getReadingType());
+        if(channel.getCalculatedReadingType(clock.instant()).isPresent()){
+            return hasActiveRules(channel.getReadingType()) || hasActiveRules(channel.getCalculatedReadingType(clock.instant()).get());
+        }else{
+            return hasActiveRules(channel.getReadingType());
+        }
     }
 
     private boolean hasActiveRules(Register<?, ?> register) {
-        return hasActiveRules(register.getReadingType());
+        if(register.getCalculatedReadingType(clock.instant()).isPresent()){
+            return hasActiveRules(register.getReadingType()) || hasActiveRules(register.getCalculatedReadingType(clock.instant()).get());
+        }else{
+            return hasActiveRules(register.getReadingType());
+        }
     }
 
     private boolean hasActiveRules(ReadingType readingType) {

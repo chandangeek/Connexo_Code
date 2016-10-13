@@ -2129,7 +2129,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public DeviceValidation forValidation() {
         if (deviceValidation == null) {
-            deviceValidation = new DeviceValidationImpl(this.validationService, this.thesaurus, this);
+            deviceValidation = new DeviceValidationImpl(this.validationService, this.thesaurus, this, clock);
         }
         return deviceValidation;
     }
