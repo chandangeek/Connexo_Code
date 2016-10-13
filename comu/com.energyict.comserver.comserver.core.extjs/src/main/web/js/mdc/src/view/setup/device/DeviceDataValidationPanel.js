@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                         },
                         defaults: {
                             xtype: 'displayfield',
-                            labelWidth: 130,
+                            labelWidth: 200,
                             style: {
                                 marginRight: '20px',
                                 padding: '20px'
@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                         items: [
                             {
                                 itemId: 'statusField',
-                                fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                                fieldLabel: Uni.I18n.translate('device.registerData.deviceValidationStatus', 'MDC', 'Device validation status'),
                                 name: 'isActive',
                                 renderer: function (value) {
                                     return value ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
