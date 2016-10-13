@@ -14,6 +14,9 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -145,7 +148,7 @@ public enum TableSpecs {
                     .as("'SC_'||" + sqlDialect.leftPad("ID", ServiceCallImpl.ZEROFILL_SIZE, "0") + ")")
                     .alias("internalReference")
                     .add();
-            table.addRefAnyColumns("TARGET", false, ServiceCallImpl.Fields.targetObject.fieldName());
+            List<Column> target = table.addRefAnyColumns("TARGET", false, ServiceCallImpl.Fields.targetObject.fieldName());
             Column serviceCallType = table.column("SERVICECALLTYPE").number().notNull().add();
             table.addAuditColumns();
 
@@ -166,6 +169,11 @@ public enum TableSpecs {
                     .references(State.class)
                     .map(ServiceCallImpl.Fields.state.fieldName())
                     .add();
+
+            List<Column> targetIndexColumns = new ArrayList<>(1 + target.size());
+            targetIndexColumns.add(serviceCallType);
+            targetIndexColumns.addAll(target);
+            table.index("SCS_IX_SCS_TARGET_OBJECT").on(targetIndexColumns.toArray(new Column[targetIndexColumns.size()])).add();
         }
     },
     SCS_SERVICE_CALL_LOG {
