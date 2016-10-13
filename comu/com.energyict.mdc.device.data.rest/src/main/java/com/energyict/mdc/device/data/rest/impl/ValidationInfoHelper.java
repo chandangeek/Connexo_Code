@@ -34,7 +34,9 @@ public class ValidationInfoHelper {
         if(deviceValidation.getLastChecked(register).isPresent()){
             lastChecked = deviceValidation.getLastChecked(register).equals(Optional.of(register.getDevice().getMeterActivationsMostRecentFirst().get(0).getStart())) ? Optional.empty() : deviceValidation.getLastChecked(register);
         }
-        return validationInfoFactory.createDetailedValidationInfo(validationActive, statuses(register), lastChecked);
+        DetailedValidationInfo info = validationInfoFactory.createDetailedValidationInfo(validationActive, statuses(register), lastChecked);
+        info.channelValidationStatus = register.getDevice().forValidation().isChannelStatusActive(register);
+        return info;
     }
 
     public DetailedValidationInfo getMinimalRegisterValidationInfo(Register<?, ?> register) {

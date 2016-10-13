@@ -113,6 +113,7 @@ public class LoadProfileResource {
         Range<Instant> checkInterval = lastMonth();
         loadProfileInfo.validationInfo.dataValidated = loadProfile.getChannels().stream()
                 .allMatch(c -> allDataValidatedOnChannel(c, checkInterval));
+        loadProfileInfo.validationInfo.channelValidationStatus = isChannelValidationActive(loadProfile);
     }
 
     @Path("{lpid}")
@@ -147,6 +148,11 @@ public class LoadProfileResource {
                 .anyMatch(isValidationActive());
     }
 
+    private boolean isChannelValidationActive(LoadProfile loadProfile) {
+        return loadProfile.getChannels().stream()
+                .anyMatch(isChannelValidationActive());
+    }
+
     private Optional<Instant> lastChecked(LoadProfile loadProfile) {
         return loadProfile
                     .getChannels()
@@ -177,7 +183,11 @@ public class LoadProfileResource {
     }
 
     private Predicate<Channel> isValidationActive() {
-        return c -> c.getDevice().forValidation().isValidationActive(c, clock.instant());
+        return c -> c.getDevice().forValidation().isValidationActive();
+    }
+
+    private Predicate<Channel> isChannelValidationActive() {
+        return c -> c.getDevice().forValidation().isChannelStatusActive(c);
     }
 
     @GET @Transactional
