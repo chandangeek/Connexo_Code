@@ -150,10 +150,26 @@ Ext.define('Isu.view.issues.ActionMenu', {
             Ext.Array.each(me.predefinedItems, function (menuItem) {
                 switch (menuItem.action) {
                     case 'addComment':
-                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view').buildUrl({issueId: issueId}, {addComment: true});
+                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view').buildUrl(
+                            {
+                                issueId: issueId
+                            },
+                            {
+                                addComment: true,
+                                issueType: issueType
+                            }
+                        );
                         break;
                     case 'startProcess':
-                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: menuItem.details, issueType: issueType});
+                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl(
+                            {
+                                issueId: issueId
+                            },
+                            {
+                                details: menuItem.details,
+                                issueType: issueType
+                            }
+                        );
                         break;
                 }
             });
