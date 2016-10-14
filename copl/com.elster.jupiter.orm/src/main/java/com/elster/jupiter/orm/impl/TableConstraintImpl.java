@@ -44,6 +44,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
     private final List<ColumnInConstraintImpl> columnHolders = new ArrayList<>();
 
     private transient RangeSet<Version> versions = ImmutableRangeSet.<Version>of().complement();
+    private transient RangeSet<Version> versionsIntersectedWithTable;
     private S self;
 
     TableConstraintImpl(Class<S> selfType) {
@@ -171,7 +172,10 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
     }
 
     RangeSet<Version> versions() {
-        return intersectWithTable(versions);
+        if (versionsIntersectedWithTable == null) {
+            versionsIntersectedWithTable = intersectWithTable(versions);
+        }
+        return versionsIntersectedWithTable;
     }
 
     void validate() {
@@ -236,6 +240,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
         } else {
             this.versions = ImmutableRangeSet.copyOf(versions);
         }
+        versionsIntersectedWithTable = null;
     }
 
     @Override

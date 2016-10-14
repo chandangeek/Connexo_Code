@@ -55,7 +55,9 @@ public class ColumnImpl implements Column {
     private String formula;
     private boolean alwaysJournal = true;
     private transient RangeSet<Version> versions = TreeRangeSet.<Version>create().complement();
+    private transient RangeSet<Version> versionsIntersectedWithTable;
     private transient ColumnImpl predecessor;
+    private Boolean isForeignKeyPart = null;
 
     // associations
     private final Reference<TableImpl<?>> table = ValueReference.absent();
@@ -405,7 +407,10 @@ public class ColumnImpl implements Column {
     }
 
     boolean isForeignKeyPart() {
-        return getForeignKeyConstraint() != null;
+        if (isForeignKeyPart == null) {
+            isForeignKeyPart = getForeignKeyConstraint() != null;
+        }
+        return isForeignKeyPart;
     }
 
     private ForeignKeyConstraintImpl getForeignKeyConstraint() {
@@ -494,7 +499,10 @@ public class ColumnImpl implements Column {
     }
 
     RangeSet<Version> versions() {
-        return intersectWithTable(versions);
+        if (versionsIntersectedWithTable == null) {
+            versionsIntersectedWithTable = intersectWithTable(versions);
+        }
+        return versionsIntersectedWithTable;
     }
 
     Optional<ColumnImpl> getPredecessor() {
@@ -504,12 +512,14 @@ public class ColumnImpl implements Column {
     @Override
     public ColumnImpl since(Version version) {
         versions = intersectWithTable(ImmutableRangeSet.of(Range.atLeast(version)));
+        versionsIntersectedWithTable = null;
         return this;
     }
 
     @Override
     public ColumnImpl upTo(Version version) {
         versions = intersectWithTable(ImmutableRangeSet.of(Range.lessThan(version)));
+        versionsIntersectedWithTable = null;
         return this;
     }
 
@@ -519,6 +529,7 @@ public class ColumnImpl implements Column {
         Arrays.stream(ranges)
                 .forEach(builder::add);
         versions = intersectWithTable(builder.build());
+        versionsIntersectedWithTable = null;
         return this;
     }
 
