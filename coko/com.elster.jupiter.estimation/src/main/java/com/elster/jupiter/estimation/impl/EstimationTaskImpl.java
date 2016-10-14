@@ -113,8 +113,17 @@ final class EstimationTaskImpl implements IEstimationTask {
 
 
     private void persist() {
+        //TODO: 10.3 -> make this dynamic
+        String applicationName;
+        if(qualityCodeSystem.equals(QualityCodeSystem.MDC)) {
+            applicationName = "MultiSense";
+        } else if (qualityCodeSystem.equals(QualityCodeSystem.MDM)) {
+            applicationName = "Insight";
+        } else {
+            applicationName = "Admin";
+        }
         RecurrentTask task = taskService.newBuilder()
-                .setApplication(qualityCodeSystem != null ? thesaurus.getString(qualityCodeSystem.name(), qualityCodeSystem.name()) : null)
+                .setApplication(applicationName)
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(estimationService.getDestination())
