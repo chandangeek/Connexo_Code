@@ -37,11 +37,11 @@ public class DeviceConfigConflictMappingInfo {
         this.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
     }
 
-    private MessageSeeds getTranslationKey(DeviceConfigConflictMapping conflictMapping) {
+    private TranslationKeys getTranslationKey(DeviceConfigConflictMapping conflictMapping) {
         if (conflictMapping.isSolved()) {
-            return MessageSeeds.HAS_SOLVED;
+            return TranslationKeys.HAS_SOLVED;
         } else {
-            return MessageSeeds.HAS_UNSOLVED;
+            return TranslationKeys.HAS_UNSOLVED;
         }
     }
 

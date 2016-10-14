@@ -16,8 +16,9 @@ public enum TranslationKeys implements TranslationKey {
     CHANNEL("com.energyict.mdc.device.config.ChannelSpec", "Channel"),
     REGISTER("com.energyict.mdc.device.config.RegisterSpec", "Register"),
     INBOUND(ConnectionType.Direction.INBOUND.name(), "Inbound"),
-    OUTBOUND(ConnectionType.Direction.OUTBOUND.name(), "Outbound");
-
+    OUTBOUND(ConnectionType.Direction.OUTBOUND.name(), "Outbound"),
+    HAS_SOLVED("Solved", "Solved"),
+    HAS_UNSOLVED("Unsolved","Unsolved");
 
     private final String key;
     private final String defaultFormat;
