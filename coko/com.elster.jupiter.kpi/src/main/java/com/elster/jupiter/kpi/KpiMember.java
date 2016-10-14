@@ -8,6 +8,7 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -27,7 +28,7 @@ public interface KpiMember extends HasName {
     boolean hasDynamicTarget();
 
     /**
-     * @param date
+     * @param instant
      * @return the target value for the given time. Members with a static target will disregard the date.
      */
     BigDecimal getTarget(Instant instant);
@@ -44,10 +45,19 @@ public interface KpiMember extends HasName {
 
     /**
      * Registers a score for this Kpi metric at the given date.
+     *
      * @param date
      * @param bigDecimal
      */
     void score(Instant date, BigDecimal bigDecimal);
+
+    /**
+     * Registers scores for this Kpi metric at given set of dates
+     *
+     * @param scores the set of dates with there scores
+     * @since 2.2
+     */
+    void score(Map<Instant, BigDecimal> scores);
 
     /**
      * @param date
@@ -56,7 +66,7 @@ public interface KpiMember extends HasName {
     Optional<KpiEntry> getScore(Instant date);
 
     /**
-     * @param interval
+     * @param range
      * @return a List containing all available scores in the given Interval
      */
     List<? extends KpiEntry> getScores(Range<Instant> range);
@@ -68,6 +78,7 @@ public interface KpiMember extends HasName {
 
     /**
      * Updates the static target for this Kpi metric. Will throw an IllegalStateException if this metric has a dynamic target.
+     *
      * @param target
      */
     void updateTarget(BigDecimal target);

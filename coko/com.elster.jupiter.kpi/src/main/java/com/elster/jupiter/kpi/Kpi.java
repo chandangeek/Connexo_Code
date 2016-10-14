@@ -1,10 +1,14 @@
 package com.elster.jupiter.kpi;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
 
+import aQute.bnd.annotation.ProviderType;
+
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -37,4 +41,12 @@ public interface Kpi extends HasName {
      * Removes this Kpi from the DB
      */
     void remove();
+
+    /**
+     * Stores scores for the passed members
+     *
+     * @param memberScores the map of scores per member
+     * @since 2.2
+     */
+    void store(Map<KpiMember, Map<Instant, BigDecimal>> memberScores);
 }

@@ -11,6 +11,8 @@ import com.elster.jupiter.kpi.TargetStorer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.RangeBuilder;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -18,7 +20,10 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 class KpiMemberImpl implements IKpiMember {
 
@@ -83,7 +88,7 @@ class KpiMemberImpl implements IKpiMember {
         if (target == null) {
             target = dynamic ? new DynamicKpiTarget(getTimeSeries()) : new StaticKpiTarget(targetValue);
         }
-        return  target;
+        return target;
     }
 
     @Override
@@ -105,6 +110,30 @@ class KpiMemberImpl implements IKpiMember {
         if (!kpiEntry.meetsTarget()) {
             eventService.postEvent(EventType.KPI_TARGET_MISSED.topic(), new KpiMissEventImpl(this, kpiEntry));
         }
+    }
+
+    @Override
+    public void score(Map<Instant, BigDecimal> scores) {
+        TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
+        Range<Instant> range = addScores(storer, scores);
+        storer.execute();
+        checkKpiScores(range);
+    }
+
+    @Override
+    public Range<Instant> addScores(TimeSeriesDataStorer storer, Map<Instant, BigDecimal> scores) {
+        TimeSeries timeSeries = getTimeSeries();
+        RangeBuilder rangeBuilder = new RangeBuilder();
+        scores.entrySet().forEach(entry -> {
+            storer.add(timeSeries, entry.getKey(), entry.getValue(), getTarget(entry.getKey()));
+            rangeBuilder.add(entry.getKey());
+        });
+        return rangeBuilder.getRange();
+    }
+
+    @Override
+    public void checkKpiScores(Range<Instant> range) {
+        getScores(range).stream().filter(not(KpiEntry::meetsTarget)).forEach(entry -> eventService.postEvent(EventType.KPI_TARGET_MISSED.topic(), new KpiMissEventImpl(this, entry)));
     }
 
     @Override

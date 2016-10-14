@@ -4,10 +4,13 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.orm.DataModel;
+
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -15,8 +18,11 @@ import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TimeZone;
 
 class KpiImpl implements Kpi {
@@ -146,5 +152,26 @@ class KpiImpl implements Kpi {
     @Override
     public final int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public void store(Map<KpiMember, Map<Instant, BigDecimal>> memberScores) {
+        TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
+        Map<IKpiMember, Range<Instant>> memberRangeMap = new HashMap<>();
+        for (Map.Entry<KpiMember, Map<Instant, BigDecimal>> kpiMemberMapEntry : memberScores.entrySet()) {
+
+            Optional<IKpiMember> iKpiMember = getIKpiMember(kpiMemberMapEntry.getKey());
+            if (iKpiMember.isPresent()) {
+                memberRangeMap.put(iKpiMember.get(), iKpiMember.get().addScores(storer, kpiMemberMapEntry.getValue()));
+            } else {
+                throw new IllegalArgumentException("Passed member " + kpiMemberMapEntry.getKey() + " is not a member of the kpi");
+            }
+        }
+        storer.execute();
+        memberRangeMap.forEach(IKpiMember::checkKpiScores);
+    }
+
+    private Optional<IKpiMember> getIKpiMember(KpiMember member) {
+        return members.stream().filter(iKpiMember -> iKpiMember.equals(member)).findFirst();
     }
 }
