@@ -8,6 +8,7 @@ import java.util.Set;
 public class DetailedValidationInfo {
 
     public Boolean validationActive;
+    public Boolean channelValidationStatus;
     public Boolean dataValidated;
     public Set<ValidationRuleInfoWithNumber> suspectReason;
     public Long lastChecked;

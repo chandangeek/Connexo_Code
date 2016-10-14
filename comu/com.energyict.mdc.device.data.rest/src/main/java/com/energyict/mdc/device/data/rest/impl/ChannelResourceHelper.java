@@ -86,10 +86,15 @@ public class ChannelResourceHelper {
         if (states.isEmpty()) {
             channelInfo.validationInfo.dataValidated = channel.getDevice().forValidation().allDataValidated(channel, clock.instant());
         }
+        channelInfo.validationInfo.channelValidationStatus = isChannelValidationActive(channel);
     }
 
     public boolean isValidationActive(Channel channel) {
-        return channel.getDevice().forValidation().isValidationActive(channel, clock.instant());
+        return channel.getDevice().forValidation().isValidationActive();
+    }
+
+    private boolean isChannelValidationActive(Channel channel){
+        return channel.getDevice().forValidation().isChannelStatusActive(channel);
     }
 
     private Range<Instant> lastMonth() {
