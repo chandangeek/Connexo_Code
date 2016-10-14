@@ -1295,6 +1295,8 @@ sub perform_upgrade {
             my $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.pl";
             if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
                 $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.exe";
+            } else {
+                chmod 0755,"$UPGRADE_PATH/temp/partners/upgrade.pl";
             }
             if (-e "$upgrade_exe") {
                 system("$upgrade_exe $upgrade_params") == 0 or die "Could not execute partners upgrade script!";
