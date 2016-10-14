@@ -109,7 +109,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             router = me.getController('Uni.controller.history.Router'),
             store = Ext.getStore('Mdc.store.device.MeterActivations');
 
-        store.getProxy().extraParams = {mRID: router.arguments.mRID};
+        store.getProxy().extraParams = {mRID: decodeURIComponent(router.arguments.mRID)};
         store.load();
     },
 
