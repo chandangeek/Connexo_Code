@@ -1397,6 +1397,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(device.getMultiplier()).isEqualTo(BigDecimal.ONE);
 
         BigDecimal multiplier = BigDecimal.TEN;
+        initialStart = freezeClock(2015, 11, 26);
         device.setMultiplier(multiplier);
         device.save();
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(2);
@@ -1421,6 +1422,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(device.getMultiplier()).isEqualTo(BigDecimal.ONE);
 
         BigDecimal multiplier = BigDecimal.TEN;
+        initialStart = freezeClock(2015, 11, 26);
         device.setMultiplier(multiplier);
         device.save();
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(2);

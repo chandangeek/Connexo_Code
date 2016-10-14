@@ -132,10 +132,10 @@ import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForActivation;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
+import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForMultiplierChange;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForRemoval;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForSimpleUpdate;
 import com.energyict.mdc.device.data.impl.sync.SynchDeviceWithKoreForConfigurationChange;
-import com.energyict.mdc.device.data.impl.sync.SynchDeviceWithKoreForMultiplierChange;
 import com.energyict.mdc.device.data.impl.sync.SynchNewDeviceWithKore;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
@@ -880,8 +880,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Instant now = clock.instant();
             Optional<Instant> startDateMultiplier = from == null ? Optional.of(now) : Optional.of(from);
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
-            SynchDeviceWithKoreForMultiplierChange multiplierChange =
-                    new SynchDeviceWithKoreForMultiplierChange(
+            SyncDeviceWithKoreForMultiplierChange multiplierChange =
+                    new SyncDeviceWithKoreForMultiplierChange(
                             this,
                             startDateMultiplier.get(),
                             multiplier,
@@ -914,14 +914,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (this.meter.get().hasData() && startDateMultiplier.get().isBefore(now)) {
                 throw MultiplierConfigurationException.canNotConfigureMultiplierInPastWhenYouAlreadyHaveData(thesaurus);
             }
-            if (this.meter.get().getCurrentMeterActivation().isPresent()) {
-                if (!this.meter.get()
-                        .getCurrentMeterActivation()
-                        .get()
-                        .getRange()
-                        .contains(startDateMultiplier.get())) {
-                    throw MultiplierConfigurationException.canNotConfigureMultiplierWithStartDateOutOfCurrentMeterActivation(thesaurus);
-                }
+
+            Optional<? extends MeterActivation> meterActivationAt = this.meter.get().getMeterActivation(startDateMultiplier.get());
+            if(!meterActivationAt.isPresent()){
+                throw MultiplierConfigurationException.multiplierMustHaveMeterActivation(thesaurus);
             }
         }
     }

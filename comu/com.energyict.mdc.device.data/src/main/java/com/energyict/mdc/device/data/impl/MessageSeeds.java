@@ -25,7 +25,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUseCollection", "Device group {0} is still in use by a data collection KPI"),
     FIELD_IS_REQUIRED(1014, Keys.FIELD_REQUIRED, "This field is required"),
     CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS(1015, Keys.CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS, "You can not configure a multiplier in the past when your device already has data"),
-    CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION(1016, Keys.CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION, "You can not configure a multiplier with a start date outside of the current meter activation"),
+    MULTIPLIER_MUST_HAVE_METERACTIVATION(1016, Keys.MULTIPLIER_MUST_HAVE_METERACTIVATION, "You can not configure a multiplier with a start date which doesn't correspond with a meter activation"),
     CONNECTION_TASK_DEVICE_REQUIRED(2000, Keys.CONNECTION_TASK_DEVICE_REQUIRED, "A connection type should be linked to a device"),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED(2001, Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED, "A connection type should be linked to a partial connection task from the device configuration"),
     DUPLICATE_CONNECTION_TASK(2002, Keys.DUPLICATE_CONNECTION_TASK, "The partial connection task {0} is already used by connection task {1} on device {2} and therefore no other connection task with the same partial connection task can be added"),
@@ -311,7 +311,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE = "bulk.device.configchange.invalid.search.item";
         public static final String CHANGE_CONFIG_WRONG_DEVICE_STATE = "change.config.wrong.device.state";
         public static final String CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS = "cannot.configure.device.multiplier.in.past.when.data.exists";
-        public static final String CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION = "cannot.configure.device.multiplier.start.out.current.meteractivation";
+        public static final String MULTIPLIER_MUST_HAVE_METERACTIVATION = "multiplier.must.have.meteractivation";
         public static final String MULTIPLIER_OF_ZERO_IS_NOT_ALLOWED = "multiplier.zero.not.allowed";
         public static final String MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE = "multiplier.exceeds.max.value";
         public static final String READING_OVERFLOW_DETECTED = "reading.overflow";

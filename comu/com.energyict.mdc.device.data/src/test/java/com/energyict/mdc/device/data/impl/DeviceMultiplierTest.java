@@ -360,16 +360,19 @@ public class DeviceMultiplierTest {
     }
 
     @Test
-    @Expected(value = MultiplierConfigurationException.class, message = "You can not configure a multiplier with a start date outside of the current meter activation")
-    public void setMultiplierInFutureOutsideRangeOfCurrentMeterActivationTest() {
+    @Expected(value = MultiplierConfigurationException.class, message = "You can not configure a multiplier with a start date which doesn't correspond with a meter activation")
+    public void setMultiplierOnMeterActivationThatDoesntExist() {
+        MeterActivation futureMeterActivation = mock(MeterActivation.class);
+        when(futureMeterActivation.getId()).thenReturn(55432186L);
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
-        doReturn(Collections.singletonList(meterActivation)).when(meter).getMeterActivations();
+        doReturn(Arrays.asList(meterActivation, futureMeterActivation)).when(meter).getMeterActivations();
 
         Device mockedDevice = createMockedDevice(now);
 
         when(meterActivation.getRange()).thenReturn(Range.openClosed(startOfMeterActivation, now));
         when(meter.hasData()).thenReturn(true);
         Instant from = now.plus(1, ChronoUnit.DAYS);
+        doReturn(Optional.empty()).when(meter).getMeterActivation(from);
         MeterActivation newMeterActivation = mock(MeterActivation.class);
         when(meter.activate(from)).thenReturn(newMeterActivation);
 
@@ -380,7 +383,7 @@ public class DeviceMultiplierTest {
 
 
     @Test
-    @Expected(value = MultiplierConfigurationException.class, message = "You can not configure a multiplier with a start date outside of the current meter activation")
+    @Expected(value = MultiplierConfigurationException.class, message = "You can not configure a multiplier with a start date which doesn't correspond with a meter activation")
     public void setMultiplierInPastOutsideRangeOfCurrentMeterActivationTest() {
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         doReturn(Collections.singletonList(meterActivation)).when(meter).getMeterActivations();
@@ -389,6 +392,7 @@ public class DeviceMultiplierTest {
 
         when(meterActivation.getRange()).thenReturn(Range.openClosed(startOfMeterActivation, now));
         Instant from = startOfMeterActivation.minus(1, ChronoUnit.DAYS);
+        when(meter.getMeterActivation(from)).thenReturn(Optional.empty());
         MeterActivation newMeterActivation = mock(MeterActivation.class);
         when(meter.activate(from)).thenReturn(newMeterActivation);
 
