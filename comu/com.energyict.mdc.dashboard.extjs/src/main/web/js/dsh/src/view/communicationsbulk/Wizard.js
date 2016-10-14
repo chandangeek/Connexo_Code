@@ -19,26 +19,26 @@ Ext.define('Dsh.view.communicationsbulk.Wizard', {
             {
                 xtype: 'communications-bulk-step1',
                 itemId: 'cmbw-step1',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 1, 4)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkStep.title', 'DSH', 'Step {0}:'), 1)
                 + ' ' + Uni.I18n.translate('communication.bulk.selectCommunications', 'DSH', 'Select communications'),
                 router: me.router
             },
             {
                 xtype: 'communications-bulk-step2',
                 itemId: 'cmbw-step2',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 2, 4)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkStep.title', 'DSH', 'Step {0}:'), 2)
                 + ' ' + Uni.I18n.translate('general.selectAction', 'DSH', 'Select action')
             },
             {
                 xtype: 'communications-bulk-step3',
                 itemId: 'cmbw-step3',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 3, 4)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkStep.title', 'DSH', 'Step {0}:'), 3)
                 + ' ' + Uni.I18n.translate('general.confirmation', 'DSH', 'Confirmation')
             },
             {
                 xtype: 'communications-bulk-step4',
                 itemId: 'cmbw-step4',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'DSH', 'Bulk action - Step {0} of {1}:'), 4, 4)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkStep.title', 'DSH', 'Step {0}:'), 4)
                 + ' ' + Uni.I18n.translate('general.status', 'DSH', 'Status'),
                 router: me.router
             }

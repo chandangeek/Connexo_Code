@@ -243,7 +243,7 @@ Ext.define('Dsh.controller.Connections', {
         //router.filter.startedBetween
         //router.filter.finishBetween
 
-        router.getRoute('generatereport').forward(null, {
+        router.getRoute('workspace/generatereport').forward(null, {
             category: 'MDC',
             subCategory: 'Device Connections',
             filter: !Ext.Object.isEmpty(reportFilter)
