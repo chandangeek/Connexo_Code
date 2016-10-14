@@ -270,20 +270,20 @@ public class DeviceInstallationImporterFactoryTest {
     @Test
     public void testSuccessCaseInstallActiveWithoutLocation() {
         String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;;;;;;;;;;;;;;;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;;;;;;;;;;;;;;;VPB0001;Usage Point;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByMrid("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device masterDevice = mock(Device.class);
         when(masterDevice.getmRID()).thenReturn("VPB0001");
         when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        when(deviceService.findDeviceByMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
         ExecutableAction executableAction = mock(ExecutableAction.class);
@@ -292,7 +292,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("Usage Point")).thenReturn(Optional.of(usagePoint));
 
         importer.process(importOccurrence);
 
