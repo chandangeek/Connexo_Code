@@ -1,6 +1,7 @@
 package com.elster.jupiter.tasks.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskStatus;
@@ -23,7 +24,7 @@ import java.util.Optional;
 public class TaskInfo {
 
     public String name;
-    public String application;
+    public IdWithNameInfo application;
     public String queue;
     public String queueStatus;
     public Long queueStatusDate;
@@ -39,7 +40,7 @@ public class TaskInfo {
 
     TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
         name = recurrentTask.getName();
-        application = recurrentTask.getApplication();
+        application = new IdWithNameInfo(recurrentTask.getApplication(), thesaurus.getString(recurrentTask.getApplication(), recurrentTask.getApplication()));
         queue = recurrentTask.getDestination().getName();
         trigger = thesaurus.getFormat(TranslationKeys.SCHEDULED).format() + " (" + getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService, locale) + ")";
         Optional<TaskOccurrence> lastOccurrence = recurrentTask.getLastOccurrence();

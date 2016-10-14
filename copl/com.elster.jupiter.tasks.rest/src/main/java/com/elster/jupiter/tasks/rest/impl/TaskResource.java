@@ -1,6 +1,7 @@
 package com.elster.jupiter.tasks.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -87,7 +88,7 @@ public class TaskResource {
     @Path("/applications")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
-    public List<ApplicationInfo> getApplications(@Context UriInfo uriInfo) {
+    public List<IdWithNameInfo> getApplications(@Context UriInfo uriInfo) {
         List<RecurrentTask> tasks = taskService.getRecurrentTasks();
         List<String> applicationNames = new ArrayList<String>();
         for (RecurrentTask task : tasks)  {
@@ -95,9 +96,9 @@ public class TaskResource {
         }
         Set<String> set = new HashSet<>();
         set.addAll(applicationNames);
-        List<ApplicationInfo> applications = new ArrayList<ApplicationInfo>();
+        List<IdWithNameInfo> applications = new ArrayList<>();
         for (String applicationName : set) {
-            applications.add(new ApplicationInfo(applicationName));
+            applications.add(new IdWithNameInfo(applicationName, thesaurus.getString(applicationName, applicationName)));
         }
         return applications;
     }

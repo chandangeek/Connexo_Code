@@ -6,6 +6,11 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
     SCHEDULED("recurrenttask.occurrence.scheduled", "Scheduled"),
+    MDC("MultiSense", "MultiSense"),
+    MDM("Insight", "Insight"),
+    FACTS("Facts", "Facts"),
+    ADMIN("Admin", "Admin"),
+    FLOW("Flow", "Flow")
     ;
 
     private String key;
