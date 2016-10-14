@@ -79,8 +79,8 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
             values.setProperty("serviceCompany", "SERV1");
             values.setProperty("technician", "technician");
             values.setProperty("replaceBy", clock.instant());
-            values.setProperty("maxCurrentRating", Quantity.create(BigDecimal.ZERO, 100, "A"));
-            values.setProperty("maxVoltage", Quantity.create(BigDecimal.ZERO, 400, "V"));
+            values.setProperty("maxCurrentRating", Quantity.create(BigDecimal.valueOf(100L), 0, "A"));
+            values.setProperty("maxVoltage", Quantity.create(BigDecimal.valueOf(400L), 0, "V"));
 
             this.customPropertySetService.setValuesFor(customPropertySet.get(), device, values);
         }
