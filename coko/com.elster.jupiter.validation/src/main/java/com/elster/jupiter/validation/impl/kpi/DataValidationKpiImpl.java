@@ -324,7 +324,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
                 recurrentTask.save();
             } else {
                 recurrentTask = taskService.newBuilder()
-                        .setApplication(thesaurus.getString("MDC", "MultiSense"))
+                        //TODO: application key should be dynamically added
+                        .setApplication("MultiSense")
                         .setName(taskName())
                         .setScheduleExpression(this.toScheduleExpression())
                         .setDestination(destination)
