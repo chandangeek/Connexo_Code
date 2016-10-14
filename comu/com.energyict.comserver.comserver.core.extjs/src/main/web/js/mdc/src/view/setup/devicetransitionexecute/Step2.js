@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.Step2', {
         'Mdc.view.setup.devicetransitionexecute.ResultPanel'
     ],
 
-    title: Uni.I18n.translate('devicetransitionexecute.wizard.step2title', 'MDC', 'Step 2 of 2:  Status'),
+    title: Uni.I18n.translate('devicetransitionexecute.wizard.step2.title', 'MDC', 'Step 2:  Status'),
 
     showProgressBar: function () {
         var me = this,

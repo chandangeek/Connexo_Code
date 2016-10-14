@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
         'Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid'
     ],
 
-    title: Uni.I18n.translate('searchItems.bulk.step3title', 'MDC', 'Bulk action - Step 3 of 5: Action details'),
+    title: Uni.I18n.translate('searchItems.bulk.step3title', 'MDC', 'Step 3: Action details'),
 
     items: [
         {

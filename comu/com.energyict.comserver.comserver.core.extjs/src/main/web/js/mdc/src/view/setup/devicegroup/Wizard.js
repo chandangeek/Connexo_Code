@@ -24,28 +24,28 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
                 xtype: 'device-group-wizard-step1',
                 itemId: 'devicegroup-wizard-step1',
                 title: me.isEdit
-                    ? Uni.I18n.translate('devicegroup.wizard.step1title.edit', 'MDC', 'Step 1 of 4: Set group name')
-                    : Uni.I18n.translate('devicegroup.wizard.step1title.add', 'MDC', 'Step 1 of 4: General attributes'),
+                    ? Uni.I18n.translate('devicegroup.wizard.step1.title.edit', 'MDC', 'Step 1: Set group name')
+                    : Uni.I18n.translate('devicegroup.wizard.step1.title.add', 'MDC', 'Step 1: General attributes'),
                 navigationIndex: 1,
                 isEdit: me.isEdit
             },
             {
                 xtype: 'device-group-wizard-step2',
                 itemId: 'devicegroup-wizard-step2',
-                title: Uni.I18n.translate('devicegroup.wizard.step2title', 'MDC', 'Step 2 of 4: Select devices'),
+                title: Uni.I18n.translate('devicegroup.wizard.step2.title', 'MDC', 'Step 2: Select devices'),
                 navigationIndex: 2,
                 service: me.service
             },
             {
                 xtype: 'device-group-wizard-step3',
                 itemId: 'devicegroup-wizard-step3',
-                title: Uni.I18n.translate('devicegroup.wizard.step3title', 'MDC', 'Step 3 of 4: Confirmation'),
+                title: Uni.I18n.translate('devicegroup.wizard.step3.title', 'MDC', 'Step 3: Confirmation'),
                 navigationIndex: 3
             },
             {
                 xtype: 'device-group-wizard-step4',
                 itemId: 'devicegroup-wizard-step4',
-                title: Uni.I18n.translate('devicegroup.wizard.step4title', 'MDC', 'Step 4 of 4: Status'),
+                title: Uni.I18n.translate('devicegroup.wizard.step4.title', 'MDC', 'Step 4: Status'),
                 navigationIndex: 4
             }
         ];

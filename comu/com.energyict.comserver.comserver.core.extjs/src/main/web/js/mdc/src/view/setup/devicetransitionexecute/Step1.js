@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.Step1', {
         'Mdc.view.setup.devicetransitionexecute.form.TransitionDateField'
     ],
 
-    title: Uni.I18n.translate('devicetransitionexecute.wizard.step1title', 'MDC', 'Step 1 of 2: Set properties'),
+    title: Uni.I18n.translate('devicetransitionexecute.wizard.step1.title', 'MDC', 'Step 1: Set properties'),
 
 
     items: [
