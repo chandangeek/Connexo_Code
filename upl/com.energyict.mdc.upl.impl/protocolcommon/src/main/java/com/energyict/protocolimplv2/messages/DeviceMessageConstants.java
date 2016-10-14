@@ -206,6 +206,7 @@ public class DeviceMessageConstants {
     public static final String consumerProducerModeAttributeName = "LoadProfileConfigurationMessage.consumerproducermode";
     public static final String loadProfileOptInOutModeAttributeName = "LoadProfileConfigurationMessage.optinout";
     public static final String monitorInstanceAttributeName = "LoadBalanceDeviceMessage.monitorInstance";
+    public static final String setDisplayOnOffModeAttributeName = "LoadProfileConfigurationMessage.setDisplayOnOff";
 
     public static final String xmlConfigAttributeName = "AdvancedTestMessage.xmlconfig";
     public static final String UserFileConfigAttributeName = "AdvancedTestMessage.configuserfile";

@@ -27,6 +27,7 @@ import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileOptInOut;
+import com.energyict.protocolimplv2.messages.enums.SetDisplayMode;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.DSMR50ActivitiyCalendarController;
 
 import java.io.IOException;
@@ -47,6 +48,8 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
     private static final ObisCode LOAD_PROFILE_CONTROL_SCHEDULE_OBISCODE = ObisCode.fromString("0.0.15.0.5.255");
     private static final ObisCode LOAD_PROFILE_CONTROL_SCRIPT_TABLE = ObisCode.fromString("0.0.10.0.109.255");
 
+    private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_SCHEDULE_OBISCODE = ObisCode.fromString("0.0.15.0.9.255");
+    private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_SCRIPT_TABLE = ObisCode.fromString("0.0.10.0.113.255");
 
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
@@ -72,6 +75,8 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 collectedMessage = updateSupervisionMonitor(collectedMessage, pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.LOAD_PROFILE_OPT_IN_OUT)) {
                 loadProfileOptInOUT(pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.SET_DISPLAY_ON_OFF)) {
+                setDiplayOnOff(pendingMessage);
             } else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
@@ -171,4 +176,15 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         sas.writeExecutedScript(scriptStruct);
     }
 
+    private void setDiplayOnOff(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        String modeName = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.setDisplayOnOffModeAttributeName).getDeviceMessageAttributeValue();
+        int modeId = SetDisplayMode.fromModeName(modeName);
+
+        final Structure scriptStruct = new Structure();
+        scriptStruct.addDataType(new OctetString(LOAD_PROFILE_DISPLAY_CONTROL_SCRIPT_TABLE.getLN()));
+        scriptStruct.addDataType(new Unsigned16(modeId));
+
+        SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(LOAD_PROFILE_DISPLAY_CONTROL_SCHEDULE_OBISCODE);
+        sas.writeExecutedScript(scriptStruct);
+    }
 }

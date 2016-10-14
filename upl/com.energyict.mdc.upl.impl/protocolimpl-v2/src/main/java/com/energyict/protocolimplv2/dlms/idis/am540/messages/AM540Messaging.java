@@ -50,6 +50,7 @@ public class AM540Messaging extends AM130Messaging {
         addAdditionalDeviceMessages(supportedMessages);
         supportedMessages.add(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR);
         supportedMessages.add(LoadProfileMessage.LOAD_PROFILE_OPT_IN_OUT);
+        supportedMessages.add(LoadProfileMessage.SET_DISPLAY_ON_OFF);
     }
 
     private void addAdditionalDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
