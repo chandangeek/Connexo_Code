@@ -14,7 +14,7 @@ Ext.define('Uni.grid.column.Default', {
             return '<div class="' + Uni.About.baseCssPrefix + 'default-column-icon'
                 + ' default">&nbsp;</div>';
         } else {
-            return '';
+            return '-';
         }
     }
 });

@@ -58,13 +58,13 @@ Ext.define('Uni.property.view.property.Date', {
         if (!Ext.isEmpty(value)) {
             if (!this.isEdit) {
                 value = this.getValueAsDisplayString(value);
+                this.callParent([value]);
             } else {
                 value = new Date(value);
-            }
-
-            // verify if value is a valid datetime
-            if (!isNaN( value.getTime())){
-                this.callParent([value]);
+                // verify if value is a valid datetime
+                if (!isNaN( value.getTime())){
+                    this.callParent([value]);
+                }
             }
         }
 
