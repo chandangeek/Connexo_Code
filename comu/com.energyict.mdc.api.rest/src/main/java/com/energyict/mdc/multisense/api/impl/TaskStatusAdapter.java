@@ -15,5 +15,6 @@ public class TaskStatusAdapter extends MapBasedXmlAdapter<TaskStatus> {
         register("Pending", TaskStatus.Pending);
         register("Retrying", TaskStatus.Retrying);
         register("Waiting", TaskStatus.Waiting);
+        register("ProcessingError", TaskStatus.ProcessingError);
     }
 }
