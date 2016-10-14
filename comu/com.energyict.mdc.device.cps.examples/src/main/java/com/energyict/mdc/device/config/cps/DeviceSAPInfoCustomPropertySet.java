@@ -19,10 +19,12 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,6 +82,12 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
     }
 
     public static class DeviceSAPInfoPersistentSupport implements PersistenceSupport<Device, DeviceSAPInfoDomainExtension> {
+        private final Thesaurus thesaurus;
+
+        public DeviceSAPInfoPersistentSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public String componentName() {
             return PREFIX;
@@ -107,7 +115,13 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override
@@ -194,7 +208,7 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
 
     @Override
     public PersistenceSupport<Device, DeviceSAPInfoDomainExtension> getPersistenceSupport() {
-        return new DeviceSAPInfoPersistentSupport();
+        return new DeviceSAPInfoPersistentSupport(this.thesaurus);
     }
 
     @Override

@@ -23,10 +23,12 @@ import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -113,6 +115,12 @@ public class DeviceEMeterInfoCustomPropertySet implements CustomPropertySet<Devi
     }
 
     public static class DeviceEMeterInfoPersistentSupport implements PersistenceSupport<Device, DeviceEMeterInfoDomainExtension> {
+        private final Thesaurus thesaurus;
+
+        public DeviceEMeterInfoPersistentSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public String componentName() {
             return PREFIX;
@@ -140,7 +148,13 @@ public class DeviceEMeterInfoCustomPropertySet implements CustomPropertySet<Devi
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override
@@ -233,7 +247,7 @@ public class DeviceEMeterInfoCustomPropertySet implements CustomPropertySet<Devi
 
     @Override
     public PersistenceSupport<Device, DeviceEMeterInfoDomainExtension> getPersistenceSupport() {
-        return new DeviceEMeterInfoPersistentSupport();
+        return new DeviceEMeterInfoPersistentSupport(this.thesaurus);
     }
 
     @Override
@@ -289,13 +303,13 @@ public class DeviceEMeterInfoCustomPropertySet implements CustomPropertySet<Devi
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
                 .addValues(Quantity.create(BigDecimal.ZERO, 0, "A"))
-                .setDefaultValue(Quantity.create(BigDecimal.ZERO, 100, "A"))
+                .setDefaultValue(Quantity.create(BigDecimal.valueOf(100L), 0, "A"))
                 .finish());
         properties.add(this.propertySpecService.specForValuesOf(new QuantityValueFactory()).named(Fields.MAX_VOLTAGE.javaName(), TranslationKeys.EMI_PROPERTY_MAX_VOLTAGE)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
                 .addValues(Quantity.create(BigDecimal.ZERO, 0, "V"))
-                .setDefaultValue(Quantity.create(BigDecimal.ZERO, 400, "V"))
+                .setDefaultValue(Quantity.create(BigDecimal.valueOf(400L), 0, "V"))
                 .finish());
         return properties;
     }

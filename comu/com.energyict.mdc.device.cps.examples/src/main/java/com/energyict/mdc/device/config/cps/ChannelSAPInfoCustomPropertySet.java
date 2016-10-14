@@ -20,10 +20,12 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.DeviceService;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -96,6 +98,12 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
     }
 
     public static class ChannelSAPInfoPersistentSupport implements PersistenceSupport<ChannelSpec, ChannelSAPInfoDomainExtension> {
+        private final Thesaurus thesaurus;
+
+        public ChannelSAPInfoPersistentSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public String componentName() {
             return PREFIX;
@@ -123,7 +131,13 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override
@@ -212,7 +226,7 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
 
     @Override
     public PersistenceSupport<ChannelSpec, ChannelSAPInfoDomainExtension> getPersistenceSupport() {
-        return new ChannelSAPInfoPersistentSupport();
+        return new ChannelSAPInfoPersistentSupport(this.thesaurus);
     }
 
     @Override
