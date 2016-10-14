@@ -29,10 +29,6 @@ Ext.define('Scs.controller.ServiceCalls', {
             selector: 'breadcrumbTrail'
         },
         {
-            ref: 'breadcrumbs',
-            selector: 'breadcrumbTrail'
-        },
-        {
             ref: 'overviewTabPanel',
             selector: '#service-call-overview-tab'
         },
@@ -177,6 +173,7 @@ Ext.define('Scs.controller.ServiceCalls', {
         });
 
         trail.setBreadcrumbItem(root);
+        trail.setSkipForNextCall(true);
         trail.doLayout();
     },
 
