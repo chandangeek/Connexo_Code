@@ -42,7 +42,14 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.application', 'APR', 'Application'),
-                                            name: 'application'
+                                            name: 'application',
+                                            renderer: function(value) {
+                                                if(!Ext.isEmpty(value)) {
+                                                    return value.name;
+                                                } else {
+                                                    return '-';
+                                                }
+                                            }
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.queue', 'APR', 'Queue'),

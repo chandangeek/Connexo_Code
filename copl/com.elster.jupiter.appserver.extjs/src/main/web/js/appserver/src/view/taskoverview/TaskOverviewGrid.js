@@ -19,7 +19,14 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
             {
                 header: Uni.I18n.translate('general.application', 'APR', 'Application'),
                 dataIndex: 'application',
-                flex: 1
+                flex: 1,
+                renderer: function(value) {
+                    if(!Ext.isEmpty(value)) {
+                        return value.name;
+                    } else {
+                        return '-';
+                    }
+                }
             },
             {
                 header: Uni.I18n.translate('general.queue', 'APR', 'Queue'),

@@ -12,8 +12,8 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
                 dataIndex: 'application',
                 emptyText: Uni.I18n.translate('general.application', 'APR', 'Application'),
                 multiSelect: true,
-                displayField: 'application',
-                valueField: 'application',
+                displayField: 'name',
+                valueField: 'id',
                 store: 'Apr.store.Applications'
                 //   hidden: !me.includeServiceCombo
             },
