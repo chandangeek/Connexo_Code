@@ -3,9 +3,14 @@ package com.elster.jupiter.validation.impl.kpi;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
-import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -13,7 +18,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 
-@Component(name="com.elster.jupiter.validation.impl.kpi", service = MessageHandlerFactory.class, property = {"subscriber=" + DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, "destination=" + DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION}, immediate = true)
+@Component(name = "com.elster.jupiter.validation.impl.kpi", service = MessageHandlerFactory.class, property = {"subscriber=" + DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, "destination=" + DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION}, immediate = true)
 public class DataValidationKpiCalculatorHandlerFactory implements MessageHandlerFactory {
 
     public static final String TASK_DESTINATION = "ValKpiCalcTopic";
@@ -22,18 +27,29 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
 
     private volatile TaskService taskService;
     private volatile DataValidationKpiService dataValidationKpiService;
-    private volatile DataValidationReportService dataValidationReportService;
+    private volatile TransactionService transactionService;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile UserService userService;
+    private volatile ValidationService validationService;
     private volatile Clock clock;
+    private User user;
 
-    public DataValidationKpiCalculatorHandlerFactory() {super();}
+    public DataValidationKpiCalculatorHandlerFactory() {
+        super();
+    }
 
     @Inject
-    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService, Clock clock) {
+    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService,
+                                                     TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
+                                                     UserService userService, User user, Clock clock) {
         this();
         this.setTaskService(taskService);
-        this.setDataValidationReportService(dataValidationReportService);
         this.setDataValidationKpiService(dataValidationKpiService);
         this.setClock(clock);
+        this.setUserService(userService);
+        this.setTransactionService(transactionService);
+        this.setThreadPrincipalService(threadPrincipalService);
+        this.user = user;
     }
 
     @Override
@@ -41,18 +57,13 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
         return this.taskService.createMessageHandler(
                 new DataManagementKpiCalculatorHandler(
                         dataValidationKpiService,
-                        dataValidationReportService, clock
-                ));
+                        transactionService, threadPrincipalService, validationService, clock,
+                        getUser()));
     }
 
     @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
-    }
-
-    @Reference
-    public void setDataValidationReportService(DataValidationReportService dataValidationReportService){
-        this.dataValidationReportService = dataValidationReportService;
     }
 
     @Reference
@@ -63,5 +74,32 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
+    public User getUser() {
+        if (user == null) {
+            user = userService.findUser(ValidationServiceImpl.VALIDATION_USER).get();
+        }
+        return user;
     }
 }

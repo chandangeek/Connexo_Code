@@ -63,6 +63,10 @@ class ChannelsContainerValidationList {
         });
     }
 
+    boolean isActive() {
+        return channelsContainerValidations.stream().anyMatch(ChannelsContainerValidation::isActive);
+    }
+
     void updateLastChecked(Channel channel, Instant date) {
         channelValidationsFor(channel).updateLastChecked(date);
     }
@@ -94,7 +98,7 @@ class ChannelsContainerValidationList {
     }
 
     boolean isAllDataValidated() {
-        return channelsContainerValidations.stream().allMatch(ChannelsContainerValidation::isAllDataValidated);
+        return !channelsContainerValidations.isEmpty() && channelsContainerValidations.stream().allMatch(ChannelsContainerValidation::isAllDataValidated);
     }
 
     ChannelValidationContainer channelValidationsFor(Channel channel) {

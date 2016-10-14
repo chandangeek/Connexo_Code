@@ -201,17 +201,13 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
 
     @Override
     public boolean isAllDataValidated() {
-        if (isActive()) {
-            if (lastRun == null && !getChannelsContainer().getChannels().parallelStream().anyMatch(c -> c.hasData())) {
-                return false;
-            }
-            Comparator<? super Instant> comparator = nullsLast(naturalOrder());
-            return channelValidations.stream()
-                    .filter(channelValidation -> channelValidation.getChannel().getLastDateTime() != null)
-                    .noneMatch(c -> c.hasActiveRules() && comparator.compare(c.getLastChecked(), c.getChannel().getLastDateTime()) < 0);
+        if (channelValidations.isEmpty() || (lastRun == null && !getChannelsContainer().getChannels().parallelStream().anyMatch(Channel::hasData))) {
+            return false;
         }
+        Comparator<? super Instant> comparator = nullsLast(naturalOrder());
         return channelValidations.stream()
-                .noneMatch(ChannelValidation::hasActiveRules);
+                .filter(channelValidation -> channelValidation.getChannel().getLastDateTime() != null)
+                .anyMatch(c -> c.hasActiveRules() && comparator.compare(c.getLastChecked(), c.getChannel().getLastDateTime()) >= 0);
     }
 
     @Override
