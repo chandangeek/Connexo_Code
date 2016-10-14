@@ -24,15 +24,15 @@ public class DeviceValidationKpiResultsImpl implements DeviceValidationKpiResult
 
     static DeviceValidationKpiResultsImpl from(ResultSet resultSet) throws SQLException {
         return new DeviceValidationKpiResultsImpl(
+                resultSet.getLong(6),
                 resultSet.getLong(7),
                 resultSet.getLong(8),
-                resultSet.getLong(9),
-                resultSet.getInt(10),
-                Instant.ofEpochMilli(resultSet.getLong(6)),
+                resultSet.getInt(9),
+                Instant.ofEpochMilli(resultSet.getLong(5)),
+                resultSet.getLong(10),
                 resultSet.getLong(11),
                 resultSet.getLong(12),
-                resultSet.getLong(13),
-                resultSet.getLong(14));
+                resultSet.getLong(13));
     }
 
     // For testing purposes
@@ -44,10 +44,10 @@ public class DeviceValidationKpiResultsImpl implements DeviceValidationKpiResult
         this.registerSuspects = registerSuspects;
         this.allDataValidated = allDataValidated == 1;
         this.lastSuspect = lastSuspect;
-        this.thresholdValidator = thresholdValidator == 1;
-        this.missingValuesValidator = missingValuesValidator == 1;
-        this.readingQualitiesValidator = readingQualitiesValidator == 1;
-        this.registerIncreaseValidator = registerIncreaseValidator == 1;
+        this.thresholdValidator = thresholdValidator >= 1;
+        this.missingValuesValidator = missingValuesValidator >= 1;
+        this.readingQualitiesValidator = readingQualitiesValidator >= 1;
+        this.registerIncreaseValidator = registerIncreaseValidator >= 1;
     }
 
     @Override
