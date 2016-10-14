@@ -27,6 +27,6 @@ Ext.define('Uni.grid.column.Duration', {
             return Uni.util.String.formatDuration(parseInt(value, 10), me.shortFormat);
         }
 
-        return Ext.String.htmlEncode(value);
+        return Ext.String.htmlEncode(value) || '-';
     }
 });
