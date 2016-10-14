@@ -5,14 +5,18 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -24,11 +28,15 @@ class UpgraderV10_2 implements Upgrader {
 
     private final DataModel dataModel;
     private final InstallerV10_2Impl installerV10_2;
+    private final DeviceService deviceService;
+    private final UserService userService;
 
     @Inject
-    UpgraderV10_2(DataModel dataModel, InstallerV10_2Impl installerV10_2) {
+    UpgraderV10_2(DataModel dataModel, InstallerV10_2Impl installerV10_2, DeviceService deviceService, UserService userService) {
         this.dataModel = dataModel;
         this.installerV10_2 = installerV10_2;
+        this.deviceService = deviceService;
+        this.userService = userService;
     }
 
     @Override
@@ -57,6 +65,21 @@ class UpgraderV10_2 implements Upgrader {
         });
         this.upgradeSubscriberSpecs();
         installerV10_2.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_2.class.getName()));
+        this.ensureChannelAreCreated();
+        userService.addModulePrivileges(installerV10_2);
+    }
+
+    private void ensureChannelAreCreated() {
+        deviceService.findAllDevices(Condition.TRUE).stream()
+                .filter(device -> device.getCurrentMeterActivation().isPresent())
+                .filter(device -> device.getCurrentMeterActivation().get().getRange().hasLowerBound())
+                .filter(device -> device instanceof DeviceImpl)
+                .map(DeviceImpl.class::cast)
+                .forEach(device -> {
+                    Instant start = device.getCurrentMeterActivation().get().getRange().lowerEndpoint();
+                    device.getChannels().forEach(channel -> device.findOrCreateKoreChannel(start, channel));
+                    device.getRegisters().forEach(register -> device.findOrCreateKoreChannel(start, register));
+                });
     }
 
     private void execute(Statement statement, String sql) {

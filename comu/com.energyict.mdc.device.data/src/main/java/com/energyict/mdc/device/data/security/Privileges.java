@@ -21,7 +21,7 @@ public enum Privileges implements TranslationKey {
     RESOURCE_DATA_COLLECTION_KPI_DESCRIPTION("dataCollectionKpi.dataCollectionKpis.description", "Manage data collection KPI"),
 
     //Privileges
-    ADD_DEVICE(Constants.ADMINISTRATE_DEVICE, "Administrate"),
+    ADMINISTRATE_DEVICE(Constants.ADMINISTRATE_DEVICE, "Administrate"),
     VIEW_DEVICE(Constants.VIEW_DEVICE, "View"),
     REMOVE_DEVICE(Constants.REMOVE_DEVICE, "Remove"),
     ADMINISTRATE_DEVICE_DATA(Constants.ADMINISTRATE_DEVICE_DATA, "Administrate"),

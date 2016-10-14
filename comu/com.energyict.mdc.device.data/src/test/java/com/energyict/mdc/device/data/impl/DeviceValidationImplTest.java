@@ -113,7 +113,7 @@ public class DeviceValidationImplTest {
         when(validationService.getEvaluator(meter)).thenReturn(validationEvaluator);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
 
-        deviceValidation = new DeviceValidationImpl(validationService, thesaurus, device);
+        deviceValidation = new DeviceValidationImpl(validationService, thesaurus, device, clock);
     }
 
     @After

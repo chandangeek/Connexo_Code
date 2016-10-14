@@ -177,7 +177,6 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(BatchSearchableProperty.class);
         verify(this.dataModel).getInstance(YearOfCertificationSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionMethodSearchableProperty.class);
-        verify(this.dataModel).getInstance(ServiceCategorySearchableProperty.class);
         verify(this.dataModel).getInstance(UsagePointSearchableProperty.class);
         verify(this.dataModel).getInstance(SharedScheduleSearchableProperty.class);
         verify(this.dataModel).getInstance(MasterDeviceSearchableProperty.class);

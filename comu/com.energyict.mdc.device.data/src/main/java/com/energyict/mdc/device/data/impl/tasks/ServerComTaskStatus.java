@@ -268,6 +268,33 @@ public enum ServerComTaskStatus {
             sqlBuilder.addLong(this.asSeconds(now));
             sqlBuilder.append("))");
         }
+    },
+
+    /**
+     * Purely technical state which serves as an indication that there is some inconsitent state in a particular communication task
+     */
+    ProcessingError {
+        @Override
+        public TaskStatus getPublicStatus() {
+            return TaskStatus.ProcessingError;
+        }
+
+        @Override
+        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
+            return false;
+        }
+
+        @Override
+        public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append("1 = 0");
+        }
+
+        @Override
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
+            super.completeFindBySqlBuilder(sqlBuilder, now);
+            this.completeCountSqlBuilder(sqlBuilder, now);
+        }
     };
 
     protected long asSeconds(Instant date) {

@@ -45,6 +45,15 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     private Instant now;
     private final Thesaurus thesaurus;
 
+    private final TimeDuration YEAR = new TimeDuration(1, TimeDuration.TimeUnit.YEARS);
+    private final TimeDuration MONTH = new TimeDuration(1, TimeDuration.TimeUnit.MONTHS);
+    private final TimeDuration WEEK = new TimeDuration(1, TimeDuration.TimeUnit.WEEKS);
+    private final TimeDuration DAY = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+    private final TimeDuration HOUR = new TimeDuration(1, TimeDuration.TimeUnit.HOURS);
+    private final TimeDuration MINUTE = new TimeDuration(1, TimeDuration.TimeUnit.MINUTES);
+    private final TimeDuration SECOND = new TimeDuration(1, TimeDuration.TimeUnit.SECONDS);
+    private final TimeDuration MILLI = new TimeDuration(1, TimeDuration.TimeUnit.MILLISECONDS);
+
     protected AbstractSearchableDeviceProperty(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
@@ -121,6 +130,66 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     private void visitBetweenComparisonWithTimeDuration(TimeDuration from, TimeDuration to) {
         //SUBSTR(column, instr(column, ':') + 1) = {unit} AND SUBSTR(column, 1, instr(column, ':') - 1) BETWEEN {from} AND {to}
+        String prefix = "";
+        if(to.compareTo(YEAR) == 1){
+            addTimeDurationSearchExpansion(TimeDuration.TimeUnit.YEARS.getCode(), getYears(from), getYears(to), prefix);
+            prefix = " OR ";
+        }
+        if(to.compareTo(MONTH) == 1){
+            addTimeDurationSearchExpansion(TimeDuration.TimeUnit.MONTHS.getCode(), getMonths(from), getMonths(to), prefix);
+            prefix = " OR ";
+        }
+        if(to.compareTo(WEEK) == 1){
+            addTimeDurationSearchExpansion(TimeDuration.TimeUnit.WEEKS.getCode(), getWeeks(from), getWeeks(to), prefix);
+            prefix = " OR ";
+        }
+        if(to.compareTo(DAY) == 1){
+            addTimeDurationSearchExpansion(TimeDuration.TimeUnit.DAYS.getCode(), getDays(from), getDays(to), prefix);
+            prefix = " OR ";
+        }
+        if(to.compareTo(HOUR) == 1){
+            addTimeDurationSearchExpansion(TimeDuration.TimeUnit.HOURS.getCode(), getHours(from), getHours(to), prefix);
+            prefix = " OR ";
+        }
+        if(to.compareTo(MINUTE) == 1){
+            addTimeDurationSearchExpansion(TimeDuration.TimeUnit.MINUTES.getCode(), getMinutes(from), getMinutes(to), prefix);
+            prefix = " OR ";
+        }
+        if(to.compareTo(SECOND) == 1){
+            addTimeDurationSearchExpansion(TimeDuration.TimeUnit.SECONDS.getCode(), from.getSeconds(), to.getSeconds(), prefix);
+            prefix = " OR ";
+        }
+        if(to.getMilliSeconds() > MILLI.getMilliSeconds()){
+            addTimeDurationSearchExpansion(TimeDuration.TimeUnit.MILLISECONDS.getCode(), from.getMilliSeconds(), to.getMilliSeconds(), prefix);
+        }
+    }
+
+    private int getMinutes(TimeDuration timeDuration) {
+        return timeDuration.getSeconds()/60;
+    }
+
+    private int getHours(TimeDuration timeDuration) {
+        return timeDuration.getSeconds()/(60*60);
+    }
+
+    private int getDays(TimeDuration timeDuration) {
+        return timeDuration.getSeconds()/(60*60*24);
+    }
+
+    private int getWeeks(TimeDuration timeDuration) {
+        return timeDuration.getSeconds()/(60*60*24*7);
+    }
+
+    private int getMonths(TimeDuration timeDuration) {
+        return timeDuration.getSeconds()/(60*60*24*31);
+    }
+
+    private int getYears(TimeDuration timeDuration) {
+        return timeDuration.getSeconds()/(60*60*24*31*12);
+    }
+
+    private void addTimeDurationSearchExpansion(int timeUnitCode, long fromValue, long toValue, String prefix) {
+        this.underConstruction.append(prefix);
         this.underConstruction.append("substr(");
         this.underConstruction.append(columnName);
         this.underConstruction.append(", instr(");
@@ -128,7 +197,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         this.underConstruction.append(", '");
         this.underConstruction.append(TimeDurationValueFactory.VALUE_UNIT_SEPARATOR);
         this.underConstruction.append("') + 1 ) = ");
-        this.underConstruction.addInt(from.getTimeUnitCode());
+        this.underConstruction.addInt(timeUnitCode);
         this.underConstruction.append(" AND ");
         this.underConstruction.append("substr(");
         this.underConstruction.append(columnName);
@@ -137,9 +206,9 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         this.underConstruction.append(", '");
         this.underConstruction.append(TimeDurationValueFactory.VALUE_UNIT_SEPARATOR);
         this.underConstruction.append("') - 1) between ");
-        this.underConstruction.addInt(from.getCount());
+        this.underConstruction.addLong(fromValue);
         this.underConstruction.append(" AND ");
-        this.underConstruction.addInt(to.getCount());
+        this.underConstruction.addLong(toValue);
     }
 
     @Override

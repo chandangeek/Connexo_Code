@@ -103,7 +103,7 @@ class ConnectionTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor {
         sqlBuilder.append("              THEN '");
         sqlBuilder.append(ServerComTaskStatus.Waiting.name());
         sqlBuilder.append("'");
-        sqlBuilder.append("              ELSE 'Unknown'");
+        sqlBuilder.append("              ELSE '" + ServerComTaskStatus.ProcessingError.name() + "'");
         sqlBuilder.append("          END taskStatus");
         sqlBuilder.append("    FROM DDC_CONNECTIONTASK ct");
         sqlBuilder.append("         JOIN DDC_DEVICE DEV on ct.device = dev.id");
