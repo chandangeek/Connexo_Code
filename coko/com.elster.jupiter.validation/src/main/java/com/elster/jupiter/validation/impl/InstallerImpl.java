@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -126,11 +127,13 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
         List<String> sql = new ArrayList<>();
         sql.add("create or replace function utc2date(utcms number, tz varchar2) return timestamp with time zone deterministic is begin return from_tz(cast(date'1970-1-1' + (utcms/86400000) as timestamp),'UTC') at time zone tz; end;");
 
-        dataModel.useConnectionRequiringTransaction(connection -> {
-            try (Statement statement = connection.createStatement()) {
-                sql.forEach(sqlCommand -> execute(statement, sqlCommand));
-            }
-        });
+        if (!SqlDialect.H2.equals(dataModel.getSqlDialect())) {
+            dataModel.useConnectionRequiringTransaction(connection -> {
+                try (Statement statement = connection.createStatement()) {
+                    sql.forEach(sqlCommand -> execute(statement, sqlCommand));
+                }
+            });
+        }
     }
 
     private void execute(Statement statement, String sql) {

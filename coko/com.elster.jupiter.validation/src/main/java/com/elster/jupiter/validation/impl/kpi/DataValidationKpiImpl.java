@@ -1,9 +1,7 @@
 package com.elster.jupiter.validation.impl.kpi;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
-import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -34,7 +32,6 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -231,16 +228,12 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     @Override
     public void dropDataValidationKpi() {
-        this.dataModel.remove(this);
         this.dataValidationKpiTask.getOptional().ifPresent(task -> {
             task.suspend();
             task.delete();
         });
         this.childrenKpis.forEach(DataValidationKpiChild::remove);
-    }
-
-    List<DataValidationKpiChild> getDataValidationKpiChildren() {
-        return Collections.unmodifiableList(childrenKpis);
+        this.dataModel.remove(this);
     }
 
     @Override
@@ -272,25 +265,14 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         deviceGroupDeviceIds.stream()
                 .filter(not(commonElements::contains))
                 .forEach(this::createValidationKpiMember);
-        dataValidationKpiChildMap.keySet().stream()
-                .filter(not(commonElements::contains))
-                .forEach(id -> {
-                            List<Kpi> obsoleteKpiList = childrenKpis.stream()
-                                    .map(DataValidationKpiChild::getChildKpi)
-                                    .map(Kpi::getMembers)
-                                    .flatMap(List::stream)
-                                    .filter(member -> member.getName().endsWith("_" + id))
-                                    .map(KpiMember::getKpi)
-                                    .distinct()
-                                    .collect(Collectors.toList());
-                            obsoleteKpiList.forEach(Kpi::remove);
-                        }
-                );
+        Set<DataValidationKpiChild> obsoleteKpiChildren = dataValidationKpiChildMap.entrySet().stream()
+                .filter(not(entry -> commonElements.contains(entry.getKey())))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toSet());
+        obsoleteKpiChildren.forEach(DataValidationKpiChild::remove);
+        childrenKpis.removeAll(obsoleteKpiChildren);
+        save();
         return deviceIdsInKpiMembers();
-    }
-
-    private String deviceIdAsString(KpiMember member) {
-        return member.getName().substring(member.getName().indexOf("_") + 1);
     }
 
     private Set<Long> intersection(Set<Long> first, Set<Long> second) {

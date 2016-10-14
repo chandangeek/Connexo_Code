@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl.kpi;
 
+import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
@@ -17,7 +18,6 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.IValidationRule;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -32,6 +32,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -87,6 +88,7 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
+        Map<DataValidationKpiMemberTypes, Map<Instant, BigDecimal>> dataMap = new HashMap<>();
         ZonedDateTime calculateDate = start;
         while (!calculateDate.isAfter(end)) {
 
@@ -135,30 +137,33 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                     .mapToLong(LongCounter::getValue)
                     .sum();
 
-            DataValidationKpiChild dataValidationKpiChild = dataValidationKpiChildMap.get(meter.getId());
-
-            ImmutableMap.<DataValidationKpiMemberTypes, Long>builder()
-                    .put(DataValidationKpiMemberTypes.CHANNEL, regular)
-                    .put(DataValidationKpiMemberTypes.REGISTER, registers)
-                    .put(DataValidationKpiMemberTypes.SUSPECT, total)
-                    .put(DataValidationKpiMemberTypes.ALLDATAVALIDATED, 0L)
-                    .put(DataValidationKpiMemberTypes.MISSINGVALUESVALIDATOR, missing)
-                    .put(DataValidationKpiMemberTypes.THRESHOLDVALIDATOR, threshold)
-                    .put(DataValidationKpiMemberTypes.READINGQUALITIESVALIDATOR, readingQualitiesValidator)
-                    .put(DataValidationKpiMemberTypes.REGISTERINCREASEVALIDATOR, registerIncrease)
-                    .build()
-                    .forEach((type, scoreValue) -> {
-                        dataValidationKpiChild.getChildKpi()
-                                .getMembers()
-                                .stream()
-                                .filter(kpiMember -> kpiMember.getName().toUpperCase().startsWith(type.name()))
-                                .findAny()
-                                .get()
-                                .score(calculateInstant, BigDecimal.valueOf(scoreValue));
-                    });
+            dataMap.computeIfAbsent(DataValidationKpiMemberTypes.CHANNEL, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(regular));
+            dataMap.computeIfAbsent(DataValidationKpiMemberTypes.REGISTER, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(registers));
+            dataMap.computeIfAbsent(DataValidationKpiMemberTypes.SUSPECT, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(total));
+            dataMap.computeIfAbsent(DataValidationKpiMemberTypes.ALLDATAVALIDATED, type -> new HashMap<>()).put(calculateInstant, BigDecimal.ZERO);
+            dataMap.computeIfAbsent(DataValidationKpiMemberTypes.CHANNEL, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(regular));
+            dataMap.computeIfAbsent(DataValidationKpiMemberTypes.MISSINGVALUESVALIDATOR, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(missing));
+            dataMap.computeIfAbsent(DataValidationKpiMemberTypes.THRESHOLDVALIDATOR, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(threshold));
+            dataMap.computeIfAbsent(DataValidationKpiMemberTypes.READINGQUALITIESVALIDATOR, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(readingQualitiesValidator));
+            dataMap.computeIfAbsent(DataValidationKpiMemberTypes.REGISTERINCREASEVALIDATOR, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(registerIncrease));
 
             calculateDate = calculateDate.plusDays(1);
         }
+
+        DataValidationKpiChild dataValidationKpiChild = dataValidationKpiChildMap.get(meter.getId());
+        Map<KpiMember, Map<Instant, BigDecimal>> memberScores = new HashMap<>();
+        dataMap.entrySet().forEach(entry -> {
+            KpiMember entryMember = dataValidationKpiChild.getChildKpi()
+                    .getMembers()
+                    .stream()
+                    .filter(kpiMember -> kpiMember.getName().toUpperCase().startsWith(entry.getKey().name()))
+                    .findAny()
+                    .get();
+            memberScores.put(entryMember, entry.getValue());
+        });
+
+        dataValidationKpiChild.getChildKpi().store(memberScores);
+
     }
 
     private Function<Channel, Key> channelToKey(ZonedDateTime calculateDate, SpecialValidatorTypes validatorType) {
