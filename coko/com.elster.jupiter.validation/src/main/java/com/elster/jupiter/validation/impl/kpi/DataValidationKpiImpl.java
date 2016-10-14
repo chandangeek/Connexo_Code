@@ -144,7 +144,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     private DataValidationKpiChildImpl createValidationKpiMember(long endDeviceId) {
-        EndDevice endDevice = meteringService.findEndDevice(endDeviceId).get();
+        EndDevice endDevice = meteringService.findEndDeviceById(endDeviceId).get();
         return createValidationKpiMember(endDevice);
     }
 
