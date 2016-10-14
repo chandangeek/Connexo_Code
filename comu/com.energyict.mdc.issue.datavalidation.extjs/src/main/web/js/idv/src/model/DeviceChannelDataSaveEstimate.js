@@ -7,7 +7,8 @@ Ext.define('Idv.model.DeviceChannelDataSaveEstimate', {
     fields: [
         'estimatorImpl',
         'estimateBulk',
-        'intervals'
+        'intervals',
+        'readingType'
     ],
 
     associations: [

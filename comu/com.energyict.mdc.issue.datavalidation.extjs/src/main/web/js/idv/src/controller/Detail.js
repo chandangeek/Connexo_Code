@@ -118,6 +118,7 @@ Ext.define('Idv.controller.Detail', {
         !me.getReadingEstimationWindow().down('#error-label').isHidden() && me.getReadingEstimationWindow().down('#error-label').hide();
         propertyForm.clearInvalid();
 
+        model.beginEdit();
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
             model.set('estimatorImpl', me.getReadingEstimationWindow().down('#estimator-field').getValue());
@@ -150,6 +151,8 @@ Ext.define('Idv.controller.Detail', {
         }
         model.set('estimateBulk', estimateBulk);
         model.set('intervals', intervalsArray);
+        model.set('readingType', record.get('readingType'));
+        model.endEdit();
         me.saveChannelDataEstimateModel(model, record);
     },
 
