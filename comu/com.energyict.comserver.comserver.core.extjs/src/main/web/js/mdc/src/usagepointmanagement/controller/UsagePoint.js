@@ -118,7 +118,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' added.", record.get('mRID')));
                 }
-                router.getRoute('usagepoints/usagepoint').forward({usagePointId: record.get('mRID')});
+                router.getRoute('usagepoints/usagepoint').forward({usagePointId: encodeURIComponent(record.get('mRID'))});
             },
             failure: function (record, operation) {
                 if (operation.response.status == 400) {
