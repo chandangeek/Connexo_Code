@@ -137,7 +137,7 @@ public class IssueResourceHelper {
                     .ifPresent(filter::setIssueReason);
         }
         if (jsonFilter.hasProperty(IssueRestModuleConst.METER)) {
-            meteringService.findEndDeviceByMRID(jsonFilter.getString(IssueRestModuleConst.METER))
+            meteringService.findEndDeviceByName(jsonFilter.getString(IssueRestModuleConst.METER))
                     .ifPresent(filter::addDevice);
         }
         getAssignees(jsonFilter).forEach(as -> {
