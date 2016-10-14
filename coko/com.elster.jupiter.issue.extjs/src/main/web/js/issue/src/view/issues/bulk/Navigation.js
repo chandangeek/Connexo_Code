@@ -5,6 +5,8 @@ Ext.define('Isu.view.issues.bulk.Navigation', {
     width: 200,
     jumpForward: false,
     jumpBack: false,
+    ui: 'medium',
+    title: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
     items: [
         {
             itemId: 'SelectIssues',

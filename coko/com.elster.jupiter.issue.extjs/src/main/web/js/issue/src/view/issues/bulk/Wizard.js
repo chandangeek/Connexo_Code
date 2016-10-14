@@ -16,9 +16,9 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
     listeners: {
         render: function () {
             if (this.includeSubTitle) {
-                this.setTitle('<b>' + this.titlePrefix + ' - </b>' + Uni.I18n.translate('issue.steps', 'ISU', ' Step {0} of ', 1) + this.items.length + ': ' + this.getActiveItem().title);
+                this.setTitle(Uni.I18n.translate('issue.title.steps', 'ISU', 'Step {0}', 1) + ': ' + this.getActiveItem().title);
             } else {
-                this.setTitle('<b>' + this.titlePrefix + ' - </b>' + Uni.I18n.translate('issue.steps', 'ISU', ' Step {0} of ', 1) + this.items.length);
+                this.setTitle(Uni.I18n.translate('issue.title.steps', 'ISU', 'Step {0}', 1));
             }
             this.inWizard = true;
             this.setButtonsState(this);
@@ -39,9 +39,9 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
     onWizardPageChangeEvent: function (wizard) {
         if (this.includeSubTitle) {
             wizard.getActiveItem().preventHeader = true;
-            wizard.setTitle('<b>' + wizard.titlePrefix + ' - </b>' + Uni.I18n.translate('issue.steps', 'ISU', ' Step {0} of ', wizard.activeItemId + 1) + this.items.length + ': ' + this.getActiveItem().title);
+            wizard.setTitle(Uni.I18n.translate('issue.title.steps', 'ISU', 'Step {0}', wizard.activeItemId + 1) + ': ' + this.getActiveItem().title);
         } else {
-            wizard.setTitle('<b>' + wizard.titlePrefix + ' - </b>' + Uni.I18n.translate('issue.steps', 'ISU', ' Step {0} of ', wizard.activeItemId + 1) + this.items.length);
+            wizard.setTitle(Uni.I18n.translate('issue.title.steps', 'ISU', 'Step {0}', wizard.activeItemId + 1));
         }
 
         this.setButtonsState(wizard);
