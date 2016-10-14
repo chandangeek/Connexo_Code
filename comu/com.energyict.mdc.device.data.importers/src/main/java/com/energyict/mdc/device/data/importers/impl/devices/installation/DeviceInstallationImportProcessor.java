@@ -50,7 +50,7 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
         List<String> geoCoordinatesData = data.getGeoCoordinates();
         EndDevice endDevice = findEndDeviceByIdentifier(data.getDeviceIdentifier())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
-        if (locationData != null && !locationData.isEmpty()) {
+        if (isLocationPresent(locationData)) {
             LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId(), "Fake").newLocationBuilder();
             Map<String, Integer> ranking = super.getContext()
                     .getMeteringService()
@@ -220,5 +220,9 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
                 .isDaultLocation(true)
                 .setLocale(data.getLocation().get(ranking.get("locale")) != null ? data.getLocation().get(ranking.get("locale")) : "en");
         return builder;
+    }
+
+    private boolean isLocationPresent(List<String> locationData){
+        return locationData != null && !locationData.isEmpty() && !locationData.stream().allMatch(location -> location == null);
     }
 }
