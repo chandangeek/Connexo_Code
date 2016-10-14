@@ -1293,7 +1293,7 @@ sub perform_upgrade {
             dircopy("$UPGRADE_PATH/temp/partners","$CONNEXO_DIR/partners");
 
             print "Starting upgrade of partners\n";
-            my $upgrade_params = "$JAVA_HOME $UPGRADE_OLD_SERVICE_VERSION $SERVICE_VERSION $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD";
+            my $upgrade_params = "\"$JAVA_HOME\" $UPGRADE_OLD_SERVICE_VERSION $SERVICE_VERSION $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD";
             my $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.pl";
             if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
                 $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.exe";
