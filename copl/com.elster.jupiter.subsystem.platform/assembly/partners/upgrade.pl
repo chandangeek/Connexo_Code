@@ -10,6 +10,7 @@ my $UPGRADE_TO="10.2";
 my $UPGRADE_FACTS="yes";
 my $UPGRADE_FLOW="yes";
 
+my $OS="$^O";
 my $JAVA_HOME="";
 my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
@@ -45,7 +46,13 @@ sub upgrade_flow {
     chdir "$SCRIPT_DIR/..";
 
     # For upgrading from 10.1 to 10.2, Flow database needs to be upgraded
-    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE;partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.bpm.install.FlowUpgrader $UPGRADE_TO $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $SCRIPT_DIR/flow/flow-upgrade-10.1-to-10.2.xml upgrade") == 0 or die "Cannot execute Flow upgrade script!";
+    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+        # classpath separator on Windows is ;
+        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE;partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.bpm.install.FlowUpgrader $UPGRADE_TO $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $SCRIPT_DIR/flow/flow-upgrade-10.1-to-10.2.xml upgrade") == 0 or die "Cannot execute Flow upgrade script!";
+    } else {
+        # classpath separator on Linux is :
+        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE:partners/flow/ojdbc6-11.2.0.3.jar\" com.elster.jupiter.bpm.install.FlowUpgrader $UPGRADE_TO $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD $SCRIPT_DIR/flow/flow-upgrade-10.1-to-10.2.xml upgrade") == 0 or die "Cannot execute Flow upgrade script!";
+    }
 }
 
 # Main
