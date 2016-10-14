@@ -37,7 +37,7 @@ Ext.define('Mdc.service.Search', {
             column.renderer = function (value, metaData, record) {
                 // stupid solution to resolve encoding in tooltip
                 metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';
-                return Ext.String.htmlEncode(value);
+                return Ext.String.htmlEncode(value) || '-';
             }
         }
 

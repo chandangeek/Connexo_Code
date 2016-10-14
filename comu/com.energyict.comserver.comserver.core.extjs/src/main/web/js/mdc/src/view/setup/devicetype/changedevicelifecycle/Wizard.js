@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Wizard', {
             {
                 xtype: 'change-device-life-cycle-step1',
                 itemId: 'change-device-life-cycle-step1',
-                title: Ext.String.format(Uni.I18n.translate('deviceLifeCycle.change.stepTitle', 'MDC', 'Change device life cycle - Step {0} of {1}:'), 1, 2)
+                title: Ext.String.format(Uni.I18n.translate('deviceLifeCycle.change.step.title', 'MDC', 'Step {0}:'), 1)
                 + ' ' + Uni.I18n.translate('deviceLifeCycle.select', 'MDC', 'Select device life cycle'),
                 router: me.router
             },
@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Wizard', {
                 xtype: 'change-device-life-cycle-step2',
                 router: me.router,
                 itemId: 'change-device-life-cycle-step2',
-                title: Ext.String.format(Uni.I18n.translate('deviceLifeCycle.change.stepTitle', 'MDC', 'Change device life cycle - Step {0} of {1}:'), 2, 2)
+                title: Ext.String.format(Uni.I18n.translate('deviceLifeCycle.change.step.title', 'MDC', 'Step {0}:'), 2)
                 + ' ' + Uni.I18n.translate('general.status', 'MDC', 'Status')
             }
         ];

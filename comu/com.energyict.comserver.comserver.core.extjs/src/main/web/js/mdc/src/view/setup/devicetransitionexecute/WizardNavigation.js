@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.WizardNavigation', {
     ui: 'medium',
     padding: '0 0 0 0',
     margin: '0 0 0 0',
-
+    title: Uni.I18n.translate('general.transition', 'MDC', 'Transition'),
     items: [
         {
             itemId: 'setProperties',
