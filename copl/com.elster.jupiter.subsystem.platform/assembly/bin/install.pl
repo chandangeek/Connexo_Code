@@ -922,8 +922,7 @@ sub uninstall_tomcat_for_upgrade() {
 		print "Stop and remove ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION service";
 		system("/sbin/service ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION stop");
 		sleep 3;
-		system("userdel -r tomcat");
-        system("/sbin/chkconfig --del ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
+		system("/sbin/chkconfig --del ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
 		unlink("/etc/init.d/ConnexoTomcat$UPGRADE_OLD_SERVICE_VERSION");
 	}
 }
@@ -1198,7 +1197,6 @@ sub perform_upgrade {
 			sleep 3;
 			system("pgrep -u connexo | xargs kill -9");
 			sleep 3;
-			system("userdel -r connexo");
 			system("/sbin/chkconfig --del Connexo$UPGRADE_OLD_SERVICE_VERSION");
 			unlink("/etc/init.d/Connexo$UPGRADE_OLD_SERVICE_VERSION");
 		}
