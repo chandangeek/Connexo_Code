@@ -86,8 +86,7 @@ public class RegisterResource {
         List<Long> groups;
         List<ReadingType> filteredReadingTypes = new ArrayList<>();
         if (jsonQueryFilter.hasProperty("group")) {
-            groups = jsonQueryFilter.getStringList("group").stream()
-                    .map(Long::parseLong)
+            groups = jsonQueryFilter.getLongList("group").stream()
                     .collect(Collectors.toList());
             final List<Long> finalGroups = groups;
             List<ReadingType> allowedReadingTypes = masterDataService.findAllRegisterGroups().find().stream()
@@ -157,6 +156,22 @@ public class RegisterResource {
                 .collect(Collectors.toList());
 
         return Response.ok(filteredRegisterGroups).build();
+    }
+
+
+    @GET
+    @Transactional
+    @Path("/registersforgroups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public Response getRegistersForGroups(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
+        List<IdWithNameInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
+                .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
+                .map(register -> new IdWithNameInfo(register.getRegisterSpecId(), register.getReadingType().getFullAliasName()))
+                .collect(Collectors.toList());
+        return Response.ok(registerInfos).build();
     }
 
     private boolean registerGroupContainsAtLeastOneReadingType(List<RegisterType> registerTypes, List<Register> registers) {
