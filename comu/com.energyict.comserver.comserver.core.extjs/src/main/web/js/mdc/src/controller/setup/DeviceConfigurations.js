@@ -666,6 +666,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         }
 
         if (record) {
+            me.hideErrorPanel();
             record.set(values);
             if (!record.get('canBeGateway')) {
                 record.set('gatewayType', 'NONE')
@@ -683,6 +684,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     editForm.setLoading(false);
                 },
                 failure: function (record, operation) {
+                    me.showErrorPanel();
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getDeviceConfigurationEditForm().getForm().markInvalid(json.errors);
@@ -691,6 +693,14 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 }
             });
         }
+    },
+
+    showErrorPanel: function() {
+        this.getDeviceConfigurationEdit().down('#mdc-device-config-form-errors').show();
+    },
+
+    hideErrorPanel: function() {
+        this.getDeviceConfigurationEdit().down('#mdc-device-config-form-errors').hide();
     },
 
     showDeviceConfigurationLogbooksView: function (deviceTypeId, deviceConfigurationId) {
