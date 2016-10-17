@@ -36,7 +36,7 @@ Ext.define('Isu.view.issues.CommentsList', {
                 '{[xindex > 1 ? "<hr>" : ""]}',
                 '<p><span class="isu-icon-USER"></span><b>{author.name}</b> ' + Uni.I18n.translate('general.addedcomment.lowercase','ISU','added a comment') + ' - {[values.creationDate ? this.formatCreationDate(values.creationDate) : ""]}</p>',
                 '<p><tpl for="splittedComments">',
-                '{.}</br>',
+                '{.:htmlEncode}</br>',
                 '</tpl></p>',
                 '</tpl>',
                 {
