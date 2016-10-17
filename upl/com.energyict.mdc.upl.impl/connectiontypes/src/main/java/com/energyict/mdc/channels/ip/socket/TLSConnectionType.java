@@ -119,8 +119,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             SSLSocketFactory socketFactory = sslContext.getSocketFactory();
 
             SSLSocket socket = (SSLSocket) socketFactory.createSocket();
-            socket.setNeedClientAuth(true);
-            socket.setWantClientAuth(true);
             handlePreferredCipherSuites(socket);
             socket.connect(new InetSocketAddress(host, port), timeOut);
 
@@ -207,13 +205,9 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
          * @throws CertificateException if the certificate chain is not trusted by this TrustManager.
          */
         public void checkClientTrusted(X509Certificate[] chain, String authType)
-                throws CertificateException, IllegalArgumentException {
-            try {
-                x509TrustManager.checkClientTrusted(chain, authType);
-            } catch (CertificateException e) {
-                String pattern = Environment.getDefault().getTranslation("clientNotTrusted", "Based on provided certificate chain and authentication type, the client cannot be trusted.");
-                throw new CertificateException(pattern, e);
-            }
+                throws UnsupportedOperationException {
+            String pattern = Environment.getDefault().getTranslation("notSupportedOnClient", "Method not supported on client side");
+            throw new UnsupportedOperationException(pattern);
         }
 
         /**
@@ -301,7 +295,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
          */
         @Override
         public String[] getServerAliases(String keyType, Principal[] issuers) {
-            return x509KeyManager.getServerAliases(keyType, issuers);
+            String pattern = Environment.getDefault().getTranslation("notSupportedOnClient", "Method not supported on client side");
+            throw new UnsupportedOperationException(pattern);
         }
 
         /**
@@ -313,7 +308,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
          */
         @Override
         public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
-            return x509KeyManager.chooseServerAlias(keyType, issuers, socket);
+            String pattern = Environment.getDefault().getTranslation("notSupportedOnClient", "Method not supported on client side");
+            throw new UnsupportedOperationException(pattern);
         }
 
         /**
@@ -409,7 +405,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date: Fri Oct 7 13:23:09 2016 +0300 $";
+        return "$Date: 2016-10-17 15:37:07 +0300 (Mon, 17 Oct 2016)$";
     }
 
 }
