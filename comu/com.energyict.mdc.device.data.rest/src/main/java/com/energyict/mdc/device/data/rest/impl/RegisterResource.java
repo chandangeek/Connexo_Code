@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cps.ValuesRangeConflictType;
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -14,13 +13,12 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.configuration.rest.impl.RegisterGroupInfoFactory;
-import com.energyict.mdc.device.configuration.rest.impl.RegisterGroupResource;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 
@@ -75,11 +73,37 @@ public class RegisterResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getRegisters(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getRegisters(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
         List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
+                .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
                 .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r), topologyService)).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", registerInfos, queryParameters);
+    }
+
+    private List<ReadingType> getElegibleReadingTypes(@BeanParam JsonQueryFilter jsonQueryFilter, Device device) {
+        List<Long> groups;
+        List<ReadingType> filteredReadingTypes = new ArrayList<>();
+        if (jsonQueryFilter.hasProperty("group")) {
+            groups = jsonQueryFilter.getStringList("group").stream()
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+            final List<Long> finalGroups = groups;
+            List<ReadingType> allowedReadingTypes = masterDataService.findAllRegisterGroups().find().stream()
+                    .filter(registerGroup -> finalGroups.contains(registerGroup.getId()))
+                    .flatMap(registerGroup -> registerGroup.getRegisterTypes().stream())
+                    .map(MeasurementType::getReadingType)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            filteredReadingTypes = device.getRegisters()
+                    .stream()
+                    .map(Register::getReadingType)
+                    .filter(allowedReadingTypes::contains)
+                    .collect(Collectors.toList());
+        }
+        return filteredReadingTypes;
     }
 
     private int compareRegisters(Register r1, Register r2) {
