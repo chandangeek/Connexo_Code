@@ -117,7 +117,7 @@ public interface EndDevice extends IdentifiedObject, HasId {
     /**
      * The Instant in time when this EndDevice was made obsolete.
      *
-     * @return The instant in time or <code>Optional.empty()</code> if this EndDevice is not obsolete
+     * @return The instant in time or {@code Optional.empty()} if this EndDevice is not obsolete
      */
     Optional<Instant> getObsoleteTime();
 }
