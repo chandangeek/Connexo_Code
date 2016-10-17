@@ -83,10 +83,17 @@ public class RegisterResource {
     }
 
     private List<ReadingType> getElegibleReadingTypes(@BeanParam JsonQueryFilter jsonQueryFilter, Device device) {
-        List<Long> groups;
         List<ReadingType> filteredReadingTypes = new ArrayList<>();
-        if (jsonQueryFilter.hasProperty("group")) {
-            groups = jsonQueryFilter.getLongList("group").stream()
+        if(jsonQueryFilter.hasProperty("registers")) {
+            List<Long> registerTypes = jsonQueryFilter.getLongList("registers").stream()
+                    .collect(Collectors.toList());
+            filteredReadingTypes = device.getRegisters()
+                    .stream()
+                    .filter(register -> registerTypes.contains(register.getRegisterSpecId()))
+                    .map(Register::getReadingType)
+                    .collect(Collectors.toList());
+        } else if (jsonQueryFilter.hasProperty("group")) {
+            List<Long> groups = jsonQueryFilter.getLongList("group").stream()
                     .collect(Collectors.toList());
             final List<Long> finalGroups = groups;
             List<ReadingType> allowedReadingTypes = masterDataService.findAllRegisterGroups().find().stream()
