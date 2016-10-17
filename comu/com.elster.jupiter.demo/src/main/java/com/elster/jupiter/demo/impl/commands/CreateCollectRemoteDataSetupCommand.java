@@ -4,7 +4,6 @@ import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
-import com.elster.jupiter.demo.impl.builders.DeviceTypeBuilder;
 import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
@@ -254,11 +253,7 @@ public class CreateCollectRemoteDataSetupCommand {
     }
 
     private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl) {
-        DeviceTypeBuilder deviceTypeBuilder = Builders.from(deviceTypeTpl);
-        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
-            deviceTypeBuilder.withPostBuilder(this.attachDeviceTypeCPSPostBuilderProvider.get());
-        }
-        DeviceType deviceType = deviceTypeBuilder.get();
+        DeviceType deviceType = Builders.from(deviceTypeTpl).withPostBuilder(this.attachDeviceTypeCPSPostBuilderProvider.get()).get();
         int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : this.devicesPerType);
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
             int validationStrictDeviceCount = this.devicesPerType == null ? VALIDATION_STRICT_DEVICE_COUNT : this.devicesPerType / 3; // 3 device conf on this type
