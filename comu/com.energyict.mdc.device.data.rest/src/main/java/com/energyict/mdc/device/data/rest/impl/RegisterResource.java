@@ -126,7 +126,7 @@ public class RegisterResource {
     public Response getRegisterGroups(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<Register> registers = device.getRegisters();
-        Finder<RegisterGroup> allRegisterGroups = masterDataService.findAllRegisterGroups().find();
+        List<RegisterGroup> allRegisterGroups = masterDataService.findAllRegisterGroups().find();
         List<IdWithNameInfo> filteredRegisterGroups = allRegisterGroups.stream()
                 .filter(registerGroup -> registerGroupContainsAtLeastOneReadingType(registerGroup.getRegisterTypes(), registers))
                 .map(registerGroup -> new IdWithNameInfo(registerGroup.getId(), registerGroup.getName()))
