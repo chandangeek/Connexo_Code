@@ -307,9 +307,9 @@ final class DataValidationTaskImpl implements DataValidationTask {
     private void persistRecurrentTask() {
         //TODO: 10.3 -> make this dynamic
         String applicationName;
-        if(qualityCodeSystem.equals(QualityCodeSystem.MDC)) {
+        if (QualityCodeSystem.MDC.equals(qualityCodeSystem)) {
             applicationName = "MultiSense";
-        } else if (qualityCodeSystem.equals(QualityCodeSystem.MDM)) {
+        } else if (QualityCodeSystem.MDM.equals(qualityCodeSystem)) {
             applicationName = "Insight";
         } else {
             applicationName = "Admin";
