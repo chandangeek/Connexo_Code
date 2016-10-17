@@ -20,7 +20,7 @@ Ext.define('Yfn.view.generatereport.Step2', {
             itemId: 'step2-generatereport-errors',
             xtype: 'uni-form-error-message',
             hidden: true,
-            text: ''
+            maxWidth: 540
         },
         {
             xtype: 'form',
@@ -56,9 +56,7 @@ Ext.define('Yfn.view.generatereport.Step2', {
                             xtype: 'button',
                             tooltip: Uni.I18n.translate('generatereport.wizard.mandatoryFiltersTooltip',
                                 'YFN',
-                                'Reports allow you to look up a lot of data. A mandatory filter is a minimum ' +
-                                'required selection to help narrow down the results, so to avoid performance ' +
-                                'issues when generation the report'),
+                                'Reports allow you to look up a lot of data. A mandatory filter is a minimum required selection to help narrow down the results, so to avoid performance issues when generating the report.'),
                             iconCls: 'uni-icon-info-small',
                             ui: 'blank',
                             shadow: false,

@@ -72,7 +72,10 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         {
             ref: 'generateReportLink',
             selector: 'generatereport-wizard-step3 #wizard-generatereport-link'
-
+        },
+        {
+            ref: 'step2FormErrorMessage',
+            selector: 'generatereport-wizard-step2 #step2-generatereport-errors'
         }
     ],
 
@@ -128,18 +131,17 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     },
 
     nextClick: function () {
-        var me=this, layout = this.getWizard().getLayout(),
+        var me = this,
+            layout = me.getWizard().getLayout(),
             currentCmp = layout.getActiveItem();
 
-        //this.getStep1FormErrorMessage().setVisible(false);
-        //this.getStep1FormNameErrorMessage().setVisible(false);
-
-        if(me.validatePage(currentCmp)){
-            this.getNavigationMenu().moveNextStep();
-            this.changeContent(layout.getNext(), layout.getActiveItem());
+        me.getStep2FormErrorMessage().setVisible(false);
+        if (me.validatePage(currentCmp)) {
+            me.getNavigationMenu().moveNextStep();
+            me.changeContent(layout.getNext(), layout.getActiveItem());
+        } else {
+            me.getStep2FormErrorMessage().setVisible(true);
         }
-
-        //this.getStep2FormErrorMessage().setVisible(false);
     },
 
     confirmClick: function () {
@@ -147,11 +149,9 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     },
 
     finishClick: function () {
-        var me = this;
-        var link = me.getGenerateReportLink();
-        //me.generateReportWizardWidget.setLoading(Uni.I18n.translate('generatereport.preparingReport', 'YFN', 'Preparing report. Please wait ...'));
-
-        var href = '#/reports/view?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues))+
+        var me = this,
+            link = me.getGenerateReportLink(),
+            href = '#/reports/view?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues))+
             '&params='+encodeURIComponent(me.getController('Uni.controller.history.Router').queryParams.params) +
             '&search='+(me.getController('Uni.controller.history.Router').queryParams.search ? true:false);
         link.getEl().dom.href = href;
@@ -199,16 +199,21 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     },
 
     validatePage : function(page){
-        var me = this;
-        var step1 = me.getStep1();
-        var step1Form = step1.down('form').getForm();
-        var step1Values = step1Form.getFieldValues();
-        if( !step1Values.reportUUID || step1Values.reportUUID.length == 0) {
-            step1.down('#step1-generatereport-errors').setVisible(true);
+        var me = this,
+            step1 = me.getStep1(),
+            step1Form = step1.down('form').getForm(),
+            step1Values = step1Form.getFieldValues(),
+            errorPanel = step1.down('#step1-generatereport-errors'),
+            errorMessage = step1.down('#step1-generatereport-error-msg');
+
+        if( !step1Values.reportUUID || step1Values.reportUUID.length === 0) {
+            errorPanel.setVisible(true);
+            errorMessage.setVisible(true);
             return false;
         }
-        step1.down('#step1-generatereport-errors').setVisible(false);
-        var form = page.down("form") ;
+        errorPanel.setVisible(false);
+        errorMessage.setVisible(false);
+        var form = page.down("form");
         form = form && form.getForm();
         var customValidation = me.isValid(page);
         return (!form || (form.isValid() && customValidation));
@@ -242,8 +247,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             delete proxy.extraParams.category;
             delete proxy.extraParams.subCategory;
             proxy.setExtraParam('category', 'MDC');
-            //proxy.setExtraParam('subCategory', 'Device Connections');
-            me.getWizard().setLoading(true);//Uni.I18n.translate('generatereport.loadingReports', 'YFN', 'Loading reports. Please wait ...'));
+            me.getWizard().setLoading(true);
             me.reportsStore.load(function (records) {
                 var allReports = {};
                 Ext.each(records, function (record) {
@@ -279,8 +283,6 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     }
                 });
 
-                //Ext.suspendLayouts();
-
                 for (var key in allReports) {
                     if (allReports.hasOwnProperty(key)) {
                         var reportGroup = allReports[key];
@@ -288,7 +290,6 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     }
                 }
                 me.getWizard().setLoading(false);
-                //Ext.resumeLayouts(true);
             });
         }
 

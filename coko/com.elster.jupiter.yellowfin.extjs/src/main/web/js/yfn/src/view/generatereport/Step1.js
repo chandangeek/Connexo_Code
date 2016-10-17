@@ -17,13 +17,23 @@ Ext.define('Yfn.view.generatereport.Step1', {
         {
             itemId: 'step1-generatereport-errors',
             xtype: 'uni-form-error-message',
-            hidden: true,
-            text: Uni.I18n.translate('generatereport.noReportPrompts', 'YFN', 'Please select at least one report.')
+            hidden: true
         },
         {
             xtype: 'form',
             layout: 'column',
             itemId: 'step1-form'
+        },
+        {
+            xtype: 'component',
+            itemId: 'step1-generatereport-error-msg',
+            hidden: true,
+            html: Uni.I18n.translate('generatereport.noReportPrompts', 'YFN', 'Please select at least one report type.'),
+            style: {
+                'font': '13px/17px Lato',
+                'color': '#eb5642',
+                'margin-top': '20px'
+            }
         }
     ],
 
