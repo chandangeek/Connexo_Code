@@ -159,7 +159,7 @@ public class AverageWithSamplesEstimatorTest {
         doReturn("deltaReadingType").when(deltaReadingType).getMRID();
         doReturn("bulkReadingType").when(bulkReadingType).getMRID();
         doReturn("advanceReadingType").when(advanceReadingType).getMRID();
-        doReturn("meter").when(meter).getMRID();
+        doReturn("meter").when(meter).getName();
 
         doReturn(true).when(readingType).isRegular();
         doReturn(true).when(deltaReadingType).isRegular();
