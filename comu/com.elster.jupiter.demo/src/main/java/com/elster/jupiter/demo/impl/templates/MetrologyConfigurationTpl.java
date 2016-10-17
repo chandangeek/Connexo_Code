@@ -8,11 +8,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum MetrologyConfigurationTpl implements Template<UsagePointMetrologyConfiguration, MetrologyConfigurationBuilder> {
-    CONSUMER("Consumer", "Configuration with consumer devices", ServiceKind.ELECTRICITY,
+    CONSUMER("C&I 3-phased consumer with smart meter with 2 ToU", "C&I 3-phased consumer with smart meter 2 ToU", ServiceKind.ELECTRICITY,
             Arrays.<String>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS.getMrid(),
                     RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1.getMrid(),
                     RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2.getMrid())),
-    PROSUMER("Prosumer", "Configuration with prosumer devices", ServiceKind.ELECTRICITY,
+    PROSUMER("Residential prosumer with 1 meter", "Typical installation for residential prosumers with smart meter", ServiceKind.ELECTRICITY,
             Arrays.<String>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS.getMrid(),
                     RegisterTypeTpl.SECONDARY_BULK_A_MINUS.getMrid(),
                     RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1.getMrid(),
