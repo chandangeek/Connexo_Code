@@ -129,9 +129,6 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private List<HasIdAndName> getAllDefaultConfigurations() {
         List<HasIdAndName> listValue = new ArrayList<>();
         for (DeviceType type : this.deviceConfigurationService.findAllDeviceTypes().find()) {
-            if (type.getName().equals("Landis+Gyr ZMD")) {
-                continue;
-            }
             for (DeviceConfiguration configuration : type.getConfigurations()) {
                 if (configuration.getName().equals(DeviceConfigurationTpl.PROSUMERS.getName()) ||
                         configuration.getName().equals(DeviceConfigurationTpl.CONSUMERS.getName()) ||
