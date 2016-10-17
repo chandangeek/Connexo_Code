@@ -439,7 +439,7 @@ public class DemoTest {
         assertThat(gatewayOptional.isPresent()).isTrue();
         Device gateway = gatewayOptional.get();
         DeviceType deviceType = gateway.getDeviceType();
-        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.RTU_Plus_G3.getLongName());
+        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.RTU_Plus_G3.getName());
         assertThat(deviceType.getLoadProfileTypes()).isEmpty();
         assertThat(deviceType.getRegisterTypes()).isEmpty();
         assertThat(deviceType.getLogBookTypes()).isEmpty();
@@ -509,7 +509,7 @@ public class DemoTest {
         assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
 
         DeviceType deviceType = device.getDeviceType();
-        assertThat(deviceType.getName()).isEqualTo("Demo board AS3000".equals(mridDevice) ? DeviceTypeTpl.AS3000.getLongName() : DeviceTypeTpl.AS220.getLongName());
+        assertThat(deviceType.getName()).isEqualTo("Demo board AS3000".equals(mridDevice) ? DeviceTypeTpl.AS3000.getName() : DeviceTypeTpl.AS220.getName());
         List<LoadProfileType> loadProfileTypes = deviceType.getLoadProfileTypes();
         assertThat(loadProfileTypes).hasSize(3);
         for (LoadProfileType loadProfileType : loadProfileTypes) {

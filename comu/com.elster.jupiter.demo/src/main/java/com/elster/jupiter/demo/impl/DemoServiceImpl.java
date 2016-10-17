@@ -15,6 +15,7 @@ import com.elster.jupiter.demo.impl.commands.CreateDemoUserCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
 import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
+import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
@@ -110,6 +111,7 @@ import java.time.Clock;
         "osgi.command.function=createDefaultDeviceLifeCycle",
         "osgi.command.function=setUpFirmwareManagement",
         "osgi.command.function=createImporters",
+        "osgi.command.function=createImportDirectories",
         "osgi.command.function=createDemoUser",
         "osgi.command.function=createDataLogger",
         "osgi.command.function=importCalendar",
@@ -157,6 +159,7 @@ public class DemoServiceImpl {
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile CalendarService calendarService;
+    private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -205,7 +208,8 @@ public class DemoServiceImpl {
             MetrologyConfigurationService metrologyConfigurationService,
             CustomPropertySetService customPropertySetService,
             DeviceMessageSpecificationService deviceMessageSpecificationService,
-            CalendarService calendarService) {
+            CalendarService calendarService,
+            com.elster.jupiter.tasks.TaskService platformTaskService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -247,6 +251,7 @@ public class DemoServiceImpl {
         setCustomPropertySetService(customPropertySetService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setCalendarService(calendarService);
+        setPlatformTaskService(platformTaskService);
         activate();
         reThrowEx = true;
     }
@@ -300,6 +305,7 @@ public class DemoServiceImpl {
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(CalendarService.class).toInstance(calendarService);
+                bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
             }
         });
         Builders.initWith(this.injector);
@@ -545,6 +551,12 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void setCalendarService(CalendarService calendarService) {
         this.calendarService = calendarService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setPlatformTaskService(com.elster.jupiter.tasks.TaskService platformTaskService) {
+        this.platformTaskService = platformTaskService;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {
@@ -861,6 +873,24 @@ public class DemoServiceImpl {
         executeTransaction(() -> {
             CreateImportersCommand command = injector.getInstance(CreateImportersCommand.class);
             command.setAppServerName(appServerName);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createImportDirectories() {
+        System.err.println("Usage: createImportDirectories [<basePath>, if not specified then the base path from the active appserver will be used]");
+        executeTransaction(() -> {
+            CreateImporterDirectoriesCommand command = injector.getInstance(CreateImporterDirectoriesCommand.class);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createImportDirectories(String basePath) {
+        executeTransaction(() -> {
+            CreateImporterDirectoriesCommand command = injector.getInstance(CreateImporterDirectoriesCommand.class);
+            command.setBaseImportPath(basePath);
             command.run();
         });
     }

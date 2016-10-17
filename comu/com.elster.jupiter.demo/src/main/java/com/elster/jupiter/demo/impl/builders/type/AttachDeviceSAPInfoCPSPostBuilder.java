@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import java.util.function.Consumer;
 
 public class AttachDeviceSAPInfoCPSPostBuilder implements Consumer<DeviceType> {
-    private static final String CPS_ID = "com.energyict.mdc.device.config.cps.DeviceSAPInfoCustomPropertySet";
+    public static final String CPS_ID = "com.energyict.mdc.device.config.cps.DeviceSAPInfoCustomPropertySet";
 
     private final CustomPropertySetService customPropertySetService;
 

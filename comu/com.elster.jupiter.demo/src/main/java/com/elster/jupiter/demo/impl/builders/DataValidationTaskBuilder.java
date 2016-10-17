@@ -8,6 +8,12 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationService;
 
+import com.google.inject.Inject;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 /**
@@ -19,12 +25,16 @@ public class DataValidationTaskBuilder extends NamedBuilder<DataValidationTask, 
 
 
     private final ValidationService validationService;
+    private final Clock clock;
     private EndDeviceGroup deviceGroup;
+    private Instant nextExecution;
     private ScheduleExpression scheduleExpression = PeriodicalScheduleExpression.every(1).days().at(6, 0, 0).build();
 
-    public DataValidationTaskBuilder(ValidationService validationService){
+    @Inject
+    public DataValidationTaskBuilder(ValidationService validationService, Clock clock){
         super(DataValidationTaskBuilder.class);
         this.validationService = validationService;
+        this.clock = clock;
     }
 
     public DataValidationTaskBuilder withEndDeviceGroup(EndDeviceGroup group){
@@ -34,6 +44,13 @@ public class DataValidationTaskBuilder extends NamedBuilder<DataValidationTask, 
 
     public DataValidationTaskBuilder withScheduleExpression(ScheduleExpression scheduleExpression) {
         this.scheduleExpression = scheduleExpression;
+        return this;
+    }
+
+    public DataValidationTaskBuilder withNextExecution(){
+        ZonedDateTime now = ZonedDateTime.ofInstant(clock.instant(), ZoneId.systemDefault());
+        Optional<ZonedDateTime> nextOccurrence = scheduleExpression.nextOccurrence(now);
+        this.nextExecution =  nextOccurrence.map(ZonedDateTime::toInstant).orElse(null);
         return this;
     }
 
@@ -50,6 +67,7 @@ public class DataValidationTaskBuilder extends NamedBuilder<DataValidationTask, 
         taskBuilder.setQualityCodeSystem(QualityCodeSystem.MDC);
         taskBuilder.setEndDeviceGroup(deviceGroup);
         taskBuilder.setScheduleExpression(scheduleExpression);
+        taskBuilder.setNextExecution(nextExecution);
 
         DataValidationTask task = taskBuilder.create();
         applyPostBuilders(task);

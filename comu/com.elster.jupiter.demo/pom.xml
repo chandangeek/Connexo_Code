@@ -245,6 +245,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>calendar</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
+        </dependency>
 
         <!-- TESTS -->
         <dependency>
@@ -314,11 +318,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>tasks</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
             <scope>test</scope>
         </dependency>
@@ -357,5 +356,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class AttachChannelSAPInfoCPSPostBuilder implements Consumer<DeviceType> {
-    private static final String CPS_ID = "com.energyict.mdc.device.config.cps.ChannelSAPInfoCustomPropertySet";
+    public static final String CPS_ID = "com.energyict.mdc.device.config.cps.ChannelSAPInfoCustomPropertySet";
 
     private final CustomPropertySetService customPropertySetService;
     private List<String> loadProfileTypes = Arrays.asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getName(),
